@@ -58,13 +58,13 @@ entity:
       workflowRole: Helps identify whether evidence is a candidate Payment, fee, transfer, interest, or reversal.
       requiredMeaning: Required for reconciliation interpretation.
       valueSemantics:
-        CREDIT: The transaction type of the bank transaction is credit; set it when that is what the business means for this record.
-        DEBIT: The transaction type of the bank transaction is debit; set it when that is what the business means for this record.
-        TRANSFER: The transaction type of the bank transaction is transfer; set it when that is what the business means for this record.
-        FEE: The transaction type of the bank transaction is fee; set it when that is what the business means for this record.
-        INTEREST: The transaction type of the bank transaction is interest; set it when that is what the business means for this record.
-        REVERSAL: The transaction type of the bank transaction is reversal; set it when that is what the business means for this record.
-        OTHER: The transaction type of the bank transaction is other; set it when that is what the business means for this record.
+        CREDIT: Money received into the account.
+        DEBIT: Money paid out of the account.
+        TRANSFER: A movement between the company's own accounts.
+        FEE: A charge the bank took.
+        INTEREST: Interest credited or charged by the bank.
+        REVERSAL: The bank undid an earlier transaction.
+        OTHER: Any other statement entry.
   - name: amount
     type: Money
     required: true
@@ -86,10 +86,10 @@ entity:
       workflowRole: POSTED evidence can normally support reconciliation; REVERSED evidence must trigger corresponding correction handling.
       requiredMeaning: Required for evidence lifecycle control.
       valueSemantics:
-        PENDING: The status of the bank transaction is pending; set it when that is what the business means for this record.
-        POSTED: The status of the bank transaction is posted; set it when that is what the business means for this record.
-        REVERSED: The status of the bank transaction is reversed; set it when that is what the business means for this record.
-        FAILED: The status of the bank transaction is failed; set it when that is what the business means for this record.
+        PENDING: Reported by the bank but not yet booked on the statement.
+        POSTED: On the statement.
+        REVERSED: Undone by the bank.
+        FAILED: Reported but did not complete.
   - name: reference
     type: string
     required: false

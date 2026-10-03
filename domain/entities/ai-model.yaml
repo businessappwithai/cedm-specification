@@ -5,6 +5,7 @@ entity:
   description: A machine-learning or artificial-intelligence model used to produce predictions, classifications, recommendations, generations, or decisions.
   ui:
     icon: brain
+    recordLabel: [code, modelVersion]
   identity:
     key: aiModelId
     type: uuid
@@ -25,17 +26,17 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The code of the model, the same across its versions, such as CS.
+      usage: Used in the model inventory, in predictions and in monitoring.
+      relationshipContext: Unique together with the version.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The name of the model, such as "Consumer credit scoring".
+      usage: Shown in the model inventory.
+      relationshipContext: Identifies the model for people.
   - name: modelType
     type: enum
     required: true
@@ -49,27 +50,18 @@ entity:
     - ANOMALY_DETECTION
     - OTHER
     help:
-      summary: Captures the business meaning of model type for the AIModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: What kind of output the model produces.
+      usage: Decides which evaluation metrics apply.
+      relationshipContext: Read with the purpose.
       valueSemantics:
-        CLASSIFICATION: Represents the classification state or classification in the context of AIModel.
-        REGRESSION: Represents the regression state or classification in the context of AIModel.
-        FORECASTING: Represents the forecasting state or classification in the context of AIModel.
-        RECOMMENDATION: Represents the recommendation state or classification in the context of AIModel.
-        GENERATION: Represents the generation state or classification in the context of AIModel.
-        EMBEDDING: Represents the embedding state or classification in the context of AIModel.
-        ANOMALY_DETECTION: Represents the anomaly detection state or classification in the context of AIModel.
-        OTHER: Represents the other state or classification in the context of AIModel.
-  - name: version
-    type: string
-    required: true
-    maxLength: 50
-    help:
-      summary: Captures the business meaning of version for the AIModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        CLASSIFICATION: Assigns inputs to categories, such as approve or decline.
+        REGRESSION: Predicts a number, such as a price.
+        FORECASTING: Predicts future values of a series, such as demand.
+        RECOMMENDATION: Suggests items, such as products to offer.
+        GENERATION: Produces text, images or other content.
+        EMBEDDING: Turns inputs into vectors for search or similarity.
+        ANOMALY_DETECTION: Flags unusual inputs, such as possible fraud.
+        OTHER: Any other kind of model.
   - name: status
     type: enum
     required: true
@@ -83,25 +75,25 @@ entity:
     - SUSPENDED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the model is in its life.
+      usage: Moved on by the data-science team and the governance board.
+      relationshipContext: Only deployed models may serve predictions.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of AIModel.
-        TRAINING: Represents the training state or classification in the context of AIModel.
-        VALIDATION: Represents the validation state or classification in the context of AIModel.
-        APPROVED: Represents the approved state or classification in the context of AIModel.
-        DEPLOYED: Represents the deployed state or classification in the context of AIModel.
-        SUSPENDED: Represents the suspended state or classification in the context of AIModel.
-        RETIRED: Represents the retired state or classification in the context of AIModel.
+        DRAFT: Being designed.
+        TRAINING: Being trained.
+        VALIDATION: Being evaluated against its acceptance criteria.
+        APPROVED: Approved for deployment by governance.
+        DEPLOYED: Serving predictions.
+        SUSPENDED: Stopped because of a problem; predictions are not used.
+        RETIRED: Replaced or no longer needed.
   - name: purpose
     type: string
     required: false
     maxLength: 4000
     help:
-      summary: Captures the business meaning of purpose for the AIModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: What the model is used for, in business terms.
+      usage: Written when the model is registered; read by reviewers.
+      relationshipContext: Decides the risk level and the applicable policy.
   - name: riskLevel
     type: enum
     required: false
@@ -111,51 +103,59 @@ entity:
     - HIGH
     - CRITICAL
     help:
-      summary: Captures the business meaning of risk level for the AIModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating AIModel records, where applicable.
-      relationshipContext: Its meaning is specific to AIModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: How much harm a wrong or unfair output could do.
+      usage: Decides the depth of evaluation and oversight.
+      relationshipContext: High and critical models need human oversight.
       valueSemantics:
-        LOW: Represents the low state or classification in the context of AIModel.
-        MEDIUM: Represents the medium state or classification in the context of AIModel.
-        HIGH: Represents the high state or classification in the context of AIModel.
-        CRITICAL: Represents the critical state or classification in the context of AIModel.
+        LOW: Little harm possible, such as internal search ranking.
+        MEDIUM: Some harm possible, such as marketing recommendations.
+        HIGH: Significant harm possible, such as credit or hiring decisions.
+        CRITICAL: Severe harm possible, such as safety-related decisions.
+  - name: modelVersion
+    type: string
+    required: true
+    maxLength: 30
+    help:
+      summary: The version of the model, such as 4.2.
+      usage: Increased with each retraining or change; predictions record the version that made them.
+      relationshipContext: Each version is evaluated and approved separately.
   relationships:
   - name: owner
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects AIModel to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a AIModel.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The organization accountable for the model.
+      usage: Set when the model is registered.
+      cardinalityMeaning: At most one.
+      context: Usually the business unit using it.
   - name: evaluations
     target: AIEvaluation
     cardinality: 0..*
     ownership: aggregate
     help:
-      summary: Connects AIModel to AIEvaluation so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about AIEvaluation records associated with a AIModel.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The tests the model has been put through.
+      usage: Recorded by the data-science team.
+      cardinalityMeaning: Any number of evaluations; each tests one model.
+      context: Deployment requires a passed evaluation.
   - name: predictions
     target: AIPrediction
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects AIModel to AIPrediction so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about AIPrediction records associated with a AIModel.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The outputs the model has produced.
+      usage: Recorded by the serving platform.
+      cardinalityMeaning: Any number; each prediction is made by one model.
+      context: The prediction records its model.
   - name: policy
     target: AIPolicy
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects AIModel to AIPolicy so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about AIPolicy records associated with a AIModel.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The AI policy that governs the model.
+      usage: Assigned when the model is registered, from its risk level.
+      cardinalityMeaning: At most one.
+      context: Its requirements decide what evidence approval needs.
   invariants:
   - id: AI-MODEL-001
     rule: a DEPLOYED model must have an APPROVED lifecycle state transition and a valid evaluation record.
@@ -187,10 +187,10 @@ entity:
   help:
     summary: Represents an ai entity called AIModel within the CEDM business model.
     businessMeaning: AIModel is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate AIModel records.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, AIEvaluation, AIPrediction, AIPolicy. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical AIModel record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Data-science teams register each model when development starts, record its evaluations, have it approved under the applicable AI policy and deploy it; operations watches its predictions; risk and compliance review the inventory of models by risk level.
+    lifecycle: Draft while designed, in training, in validation while evaluated, approved by the governance board, deployed for use, suspended if it misbehaves, and retired when replaced. A model reaches deployment only through approval.
+    example: Model CS-v4 'Consumer credit scoring', classification, version 4.2, risk high, governed by policy AIP-02, approved 14 May 2024, deployed 20 May.
 specification:
   version: 0.1.0
   status: draft

@@ -5,6 +5,7 @@ entity:
   description: A powered or unpowered aircraft managed as an operational asset.
   ui:
     icon: database
+    recordLabel: [registrationNumber]
   identity:
     key: aircraftId
     type: uuid
@@ -25,26 +26,26 @@ entity:
     unique: true
     maxLength: 50
     help:
-      summary: Captures the business meaning of registration number for the Aircraft. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The aircraft's registration mark, such as F-HBXA.
+      usage: Painted on the aircraft and used in every flight plan and maintenance record.
+      relationshipContext: Unique; issued by the civil aviation authority.
   - name: aircraftType
     type: string
     required: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of aircraft type for the Aircraft. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The type designation, such as A320-214.
+      usage: Decides maintenance programmes, crew qualifications and seat maps.
+      relationshipContext: Read with the manufacturer.
   - name: serialNumber
     type: string
     required: false
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of serial number for the Aircraft. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The manufacturer's serial number (MSN).
+      usage: Used for airworthiness directives and parts traceability.
+      relationshipContext: Unique per manufacturer.
   - name: status
     type: enum
     required: true
@@ -56,43 +57,90 @@ entity:
     - GROUNDED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the aircraft may fly.
+      usage: Moved on by maintenance control.
+      relationshipContext: Only active aircraft are assigned to flights.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Aircraft.
-        ACTIVE: Represents the active state or classification in the context of Aircraft.
-        MAINTENANCE: Represents the maintenance state or classification in the context of Aircraft.
-        GROUNDED: Represents the grounded state or classification in the context of Aircraft.
-        RETIRED: Represents the retired state or classification in the context of Aircraft.
+        PLANNED: Ordered or being delivered.
+        ACTIVE: Airworthy and in service.
+        MAINTENANCE: In a scheduled check or repair.
+        GROUNDED: Must not fly until a defect or finding is cleared.
+        RETIRED: Left the fleet.
+  - name: manufacturer
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: Who built the aircraft, such as Airbus or Boeing.
+      usage: Used for directives and support contracts.
+      relationshipContext: As on the type certificate.
+  - name: yearOfManufacture
+    type: integer
+    required: false
+    help:
+      summary: The year the aircraft was built.
+      usage: Used in fleet planning and insurance.
+      relationshipContext: Four digits.
+  - name: seatCapacity
+    type: integer
+    required: false
+    help:
+      summary: How many passenger seats the aircraft has in its current layout.
+      usage: Used for scheduling and sales.
+      relationshipContext: Changes with a cabin reconfiguration.
+  - name: maxTakeoffWeightKg
+    type: decimal
+    required: false
+    precision: 10
+    scale: 1
+    help:
+      summary: The maximum take-off weight, in kilograms.
+      usage: Used for performance and landing-fee calculations.
+      relationshipContext: From the certificate.
+  - name: totalFlightHours
+    type: decimal
+    required: false
+    precision: 12
+    scale: 1
+    help:
+      summary: The hours the aircraft has flown since new.
+      usage: Updated after each flight; drives hour-based maintenance.
+      relationshipContext: Never decreases.
+  - name: airworthinessExpiry
+    type: date
+    required: false
+    help:
+      summary: When the certificate of airworthiness or its review expires.
+      usage: Watched by maintenance control; the aircraft is grounded if it lapses.
+      relationshipContext: Renewed after the review.
   relationships:
   - name: organization
     target: Organization
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Aircraft to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Aircraft.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The airline or operator that operates the aircraft.
+      usage: Set when the aircraft joins the fleet.
+      cardinalityMeaning: Every aircraft is operated by exactly one organization.
+      context: Leased aircraft name the operator, not the lessor.
   - name: location
     target: Location
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Aircraft to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Aircraft.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The home base of the aircraft.
+      usage: Used for crew and maintenance planning.
+      cardinalityMeaning: At most one.
+      context: The aircraft's current position is in the flight records.
   - name: maintenanceWorkOrders
     target: MaintenanceWorkOrder
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Aircraft to MaintenanceWorkOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about MaintenanceWorkOrder records associated with a Aircraft.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The maintenance work done or planned on the aircraft.
+      usage: Listed from the aircraft.
+      cardinalityMeaning: Any number; each work order is for one aircraft.
+      context: The work order records its aircraft.
     inverseCardinality: '1'
   lifecycle:
     title: Aircraft Lifecycle
@@ -113,10 +161,13 @@ entity:
   help:
     summary: Represents a aerospace asset called Aircraft within the CEDM business model.
     businessMeaning: Aircraft is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Aircraft records.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Location, MaintenanceWorkOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Aircraft record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Fleet and maintenance teams register each aircraft, keep its hours and certificates current, plan and record maintenance, and change its status when it goes in for maintenance or is grounded. Operations assign only active aircraft to flights.
+    lifecycle: Planned before delivery, active while airworthy and in service, in maintenance during scheduled checks, grounded when it must not fly, and retired when it leaves the fleet.
+    example: Aircraft F-HBXA, Airbus A320-214, serial 4521, built 2011, 180 seats, home base Lyon, 34,210 flight hours, certificate of airworthiness valid to 31 March 2025, active.
+  invariants:
+  - {id: AIRCRAFT-001, rule: Flight hours are not negative., violatedWhen: total_flight_hours != null and total_flight_hours < 0, message: The flight hours cannot be negative.}
+  - {id: AIRCRAFT-EXE-001, rule: "Seat Capacity cannot be negative.", violatedWhen: "seat_capacity != null and seat_capacity < 0", message: "Seat Capacity cannot be negative."}
 specification:
   version: 0.1.0
   status: draft

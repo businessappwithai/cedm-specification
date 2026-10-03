@@ -20,96 +20,96 @@ entity:
     required: true
     values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
     help:
-      summary: "The address type of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: What the address is used for.
+      usage: Chosen when the address is entered; processes pick addresses by type.
+      relationshipContext: A party may have one primary address of each type.
       valueSemantics:
-        RESIDENTIAL: The address type of the address is residential; set it when that is what the business means for this record.
-        BUSINESS: The address type of the address is business; set it when that is what the business means for this record.
-        BILLING: The address type of the address is billing; set it when that is what the business means for this record.
-        SHIPPING: The address type of the address is shipping; set it when that is what the business means for this record.
-        REGISTERED: The address type of the address is registered; set it when that is what the business means for this record.
-        POSTAL: The address type of the address is postal; set it when that is what the business means for this record.
-        OTHER: The address type of the address is other; set it when that is what the business means for this record.
+        RESIDENTIAL: Where a person lives.
+        BUSINESS: Where an organization operates.
+        BILLING: Where invoices and statements are sent.
+        SHIPPING: Where goods are delivered.
+        REGISTERED: The registered office of a legal entity.
+        POSTAL: A mailing address, such as a PO box.
+        OTHER: Any other use.
   - name: line1
     type: string
     required: true
     maxLength: 200
     help:
-      summary: "The line1 of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: The first line of the street address — street and number, or PO box.
+      usage: Printed first on labels and documents.
+      relationshipContext: Required for every address.
   - name: line2
     type: string
     required: false
     maxLength: 200
     help:
-      summary: "The line2 of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: A second address line, such as a building, floor or suite.
+      usage: Printed after the first line when present.
+      relationshipContext: Printed between the first line and the city when present.
   - name: line3
     type: string
     required: false
     maxLength: 200
     help:
-      summary: "The line3 of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: A third address line, for countries or sites that need one.
+      usage: Printed after the second line when present.
+      relationshipContext: Printed after the second line when present; most countries need only two lines.
   - name: cityName
     type: string
     required: false
     maxLength: 150
     help:
-      summary: The name of the town or locality when it is not in the list of cities.
-      usage: Filled only when no city can be chosen; leave it empty when the city is picked from the list.
-      relationshipContext: Stands in for the city relationship; an address states one or the other.
+      summary: The city as written, when it is not in the city list.
+      usage: Used on labels when no city record is linked.
+      relationshipContext: Either a city from the list or this name must be given.
   - name: postalCode
     type: string
     required: false
     maxLength: 30
     help:
-      summary: "The postal code of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: The postal or ZIP code.
+      usage: Printed on labels; used for routing and some tax rules.
+      relationshipContext: Format depends on the country.
   - name: latitude
     type: decimal
     required: false
     precision: 10
     scale: 7
     help:
-      summary: "The latitude of the address: a number the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: The latitude of the address, in decimal degrees.
+      usage: Set by geocoding; used for routing and maps.
+      relationshipContext: Between -90 and 90.
   - name: longitude
     type: decimal
     required: false
     precision: 10
     scale: 7
     help:
-      summary: "The longitude of the address: a number the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: The longitude of the address, in decimal degrees.
+      usage: Set by geocoding; used for routing and maps.
+      relationshipContext: Between -180 and 180.
   - name: isPrimary
     type: boolean
     required: true
     default: false
     help:
-      summary: "The is primary of the address: a yes/no indicator the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: Whether this is the party's or location's main address of its type.
+      usage: Used as the default when a document needs an address of this type.
+      relationshipContext: At most one primary address per type for each party or location.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, RETIRED]
     help:
-      summary: "The status of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      summary: Whether the address may be used.
+      usage: Changed when a party moves or an address becomes invalid.
+      relationshipContext: Inactive and retired addresses are not offered for new documents.
       valueSemantics:
-        ACTIVE: The status of the address is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the address is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the address is retired; set it when that is what the business means for this record.
+        ACTIVE: In use.
+        INACTIVE: Temporarily not used.
+        RETIRED: No longer valid; kept for history.
   relationships:
   - name: country
     target: Country
@@ -118,8 +118,8 @@ entity:
     help:
       summary: The country the address is in.
       usage: Chosen from the list of countries; the states and cities offered are narrowed by it.
-      cardinalityMeaning: Exactly one country.
       context: Every address names its country, which settles the format, tax and trade rules that apply to it.
+      cardinalityMeaning: Every address is in exactly one country.
   - name: stateProvince
     target: StateProvince
     cardinality: 0..1
@@ -185,11 +185,11 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence.
-    businessMeaning: Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes.
-    usage: Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows.
-    relationshipContext: Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required.
-    workflowContext: Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.
-    lifecycle: Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots.
-    example: A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.
+    summary: A postal or physical address, in a structured form that can be validated, printed and mapped.
+    businessMeaning: Addresses decide where goods go, where invoices are sent, which taxes apply and where a company is registered. Keeping them structured — lines, city, region, postal code, country, coordinates — lets them be validated, formatted for each country, geocoded for routing and reused by every party and site that needs them.
+    usage: Entered when a party or location is created and maintained as people move; chosen on orders and invoices as the billing or delivery address; copied onto transactions so a later change does not alter documents already issued.
+    relationshipContext: An address belongs to a Party or a Location (or both, for a party's site). It names its Country and, where known, its StateProvince and City from the reference lists.
+    lifecycle: Active while it may be used; inactive when temporarily not used; retired when no longer valid. Transactions keep the address as it was when they were issued.
+    workflowContext: Party onboarding, order entry, invoicing, delivery routing, tax determination, address validation.
+    example: 'Business address of Northwind Distribution: Industriestraße 12, Halle 3, 70565 Stuttgart, Baden-Württemberg, Germany; 48.7253 N, 9.1121 E; primary.'
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-ADDRESS}

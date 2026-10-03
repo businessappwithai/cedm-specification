@@ -5,6 +5,7 @@ entity:
   description: A defined sequence of business activities, decisions, events, and outcomes that accomplishes a business objective.
   ui:
     icon: settings
+    recordLabel: [code, name]
   identity:
     key: businessProcessId
     type: uuid
@@ -25,35 +26,25 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The code of the process, such as P2P-01.
+      usage: Used in the process map and wherever the process is referred to.
+      relationshipContext: Unique together with the version.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The name of the process, such as "Procure to pay".
+      usage: Shown in the process map.
+      relationshipContext: Identifies the process for people.
   - name: description
     type: string
     required: false
     maxLength: 4000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-  - name: version
-    type: string
-    required: true
-    default: '1.0'
-    maxLength: 30
-    help:
-      summary: Captures the business meaning of version for the BusinessProcess. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: What the process achieves, where it starts and where it ends.
+      usage: Read by everyone working in the process.
+      relationshipContext: Detailed steps are in its workflows.
   - name: status
     type: enum
     required: true
@@ -64,66 +55,75 @@ entity:
     - SUSPENDED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the process is in force.
+      usage: Moved on by the process owner.
+      relationshipContext: Only active processes are followed.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of BusinessProcess.
-        ACTIVE: Represents the active state or classification in the context of BusinessProcess.
-        SUSPENDED: Represents the suspended state or classification in the context of BusinessProcess.
-        RETIRED: Represents the retired state or classification in the context of BusinessProcess.
+        DRAFT: Being designed.
+        ACTIVE: In force.
+        SUSPENDED: Temporarily not followed.
+        RETIRED: Replaced or no longer used.
   - name: effectiveFrom
     type: date
     required: false
     help:
-      summary: Captures the business meaning of effective from for the BusinessProcess. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The first day the process applies.
+      usage: Set when it is approved.
+      relationshipContext: Not later than the effective-to date.
   - name: effectiveTo
     type: date
     required: false
     help:
-      summary: Captures the business meaning of effective to for the BusinessProcess. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessProcess records, where applicable.
-      relationshipContext: Its meaning is specific to BusinessProcess; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The last day the process applies.
+      usage: Set when it is replaced.
+      relationshipContext: Empty while in force.
+  - name: processVersion
+    type: string
+    required: true
+    maxLength: 20
+    default: 1
+    help:
+      summary: The version of the process definition.
+      usage: Increased when the process changes.
+      relationshipContext: Only one version is active at a time.
   relationships:
   - name: ownerOrganization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects BusinessProcess to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a BusinessProcess.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The organization that owns the process.
+      usage: Set when the process is defined.
+      cardinalityMeaning: At most one.
+      context: Its head is accountable for the process.
   - name: workflows
     target: Workflow
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects BusinessProcess to Workflow so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Workflow records associated with a BusinessProcess.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The workflows that automate parts of the process.
+      usage: Linked as they are built.
+      cardinalityMeaning: Any number; a workflow belongs to one process.
+      context: The workflow records its process.
   - name: tasks
     target: Task
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects BusinessProcess to Task so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Task records associated with a BusinessProcess.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Tasks raised while the process runs.
+      usage: Linked by the workflows.
+      cardinalityMeaning: Any number; each task belongs to one process.
+      context: The task records its process.
     inverseCardinality: '1'
   - name: documents
     target: Document
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects BusinessProcess to Document so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Document records associated with a BusinessProcess.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Procedures, forms and other documents describing the process.
+      usage: Linked by the process owner.
+      cardinalityMeaning: Many documents per process; a document may describe several processes.
+      context: A many-to-many relation.
     inverseCardinality: 0..*
   invariants:
   - id: PROCESS-001
@@ -147,10 +147,10 @@ entity:
   help:
     summary: Represents a process definition entity called BusinessProcess within the CEDM business model.
     businessMeaning: BusinessProcess is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate BusinessProcess records.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Workflow, Task, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical BusinessProcess record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Process owners document the business's processes, their owners and their effective periods; workflows, tasks and documents are linked to the process they belong to; process reviews and audits start from it.
+    lifecycle: Drafted while being designed, active while in force, suspended while it is paused, and retired when replaced; only one version of a process is active at a time.
+    example: Process P2P-01 'Procure to pay', version 3, owner the procurement director, active from 1 January 2024; workflows for requisition approval and invoice matching.
 specification:
   version: 0.1.0
   status: draft
