@@ -37,6 +37,13 @@ COMPLETION = ["COMPLETED", "FULFILLED", "DELIVERED", "POSTED"]
 LABEL_ATTRS = ["name", "title", "fullName", "displayName", "code", "number", "reference"]
 
 
+def an(words: str) -> str:
+    """`a` or `an` before a phrase, by its sound."""
+    first = words.strip().split(" ")[0].lower() if words.strip() else ""
+    vowel = bool(first) and first[0] in "aeiou" and not first.startswith(("use", "uni", "eu", "one"))
+    return "an" if vowel or first in ("hour", "honest") else "a"
+
+
 def snake(name: str) -> str:
     return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
 
@@ -96,22 +103,22 @@ def derive(entity: dict) -> list[dict]:
             out.append({"name": workflow, "title": title, "description": description, "when": condition(column, hit), "steps": [step]})
 
     hit = [s for s in APPROVAL if s in states]
-    add("ApprovalRequested", f"Ask for a decision when a {words} is put forward", hit,
+    add("ApprovalRequested", f"Ask for a decision when {an(words)} {words} is put forward", hit,
         task_step(name, "APPROVAL", "APPROVAL", "NORMAL", "Decide on", "Approve it, return it for change or reject it; the move you make is recorded on the record.", label, column),
-        f"When a {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a task asks someone to decide on it.")
+        f"When {an(words)} {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a task asks someone to decide on it.")
     hit = [s for s in EXCEPTION if s in states]
-    add("ExceptionRaised", f"Raise a task when a {words} is stopped", hit,
+    add("ExceptionRaised", f"Raise a task when {an(words)} {words} is stopped", hit,
         task_step(name, "EXCEPTION", "USER", "HIGH", "Resolve", "Find out why it stopped and move it on or close it.", label, column),
-        f"When a {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a high-priority task asks someone to resolve it.")
+        f"When {an(words)} {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a high-priority task asks someone to resolve it.")
     hit = [s for s in FOLLOW_UP if s in states]
-    add("FollowUpRequired", f"Follow up when a {words} is ended", hit,
+    add("FollowUpRequired", f"Follow up when {an(words)} {words} is ended", hit,
         task_step(name, "FOLLOW-UP", "USER", "NORMAL", "Follow up on", "Check the records that depended on it and tell the people affected.", label, column),
-        f"When a {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a task asks someone to settle what depended on it.")
+        f"When {an(words)} {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a task asks someone to settle what depended on it.")
     if d.kind_class(entity.get("kind")) in ("transaction", "line"):
         hit = [s for s in COMPLETION if s in states]
-        add("CompletionConfirmed", f"Confirm when a {words} is done", hit,
+        add("CompletionConfirmed", f"Confirm when {an(words)} {words} is done", hit,
             task_step(name, "COMPLETED", "USER", "LOW", "Confirm", "Check the outcome is what was agreed and close any open items.", label, column),
-            f"When a {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a task asks someone to confirm the outcome.")
+            f"When {an(words)} {words} is {' or '.join(s.lower().replace('_', ' ') for s in hit)}, a task asks someone to confirm the outcome.")
     return out
 
 

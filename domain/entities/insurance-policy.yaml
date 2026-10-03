@@ -173,8 +173,8 @@ entity:
       - {from: SUSPENDED, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a insurance policy is ended"
-      description: "When a insurance policy is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an insurance policy is ended"
+      description: "When an insurance policy is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1
@@ -191,7 +191,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a insurance entity called InsurancePolicy within the CEDM business model.
+    summary: Represents an insurance entity called InsurancePolicy within the CEDM business model.
     businessMeaning: InsurancePolicy is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

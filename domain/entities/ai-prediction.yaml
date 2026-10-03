@@ -138,7 +138,7 @@ entity:
   - id: AI-PREDICTION-002
     rule: an OVERRIDDEN prediction requires a reviewer.
   help:
-    summary: Represents a ai runtime entity called AIPrediction within the CEDM business model.
+    summary: Represents an ai runtime entity called AIPrediction within the CEDM business model.
     businessMeaning: AIPrediction is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

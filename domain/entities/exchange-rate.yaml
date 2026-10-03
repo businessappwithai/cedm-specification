@@ -161,8 +161,8 @@ entity:
       - {from: ACTIVE, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a exchange rate is ended"
-      description: "When a exchange rate is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an exchange rate is ended"
+      description: "When an exchange rate is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1

@@ -147,7 +147,7 @@ entity:
   invariants:
   - id: EXPERIMENT-001
     rule: completedAt must not precede startedAt.
-  - {id: EXPERIMENT-EXE-001, rule: "A experiment that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the experiment is completed."}
+  - {id: EXPERIMENT-EXE-001, rule: "An experiment that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the experiment is completed."}
   lifecycle:
     title: Experiment Lifecycle
     attribute: status
@@ -163,8 +163,8 @@ entity:
       - {from: RUNNING, to: CANCELLED, action: cancel}
   workflows:
     - name: ExceptionRaised
-      title: "Raise a task when a experiment is stopped"
-      description: "When a experiment is failed, a high-priority task asks someone to resolve it."
+      title: "Raise a task when an experiment is stopped"
+      description: "When an experiment is failed, a high-priority task asks someone to resolve it."
       when: "status == \"FAILED\" and status != _previous_status"
       steps:
         - id: S1
@@ -181,8 +181,8 @@ entity:
               status: "CREATED"
               priority: "HIGH"
     - name: FollowUpRequired
-      title: "Follow up when a experiment is ended"
-      description: "When a experiment is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an experiment is ended"
+      description: "When an experiment is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1

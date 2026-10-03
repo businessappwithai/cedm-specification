@@ -357,8 +357,8 @@ entity:
       - {from: OVERDUE, to: VOID, action: void}
   workflows:
     - name: ExceptionRaised
-      title: "Raise a task when a invoice is stopped"
-      description: "When a invoice is overdue, a high-priority task asks someone to resolve it."
+      title: "Raise a task when an invoice is stopped"
+      description: "When an invoice is overdue, a high-priority task asks someone to resolve it."
       when: "status == \"OVERDUE\" and status != _previous_status"
       steps:
         - id: S1
@@ -375,8 +375,8 @@ entity:
               status: "CREATED"
               priority: "HIGH"
     - name: FollowUpRequired
-      title: "Follow up when a invoice is ended"
-      description: "When a invoice is cancelled or void, a task asks someone to settle what depended on it."
+      title: "Follow up when an invoice is ended"
+      description: "When an invoice is cancelled or void, a task asks someone to settle what depended on it."
       when: "(status == \"CANCELLED\" or status == \"VOID\") and status != _previous_status"
       steps:
         - id: S1

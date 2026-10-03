@@ -79,8 +79,8 @@ entity:
       - {from: ACTIVE, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a ai policy is ended"
-      description: "When a ai policy is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an ai policy is ended"
+      description: "When an ai policy is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1

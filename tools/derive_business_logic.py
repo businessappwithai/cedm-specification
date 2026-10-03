@@ -172,6 +172,21 @@ def render_lifecycle(entity: str, attr: str, plan: dict) -> list[str]:
 # Executable invariants
 # --------------------------------------------------------------------------
 
+def article(words: str) -> str:
+    """`a` or `an` before a phrase, by its sound: an activity, a user, an hour."""
+    first = words.strip().split(" ")[0].lower() if words.strip() else ""
+    vowel = bool(first) and first[0] in "aeiou" and not first.startswith(("use", "uni", "eu", "one"))
+    return "an" if vowel or first in ("hour", "honest", "fx") else "a"
+
+
+def condition_key(when: str) -> frozenset[str]:
+    """A condition as the set of its `and` conjuncts, so the order they are written in does not matter."""
+    text = re.sub(r"\s+", " ", str(when)).strip()
+    if text.startswith("(") and text.endswith(")"):
+        text = text[1:-1]
+    return frozenset(part.strip() for part in re.split(r"\band\b", text))
+
+
 def cap(text: str) -> str:
     """Sentence case: the first letter upper, the rest as it is."""
     return text[:1].upper() + text[1:]
@@ -266,7 +281,7 @@ def executable_invariants(entity: dict) -> list[dict]:
                 for r in names:
                     if r in attrs:
                         add(
-                            f"A {d.lower_words(name)} that is {state.lower().replace('_', ' ')} states {d.lower_words(r)}.",
+                            f"{cap(article(d.lower_words(name)))} {d.lower_words(name)} that is {state.lower().replace('_', ' ')} states {d.lower_words(r)}.",
                             f'status == "{state}" and {column(r)} == null',
                             f"Give the {d.lower_words(r)} before the {d.lower_words(name)} is {state.lower().replace('_', ' ')}.",
                         )
@@ -276,7 +291,7 @@ def executable_invariants(entity: dict) -> list[dict]:
                 for r in names:
                     if r in attrs and is_date(r):
                         add(
-                            f"A {d.lower_words(name)} that is {state.lower().replace('_', ' ')} states when ({d.lower_words(r)}).",
+                            f"{cap(article(d.lower_words(name)))} {d.lower_words(name)} that is {state.lower().replace('_', ' ')} states when ({d.lower_words(r)}).",
                             f'status == "{state}" and {column(r)} == null',
                             f"Record {d.lower_words(r)} when the {d.lower_words(name)} is {state.lower().replace('_', ' ')}.",
                         )
@@ -362,7 +377,11 @@ def process(text: str) -> str:
     have = {i.get("id") for i in entity.get("invariants") or []}
     already = [i for i in entity.get("invariants") or [] if "-EXE-" in str(i.get("id"))]
     if not already:
-        derived = executable_invariants(entity)
+        # A condition the author already states is not derived a second time.
+        stated = {condition_key(i["violatedWhen"]) for i in entity.get("invariants") or [] if i.get("violatedWhen")}
+        derived = [i for i in executable_invariants(entity) if condition_key(i["violatedWhen"]) not in stated]
+        for number, item in enumerate(derived, 1):
+            item["id"] = re.sub(r"-EXE-\d+$", f"-EXE-{number:03d}", item["id"])
         if derived:
             at = top("invariants")
             if at is None:

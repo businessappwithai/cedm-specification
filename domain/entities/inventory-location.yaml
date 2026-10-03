@@ -13,11 +13,11 @@ entity:
     immutable: true
     help:
       summary: 'The inventory location id of the inventory location: an identifier the business records on it.'
-      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory location cannot be understood without its inventory location id.'
+      requiredMeaning: 'Required: an inventory location cannot be understood without its inventory location id.'
   - name: code
     type: string
     required: true
@@ -25,11 +25,11 @@ entity:
     maxLength: 100
     help:
       summary: 'The code of the inventory location: a value the business records on it.'
-      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory location cannot be understood without its code.'
+      requiredMeaning: 'Required: an inventory location cannot be understood without its code.'
   - name: locationType
     type: enum
     required: true
@@ -46,11 +46,11 @@ entity:
     - OTHER
     help:
       summary: 'The location type of the inventory location: a value the business records on it.'
-      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory location cannot be understood without its location type.'
+      requiredMeaning: 'Required: an inventory location cannot be understood without its location type.'
       valueSemantics:
         RECEIVING: The location type of the inventory location is receiving; set it when that is what the business means for
           this record.
@@ -87,7 +87,7 @@ entity:
     scale: 4
     help:
       summary: 'The capacity of the inventory location: a number the business records on it.'
-      usage: Entered or maintained when a inventory location is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory location is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
@@ -97,9 +97,9 @@ entity:
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links a inventory location to warehouse, the warehouse it relates to.
+      summary: Links an inventory location to warehouse, the warehouse it relates to.
       usage: Chosen from the existing warehouse records when the inventory location is created or edited.
-      cardinalityMeaning: A inventory location has exactly one warehouse in this role.
+      cardinalityMeaning: An inventory location has exactly one warehouse in this role.
       context: Lets the inventory location be found from, and reported with, its warehouse.
   - name: inventoryBalances
     target: InventoryBalance
@@ -154,8 +154,8 @@ entity:
       - {from: INACTIVE, to: ACTIVE, action: reactivate}
   workflows:
     - name: ExceptionRaised
-      title: "Raise a task when a inventory location is stopped"
-      description: "When a inventory location is blocked, a high-priority task asks someone to resolve it."
+      title: "Raise a task when an inventory location is stopped"
+      description: "When an inventory location is blocked, a high-priority task asks someone to resolve it."
       when: "status == \"BLOCKED\" and status != _previous_status"
       steps:
         - id: S1

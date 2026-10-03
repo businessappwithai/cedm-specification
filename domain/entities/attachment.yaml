@@ -2,23 +2,130 @@ entity:
   name: Attachment
   namespace: cedm.domain
   kind: document_attachment
-  description: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance.
+  description: A file — a scan, photograph, spreadsheet or signed PDF — attached to a business record as supporting evidence, with its name, type, size and checksum.
   ui:
     icon: paperclip
+    recordLabel: [fileName]
   identity: {key: attachmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: attachmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Attachment., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
-  relationships: []
+  - name: fileName
+    type: string
+    required: true
+    maxLength: 255
+    help:
+      summary: The name of the file as uploaded.
+      usage: Shown in the record's list of attachments and used as the name when the file is downloaded.
+      relationshipContext: Not unique; the same name may be attached to many records.
+  - name: mediaType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The type of the file's content, such as application/pdf or image/jpeg.
+      usage: Detected on upload; it decides whether the file can be previewed.
+      relationshipContext: Taken from the file, not typed by the user.
+  - name: sizeBytes
+    type: integer
+    required: false
+    help:
+      summary: The size of the file in bytes.
+      usage: Recorded on upload; used to enforce upload limits and to report storage use.
+      relationshipContext: Zero-size files are refused.
+  - name: storageLocation
+    type: string
+    required: true
+    maxLength: 500
+    help:
+      summary: Where the file's content is stored.
+      usage: Set by the system on upload; users never type it.
+      relationshipContext: Moving files between stores updates it without changing the attachment.
+  - name: checksum
+    type: string
+    required: false
+    maxLength: 128
+    help:
+      summary: A fingerprint of the file's content (SHA-256).
+      usage: Computed on upload; recomputing it later shows whether the file has been changed.
+      relationshipContext: Two attachments with the same checksum hold the same content.
+  - name: recordType
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The kind of record the file is attached to, such as "Goods receipt".
+      usage: Set by the screen the file was attached from.
+      relationshipContext: Read with the record identifier to find the record.
+  - name: recordId
+    type: string
+    required: true
+    maxLength: 64
+    help:
+      summary: The identifier of the record the file is attached to.
+      usage: Set by the screen the file was attached from; the record's attachments are found by it.
+      relationshipContext: Together with the record type it identifies exactly one record.
+  - name: category
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: What the file is, such as "Delivery note", "Certificate" or "Photograph".
+      usage: Chosen on upload so that the record's attachments can be told apart without opening them.
+      relationshipContext: Free choice of words, though each business usually agrees a short list.
+  - name: description
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: A note about the file's content.
+      usage: Optional; useful when the file name does not say what the file shows.
+      relationshipContext: Free text.
+  - name: uploadedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the file was attached.
+      usage: Recorded by the system; the record's evidence is listed in this order.
+      relationshipContext: Not editable.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, WITHDRAWN]
+    help:
+      summary: Whether the file still counts as evidence for the record.
+      usage: An attachment added by mistake is withdrawn; it stays visible in the history.
+      relationshipContext: Withdrawn attachments are not shown in the normal list.
+      valueSemantics:
+        ACTIVE: Attached and part of the record's evidence.
+        WITHDRAWN: Removed from the record's evidence, but kept for the history.
+  relationships:
+  - name: uploadedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who attached the file.
+      usage: Recorded on upload.
+      cardinalityMeaning: One per attachment.
+      context: Shown with the file so that reviewers know where it came from.
   invariants:
-  - {id: ATTACHMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: ATTACHMENT-001, rule: An attachment's content is never replaced; a corrected file is a new attachment.}
+  - {id: ATTACHMENT-002, rule: A file has some content., violatedWhen: size_bytes != null and size_bytes <= 0, message: The file is empty.}
+  lifecycle:
+    title: Attachment Lifecycle
+    attribute: status
+    states: [ACTIVE, WITHDRAWN]
+    initial: ACTIVE
+    terminal: [WITHDRAWN]
+    transitions:
+    - {from: ACTIVE, to: WITHDRAWN, action: withdraw}
   help:
-    summary: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance.
-    purpose: Provide durable, implementation-neutral governance semantics for Attachment.
-    businessMeaning: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A file kept with a record, such as a scanned delivery note on a goods receipt or a photo on an incident.
+    businessMeaning: Records often need evidence that lives in a file. An attachment keeps the file with the record it supports, records what the file is and who added it, and fingerprints its content, so it can be shown later that the evidence has not been changed.
+    usage: Users attach files from any record's screen; reviewers and auditors open them there. Attachments are listed with the record and can be classified, for example as an invoice copy or a certificate.
+    relationshipContext: An attachment names the record it belongs to by the record's kind and identifier, because any record may carry files. The person who uploaded it is recorded. A record may have many attachments.
+    lifecycle: An attachment is active once uploaded. It is not edited — a corrected file is uploaded as a new attachment — and one added by mistake is withdrawn rather than deleted, so the record's evidence trail stays complete.
+    workflowContext: Supplier invoices carry the scanned original, quality inspections their photographs and certificates, claims their supporting documents; audit sampling opens attachments as evidence.
+    example: delivery-note-4471.pdf, 182 KB, application/pdf, attached to goods receipt GR-2024-1102 by the warehouse clerk on 14 June, classified as 'Delivery note', SHA-256 checksum recorded.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ATTACHMENT}

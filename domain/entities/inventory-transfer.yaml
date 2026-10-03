@@ -44,8 +44,8 @@ entity:
       - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a inventory transfer is ended"
-      description: "When a inventory transfer is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an inventory transfer is ended"
+      description: "When an inventory transfer is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1
@@ -62,8 +62,8 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
     - name: CompletionConfirmed
-      title: "Confirm when a inventory transfer is done"
-      description: "When a inventory transfer is completed, a task asks someone to confirm the outcome."
+      title: "Confirm when an inventory transfer is done"
+      description: "When an inventory transfer is completed, a task asks someone to confirm the outcome."
       when: "status == \"COMPLETED\" and status != _previous_status"
       steps:
         - id: S1

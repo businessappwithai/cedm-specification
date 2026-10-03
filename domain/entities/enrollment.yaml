@@ -114,8 +114,8 @@ entity:
       - {from: ACTIVE, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a enrollment is ended"
-      description: "When a enrollment is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an enrollment is ended"
+      description: "When an enrollment is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1
@@ -132,8 +132,8 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
     - name: CompletionConfirmed
-      title: "Confirm when a enrollment is done"
-      description: "When a enrollment is completed, a task asks someone to confirm the outcome."
+      title: "Confirm when an enrollment is done"
+      description: "When an enrollment is completed, a task asks someone to confirm the outcome."
       when: "status == \"COMPLETED\" and status != _previous_status"
       steps:
         - id: S1
@@ -150,7 +150,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents a education transaction called Enrollment within the CEDM business model.
+    summary: Represents an education transaction called Enrollment within the CEDM business model.
     businessMeaning: Enrollment is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

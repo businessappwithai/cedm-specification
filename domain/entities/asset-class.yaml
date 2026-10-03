@@ -2,23 +2,133 @@ entity:
   name: AssetClass
   namespace: cedm.domain
   kind: asset_master
-  description: A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets.
+  description: A class of fixed assets — such as buildings, vehicles or IT equipment — that sets the accounts, depreciation method and useful life new assets in it take by default.
   ui:
-    icon: box
+    icon: layers
+    recordLabel: [code, name]
   identity: {key: assetClassId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: assetClassId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetClass., businessMeaning: Identifies one governed AssetClass record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
-  relationships: []
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 20
+    help:
+      summary: The short code of the class, used in the asset register and in reports.
+      usage: Chosen when the class is created, such as "IT-HW"; finance reports and imports refer to it.
+      relationshipContext: Unique; it is the identifier people and integrations use.
+  - name: name
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The name of the class, such as "IT hardware".
+      usage: Shown wherever an asset's class is displayed.
+      relationshipContext: Together with the code it identifies the class for people.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: Which assets belong in the class and which do not.
+      usage: Read by whoever acquires an asset and must choose a class.
+      relationshipContext: Should follow the wording of the accounting policy.
+  - name: depreciationMethod
+    type: enum
+    required: true
+    default: STRAIGHT_LINE
+    values: [STRAIGHT_LINE, DECLINING_BALANCE, UNITS_OF_PRODUCTION, NONE]
+    help:
+      summary: How assets in the class lose value over time.
+      usage: Copied onto each new asset in the class; the depreciation run applies it.
+      relationshipContext: The method, the useful life and the residual value together give the depreciation charge.
+      valueSemantics:
+        STRAIGHT_LINE: An equal charge in every period of the useful life.
+        DECLINING_BALANCE: A fixed percentage of the remaining book value in each period, so the charge falls over time.
+        UNITS_OF_PRODUCTION: A charge in proportion to use, such as hours run or units produced.
+        NONE: Not depreciated, as for land.
+  - name: usefulLifeMonths
+    type: integer
+    required: false
+    help:
+      summary: Over how many months assets in the class are depreciated.
+      usage: Copied onto each new asset; it can be overridden for an individual asset.
+      relationshipContext: Not needed when the method is none or units of production.
+  - name: residualValuePercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share of the cost expected to remain at the end of the useful life.
+      usage: Applied to each asset's cost to give the value depreciation stops at; usually zero.
+      relationshipContext: Between 0 and 100.
+  - name: capitalizationThreshold
+    type: Money
+    required: false
+    help:
+      summary: The smallest cost at which an item in this class is capitalized rather than expensed.
+      usage: Read at purchase to decide whether an item becomes an asset or a cost of the period.
+      relationshipContext: Set from the accounting policy, usually per company.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE]
+    help:
+      summary: Whether new assets may be placed in the class.
+      usage: Made inactive when the class is no longer used; existing assets keep it.
+      relationshipContext: Inactive classes are not offered when an asset is created.
+      valueSemantics:
+        ACTIVE: Available for new assets.
+        INACTIVE: Kept for existing assets but not offered for new ones.
+  relationships:
+  - name: assetAccount
+    target: Account
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The balance-sheet account that carries the cost of assets in the class.
+      usage: Used by acquisitions and disposals to post the asset's cost.
+      cardinalityMeaning: One asset account per class.
+      context: Must be an asset-type account.
+  - name: accumulatedDepreciationAccount
+    target: Account
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The balance-sheet account that accumulates depreciation of assets in the class.
+      usage: Credited by every depreciation run.
+      cardinalityMeaning: One accumulated-depreciation account per class.
+      context: Usually a contra-asset account next to the asset account.
+  - name: depreciationExpenseAccount
+    target: Account
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The expense account the depreciation charge is posted to.
+      usage: Debited by every depreciation run.
+      cardinalityMeaning: One expense account per class.
+      context: Must be an expense-type account.
   invariants:
-  - {id: ASSET-CLASS-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: ASSET-CLASS-001, rule: Changing a class's defaults does not change assets already in it; each asset keeps the values it was given.}
+  - {id: ASSET-CLASS-002, rule: The residual value is a percentage between 0 and 100., violatedWhen: residual_value_percent != null and (residual_value_percent < 0 or residual_value_percent > 100), message: The residual value must be between 0 and 100 percent.}
+  - {id: ASSET-CLASS-003, rule: The useful life is a positive number of months., violatedWhen: useful_life_months != null and useful_life_months <= 0, message: The useful life must be more than zero months.}
+  lifecycle:
+    title: Asset Class Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    terminal: []
+    transitions:
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
-    summary: A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets.
-    purpose: Provide canonical enterprise semantics for AssetClass.
-    businessMeaning: A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: A category of fixed assets and the accounting defaults that come with it.
+    businessMeaning: Asset accounting treats like assets alike. The class says which balance-sheet and expense accounts an asset posts to, how it depreciates and over how long, so that each new asset is set up consistently and the asset register can be reported by class.
+    usage: Finance defines classes once, in line with the accounting policy, and chooses a class for every asset when it is acquired. The fixed-asset schedule in the annual accounts is reported by class.
+    relationshipContext: Each class names the asset, accumulated-depreciation and depreciation-expense Accounts it posts to. Assets belong to one class; the class's defaults are copied onto each asset and can be overridden there.
+    lifecycle: A class is active while new assets may be put in it; it is made inactive when the accounting policy changes, and assets already in it keep it.
+    workflowContext: Asset acquisition takes the defaults from the class; periodic depreciation runs use the method and life; the fixed-asset note is grouped by class.
+    example: "Class IT-HW, 'IT hardware': straight-line depreciation over 36 months with no residual value, posting to asset account 1630 and depreciation expense account 6830."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-CLASS}

@@ -178,8 +178,8 @@ entity:
       - {from: TESTED, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a inspection sample is ended"
-      description: "When a inspection sample is rejected or cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an inspection sample is ended"
+      description: "When an inspection sample is rejected or cancelled, a task asks someone to settle what depended on it."
       when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
       steps:
         - id: S1

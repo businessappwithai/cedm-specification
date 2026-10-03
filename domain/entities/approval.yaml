@@ -2,38 +2,145 @@ entity:
   name: Approval
   namespace: cedm.domain
   kind: workflow_decision
-  description: A governed approval decision or approval request associated with a business object, process, task, or controlled change.
+  description: A request for a named person to approve or reject something — a purchase, an expense, a change, a document — and the decision they took, with their comments.
   ui:
-    icon: table
+    icon: badge-check
+    recordLabel: [subject]
   identity: {key: approvalId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: approvalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Approval., businessMeaning: Identifies one governed Approval record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of Approval., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: PENDING
+    values: [PENDING, APPROVED, REJECTED, WITHDRAWN, ESCALATED]
+    help:
+      summary: Whether a decision has been taken and what it was.
+      usage: Moved on by the approver's decision or by the requester withdrawing the request.
+      relationshipContext: An approved or rejected approval records when the decision was taken.
+      valueSemantics:
+        PENDING: Waiting for the approver's decision.
+        APPROVED: The approver agreed; the item may proceed.
+        REJECTED: The approver refused; the item must not proceed as it stands.
+        WITHDRAWN: The requester no longer needs a decision.
+        ESCALATED: Overdue and passed to another approver; a new approval is raised for them.
+  - name: subject
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: A one-line statement of what is to be approved.
+      usage: Shown in the approver's list, so it should name the item and the amount if there is one.
+      relationshipContext: Identifies the approval on screens; the item itself is named by its kind and reference.
+  - name: itemType
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The kind of item awaiting a decision, such as "Purchase requisition" or "Expense claim".
+      usage: Set by the process that raises the approval; reports group approvals by it.
+      relationshipContext: Read with the item reference to find the item.
+  - name: itemReference
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The number or reference of the item awaiting a decision.
+      usage: Set by the process that raises the approval, such as "PR-2024-0871"; the approver uses it to open the item.
+      relationshipContext: Together with the item type it identifies exactly one record.
+  - name: approvalLevel
+    type: integer
+    required: true
+    default: 1
+    help:
+      summary: Which level of a multi-level approval this is.
+      usage: Level 1 is decided first; a higher level is raised only after the level below is approved.
+      relationshipContext: Single-level approvals use level 1.
+  - name: amount
+    type: Money
+    required: false
+    help:
+      summary: The value of the item, where the decision depends on it.
+      usage: Copied from the item when the approval is raised; it decides which approval limit applies.
+      relationshipContext: Empty for approvals that carry no amount, such as a document review.
+  - name: requestedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the decision was asked for.
+      usage: Recorded when the approval is raised; the time to decide is measured from it.
+      relationshipContext: Precedes the decision time.
+  - name: dueAt
+    type: datetime
+    required: false
+    help:
+      summary: When the decision is needed by.
+      usage: Set by the process from its service level; an approval still pending after it is overdue.
+      relationshipContext: Overdue approvals are escalated.
+  - name: decidedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the approver decided.
+      usage: Recorded with the decision; it is the evidence of when the control operated.
+      relationshipContext: Present once the approval is approved or rejected.
+  - name: decisionComment
+    type: text
+    required: false
+    help:
+      summary: What the approver said about the decision.
+      usage: Required in practice for rejections, so the requester knows what to change.
+      relationshipContext: Kept with the decision as audit evidence.
+  relationships:
+  - name: approver
+    target: Person
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The person asked to decide.
+      usage: Chosen by the process from the approval rules; the approval appears in this person's list.
+      cardinalityMeaning: One approver per approval; several approvers mean several approvals.
+      context: The approver should hold the authority the item needs and should not be the requester.
+  - name: requester
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who asked for the decision.
+      usage: Recorded when the approval is raised; told of the decision.
+      cardinalityMeaning: One requester per approval.
+      context: Separation of duties requires the requester and the approver to differ.
+  - name: task
+    target: Task
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The work item through which the approver is asked to decide.
+      usage: Linked when the approval is raised through the task list.
+      cardinalityMeaning: At most one task per approval.
+      context: Completing the task records the decision on the approval.
   invariants:
-  - {id: APPROVAL-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  - {id: APPROVAL-001, rule: 'A decision, once recorded, is not changed; a reversal is a new approval.'}
+  - {id: APPROVAL-002, rule: An approved or rejected approval records when the decision was taken., violatedWhen: (status == "APPROVED" or status == "REJECTED") and decided_at == null, message: Record when the decision was taken.}
+  - {id: APPROVAL-003, rule: The approval level is at least 1., violatedWhen: approval_level != null and approval_level < 1, message: The approval level must be 1 or more.}
+  - {id: APPROVAL-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Approval Lifecycle
     attribute: status
-    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    states: [PENDING, APPROVED, REJECTED, WITHDRAWN, ESCALATED]
     initial: PENDING
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [APPROVED, REJECTED, WITHDRAWN, ESCALATED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: PENDING, to: APPROVED, action: approve}
+    - {from: PENDING, to: REJECTED, action: reject}
+    - {from: PENDING, to: WITHDRAWN, action: withdraw}
+    - {from: PENDING, to: ESCALATED, action: escalate}
   help:
-    summary: A governed approval decision or approval request associated with a business object, process, task, or controlled change.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed approval decision or approval request associated with a business object, process, task, or controlled change.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: A decision asked of one approver about one item, and the answer they gave.
+    businessMeaning: Controls depend on approvals that can be shown later — that a purchase over a limit was approved by someone entitled to approve it, before it was placed. An approval records what was asked, of whom, when it was due, what was decided and why.
+    usage: Raised by a process when an item needs a decision; the approver sees it in their list, decides, and the process continues or stops. Auditors sample approvals to test that controls worked; managers watch overdue ones.
+    relationshipContext: Each approval names its approver and the person who asked for it, and refers to the item being approved by its kind and reference, because almost anything can need approval. A process may raise several approvals for one item, one per approval level, ordered by their level.
+    lifecycle: Pending until the approver decides; approved or rejected by the approver; withdrawn by the requester if the item no longer needs a decision; escalated when it is overdue and passed to someone else.
+    workflowContext: Purchase requisitions, expense claims, contract signature, price changes and access grants all wait on approvals; multi-level approval raises the next level once the previous one is approved.
+    example: Approval of purchase requisition PR-2024-0871 for 18,400 EUR, level 2 of 2, asked of the plant controller on 3 May, due 6 May; approved on 5 May with the comment 'within capex budget'.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-APPROVAL}

@@ -167,8 +167,8 @@ entity:
       - {from: HELD, to: RETIRED, action: retire}
   workflows:
     - name: ExceptionRaised
-      title: "Raise a task when a asset is stopped"
-      description: "When a asset is held, a high-priority task asks someone to resolve it."
+      title: "Raise a task when an asset is stopped"
+      description: "When an asset is held, a high-priority task asks someone to resolve it."
       when: "status == \"HELD\" and status != _previous_status"
       steps:
         - id: S1

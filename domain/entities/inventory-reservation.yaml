@@ -13,11 +13,11 @@ entity:
     immutable: true
     help:
       summary: 'The inventory reservation id of the inventory reservation: an identifier the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory reservation cannot be understood without its inventory reservation id.'
+      requiredMeaning: 'Required: an inventory reservation cannot be understood without its inventory reservation id.'
   - name: quantityReserved
     type: decimal
     required: true
@@ -25,11 +25,11 @@ entity:
     scale: 6
     help:
       summary: 'The quantity reserved of the inventory reservation: a number the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory reservation cannot be understood without its quantity reserved.'
+      requiredMeaning: 'Required: an inventory reservation cannot be understood without its quantity reserved.'
   - name: quantityConsumed
     type: decimal
     required: true
@@ -38,11 +38,11 @@ entity:
     scale: 6
     help:
       summary: 'The quantity consumed of the inventory reservation: a number the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory reservation cannot be understood without its quantity consumed.'
+      requiredMeaning: 'Required: an inventory reservation cannot be understood without its quantity consumed.'
   - name: quantityReleased
     type: decimal
     required: true
@@ -51,11 +51,11 @@ entity:
     scale: 6
     help:
       summary: 'The quantity released of the inventory reservation: a number the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory reservation cannot be understood without its quantity released.'
+      requiredMeaning: 'Required: an inventory reservation cannot be understood without its quantity released.'
   - name: status
     type: enum
     required: true
@@ -63,9 +63,9 @@ entity:
     values: [PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED, CONSUMED, CANCELLED, EXPIRED]
     help:
       summary: "The status of the inventory reservation: a value the business records on it."
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a inventory reservation cannot be understood without its status."
+      requiredMeaning: "Required: an inventory reservation cannot be understood without its status."
       valueSemantics:
         PENDING: The status of the inventory reservation is pending; set it when that is what the business means for this record.
         ACTIVE: The status of the inventory reservation is active; set it when that is what the business means for this record.
@@ -80,7 +80,7 @@ entity:
     default: 100
     help:
       summary: 'The priority of the inventory reservation: a whole number the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
@@ -89,7 +89,7 @@ entity:
     required: false
     help:
       summary: 'The expires at of the inventory reservation: a point in time the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
@@ -99,58 +99,58 @@ entity:
     systemManaged: true
     help:
       summary: 'The created at of the inventory reservation: a point in time the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory reservation cannot be understood without its created at.'
+      requiredMeaning: 'Required: an inventory reservation cannot be understood without its created at.'
   - name: updatedAt
     type: datetime
     required: true
     systemManaged: true
     help:
       summary: 'The updated at of the inventory reservation: a point in time the business records on it.'
-      usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search
+      usage: Entered or maintained when an inventory reservation is created or changed; shown on its form and available to search
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
-      requiredMeaning: 'Required: a inventory reservation cannot be understood without its updated at.'
+      requiredMeaning: 'Required: an inventory reservation cannot be understood without its updated at.'
   relationships:
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links a inventory reservation to product, the product it relates to.
+      summary: Links an inventory reservation to product, the product it relates to.
       usage: Chosen from the existing product records when the inventory reservation is created or edited.
-      cardinalityMeaning: A inventory reservation has exactly one product in this role.
+      cardinalityMeaning: An inventory reservation has exactly one product in this role.
       context: Lets the inventory reservation be found from, and reported with, its product.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links a inventory reservation to inventory location, the inventory location it relates to.
+      summary: Links an inventory reservation to inventory location, the inventory location it relates to.
       usage: Chosen from the existing inventory location records when the inventory reservation is created or edited.
-      cardinalityMeaning: A inventory reservation has exactly one inventory location in this role.
+      cardinalityMeaning: An inventory reservation has exactly one inventory location in this role.
       context: Lets the inventory reservation be found from, and reported with, its inventory location.
   - name: salesOrderLine
     target: SalesOrderLine
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a inventory reservation to sales order line, the sales order line it relates to.
+      summary: Links an inventory reservation to sales order line, the sales order line it relates to.
       usage: Chosen from the existing sales order line records when the inventory reservation is created or edited.
-      cardinalityMeaning: A inventory reservation has at most one sales order line in this role.
+      cardinalityMeaning: An inventory reservation has at most one sales order line in this role.
       context: Lets the inventory reservation be found from, and reported with, its sales order line.
   - name: inventoryBalance
     target: InventoryBalance
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links a inventory reservation to inventory balance, the inventory balance it relates to.
+      summary: Links an inventory reservation to inventory balance, the inventory balance it relates to.
       usage: Chosen from the existing inventory balance records when the inventory reservation is created or edited.
-      cardinalityMeaning: A inventory reservation has exactly one inventory balance in this role.
+      cardinalityMeaning: An inventory reservation has exactly one inventory balance in this role.
       context: Lets the inventory reservation be found from, and reported with, its inventory balance.
   invariants:
   - {id: INVENTORY-RESERVATION-001, rule: quantityReserved must be greater than zero when a reservation is created.}
@@ -183,8 +183,8 @@ entity:
       - {from: RELEASED, to: EXPIRED, action: expire}
   workflows:
     - name: FollowUpRequired
-      title: "Follow up when a inventory reservation is ended"
-      description: "When a inventory reservation is cancelled, a task asks someone to settle what depended on it."
+      title: "Follow up when an inventory reservation is ended"
+      description: "When an inventory reservation is cancelled, a task asks someone to settle what depended on it."
       when: "status == \"CANCELLED\" and status != _previous_status"
       steps:
         - id: S1

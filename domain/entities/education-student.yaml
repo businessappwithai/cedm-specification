@@ -132,7 +132,7 @@ entity:
       - {from: ALUMNI, to: WITHDRAWN, action: withdraw}
       - {from: SUSPENDED, to: WITHDRAWN, action: withdraw}
   help:
-    summary: Represents a education entity called EducationStudent within the CEDM business model.
+    summary: Represents an education entity called EducationStudent within the CEDM business model.
     businessMeaning: EducationStudent is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

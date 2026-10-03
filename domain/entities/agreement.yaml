@@ -2,23 +2,205 @@ entity:
   name: Agreement
   namespace: cedm.domain
   kind: legal_agreement
-  description: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
+  description: A non-commercial or framework agreement between two parties — such as a memorandum of understanding, data-sharing or confidentiality agreement — with its term, renewal and governing law. A priced commercial agreement is a Contract.
   ui:
-    icon: file-check
+    icon: scroll-text
+    recordLabel: [agreementNumber]
   identity: {key: agreementId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: agreementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Agreement., businessMeaning: Identifies one governed Agreement record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
-  relationships: []
+  - name: agreementNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the agreement.
+      usage: Assigned when the agreement is registered and quoted in correspondence with the other party.
+      relationshipContext: Unique across all agreements; the counterparty's own reference can be kept in the notes.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: A short name that says what the agreement covers.
+      usage: Shown in lists and searches, such as "Mutual NDA – Northwind Labs".
+      relationshipContext: Together with the number, it identifies the agreement for people.
+  - name: agreementType
+    type: enum
+    required: true
+    values: [NON_DISCLOSURE, DATA_PROCESSING, FRAMEWORK, PARTNERSHIP, MEMORANDUM_OF_UNDERSTANDING, SERVICE_LEVEL, OTHER]
+    help:
+      summary: What kind of agreement it is.
+      usage: Chosen at registration; it decides which reviews are required and which register the agreement appears in.
+      relationshipContext: A priced sale or purchase belongs in a Contract rather than here.
+      valueSemantics:
+        NON_DISCLOSURE: Protects confidential information exchanged between the parties.
+        DATA_PROCESSING: Governs how one party processes personal data on the other's behalf.
+        FRAMEWORK: Sets terms under which later orders or contracts will be made.
+        PARTNERSHIP: Records a cooperation or alliance between the parties.
+        MEMORANDUM_OF_UNDERSTANDING: Records an intention to cooperate, usually not legally binding.
+        SERVICE_LEVEL: Sets the service levels one party commits to.
+        OTHER: Any other agreement; the title says what it is.
+  - name: status
+    type: enum
+    required: true
+    default: DRAFT
+    values: [DRAFT, IN_NEGOTIATION, SIGNED, IN_FORCE, EXPIRED, TERMINATED, CANCELLED]
+    help:
+      summary: Where the agreement stands from drafting to its end.
+      usage: Moved on as the agreement is negotiated, signed and ends; only an agreement in force governs the relationship.
+      relationshipContext: Read with the effective and expiry dates.
+      valueSemantics:
+        DRAFT: Being written; not yet sent to the other party.
+        IN_NEGOTIATION: Exchanged with the other party and under discussion.
+        SIGNED: Signed by both parties but not yet effective.
+        IN_FORCE: Effective and binding.
+        EXPIRED: Reached the end of its term without renewal.
+        TERMINATED: Ended early by one or both parties.
+        CANCELLED: Abandoned before signature.
+  - name: effectiveDate
+    type: date
+    required: false
+    help:
+      summary: The day the agreement takes effect.
+      usage: Taken from the signed agreement; the agreement governs nothing before it.
+      relationshipContext: Must not be later than the expiry date.
+  - name: expiryDate
+    type: date
+    required: false
+    help:
+      summary: The last day of the current term.
+      usage: Watched by the owner; renewal or termination must be decided before it.
+      relationshipContext: Empty for an agreement with no fixed end.
+  - name: signedDate
+    type: date
+    required: false
+    help:
+      summary: The day the last party signed.
+      usage: Recorded on signature; it is evidence of when the parties became bound.
+      relationshipContext: Not later than the effective date in the usual case.
+  - name: autoRenew
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether the agreement renews by itself at the end of its term.
+      usage: Set from the agreement's renewal clause; an automatically renewing agreement continues unless notice is given.
+      relationshipContext: Read with the renewal term and the notice period.
+  - name: renewalTermMonths
+    type: integer
+    required: false
+    help:
+      summary: How long each automatic renewal lasts, in months.
+      usage: Used to work out the next expiry date when the agreement renews.
+      relationshipContext: Meaningful only when the agreement renews automatically.
+  - name: noticePeriodDays
+    type: integer
+    required: false
+    help:
+      summary: How many days' notice a party must give to end or stop renewing the agreement.
+      usage: Used to work out the last day on which notice can be given before the expiry date.
+      relationshipContext: Missing the notice date commits the business to another term.
+  - name: governingLaw
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The law that governs the agreement.
+      usage: Taken from the agreement, such as "England and Wales" or "State of New York"; read when a dispute arises.
+      relationshipContext: Set together with the jurisdiction for disputes, which the agreement document states.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the agreement covers and anything unusual about it.
+      usage: A summary for colleagues who need to know what the agreement allows without reading the document.
+      relationshipContext: The signed document remains the authoritative text.
+  relationships:
+  - name: firstParty
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The party on one side of the agreement, normally our own company.
+      usage: Chosen at registration.
+      cardinalityMeaning: Every agreement has exactly one first party.
+      context: When our company signs through a legal entity, that entity's party is the first party.
+  - name: secondParty
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The counterparty — the other organization or person bound by the agreement.
+      usage: Chosen at registration; the counterparty's agreements are listed from it.
+      cardinalityMeaning: Every agreement has exactly one second party; an agreement with several counterparties is registered once per counterparty.
+      context: Onboarding and data-sharing checks look up the agreements of this party.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The colleague responsible for the agreement.
+      usage: Receives expiry and renewal reminders and answers questions about it.
+      cardinalityMeaning: One owner per agreement.
+      context: Should be reassigned when the owner leaves.
+  - name: document
+    target: Document
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The signed agreement document.
+      usage: Linked once signed, so that the binding text can be opened from the record.
+      cardinalityMeaning: One signed document; earlier drafts are not linked here.
+      context: The document is the authoritative statement of the terms.
   invariants:
-  - {id: AGREEMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: AGREEMENT-001, rule: Signed agreements are not edited; amendments are recorded as new agreements or as amendments that refer to them.}
+  - {id: AGREEMENT-002, rule: The expiry date must not be earlier than the effective date., violatedWhen: expiry_date != null and effective_date != null and expiry_date < effective_date, message: The expiry date is earlier than the effective date.}
+  - {id: AGREEMENT-003, rule: An agreement in force has an effective date., violatedWhen: status == "IN_FORCE" and effective_date == null, message: Give the date the agreement took effect.}
+  - {id: AGREEMENT-004, rule: A signed or in-force agreement records its signature date., violatedWhen: (status == "SIGNED" or status == "IN_FORCE") and signed_date == null, message: Give the date the agreement was signed.}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when an agreement is ended"
+    description: "When an agreement is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "AGREEMENT-FOLLOW-UP-{{id}}"
+          name: "Follow up on agreement {{title}}"
+          description: "Agreement {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  lifecycle:
+    title: Agreement Lifecycle
+    attribute: status
+    states: [DRAFT, IN_NEGOTIATION, SIGNED, IN_FORCE, EXPIRED, TERMINATED, CANCELLED]
+    initial: DRAFT
+    terminal: [EXPIRED, TERMINATED, CANCELLED]
+    transitions:
+    - {from: DRAFT, to: IN_NEGOTIATION, action: send}
+    - {from: IN_NEGOTIATION, to: DRAFT, action: revise}
+    - {from: IN_NEGOTIATION, to: SIGNED, action: sign}
+    - {from: DRAFT, to: SIGNED, action: sign}
+    - {from: SIGNED, to: IN_FORCE, action: take_effect}
+    - {from: IN_FORCE, to: EXPIRED, action: expire}
+    - {from: IN_FORCE, to: TERMINATED, action: terminate}
+    - {from: SIGNED, to: TERMINATED, action: terminate}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: IN_NEGOTIATION, to: CANCELLED, action: cancel}
   help:
-    summary: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
-    purpose: Provide canonical governance semantics for Agreement.
-    businessMeaning: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: An agreement between two parties that sets out what each will do, for how long, and under which law.
+    businessMeaning: Many obligations a business holds are not sales or purchase contracts — non-disclosure agreements, data-processing agreements, partnership memoranda, framework agreements. An agreement records who the parties are, what kind of agreement it is, when it is in force and how it renews, so that people can find the agreement that governs a relationship and know whether it still applies.
+    usage: Legal and procurement staff register agreements once they are drafted, track them through negotiation and signature, and watch their expiry. Before sharing data or starting work with a party, staff check that the needed agreement is in force.
+    relationshipContext: An agreement has a first and a second party, and an internal owner. It may rest on a signed Document. Commercial terms with prices and lines belong to a Contract instead, which may refer to a framework agreement.
+    lifecycle: Drafted, negotiated, signed by both parties and then in force from its effective date. It ends by expiring at the end of its term or by being terminated early. A draft that is abandoned is cancelled.
+    workflowContext: Third-party onboarding checks for the required agreements; contract management reminds the owner before the end of the term; legal holds and disputes start from the governing agreement.
+    example: "Agreement NDA-2024-031: mutual non-disclosure between our company and Northwind Labs, signed 12 February 2024, in force for three years, governed by the law of England and Wales, renewing automatically for one year unless terminated with 60 days' notice."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AGREEMENT}

@@ -118,7 +118,7 @@ entity:
       - {from: LOCKED, to: RETIRED, action: retire}
       - {from: DISABLED, to: RETIRED, action: retire}
   help:
-    summary: Represents a identity entity called User within the CEDM business model.
+    summary: Represents an identity entity called User within the CEDM business model.
     businessMeaning: User is a business concept with its own identity and lifecycle. It captures information that must remain
       understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

@@ -2,57 +2,192 @@ entity:
   name: AccessGrant
   namespace: cedm.domain
   kind: iam_authorization
-  description: A governed assignment granting a User or other subject a Role, Permission, or Policy-scoped access entitlement for a defined context and validity period.
+  description: A grant of a role or permission to a user for a stated scope and period, with who requested and approved it — the record access reviews and audits are run against.
   ui:
-    icon: key
+    icon: key-round
+    recordLabel: [grantNumber]
   identity: {key: accessGrantId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: accessGrantId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AccessGrant., businessMeaning: Identifies one governed AccessGrant record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of AccessGrant., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: REQUESTED
+    values: [REQUESTED, ACTIVE, REJECTED, EXPIRED, REVOKED]
+    help:
+      summary: Where the grant stands — requested, in force, or ended.
+      usage: Moved on by the approval and by the grant's dates; only active grants give access.
+      relationshipContext: Read with the validity dates; an active grant whose end date has passed should be expired.
+      valueSemantics:
+        REQUESTED: Access has been asked for and is waiting for a decision.
+        ACTIVE: Approved and in force; the user holds the access.
+        REJECTED: The request was turned down; the user never held the access.
+        EXPIRED: The grant reached its end date and no longer gives access.
+        REVOKED: The access was withdrawn before its end date.
+  - name: grantNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the grant, quoted in access requests and reviews.
+      usage: Assigned when the request is raised; reviewers and auditors use it to identify the grant.
+      relationshipContext: Unique across all grants, including expired and revoked ones.
+  - name: scope
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: Where the access applies — a company, site, business unit or other boundary.
+      usage: Stated when access must not extend to the whole organization, for example "Company 1000" or "Warehouse North".
+      relationshipContext: Empty means the grant applies wherever the role or permission does.
+  - name: validFrom
+    type: date
+    required: true
+    help:
+      summary: The first day the access is in force.
+      usage: Set by the requester and confirmed by the approver; the grant gives no access before this date.
+      relationshipContext: Must not be later than the valid-to date.
+  - name: validTo
+    type: date
+    required: false
+    help:
+      summary: The last day the access is in force.
+      usage: Set for temporary access, such as a project or a holiday cover; left empty for access tied to a permanent job.
+      relationshipContext: The grant should expire after this date; access reviews look first at grants without one.
+  - name: justification
+    type: text
+    required: false
+    help:
+      summary: Why the user needs the access.
+      usage: Written by the requester and read by the approver and later by reviewers deciding whether the grant is still justified.
+      relationshipContext: Required in practice for privileged roles; it is the evidence an auditor reads.
+  - name: requestedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the access was requested.
+      usage: Recorded when the request is raised; the time between request and approval is a service measure.
+      relationshipContext: Precedes the approval time.
+  - name: approvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the approver accepted the request.
+      usage: Recorded on approval; an active grant must have one.
+      relationshipContext: Read with the approver; together they are the evidence of authorization.
+  - name: revokedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the access was withdrawn early.
+      usage: Recorded when a grant is revoked, for example on a job change or a security incident.
+      relationshipContext: Present only on revoked grants.
+  - name: revocationReason
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Why the access was withdrawn.
+      usage: Written when revoking, so that later reviews can tell a routine change from a security action.
+      relationshipContext: Present only on revoked grants.
+  relationships:
+  - name: user
+    target: User
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The user who receives the access.
+      usage: Chosen when the request is raised; the user's access is the set of their active grants.
+      cardinalityMeaning: Every grant is for exactly one user.
+      context: When the user is disabled or retired, their active grants should be revoked.
+  - name: role
+    target: Role
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The role the user is given.
+      usage: Chosen when access is granted as a role, which is the normal way; the role's permissions come with it.
+      cardinalityMeaning: A grant gives at most one role; it gives either a role or a single permission.
+      context: Retiring a role should lead to revoking the grants that hold it.
+  - name: permission
+    target: Permission
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: A single permission the user is given outside any role.
+      usage: Used for exceptional, narrowly scoped access; most access is granted through roles.
+      cardinalityMeaning: A grant gives at most one permission.
+      context: Grants of single permissions deserve closer review because they bypass role design.
+  - name: approver
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who approved the grant and is accountable for it.
+      usage: Recorded on approval; access recertification sends each grant to its approver.
+      cardinalityMeaning: One approver per grant.
+      context: The approver should not be the user who receives the access.
   invariants:
-  - {id: ACCESS-GRANT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  - {id: ACCESS-GRANT-001, rule: 'Approved and ended grants are kept unchanged as audit evidence; a change of access is a new grant, not an edit of an old one.'}
+  - {id: ACCESS-GRANT-002, rule: A grant gives either a role or a permission., violatedWhen: role_id == null and permission_id == null, message: Choose the role or the permission the grant gives.}
+  - {id: ACCESS-GRANT-003, rule: The valid-to date must not be earlier than the valid-from date., violatedWhen: valid_to != null and valid_from != null and valid_to < valid_from, message: The valid-to date is earlier than the valid-from date.}
+  - {id: ACCESS-GRANT-004, rule: An active grant records its approval time., violatedWhen: status == "ACTIVE" and approved_at == null, message: Record when the grant was approved before activating it.}
+  - {id: ACCESS-GRANT-005, rule: A revoked grant records why it was revoked., violatedWhen: status == "REVOKED" and revocation_reason == null, message: Give the reason the access was revoked.}
+  workflows:
+  - name: ApprovalRequested
+    title: "Ask for a decision when an access grant is put forward"
+    description: "When an access grant is requested, a task asks someone to decide on it."
+    when: "status == \"REQUESTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ACCESS-GRANT-APPROVAL-{{id}}"
+          name: "Decide on access grant {{grant_number}}"
+          description: "Access grant {{grant_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when an access grant is ended"
+    description: "When an access grant is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ACCESS-GRANT-FOLLOW-UP-{{id}}"
+          name: "Follow up on access grant {{grant_number}}"
+          description: "Access grant {{grant_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   lifecycle:
     title: Access Grant Lifecycle
     attribute: status
-    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    initial: PENDING
-    terminal: [COMPLETED, CANCELLED]
+    states: [REQUESTED, ACTIVE, REJECTED, EXPIRED, REVOKED]
+    initial: REQUESTED
+    terminal: [REJECTED, EXPIRED, REVOKED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a access grant is ended"
-      description: "When a access grant is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ACCESS-GRANT-FOLLOW-UP-{{id}}"
-              name: "Follow up on access grant {{id}}"
-              description: "Access grant {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: REQUESTED, to: ACTIVE, action: approve}
+    - {from: REQUESTED, to: REJECTED, action: reject}
+    - {from: ACTIVE, to: EXPIRED, action: expire}
+    - {from: ACTIVE, to: REVOKED, action: revoke}
   help:
-    summary: A governed assignment granting a User or other subject a Role, Permission, or Policy-scoped access entitlement for a defined context and validity period.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed assignment granting a User or other subject a Role, Permission, or Policy-scoped access entitlement for a defined context and validity period.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: One user's right to act in a role, or to hold a permission, within a stated scope and for a stated period.
+    businessMeaning: Access is not just a setting on a user account; it is a decision someone requested, someone approved and someone is accountable for. An access grant records that decision, so the business can answer who may do what, since when, on whose approval and until when.
+    usage: Created when a user needs access — on joining, on changing jobs, or for a project — and approved before it takes effect. Security and compliance teams run periodic access reviews over active grants, and revoke or let expire the ones that are no longer justified.
+    relationshipContext: A grant gives a User either a Role or a single Permission. The approver is the person accountable for it. One user normally holds many grants; a role is held through many grants.
+    lifecycle: A request is pending until approved; an approved grant becomes active from its start date; it ends either by expiring at its end date or by being revoked early. A request that is turned down is rejected. Ended grants are kept as audit evidence.
+    workflowContext: Joiner-mover-leaver processes request and revoke grants; periodic access recertification asks each grant's approver to confirm it is still needed; segregation-of-duties checks read the active grants of each user.
+    example: Grant AG-2024-0412 gives Maria Lopez the Accounts Payable Clerk role for company 1000 from 1 April 2024 to 31 March 2025, approved by the finance manager.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ACCESS-GRANT}

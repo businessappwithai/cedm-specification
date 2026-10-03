@@ -2,57 +2,176 @@ entity:
   name: Assignment
   namespace: cedm.domain
   kind: workflow_assignment
-  description: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
+  description: The allocation of a piece of work — a task, a case, an account — to a person or team, for a period, with the share of their time it takes.
   ui:
-    icon: table
+    icon: user-check
+    recordLabel: [assignmentNumber]
   identity: {key: assignmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: assignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Assignment., businessMeaning: Identifies one governed Assignment record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of Assignment., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: PROPOSED
+    values: [PROPOSED, ACTIVE, DECLINED, COMPLETED, RELEASED]
+    help:
+      summary: Whether the assignee has taken the work on and whether it is still theirs.
+      usage: Moved on as the assignee accepts, finishes or hands back the work.
+      relationshipContext: Only active assignments appear in work lists.
+      valueSemantics:
+        PROPOSED: Offered to the assignee, who has not yet accepted it.
+        ACTIVE: Accepted; the work is the assignee's.
+        DECLINED: The assignee did not accept the work.
+        COMPLETED: The assignee finished their part.
+        RELEASED: Ended before the work was finished, normally because it was handed to someone else.
+  - name: assignmentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the assignment.
+      usage: Assigned when the work is allocated.
+      relationshipContext: Unique across all assignments.
+  - name: workType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The kind of work item assigned when it is not a task, such as "Customer case".
+      usage: Given with the work reference when the work is not a task.
+      relationshipContext: Empty when the assignment is for a task.
+  - name: workReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The number of the work item assigned when it is not a task.
+      usage: Lets the assignee open the work item.
+      relationshipContext: Read together with the work type.
+  - name: role
+    type: enum
+    required: true
+    default: RESPONSIBLE
+    values: [RESPONSIBLE, REVIEWER, CONTRIBUTOR, OBSERVER]
+    help:
+      summary: The part the assignee plays in the work.
+      usage: Chosen when assigning; only one assignee is normally responsible for a piece of work at a time.
+      relationshipContext: Lets the same work be assigned to a doer, a reviewer and someone kept informed.
+      valueSemantics:
+        RESPONSIBLE: Does the work and answers for it being done.
+        REVIEWER: Checks the work once it is done.
+        CONTRIBUTOR: Helps with part of the work.
+        OBSERVER: Is kept informed but does no work.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: When the assignee becomes responsible.
+      usage: Set by whoever assigns the work.
+      relationshipContext: Must not be later than the end date.
+  - name: endDate
+    type: date
+    required: false
+    help:
+      summary: When the assignment is planned to end.
+      usage: Set for time-boxed work; empty when it lasts until the work is done.
+      relationshipContext: Workload planning ignores the assignment after this date.
+  - name: allocationPercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    default: 100
+    help:
+      summary: The share of the assignee's working time the work takes.
+      usage: Summed across a person's active assignments to see whether they are overloaded.
+      relationshipContext: Between 0 and 100.
+  - name: notes
+    type: text
+    required: false
+    help:
+      summary: Instructions or context for the assignee.
+      usage: Written by whoever assigns the work.
+      relationshipContext: Free text.
+  relationships:
+  - name: assignee
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person the work is assigned to.
+      usage: Chosen when assigning to an individual; the work appears in their list.
+      cardinalityMeaning: At most one person per assignment.
+      context: A person, a team or both may be given; at least one must be.
+  - name: team
+    target: Team
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The team the work is assigned to.
+      usage: Chosen when a team owns the work and any member may pick it up.
+      cardinalityMeaning: At most one team per assignment.
+      context: When both a team and a person are given, the person works on the team's behalf.
+  - name: task
+    target: Task
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The task being assigned.
+      usage: Chosen when the work is a task; most assignments are.
+      cardinalityMeaning: At most one task per assignment; a task may have several assignments over time.
+      context: Completing the task completes its responsible assignment.
+  - name: assignedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who made the assignment.
+      usage: Recorded when the work is allocated.
+      cardinalityMeaning: One per assignment.
+      context: Usually a supervisor or the system's routing rules acting for one.
   invariants:
-  - {id: ASSIGNMENT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  - {id: ASSIGNMENT-001, rule: An ended assignment is kept unchanged; reassigning work creates a new assignment.}
+  - {id: ASSIGNMENT-002, rule: The end date must not be earlier than the start date., violatedWhen: end_date != null and start_date != null and end_date < start_date, message: The end date is earlier than the start date.}
+  - {id: ASSIGNMENT-003, rule: The allocation is a percentage between 0 and 100., violatedWhen: allocation_percent != null and (allocation_percent < 0 or allocation_percent > 100), message: The allocation must be between 0 and 100 percent.}
+  - {id: ASSIGNMENT-004, rule: An assignment names a person or a team., violatedWhen: assignee_id == null and team_id == null, message: Choose the person or the team the work is assigned to.}
+  workflows:
+  - name: ApprovalRequested
+    title: "Ask for a decision when an assignment is put forward"
+    description: "When an assignment is proposed, a task asks someone to decide on it."
+    when: "status == \"PROPOSED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ASSIGNMENT-APPROVAL-{{id}}"
+          name: "Decide on assignment {{assignment_number}}"
+          description: "Assignment {{assignment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
   lifecycle:
     title: Assignment Lifecycle
     attribute: status
-    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    initial: PENDING
-    terminal: [COMPLETED, CANCELLED]
+    states: [PROPOSED, ACTIVE, DECLINED, COMPLETED, RELEASED]
+    initial: PROPOSED
+    terminal: [DECLINED, COMPLETED, RELEASED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a assignment is ended"
-      description: "When a assignment is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ASSIGNMENT-FOLLOW-UP-{{id}}"
-              name: "Follow up on assignment {{id}}"
-              description: "Assignment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: PROPOSED, to: ACTIVE, action: accept}
+    - {from: PROPOSED, to: DECLINED, action: decline}
+    - {from: ACTIVE, to: COMPLETED, action: complete}
+    - {from: ACTIVE, to: RELEASED, action: release}
   help:
-    summary: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: Who is responsible for a piece of work, from when, until when, and with how much of their time.
+    businessMeaning: Work has to be owned. An assignment records that a person or team took responsibility for a task or other work item, so that work lists, workloads and hand-overs can be managed and nobody can later be unsure whose job it was.
+    usage: Supervisors assign work and reassign it when people are absent or overloaded; each person's work list comes from their active assignments; workload reports sum the allocation percentages.
+    relationshipContext: An assignment names the assignee — a person, a team, or both when a team member is designated — and the Task it concerns; other work items are named by their kind and reference. One task may have a history of assignments, of which at most one is active.
+    lifecycle: Proposed until the assignee accepts it, then active until the work is done or the assignment ends; it may be declined, or released early when the work is handed to someone else.
+    workflowContext: Work distribution, case routing and resource planning create assignments; escalation reassigns overdue work; time recording and performance reporting read them.
+    example: Assignment ASG-2024-2203 gives task 'Reconcile supplier statement – Contoso' to Priya Shah in the payables team, 50% of her time from 2 to 9 September, accepted on 2 September.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSIGNMENT}

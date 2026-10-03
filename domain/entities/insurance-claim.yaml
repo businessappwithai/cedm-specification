@@ -166,8 +166,8 @@ entity:
       - {from: PARTIALLY_APPROVED, to: DENIED, action: deny}
   workflows:
     - name: ApprovalRequested
-      title: "Ask for a decision when a insurance claim is put forward"
-      description: "When a insurance claim is under review, a task asks someone to decide on it."
+      title: "Ask for a decision when an insurance claim is put forward"
+      description: "When an insurance claim is under review, a task asks someone to decide on it."
       when: "status == \"UNDER_REVIEW\" and status != _previous_status"
       steps:
         - id: S1
@@ -184,8 +184,8 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
     - name: FollowUpRequired
-      title: "Follow up when a insurance claim is ended"
-      description: "When a insurance claim is denied, a task asks someone to settle what depended on it."
+      title: "Follow up when an insurance claim is ended"
+      description: "When an insurance claim is denied, a task asks someone to settle what depended on it."
       when: "status == \"DENIED\" and status != _previous_status"
       steps:
         - id: S1
@@ -202,7 +202,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a insurance transaction called InsuranceClaim within the CEDM business model.
+    summary: Represents an insurance transaction called InsuranceClaim within the CEDM business model.
     businessMeaning: InsuranceClaim is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

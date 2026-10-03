@@ -2,23 +2,215 @@ entity:
   name: Activity
   namespace: cedm.domain
   kind: crm_activity
-  description: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities.
+  description: A logged or planned customer interaction — a call, meeting, email, site visit or follow-up — recorded against the customer, contact, lead or opportunity it concerns.
   ui:
-    icon: activity
+    icon: phone-call
+    recordLabel: [subject]
   identity: {key: activityId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: activityId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Activity., businessMeaning: Identifies one governed Activity record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Activity., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
-  relationships: []
+  - name: code
+    type: string
+    required: false
+    maxLength: 120
+    help:
+      summary: The short reference people quote for the activity, such as ACT-2024-0153.
+      usage: Assigned when the activity is logged and used to find it again from a note, an email or a report.
+      relationshipContext: A convenience for people; the activity's identity is its system identifier, and the code may be left empty.
+  - name: subject
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: A one-line statement of what the interaction is about.
+      usage: Written when the activity is created and shown in every list of activities, so it should say the topic plainly, such as "Renewal pricing call".
+      relationshipContext: The subject is what identifies the activity on screens; details go in the notes and the result in the outcome.
+  - name: activityType
+    type: enum
+    required: true
+    default: CALL
+    values: [CALL, MEETING, EMAIL, VISIT, TASK, NOTE]
+    help:
+      summary: The kind of interaction.
+      usage: Chosen when the activity is logged; it decides how the activity is counted in activity reports and which fields matter (a meeting has a location, an email does not).
+      relationshipContext: Read with direction — an outbound call is a sales effort, an inbound one is a customer reaching out.
+      valueSemantics:
+        CALL: A telephone or video call with the customer or prospect.
+        MEETING: A meeting in person or online with one or more people from the account.
+        EMAIL: An email exchange that is worth keeping on the account history.
+        VISIT: A visit to the customer's premises or to a site.
+        TASK: A piece of follow-up work done for the account without contacting it, such as preparing a quote.
+        NOTE: A note recorded for the account without any interaction, such as information heard from a third party.
+  - name: direction
+    type: enum
+    required: false
+    default: OUTBOUND
+    values: [INBOUND, OUTBOUND, INTERNAL]
+    help:
+      summary: Whether the interaction was started by the company, by the customer, or was internal.
+      usage: Recorded with the activity type; it separates the sales team's outreach from requests the customer made.
+      relationshipContext: Used together with the activity type in activity reporting; it does not apply to notes.
+      valueSemantics:
+        INBOUND: The customer or prospect started the interaction.
+        OUTBOUND: Someone from the company started the interaction.
+        INTERNAL: A discussion inside the company about the account, without the customer.
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]
+    help:
+      summary: Where the activity stands — still to happen, under way, held, or called off.
+      usage: Moved on as the activity happens; planned activities whose start has passed appear as overdue follow-ups.
+      relationshipContext: A completed activity needs its completion time and should carry an outcome.
+      valueSemantics:
+        PLANNED: Scheduled for the future and not yet started.
+        IN_PROGRESS: Under way now, for example a meeting that has started.
+        COMPLETED: Held, with the outcome recorded.
+        CANCELLED: Will not take place; kept so the history shows it was planned.
+  - name: priority
+    type: enum
+    required: true
+    default: NORMAL
+    values: [LOW, NORMAL, HIGH]
+    help:
+      summary: How urgently the activity should be done.
+      usage: Set when planning follow-ups so the owner's list puts the important ones first.
+      relationshipContext: Independent of status; a high-priority planned activity that is overdue is the first thing a manager looks at.
+      valueSemantics:
+        LOW: Can wait until more pressing work is done.
+        NORMAL: To be done on the planned date.
+        HIGH: Needed promptly because a deal or a customer relationship depends on it.
+  - name: scheduledStart
+    type: datetime
+    required: false
+    help:
+      summary: When the activity is planned to start.
+      usage: Set when the activity is planned; it puts the activity on the owner's calendar and makes it overdue once passed.
+      relationshipContext: Read with the scheduled end; for an activity logged after the fact it is when the interaction happened.
+  - name: scheduledEnd
+    type: datetime
+    required: false
+    help:
+      summary: When the activity is planned to end.
+      usage: Set for meetings and visits so that calendars show their length; calls and emails usually leave it empty.
+      relationshipContext: Must not be earlier than the scheduled start.
+  - name: completedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the activity was actually held or finished.
+      usage: Filled in when the activity is marked completed; reports of activity volume count by this time.
+      relationshipContext: Required once the status is completed.
+  - name: location
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: Where a meeting or visit takes place.
+      usage: Given for meetings and visits — an address, a room, or the link to an online meeting.
+      relationshipContext: Not meaningful for calls, emails, tasks or notes.
+  - name: outcome
+    type: text
+    required: false
+    help:
+      summary: What came out of the interaction — decisions, commitments and next steps.
+      usage: Written when the activity is completed; it is the part of the record colleagues read later.
+      relationshipContext: The outcome often leads to a new planned activity or to a change in the opportunity's stage.
+  - name: notes
+    type: text
+    required: false
+    help:
+      summary: Further detail about the interaction.
+      usage: Agenda, discussion points or background that do not belong in the subject or the outcome.
+      relationshipContext: Free text; no rule or process reads it.
+  relationships:
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The customer the activity concerns.
+      usage: Chosen when logging an activity for an existing customer; the customer's history lists it.
+      cardinalityMeaning: An activity concerns at most one customer, and none when it is with a lead.
+      context: A customer or a lead is normally given, so that the activity appears in someone's history.
+  - name: lead
+    target: Lead
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The lead the activity concerns, before the lead has become a customer.
+      usage: Chosen while a lead is being qualified; its activities show how far qualification has got.
+      cardinalityMeaning: An activity concerns at most one lead.
+      context: When the lead converts, its activities stay with it and remain visible from the resulting customer and opportunity.
+  - name: opportunity
+    target: Opportunity
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The sales opportunity the activity moves forward.
+      usage: Chosen for activities that belong to a specific deal, so that the opportunity shows every interaction about it.
+      cardinalityMeaning: An activity advances at most one opportunity.
+      context: Opportunity reviews read the last and the next activity to judge whether a deal is progressing.
+  - name: contact
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person at the customer or lead who took part in the interaction.
+      usage: Chosen so that the history shows who said what, and so that the next activity is addressed to the right person.
+      cardinalityMeaning: One main contact per activity; others can be named in the notes.
+      context: The person belongs to the customer's or the lead's organization.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The colleague responsible for the activity.
+      usage: Set to whoever will hold or held the interaction; each person's list of planned activities comes from this.
+      cardinalityMeaning: Each activity has one owner.
+      context: Ownership can be handed to another colleague, for example when an account changes hands.
   invariants:
-  - {id: ACTIVITY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: ACTIVITY-001, rule: 'A held activity is not rewritten; a correction is recorded as a note or a new activity, so the account history stays truthful.'}
+  - {id: ACTIVITY-002, rule: The scheduled end must not be earlier than the scheduled start., violatedWhen: scheduled_end != null and scheduled_start != null and scheduled_end < scheduled_start, message: The scheduled end is earlier than the scheduled start.}
+  - {id: ACTIVITY-003, rule: A completed activity records when it was completed., violatedWhen: status == "COMPLETED" and completed_at == null, message: Give the time the activity was completed.}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when an activity is ended"
+    description: "When an activity is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "ACTIVITY-FOLLOW-UP-{{id}}"
+          name: "Follow up on activity {{code}}"
+          description: "Activity {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  lifecycle:
+    title: Activity Lifecycle
+    attribute: status
+    states: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: PLANNED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+    - {from: PLANNED, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   help:
-    summary: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities.
-    purpose: Provide canonical implementation-neutral semantics for Activity across enterprise applications.
-    businessMeaning: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: One interaction with a customer or prospect, planned or already held, and what came of it.
+    businessMeaning: Activities are the working record of a sales or account relationship. Each one says who was contacted, how, when, about what and with what outcome, so anyone picking up the account can see the conversation so far and what was promised next.
+    usage: Sales and account staff log an activity after every call, meeting or email that matters, and schedule the next one as a planned activity. Managers read the activities on an opportunity to judge whether it is moving, and the pipeline review uses overdue planned activities to find neglected deals.
+    relationshipContext: An activity belongs to the account it concerns — a Customer, or a Lead before there is one — and may also name the Opportunity it advances and the person contacted. The owner is the colleague responsible for it. Many activities make up the history of one opportunity or customer.
+    lifecycle: A planned activity is scheduled for the future; it moves to in progress when it starts and to completed once it has been held and its outcome written down. One that will not take place is cancelled rather than deleted, so the history shows that it was planned.
+    workflowContext: Lead qualification and opportunity management both run on activities — qualify the lead, hold discovery meetings, send the proposal, follow up — and each completed activity usually creates the next planned one.
+    example: 'Call with the purchasing manager of Acme Ltd on 4 March about renewing the service contract. Outcome: they want a revised quote by Friday. Next activity planned: email the quote on 7 March.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ACTIVITY}
