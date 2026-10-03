@@ -1,0 +1,215 @@
+/**
+ * Icon — lucide resolution, Astryx rendering.
+ *
+ * These two do different jobs and both are needed. The dictionary stores icon
+ * *names* — `sys_table.icon`, `sys_category.icon`, `sys_window.icon`, written
+ * by the seed from the model's `%%entity … icon:` and by an administrator at
+ * runtime — so the component must resolve an arbitrary name to a glyph, which
+ * is what lucide gives us and Astryx does not: `@astryxdesign/core/Icon`
+ * accepts a component or one of 26 semantic names (`close`, `chevronDown`, …),
+ * not a free-form lucide name.
+ *
+ * So: lucide resolves the name, Astryx renders the result. Colour and size then
+ * come from the active theme rather than from Tailwind classes, which is the
+ * whole point of the swap.
+ *
+ * **How the name is looked up is the part that was wrong.** It used to be
+ * `LucideIcons[name]` over `import * as LucideIcons`, and that is two defects
+ * in one line:
+ *
+ * - The barrel is keyed by lucide's **PascalCase export names** (`FlaskConical`,
+ *   `ShieldCheck`), while every name the dictionary actually holds is lucide's
+ *   own **kebab-case id** — that is what `%%entity Compound icon: flask-conical`
+ *   writes, and the language definition names `flask-conical` as the spelling
+ *   to use. The lookup missed on all of them and fell through to the
+ *   placeholder, so a model that named an icon rendered exactly like one that
+ *   named none.
+ * - A namespace import of a barrel cannot be tree-shaken, so the whole icon set
+ *   was downloaded by whichever screen imported it — the dashboard, which draws
+ *   a handful.
+ *
+ * `dynamicIconImports` is one lazy import per icon, keyed by those kebab ids. A
+ * name is normalised to that form, fetched on demand, and only the icons a
+ * screen actually names are ever downloaded.
+ *
+ * It is not quite the same set as the barrel: lucide 0.312 exports 1475 icon
+ * components and lists 1401 dynamic ids, so a handful of names the barrel could
+ * render are unreachable this way. None of them is a name a seed writes — those
+ * are lucide's own ids, which are exactly this map's keys — but a hand-typed
+ * `sys_table.icon` can land on one, and it renders the placeholder.
+ */
+import dynamicIconImports from "lucide-react/dynamicIconImports";
+import {
+  type ComponentType,
+  type CSSProperties,
+  type SVGProps,
+  lazy,
+  Suspense,
+  useMemo,
+} from "react";
+import { Icon as AstryxIcon } from "@astryxdesign/core/Icon";
+
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
+type IconModules = Record<string, () => Promise<{ default: IconComponent }>>;
+
+const ICON_IMPORTS = dynamicIconImports as unknown as IconModules;
+
+export interface IconProps {
+  name: string;
+  /**
+   * Pixel size, kept for call-site compatibility. Astryx sizes from a scale, so
+   * this is mapped to the nearest step rather than applied literally — a theme
+   * that changes its icon scale should move every icon with it.
+   */
+  size?: number;
+  className?: string;
+  style?: CSSProperties;
+  /** Set only when the icon carries meaning no adjacent text conveys. */
+  label?: string;
+}
+
+/**
+ * Whatever the dictionary wrote, in lucide's own spelling.
+ *
+ * Accepts the three forms a row is realistically written in — `LayoutGrid`,
+ * `layout_grid`, `layout-grid` — because a seed writes the third, an
+ * administrator typing into the icon field may write either of the first two,
+ * and none of that is worth a migration.
+ *
+ * Two rules exist because the obvious version of this function got them wrong,
+ * both ways:
+ *
+ * - **A name that is already an id is returned untouched.** Without that, the
+ *   digit rule splits ids that were correct on arrival: `grid-2x2` becomes
+ *   `grid-2x-2`, so an icon that used to render stops. Asking the map first is
+ *   also the right order — the common case needs no transformation at all.
+ * - **A run of capitals splits before the last one, not after the first.**
+ *   `AArrowDown` is `a-arrow-down` and `ArrowDownAZ` is `arrow-down-a-z`; a
+ *   single `([a-z])([A-Z])` boundary produces `aarrow-down` and `arrow-down-az`,
+ *   neither of which is an id.
+ */
+export function normalizeIconName(name: string): string {
+  const trimmed = name.trim();
+  // Already one of lucide's own ids — the common case, since that is what the
+  // seeds write.
+  if (Object.hasOwn(ICON_IMPORTS, trimmed)) return trimmed;
+
+  return trimmed
+    .replace(/[\s_]+/g, "-")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+    .replace(/([a-z\d])([A-Z])/g, "$1-$2")
+    .replace(/([A-Za-z])(\d)/g, "$1-$2")
+    .replace(/([A-Z])(?=[A-Z])/g, "$1-")
+    .toLowerCase()
+    .replace(/-+/g, "-");
+}
+
+// Style objects live at module scope rather than inline in JSX: an inline
+// style prop opens with two braces, which Handlebars reads as the start of an
+// expression and refuses to render.
+function placeholderStyle(size: number, incoming?: CSSProperties): CSSProperties {
+  return {
+    width: `${size}px`,
+    height: `${size}px`,
+    fontSize: `${size}px`,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    ...incoming,
+  };
+}
+
+/**
+ * The placeholder, for a name lucide does not have — and for the moment an
+ * icon that does is still in flight.
+ *
+ * One component for both paths deliberately: an icon that resolves late must
+ * not move the layout when it arrives, so the fallback occupies the same box.
+ */
+function IconPlaceholder({
+  size,
+  className,
+  style,
+  label,
+}: {
+  size: number;
+  className?: string;
+  style?: CSSProperties;
+  label?: string;
+}) {
+  return (
+    <span
+      className={className}
+      aria-hidden={label ? undefined : true}
+      aria-label={label}
+      role={label ? "img" : undefined}
+      style={placeholderStyle(size, style)}
+    >
+      ▫
+    </span>
+  );
+}
+
+/**
+ * One `lazy()` per icon name, not per render.
+ *
+ * `React.lazy` returns a new component type on every call, and a new type
+ * unmounts and remounts the subtree — building one inside the render would make
+ * every icon re-fetch its own chunk on every parent render.
+ */
+const lazyIcons = new Map<string, IconComponent>();
+
+function getLazyIcon(id: string): IconComponent | null {
+  const cached = lazyIcons.get(id);
+  if (cached) return cached;
+
+  const loader = ICON_IMPORTS[id];
+  if (!loader) return null;
+
+  const component = lazy(loader);
+  lazyIcons.set(id, component);
+  return component;
+}
+
+/** Astryx's four steps, in pixels at a 16px root: 12, 16, 20, 24. */
+function nearestSize(px: number): "xsm" | "sm" | "md" | "lg" {
+  if (px <= 14) return "xsm";
+  if (px <= 18) return "sm";
+  if (px <= 22) return "md";
+  return "lg";
+}
+
+export function Icon({ name, size = 16, className, style, label }: IconProps) {
+  const resolved = useMemo(() => getLazyIcon(normalizeIconName(name)), [name]);
+
+  if (!resolved) {
+    // An unknown name means the dictionary holds an icon this build does not
+    // have. Rendering a placeholder rather than throwing keeps one bad
+    // metadata row from blanking the screen it appears on.
+    return <IconPlaceholder size={size} className={className} style={style} label={label} />;
+  }
+
+  return (
+    <Suspense
+      fallback={<IconPlaceholder size={size} className={className} style={style} label={label} />}
+    >
+      <AstryxIcon
+        icon={resolved}
+        size={nearestSize(size)}
+        className={className}
+        style={style}
+        {...(label ? { label } : {})}
+      />
+    </Suspense>
+  );
+}
+
+/**
+ * Every name `Icon` will resolve — lucide's own ids, which is the spelling the
+ * dictionary stores. Used by the icon picker in admin forms.
+ */
+export function getAvailableIconNames(): string[] {
+  return Object.keys(ICON_IMPORTS);
+}
+
+export default Icon;

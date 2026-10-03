@@ -1,0 +1,606 @@
+//! Draft → final promotion.
+//!
+//! A business row is inserted as a **draft**; this decides whether it becomes
+//! **final** by running the entity's business rules and, if a rule asks for it,
+//! its workflow.
+//!
+//! ## Why this runs inline (§6.7 option A, decision D3)
+//!
+//! The TypeScript stack dispatched promotion to Trigger.dev and then *waited*
+//! for the result via `triggerAndPoll`, so the POST response could carry the
+//! final `doc_status`. A Loco `BackgroundQueue` job is fire-and-forget, so
+//! moving promotion onto the queue would change the create/update response
+//! shape and force the client to poll — a contract break (§9) for no benefit.
+//!
+//! Promotion is a synchronous business decision, not background work, so it
+//! runs inline here. The queue is reserved for genuinely asynchronous jobs
+//! (email, reports, sync). This also matches what the TypeScript stack already
+//! did whenever Trigger.dev was not configured, which was its default.
+
+use serde_json::{Map, Value};
+
+/// Substitute `$`-brace-field references with values from the triggering row.
+///
+/// This is what lets a cascade carry data forward instead of only writing
+/// constants: `updateData` can name a field on the record that fired the rule,
+/// and the value that field actually held is what lands on the target.
+/// A reference to a field the row does not have is left as written rather than
+/// blanked, so a typo is visible in the data instead of silently erasing it.
+/// The columns a `transform` action asks to rewrite, resolved and filtered.
+///
+/// Split out from `transform` so the decision can be tested without a database:
+/// what a transform writes is the part worth pinning, and the UPDATE that
+/// follows it is `DynamicRepo`'s own contract.
+fn transform_columns(config: &Value, row: &Value) -> Map<String, Value> {
+    let Some(template) = config.get("transformData").and_then(Value::as_object) else {
+        return Map::new();
+    };
+    let mut resolved = resolve_placeholders(template, row);
+    resolved.retain(|column, _| !MANAGED_COLUMNS.contains(&column.as_str()));
+    resolved
+}
+
+fn resolve_placeholders(template: &Map<String, Value>, row: &Value) -> Map<String, Value> {
+    let mut resolved = Map::new();
+    for (key, value) in template {
+        let Some(text) = value.as_str() else {
+            resolved.insert(key.clone(), value.clone());
+            continue;
+        };
+
+        let Some(field) = text
+            .strip_prefix('$')
+            .and_then(|rest| rest.strip_prefix('{'))
+            .and_then(|rest| rest.strip_suffix('}'))
+        else {
+            resolved.insert(key.clone(), value.clone());
+            continue;
+        };
+
+        match row.get(field) {
+            Some(found) => resolved.insert(key.clone(), found.clone()),
+            None => resolved.insert(key.clone(), value.clone()),
+        };
+    }
+    resolved
+}
+
+use crate::errors::AppResult;
+use crate::services::dictionary::TableMeta;
+use crate::services::dynamic_repo::DynamicRepo;
+use crate::services::rules_engine::{RuleOperation, RulesEngine};
+use crate::services::workflow::{WorkflowContext, WorkflowExecutor};
+
+/// Terminal states of the promotion pipeline. These strings are written to
+/// `doc_status` and read by the frontend, so they are contract.
+pub const STATUS_DRAFT: &str = "draft";
+pub const STATUS_FINAL: &str = "final";
+pub const STATUS_REJECTED: &str = "rejected";
+
+/// Whether a matched rule action refuses the write rather than acting on it.
+///
+/// Two action names mean "do not accept this record", and they come from
+/// different places: `prevent` is what the rules *editor* writes, and
+/// `validation-error` is what a model's `%%action` compiles to. The language
+/// definition is explicit that the second one rejects the write and returns
+/// its message to the caller, but only the first was ever checked here — so a
+/// modelled validation was compiled into `seed/rules.sql`, matched at run time,
+/// fell through to `run_action`, and was logged as an unknown action while the
+/// record was written and reported back as `final`.
+///
+/// That is the worst shape a validation failure can take: the rule is present
+/// in the dictionary, the decision graph matches, and the only trace is a
+/// warning nobody reads. Both names have to be recognised in the same
+/// place, or the two authoring routes disagree about what a rejection is.
+fn is_blocking(action_type: &str) -> bool {
+    matches!(action_type, "prevent" | "validation-error")
+}
+
+/// Columns the pipeline owns, which a rule may not rewrite.
+///
+/// `doc_status` is what `finalize` settles and `id` names the record; a
+/// transform onto either would be a rule fighting the pipeline it runs inside.
+const MANAGED_COLUMNS: [&str; 5] = ["id", "doc_status", "created_at", "updated_at", "deleted_at"];
+
+#[derive(Debug, Clone, Default)]
+pub struct PromotionOutcome {
+    pub doc_status: String,
+    pub message: Option<String>,
+    /// Columns a `transform` action rewrote, and what it wrote.
+    ///
+    /// The transform lands in the database as an UPDATE, so a later read shows
+    /// it — but the create/update response is built from the row as it was
+    /// *sent*, and returning a body that contradicts the row just written is
+    /// worse than not transforming at all. The caller merges these back.
+    pub transformed: Map<String, Value>,
+}
+
+impl PromotionOutcome {
+    #[must_use]
+    pub fn to_json(&self) -> Value {
+        serde_json::json!({
+            "docStatus": self.doc_status,
+            "message": self.message,
+        })
+    }
+}
+
+#[derive(Clone)]
+pub struct PromotionService {
+    repo: DynamicRepo,
+    rules: RulesEngine,
+    /// The same executor `/api/workflow/{id}/execute` drives.
+    ///
+    /// A rule's `trigger-workflow` action has to *run* the workflow it names,
+    /// not merely note that it would have. Holding the executor here rather
+    /// than reaching into `shared_store` keeps `promote` callable from
+    /// anywhere that already has this service.
+    workflows: WorkflowExecutor,
+}
+
+impl PromotionService {
+    #[must_use]
+    pub fn new(repo: DynamicRepo, rules: RulesEngine, workflows: WorkflowExecutor) -> Self {
+        Self {
+            repo,
+            rules,
+            workflows,
+        }
+    }
+
+    /// Evaluate rules for a freshly written row and settle its `doc_status`.
+    ///
+    /// A blocking action rejects; anything else promotes. Rule *infrastructure*
+    /// failure never rejects — `RulesEngine` returns a non-matching result in
+    /// that case, so the row promotes and the error is logged (§6.5 fail-open).
+    pub async fn promote(
+        &self,
+        meta: &TableMeta,
+        row: &Value,
+        operation: RuleOperation,
+        jdms: &[String],
+    ) -> AppResult<PromotionOutcome> {
+        if jdms.is_empty() {
+            // No rules configured for this entity: nothing can block it.
+            return self.finalize(meta, row, STATUS_FINAL, None, Map::new()).await;
+        }
+
+        let data: Map<String, Value> = row
+            .as_object()
+            .cloned()
+            .unwrap_or_default();
+
+        // Each document is a decision graph in its own right, so they are
+        // evaluated independently and their verdicts pooled. One rule matching
+        // says nothing about whether another should.
+        let mut results = Vec::new();
+        for jdm in jdms {
+            results.extend(
+                self.rules
+                    .evaluate_jdm_str(&meta.table_name, jdm, &data, operation, None)
+                    .await,
+            );
+        }
+
+        let blocking = results
+            .iter()
+            .filter(|result| result.matched)
+            .flat_map(|result| &result.actions)
+            .find(|action| is_blocking(&action.action_type));
+
+        if let Some(action) = blocking {
+            let message = action
+                .config
+                .get("message")
+                .and_then(Value::as_str)
+                .unwrap_or("Rejected by a business rule")
+                .to_string();
+            // A prevented write runs no side effects: the record is not going
+            // to exist, so cascading off it would leave the other tables
+            // describing something that never happened.
+            return self
+                .finalize(meta, row, STATUS_REJECTED, Some(message), Map::new())
+                .await;
+        }
+
+        // Everything the rules asked for, in the order they asked. A pipeline
+        // that stopped at the first action would silently drop the rest of a
+        // multi-step rule, which is indistinguishable from the rule not
+        // matching at all.
+        let mut transformed = Map::new();
+
+        for action in results
+            .iter()
+            .filter(|result| result.matched)
+            .flat_map(|result| &result.actions)
+        {
+            // A transform rewrites the row that fired the rule, so it is
+            // applied here rather than in `run_action`: the columns it wrote
+            // have to reach the response body, and `run_action` returns only
+            // whether it succeeded.
+            if action.action_type == "transform" {
+                match self.transform(meta, row, &action.config).await {
+                    Ok(written) => transformed.extend(written),
+                    Err(err) => crate::log_event!(
+                        rules_action_failed,
+                        error = ?err,
+                        action = "transform",
+                        table = meta.table_name
+                    ),
+                }
+                continue;
+            }
+
+            if let Err(err) = self.run_action(meta, row, action).await {
+                // A side effect that fails must not fail the write that
+                // triggered it — the record is valid, and the rule is
+                // automation layered on top (§6.5, fail-open).
+                crate::log_event!(
+                    rules_action_failed,
+                    error = ?err,
+                    action = action.action_type,
+                    table = meta.table_name
+                );
+            }
+        }
+
+        self.finalize(meta, row, STATUS_FINAL, None, transformed).await
+    }
+
+    /// Carry out one non-blocking rule action.
+    ///
+    /// These are what make the rules engine an automation surface rather than a
+    /// validator: a matched rule can start a workflow, push an update into a
+    /// related record, or create one somewhere else entirely.
+    async fn run_action(
+        &self,
+        meta: &TableMeta,
+        row: &Value,
+        action: &crate::services::rules_engine::RuleAction,
+    ) -> AppResult<()> {
+        match action.action_type.as_str() {
+            "trigger-workflow" => self.trigger_workflow(meta, row, &action.config).await,
+            "cascade-update" => self.cascade_update(row, &action.config).await,
+            "create-record" => self.create_record(&action.config, row).await,
+            // The blocking actions are handled above and `transform` in the
+            // loop that calls this, because it has a value to hand back;
+            // anything else is a rule authored against an action this build
+            // does not implement, which is worth saying out loud.
+            "transform" => Ok(()),
+            other if is_blocking(other) => Ok(()),
+            other => {
+                crate::log_event!(rules_action_unknown, action = other);
+                Ok(())
+            }
+        }
+    }
+
+    /// Run the workflow a rule names, and record what it did.
+    ///
+    /// This used to insert a `sys_workflow_runs` row marked `completed` and
+    /// stop. The trace was real and the work was not: a `%%rule` whose action
+    /// is `trigger-workflow` produced a run log saying a chain of
+    /// `CreateEntity`/`UpdateEntity`/`Formula` steps had succeeded while none
+    /// of them had executed. That is worse than doing nothing, because the
+    /// operator's only view into the pipeline was actively reporting the wrong
+    /// answer.
+    ///
+    /// The definition is resolved by name because that is what a rule can
+    /// carry — a JDM document is authored against the workflow the modeller
+    /// called "Escalate", not against a uuid that did not exist when the rule
+    /// was written. A name matching nothing is a rule pointing at a workflow
+    /// somebody deleted or renamed: recorded as a failed run, not silently
+    /// dropped, and never fatal to the write that triggered it.
+    ///
+    /// Rule infrastructure fails open (§6.5), and so does this: a workflow
+    /// that throws leaves a `failed` run behind and lets the row promote. A
+    /// write is not rolled back because a downstream automation broke.
+    async fn trigger_workflow(
+        &self,
+        meta: &TableMeta,
+        row: &Value,
+        config: &Value,
+    ) -> AppResult<()> {
+        let workflow_name = config
+            .get("workflowName")
+            .and_then(Value::as_str)
+            .unwrap_or("unnamed");
+
+        let entity_id = row
+            .get("id")
+            .and_then(Value::as_str)
+            .and_then(|id| uuid::Uuid::parse_str(id).ok());
+
+        // Most recent wins: a definition may be superseded without the older
+        // row being deleted, and the rule names only the workflow.
+        let definition: Option<(String, String)> = sqlx::query_as(
+            r"SELECT entity_name, bpmn_xml
+                FROM sys_workflow_definitions
+               WHERE name = $1 AND COALESCE(is_active, TRUE)
+                 AND bpmn_xml IS NOT NULL
+               ORDER BY created_at DESC
+               LIMIT 1",
+        )
+        .bind(workflow_name)
+        .fetch_optional(self.repo.pool())
+        .await?;
+
+        let (status, error) = match definition {
+            None => (
+                "failed",
+                Some(format!("no active workflow named '{workflow_name}'")),
+            ),
+            Some((entity_name, bpmn_xml)) => {
+                let outcome = self.run_definition(&entity_name, &bpmn_xml, row).await;
+                match outcome {
+                    Ok(()) => ("completed", None),
+                    Err(err) => ("failed", Some(err.to_string())),
+                }
+            }
+        };
+
+        if let Some(message) = error.as_deref() {
+            crate::log_event!(
+                rules_workflow_incomplete,
+                workflow = workflow_name,
+                table = %meta.table_name,
+                error = message
+            );
+        }
+
+        sqlx::query(
+            r"INSERT INTO sys_workflow_runs
+                (entity_name, entity_id, operation, status, error_details, created_by,
+                 created_at, completed_at)
+              VALUES ($1, $2, 'RULE', $3, $4, $5, NOW(), NOW())",
+        )
+        .bind(&meta.table_name)
+        .bind(entity_id)
+        .bind(status)
+        .bind(error)
+        .bind(workflow_name)
+        .execute(self.repo.pool())
+        .await?;
+
+        Ok(())
+    }
+
+    /// Parse and run one definition against the row that triggered it.
+    ///
+    /// The triggering row is the run's `entityData`, so a step interpolating
+    /// `{{field}}` sees the record as it was written — which is what makes a
+    /// rule-triggered chain able to act on the thing that set it off.
+    async fn run_definition(
+        &self,
+        entity_name: &str,
+        bpmn_xml: &str,
+        row: &Value,
+    ) -> AppResult<()> {
+        let tasks = crate::services::workflow::parse_tasks(bpmn_xml)?;
+        let mut run = WorkflowContext {
+            entity_name: entity_name.to_string(),
+            entity_id: row
+                .get("id")
+                .and_then(Value::as_str)
+                .map(ToString::to_string),
+            entity_data: row.as_object().cloned().unwrap_or_default(),
+            decision: serde_json::Map::new(),
+            vars: serde_json::Map::new(),
+        };
+        self.workflows.run(&tasks, &mut run).await
+    }
+
+    /// Push an update into rows of another entity related to this one.
+    ///
+    /// `linkField` names the column on *this* row holding the target's id, so
+    /// the cascade follows the relationship the model already describes rather
+    /// than inventing one.
+    /// Rewrite columns on the row that fired the rule.
+    ///
+    /// `%%action <name> transform field: <column> value: <value>` is one of the
+    /// three action types EML ships, and it was the one with nowhere to land:
+    /// the compiler emitted no payload column for it and `run_action` had no
+    /// arm, so a declared transform was logged as an unknown action and the
+    /// column kept whatever the caller sent.
+    ///
+    /// Placeholders resolve against the triggering row, the same as a cascade,
+    /// so a transform can carry a value forward rather than only write a
+    /// constant. Managed columns are refused: `doc_status` is settled by
+    /// `finalize` and `id` names the record, so a rule that rewrote either
+    /// would be fighting the pipeline it runs inside.
+    async fn transform(
+        &self,
+        meta: &TableMeta,
+        row: &Value,
+        config: &Value,
+    ) -> AppResult<Map<String, Value>> {
+        let resolved = transform_columns(config, row);
+        if resolved.is_empty() {
+            return Ok(Map::new());
+        }
+
+        let Some(id) = row
+            .get("id")
+            .and_then(Value::as_str)
+            .and_then(|id| uuid::Uuid::parse_str(id).ok())
+        else {
+            return Ok(Map::new());
+        };
+
+        self.repo
+            .update_raw(&meta.table_name, id, &resolved)
+            .await?;
+        Ok(resolved)
+    }
+
+    async fn cascade_update(&self, row: &Value, config: &Value) -> AppResult<()> {
+        let (Some(target), Some(link_field)) = (
+            config.get("targetEntity").and_then(Value::as_str),
+            config.get("linkField").and_then(Value::as_str),
+        ) else {
+            return Ok(());
+        };
+
+        let Some(target_id) = row
+            .get(link_field)
+            .and_then(Value::as_str)
+            .and_then(|id| uuid::Uuid::parse_str(id).ok())
+        else {
+            // The triggering row does not point at anything — nothing to
+            // cascade into, which is a data shape, not a failure.
+            return Ok(());
+        };
+
+        let Some(update_data) = config.get("updateData").and_then(Value::as_object) else {
+            return Ok(());
+        };
+
+        let resolved = resolve_placeholders(update_data, row);
+        if resolved.is_empty() {
+            return Ok(());
+        }
+
+        self.repo.update_raw(target, target_id, &resolved).await
+    }
+
+    /// Create a row in another entity.
+    async fn create_record(&self, config: &Value, row: &Value) -> AppResult<()> {
+        let Some(target) = config.get("targetEntity").and_then(Value::as_str) else {
+            return Ok(());
+        };
+        let Some(create_data) = config.get("createData").and_then(Value::as_object) else {
+            return Ok(());
+        };
+
+        let resolved = resolve_placeholders(create_data, row);
+        if resolved.is_empty() {
+            return Ok(());
+        }
+
+        self.repo.insert_raw(target, &resolved).await
+    }
+
+    /// Write the settled status back to the row.
+    ///
+    /// `doc_status` is a managed column, so it is written here directly rather
+    /// than through the caller-facing update path, which deliberately refuses
+    /// managed columns.
+    async fn finalize(
+        &self,
+        meta: &TableMeta,
+        row: &Value,
+        status: &str,
+        message: Option<String>,
+        transformed: Map<String, Value>,
+    ) -> AppResult<PromotionOutcome> {
+        let outcome = PromotionOutcome {
+            doc_status: status.to_string(),
+            message,
+            transformed,
+        };
+
+        let Some(id) = row.get("id").and_then(Value::as_str) else {
+            return Ok(outcome);
+        };
+        let Ok(id) = uuid::Uuid::parse_str(id) else {
+            return Ok(outcome);
+        };
+
+        self.repo
+            .set_document_status(&meta.table_name, id, status, outcome.message.as_deref())
+            .await?;
+        Ok(outcome)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn outcome_serialises_to_the_contract_shape() {
+        let outcome = PromotionOutcome {
+            doc_status: STATUS_REJECTED.to_string(),
+            message: Some("Credit limit exceeded".to_string()),
+            ..PromotionOutcome::default()
+        };
+        let json = outcome.to_json();
+        // The frontend reads exactly these keys off create/update responses.
+        assert_eq!(json["docStatus"], "rejected");
+        assert_eq!(json["message"], "Credit limit exceeded");
+    }
+
+    /// `%%action <name> transform field: <column> value: <value>` compiles to a
+    /// `transformData` object, and this is what the runtime does with it.
+    ///
+    /// Before this the compiler emitted no payload column and `run_action` had
+    /// no arm, so a declared transform was logged as an unknown action and the
+    /// column kept whatever the caller sent — one of EML's three action types,
+    /// inert.
+    #[test]
+    fn a_transform_writes_the_columns_it_names() {
+        let config = serde_json::json!({
+            "transformData": { "tier": "strategic", "owner": "${created_by}" }
+        });
+        let row = serde_json::json!({ "id": "r1", "created_by": "priya", "tier": "standard" });
+
+        let written = transform_columns(&config, &row);
+        assert_eq!(written["tier"], "strategic");
+        // A placeholder carries a value forward off the triggering row, the
+        // same as a cascade's `updateData`.
+        assert_eq!(written["owner"], "priya");
+    }
+
+    /// A rule may not rewrite what the pipeline owns.
+    ///
+    /// `doc_status` is what `finalize` settles two lines later, so a transform
+    /// onto it would be overwritten every time and read as a rule that does
+    /// nothing. `id` names the record.
+    #[test]
+    fn a_transform_cannot_rewrite_a_managed_column() {
+        let config = serde_json::json!({
+            "transformData": { "doc_status": "final", "id": "somewhere-else", "tier": "strategic" }
+        });
+        let written = transform_columns(&config, &serde_json::json!({ "id": "r1" }));
+
+        assert_eq!(written.len(), 1);
+        assert_eq!(written["tier"], "strategic");
+    }
+
+    #[test]
+    fn a_transform_with_no_payload_writes_nothing() {
+        let row = serde_json::json!({ "id": "r1" });
+        assert!(transform_columns(&serde_json::json!({}), &row).is_empty());
+        assert!(transform_columns(&serde_json::json!({ "transformData": {} }), &row).is_empty());
+    }
+
+    #[test]
+    fn statuses_match_the_values_written_to_doc_status() {
+        assert_eq!(STATUS_DRAFT, "draft");
+        assert_eq!(STATUS_FINAL, "final");
+        assert_eq!(STATUS_REJECTED, "rejected");
+    }
+
+    /// Both authoring routes have to reach the same verdict. `prevent` is the
+    /// editor's word for it; `validation-error` is what a model's `%%action`
+    /// compiles to, and the language definition says it rejects the write.
+    /// Recognising only the first let a modelled validation match and be
+    /// discarded, with the record written and reported `final`.
+    #[test]
+    fn both_spellings_of_a_refusal_block_the_write() {
+        assert!(is_blocking("prevent"));
+        assert!(is_blocking("validation-error"));
+    }
+
+    /// The actions that *do* something to other records must not be mistaken
+    /// for a refusal: blocking short-circuits before any side effect runs, so
+    /// a false positive here silently drops the automation the rule asked for.
+    #[test]
+    fn an_action_that_does_work_is_not_a_refusal() {
+        for action in ["trigger-workflow", "cascade-update", "create-record"] {
+            assert!(!is_blocking(action), "{action} is not a refusal");
+        }
+        assert!(!is_blocking(""));
+        assert!(!is_blocking("validation_error"));
+    }
+}

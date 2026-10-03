@@ -1,0 +1,460 @@
+/**
+ * System Dictionary Seed
+ * Populates sys_ tables with metadata for business entities
+ *
+ * Generated: {{now}}
+ *
+ * This seed creates:
+ * - sys_table entries for each business entity
+ * - sys_column entries for each entity attribute
+ * - sys_window entries for entity management
+ * - sys_tab entries for window tabs
+ * - sys_field entries with randomized seq_no for runtime modification demo
+ */
+
+import { Kysely, sql } from 'kysely';
+import { v4 as uuidv4 } from 'uuid';
+
+// ============================================================================
+// Application Dictionary Help Text
+// ============================================================================
+// Help is composed from the dictionary itself rather than hand-written per
+// project, so it cannot drift from the schema it describes: what is mandatory,
+// what has to be unique, which records link to which, and the draft -> final
+// lifecycle every business record goes through.
+//
+// The composition rules used to live here as ~180 lines of prose logic. They
+// now run at generation time in the generator's `dictionary-help.ts`, and the
+// result is inlined below — the Rust stack seeds the same `help` columns from
+// the same module, and two copies of the wording rules would have drifted the
+// first time either was edited.
+//
+// Administrators can overwrite any of this from Window, Tab and Field; the
+// seed only supplies the starting text.
+
+interface EntityHelp {
+  /** sys_window.help */
+  window: string;
+  /** sys_tab.help */
+  tab: string;
+  /** sys_field.help, keyed by physical column name. */
+  fields: Record<string, string>;
+}
+
+const DICTIONARY_HELP: Record<string, EntityHelp> = {{{dictionaryHelpJson}}};
+
+function windowHelpFor(tableName: string): string | null {
+  return DICTIONARY_HELP[tableName]?.window ?? null;
+}
+
+function tabHelpFor(tableName: string): string | null {
+  return DICTIONARY_HELP[tableName]?.tab ?? null;
+}
+
+function fieldHelpFor(tableName: string, columnName: string): string | null {
+  return DICTIONARY_HELP[tableName]?.fields[columnName] ?? null;
+}
+
+export async function seed(db: Kysely<any>): Promise<void> {
+  const now = new Date();
+  const createdBy = '{{config.createdBy}}';
+
+  // Truncate sys_ tables so the seed is idempotent (safe to re-run)
+  await sql`TRUNCATE sys_field, sys_tab, sys_window, sys_column, sys_table, sys_field_group CASCADE`.execute(db).catch(() => {});
+
+  // ============================================================================
+  // Create Default Roles (lookup-or-create so re-runs are safe)
+  // ============================================================================
+  let adminRoleId: string;
+  const existingAdminRole = await db.selectFrom('sys_role').select('sys_role_id').where('name', '=', 'Administrator').executeTakeFirst();
+  if (existingAdminRole) {
+    adminRoleId = existingAdminRole.sys_role_id;
+  } else {
+    adminRoleId = uuidv4();
+    await db.insertInto('sys_role').values({
+      sys_role_id: adminRoleId,
+      name: 'Administrator',
+      description: 'System administrator with full access',
+      user_level: 'S',
+      is_master_role: true,
+      is_can_export: true,
+      is_can_report: true,
+      is_personal_lock: false,
+      is_personal_access: false,
+      max_query_records: 0,
+      is_show_accounting: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
+
+  let userRoleId: string;
+  const existingUserRole = await db.selectFrom('sys_role').select('sys_role_id').where('name', '=', 'User').executeTakeFirst();
+  if (existingUserRole) {
+    userRoleId = existingUserRole.sys_role_id;
+  } else {
+    userRoleId = uuidv4();
+    await db.insertInto('sys_role').values({
+      sys_role_id: userRoleId,
+      name: 'User',
+      description: 'Standard user with limited access',
+      user_level: 'C',
+      is_master_role: false,
+      is_can_export: true,
+      is_can_report: true,
+      is_personal_lock: false,
+      is_personal_access: false,
+      max_query_records: 1000,
+      is_show_accounting: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
+
+  // ============================================================================
+  // Create Default Admin User (lookup-or-create so re-runs are safe)
+  // ============================================================================
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
+
+  let adminUserId: string;
+  const existingAdmin = await db.selectFrom('sys_user').select('sys_user_id').where('email', '=', adminEmail).executeTakeFirst();
+  if (existingAdmin) {
+    adminUserId = existingAdmin.sys_user_id;
+  } else {
+    adminUserId = uuidv4();
+    await db.insertInto('sys_user').values({
+      sys_user_id: adminUserId,
+      name: 'System Administrator',
+      email: adminEmail,
+      password_hash: '$2b$10$rIC/7qZmzCi9F4g4OKL8wO4k5XYzJ5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5Z5', // replaced by ensureAdminUser on first boot
+      description: 'Default system administrator',
+      is_system_user: true,
+      is_sales_rep: false,
+      login_failure_count: 0,
+      is_locked: false,
+      is_account_verified: true,
+      default_sys_role_id: adminRoleId,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
+
+  // Assign admin role to admin user (idempotent)
+  await db.insertInto('sys_user_roles').values({
+    sys_user_roles_id: uuidv4(),
+    sys_user_id: adminUserId,
+    sys_role_id: adminRoleId,
+    entity_type: 'D',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).onConflict((oc) => oc.doNothing()).execute();
+
+  // ============================================================================
+  // Create Default Field Groups
+  // ============================================================================
+  const fieldGroupGeneral = uuidv4();
+  const fieldGroupDetails = uuidv4();
+  const fieldGroupSystem = uuidv4();
+
+  await db.insertInto('sys_field_group').values([
+    {
+      sys_field_group_id: fieldGroupGeneral,
+      name: 'General',
+      description: 'General information fields',
+      field_group_type: 'C',
+      is_collapsed_by_default: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: fieldGroupDetails,
+      name: 'Details',
+      description: 'Detailed information fields',
+      field_group_type: 'C',
+      is_collapsed_by_default: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: fieldGroupSystem,
+      name: 'System',
+      description: 'System fields (audit trail)',
+      field_group_type: 'C',
+      is_collapsed_by_default: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+  ]).execute();
+
+  // ============================================================================
+  // Business Entities Dictionary Entries
+  // ============================================================================
+
+  {{#each entities}}
+  // --------------------------------------------------------------------------
+  // {{displayName}} ({{tableName}})
+  // --------------------------------------------------------------------------
+  const {{camelCase name}}TableId = uuidv4();
+  const {{camelCase name}}WindowId = uuidv4();
+  const {{camelCase name}}TabId = uuidv4();
+
+  // Create sys_window entry FIRST (sys_table references it)
+  await db.insertInto('sys_window').values({
+    sys_window_id: {{camelCase name}}WindowId,
+    name: '{{displayName}}',
+    description: 'Maintain {{displayName}} records',
+    help: windowHelpFor('{{tableName}}'),
+    window_type: 'M',
+    is_sales_transaction: false,
+    is_default: true,
+    entity_type: 'U',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).execute();
+
+  // Create sys_table entry AFTER sys_window
+  await db.insertInto('sys_table').values({
+    sys_table_id: {{camelCase name}}TableId,
+    table_name: '{{tableName}}',
+    name: '{{displayName}}',
+    description: '{{#if description}}{{description}}{{else}}Manage {{displayName}} records{{/if}}',
+    access_level: 'A',
+    is_view: false,
+    is_document: false,
+    is_high_volume: false,
+    is_changelog: true,
+    sys_window_id: {{camelCase name}}WindowId,
+    entity_type: 'U',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).execute();
+
+  // Create sys_tab entry
+  await db.insertInto('sys_tab').values({
+    sys_tab_id: {{camelCase name}}TabId,
+    sys_window_id: {{camelCase name}}WindowId,
+    sys_table_id: {{camelCase name}}TableId,
+    name: '{{displayName}}',
+    help: tabHelpFor('{{tableName}}'),
+    tab_level: 0,
+    seq_no: 10,
+    is_single_row: true,
+    has_tree: false,
+    is_info_tab: false,
+    is_translation_tab: false,
+    is_read_only: false,
+    is_insert_record: true,
+    is_advanced_tab: false,
+    entity_type: 'U',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).execute();
+
+  // Create sys_column entries
+  const {{camelCase name}}Columns: Array<{ id: string; name: string; displayName: string; isKey: boolean }> = [];
+
+  let {{camelCase name}}ColumnSeqNo = 10;
+  {{#each attributes}}
+  const {{camelCase ../name}}_{{camelCase name}}_columnId = uuidv4();
+  {{camelCase ../name}}Columns.push({
+    id: {{camelCase ../name}}_{{camelCase name}}_columnId,
+    name: '{{columnName}}',
+    displayName: '{{displayName}}',
+    isKey: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
+  });
+
+  await db.insertInto('sys_column').values({
+    sys_column_id: {{camelCase ../name}}_{{camelCase name}}_columnId,
+    sys_table_id: {{camelCase ../name}}TableId,
+    column_name: '{{columnName}}',
+    name: '{{displayName}}',
+    sys_reference_id: {{referenceId}}{{#if maxLength}},
+    field_length: {{maxLength}}{{/if}}{{#if default}},
+    default_value: '{{default}}'{{/if}},
+    is_key: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
+    is_parent: false,
+    is_mandatory: {{#if (or (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}{{required}}{{/if}},
+    is_updateable: {{#if (or (eq name ../primaryKey) (eq columnName 'created_at') (eq columnName 'updated_at') (eq columnName 'deleted_at'))}}false{{else}}true{{/if}},
+    is_identifier: {{#if (or (eq columnName 'name') (eq columnName 'first_name') (eq columnName 'last_name') (eq columnName 'title') (eq columnName 'code') (eq columnName 'label'))}}true{{else}}false{{/if}},
+    is_selection_column: {{#if (or (eq name 'name') unique)}}true{{else}}false{{/if}},
+    is_translated: false,
+    is_encrypted: false,
+    is_allow_logging: true,
+    is_allow_copy: {{#if (eq name ../primaryKey)}}false{{else}}true{{/if}},
+    seq_no: {{camelCase ../name}}ColumnSeqNo,
+    entity_type: 'U',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).execute();
+  {{camelCase ../name}}ColumnSeqNo += 10;
+  {{/each}}
+
+  // Create sys_field entries with sequential seq_no
+  for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
+    const col = {{camelCase name}}Columns[i];
+    await db.insertInto('sys_field').values({
+      sys_field_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      sys_column_id: col.id,
+      sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
+      name: col.displayName,
+      help: fieldHelpFor('{{tableName}}', col.name),
+      seq_no: (i + 1) * 10,
+      seq_no_grid: (i + 1) * 10,
+      is_displayed: !col.isKey,
+      is_displayed_grid: !col.isKey && i < 8, // show first 8 non-pk columns in grid
+      is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
+      is_encrypted: false,
+      is_same_line: false,
+      is_heading: false,
+      is_field_only: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
+
+  // Grant access to admin role
+  await db.insertInto('sys_access').values({
+    sys_access_id: uuidv4(),
+    sys_role_id: adminRoleId,
+    sys_table_id: {{camelCase name}}TableId,
+    sys_window_id: {{camelCase name}}WindowId,
+    access_type_table: 'W',
+    is_read_only: false,
+    is_exclude: false,
+    entity_type: 'U',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).execute();
+
+  // Grant read access to user role
+  await db.insertInto('sys_access').values({
+    sys_access_id: uuidv4(),
+    sys_role_id: userRoleId,
+    sys_table_id: {{camelCase name}}TableId,
+    sys_window_id: {{camelCase name}}WindowId,
+    access_type_table: 'R',
+    is_read_only: true,
+    is_exclude: false,
+    entity_type: 'U',
+    is_active: true,
+    created_by: createdBy,
+    updated_by: createdBy,
+    created_at: now,
+    updated_at: now,
+  }).execute();
+
+  console.log('✓ Created dictionary entries for {{displayName}}');
+
+  {{/each}}
+
+  // ============================================================================
+  // Admin Windows (entity_type = 'S') — Application Dictionary section on dashboard
+  // ============================================================================
+  const adminWindowDefs = [
+    { name: 'Business Rules',        route: '/admin/rules' },
+    { name: 'Workflow Designer',     route: '/admin/workflow-definitions' },
+    { name: 'Audit Log',             route: '/admin/audit' },
+    { name: 'Table and Column',      route: '/admin/tables' },
+    { name: 'Window, Tab and Field', route: '/admin/windows' },
+    { name: 'User',                  route: '/admin/users' },
+    { name: 'Role',                  route: '/admin/roles' },
+  ];
+
+  for (const wd of adminWindowDefs) {
+    const existing = await db.selectFrom('sys_window').select('sys_window_id').where('name', '=', wd.name).executeTakeFirst();
+    const windowId = existing?.sys_window_id ?? uuidv4();
+    if (!existing) {
+      await db.insertInto('sys_window').values({
+        sys_window_id: windowId,
+        name: wd.name,
+        description: wd.route,
+        entity_type: 'S',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      }).execute();
+    }
+    const existingAccess = await db.selectFrom('sys_access').select('sys_access_id').where('sys_role_id', '=', adminRoleId).where('sys_window_id', '=', windowId).executeTakeFirst();
+    if (!existingAccess) {
+      await db.insertInto('sys_access').values({
+        sys_access_id: uuidv4(),
+        sys_role_id: adminRoleId,
+        sys_window_id: windowId,
+        access_type_table: 'W',
+        is_read_only: false,
+        is_exclude: false,
+        entity_type: 'S',
+        is_active: true,
+        created_by: createdBy,
+        updated_by: createdBy,
+        created_at: now,
+        updated_at: now,
+      }).execute();
+    }
+  }
+
+  console.log('✓ Created admin windows (Business Rules, Workflow Designer, etc.)');
+
+  // ============================================================================
+  // Summary
+  // ============================================================================
+  console.log('');
+  console.log('Dictionary seed complete:');
+  console.log('  - {{entities.length}} business entities');
+  console.log('  - 2 default roles (Administrator, User)');
+  console.log('  - 1 admin user (admin@localhost)');
+  console.log('  - 3 field groups');
+  console.log('  - 7 admin windows (Application Dictionary)');
+  console.log('');
+  console.log('NOTE: Field seq_no values are sequential. Administrators can');
+  console.log('      reorder fields via the admin interface.');
+}

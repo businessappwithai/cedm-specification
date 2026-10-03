@@ -1,0 +1,912 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dark Precision — site-wide dark theme (Variant A)
+   Obsidian #0a0a0a base · Electric indigo #6366f1 accent
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Token overrides ────────────────────────────────────────────────────── */
+:root {
+  --primary-50:  #eef2ff;
+  --primary-100: #e0e7ff;
+  --primary-200: #c7d2fe;
+  --primary-300: #a5b4fc;
+  --primary-400: #818cf8;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
+  --primary-800: #3730a3;
+  --primary-900: #312e81;
+  --secondary-500: #8b5cf6;
+  --secondary-600: #7c3aed;
+  --secondary-700: #6d28d9;
+  --accent-500:  #6366f1;
+  --accent-600:  #4f46e5;
+  --accent-700:  #4338ca;
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+html { color-scheme: dark; }
+
+body {
+  background: #0a0a0a;
+  color: #e2e8f0;
+}
+
+h1, h2, h3, h4, h5, h6 { color: #f1f5f9; }
+p { color: #94a3b8; }
+li { color: #94a3b8; }
+strong { color: #e2e8f0; }
+a { color: #818cf8; }
+a:hover { color: #a5b4fc; }
+
+/* ── Logo ───────────────────────────────────────────────────────────────── */
+/* The wordmark is CSS (see `.logo` in style.css), so the dark theme only has
+   to restate the two type colours and warm the tile's glow to the indigo the
+   rest of this file uses. */
+.logo-word { color: #f1f5f9; }
+.logo-word-dim { color: #64748b; }
+.logo-mark { box-shadow: 0 6px 18px -8px rgba(99, 102, 241, 0.95); }
+.logo:hover .logo-mark { box-shadow: 0 9px 24px -8px rgba(99, 102, 241, 1); }
+.logo::after {
+  background: #6366f1;
+  color: #f8fafc;
+  box-shadow: 0 8px 20px -10px rgba(99, 102, 241, 0.9);
+}
+
+/* ── Header / Nav ───────────────────────────────────────────────────────── */
+.header {
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1e1e2e;
+  box-shadow: none;
+}
+.nav-link { color: #94a3b8; }
+.nav-link:hover,
+.nav-link.active { color: #f1f5f9; }
+.menu-toggle span { background: #94a3b8; }
+
+/* Mobile nav drawer */
+.nav { background: #0a0a0a; }
+@media (max-width: 1023px) {
+  .nav {
+    background: #111827;
+    border-bottom: 1px solid #1f2937;
+  }
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+/* The epigraph band under the nav — see .quote-bar in style.css. */
+.quote-bar { background: #0d0d16; border-bottom-color: #1e1e2e; }
+.quote-bar__text { color: #cbd5e1; }
+.quote-bar__attribution { color: #6b7280; }
+.quote-bar__attribution a:hover { color: #a5b4fc; }
+
+.hero {
+  background: radial-gradient(ellipse 80% 60% at 50% -10%,
+              rgba(99, 102, 241, 0.18) 0%, transparent 70%), #0a0a0a;
+}
+.hero h1 { color: #f1f5f9; }
+.hero p { color: #94a3b8; }
+/* The credit line beside the badge — see .hero-meta in style.css. `.hero p`
+   above would otherwise win on specificity and give it the subtitle's weight
+   on the page; it reads as a caption, one step back from the headline. */
+.hero p.hero-credit { color: #8b95a5; }
+.hero p.hero-credit .hero-credit__name { color: #cbd5e1; }
+.hero-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.hero-subtitle { color: #94a3b8; }
+.hero-cta .btn-outline {
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+}
+.hero-cta .btn-outline:hover {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+  color: #c7d2fe;
+}
+.text-gradient {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-notice {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #94a3b8;
+}
+.hero-notice strong { color: #c7d2fe; }
+.hero-notice a { color: #818cf8; }
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+.section,
+.section-white { background: #0a0a0a; }
+.section-gray  { background: #0f0f1a; }
+
+.section-header h2,
+.section-header h3 { color: #f1f5f9; }
+.section-subtitle  { color: #94a3b8; }
+.section-header p  { color: #94a3b8; }
+
+/* CTA gradient sections (inline style uses var(--primary-*) — already updated above) */
+.section[style*="linear-gradient"] h2,
+.section[style*="linear-gradient"] h3,
+.section[style*="linear-gradient"] p,
+.section[style*="linear-gradient"] li { color: #f1f5f9 !important; }
+.section[style*="linear-gradient"] .section-subtitle { color: rgba(241,245,249,0.8) !important; }
+.section[style*="linear-gradient"] .hero-badge {
+  background: rgba(255,255,255,0.15) !important;
+  color: #fff !important;
+}
+/* White buttons inside gradient CTA stay white but text gets updated primary colour */
+.section[style*="linear-gradient"] .btn[style*="background: white"],
+.section[style*="linear-gradient"] .btn[style*="background:white"] {
+  background: #f1f5f9 !important;
+  color: #312e81 !important;
+}
+.section[style*="linear-gradient"] .btn[style*="border: 2px solid white"],
+.section[style*="linear-gradient"] .btn[style*="border:2px solid white"] {
+  border-color: rgba(241,245,249,0.5) !important;
+  color: #f1f5f9 !important;
+  background: transparent !important;
+}
+
+/* ── Stat cards ─────────────────────────────────────────────────────────── */
+.stat-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+}
+.stat-value { color: #818cf8; }
+.stat-label { color: #6b7280; }
+.stats-grid .stat-card { box-shadow: none; }
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+  background: #111827;
+  border-color: #1f2937;
+  color: #e2e8f0;
+  box-shadow: none;
+}
+.card:hover { box-shadow: 0 0 0 1px #6366f1; }
+.card h3, .card h4 { color: #f1f5f9; }
+.card p  { color: #94a3b8; }
+.card li { color: #94a3b8; border-color: #1f2937; }
+.card a  { color: #818cf8; }
+.card strong { color: #e2e8f0; }
+.card code {
+  background: rgba(99,102,241,0.15);
+  color: #a5b4fc;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Inline-styled card variants (light backgrounds → dark) */
+.card[style*="--primary-50"],
+.card[style*="--secondary-50"],
+.card[style*="--gray-50"],
+.card[style*="background: white"],
+.card[style*="background:white"] {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+}
+.card[style*="--success-50"] {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+.card[style*="--success-50"] strong { color: #6ee7b7 !important; }
+.card[style*="--success-50"] p,
+.card[style*="--success-50"] li { color: #a7f3d0 !important; }
+.card[style*="--error-50"] {
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+.card[style*="--error-50"] strong,
+.card[style*="--error-50"] p { color: #fca5a5 !important; }
+
+/* Position-paper callout cards */
+.card[style*="border-left: 4px solid"] {
+  background: #111827 !important;
+  border-left-color: #6366f1 !important;
+}
+
+/* ── Feature cards ──────────────────────────────────────────────────────── */
+.feature-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  box-shadow: none;
+}
+.feature-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.3);
+  transform: translateY(-2px);
+}
+.feature-card h3 { color: #f1f5f9; }
+.feature-card p  { color: #94a3b8; }
+.feature-icon {
+  background: rgba(99,102,241,0.15);
+  color: #818cf8;
+}
+
+/* ── Timeline ───────────────────────────────────────────────────────────── */
+.timeline::before { background: #1f2937; }
+.timeline-item {
+  background: #111827;
+  border: 1px solid #1f2937;
+}
+.timeline-item::before { background: #6366f1; border-color: #0a0a0a; }
+.timeline-item h3 { color: #f1f5f9; }
+.timeline-item p  { color: #94a3b8; }
+.timeline-item .badge,
+.timeline-item .step-number { background: rgba(99,102,241,0.15); color: #818cf8; }
+
+/* ── Pricing cards ──────────────────────────────────────────────────────── */
+.pricing-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  box-shadow: none;
+}
+.pricing-card h3, .pricing-card h4 { color: #f1f5f9; }
+.pricing-card p  { color: #94a3b8; }
+.pricing-card li { color: #94a3b8; }
+.pricing-card li::before { color: #6366f1; }
+.pricing-card.popular {
+  background: #1e1b4b;
+  border: 2px solid #6366f1;
+  box-shadow: 0 0 30px rgba(99,102,241,0.2);
+}
+.pricing-badge {
+  background: #6366f1;
+  color: #fff;
+}
+.pricing-features li { border-color: #1f2937; }
+
+/* ── Comparison table ───────────────────────────────────────────────────── */
+.comparison-table {
+  border-color: #1f2937;
+  background: #111827;
+}
+.comparison-table th {
+  background: #0f0f1a;
+  color: #f1f5f9;
+  border-color: #1f2937;
+}
+.comparison-table td {
+  border-color: #1f2937;
+  color: #94a3b8;
+  background: #111827;
+}
+.comparison-table tr:nth-child(even) td { background: #0f0f1a; }
+.comparison-table tr:hover td { background: #1e293b; }
+.comparison-table .check { color: #34d399; }
+.comparison-table .cross { color: #f87171; }
+.comparison-table th:first-child,
+.comparison-table td:first-child { color: #e2e8f0; }
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+.form-input,
+.form-textarea,
+.form-select {
+  background: #1e2736;
+  border: 1px solid #374151;
+  color: #f1f5f9;
+}
+.form-input::placeholder,
+.form-textarea::placeholder { color: #6b7280; }
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  background: #252f40;
+  outline: none;
+}
+.form-label { color: #e2e8f0; }
+.form-select option { background: #1e2736; color: #f1f5f9; }
+
+/* Make the form section itself slightly lighter so inputs stand out */
+section:has(.form-input),
+section:has(.form-textarea) {
+  background: #0d0d1a;
+}
+/* Fallback for browsers without :has() */
+.section-white:has(form) { background: #0d0d1a; }
+
+/* Inline gray-bg info boxes next to forms */
+div[style*="--gray-50"],
+div[style*="var(--gray-50)"] {
+  background: #111827 !important;
+  border-radius: var(--radius-lg);
+}
+div[style*="--gray-50"] p,
+div[style*="var(--gray-50)"] p { color: #94a3b8; }
+
+/* ── Code / pre blocks ──────────────────────────────────────────────────── */
+pre {
+  background: #060608 !important;
+  border: 1px solid #1f2937;
+  color: #e2e8f0 !important;
+  font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+  font-size: 13px;
+}
+pre span[data-url] { color: #818cf8; }
+pre code { background: transparent; color: inherit; }
+
+code {
+  background: rgba(99,102,241,0.12);
+  color: #a5b4fc;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn-primary,
+.btn-accent {
+  background: #6366f1;
+  color: #fff;
+  border-color: transparent;
+}
+.btn-primary:hover,
+.btn-accent:hover {
+  background: #4f46e5;
+  color: #fff;
+}
+.btn-secondary {
+  background: #1f2937;
+  color: #e2e8f0;
+  border-color: #374151;
+}
+.btn-secondary:hover {
+  background: #374151;
+  color: #f1f5f9;
+}
+.btn-outline {
+  border-color: #374151;
+  color: #94a3b8;
+  background: transparent;
+}
+.btn-outline:hover {
+  border-color: #6366f1;
+  color: #a5b4fc;
+  background: rgba(99,102,241,0.08);
+}
+.btn-ghost { color: #818cf8; }
+.btn-ghost:hover { color: #a5b4fc; }
+
+/* ── Hero badge inline variants ─────────────────────────────────────────── */
+.hero-badge[style*="--accent-100"],
+.hero-badge[style*="--primary-100"],
+.hero-badge[style*="--secondary-100"],
+.hero-badge[style*="--success-100"] {
+  background: rgba(99,102,241,0.15) !important;
+  color: #a5b4fc !important;
+}
+.hero-badge[style*="rgba(255,255,255"] { /* on gradient sections — keep as-is */ }
+
+/* ── Try It Yourself section ────────────────────────────────────────────── */
+#try-it-yourself {
+  background: linear-gradient(135deg, #1e1b4b 0%, #0f0f1a 100%) !important;
+}
+#try-it-yourself h2,
+#try-it-yourself h3 { color: #f1f5f9 !important; }
+#try-it-yourself .section-subtitle,
+#try-it-yourself > .container p { color: rgba(241,245,249,0.8) !important; }
+#try-it-yourself .hero-badge {
+  background: rgba(99,102,241,0.2) !important;
+  color: #a5b4fc !important;
+}
+#try-it-yourself .card {
+  background: rgba(17,24,39,0.85) !important;
+  border-color: rgba(99,102,241,0.2) !important;
+}
+#try-it-yourself .card h3,
+#try-it-yourself .card h4 { color: #f1f5f9 !important; }
+#try-it-yourself .card p,
+#try-it-yourself .card li { color: rgba(241,245,249,0.7) !important; }
+#try-it-yourself .text-muted { color: rgba(241,245,249,0.5) !important; }
+#try-it-yourself code {
+  background: rgba(99,102,241,0.2) !important;
+  color: #a5b4fc !important;
+}
+
+/* ── Text utilities ─────────────────────────────────────────────────────── */
+.text-muted { color: #6b7280 !important; }
+.text-gradient {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.footer {
+  background: #060608;
+  border-top: 1px solid #1f2937;
+}
+.footer h3 { color: #f1f5f9; }
+.footer p  { color: #6b7280; }
+.footer a  { color: #6b7280; }
+.footer a:hover { color: #f1f5f9; }
+.footer-brand p { color: #6b7280; }
+.footer-links a { color: #6b7280; }
+.footer-links a:hover { color: #f1f5f9; }
+.footer-bottom {
+  border-color: #1f2937;
+}
+.footer-bottom p { color: #4b5563; }
+.footer-bottom a { color: #818cf8 !important; }
+
+/* ── Dividers / HR ──────────────────────────────────────────────────────── */
+hr { border-color: #1f2937; }
+
+/* ── Comparison table (hardcoded white in style.css needs explicit override) */
+.comparison-table {
+  background: #111827 !important;
+  box-shadow: none;
+  border: 1px solid #1f2937;
+}
+.comparison-table th,
+.comparison-table td {
+  border-color: #1f2937 !important;
+  color: #e2e8f0 !important;
+}
+.comparison-table th {
+  background: #0f0f1a !important;
+  color: #f1f5f9 !important;
+}
+.comparison-table td { background: #111827 !important; color: #94a3b8 !important; }
+.comparison-table td strong { color: #e2e8f0 !important; }
+.comparison-table tr:nth-child(even) td { background: #0f0f1a !important; }
+.comparison-table .highlight {
+  background: rgba(99,102,241,0.12) !important;
+  color: #c7d2fe !important;
+}
+.comparison-table .highlight strong { color: #c7d2fe; }
+.comparison-table tr[style*="--gray-300"],
+.comparison-table tr[style*="gray-300"] {
+  border-top-color: #374151 !important;
+}
+
+/* ── Technology page — stack cards, code snippets ──────────────────────── */
+.card[style*="background: var(--gray-900)"],
+.card[style*="background: var(--gray-800)"] {
+  background: #060608 !important;
+  border-color: #1f2937 !important;
+}
+
+/* ── How It Works — numbered step circles ───────────────────────────────── */
+.step-number,
+[class*="step-"] .step-icon { background: rgba(99,102,241,0.15); color: #818cf8; }
+
+/* ── Features page — capability sub-cards ──────────────────────────────── */
+.feature-detail,
+.capability-card {
+  background: #111827;
+  border-color: #1f2937;
+}
+.feature-detail h3,
+.capability-card h3 { color: #f1f5f9; }
+.feature-detail p,
+.capability-card p { color: #94a3b8; }
+
+/* ── Justification / todo / privacy — prose sections ───────────────────── */
+blockquote {
+  border-left-color: #6366f1;
+  background: rgba(99,102,241,0.06);
+  color: #94a3b8;
+}
+.prose h2, .prose h3 { color: #f1f5f9; }
+.prose p, .prose li { color: #94a3b8; }
+
+/* ── Inline div backgrounds (how-it-works pipeline, features code blocks) ── */
+div[style*="background: white"],
+div[style*="background:white"] {
+  background: #1a2035 !important;
+  color: #e2e8f0 !important;
+}
+div[style*="background: var(--gray-50)"],
+div[style*="background:var(--gray-50)"],
+div[style*="background: var(--gray-100)"],
+div[style*="background:var(--gray-100)"] {
+  background: #111827 !important;
+  color: #e2e8f0 !important;
+}
+div[style*="background: var(--secondary-50)"],
+div[style*="background:var(--secondary-50)"] {
+  background: rgba(139,92,246,0.12) !important;
+  border-color: rgba(139,92,246,0.3) !important;
+  color: #e2e8f0 !important;
+}
+div[style*="background: var(--primary-50)"],
+div[style*="background:var(--primary-50)"] {
+  background: rgba(99,102,241,0.1) !important;
+  border-color: rgba(99,102,241,0.3) !important;
+  color: #e2e8f0 !important;
+}
+
+/* Text inside inline-styled divs */
+div[style*="background: white"] strong,
+div[style*="background:white"] strong,
+div[style*="background: var(--gray-50)"] strong,
+div[style*="background: var(--gray-100)"] strong { color: #f1f5f9 !important; }
+
+div[style*="background: white"] p,
+div[style*="background:white"] p,
+div[style*="background: var(--gray-50)"] p,
+div[style*="background: var(--gray-100)"] p { color: #94a3b8 !important; }
+
+/* border-left accent divs (pipeline steps) */
+div[style*="border-left: 4px solid"] {
+  background: #1a2035 !important;
+  color: #e2e8f0 !important;
+}
+div[style*="border-left: 4px solid"] p,
+div[style*="border-left: 4px solid"] strong { color: #e2e8f0 !important; }
+
+/* ── Inline <table> without .comparison-table (how-it-works step 3) ─────── */
+table:not(.comparison-table) {
+  background: #111827;
+  border-collapse: collapse;
+}
+table:not(.comparison-table) th,
+table:not(.comparison-table) td {
+  color: #e2e8f0 !important;
+  border-color: #1f2937 !important;
+}
+table:not(.comparison-table) th { color: #f1f5f9 !important; }
+table:not(.comparison-table) tr[style*="--gray-200"],
+table:not(.comparison-table) tr[style*="--gray-100"] {
+  border-color: #1f2937 !important;
+}
+
+/* ── Guide pages — guide.css specifics ─────────────────────────────────── */
+.guide-nav { background: #0a0a0a; border-color: #1f2937; }
+.guide-nav a { color: #94a3b8; }
+.guide-nav a:hover,
+.guide-nav a.active { color: #f1f5f9; }
+.guide-nav a.active { border-color: #6366f1; }
+.chapter-nav { background: #0f0f1a; border-color: #1f2937; }
+.chapter-nav a { color: #818cf8; }
+.chapter-intro { color: #94a3b8; }
+.chapter-intro h1 { color: #f1f5f9; }
+.chapter-content { color: #94a3b8; }
+.chapter-content h2,
+.chapter-content h3,
+.chapter-content h4 { color: #f1f5f9; }
+.chapter-content p { color: #94a3b8; }
+.chapter-content li { color: #94a3b8; }
+.chapter-content code {
+  background: rgba(99,102,241,0.15);
+  color: #a5b4fc;
+}
+.chapter-content pre {
+  background: #060608 !important;
+  border: 1px solid #1f2937;
+  color: #e2e8f0 !important;
+}
+figure { background: transparent; }
+figcaption { color: #6b7280; }
+.guide-demo { background: #0f0f1a; }
+
+/* Guide run-in-browser specific */
+.run-controls { background: #111827; border-color: #1f2937; }
+.run-controls label { color: #e2e8f0; }
+.stage { background: #111827; border-color: #1f2937; }
+.stage h3 { color: #f1f5f9; }
+
+/* ── guide.css overrides ────────────────────────────────────────────────── */
+
+/* Sidebar */
+.guide-sidebar {
+  background: #0f0f1a !important;
+  border-color: #1f2937 !important;
+}
+.guide-nav a {
+  background: transparent !important;
+  color: #94a3b8 !important;
+}
+.guide-nav a:hover { color: #f1f5f9 !important; background: rgba(99,102,241,0.08) !important; }
+.guide-nav a[aria-current="page"],
+.guide-nav a.active {
+  background: rgba(99,102,241,0.15) !important;
+  color: #a5b4fc !important;
+  border-color: #6366f1 !important;
+}
+.guide-nav .guide-num { color: #6b7280 !important; }
+.guide-nav a[aria-current="page"] .guide-num { color: #818cf8 !important; }
+
+/* Chapter header area */
+.guide-header { background: #0a0a0a; border-color: #1f2937; }
+.guide-header h1 { color: #f1f5f9; }
+.guide-header p,
+.guide-header .guide-meta { color: #94a3b8; }
+.chapter-header { background: #0f0f1a; border-color: #1f2937; }
+
+/* Chapter pill / badge */
+.guide-chapter-badge,
+a.guide-chapter-badge {
+  background: rgba(99,102,241,0.15) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99,102,241,0.3) !important;
+}
+
+/* Content area */
+.guide-content { color: #94a3b8; }
+.guide-content h2,
+.guide-content h3,
+.guide-content h4 { color: #f1f5f9; }
+.guide-content p  { color: #94a3b8; }
+.guide-content li { color: #94a3b8; }
+.guide-content strong { color: #e2e8f0; }
+.guide-content a { color: #818cf8; }
+
+/* Guide note callouts */
+.guide-content .note {
+  border-left-color: #6366f1 !important;
+  background: rgba(99,102,241,0.08) !important;
+  color: #94a3b8 !important;
+}
+.guide-content .note.tip  { border-left-color: #f59e0b !important; background: rgba(245,158,11,0.08) !important; }
+.guide-content .note.warn { border-left-color: #ef4444 !important; background: rgba(239,68,68,0.08) !important; }
+.guide-content .note.win  { border-left-color: #10b981 !important; background: rgba(16,185,129,0.08) !important; }
+.guide-content .note strong { color: #e2e8f0 !important; }
+
+/* Guide code blocks */
+.guide-content pre,
+.guide-content .code-block {
+  background: #060608 !important;
+  border: 1px solid #1f2937 !important;
+  color: #e2e8f0 !important;
+}
+.guide-content code {
+  background: rgba(99,102,241,0.12);
+  color: #a5b4fc;
+}
+
+/* Guide tables (not comparison-table) */
+.guide-content table,
+.table-wrap table {
+  background: #111827 !important;
+}
+.table-wrap { border-color: #1f2937 !important; background: #111827 !important; }
+.guide-content th { background: #0f0f1a !important; color: #f1f5f9 !important; border-color: #1f2937 !important; }
+.guide-content td { color: #94a3b8 !important; border-color: #1f2937 !important; background: #111827 !important; }
+.guide-content tr:nth-child(even) td { background: #0f0f1a !important; }
+
+/* Guide figure / screenshot boxes */
+.guide-content figure,
+.guide-content .figure-wrap {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+}
+.guide-content figcaption { color: #6b7280; }
+
+/* Chapter navigation links */
+.chapter-nav,
+.guide-pagination { background: #0f0f1a; border-color: #1f2937; }
+.chapter-nav a,
+.guide-pagination a { color: #818cf8; }
+
+/* Guide index chapter cards */
+.guide-card,
+a.guide-card {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #e2e8f0 !important;
+}
+.guide-card:hover,
+a.guide-card:hover { border-color: #6366f1 !important; }
+.guide-card h3 { color: #f1f5f9 !important; }
+.guide-card p  { color: #94a3b8 !important; }
+.guide-card .guide-num { color: #6b7280 !important; }
+
+/* run-in-browser / run-real-stack specific */
+.guide-demo-wrap,
+.run-section { background: #0f0f1a; border-color: #1f2937; }
+.model-select-wrap { background: #111827; border-color: #1f2937; }
+select.model-select { background: #1e2736; color: #f1f5f9; border-color: #374151; }
+.status-bar { background: #0f0f1a; color: #94a3b8; border-color: #1f2937; }
+.upload-zone {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #94a3b8 !important;
+}
+.upload-zone:hover { border-color: #6366f1 !important; }
+
+/* ── Failsafe: white-background areas get dark text ─────────────────────── */
+/* If any white/light background survives the dark-theme overrides,          */
+/* ensure text is readable (dark on light) rather than invisible.            */
+[style*="background: white"] { color: #111827; }
+[style*="background:white"]  { color: #111827; }
+[style*="background: white"] p,
+[style*="background:white"] p { color: #374151 !important; }
+[style*="background: white"] strong,
+[style*="background:white"] strong { color: #111827 !important; }
+[style*="background: white"] span,
+[style*="background:white"] span { color: #374151; }
+[style*="background: white"] li,
+[style*="background:white"] li { color: #374151 !important; }
+[style*="background: white"] h2,
+[style*="background: white"] h3,
+[style*="background: white"] h4,
+[style*="background:white"] h2,
+[style*="background:white"] h3,
+[style*="background:white"] h4 { color: #111827 !important; }
+
+/* guide.css hardcoded white backgrounds */
+.guide-shell { background: #0a0a0a !important; }
+.guide-main  { background: #0a0a0a !important; }
+.guide-content { background: #0a0a0a !important; color: #94a3b8 !important; }
+.guide-content figure { background: #111827 !important; border-color: #1f2937 !important; }
+.guide-content figure img { background: #111827 !important; border-color: #1f2937 !important; }
+.guide-content .table-wrap,
+.guide-content table { background: #111827 !important; border-color: #1f2937 !important; }
+.guide-toc { background: transparent; }
+.guide-toc-body { background: transparent; }
+.guide-toc-heading { color: #6b7280 !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The guide shell — theming the tokens rather than the rules
+   ───────────────────────────────────────────────────────────────────────────
+   guide.css and guide-demo.css were authored against the Lunaris tokens, and
+   this file re-points the accent ramps but left `--gray-*` alone, so every
+   `var(--gray-900)` text and `var(--gray-50)` surface inside the guide kept
+   its light-mode value: a near-black sidebar title on a near-black sidebar,
+   a white progress panel, white step cards. The fix belongs on the ramp, not
+   on each rule — an inverted neutral scale scoped to the guide shell, and the
+   demo's own token bridge re-pointed on top of it. Add a component to either
+   stylesheet and it lands dark with nothing to do here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── The neutral ramp, inverted, scoped to the guide ────────────────────── */
+/* Scoped rather than global: the marketing pages are already dark by way of
+   several hundred explicit overrides above, and inverting the ramp under them
+   would apply the correction twice. */
+.guide-shell {
+  --gray-50:  #0f0f1a;
+  --gray-100: #151522;
+  --gray-200: #1f2937;
+  --gray-300: #374151;
+  --gray-400: #6b7280;
+  --gray-500: #94a3b8;
+  --gray-600: #94a3b8;
+  --gray-700: #cbd5e1;
+  --gray-800: #e2e8f0;
+  --gray-900: #f1f5f9;
+}
+
+/* ── guide.css: the surfaces that name `white` outright ─────────────────── */
+.guide-main { background: #0a0a0a; }
+.guide-sidebar-title { color: #f1f5f9; }
+.guide-eyebrow-label { color: #6b7280; }
+.guide-sidebar-foot { color: #6b7280; }
+.guide-sidebar-foot code { background: rgba(99, 102, 241, 0.12); color: #a5b4fc; }
+.guide-toc-summary,
+.guide-toc-current { background: #111827; color: #e2e8f0; border-color: #1f2937; }
+
+.guide-content .lede { color: #cbd5e1; }
+.guide-content h4 { color: #6b7280; }
+
+/* The chapter pager — two cards that stayed white under `.pager`, which the
+   `.guide-pagination` overrides above never matched. */
+.guide-content .pager a {
+  background: #111827;
+  border-color: #1f2937;
+  color: #e2e8f0;
+}
+.guide-content .pager a:hover { border-color: #6366f1; }
+.guide-content .pager .dir { color: #6b7280; }
+.guide-content .pager .ttl { color: #f1f5f9; }
+.guide-content .pager { border-top-color: #1f2937; }
+
+.guide-content .stat { background: #111827; border-color: #1f2937; }
+.guide-content .stat .n { color: #f1f5f9; }
+
+/* A screenshot is its own image and keeps a light mat, but the frame around it
+   belongs to the page. */
+.guide-content figure img { background: #0f0f1a; border-color: #1f2937; }
+
+/* ── guide-demo.css: the token bridge, re-pointed ───────────────────────── */
+/* guide-demo.css bridges its own palette onto the Lunaris tokens once, at the
+   top of the file, and every rule in it reads through that bridge. Three of
+   the bridge's entries name `white` directly and the tinted ones point at the
+   50-step of each ramp, which this theme does not restate — so the bridge is
+   where the demo is made dark, exactly as guide-demo.css asks. */
+.guide-demo {
+  --bg: #0a0a0a;
+  --bg-soft: #0f0f1a;
+  --bg-sunken: #151522;
+  --surface: #111827;
+  --border: #1f2937;
+  --border-strong: #374151;
+  --text: #f1f5f9;
+  --text-soft: #94a3b8;
+  --text-faint: #6b7280;
+
+  --accent: #6366f1;
+  --accent-soft: rgba(99, 102, 241, 0.14);
+  --teal: #818cf8;
+  --teal-soft: rgba(129, 140, 248, 0.14);
+  --violet: #a78bfa;
+  --violet-soft: rgba(167, 139, 250, 0.14);
+  --red: #f87171;
+  --red-soft: rgba(248, 113, 113, 0.13);
+  --green: #34d399;
+  --green-soft: rgba(52, 211, 153, 0.13);
+
+  --bad: #fca5a5;
+
+  --shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9);
+}
+
+/* The two demo chips and the sign-in note read as text on their own tint, so
+   they take the lighter step of the ramp rather than the 600 the bridge used
+   against white. */
+.guide-demo .chip--rule { color: #c4b5fd; }
+.guide-demo .chip--flow { color: #a5b4fc; }
+.guide-demo .credentials { color: #cbd5e1; }
+.guide-demo .credentials b { color: #f1f5f9; }
+
+/* Indigo keeps its white label — that is the pairing the header's own buttons
+   use. The two swatches that got genuinely light in the bridge, so that they
+   would read as text on a dark ground, take the obsidian label instead. */
+.guide-demo .flow-step[data-state="done"] .flow-step__num { color: #0a0a0a; }
+.guide-demo .diag--error .diag__sev,
+.guide-demo .diag--fixed .diag__sev { color: #0a0a0a; }
+
+/* The application runs in this frame with its own design system; the page owns
+   only the border around it. */
+.guide-demo .stage iframe { background: #0f0f1a; }
+
+/* ── Brought across from main's own pass at this section ────────────────── */
+/* main fixed the same problem rule by rule while this branch fixed the ramp;
+   the ramp covers all but these, which name components the ramp cannot reach. */
+
+/* The storage permission dialog renders in the top layer, outside
+   `.guide-demo`, so the bridge above cannot reach it. Same palette, restated. */
+.storage-ask {
+  --ask-surface:    #111827;
+  --ask-border:     #1f2937;
+  --ask-text:       #e2e8f0;
+  --ask-text-soft:  #94a3b8;
+  --ask-btn-bg:     #1e2736;
+  --ask-btn-border: #374151;
+  --ask-btn-hover:  #253044;
+}
+
+.guide-content .eyebrow {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #a5b4fc !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+.guide-content hr { border-top-color: #1f2937 !important; }
+.guide-sidebar-foot { border-top-color: #1f2937 !important; }
+.guide-content figcaption b { color: #94a3b8 !important; }
+.guide-content .code pre code { background: none !important; color: inherit !important; }
+.guide-content .steps li { color: #94a3b8 !important; }
+.guide-content .steps h3 { color: #f1f5f9 !important; }
+.guide-content .steps p  { color: #94a3b8 !important; }
+
+/* ── Videos ─────────────────────────────────────────────────────────────── */
+/* The poster keeps its indigo gradient — it is the one bright surface in the
+   section, and the play control sits on it. Only the card around it changes. */
+.video-card {
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: none;
+}
+
+.video-card:hover {
+  box-shadow: 0 0 0 1px #6366f1;
+}
+
+.video-card__body h3 { color: #f1f5f9; }
+.video-card__body a  { color: #818cf8; }
+.video-card__body a:hover { color: #a5b4fc; }
+
+.video-frame {
+  background: linear-gradient(135deg, #312e81 0%, #6d28d9 100%);
+}
+
+.video-note a { color: #818cf8; }

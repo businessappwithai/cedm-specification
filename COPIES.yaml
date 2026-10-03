@@ -1,0 +1,34 @@
+# The product repositories copied into cedm-specification at the top level, and
+# the commit each was taken from. See
+# docs/architecture/yaml-only-repository-consolidation.md.
+#
+# Every tracked file was copied byte for byte at its original path, except:
+# git submodules (.claude/skills/gstack, a third-party skill pack installed per
+# developer), and in enterprise_reporting_rust a PostgreSQL data-directory
+# backup (data.backup/), SQLite WAL/SHM files and .env.docker.production.
+#
+# Two credentials committed in enterprise_reporting_rust are removed rather than
+# copied (GitHub push protection refuses them): an OpenRouter API key used as a
+# default in docker-compose.{local,remote}.yml, now empty, and a fixed
+# ENCRYPTION_KEY in docker-compose.dev.yml and two docs/DOCKER_*.md pages, now
+# required (compose) or a placeholder (docs). Both should be rotated upstream.
+copies:
+  - repository: businessappwithai/app-with-ai-rust
+    path: app-with-ai-rust
+    commit: 2512a1ff53beb2b9b45b99eb67acda78eff7966f
+    files: 2023
+  - repository: businessappwithai/app-and-report-with-ai-rust
+    path: app-and-report-with-ai-rust
+    commit: fbc49ce84bd855a18d1530b4cfc05b1eb4c1d068
+    files: 175
+    excluded: [.claude/skills/gstack]
+  - repository: businessappwithai/enterprise_reporting_rust
+    path: enterprise-reporting-rust
+    commit: ac0107304c378826648fd26e5d1e8e234a872692
+    files: 1910
+    excluded: [.claude/skills/gstack, data.backup/, .env.docker.production, "*.sqlite-wal", "*.sqlite-shm"]
+    scrubbed: [docker-compose.dev.yml, docker-compose.local.yml, docker-compose.remote.yml, docs/DOCKER_QUICKSTART.md, docs/DOCKER_SETUP_SUMMARY.md]
+  - repository: businessappwithai/businessappwithairust
+    path: businessappwithairust
+    commit: eccd780860ac1593440be4ea42dcd53289053a2d
+    files: 190

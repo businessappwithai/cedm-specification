@@ -27,8 +27,16 @@ const SKIP = new Set([
   "dist",
   "target",
 ]);
-/** The imported sibling platforms under yaml/ are their own repositories' corpora. */
-const SKIP_PATHS = new Set([path.join(ROOT, "yaml")]);
+/** The imported sibling platforms are their own repositories' corpora. */
+const SKIP_PATHS = new Set(
+  [
+    "yaml",
+    "app-with-ai-rust",
+    "app-and-report-with-ai-rust",
+    "enterprise-reporting-rust",
+    "businessappwithairust",
+  ].map((name) => path.join(ROOT, name))
+);
 
 function corpus(directory = ROOT): string[] {
   const found: string[] = [];

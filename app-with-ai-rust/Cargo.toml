@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = ["crates/appwithai-gen"]
+
+# Generated applications are cargo workspaces in their own right, and they are
+# gitignored output rather than part of this repository's build. Without this,
+# cargo walks into `generated-projects/*/backend` and fails with "workspace
+# member not listed" the moment anyone generates an app.
+exclude = ["generated-projects"]

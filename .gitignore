@@ -97,3 +97,11 @@ target/
 .appwithai-web.pid
 language.zip
 __pycache__/
+
+# The repository copies (docs/architecture/yaml-only-repository-consolidation.md)
+# are tracked exactly as their own repositories track them: none of the rules
+# above applies inside them, and each copy's own .gitignore does.
+!/app-with-ai-rust/**
+!/app-and-report-with-ai-rust/**
+!/enterprise-reporting-rust/**
+!/businessappwithairust/**

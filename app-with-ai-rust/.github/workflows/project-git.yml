@@ -1,0 +1,47 @@
+# Project Git recovery and database consistency.
+#
+# Every model save, named version, restore and generation in the modelling tool
+# commits into a per-project local Git repository and then records the result
+# in Postgres (`project_git_state`, `project_git_operations`, `erd_versions`).
+# Neither store participates in the other's transaction, so the suite that
+# proves they agree — replayed requests, interrupted operations, concurrent
+# saves — needs a real database, and is skipped by the ordinary unit run.
+name: project-git
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  project-git:
+    name: Project Git recovery and database consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: appwithai
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APPWITHAI_GIT_TEST_DB: "1"
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/appwithai
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.14"
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run test -- src/lib/server/__tests__/project-repository.test.ts
