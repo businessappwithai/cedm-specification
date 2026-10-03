@@ -10,6 +10,7 @@ description: "Container and Intermodal Logistics, built on the CEDM common found
 
 Container and Intermodal Logistics, built on the CEDM common foundation.
 
+![The Container and Intermodal Logistics dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
