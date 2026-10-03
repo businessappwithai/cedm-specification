@@ -2,25 +2,153 @@ entity:
   name: BankReconciliation
   namespace: cedm.domain
   kind: treasury_reconciliation
-  description: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
+  description: The matching of a bank account's statement for a period against the company's own records — statement balance, book balance, matched and unmatched items, difference — signed off when the two agree.
   ui:
-    icon: table
+    icon: scale
+    recordLabel: [reconciliationNumber]
   identity: {key: bankReconciliationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: bankReconciliationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BankReconciliation., businessMeaning: Identifies one governed BankReconciliation record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - name: reconciliationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the reconciliation.
+      usage: Assigned when it is opened.
+      relationshipContext: Unique.
+  - name: periodStart
+    type: date
+    required: true
+    help:
+      summary: The first day of the period reconciled.
+      usage: Set when opening the reconciliation.
+      relationshipContext: Not later than the period end.
+  - name: periodEnd
+    type: date
+    required: true
+    help:
+      summary: The last day of the period reconciled, usually the statement date.
+      usage: Set when opening the reconciliation.
+      relationshipContext: Reconciliations of one account do not overlap.
+  - name: statementBalance
+    type: Money
+    required: true
+    help:
+      summary: The closing balance on the bank statement.
+      usage: Taken from the statement.
+      relationshipContext: In the account's currency.
+  - name: bookBalance
+    type: Money
+    required: true
+    help:
+      summary: The balance of the bank account in the company's books at the period end.
+      usage: Taken from the ledger.
+      relationshipContext: In the account's currency.
+  - name: difference
+    type: Money
+    required: false
+    help:
+      summary: Statement balance minus book balance.
+      usage: Must be explained by the unmatched items before sign-off.
+      relationshipContext: The one amount that may be negative.
+  - name: unmatchedCount
+    type: integer
+    required: false
+    help:
+      summary: How many statement lines and book items are still unmatched.
+      usage: Falls as matching proceeds.
+      relationshipContext: Each must be explained before sign-off.
+  - name: explanation
+    type: text
+    required: false
+    help:
+      summary: What explains the remaining difference.
+      usage: Written by the preparer, such as uncleared cheques and deposits in transit.
+      relationshipContext: Read by the reviewer.
+  - name: reconciledAt
+    type: datetime
+    required: false
+    help:
+      summary: When the reconciliation was signed off.
+      usage: Recorded on sign-off.
+      relationshipContext: Present once reconciled.
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [OPEN, IN_REVIEW, RECONCILED]
+    help:
+      summary: Where the reconciliation stands.
+      usage: Moved on by the preparer and the reviewer.
+      relationshipContext: Reconciled periods are locked.
+      valueSemantics:
+        OPEN: Matching in progress.
+        IN_REVIEW: Submitted for sign-off.
+        RECONCILED: Signed off; the books agree with the bank.
   relationships:
-  - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account reconciled., businessMeaning: Defines reconciliation boundary., usage: Treasury close and audit., cardinalityMeaning: Exactly one BankAccount., workflowRole: Matched evidence remains traceable.}}
-  - {name: bankTransactions, target: BankTransaction, cardinality: 0..*, ownership: reference, help: {summary: External bank evidence in reconciliation., businessMeaning: Supplies statement-side transactions., usage: Matching and exception handling., cardinalityMeaning: Zero or many transactions., workflowRole: Reconciliation never rewrites bank evidence.}, inverseCardinality: '1'}
+  - name: bankAccount
+    target: BankAccount
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The bank account reconciled.
+      businessMeaning: Defines reconciliation boundary.
+      workflowRole: Matched evidence remains traceable.
+      usage: Chosen when opening the reconciliation.
+      cardinalityMeaning: Every reconciliation is of exactly one account.
+      context: Its statement lines are the bank transactions matched.
+  - name: bankTransactions
+    target: BankTransaction
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The statement lines covered by the reconciliation.
+      businessMeaning: Supplies statement-side transactions.
+      workflowRole: Reconciliation never rewrites bank evidence.
+      usage: Matched to payments and postings.
+      cardinalityMeaning: A reconciliation covers many lines; each line is reconciled once.
+      context: The line records the reconciliation that covered it.
+    inverseCardinality: '1'
+  - name: preparedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who prepared the reconciliation.
+      usage: Recorded when submitting.
+      cardinalityMeaning: One per reconciliation.
+      context: Must differ from the reviewer.
+  - name: reviewedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who signed it off.
+      usage: Recorded on sign-off.
+      cardinalityMeaning: One per reconciliation.
+      context: Independent of the preparer.
   invariants:
-  - {id: BANK-RECONCILIATION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: BANK-RECONCILIATION-001, rule: The period does not end before it starts., violatedWhen: period_end != null and period_start != null and period_end < period_start, message: The period ends before it starts.}
+  - {id: BANK-RECONCILIATION-002, rule: A reconciled account records when it was signed off., violatedWhen: status == "RECONCILED" and reconciled_at == null, message: Record when the reconciliation was signed off.}
+  lifecycle:
+    title: Bank Reconciliation Lifecycle
+    attribute: status
+    states: [OPEN, IN_REVIEW, RECONCILED]
+    initial: OPEN
+    terminal: []
+    transitions:
+    - {from: OPEN, to: IN_REVIEW, action: submit}
+    - {from: IN_REVIEW, to: OPEN, action: return}
+    - {from: IN_REVIEW, to: RECONCILED, action: sign_off}
+    - {from: RECONCILED, to: OPEN, action: reopen}
   help:
-    summary: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
-    purpose: Provide canonical enterprise semantics for BankReconciliation.
-    businessMeaning: A governed reconciliation comparing BankAccount external BankTransaction evidence with internal payments and accounting records for a defined cutoff.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: Proof that the bank's balance and the company's books agree for one account and period.
+    businessMeaning: Cash in the books must be cash in the bank. Reconciling each account every period — matching statement lines to payments and receipts, explaining what is left — catches errors, missing postings and fraud, and the signed-off reconciliation is evidence auditors rely on.
+    usage: Treasury or accounting imports the statement, matches lines to postings (largely automatically), investigates the rest, and signs off when the difference is explained. Unreconciled accounts at period end are escalated.
+    relationshipContext: A reconciliation is for one BankAccount and period. The BankTransactions on the statement are matched to Payments and journal entries.
+    lifecycle: Open while matching, in review once the preparer submits it, and reconciled when the reviewer signs off. A reconciliation reopened for a late correction goes back to open.
+    workflowContext: Daily and month-end cash reconciliation, period-end close, audit.
+    example: 'Reconciliation BR-2024-03-EUR01: account EUR-OP-01, March 2024; statement balance 1,284,320.15 EUR, book balance 1,281,920.15 EUR; difference 2,400.00 EUR explained by an uncleared outgoing payment; reconciled 3 April by the treasury manager.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BANK-RECONCILIATION}

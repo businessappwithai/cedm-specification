@@ -2,37 +2,161 @@ entity:
   name: TaxTransaction
   namespace: cedm.domain
   kind: tax_transaction
-  description: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
+  description: The tax computed on one taxable document line — taxable base, rate, tax amount, code and jurisdiction, tax date and direction — kept for returns and audit apart from the invoice and the ledger.
   ui:
-    icon: percent
+    icon: calculator
+    recordLabel: [taxTransactionNumber]
   identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxTransaction., businessMeaning: Identifies one governed TaxTransaction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxTransaction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: CALCULATED
+    values: [CALCULATED, POSTED, REPORTED, REVERSED]
+    help:
+      summary: Where the tax record stands.
+      usage: Moved on by posting, return filing and reversal.
+      relationshipContext: Reported records are locked.
+      valueSemantics:
+        CALCULATED: Computed, not yet posted.
+        POSTED: Posted with its document.
+        REPORTED: Included in a filed return.
+        REVERSED: Cancelled by an opposite record.
+  - name: taxTransactionNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the tax record.
+      usage: Assigned when it is calculated.
+      relationshipContext: Unique.
+  - name: documentType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The kind of document taxed, such as "Sales invoice".
+      usage: Set by tax determination.
+      relationshipContext: Read with the document reference.
+  - name: documentReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The number of the document and line taxed.
+      usage: Lets the tax amount be traced to its source.
+      relationshipContext: Such as "INV-2024-03-0912/1".
+  - name: direction
+    type: enum
+    required: true
+    default: OUTPUT
+    values: [OUTPUT, INPUT]
+    help:
+      summary: Whether the tax is charged to a customer or paid to a supplier.
+      usage: Decides the side of the return.
+      relationshipContext: Reverse-charge purchases give both an output and an input record.
+      valueSemantics:
+        OUTPUT: Tax charged on a sale.
+        INPUT: Tax paid on a purchase.
+  - name: taxDate
+    type: date
+    required: true
+    help:
+      summary: The tax point — the date that decides which period the tax belongs to.
+      usage: Usually the invoice date or the supply date, as the law says.
+      relationshipContext: Decides the rate and the return period.
+  - name: taxableAmount
+    type: Money
+    required: true
+    help:
+      summary: The amount the tax is computed on.
+      usage: From the document line.
+      relationshipContext: In the document's currency.
+  - name: ratePercent
+    type: decimal
+    required: false
+    precision: 9
+    scale: 5
+    help:
+      summary: The rate applied.
+      usage: Copied from the rate on the tax date.
+      relationshipContext: Kept even if the rate changes later.
+  - name: taxAmount
+    type: Money
+    required: true
+    help:
+      summary: The tax computed.
+      usage: Reported in the return.
+      relationshipContext: Rounded under the jurisdiction's rules.
+  - name: reportedPeriod
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The return period the transaction was reported in, such as 2024-03.
+      usage: Set when the return is filed.
+      relationshipContext: Present once reported.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company that reports the tax.
+      usage: Set from the document.
+      cardinalityMeaning: One per record.
+      context: Its registration in the jurisdiction applies.
+  - name: invoice
+    target: Invoice
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The invoice the tax was computed on.
+      usage: Set by tax determination.
+      cardinalityMeaning: At most one.
+      context: Other taxable documents are named in the document reference.
+  - name: taxCode
+    target: TaxCode
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The tax code applied.
+      usage: From the document line.
+      cardinalityMeaning: One per record.
+      context: Decides the return box.
+  - name: jurisdiction
+    target: TaxJurisdiction
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The jurisdiction the tax is due to.
+      usage: From tax determination.
+      cardinalityMeaning: One per record.
+      context: Combined taxes give one record per jurisdiction.
   invariants:
-  - {id: TAX-TRANSACTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: TAX-TRANSACTION-001, rule: A reported tax record is never changed; a correction is a new record in an open period.}
+  - {id: TAX-TRANSACTION-002, rule: A reported record states its return period., violatedWhen: status == "REPORTED" and reported_period == null, message: Give the return period the tax was reported in.}
+  - {id: TAX-TRANSACTION-EXE-001, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
+  - {id: TAX-TRANSACTION-EXE-002, rule: "Rate Percent is a percentage between 0 and 100.", violatedWhen: "rate_percent != null and (rate_percent < 0 or rate_percent > 100)", message: "Rate Percent must be between 0 and 100."}
+  - {id: TAX-TRANSACTION-EXE-003, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   lifecycle:
     title: Tax Transaction Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [CALCULATED, POSTED, REPORTED, REVERSED]
+    initial: CALCULATED
+    terminal: [REPORTED, REVERSED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: CALCULATED, to: POSTED, action: post}
+    - {from: POSTED, to: REPORTED, action: report}
+    - {from: POSTED, to: REVERSED, action: reverse}
+    - {from: CALCULATED, to: REVERSED, action: reverse}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a tax transaction is ended"
-      description: "When a tax transaction is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
+      description: "When a tax transaction is reversed, a task asks someone to settle what depended on it."
+      when: "status == \"REVERSED\" and status != _previous_status"
       steps:
         - id: S1
           type: CreateEntity
@@ -42,15 +166,15 @@ entity:
             as: taskId
             fields:
               code: "TAX-TRANSACTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on tax transaction {{id}}"
-              description: "Tax transaction {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              name: "Follow up on tax transaction {{tax_transaction_number}}"
+              description: "Tax transaction {{tax_transaction_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
               task_type: "USER"
               status: "CREATED"
               priority: "NORMAL"
     - name: CompletionConfirmed
       title: "Confirm when a tax transaction is done"
-      description: "When a tax transaction is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
+      description: "When a tax transaction is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
       steps:
         - id: S1
           type: CreateEntity
@@ -60,18 +184,17 @@ entity:
             as: taskId
             fields:
               code: "TAX-TRANSACTION-COMPLETED-{{id}}"
-              name: "Confirm tax transaction {{id}}"
-              description: "Tax transaction {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              name: "Confirm tax transaction {{tax_transaction_number}}"
+              description: "Tax transaction {{tax_transaction_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
               task_type: "USER"
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
-    purpose: Provide canonical enterprise semantics for TaxTransaction while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: The tax charged or paid on one transaction line, as it will be reported.
+    businessMeaning: Tax returns are built from transactions, and tax audits ask how each amount was computed. Keeping a tax record per taxable line — base, code, rate, amount, jurisdiction, date and whether it is output or input tax — makes returns reproducible and lets every reported figure be traced to the invoice it came from.
+    usage: Created by tax determination when invoices are posted; returns sum them by code and period; once a return is filed its transactions are locked; corrections are new transactions in a later period.
+    relationshipContext: A tax transaction comes from an Invoice (or another taxable document), uses a TaxCode and TaxRate in a TaxJurisdiction, and is reported by an Organization.
+    lifecycle: Calculated, posted with its invoice, reported when included in a filed return, and reversed when the document is credited.
+    workflowContext: Tax determination, tax return preparation, tax audit, reverse charge and self-assessment.
+    example: 'Tax on invoice INV-2024-03-0912 line 1: base 588.00 EUR, FR-VAT-S 20%, tax 117.60 EUR, output tax, tax date 31 March 2024, reported in the March 2024 return.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-TRANSACTION}

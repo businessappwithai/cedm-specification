@@ -2,58 +2,124 @@ entity:
   name: TaxRate
   namespace: cedm.domain
   kind: tax_reference
-  description: A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction.
+  description: The rate of a tax code in a jurisdiction for a period — a percentage, or a fixed amount per unit — with the dates it is valid between.
   ui:
     icon: percent
+    recordLabel: [taxCodeLabel, ratePercent]
   identity: {key: taxRateId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxRateId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRate., businessMeaning: Identifies one governed TaxRate record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxRate., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: SCHEDULED
+    values: [SCHEDULED, ACTIVE, EXPIRED]
+    help:
+      summary: Whether the rate is in force.
+      usage: Moved on by its dates.
+      relationshipContext: Determination uses the rate valid on the tax date, whatever today's status.
+      valueSemantics:
+        SCHEDULED: Will apply from a future date.
+        ACTIVE: In force.
+        EXPIRED: Replaced; kept for past transactions.
+  - name: taxCodeLabel
+    type: string
+    required: false
+    maxLength: 60
+    help:
+      summary: The code and jurisdiction the rate is for, as shown on screens.
+      usage: Filled from the tax code for display in rate lists.
+      relationshipContext: The tax code relationship is authoritative.
+  - name: rateType
+    type: enum
+    required: true
+    default: PERCENT
+    values: [PERCENT, PER_UNIT]
+    help:
+      summary: Whether the tax is a percentage or an amount per unit.
+      usage: Decides how the tax is computed.
+      relationshipContext: Excise duties are often per unit.
+      valueSemantics:
+        PERCENT: A percentage of the taxable amount.
+        PER_UNIT: A fixed amount per unit of quantity.
+  - name: ratePercent
+    type: decimal
+    required: false
+    precision: 9
+    scale: 5
+    help:
+      summary: The rate as a percentage, such as 20.
+      usage: Applied to the taxable amount.
+      relationshipContext: Used when the rate type is percent.
+  - name: amountPerUnit
+    type: Money
+    required: false
+    help:
+      summary: The tax per unit of quantity.
+      usage: Applied to the line's quantity.
+      relationshipContext: Used when the rate type is per unit.
+  - name: validFrom
+    type: date
+    required: true
+    help:
+      summary: The first day the rate applies.
+      usage: Set from the law.
+      relationshipContext: Not later than the valid-to date.
+  - name: validTo
+    type: date
+    required: false
+    help:
+      summary: The last day the rate applies.
+      usage: Set when a new rate replaces it.
+      relationshipContext: Rates of one code and jurisdiction do not overlap.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company the rate is maintained for, when rates differ by company.
+      usage: Usually empty; rates are set by law.
+      cardinalityMeaning: At most one.
+      context: Special rates under a company ruling name the company.
+  - name: taxCode
+    target: TaxCode
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The tax code the rate belongs to.
+      usage: Chosen when adding the rate.
+      cardinalityMeaning: Every rate belongs to exactly one code.
+      context: A code has one rate per period and jurisdiction.
+  - name: jurisdiction
+    target: TaxJurisdiction
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The jurisdiction the rate applies in.
+      usage: Usually the code's jurisdiction.
+      cardinalityMeaning: One per rate.
+      context: Combined rates are separate rates per jurisdiction.
   invariants:
-  - {id: TAX-RATE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: TAX-RATE-001, rule: The rate does not end before it starts., violatedWhen: valid_to != null and valid_from != null and valid_to < valid_from, message: The valid-to date is earlier than the valid-from date.}
+  - {id: TAX-RATE-002, rule: A percentage rate states its percentage., violatedWhen: rate_type == "PERCENT" and rate_percent == null, message: Give the rate as a percentage.}
+  - {id: TAX-RATE-003, rule: A per-unit rate states the amount per unit., violatedWhen: rate_type == "PER_UNIT" and amount_per_unit == null, message: Give the tax per unit.}
+  - {id: TAX-RATE-EXE-001, rule: "Rate Percent is a percentage between 0 and 100.", violatedWhen: "rate_percent != null and (rate_percent < 0 or rate_percent > 100)", message: "Rate Percent must be between 0 and 100."}
   lifecycle:
     title: Tax Rate Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [SCHEDULED, ACTIVE, EXPIRED]
+    initial: SCHEDULED
+    terminal: [EXPIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a tax rate is ended"
-      description: "When a tax rate is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TAX-RATE-FOLLOW-UP-{{id}}"
-              name: "Follow up on tax rate {{id}}"
-              description: "Tax rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: SCHEDULED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: EXPIRED, action: expire}
   help:
-    summary: A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction.
-    purpose: Provide canonical enterprise semantics for TaxRate while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: How much tax a code charges, where, and from when to when.
+    businessMeaning: Tax rates change by law on fixed dates. Keeping each rate with its validity dates lets every transaction be taxed at the rate in force on its tax point, including invoices issued after a change for supplies made before it, and keeps a history auditors can check.
+    usage: The tax team adds a new rate when the law changes, ending the old one the day before. Tax determination picks the rate of the line's tax code and jurisdiction valid on the tax date.
+    relationshipContext: A rate belongs to one TaxCode in one TaxJurisdiction. TaxTransactions record the rate applied.
+    lifecycle: Scheduled before its start date, active while valid, and expired after its end date.
+    workflowContext: Tax determination, rate-change implementation, tax audit.
+    example: 'Rate of FR-VAT-S in France: 20.000% from 4 January 2014, no end date; earlier rate 19.6% from 1 April 2000 to 3 January 2014.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-RATE}

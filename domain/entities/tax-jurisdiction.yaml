@@ -2,58 +2,115 @@ entity:
   name: TaxJurisdiction
   namespace: cedm.domain
   kind: tax_reference
-  description: A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted.
+  description: A place with its own tax authority and rules — a country, a state, a county or a city — that taxes are charged under and returns are filed to.
   ui:
-    icon: percent
+    icon: map
+    recordLabel: [code, name]
   identity: {key: taxJurisdictionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxJurisdictionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxJurisdiction., businessMeaning: Identifies one governed TaxJurisdiction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxJurisdiction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE]
+    help:
+      summary: Whether the business deals with the jurisdiction.
+      usage: Moved on by the tax team.
+      relationshipContext: Inactive jurisdictions are not used for determination.
+      valueSemantics:
+        ACTIVE: Relevant to the business.
+        INACTIVE: No longer relevant.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 30
+    help:
+      summary: The code of the jurisdiction, such as FR or US-CA-LA.
+      usage: Used in tax codes, rates and reports.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the jurisdiction.
+      usage: Shown on tax reports.
+      relationshipContext: Identifies it for people.
+  - name: level
+    type: enum
+    required: true
+    default: COUNTRY
+    values: [COUNTRY, STATE, COUNTY, CITY, SPECIAL_DISTRICT]
+    help:
+      summary: The level of government that imposes the tax.
+      usage: Decides how rates combine — a US address may owe state, county and city tax together.
+      relationshipContext: Read with the parent jurisdiction.
+      valueSemantics:
+        COUNTRY: A national tax.
+        STATE: A state, province or region.
+        COUNTY: A county or district.
+        CITY: A city or municipality.
+        SPECIAL_DISTRICT: A special taxing district.
+  - name: filingFrequency
+    type: enum
+    required: false
+    default: MONTHLY
+    values: [MONTHLY, QUARTERLY, ANNUAL]
+    help:
+      summary: How often returns are filed in the jurisdiction.
+      usage: Drives the filing calendar.
+      relationshipContext: May depend on the business's size; the registration states the actual one.
+      valueSemantics:
+        MONTHLY: Every month.
+        QUARTERLY: Every quarter.
+        ANNUAL: Once a year.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The tax authority of the jurisdiction.
+      usage: Set when the jurisdiction is created.
+      cardinalityMeaning: One authority per jurisdiction.
+      context: Returns and payments go to it.
+  - name: country
+    target: Country
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The country the jurisdiction is in.
+      usage: Set when the jurisdiction is created.
+      cardinalityMeaning: One per jurisdiction.
+      context: Country-level jurisdictions name their own country.
+  - name: parentJurisdiction
+    target: TaxJurisdiction
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The larger jurisdiction this one lies within.
+      usage: Builds the hierarchy used to combine rates.
+      cardinalityMeaning: At most one parent.
+      context: Cannot be itself.
   invariants:
-  - {id: TAX-JURISDICTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: TAX-JURISDICTION-001, rule: 'A jurisdiction cannot lie within itself, directly or through others.'}
   lifecycle:
     title: Tax Jurisdiction Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    terminal: []
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a tax jurisdiction is ended"
-      description: "When a tax jurisdiction is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TAX-JURISDICTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on tax jurisdiction {{id}}"
-              description: "Tax jurisdiction {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
-    summary: A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted.
-    purpose: Provide canonical enterprise semantics for TaxJurisdiction while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: An area whose tax authority sets rates and collects a tax.
+    businessMeaning: Tax is charged and reported per jurisdiction — a country for VAT, a state, county and city for US sales tax. Knowing the jurisdictions the business deals with, their authority and their filing frequency is what lets tax be charged at the right combined rate and returns be filed with the right authority on time.
+    usage: Tax teams maintain the jurisdictions where the business is registered or has to charge tax; tax codes and rates are defined per jurisdiction; tax determination finds the jurisdictions of a delivery address.
+    relationshipContext: A jurisdiction is in a Country and may lie within a parent jurisdiction (a city in a state). Its authority is an Organization. TaxCodes, TaxRates and TaxRegistrations refer to it.
+    lifecycle: Active while relevant; inactive when the business stops dealing with it.
+    workflowContext: Tax determination, registration, return filing and payment.
+    example: 'Jurisdiction US-CA-LA: Los Angeles County, California; level county; parent US-CA; authority California Department of Tax and Fee Administration; returns quarterly.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-JURISDICTION}

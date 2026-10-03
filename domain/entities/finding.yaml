@@ -2,25 +2,173 @@ entity:
   name: Finding
   namespace: cedm.domain
   kind: governance_finding
-  description: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
+  description: A weakness found by an audit, assessment or inspection — a control that failed, a requirement not met — with its severity, root cause, the action agreed with management, the due date and verification.
   ui:
-    icon: table
+    icon: search-check
+    recordLabel: [findingNumber, title]
   identity: {key: findingId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: findingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Finding., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+  - name: findingNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the finding.
+      usage: Assigned when raised; used in the report.
+      relationshipContext: Unique.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The finding in one line.
+      usage: Shown in finding lists and the report.
+      relationshipContext: Identifies the finding for people.
+  - name: condition
+    type: text
+    required: true
+    help:
+      summary: What was found — the facts.
+      usage: Written by the auditor with the evidence.
+      relationshipContext: Agreed with management before the report is issued.
+  - name: rootCause
+    type: text
+    required: false
+    help:
+      summary: Why it happened.
+      usage: Agreed with management; the action should address it.
+      relationshipContext: Without it, fixes tend to address symptoms.
+  - name: severity
+    type: enum
+    required: true
+    default: MEDIUM
+    values: [LOW, MEDIUM, HIGH, CRITICAL]
+    help:
+      summary: How serious the weakness is.
+      usage: Decides the due date and who is told.
+      relationshipContext: Supports the audit's overall opinion.
+      valueSemantics:
+        LOW: Minor; improvement recommended.
+        MEDIUM: A weakness to correct within the normal planning cycle.
+        HIGH: A significant weakness to correct promptly.
+        CRITICAL: A serious failure needing immediate action.
+  - name: agreedAction
+    type: text
+    required: false
+    help:
+      summary: What management agreed to do.
+      usage: Written with management after the finding is raised.
+      relationshipContext: The owner reports against it.
+  - name: dueDate
+    type: date
+    required: false
+    help:
+      summary: When the action is to be completed.
+      usage: Agreed with management; overdue findings are escalated.
+      relationshipContext: Set by severity.
+  - name: remediatedDate
+    type: date
+    required: false
+    help:
+      summary: When the owner reported the action complete.
+      usage: Recorded by the owner.
+      relationshipContext: Verification follows.
+  - name: verifiedDate
+    type: date
+    required: false
+    help:
+      summary: When the auditor confirmed the fix works.
+      usage: Recorded on verification; required to close.
+      relationshipContext: Not before the remediated date.
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [OPEN, IN_REMEDIATION, REMEDIATED, CLOSED, RISK_ACCEPTED]
+    help:
+      summary: Where the finding stands.
+      usage: Moved on by the owner and the auditor.
+      relationshipContext: Only the auditor closes a finding.
+      valueSemantics:
+        OPEN: Raised; action not yet agreed.
+        IN_REMEDIATION: Action agreed and under way.
+        REMEDIATED: The owner reports the action complete.
+        CLOSED: Verified by the auditor.
+        RISK_ACCEPTED: Management decided not to act, with approval.
   relationships:
-  - {name: control, target: Control, cardinality: 0..1, ownership: reference, help: {summary: Control associated with finding., businessMeaning: Identifies deficient or tested control., usage: Audit and remediation., cardinalityMeaning: Optional for findings not control-specific., workflowRole: Finding resolution does not erase original evidence.}}
-  - {name: risk, target: Risk, cardinality: 0..1, ownership: reference, help: {summary: Risk informed by finding., businessMeaning: Connects evidence to risk governance., usage: Risk assessment and treatment., cardinalityMeaning: Optional., workflowRole: May trigger reassessment/treatment.}}
+  - name: control
+    target: Control
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The control found deficient.
+      businessMeaning: Identifies deficient or tested control.
+      workflowRole: Finding resolution does not erase original evidence.
+      usage: Linked when the finding concerns a control.
+      cardinalityMeaning: At most one.
+      context: The control's effectiveness rating reflects open findings.
+  - name: risk
+    target: Risk
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The risk the weakness exposes.
+      businessMeaning: Connects evidence to risk governance.
+      workflowRole: May trigger reassessment/treatment.
+      usage: Linked so risk reports show open findings.
+      cardinalityMeaning: At most one.
+      context: The risk's assessment should consider the finding.
+  - name: auditCase
+    target: AuditCase
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The audit that raised the finding.
+      usage: Set when the finding is raised.
+      cardinalityMeaning: One per finding.
+      context: The audit report lists its findings.
+  - name: complianceRequirement
+    target: ComplianceRequirement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The requirement not met, for compliance findings.
+      usage: Linked for regulatory and certification audits.
+      cardinalityMeaning: At most one.
+      context: Makes the finding a nonconformity against the requirement.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The manager responsible for the action.
+      usage: Agreed with management.
+      cardinalityMeaning: One per finding.
+      context: Reports progress until closure.
   invariants:
-  - {id: FINDING-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: FINDING-001, rule: A closed finding records when it was verified., violatedWhen: status == "CLOSED" and verified_date == null, message: Record when the fix was verified.}
+  - {id: FINDING-002, rule: Verification is not before remediation., violatedWhen: verified_date != null and remediated_date != null and verified_date < remediated_date, message: The verification date is earlier than the remediation date.}
+  lifecycle:
+    title: Finding Lifecycle
+    attribute: status
+    states: [OPEN, IN_REMEDIATION, REMEDIATED, CLOSED, RISK_ACCEPTED]
+    initial: OPEN
+    terminal: [CLOSED, RISK_ACCEPTED]
+    transitions:
+    - {from: OPEN, to: IN_REMEDIATION, action: agree_action}
+    - {from: IN_REMEDIATION, to: REMEDIATED, action: remediate}
+    - {from: REMEDIATED, to: CLOSED, action: verify}
+    - {from: REMEDIATED, to: IN_REMEDIATION, action: reject_fix}
+    - {from: OPEN, to: RISK_ACCEPTED, action: accept_risk}
+    - {from: IN_REMEDIATION, to: RISK_ACCEPTED, action: accept_risk}
   help:
-    summary: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
-    purpose: Provide durable, implementation-neutral governance semantics for Finding.
-    businessMeaning: A governed observation of a control, audit, compliance, quality, or risk deficiency requiring disposition or remediation.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A problem an audit or review found, and what is being done about it.
+    businessMeaning: Audits are worth what their findings lead to. A finding records exactly what was wrong, how serious it is, why it happened, what management agreed to do and by when, and whether the fix was verified, so that weaknesses are closed rather than reported again next year.
+    usage: Raised by auditors during fieldwork, agreed with management with an action plan and due date, tracked by the owner, and closed once the auditors verify the fix. Overdue findings are reported to the audit committee.
+    relationshipContext: A finding belongs to an AuditCase and concerns a Control, a Risk or a ComplianceRequirement. A CorrectiveAction may carry the remediation.
+    lifecycle: Open when raised, in remediation once management's action is agreed, remediated when the owner says it is done, and closed when the auditor verifies it. A finding management decides not to fix is risk-accepted with approval.
+    workflowContext: Audit reporting, remediation tracking, follow-up audits, compliance and risk reporting.
+    example: 'Finding IA-2024-07-03: three-way match override used on 14% of invoices without documented approval; severity high; root cause: override not restricted; action: restrict override to AP supervisor and log approvals, due 31 December 2024; owner: AP manager.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FINDING}

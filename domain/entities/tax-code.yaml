@@ -2,58 +2,127 @@ entity:
   name: TaxCode
   namespace: cedm.domain
   kind: tax_reference
-  description: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
+  description: A tax code that classifies a transaction or item for tax — such as "VAT standard 20%", "Zero-rated export" or "Exempt financial service" — telling invoicing which rate applies and how the amount is reported.
   ui:
-    icon: percent
+    icon: percent-square
+    recordLabel: [code, name]
   identity: {key: taxCodeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxCodeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxCode., businessMeaning: Identifies one governed TaxCode record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxCode., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: DRAFT
+    values: [DRAFT, ACTIVE, RETIRED]
+    help:
+      summary: Whether the code may be used.
+      usage: Moved on by the tax team.
+      relationshipContext: Retired codes are not offered.
+      valueSemantics:
+        DRAFT: Being set up.
+        ACTIVE: In use.
+        RETIRED: No longer used for new transactions.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 30
+    help:
+      summary: The short code entered on transactions, such as FR-VAT-S.
+      usage: Chosen on order and invoice lines, or defaulted from the product and party.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the code, such as "France VAT standard".
+      usage: Shown where the code is chosen and on tax reports.
+      relationshipContext: Identifies the code for people.
+  - name: taxType
+    type: enum
+    required: true
+    default: VAT
+    values: [VAT, GST, SALES_TAX, USE_TAX, WITHHOLDING, EXCISE]
+    help:
+      summary: Which tax the code belongs to.
+      usage: Decides which return the transactions appear on.
+      relationshipContext: Read with the category.
+      valueSemantics:
+        VAT: Value-added tax.
+        GST: Goods and services tax.
+        SALES_TAX: Sales tax charged at the point of sale.
+        USE_TAX: Tax due on purchases where sales tax was not charged.
+        WITHHOLDING: Tax withheld from a payment.
+        EXCISE: Excise duty on specific goods.
+  - name: category
+    type: enum
+    required: true
+    default: STANDARD
+    values: [STANDARD, REDUCED, ZERO_RATED, EXEMPT, REVERSE_CHARGE, OUT_OF_SCOPE]
+    help:
+      summary: How the transaction is treated under the tax.
+      usage: Decides the rate and the reporting.
+      relationshipContext: Exempt and zero-rated are reported differently even though both charge no tax.
+      valueSemantics:
+        STANDARD: Taxed at the standard rate.
+        REDUCED: Taxed at a reduced rate.
+        ZERO_RATED: Taxable at 0%; input tax remains recoverable.
+        EXEMPT: Outside the tax's charge; input tax is usually not recoverable.
+        REVERSE_CHARGE: The buyer accounts for the tax instead of the seller.
+        OUT_OF_SCOPE: Not within the tax at all.
+  - name: returnBox
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The box or line of the tax return the transactions are reported in.
+      usage: Used to prepare the return.
+      relationshipContext: Taken from the authority's return form.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: When the code is to be used.
+      usage: Read by whoever codes a transaction.
+      relationshipContext: Should cite the legal basis for exemptions.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company whose tax returns the code feeds.
+      usage: Set when the code is created; empty for codes shared by all companies.
+      cardinalityMeaning: At most one.
+      context: Each company files its own returns.
+  - name: jurisdiction
+    target: TaxJurisdiction
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the tax applies.
+      usage: Set when the code is created.
+      cardinalityMeaning: One per code.
+      context: Its authority receives the return.
   invariants:
-  - {id: TAX-CODE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: TAX-CODE-001, rule: A retired code keeps its history; transactions are never recoded silently.}
   lifecycle:
     title: Tax Code Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, ACTIVE, RETIRED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a tax code is ended"
-      description: "When a tax code is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TAX-CODE-FOLLOW-UP-{{id}}"
-              name: "Follow up on tax code {{id}}"
-              description: "Tax code {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: DRAFT, to: RETIRED, action: discard}
   help:
-    summary: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
-    purpose: Provide canonical enterprise semantics for TaxCode while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A classification that decides how a sale or purchase is taxed and reported.
+    businessMeaning: Every taxable line must be taxed correctly and appear in the right box of the tax return. A tax code classifies the transaction — standard, reduced, zero-rated, exempt, reverse charge — and points to its rate in each jurisdiction, so invoices compute tax consistently and returns can be prepared from the coded transactions.
+    usage: Tax teams maintain the codes; products, customers and suppliers carry default codes; order and invoice lines take a code, which decides the rate; tax returns sum transactions by code.
+    relationshipContext: A tax code applies within a TaxJurisdiction and has TaxRates over time. TaxTransactions record the code used. It belongs to the company (Organization) whose returns it feeds.
+    lifecycle: Drafted, active while it may be used, and retired when tax law changes; past transactions keep the code they used.
+    workflowContext: Tax determination on orders and invoices, tax return preparation, audit of tax treatment.
+    example: "Tax code FR-VAT-S: 'France VAT standard', category standard rate, jurisdiction France, rate 20% from 4 January 2014, return box 08."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-CODE}

@@ -2,58 +2,121 @@ entity:
   name: TaxRegistration
   namespace: cedm.domain
   kind: tax_master
-  description: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
+  description: A company's or party's registration for a tax in a jurisdiction — the registration number, the tax, the dates it is valid, and how often returns are due.
   ui:
-    icon: percent
+    icon: file-badge
+    recordLabel: [registrationNumber]
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxRegistration., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: PENDING
+    values: [PENDING, ACTIVE, DEREGISTERED]
+    help:
+      summary: Whether the registration is in force.
+      usage: Moved on by the tax team.
+      relationshipContext: Tax must not be charged under a pending or ended registration.
+      valueSemantics:
+        PENDING: Applied for; not yet granted.
+        ACTIVE: In force.
+        DEREGISTERED: Ended.
+  - name: registrationNumber
+    type: string
+    required: true
+    maxLength: 60
+    help:
+      summary: The number the authority issued, such as a VAT number.
+      usage: Printed on invoices; validated for cross-border trade.
+      relationshipContext: Unique within its jurisdiction and tax.
+  - name: taxType
+    type: enum
+    required: true
+    default: VAT
+    values: [VAT, GST, SALES_TAX, PAYROLL, CORPORATE_INCOME, EXCISE]
+    help:
+      summary: The tax the registration is for.
+      usage: Decides which returns it drives.
+      relationshipContext: A company may hold several registrations in one country for different taxes.
+      valueSemantics:
+        VAT: Value-added tax.
+        GST: Goods and services tax.
+        SALES_TAX: Sales and use tax.
+        PAYROLL: Payroll or employment taxes.
+        CORPORATE_INCOME: Corporate income tax.
+        EXCISE: Excise duties.
+  - name: validFrom
+    type: date
+    required: true
+    help:
+      summary: The day the registration takes effect.
+      usage: Tax may be charged under the number from this day.
+      relationshipContext: Not later than the valid-to date.
+  - name: validTo
+    type: date
+    required: false
+    help:
+      summary: The last day of the registration.
+      usage: Set on deregistration.
+      relationshipContext: Empty while it is in force.
+  - name: filingFrequency
+    type: enum
+    required: false
+    default: MONTHLY
+    values: [MONTHLY, QUARTERLY, ANNUAL]
+    help:
+      summary: How often returns are due under this registration.
+      usage: Drives the filing calendar.
+      relationshipContext: Set by the authority.
+      valueSemantics:
+        MONTHLY: Every month.
+        QUARTERLY: Every quarter.
+        ANNUAL: Once a year.
+  - name: lastValidatedDate
+    type: date
+    required: false
+    help:
+      summary: When the number was last checked with the authority's register.
+      usage: Recorded by validation; numbers are rechecked periodically.
+      relationshipContext: Required for exempt cross-border sales in many jurisdictions.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The organization registered.
+      usage: Chosen when recording the registration.
+      cardinalityMeaning: One per registration.
+      context: May be a group company or a customer or supplier.
+  - name: jurisdiction
+    target: TaxJurisdiction
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The jurisdiction of the registration.
+      usage: Chosen when recording it.
+      cardinalityMeaning: One per registration.
+      context: Its authority issued the number.
   invariants:
-  - {id: TAX-REGISTRATION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: TAX-REGISTRATION-001, rule: The registration does not end before it starts., violatedWhen: valid_to != null and valid_from != null and valid_to < valid_from, message: The valid-to date is earlier than the valid-from date.}
   lifecycle:
     title: Tax Registration Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [PENDING, ACTIVE, DEREGISTERED]
+    initial: PENDING
+    terminal: [DEREGISTERED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a tax registration is ended"
-      description: "When a tax registration is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TAX-REGISTRATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on tax registration {{id}}"
-              description: "Tax registration {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: PENDING, to: ACTIVE, action: grant}
+    - {from: ACTIVE, to: DEREGISTERED, action: deregister}
+    - {from: PENDING, to: DEREGISTERED, action: withdraw}
   help:
-    summary: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
-    purpose: Provide canonical enterprise semantics for TaxRegistration while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A registration with a tax authority, under which tax is charged and returns are filed.
+    businessMeaning: A company may charge tax and must file returns only where it is registered, and its registration number has to appear on invoices. Recording each registration — number, tax, jurisdiction, validity and filing frequency — drives correct invoicing and the filing calendar; recording customers' and suppliers' registrations allows exemption and reverse charge to be applied.
+    usage: Tax teams record the group's registrations and keep them current; master-data teams record counterparties' VAT numbers and validate them; invoicing prints the right number; the filing calendar is drawn from registrations.
+    relationshipContext: A registration belongs to an Organization (one of ours or a counterparty) for one TaxJurisdiction.
+    lifecycle: Pending while applied for, active once granted, and deregistered when the business stops trading in the jurisdiction.
+    workflowContext: Tax registration, invoicing, VAT-number validation, filing calendar, reverse charge.
+    example: ACME France SAS — VAT registration FR12812345678 in France, valid from 4 May 2015, monthly returns; validated against VIES on 2 January 2024.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-REGISTRATION}
