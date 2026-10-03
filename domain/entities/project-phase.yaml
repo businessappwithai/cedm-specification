@@ -5,6 +5,7 @@ entity:
   description: A governed stage of a Project used to group milestones, tasks, resources, costs, and delivery controls within a defined portion of the project lifecycle.
   ui:
     icon: folder-kanban
+    recordLabel: [name]
   identity: {key: projectPhaseId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: projectPhaseId
@@ -15,19 +16,117 @@ entity:
       summary: The permanent system identifier of the project phase record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a project phase store this identifier. The number or code people quote is a separate field.
-  - {name: name, type: string, required: true, maxLength: 200, help: {summary: Human-readable phase name., businessMeaning: Communicates project stage., usage: Plans and reports., relationshipContext: Unique according to project policy., requiredMeaning: Required.}}
+  - name: name
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The name of the phase, such as "Design" or "Commissioning".
+      businessMeaning: Communicates project stage.
+      usage: Shown on the project plan.
+      relationshipContext: Unique within its project.
   - name: status
     type: enum
     required: true
     values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Phase lifecycle state., businessMeaning: Controls phase execution., usage: Project governance., relationshipContext: Task/milestone state must reconcile., valueSemantics: {PLANNED: Not started., ACTIVE: Executing., COMPLETED: Closed successfully., CANCELLED: Terminated.}, requiredMeaning: Required.}
+    help:
+      summary: Where the phase stands.
+      businessMeaning: Controls phase execution.
+      usage: Moved on by the project manager.
+      relationshipContext: A phase is completed only when its gate criteria are met.
+      valueSemantics:
+        PLANNED: Not yet started.
+        ACTIVE: In progress.
+        COMPLETED: Finished and passed its gate.
+        CANCELLED: Dropped from the project.
+  - name: sequence
+    type: integer
+    required: true
+    help:
+      summary: The order of the phase in the project.
+      usage: Phases are shown and run in this order.
+      relationshipContext: Unique within the project.
+  - name: plannedStart
+    type: date
+    required: false
+    help:
+      summary: When the phase is planned to start.
+      usage: Set in the project plan.
+      relationshipContext: Not later than the planned end.
+  - name: plannedEnd
+    type: date
+    required: false
+    help:
+      summary: When the phase is planned to end.
+      usage: Set in the project plan.
+      relationshipContext: Delays are measured against it.
+  - name: actualStart
+    type: date
+    required: false
+    help:
+      summary: When the phase actually started.
+      usage: Recorded when it starts.
+      relationshipContext: Present once active.
+  - name: actualEnd
+    type: date
+    required: false
+    help:
+      summary: When the phase actually finished.
+      usage: Recorded when it is completed.
+      relationshipContext: Present once completed.
+  - name: budget
+    type: Money
+    required: false
+    help:
+      summary: The budget for the phase.
+      usage: Compared with the cost booked to its tasks.
+      relationshipContext: In the project currency.
+  - name: gateCriteria
+    type: text
+    required: false
+    help:
+      summary: What must be true to close the phase and move on.
+      usage: Checked at the phase gate review.
+      relationshipContext: Such as signed-off designs or passed tests.
   relationships:
-  - {name: project, target: Project, cardinality: '1', ownership: reference, help: {summary: Parent Project., businessMeaning: Supplies overall scope/governance., usage: Project execution., cardinalityMeaning: Exactly one Project., workflowRole: Phase cannot outlive incompatible project state.}}
-  - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., cardinalityMeaning: Zero or many tasks., workflowRole: Completion requires task reconciliation.}, inverseCardinality: '1'}
-  - {name: milestones, target: Milestone, cardinality: 0..*, ownership: reference, help: {summary: Milestones governed by phase., businessMeaning: Supplies delivery checkpoints., usage: Project tracking., cardinalityMeaning: Zero or many milestones., workflowRole: Milestone evidence supports phase completion.}, inverseCardinality: '1'}
+  - name: project
+    target: Project
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The project the phase belongs to.
+      businessMeaning: Supplies overall scope/governance.
+      workflowRole: Phase cannot outlive incompatible project state.
+      usage: Set when the phase is created.
+      cardinalityMeaning: Every phase belongs to exactly one project.
+      context: The project's plan lists its phases.
+  - name: tasks
+    target: ProjectTask
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The tasks in the phase.
+      businessMeaning: Supplies executable work.
+      workflowRole: Completion requires task reconciliation.
+      usage: Grouped under the phase in the plan.
+      cardinalityMeaning: A phase holds any number of tasks; each task is in one phase.
+      context: The task records its phase.
+    inverseCardinality: '1'
+  - name: milestones
+    target: Milestone
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The milestones that mark progress in the phase.
+      businessMeaning: Supplies delivery checkpoints.
+      workflowRole: Milestone evidence supports phase completion.
+      usage: Shown on the plan.
+      cardinalityMeaning: A phase has any number of milestones; each is in one phase.
+      context: The milestone records its phase.
+    inverseCardinality: '1'
   invariants:
-  - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
-  - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
+  - {id: PROJECT-PHASE-001, rule: The planned end is not before the planned start., violatedWhen: planned_end != null and planned_start != null and planned_end < planned_start, message: The planned end is earlier than the planned start.}
+  - {id: PROJECT-PHASE-EXE-001, rule: "Actual End must not be earlier than actual start.", violatedWhen: "actual_start != null and actual_end != null and actual_end < actual_start", message: "Actual End cannot be earlier than actual start."}
   lifecycle:
     title: Project Phase Lifecycle
     attribute: status

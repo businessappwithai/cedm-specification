@@ -24,45 +24,54 @@ entity:
     required: true
     minimum: 1
     help:
-      summary: The ordinal vertical level of the tier within its parent YardBay.
+      summary: The stacking level, counted from the ground — 1 is the bottom container.
       businessMeaning: Expresses how high the tier is in the stack according to the yard's numbering convention, normally with 1 as the lowest level.
-      usage: Used to validate stack height, determine access dependencies, calculate rehandle risk, generate physical addresses, and instruct yard equipment.
-      relationshipContext: Tier number has meaning only within its YardBay; it is not a global location identifier.
       requiredMeaning: Required because vertical position is fundamental to container stacking.
+      usage: Tells the crane operator how high the slot is.
+      relationshipContext: Containers above must be moved to reach a lower tier.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, BLOCKED, CLOSED]
     help:
-      summary: The operational availability of the entire stack level.
+      summary: Whether containers may be placed at this tier.
       businessMeaning: Determines whether subordinate positions can normally be used for placement, retrieval, or relocation.
-      usage: Used by allocation, stacking, crane planning, safety, and yard optimization algorithms.
-      relationshipContext: Tier status can make all subordinate YardSlots operationally unavailable even if their individual status is ACTIVE.
-      valueSemantics:
-        ACTIVE: Positions may be used subject to slot, container, equipment, safety, and yard rules.
-        BLOCKED: The tier is temporarily unavailable, for example because of equipment reach limits, safety restrictions, inspection, damage, or operational constraints.
-        CLOSED: The tier is administratively unavailable for normal operations until explicitly reactivated or reconfigured.
       requiredMeaning: Required because a tier-level restriction propagates to its subordinate positions.
+      usage: Changed when the tier is blocked or closed.
+      relationshipContext: Closed tiers stay in the layout for history.
+      valueSemantics:
+        ACTIVE: Containers may be placed here.
+        BLOCKED: Temporarily unusable, such as during equipment work nearby.
+        CLOSED: Permanently out of use.
+  - name: maxWeightKg
+    type: decimal
+    required: false
+    precision: 10
+    scale: 1
+    help:
+      summary: The heaviest container allowed at this tier, in kilograms.
+      usage: Heavier boxes go lower; checked when planning a stack.
+      relationshipContext: Lower tiers usually allow more.
   relationships:
   - name: bay
     target: YardBay
     cardinality: '1'
     ownership: reference
     help:
-      summary: Places the tier within its parent YardBay and therefore within the containing block and yard.
-      usage: Provides the physical addressing scope, inherited operating constraints, and relationship to other stack levels in the same bay.
-      cardinalityMeaning: Every YardTier belongs to exactly one YardBay.
-      context: The bay provides horizontal context; the tier provides vertical context.
+      summary: The yard bay the tier belongs to.
+      usage: Set when the yard layout is defined.
+      cardinalityMeaning: Every tier belongs to exactly one bay.
+      context: A bay has one tier per stacking level.
   - name: slots
     target: YardSlot
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Defines the atomic positions available at this vertical level.
-      usage: Supports exact container placement, slot occupancy, movement instructions, and capacity calculation.
-      cardinalityMeaning: A modeled tier contains one or more YardSlots.
-      context: A tier is not itself an atomic container position; the slot beneath it is the final placement address.
+      summary: The container slots at this tier.
+      usage: Defined with the yard layout.
+      cardinalityMeaning: A tier has at least one slot.
+      context: Each slot holds one container.
   invariants:
   - id: YARD-TIER-001
     rule: tierNumber must be unique within its YardBay.

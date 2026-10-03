@@ -5,6 +5,7 @@ entity:
   description: A governed grouping of warehouse execution work released together for coordinated picking, putaway, packing, staging, or shipping.
   ui:
     icon: file-text
+    recordLabel: [waveNumber]
   identity: {key: waveId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: waveId
@@ -15,21 +16,112 @@ entity:
       summary: The permanent system identifier of the wave record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a wave store this identifier. The number or code people quote is a separate field.
-  - {name: waveNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing wave reference., businessMeaning: Operational identifier for grouped work., usage: Warehouse planning and reporting., relationshipContext: Distinct from task and shipment identifiers., requiredMeaning: Required.}}
+  - name: waveNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The reference of the wave.
+      businessMeaning: Operational identifier for grouped work.
+      usage: Printed on pick lists; operators scan it to start work.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
-    help: {summary: Wave orchestration state., businessMeaning: Controls grouped task release and closure., usage: WMS execution., relationshipContext: Wave completion cannot substitute for task or inventory evidence., valueSemantics: {PLANNED: Work being grouped., RELEASED: Tasks authorized., IN_PROGRESS: Tasks executing., COMPLETED: Included work reconciled., CANCELLED: Remaining work terminated.}, requiredMeaning: Required.}
+    help:
+      summary: Where the wave stands.
+      businessMeaning: Controls grouped task release and closure.
+      usage: Moved on by release and completion.
+      relationshipContext: Only planned waves can be changed.
+      valueSemantics:
+        PLANNED: Being built.
+        RELEASED: Released to the floor.
+        IN_PROGRESS: Work has started.
+        COMPLETED: All tasks done.
+        CANCELLED: Called off.
+  - name: waveType
+    type: enum
+    required: true
+    default: PICKING
+    values: [PICKING, PUTAWAY, REPLENISHMENT]
+    help:
+      summary: What kind of work the wave releases.
+      usage: Decides which tasks it groups.
+      relationshipContext: Most waves are picking waves.
+      valueSemantics:
+        PICKING: Picking for outbound orders.
+        PUTAWAY: Putting away received goods.
+        REPLENISHMENT: Moving stock from reserve to picking locations.
+  - name: releasedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the wave was released to the floor.
+      usage: Recorded on release.
+      relationshipContext: Present once released.
+  - name: plannedCompletionAt
+    type: datetime
+    required: false
+    help:
+      summary: When the wave should be finished, usually to meet a carrier cut-off.
+      usage: Set when planning the wave.
+      relationshipContext: Late waves are flagged.
+  - name: completedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the last task in the wave was finished.
+      usage: Recorded on completion.
+      relationshipContext: Present once completed.
+  - name: taskCount
+    type: integer
+    required: false
+    help:
+      summary: How many tasks the wave contains.
+      usage: Shown on the wave monitor.
+      relationshipContext: Summed from its picks and putaways.
   relationships:
-  - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: Warehouse executing wave., businessMeaning: Defines operating facility., usage: Labor/task orchestration., cardinalityMeaning: Exactly one Warehouse., workflowRole: Included tasks must be compatible with warehouse.}}
-  - {name: picks, target: Picking, cardinality: 0..*, ownership: reference, help: {summary: Pick tasks grouped in wave., businessMeaning: Coordinates inventory-selection work., usage: Batch/zone/order picking., cardinalityMeaning: Zero or many picks., workflowRole: Each pick retains independent execution evidence.}, inverseCardinality: '1'}
-  - {name: putaways, target: Putaway, cardinality: 0..*, ownership: reference, help: {summary: Putaway tasks grouped in wave., businessMeaning: Coordinates storage work., usage: Labor orchestration., cardinalityMeaning: Zero or many tasks., workflowRole: Each task remains independently reconcilable.}, inverseCardinality: '1'}
+  - name: warehouse
+    target: Warehouse
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The warehouse the wave runs in.
+      businessMeaning: Defines operating facility.
+      workflowRole: Included tasks must be compatible with warehouse.
+      usage: Set when the wave is created.
+      cardinalityMeaning: Every wave runs in one warehouse.
+      context: Its docks and staff do the work.
+  - name: picks
+    target: Picking
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The picking tasks in the wave.
+      businessMeaning: Coordinates inventory-selection work.
+      workflowRole: Each pick retains independent execution evidence.
+      usage: Added when the wave is built.
+      cardinalityMeaning: A wave holds any number of picks; each pick is in one wave.
+      context: The pick records its wave.
+    inverseCardinality: '1'
+  - name: putaways
+    target: Putaway
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The putaway tasks in the wave.
+      businessMeaning: Coordinates storage work.
+      workflowRole: Each task remains independently reconcilable.
+      usage: Added when the wave is built.
+      cardinalityMeaning: A wave holds any number of putaways; each is in one wave.
+      context: The putaway records its wave.
+    inverseCardinality: '1'
   invariants:
-  - {id: WAVE-001, rule: RELEASED wave must contain at least one executable task.}
-  - {id: WAVE-002, rule: Cancelling a wave cannot erase or reverse already posted task or inventory effects.}
-  - {id: WAVE-003, rule: COMPLETED requires included released tasks to be terminal or explicitly excepted.}
+  - {id: WAVE-001, rule: A completed wave records when it finished., violatedWhen: status == "COMPLETED" and completed_at == null, message: Record when the wave was completed.}
+  - {id: WAVE-EXE-001, rule: "Task Count cannot be negative.", violatedWhen: "task_count != null and task_count < 0", message: "Task Count cannot be negative."}
   lifecycle:
     title: Wave Lifecycle
     attribute: status

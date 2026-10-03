@@ -5,6 +5,7 @@ entity:
   description: A governed operational subdivision of a Warehouse grouping InventoryLocations by storage, handling, temperature, security, process, or fulfillment purpose.
   ui:
     icon: warehouse
+    recordLabel: [zoneCode, name]
   identity: {key: warehouseZoneId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: warehouseZoneId
@@ -15,19 +16,116 @@ entity:
       summary: The permanent system identifier of the warehouse zone record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a warehouse zone store this identifier. The number or code people quote is a separate field.
-  - {name: zoneCode, type: string, required: true, maxLength: 100, help: {summary: Human-facing zone code., businessMeaning: Operational identifier used by warehouse workers and systems., usage: "Routing, labels and reporting.", relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
+  - name: zoneCode
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The code of the zone, such as COLD-1 or PICK-A.
+      businessMeaning: Operational identifier used by warehouse workers and systems.
+      usage: Used on location labels and in putaway and picking rules.
+      relationshipContext: Unique within its warehouse.
   - name: zoneType
     type: enum
     required: true
     values: [RECEIVING, RESERVE, PICKING, STAGING, SHIPPING, QUARANTINE, RETURNS, COLD_STORAGE, HAZARDOUS, GENERAL]
-    help: {summary: Primary operational purpose of zone., businessMeaning: Governs eligible warehouse processes and stock., usage: Putaway/picking routing and compliance., relationshipContext: Location-level controls may further restrict eligibility., valueSemantics: {RECEIVING: Inbound receiving area., RESERVE: Bulk/reserve storage., PICKING: Forward picking area., STAGING: Temporary process staging., SHIPPING: Outbound dispatch area., QUARANTINE: Restricted inventory pending disposition., RETURNS: Reverse-logistics processing., COLD_STORAGE: Temperature-controlled storage., HAZARDOUS: Controlled hazardous-material area., GENERAL: General-purpose storage/handling.}, requiredMeaning: Required.}
+    help:
+      summary: What the zone is used for.
+      businessMeaning: Governs eligible warehouse processes and stock.
+      usage: Putaway and picking rules choose locations by zone type.
+      relationshipContext: Quarantine and hazardous zones restrict what may be stored.
+      valueSemantics:
+        RECEIVING: Where incoming goods are checked.
+        RESERVE: Bulk storage that replenishes picking.
+        PICKING: Locations orders are picked from.
+        STAGING: Where outbound goods wait for loading.
+        SHIPPING: Where loading takes place.
+        QUARANTINE: Goods blocked pending a quality decision.
+        RETURNS: Returned goods awaiting inspection.
+        COLD_STORAGE: Chilled or frozen storage.
+        HAZARDOUS: Storage for dangerous goods.
+        GENERAL: Any other storage.
+  - name: name
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The name of the zone, such as "Cold store 1".
+      usage: Shown in warehouse screens.
+      relationshipContext: Identifies the zone for people.
+  - name: minTemperatureC
+    type: decimal
+    required: false
+    precision: 5
+    scale: 1
+    help:
+      summary: The lowest temperature the zone is kept at, in °C.
+      usage: Checked when products with storage conditions are put away.
+      relationshipContext: Empty for zones without temperature control.
+  - name: maxTemperatureC
+    type: decimal
+    required: false
+    precision: 5
+    scale: 1
+    help:
+      summary: The highest temperature the zone is kept at, in °C.
+      usage: Checked when products with storage conditions are put away.
+      relationshipContext: Not lower than the minimum.
+  - name: isRestricted
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether access to the zone is restricted to authorised staff.
+      usage: Used for high-value, hazardous or quarantined goods.
+      relationshipContext: Tasks in restricted zones go only to authorised people.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE]
+    help:
+      summary: Whether the zone is in use.
+      usage: Changed during refits or closures.
+      relationshipContext: Inactive zones receive no putaway.
+      valueSemantics:
+        ACTIVE: In use.
+        INACTIVE: Not in use.
   relationships:
-  - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, inverse: zones, help: {summary: Parent warehouse., businessMeaning: Supplies facility and operating context., usage: WMS hierarchy., cardinalityMeaning: Exactly one Warehouse., workflowRole: Warehouse status constrains zone use.}}
-  - {name: inventoryLocations, target: InventoryLocation, cardinality: "0..*", ownership: aggregate, help: {summary: Stock-holding/staging locations within zone., businessMeaning: Provides executable storage granularity., usage: "Putaway, picking, count and transfer.", cardinalityMeaning: Zero or many locations., workflowRole: Zone rules constrain location eligibility.}}
+  - name: warehouse
+    target: Warehouse
+    cardinality: '1'
+    ownership: reference
+    inverse: zones
+    help:
+      summary: The warehouse the zone is part of.
+      businessMeaning: Supplies facility and operating context.
+      workflowRole: Warehouse status constrains zone use.
+      usage: Set when the zone is created.
+      cardinalityMeaning: Every zone belongs to exactly one warehouse.
+      context: Zones divide the warehouse for rules and reporting.
+  - name: inventoryLocations
+    target: InventoryLocation
+    cardinality: "0..*"
+    ownership: aggregate
+    help:
+      summary: The storage locations in the zone.
+      businessMeaning: Provides executable storage granularity.
+      workflowRole: Zone rules constrain location eligibility.
+      usage: Added when the warehouse layout is set up.
+      cardinalityMeaning: A zone holds any number of locations.
+      context: Each location is in one zone.
   invariants:
-  - {id: WAREHOUSE-ZONE-001, rule: zoneCode must be unique within Warehouse.}
-  - {id: WAREHOUSE-ZONE-002, rule: InventoryLocation assigned to a zone must belong to the same Warehouse context.}
-  - {id: WAREHOUSE-ZONE-003, rule: "Restricted zone types must enforce applicable product, quality, safety and access controls."}
+  - {id: WAREHOUSE-ZONE-001, rule: The maximum temperature is not below the minimum., violatedWhen: max_temperature_c != null and min_temperature_c != null and max_temperature_c < min_temperature_c, message: The maximum temperature is lower than the minimum.}
+  lifecycle:
+    title: Warehouse Zone Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    terminal: []
+    transitions:
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
     summary: Operational grouping between Warehouse and InventoryLocation.
     businessMeaning: Warehouse is the facility, WarehouseZone is the process/storage area, InventoryLocation is the stock-control position.

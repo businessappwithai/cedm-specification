@@ -5,6 +5,7 @@ entity:
   description: A uniquely identifiable physical logistics unit such as pallet, carton, tote, cage, or containerized package that groups inventory for warehouse and shipment handling.
   ui:
     icon: database
+    recordLabel: [handlingUnitNumber]
   identity: {key: handlingUnitId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: handlingUnitId
@@ -15,19 +16,134 @@ entity:
       summary: The permanent system identifier of the handling unit record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a handling unit store this identifier. The number or code people quote is a separate field.
-  - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: Scannable operational handling-unit reference., businessMeaning: Label/barcode identifier used in physical execution., usage: WMS scanning and logistics documents., relationshipContext: Distinct from Shipment or inventory movement number., requiredMeaning: Required.}}
+  - name: handlingUnitNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 150
+    help:
+      summary: The number on the unit's label, such as an SSCC for a pallet.
+      businessMeaning: Label/barcode identifier used in physical execution.
+      usage: Scanned at every movement of the unit.
+      relationshipContext: Unique; an SSCC is 18 digits.
   - name: type
     type: enum
     required: true
     values: [PALLET, CARTON, TOTE, CAGE, DRUM, PACKAGE, OTHER]
-    help: {summary: Physical handling-unit classification., businessMeaning: Describes packaging/handling form., usage: "Capacity, equipment, packing and carrier planning.", relationshipContext: Does not determine contents by itself., valueSemantics: {PALLET: Palletized logistics unit., CARTON: Carton/box., TOTE: Reusable tote/bin., CAGE: Roll cage or similar unit., DRUM: Drum/container., PACKAGE: General package., OTHER: Governed other type.}, requiredMeaning: Required.}
+    help:
+      summary: What kind of physical unit it is.
+      businessMeaning: Describes packaging/handling form.
+      usage: Decides how it is handled and stacked.
+      relationshipContext: Read with its dimensions and weight.
+      valueSemantics:
+        PALLET: A loaded pallet.
+        CARTON: A cardboard box.
+        TOTE: A reusable plastic box.
+        CAGE: A roll cage or wire cage.
+        DRUM: A drum or barrel.
+        PACKAGE: A parcel prepared for a carrier.
+        OTHER: Any other unit.
+  - name: grossWeightKg
+    type: decimal
+    required: false
+    precision: 12
+    scale: 3
+    help:
+      summary: The weight of the unit with its contents, in kilograms.
+      usage: Weighed or computed at packing; used for loading and freight.
+      relationshipContext: Includes packaging.
+  - name: lengthCm
+    type: decimal
+    required: false
+    precision: 8
+    scale: 1
+    help:
+      summary: The length of the unit, in centimetres.
+      usage: Used for loading plans and volumetric freight.
+      relationshipContext: Measured or taken from the packaging type.
+  - name: widthCm
+    type: decimal
+    required: false
+    precision: 8
+    scale: 1
+    help:
+      summary: The width of the unit, in centimetres.
+      usage: Used for loading plans and volumetric freight.
+      relationshipContext: Measured or taken from the packaging type.
+  - name: heightCm
+    type: decimal
+    required: false
+    precision: 8
+    scale: 1
+    help:
+      summary: The height of the unit, in centimetres.
+      usage: Used for loading plans and stacking.
+      relationshipContext: Measured or taken from the packaging type.
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [OPEN, CLOSED, SHIPPED, RECEIVED, DISMANTLED]
+    help:
+      summary: Where the unit is in its use.
+      usage: Moved on by packing, shipping and receiving.
+      relationshipContext: A closed unit is not repacked without unpacking it.
+      valueSemantics:
+        OPEN: Being filled.
+        CLOSED: Packed and labelled.
+        SHIPPED: Left the warehouse.
+        RECEIVED: Arrived at its destination.
+        DISMANTLED: Unpacked; its contents are loose again.
   relationships:
-  - {name: inventoryLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference, help: {summary: Current warehouse location when stored., businessMeaning: Provides operational custody position., usage: "Putaway, picking and count.", cardinalityMeaning: Optional while in transit/shipped., workflowRole: Changes must reconcile to execution evidence.}}
-  - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference, help: {summary: Shipment carrying the handling unit when dispatched., businessMeaning: Connects package identity to transport., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Optional before shipment assignment., workflowRole: Shipment execution controls transit state.}}
-  - {name: parentHandlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Outer handling unit containing this unit., businessMeaning: Supports pallet/carton/tote nesting., usage: Packing and logistics hierarchy., cardinalityMeaning: At most one parent., workflowRole: Nesting must remain acyclic.}}
+  - name: inventoryLocation
+    target: InventoryLocation
+    cardinality: "0..1"
+    ownership: reference
+    help:
+      summary: Where the unit is now.
+      businessMeaning: Provides operational custody position.
+      workflowRole: Changes must reconcile to execution evidence.
+      usage: Updated each time the unit is scanned into a location.
+      cardinalityMeaning: At most one location.
+      context: Empty while the unit is in transit.
+  - name: shipment
+    target: Shipment
+    cardinality: "0..1"
+    ownership: reference
+    help:
+      summary: The shipment the unit travels on.
+      businessMeaning: Connects package identity to transport.
+      workflowRole: Shipment execution controls transit state.
+      usage: Set when the unit is loaded.
+      cardinalityMeaning: At most one shipment.
+      context: The shipment lists its handling units.
+  - name: parentHandlingUnit
+    target: HandlingUnit
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The larger unit this one is packed in, such as the pallet a carton is on.
+      businessMeaning: Supports pallet/carton/tote nesting.
+      workflowRole: Nesting must remain acyclic.
+      usage: Set when units are nested.
+      cardinalityMeaning: At most one parent.
+      context: Cannot be itself.
   invariants:
   - {id: HANDLING-UNIT-001, rule: A HandlingUnit hierarchy must be acyclic.}
   - {id: HANDLING-UNIT-002, rule: A HandlingUnit cannot simultaneously be stored at a warehouse location and confirmed as externally dispatched without governed transition evidence.}
+  lifecycle:
+    title: Handling Unit Lifecycle
+    attribute: status
+    states: [OPEN, CLOSED, SHIPPED, RECEIVED, DISMANTLED]
+    initial: OPEN
+    terminal: [DISMANTLED]
+    transitions:
+    - {from: OPEN, to: CLOSED, action: close}
+    - {from: CLOSED, to: OPEN, action: reopen}
+    - {from: CLOSED, to: SHIPPED, action: ship}
+    - {from: SHIPPED, to: RECEIVED, action: receive}
+    - {from: RECEIVED, to: DISMANTLED, action: dismantle}
+    - {from: CLOSED, to: DISMANTLED, action: dismantle}
   help:
     summary: Physical logistics identity for grouping and moving inventory.
     businessMeaning: HandlingUnit represents the package/pallet/tote being handled; InventoryMovement remains authoritative for stock quantity/location.

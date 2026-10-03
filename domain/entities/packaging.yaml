@@ -5,6 +5,7 @@ entity:
   description: A governed packaging configuration defining how a Product or ProductVariant is contained, quantified, measured, labeled, and handled for procurement, storage, sale, and logistics.
   ui:
     icon: database
+    recordLabel: [code]
   identity: {key: packagingId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: packagingId
@@ -15,16 +16,127 @@ entity:
       summary: The permanent system identifier of the packaging record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a packaging store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Packaging configuration code., businessMeaning: Operational identifier for pack form., usage: "Catalog, labels and integration.", relationshipContext: Unique within applicable Product context., requiredMeaning: Required.}}
-  - {name: quantityPerPackage, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Product quantity contained in one package., businessMeaning: Defines pack conversion., usage: "Ordering, storage, picking and shipping.", relationshipContext: Interpreted with UnitOfMeasure., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The code of the packaging configuration, such as BOX-12 or PAL-480.
+      businessMeaning: Operational identifier for pack form.
+      usage: Used on product master data and in packing instructions.
+      relationshipContext: Unique per product.
+  - name: quantityPerPackage
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How many units of the product one package holds.
+      businessMeaning: Defines pack conversion.
+      usage: Used to convert order quantities into packages.
+      relationshipContext: In the product's base unit of measure.
+  - name: packagingLevel
+    type: enum
+    required: true
+    default: CASE
+    values: [EACH, INNER, CASE, PALLET]
+    help:
+      summary: The level of the packaging hierarchy.
+      usage: Orders and shipping work at different levels — each, case, pallet.
+      relationshipContext: Each level holds a whole number of the level below.
+      valueSemantics:
+        EACH: The single sellable unit.
+        INNER: An inner pack inside a case.
+        CASE: A shipping case or carton.
+        PALLET: A full pallet.
+  - name: gtin
+    type: string
+    required: false
+    maxLength: 14
+    help:
+      summary: The barcode number (GTIN) printed on this packaging.
+      usage: Scanned at receiving and in stores.
+      relationshipContext: Each packaging level has its own GTIN.
+  - name: grossWeightKg
+    type: decimal
+    required: false
+    precision: 12
+    scale: 3
+    help:
+      summary: The weight of one package with its contents, in kilograms.
+      usage: Used for freight and loading.
+      relationshipContext: Includes the packaging itself.
+  - name: lengthCm
+    type: decimal
+    required: false
+    precision: 8
+    scale: 1
+    help:
+      summary: The length of one package, in centimetres.
+      usage: Used for storage and loading plans.
+      relationshipContext: Outer dimensions.
+  - name: widthCm
+    type: decimal
+    required: false
+    precision: 8
+    scale: 1
+    help:
+      summary: The width of one package, in centimetres.
+      usage: Used for storage and loading plans.
+      relationshipContext: Outer dimensions.
+  - name: heightCm
+    type: decimal
+    required: false
+    precision: 8
+    scale: 1
+    help:
+      summary: The height of one package, in centimetres.
+      usage: Used for storage and loading plans.
+      relationshipContext: Outer dimensions.
+  - name: isDefault
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether this is the product's standard packaging at this level.
+      usage: Used when an order does not say otherwise.
+      relationshipContext: One default per product and level.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product packaged., businessMeaning: Defines package contents., usage: PIM and logistics., cardinalityMeaning: Exactly one Product., workflowRole: Product eligibility applies.}}
-  - {name: productVariant, target: ProductVariant, cardinality: 0..1, ownership: reference, help: {summary: Specific variant packaged when configuration-specific., businessMeaning: Narrows packaging to one variant., usage: Commerce/WMS., cardinalityMeaning: Optional., workflowRole: Variant must belong to Product.}}
-  - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: '1', ownership: reference, help: {summary: Measurement unit for quantityPerPackage., businessMeaning: Makes pack quantity unambiguous., usage: Conversion and validation., cardinalityMeaning: Exactly one UOM., workflowRole: Must be compatible with Product quantity semantics.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product packaged.
+      businessMeaning: Defines package contents.
+      workflowRole: Product eligibility applies.
+      usage: Set when the configuration is created.
+      cardinalityMeaning: Every packaging belongs to one product.
+      context: A product has a configuration per level.
+  - name: productVariant
+    target: ProductVariant
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The variant packaged, when packaging differs by variant.
+      businessMeaning: Narrows packaging to one variant.
+      workflowRole: Variant must belong to Product.
+      usage: Set only for variant-specific packaging.
+      cardinalityMeaning: At most one.
+      context: Without it, the packaging applies to every variant.
+  - name: unitOfMeasure
+    target: UnitOfMeasure
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The unit the package quantity is counted in.
+      businessMeaning: Makes pack quantity unambiguous.
+      workflowRole: Must be compatible with Product quantity semantics.
+      usage: Usually the product's base unit.
+      cardinalityMeaning: One per packaging.
+      context: Conversions use it.
   invariants:
-  - {id: PACKAGING-001, rule: quantityPerPackage must be greater than zero.}
-  - {id: PACKAGING-002, rule: productVariant when present must belong to product.}
-  - {id: PACKAGING-003, rule: "Packaging conversion changes must not silently reinterpret historical order, receipt, inventory or shipment quantities."}
+  - {id: PACKAGING-001, rule: A package holds a positive quantity., violatedWhen: quantity_per_package != null and quantity_per_package <= 0, message: The quantity per package must be greater than zero.}
   help:
     summary: Product packaging and pack-quantity master.
     businessMeaning: Packaging describes commercial/logistics containment; HandlingUnit identifies an actual pallet/carton/tote/package occurrence.

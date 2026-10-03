@@ -5,6 +5,7 @@ entity:
   description: A governed unique identity for an individually traceable unit of a Product across receipt, inventory, shipment, installation, maintenance, return, and disposal workflows.
   ui:
     icon: database
+    recordLabel: [serialCode]
   identity: {key: serialNumberId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: serialNumberId
@@ -15,23 +16,86 @@ entity:
       summary: The permanent system identifier of the serial number record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a serial number store this identifier. The number or code people quote is a separate field.
-  - {name: serialCode, type: string, required: true, maxLength: 200, help: {summary: Business/manufacturer serial identifier., businessMeaning: Operational code used to recognize the individual unit., usage: "Scanning, receiving, picking, shipment, service, returns, and warranty.", relationshipContext: Uniqueness is governed for the Product or global namespace., requiredMeaning: Required.}}
+  - name: serialCode
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The serial number marked on the unit.
+      businessMeaning: Operational code used to recognize the individual unit.
+      usage: Scanned at every movement, installation and service of the unit.
+      relationshipContext: Unique per product.
   - name: status
     type: enum
     required: true
     default: AVAILABLE
     values: [EXPECTED, AVAILABLE, RESERVED, IN_TRANSIT, INSTALLED, CONSUMED, RETURNED, QUARANTINED, SCRAPPED, RETIRED]
-    help: {summary: Operational lifecycle state of the serialized unit., businessMeaning: Controls eligibility and custody transitions for the individual unit., usage: "Allocation, shipment, service, returns, and disposal.", relationshipContext: Status is reconciled from authoritative business and inventory events rather than freely edited., valueSemantics: {EXPECTED: Known before receipt., AVAILABLE: Eligible inventory., RESERVED: Committed to demand., IN_TRANSIT: Under logistics movement., INSTALLED: Deployed or installed., CONSUMED: Used in a process., RETURNED: Entered governed return flow., QUARANTINED: Restricted pending decision., SCRAPPED: Physically disposed as scrap., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
+    help:
+      summary: Where the unit is in its life.
+      businessMeaning: Controls eligibility and custody transitions for the individual unit.
+      usage: Moved on by receipts, reservations, shipments, installation and returns.
+      relationshipContext: Read with the unit's current location.
+      valueSemantics:
+        EXPECTED: Announced by a supplier or production, not yet received.
+        AVAILABLE: In stock and free to use.
+        RESERVED: Set aside for an order or work order.
+        IN_TRANSIT: On its way between locations or to a customer.
+        INSTALLED: Installed at a customer's or in equipment.
+        CONSUMED: Used up in production or maintenance.
+        RETURNED: Came back from a customer or installation.
+        QUARANTINED: Blocked pending a quality decision.
+        SCRAPPED: Destroyed.
+        RETIRED: Taken out of use for good.
+  - name: manufacturedDate
+    type: date
+    required: false
+    help:
+      summary: When the unit was made.
+      usage: Used for warranty and recall scoping.
+      relationshipContext: From the manufacturer or production record.
+  - name: warrantyEndDate
+    type: date
+    required: false
+    help:
+      summary: The last day of the unit's warranty.
+      usage: Checked when the unit is returned or serviced.
+      relationshipContext: From the warranty terms.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product model represented by the serial., businessMeaning: Defines the standardized item type., usage: Validation and master-data context., cardinalityMeaning: Exactly one Product., workflowRole: Every serial movement must use the same Product.}}
-  - {name: lot, target: Lot, cardinality: "0..1", ownership: reference, help: {summary: Lot or batch from which this serialized unit originates when applicable., businessMeaning: Connects unit identity to batch genealogy., usage: "Recall, quality, manufacturing, and provenance.", cardinalityMeaning: Optional for products not lot-controlled., workflowRole: Serial and lot provenance must remain consistent.}}
-  - {name: inventoryMovements, target: InventoryMovement, cardinality: "0..*", ownership: reference, help: {summary: Inventory events involving this individual unit., businessMeaning: Provides custody/location history., usage: "Traceability, reconciliation, returns, and audit.", cardinalityMeaning: Many lifecycle movements may occur., workflowRole: Movement history is authoritative for stock-location transitions.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product the unit is an instance of.
+      businessMeaning: Defines the standardized item type.
+      workflowRole: Every serial movement must use the same Product.
+      usage: Set when the serial number is registered.
+      cardinalityMeaning: Every serial number belongs to one product.
+      context: Serial numbers are unique within the product.
+  - name: lot
+    target: Lot
+    cardinality: "0..1"
+    ownership: reference
+    help:
+      summary: The lot the unit was made in.
+      businessMeaning: Connects unit identity to batch genealogy.
+      workflowRole: Serial and lot provenance must remain consistent.
+      usage: Set for products tracked by both lot and serial number.
+      cardinalityMeaning: At most one lot.
+      context: Recalls by lot find every unit.
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: The movements of the unit.
+      businessMeaning: Provides custody/location history.
+      workflowRole: Movement history is authoritative for stock-location transitions.
+      usage: Make up the unit's history.
+      cardinalityMeaning: Many movements per unit; one movement can carry many units.
+      context: A many-to-many relation; neither side holds the key.
   invariants:
-  - {id: SERIAL-001, rule: serialCode must be unique within the governed serialization namespace.}
-  - {id: SERIAL-002, rule: A serialized unit cannot simultaneously be on hand in multiple inventory locations.}
-  - {id: SERIAL-003, rule: Quantity-bearing movement of an individually serialized unit must reconcile to exactly one unit per serial identity unless the product serialization policy explicitly models another measure.}
-  - {id: SERIAL-004, rule: Serial identity and Product association referenced by posted evidence are immutable.}
-  - {id: SERIAL-005, rule: "Status transitions must reconcile to inventory, shipment, installation, return, maintenance, or disposal evidence and retries must be idempotent."}
+  - {id: SERIAL-NUMBER-001, rule: The warranty does not end before the unit was made., violatedWhen: warranty_end_date != null and manufactured_date != null and warranty_end_date < manufactured_date, message: The warranty ends before the unit was made.}
   lifecycle:
     title: Serial Number Lifecycle
     attribute: status

@@ -5,6 +5,7 @@ entity:
   description: A product selection and quantity within a shopping cart.
   ui:
     icon: table
+    recordLabel: [lineNumber]
   identity:
     key: shoppingCartLineId
     type: uuid
@@ -25,42 +26,70 @@ entity:
     precision: 18
     scale: 6
     help:
-      summary: The amount of the referenced item expressed in the applicable unit of measure. It is used by calculations, inventory, planning, fulfillment, or other quantity-based processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ShoppingCartLine records, where applicable.
-      relationshipContext: Its meaning is specific to ShoppingCartLine; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: How many units of the product the shopper wants.
+      usage: Changed by the shopper; checked against stock and order limits.
+      relationshipContext: Positive.
   - name: unitPrice
     type: money
     required: false
     help:
-      summary: Captures the business meaning of unit price for the ShoppingCartLine. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ShoppingCartLine records, where applicable.
-      relationshipContext: Its meaning is specific to ShoppingCartLine; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      summary: The price per unit shown to the shopper when the product was added or last refreshed.
+      usage: Recalculated at checkout, so the shopper sees any change before paying.
+      relationshipContext: In the cart's currency.
+  - name: lineNumber
+    type: integer
+    required: true
+    help:
+      summary: The position of the line in the cart.
+      usage: Assigned in the order products are added.
+      relationshipContext: Unique within the cart.
+  - name: lineAmount
+    type: Money
+    required: false
+    help:
+      summary: Quantity times unit price, less any line discount.
+      usage: Shown in the cart and summed into its total.
+      relationshipContext: Recalculated whenever quantity or price changes.
+  - name: addedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the product was added to the cart.
+      usage: Used for abandoned-cart analysis.
+      relationshipContext: Set by the shop.
   relationships:
   - name: cart
     target: ShoppingCart
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects ShoppingCartLine to ShoppingCart so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ShoppingCart records associated with a ShoppingCartLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The cart the line belongs to.
+      usage: Set when the product is added.
+      cardinalityMeaning: Every line belongs to exactly one cart.
+      context: Listed under the cart.
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects ShoppingCartLine to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a ShoppingCartLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The product chosen.
+      usage: Chosen by the shopper.
+      cardinalityMeaning: One product per line; more of the same product increases the quantity.
+      context: Its current price and availability are checked at checkout.
+  - name: productVariant
+    target: ProductVariant
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The variant chosen, such as size or colour.
+      usage: Chosen on the product page.
+      cardinalityMeaning: At most one.
+      context: Required for products sold in variants.
   invariants:
-  - id: CART-LINE-001
-    rule: quantity must be greater than zero.
+  - {id: SHOPPING-CART-LINE-001, rule: The quantity is positive., violatedWhen: quantity != null and quantity <= 0, message: The quantity must be greater than zero.}
   - {id: SHOPPING-CART-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   - {id: SHOPPING-CART-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: SHOPPING-CART-LINE-EXE-003, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
     summary: Represents a ecommerce detail entity called ShoppingCartLine within the CEDM business model.
     businessMeaning: ShoppingCartLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
