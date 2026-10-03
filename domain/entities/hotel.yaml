@@ -25,19 +25,17 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of hotel code for the Hotel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Hotel records, where applicable.
-      relationshipContext: Its meaning is specific to Hotel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: The code of the hotel, such as LYS-CTR.
+      usage: Used in reservations, channel managers and reports.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Hotel records, where applicable.
-      relationshipContext: Its meaning is specific to Hotel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: The name of the hotel as guests know it.
+      usage: Shown on bookings, invoices and websites.
+      relationshipContext: Identifies the property.
   - name: status
     type: enum
     required: true
@@ -48,52 +46,96 @@ entity:
     - CLOSED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Hotel records, where applicable.
-      relationshipContext: Its meaning is specific to Hotel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the hotel takes guests.
+      usage: Moved on by operations.
+      relationshipContext: Only active hotels accept reservations.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Hotel.
-        ACTIVE: Represents the active state or classification in the context of Hotel.
-        CLOSED: Represents the closed state or classification in the context of Hotel.
-        RETIRED: Represents the retired state or classification in the context of Hotel.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        PLANNED: Not yet open.
+        ACTIVE: Taking guests.
+        CLOSED: Not taking guests.
+        RETIRED: No longer in the portfolio.
+  - name: starRating
+    type: integer
+    required: false
+    help:
+      summary: The official star rating, from 1 to 5.
+      usage: Shown on booking channels.
+      relationshipContext: Between 1 and 5.
+  - name: checkInTime
+    type: string
+    required: false
+    maxLength: 5
+    help:
+      summary: The earliest check-in time, as HH:MM.
+      usage: Shown on confirmations.
+      relationshipContext: Local time.
+  - name: checkOutTime
+    type: string
+    required: false
+    maxLength: 5
+    help:
+      summary: The latest check-out time, as HH:MM.
+      usage: Shown on confirmations.
+      relationshipContext: Local time.
+  - name: roomCount
+    type: integer
+    required: false
+    help:
+      summary: How many rooms the hotel has.
+      usage: Used for occupancy reports.
+      relationshipContext: Equal to the number of its rooms.
+  - name: phone
+    type: string
+    required: false
+    maxLength: 40
+    help:
+      summary: The hotel's telephone number.
+      usage: Shown on bookings.
+      relationshipContext: International format.
+  - name: email
+    type: email
+    required: false
+    help:
+      summary: The hotel's contact email.
+      usage: Shown on bookings.
+      relationshipContext: Usually the reception desk.
   relationships:
   - name: location
     target: Location
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Hotel to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Hotel.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Where the hotel is.
+      usage: Set when the hotel is created.
+      cardinalityMeaning: Every hotel is at exactly one location.
+      context: Its address is shown on bookings.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Hotel to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Hotel.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The company that operates the hotel.
+      usage: Set when the hotel is created.
+      cardinalityMeaning: At most one.
+      context: May differ from the brand owner.
   - name: rooms
     target: HotelRoom
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Connects Hotel to HotelRoom so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HotelRoom records associated with a Hotel.
-      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The rooms of the hotel.
+      usage: Set up when the hotel is created.
+      cardinalityMeaning: A hotel has at least one room.
+      context: Each room belongs to one hotel.
   - name: reservations
     target: HotelReservation
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Hotel to HotelReservation so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HotelReservation records associated with a Hotel.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Reservations made at the hotel.
+      usage: Listed from the hotel.
+      cardinalityMeaning: Any number of reservations; each is for one hotel.
+      context: The reservation records its hotel.
   lifecycle:
     title: Hotel Lifecycle
     attribute: status
@@ -107,11 +149,14 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a hospitality entity called Hotel within the CEDM business model.
-    businessMeaning: Hotel is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Hotel records.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, HotelRoom, HotelReservation. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Hotel record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    businessMeaning: A hotel is the property guests stay at. It holds its rooms, its star rating, its check-in and check-out times and the company that operates it, so reservations, room allocation, pricing and reports all work per property.
+    usage: Hospitality operations set up each property with its rooms and policies; reservations are made for a hotel; occupancy and revenue are reported per hotel.
+    lifecycle: Planned before opening, active while taking guests, closed when it stops trading (for renovation or for good), and retired when it leaves the portfolio.
+    example: Hotel LYS-CTR 'Hotel Bellecour Lyon', 4 stars, 128 rooms, check-in from 15:00, check-out by 11:00, operated by ACME Hospitality.
+  invariants:
+  - {id: HOTEL-001, rule: The star rating is between 1 and 5., violatedWhen: star_rating != null and (star_rating < 1 or star_rating > 5), message: The star rating must be between 1 and 5.}
+  - {id: HOTEL-EXE-001, rule: "Room Count cannot be negative.", violatedWhen: "room_count != null and room_count < 0", message: "Room Count cannot be negative."}
 specification:
   version: 0.1.0
   status: draft

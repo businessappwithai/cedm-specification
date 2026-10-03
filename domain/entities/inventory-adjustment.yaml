@@ -15,19 +15,179 @@ entity:
       summary: The permanent system identifier of the inventory adjustment record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a inventory adjustment store this identifier. The number or code people quote is a separate field.
-  - {name: adjustmentNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing adjustment reference., businessMeaning: Operational/audit identifier., usage: "Approval, investigation and reconciliation.", relationshipContext: Distinct from movement number., requiredMeaning: Required.}}
-  - {name: quantityDelta, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Signed quantity correction., businessMeaning: Positive increases and negative decreases the evidenced stock position., usage: Inventory reconciliation., relationshipContext: Must be supported by reason and evidence., requiredMeaning: Required.}}
-  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Controlled reason for correction., businessMeaning: Explains why ledger stock differs from evidenced reality., usage: "Approval, root-cause and audit.", relationshipContext: Must not be used to conceal ordinary receipts/issues., requiredMeaning: Required.}}
+  - name: adjustmentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The reference of the adjustment.
+      businessMeaning: Operational/audit identifier.
+      usage: Assigned when it is requested.
+      relationshipContext: Unique.
+  - name: quantityDelta
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How much the stock is increased (positive) or decreased (negative).
+      businessMeaning: Positive increases and negative decreases the evidenced stock position.
+      usage: Entered from the count difference or the reason.
+      relationshipContext: The one quantity on the record that may be negative.
+  - name: reasonCode
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: Why the stock is adjusted, such as COUNT-DIFF, DAMAGE or EXPIRY.
+      businessMeaning: Explains why ledger stock differs from evidenced reality.
+      usage: Chosen from the adjustment reasons.
+      relationshipContext: Reports of shrinkage group by it.
+  - name: valueDelta
+    type: Money
+    required: false
+    help:
+      summary: The value of the adjustment at the product's cost.
+      usage: Posted to the stock-adjustment account.
+      relationshipContext: Same sign as the quantity.
+  - name: approvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the adjustment was approved.
+      usage: Adjustments above a value need approval before posting.
+      relationshipContext: Present once approved.
+  - name: status
+    type: enum
+    required: true
+    default: REQUESTED
+    values: [REQUESTED, APPROVED, POSTED, REJECTED]
+    help:
+      summary: Where the adjustment stands.
+      usage: Moved on by approval and posting.
+      relationshipContext: Only posted adjustments change stock.
+      valueSemantics:
+        REQUESTED: Asked for; waiting for approval.
+        APPROVED: Approved; waiting to be posted.
+        POSTED: Stock and accounts updated.
+        REJECTED: Not approved.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being corrected., businessMeaning: Identifies affected inventory item., usage: Reconciliation., cardinalityMeaning: Exactly one Product., workflowRole: Must match movement.}}
-  - {name: inventoryLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location whose stock is corrected., businessMeaning: Defines physical/accountable stock context., usage: Count and reconciliation., cardinalityMeaning: Exactly one location., workflowRole: Must match movement.}}
-  - {name: inventoryCount, target: InventoryCount, cardinality: 0..1, ownership: reference, help: {summary: Count evidence causing correction., businessMeaning: Connects observed discrepancy to adjustment., usage: Cycle-count audit., cardinalityMeaning: Optional for non-count adjustments., workflowRole: Delta must reconcile with approved count variance.}}
-  - {name: inventoryMovement, target: InventoryMovement, cardinality: '1', ownership: reference, help: {summary: Authoritative stock-ledger correction., businessMeaning: Implements approved quantity delta., usage: Balance reconciliation and audit., cardinalityMeaning: Exactly one posting for executed adjustment., workflowRole: Must be idempotent and match product/location/quantity.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product adjusted.
+      businessMeaning: Identifies affected inventory item.
+      workflowRole: Must match movement.
+      usage: Set when requesting the adjustment.
+      cardinalityMeaning: Exactly one.
+      context: Its stock in the location changes.
+  - name: inventoryLocation
+    target: InventoryLocation
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The location whose stock is adjusted.
+      businessMeaning: Defines physical/accountable stock context.
+      workflowRole: Must match movement.
+      usage: Set when requesting the adjustment.
+      cardinalityMeaning: Exactly one.
+      context: Adjustments are per location.
+  - name: inventoryCount
+    target: InventoryCount
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The count that found the difference.
+      businessMeaning: Connects observed discrepancy to adjustment.
+      workflowRole: Delta must reconcile with approved count variance.
+      usage: Linked for count differences.
+      cardinalityMeaning: At most one.
+      context: The count is the evidence.
+  - name: inventoryMovement
+    target: InventoryMovement
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The stock movement that carries out the adjustment.
+      businessMeaning: Implements approved quantity delta.
+      workflowRole: Must be idempotent and match product/location/quantity.
+      usage: Created on posting.
+      cardinalityMeaning: Exactly one.
+      context: The movement updates the balance.
   invariants:
   - {id: INVENTORY-ADJUSTMENT-001, rule: quantityDelta must not be zero.}
   - {id: INVENTORY-ADJUSTMENT-002, rule: Every executed adjustment requires approved evidence and exactly one attributable inventory posting.}
   - {id: INVENTORY-ADJUSTMENT-003, rule: "Adjustment must not substitute for known receipt, issue, transfer, return or production transactions."}
   - {id: INVENTORY-ADJUSTMENT-004, rule: Posted correction is immutable; subsequent correction uses compensating adjustment.}
+  - {id: INVENTORY-ADJUSTMENT-EXE-001, rule: "An inventory adjustment that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the inventory adjustment is approved."}
+  lifecycle:
+    title: Inventory Adjustment Lifecycle
+    attribute: status
+    states: [REQUESTED, APPROVED, POSTED, REJECTED]
+    initial: REQUESTED
+    terminal: [POSTED, REJECTED]
+    transitions:
+    - {from: REQUESTED, to: APPROVED, action: approve}
+    - {from: REQUESTED, to: REJECTED, action: reject}
+    - {from: APPROVED, to: POSTED, action: post}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when an inventory adjustment is put forward"
+      description: "When an inventory adjustment is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ADJUSTMENT-APPROVAL-{{id}}"
+              name: "Decide on inventory adjustment {{adjustment_number}}"
+              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when an inventory adjustment is ended"
+      description: "When an inventory adjustment is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ADJUSTMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on inventory adjustment {{adjustment_number}}"
+              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when an inventory adjustment is done"
+      description: "When an inventory adjustment is posted, a task asks someone to confirm the outcome."
+      when: "status == \"POSTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ADJUSTMENT-COMPLETED-{{id}}"
+              name: "Confirm inventory adjustment {{adjustment_number}}"
+              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Controlled discrepancy correction with explicit evidence and stock posting.
     businessMeaning: InventoryAdjustment authorizes why stock should be corrected; InventoryMovement remains the physical ledger.

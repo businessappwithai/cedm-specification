@@ -5,6 +5,7 @@ entity:
   description: A governed certificate summarizing quality results for a product, lot, batch, receipt, shipment, or other controlled material context without replacing underlying inspection and measurement evidence.
   ui:
     icon: table
+    recordLabel: [certificateNumber]
   identity: {key: certificateOfAnalysisId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: certificateOfAnalysisId
@@ -15,20 +16,121 @@ entity:
       summary: The permanent system identifier of the certificate of analysis record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a certificate of analysis store this identifier. The number or code people quote is a separate field.
-  - {name: certificateNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Business-facing certificate reference., businessMeaning: Controlled number used to identify the issued certificate., usage: "Documents, search, exchange, and audit.", relationshipContext: Distinct from inspection and shipment numbers., requiredMeaning: Required.}}
-  - {name: issuedAt, type: datetime, required: false, help: {summary: Time the certificate was formally issued., businessMeaning: Establishes when the quality statement became externally or operationally effective., usage: "Compliance, customer documentation, and audit.", relationshipContext: Required once status is ISSUED., optionalMeaning: Optional before issuance.}}
+  - name: certificateNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 120
+    help:
+      summary: The number printed on the certificate.
+      businessMeaning: Controlled number used to identify the issued certificate.
+      usage: Quoted by customers and auditors.
+      relationshipContext: Unique.
+  - name: issuedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the certificate was issued.
+      businessMeaning: Establishes when the quality statement became externally or operationally effective.
+      optionalMeaning: Optional before issuance.
+      usage: Recorded on issue.
+      relationshipContext: Present once issued.
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, APPROVED, ISSUED, SUPERSEDED, VOID]
-    help: {summary: Lifecycle state of the certificate., businessMeaning: "Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated.", usage: Release and document governance., relationshipContext: Status does not alter underlying measurements., valueSemantics: {DRAFT: Being prepared., APPROVED: Reviewed and approved for issuance., ISSUED: Formally issued., SUPERSEDED: Replaced by a later controlled certificate., VOID: Invalidated while retained as history.}, requiredMeaning: Required.}
+    help:
+      summary: Where the certificate stands.
+      businessMeaning: "Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated."
+      usage: Moved on by approval and issue.
+      relationshipContext: Issued certificates are not changed; a correction supersedes them.
+      valueSemantics:
+        DRAFT: Being prepared.
+        APPROVED: Approved, not yet issued.
+        ISSUED: Sent to the customer or filed with the receipt.
+        SUPERSEDED: Replaced by a corrected certificate.
+        VOID: Withdrawn.
+  - name: lotNumber
+    type: string
+    required: false
+    maxLength: 60
+    help:
+      summary: The lot or batch the certificate covers.
+      usage: Printed on the certificate; matched to the goods received or shipped.
+      relationshipContext: As on the product labels.
+  - name: conclusion
+    type: enum
+    required: false
+    values: [CONFORMS, CONFORMS_WITH_DEVIATION, DOES_NOT_CONFORM]
+    help:
+      summary: Whether the material meets its specification.
+      usage: Stated on the certificate.
+      relationshipContext: A certificate showing non-conformance is not normally issued to a customer.
+      valueSemantics:
+        CONFORMS: Meets every specification.
+        CONFORMS_WITH_DEVIATION: Meets the specification with an approved deviation.
+        DOES_NOT_CONFORM: Fails one or more specifications.
+  - name: approvedBy
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The name of the quality person who approved the certificate.
+      usage: Printed with the signature.
+      relationshipContext: Must be authorised to release the material.
   relationships:
-  - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product represented by the certificate., businessMeaning: Identifies the material whose quality is certified., usage: Product release and customer documentation., cardinalityMeaning: Optional when context is supplied by other source records., context: Must reconcile with inspections and measurements.}}
-  - {name: qualityInspections, target: QualityInspection, cardinality: "1..*", ownership: reference, help: {summary: Inspections supporting the certificate., businessMeaning: Supplies authoritative execution evidence for the certified conclusions., usage: "Certificate generation, audit, and traceability.", cardinalityMeaning: An issued certificate requires at least one governed inspection., context: Certificate summarizes but does not replace inspections.}}
-  - {name: measurements, target: QualityMeasurement, cardinality: "0..*", ownership: reference, help: {summary: Measurements explicitly represented on the certificate., businessMeaning: Provides source observations behind reported values., usage: "Certificate rendering, verification, and audit.", cardinalityMeaning: Zero or many depending on certificate design., context: Must belong to the supporting inspection context.}, inverseCardinality: '1'}
-  - {name: goodsReceipt, target: GoodsReceipt, cardinality: 0..1, ownership: reference, help: {summary: Incoming receipt represented by the certificate when applicable., businessMeaning: Connects supplier quality evidence to received material., usage: Incoming quality and supplier documentation., cardinalityMeaning: Optional., context: Must reconcile with inspection receipt context.}}
-  - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Outbound shipment accompanied by the certificate when applicable., businessMeaning: Connects certified quality evidence to delivered material., usage: Customer fulfillment and compliance documentation., cardinalityMeaning: Optional., context: Must reconcile with certified product/material context.}}
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The product certified.
+      businessMeaning: Identifies the material whose quality is certified.
+      usage: Set when preparing the certificate.
+      cardinalityMeaning: At most one.
+      context: Its specification is the reference.
+  - name: qualityInspections
+    target: QualityInspection
+    cardinality: "1..*"
+    ownership: reference
+    help:
+      summary: The inspections whose results the certificate reports.
+      businessMeaning: Supplies authoritative execution evidence for the certified conclusions.
+      usage: Selected when preparing the certificate.
+      cardinalityMeaning: At least one inspection; an inspection may support several certificates.
+      context: A many-to-many relation.
+  - name: measurements
+    target: QualityMeasurement
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: The individual results printed on the certificate.
+      businessMeaning: Provides source observations behind reported values.
+      usage: Selected from the inspections.
+      cardinalityMeaning: Any number; each measurement is reported on one certificate.
+      context: The measurement records its certificate.
+    inverseCardinality: '1'
+  - name: goodsReceipt
+    target: GoodsReceipt
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The receipt the certificate came with, for supplier certificates.
+      businessMeaning: Connects supplier quality evidence to received material.
+      usage: Linked at receiving.
+      cardinalityMeaning: At most one.
+      context: Missing certificates can block the receipt.
+  - name: shipment
+    target: Shipment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The shipment the certificate goes with, for our own certificates.
+      businessMeaning: Connects certified quality evidence to delivered material.
+      usage: Linked at dispatch.
+      cardinalityMeaning: At most one.
+      context: Sent to the customer with the goods.
   invariants:
   - {id: COA-001, rule: ISSUED requires issuedAt and at least one completed supporting QualityInspection.}
   - {id: COA-002, rule: Certificate values and conclusions must be reproducible from referenced immutable quality evidence and authorized derived calculations.}

@@ -5,6 +5,7 @@ entity:
   description: A defined set of inspections, tests, sampling rules, quality characteristics, and acceptance criteria governing how a product or process is evaluated.
   ui:
     icon: badge-check
+    recordLabel: [code, name]
   identity:
     key: qualityPlanId
     type: uuid
@@ -24,45 +25,107 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business code identifying the quality plan., businessMeaning: Provides a stable human-readable reference for the governed inspection definition., usage: "Plan selection, search, reports, integrations, and operational instructions.", relationshipContext: "Distinguishes the plan from its characteristic requirements, sampling policies, and inspection transactions.", requiredMeaning: Required for operational identification.}
+    help:
+      summary: The code of the quality plan.
+      businessMeaning: Provides a stable human-readable reference for the governed inspection definition.
+      usage: Referenced by routings and inspections.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 300
-    help: {summary: Human-readable name of the quality plan., businessMeaning: Explains the purpose of the inspection definition., usage: "Authoring, selection, inspection execution, reporting, and audit.", relationshipContext: Names the overall plan whose detailed controls are represented by QualityPlanCharacteristic and SamplingPlan., requiredMeaning: Required for understandable plan governance.}
+    help:
+      summary: The name of the plan, such as "Incoming inspection – bearings".
+      businessMeaning: Explains the purpose of the inspection definition.
+      requiredMeaning: Required for understandable plan governance.
+      usage: Shown where plans are chosen.
+      relationshipContext: Identifies the plan for people.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
     help:
-      summary: Lifecycle state of the quality plan.
+      summary: Whether the plan may be used for inspections.
       businessMeaning: Controls whether the plan may normally govern new inspections.
-      usage: Plan selection, workflow gating, governance, and retirement.
-      relationshipContext: Status affects characteristic and sampling configurations and creation of new QualityInspection records; historical inspections remain evidence.
-      valueSemantics: {DRAFT: Plan is being prepared and is not normally used for production inspection execution., ACTIVE: Plan is approved for governed inspection use., SUSPENDED: Plan is temporarily unavailable for new governed use while retained for traceability., RETIRED: Plan is no longer normally selected for new inspections but remains historical evidence.}
       requiredMeaning: Required to govern lifecycle behavior.
+      usage: Moved on by quality engineering.
+      relationshipContext: Only active plans create inspections.
+      valueSemantics:
+        DRAFT: Being written.
+        ACTIVE: Used for inspections.
+        SUSPENDED: Temporarily not used.
+        RETIRED: No longer used.
+  - name: planType
+    type: enum
+    required: true
+    default: INCOMING
+    values: [INCOMING, IN_PROCESS, FINAL, PERIODIC]
+    help:
+      summary: When the plan is applied.
+      usage: Decides which events create inspections from it.
+      relationshipContext: A product may have a plan of each type.
+      valueSemantics:
+        INCOMING: On receipt of purchased goods.
+        IN_PROCESS: During production.
+        FINAL: Before release of finished goods.
+        PERIODIC: At set intervals, such as stability tests.
+  - name: revision
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The revision of the plan.
+      usage: Raised whenever the plan changes; inspections record the revision used.
+      relationshipContext: Approved revisions are not changed.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the plan checks and why.
+      usage: Read by inspectors.
+      relationshipContext: Free text.
   relationships:
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
-    help: {summary: Product to which the quality plan applies when product-specific., businessMeaning: Establishes the material or product context for the quality requirements., usage: "Plan selection, inspection creation, supplier quality, and traceability.", cardinalityMeaning: A plan may be generic or associated with one product., context: Product context influences applicable characteristics and acceptance criteria.}
+    help:
+      summary: The product the plan applies to.
+      businessMeaning: Establishes the material or product context for the quality requirements.
+      usage: Set when the plan is product-specific.
+      cardinalityMeaning: At most one.
+      context: Plans without a product apply by material group.
   - name: characteristics
     target: QualityPlanCharacteristic
     cardinality: 0..*
     ownership: reference
-    help: {summary: Plan-specific quality characteristic requirements governed by this plan., businessMeaning: Defines what properties must be observed and how each is evaluated under the plan., usage: "Plan authoring, inspection execution, measurement evaluation, completion gating, audit, and analytics.", cardinalityMeaning: A plan may define zero or many characteristic requirements., context: "QualityPlanCharacteristic bridges reusable QualityCharacteristic meaning to this plan's specific limits, methods, targets, units, sequence, requiredness, and sampling policy."}
+    help:
+      summary: The characteristics the plan measures.
+      businessMeaning: Defines what properties must be observed and how each is evaluated under the plan.
+      usage: Defined by quality engineering.
+      cardinalityMeaning: A plan has any number of characteristics; each belongs to one plan.
+      context: The characteristic records its plan.
   - name: samplingPlans
     target: SamplingPlan
     cardinality: 0..*
     ownership: reference
-    help: {summary: Reusable sampling definitions assigned to this quality plan., businessMeaning: Identifies governed policies for selecting inspection samples from eligible populations., usage: "Plan authoring, sample-size determination, inspection execution, audit, and impact analysis.", cardinalityMeaning: A quality plan may use zero or many SamplingPlans., context: "SamplingPlan defines the general sampling method and SamplingRule defines conditional sample quantities and acceptance thresholds; QualityInspection and InspectionSample preserve the configuration used at execution time."}
+    help:
+      summary: How many items to sample for each lot size.
+      businessMeaning: Identifies governed policies for selecting inspection samples from eligible populations.
+      usage: Chosen by quality engineering.
+      cardinalityMeaning: A plan uses any number of sampling plans; a sampling plan serves many plans.
+      context: A many-to-many relation.
   - name: inspections
     target: QualityInspection
     cardinality: 0..*
     ownership: reference
-    help: {summary: Inspection transactions executed under this quality plan., businessMeaning: Shows operational inspections governed by the plan., usage: "Traceability, plan effectiveness, audit, reporting, and quality analytics.", cardinalityMeaning: A plan may govern zero or many inspections., context: QualityInspection is execution evidence and must preserve the applicable plan and sampling configuration used at inspection time.}
+    help:
+      summary: The inspections carried out under the plan.
+      businessMeaning: Shows operational inspections governed by the plan.
+      usage: Listed from the plan.
+      cardinalityMeaning: Any number; each inspection follows one plan.
+      context: The inspection records its plan.
   invariants:
   - {id: QUALITY-PLAN-001, rule: code must be unique within the owning ERP context.}
   - {id: QUALITY-PLAN-002, rule: An ACTIVE QualityPlan must have valid QualityPlanCharacteristic configurations whenever the plan declares characteristic-based inspection controls.}

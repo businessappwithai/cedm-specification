@@ -5,6 +5,7 @@ entity:
   description: A managed container-yard facility in which containers and other equipment are received, stored, positioned, inspected, repaired, dispatched, and transferred through a defined physical storage hierarchy.
   ui:
     icon: table
+    recordLabel: [code, name]
   identity:
     key: yardId
     type: uuid
@@ -25,65 +26,93 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: The operational business code used to identify the yard.
+      summary: The code of the yard, such as a UN/LOCODE-based terminal code.
       businessMeaning: Provides the concise facility reference used by operators, transport partners, EDI messages, reports, integrations, and searches.
-      usage: Used in gate, movement, inventory, shipment, location, and reporting processes where a yard must be selected or communicated.
-      relationshipContext: Code identifies the facility; the YardBlock/YardBay/YardTier/YardSlot hierarchy identifies the exact physical storage position.
       requiredMeaning: Required because operational systems need a stable human-facing facility identifier.
+      usage: Used in container positions, gate messages and reports.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: The human-readable name of the yard facility.
+      summary: The name of the yard or terminal.
       businessMeaning: Identifies the facility in user interfaces, reports, documents, maps, and business communications.
-      usage: Supports operational search and reporting where a descriptive name is preferable to a technical code.
-      relationshipContext: Names the facility identified by yardId and code; it is not the technical identity and should not be used as a unique key.
       requiredMeaning: Required for clear human interpretation of the facility.
+      usage: Shown on gate documents and yard plans.
+      relationshipContext: Identifies the yard for people.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
     help:
-      summary: The controlled operational lifecycle state of the yard.
+      summary: Whether the yard operates.
       businessMeaning: Determines whether the facility is being prepared, accepting normal operations, temporarily restricted, or closed.
-      usage: Controls new allocations, inbound movements, gate activity, planning, and other operational actions.
-      relationshipContext: Yard status provides facility-level availability; individual YardSlot status and Container status provide more granular operational constraints.
-      valueSemantics:
-        PLANNED: Facility exists in the master model but is not available for normal yard transactions.
-        ACTIVE: Facility can perform normal operations subject to capacity, safety, equipment, and process constraints.
-        SUSPENDED: Normal operations are temporarily restricted because of incidents, maintenance, weather, regulatory action, or another controlled reason.
-        CLOSED: Facility is no longer available for normal operations; closure activities may still be performed under controlled processes.
       requiredMeaning: Required because the facility's ability to accept new work must be explicit.
+      usage: Moved on by the operator.
+      relationshipContext: Suspended yards accept no gate moves.
+      valueSemantics:
+        PLANNED: Being prepared.
+        ACTIVE: Operating.
+        SUSPENDED: Temporarily not operating.
+        CLOSED: No longer operating.
+  - name: yardType
+    type: enum
+    required: true
+    default: TERMINAL
+    values: [TERMINAL, DEPOT, INLAND]
+    help:
+      summary: What kind of yard it is.
+      usage: Decides which operations it supports.
+      relationshipContext: Depots do not load vessels.
+      valueSemantics:
+        TERMINAL: A port or rail terminal.
+        DEPOT: An empty-container depot.
+        INLAND: An inland dry port or container freight station.
+  - name: capacityTeu
+    type: integer
+    required: false
+    help:
+      summary: How many twenty-foot equivalent units the yard can hold.
+      usage: Used for utilisation reports.
+      relationshipContext: Sum of its blocks.
+  - name: operatingHours
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: When the gate is open.
+      usage: Shown to hauliers booking slots.
+      relationshipContext: Such as "24/7" or "Mon–Fri 06:00–22:00".
   relationships:
   - name: location
     target: Location
     cardinality: '1'
     ownership: reference
     help:
-      summary: Associates the yard with its primary geographic or business Location.
-      usage: Provides address, coordinates, jurisdiction, routing, mapping, and regional context.
-      cardinalityMeaning: Each yard has exactly one primary Location in this model.
-      context: Location answers where the facility is; Yard answers what container-yard operational capabilities exist at that location.
+      summary: Where the yard is.
+      usage: Set when the yard is created.
+      cardinalityMeaning: Every yard is at exactly one location.
+      context: Its address appears on gate documents.
   - name: blocks
     target: YardBlock
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Defines the first operational subdivision of the yard's physical storage hierarchy.
-      usage: Supports capacity planning, zoning, allocation, navigation, equipment segregation, and movement planning.
-      cardinalityMeaning: An operational yard contains one or more blocks under this model.
-      context: YardBlock belongs to this yard hierarchy and should not be interpreted as an independent facility.
+      summary: The blocks the yard is divided into.
+      usage: Defined with the yard layout.
+      cardinalityMeaning: A yard has at least one block.
+      context: Each block belongs to one yard.
   - name: containers
     target: Container
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Provides the set of containers currently associated with the yard as a facility-level operational view.
-      usage: Supports yard inventory, visibility, dwell analysis, capacity, gate operations, and operational reporting.
-      cardinalityMeaning: A yard may contain zero or many containers at any point in time.
-      context: This is a facility-level association; exact physical placement is determined by the container's current YardSlot and the yard hierarchy.
+      summary: The containers currently in the yard.
+      usage: Updated by gate-in and gate-out.
+      cardinalityMeaning: A yard holds any number of containers; a container is in one yard at a time.
+      context: The container records its current yard.
     inverseCardinality: '1'
   invariants:
   - id: YARD-001
