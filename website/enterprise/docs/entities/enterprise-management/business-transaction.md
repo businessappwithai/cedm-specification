@@ -13,6 +13,8 @@ Represents a core business transaction called BusinessTransaction within the CED
 
 Open **Business Transaction** from the menu or from its card on the dashboard.
 
+![The Business Transaction list](/img/entities/business-transaction-list.jpg)
+
 The list shows Transaction Number, Transaction Type, Transaction Date, Status, Currency, Total Amount, Reference Number, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Transaction Number, Transaction Type, Transaction Date, Status, C
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Business Transaction form](/img/entities/business-transaction-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Transaction Number**, **Transaction Type**, **Transaction Date**, **Status**.
@@ -88,6 +92,8 @@ stateDiagram-v2
 | Approved | Cancelled | Cancel |
 | Posted | Cancelled | Cancel |
 | Posted | Reversed | Reverse |
+
+![A Business Transaction record with its lifecycle bar](/img/entities/business-transaction-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

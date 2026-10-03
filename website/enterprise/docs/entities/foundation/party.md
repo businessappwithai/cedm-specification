@@ -27,6 +27,8 @@ The list shows Party Type, Display Name, Status, External Reference, ERP, Busine
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
 
+![The Party form](/img/entities/party-new.jpg)
+
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Party Type**, **Display Name**, **Status**.
 3. For a dropdown that points at another window, pick the matching record; if the record you need does not exist yet, create it in its own window first. A dropdown may narrow to what you have already chosen, for example the states of the chosen country.
@@ -89,6 +91,8 @@ stateDiagram-v2
 | Active | Retired | Retire |
 | Inactive | Retired | Retire |
 | Blocked | Retired | Retire |
+
+![A Party record with its lifecycle bar](/img/entities/party-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

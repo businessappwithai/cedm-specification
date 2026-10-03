@@ -10,6 +10,8 @@ Every screen in Enterprise Management is read from the **Application Dictionary*
 
 This application's dictionary holds **57 tables**, **351 columns**, and one window for each of the 56 entities that are not lines of another.
 
+![Table and Column](/img/admin/tables.jpg)
 
+![Window, Tab and Field](/img/admin/windows.jpg)
 
 The full guide, with every window and a how-to for each task, is the shared [Application Dictionary manual](pathname:///application-dictionary/).
