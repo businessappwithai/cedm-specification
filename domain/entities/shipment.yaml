@@ -21,9 +21,9 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: 'The shipment number of the shipment: a value the business records on it.'
-      usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
+      summary: The number of the shipment.
+      usage: Printed on transport documents and labels.
+      relationshipContext: Unique.
   - name: shipmentType
     type: enum
     required: true
@@ -33,14 +33,14 @@ entity:
     - TRANSFER
     - RETURN
     help:
-      summary: 'The shipment type of the shipment: a value the business records on it.'
-      usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
+      summary: Which way the goods move.
+      usage: Decides the receiving or dispatching process.
+      relationshipContext: Chosen when planning.
       valueSemantics:
-        INBOUND: The shipment type of the shipment is inbound; set it when that is what the business means for this record.
-        OUTBOUND: The shipment type of the shipment is outbound; set it when that is what the business means for this record.
-        TRANSFER: The shipment type of the shipment is transfer; set it when that is what the business means for this record.
-        RETURN: The shipment type of the shipment is return; set it when that is what the business means for this record.
+        INBOUND: From a supplier to the organisation.
+        OUTBOUND: From the organisation to a customer.
+        TRANSFER: Between the organisation's own locations.
+        RETURN: Goods coming back from a customer.
   - name: status
     type: enum
     required: true
@@ -52,34 +52,34 @@ entity:
       relationshipContext: Status is not inventory status and does not itself prove customer acceptance or invoice payment.
       workflowRole: Drives permitted logistics transitions and downstream fulfillment/movement workflows.
       valueSemantics:
-        PLANNED: The status of the shipment is planned; set it when that is what the business means for this record.
-        BOOKED: The status of the shipment is booked; set it when that is what the business means for this record.
-        IN_TRANSIT: The status of the shipment is in transit; set it when that is what the business means for this record.
-        DELIVERED: The status of the shipment is delivered; set it when that is what the business means for this record.
-        CANCELLED: The status of the shipment is cancelled; set it when that is what the business means for this record.
-        EXCEPTION: The status of the shipment is exception; set it when that is what the business means for this record.
+        PLANNED: Being prepared.
+        BOOKED: Transport has been booked.
+        IN_TRANSIT: On its way.
+        DELIVERED: Arrived at its destination.
+        CANCELLED: Called off.
+        EXCEPTION: Delayed, damaged or otherwise disrupted.
   - name: plannedDate
     type: date
     required: false
     help:
-      summary: 'The planned date of the shipment: a calendar date the business records on it.'
-      usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
+      summary: The planned date of dispatch or delivery.
+      usage: Used for transport planning.
+      relationshipContext: Promised to the customer or expected from the supplier.
   - name: actualDate
     type: date
     required: false
     help:
-      summary: 'The actual date of the shipment: a calendar date the business records on it.'
-      usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
+      summary: The actual date of delivery.
+      usage: Recorded on delivery; used for on-time measures.
+      relationshipContext: Present once delivered.
   - name: trackingReference
     type: string
     required: false
     maxLength: 200
     help:
-      summary: 'The tracking reference of the shipment: a value the business records on it.'
-      usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
+      summary: The carrier's tracking number.
+      usage: Given to the customer to follow the shipment.
+      relationshipContext: As issued by the carrier.
   relationships:
   - name: lines
     target: ShipmentLine
@@ -91,68 +91,86 @@ entity:
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a shipment to location, the origin it relates to.
-      usage: Chosen from the existing location records when the shipment is created or edited.
+      summary: Where the shipment leaves from.
       cardinalityMeaning: A shipment has at most one location in this role.
-      context: Lets the shipment be found from, and reported with, its location.
+      usage: Set when planning.
+      context: A warehouse or supplier location.
   - name: destination
     target: Location
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a shipment to location, the destination it relates to.
-      usage: Chosen from the existing location records when the shipment is created or edited.
+      summary: Where the shipment goes.
       cardinalityMeaning: A shipment has at most one location in this role.
-      context: Lets the shipment be found from, and reported with, its location.
+      usage: Set when planning.
+      context: A customer or own location.
   - name: carrier
     target: Party
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a shipment to party, the carrier it relates to.
-      usage: Chosen from the existing party records when the shipment is created or edited.
+      summary: The carrier transporting the goods.
       cardinalityMeaning: A shipment has at most one party in this role.
-      context: Lets the shipment be found from, and reported with, its party.
+      usage: Chosen when booking.
+      context: Rates and service levels come from it.
   - name: containers
     target: Container
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a shipment to container, the containers it relates to.
-      usage: Chosen from the existing container records when the shipment is created or edited.
+      summary: Containers the goods travel in.
       cardinalityMeaning: A shipment has any number of container in this role.
-      context: Lets the shipment be found from, and reported with, its container.
+      usage: Linked when loading.
+      context: Tracked separately.
     inverseCardinality: 0..*
   - name: salesOrder
     target: SalesOrder
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a shipment to sales order, the sales order it relates to.
-      usage: Chosen from the existing sales order records when the shipment is created or edited.
+      summary: The sales order the shipment delivers.
       cardinalityMeaning: A shipment has at most one sales order in this role.
-      context: Lets the shipment be found from, and reported with, its sales order.
+      usage: Set for outbound shipments.
+      context: Delivery updates the order's fulfilment.
   - name: purchaseOrder
     target: PurchaseOrder
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a shipment to purchase order, the purchase order it relates to.
-      usage: Chosen from the existing purchase order records when the shipment is created or edited.
+      summary: The purchase order the shipment delivers.
       cardinalityMeaning: A shipment has at most one purchase order in this role.
-      context: Lets the shipment be found from, and reported with, its purchase order.
+      usage: Set for inbound shipments.
+      context: Receipt is matched against it.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a shipment to inventory movement, the inventory movements it relates to.
-      usage: Chosen from the existing inventory movement records when the shipment is created or edited.
+      summary: Stock movements caused by the shipment.
       cardinalityMeaning: A shipment has any number of inventory movement in this role.
-      context: Lets the shipment be found from, and reported with, its inventory movement.
+      usage: Posted at dispatch and receipt.
+      context: Stock changes only through them.
     inverseCardinality: '1'
-  - {name: handlingUnits, target: HandlingUnit, cardinality: "0..*", ownership: reference, help: {summary: Physical logistics units assigned to shipment., businessMeaning: Identifies pallets/cartons/totes/packages transported., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Zero or many handling units., workflowRole: Assignment does not itself dispatch or alter stock.}}
-  - {name: packingTasks, target: Packing, cardinality: 0..*, ownership: reference, help: {summary: Warehouse packing evidence preparing goods for shipment., businessMeaning: Connects picked goods and packages to transport readiness., usage: Fulfillment and loading., cardinalityMeaning: Zero or many packing tasks., workflowRole: PACKED is not dispatch/delivery evidence.}}
+  - name: handlingUnits
+    target: HandlingUnit
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: Physical logistics units assigned to shipment.
+      businessMeaning: Identifies pallets/cartons/totes/packages transported.
+      usage: "Packing, loading, tracking and delivery."
+      workflowRole: Assignment does not itself dispatch or alter stock.
+      cardinalityMeaning: Any number of handling units.
+  - name: packingTasks
+    target: Packing
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Warehouse packing evidence preparing goods for shipment.
+      businessMeaning: Connects picked goods and packages to transport readiness.
+      usage: Fulfillment and loading.
+      workflowRole: PACKED is not dispatch/delivery evidence.
+      cardinalityMeaning: Any number of packing tasks.
   - {name: dock, target: Dock, cardinality: 0..1, ownership: reference, help: {summary: Warehouse dock used for shipment loading/unloading., businessMeaning: Provides physical execution resource., usage: Dock scheduling and carrier handoff., cardinalityMeaning: Optional for shipments not executed at managed dock., workflowRole: Dock type/direction must be compatible.}}
   invariants:
   - {id: SHIPMENT-001, rule: DELIVERED shipments must have actualDate.}

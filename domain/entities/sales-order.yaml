@@ -21,16 +21,16 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: 'The order number of the sales order: a value the business records on it.'
-      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+      summary: The number of the order.
+      usage: Quoted on confirmations, delivery notes and invoices.
+      relationshipContext: Unique.
   - name: orderDate
     type: datetime
     required: true
     help:
-      summary: 'The order date of the sales order: a point in time the business records on it.'
-      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+      summary: When the customer placed the order.
+      usage: Used for prices, terms and sales reporting.
+      relationshipContext: Set when the order is entered.
   - name: status
     type: enum
     required: true
@@ -42,91 +42,91 @@ entity:
       relationshipContext: Summarizes downstream evidence; it is not an independent source of fulfillment quantity.
       workflowRole: Status transitions are validated against line, reservation, shipment and fulfillment evidence.
       valueSemantics:
-        DRAFT: The status of the sales order is draft; set it when that is what the business means for this record.
-        CONFIRMED: The status of the sales order is confirmed; set it when that is what the business means for this record.
-        ALLOCATED: The status of the sales order is allocated; set it when that is what the business means for this record.
-        PARTIALLY_FULFILLED: The status of the sales order is partially fulfilled; set it when that is what the business means for this record.
-        FULFILLED: The status of the sales order is fulfilled; set it when that is what the business means for this record.
-        CANCELLED: The status of the sales order is cancelled; set it when that is what the business means for this record.
+        DRAFT: Being entered.
+        CONFIRMED: Accepted and confirmed to the customer.
+        ALLOCATED: Stock reserved for its lines.
+        PARTIALLY_FULFILLED: Part shipped or delivered.
+        FULFILLED: Completely shipped or delivered.
+        CANCELLED: Cancelled before completion.
   - name: currencyId
     type: reference
     target: Currency
     required: false
     help:
-      summary: 'The currency id of the sales order: a link to another record the business records on it.'
-      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+      summary: The currency the order is priced in.
+      usage: All lines and invoices use it.
+      relationshipContext: Usually the customer's currency.
   - name: requestedDeliveryDate
     type: date
     required: false
     help:
-      summary: 'The requested delivery date of the sales order: a calendar date the business records on it.'
-      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+      summary: The day the customer wants delivery.
+      usage: Used to plan picking and transport.
+      relationshipContext: Not before the order date.
   - name: totalAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: 'The total amount of the sales order: a number the business records on it.'
-      usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+      summary: The total value of the order.
+      usage: Summed from the lines; checked against credit limits.
+      relationshipContext: Not negative.
   relationships:
   - name: customer
     target: Customer
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links a sales order to customer, the customer it relates to.
-      usage: Chosen from the existing customer records when the sales order is created or edited.
+      summary: The customer who placed the order.
       cardinalityMeaning: A sales order has exactly one customer in this role.
-      context: Lets the sales order be found from, and reported with, its customer.
+      usage: Chosen when entering the order.
+      context: The customer's terms, prices and credit limit apply.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a sales order to organization, the organization it relates to.
-      usage: Chosen from the existing organization records when the sales order is created or edited.
+      summary: The selling organisation.
       cardinalityMeaning: A sales order has at most one organization in this role.
-      context: Lets the sales order be found from, and reported with, its organization.
+      usage: Set from the user's company.
+      context: Books the revenue.
   - name: lines
     target: SalesOrderLine
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Links a sales order to sales order line, the lines it relates to.
-      usage: Chosen from the existing sales order line records when the sales order is created or edited.
+      summary: The products and services ordered.
       cardinalityMeaning: A sales order has at least one sales order line in this role.
-      context: Lets the sales order be found from, and reported with, its sales order line.
+      usage: Entered with the order.
+      context: A confirmed order has at least one line.
   - name: deliveryLocation
     target: Location
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a sales order to location, the delivery location it relates to.
-      usage: Chosen from the existing location records when the sales order is created or edited.
+      summary: Where the goods are delivered.
       cardinalityMeaning: A sales order has at most one location in this role.
-      context: Lets the sales order be found from, and reported with, its location.
+      usage: Defaults to the customer's delivery address.
+      context: Used to plan transport and tax.
   - name: shipments
     target: Shipment
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a sales order to shipment, the shipments it relates to.
-      usage: Chosen from the existing shipment records when the sales order is created or edited.
+      summary: Shipments that deliver the order.
       cardinalityMeaning: A sales order has any number of shipment in this role.
-      context: Lets the sales order be found from, and reported with, its shipment.
+      usage: Created when the order is picked and shipped.
+      context: Fulfilment is counted from them.
   - name: invoices
     target: Invoice
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a sales order to invoice, the invoices it relates to.
-      usage: Chosen from the existing invoice records when the sales order is created or edited.
+      summary: Invoices that bill the order.
       cardinalityMeaning: A sales order has any number of invoice in this role.
-      context: Lets the sales order be found from, and reported with, its invoice.
+      usage: Created when the order is billed.
+      context: Billing follows the order's terms.
   invariants:
   - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
   - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
@@ -151,50 +151,51 @@ entity:
     terminal: [FULFILLED, CANCELLED]
     transitions:
     - {from: DRAFT, to: CONFIRMED, action: confirm}
-    - {from: CONFIRMED, to: ALLOCATED, action: mark_allocated}
-    - {from: ALLOCATED, to: PARTIALLY_FULFILLED, action: mark_partially_fulfilled}
+    - {from: CONFIRMED, to: ALLOCATED, action: allocate}
+    - {from: ALLOCATED, to: PARTIALLY_FULFILLED, action: fulfil_in_part}
+    - {from: ALLOCATED, to: FULFILLED, action: fulfil}
     - {from: PARTIALLY_FULFILLED, to: FULFILLED, action: fulfil}
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: CONFIRMED, to: CANCELLED, action: cancel}
     - {from: ALLOCATED, to: CANCELLED, action: cancel}
     - {from: PARTIALLY_FULFILLED, to: CANCELLED, action: cancel}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a sales order is ended"
-    description: "When a sales order is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "SALES-ORDER-FOLLOW-UP-{{id}}"
-          name: "Follow up on sales order {{order_number}}"
-          description: "Sales order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: CompletionConfirmed
-    title: "Confirm when a sales order is done"
-    description: "When a sales order is fulfilled, a task asks someone to confirm the outcome."
-    when: "status == \"FULFILLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: confirm"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "SALES-ORDER-COMPLETED-{{id}}"
-          name: "Confirm sales order {{order_number}}"
-          description: "Sales order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "LOW"
+    - name: FollowUpRequired
+      title: "Follow up when a sales order is ended"
+      description: "When a sales order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SALES-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on sales order {{order_number}}"
+              description: "Sales order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a sales order is done"
+      description: "When a sales order is fulfilled, a task asks someone to confirm the outcome."
+      when: "status == \"FULFILLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SALES-ORDER-COMPLETED-{{id}}"
+              name: "Confirm sales order {{order_number}}"
+              description: "Sales order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
     businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.

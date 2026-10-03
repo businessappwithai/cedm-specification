@@ -40,26 +40,27 @@ entity:
       relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
       requiredMeaning: Required because handling and interpretation depend on sample classification.
       valueSemantics:
-        SPECIMEN: The sample type of the sample is specimen; set it when that is what the business means for this record.
-        ALIQUOT: The sample type of the sample is aliquot; set it when that is what the business means for this record.
-        COMPOUND: The sample type of the sample is compound; set it when that is what the business means for this record.
-        MATERIAL: The sample type of the sample is material; set it when that is what the business means for this record.
-        BIOLOGICAL: The sample type of the sample is biological; set it when that is what the business means for this record.
-        CHEMICAL: The sample type of the sample is chemical; set it when that is what the business means for this record.
-        ENVIRONMENTAL: The sample type of the sample is environmental; set it when that is what the business means for this record.
-        CONTROL: The sample type of the sample is control; set it when that is what the business means for this record.
-        REFERENCE: The sample type of the sample is reference; set it when that is what the business means for this record.
-        OTHER: The sample type of the sample is other; set it when that is what the business means for this record.
+        SPECIMEN: Collected from a subject or source.
+        ALIQUOT: A portion divided from another sample.
+        COMPOUND: A sample of a compound.
+        MATERIAL: A sample of a material.
+        BIOLOGICAL: Biological material.
+        CHEMICAL: A chemical substance.
+        ENVIRONMENTAL: Taken from the environment, such as water or soil.
+        CONTROL: Used as an experimental control.
+        REFERENCE: A reference standard.
+        OTHER: Any other kind.
   - name: status
     type: enum
     required: true
     default: AVAILABLE
     values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
     help:
-      summary: Lifecycle state of the sample.
+      summary: Where the sample is in its life.
       businessMeaning: Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically.
       usage: Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal.
       relationshipContext: Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations.
+      requiredMeaning: Required to govern sample availability and custody.
       valueSemantics:
         PLANNED: Sample is expected but has not yet been collected or received.
         COLLECTED: Sample has been collected and awaits normal receipt or availability controls.
@@ -71,7 +72,6 @@ entity:
         LOST: Sample can no longer be physically accounted for.
         QUARANTINED: Sample is held from normal use pending review or resolution.
         ARCHIVED: Sample is retained for historical or long-term controlled storage.
-      requiredMeaning: Required to govern sample availability and custody.
   - name: collectedAt
     type: datetime
     required: false
@@ -167,49 +167,45 @@ entity:
     initial: PLANNED
     terminal: [CONSUMED, DISPOSED, LOST]
     transitions:
-    - {from: PLANNED, to: COLLECTED, action: mark_collected}
+    - {from: PLANNED, to: COLLECTED, action: collect}
     - {from: COLLECTED, to: RECEIVED, action: receive}
-    - {from: RECEIVED, to: AVAILABLE, action: mark_available}
-    - {from: AVAILABLE, to: IN_USE, action: mark_in_use}
-    - {from: IN_USE, to: ARCHIVED, action: archive}
-    - {from: ARCHIVED, to: CONSUMED, action: consume}
+    - {from: RECEIVED, to: AVAILABLE, action: make_available}
+    - {from: AVAILABLE, to: IN_USE, action: use}
+    - {from: IN_USE, to: AVAILABLE, action: return}
+    - {from: IN_USE, to: CONSUMED, action: consume}
+    - {from: AVAILABLE, to: CONSUMED, action: consume}
     - {from: COLLECTED, to: QUARANTINED, action: quarantine}
-    - {from: QUARANTINED, to: COLLECTED, action: release}
     - {from: RECEIVED, to: QUARANTINED, action: quarantine}
-    - {from: QUARANTINED, to: RECEIVED, action: release}
     - {from: AVAILABLE, to: QUARANTINED, action: quarantine}
     - {from: QUARANTINED, to: AVAILABLE, action: release}
-    - {from: IN_USE, to: QUARANTINED, action: quarantine}
-    - {from: QUARANTINED, to: IN_USE, action: release}
-    - {from: COLLECTED, to: DISPOSED, action: mark_disposed}
-    - {from: RECEIVED, to: DISPOSED, action: mark_disposed}
-    - {from: AVAILABLE, to: DISPOSED, action: mark_disposed}
-    - {from: IN_USE, to: DISPOSED, action: mark_disposed}
-    - {from: QUARANTINED, to: DISPOSED, action: mark_disposed}
+    - {from: QUARANTINED, to: DISPOSED, action: dispose}
+    - {from: AVAILABLE, to: DISPOSED, action: dispose}
+    - {from: AVAILABLE, to: ARCHIVED, action: archive}
+    - {from: ARCHIVED, to: AVAILABLE, action: retrieve}
+    - {from: ARCHIVED, to: DISPOSED, action: dispose}
     - {from: COLLECTED, to: LOST, action: mark_lost}
     - {from: RECEIVED, to: LOST, action: mark_lost}
     - {from: AVAILABLE, to: LOST, action: mark_lost}
     - {from: IN_USE, to: LOST, action: mark_lost}
-    - {from: QUARANTINED, to: LOST, action: mark_lost}
   workflows:
-  - name: ExceptionRaised
-    title: "Raise a task when a sample is stopped"
-    description: "When a sample is quarantined, a high-priority task asks someone to resolve it."
-    when: "status == \"QUARANTINED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: resolve"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "SAMPLE-EXCEPTION-{{id}}"
-          name: "Resolve sample {{id}}"
-          description: "Sample {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "HIGH"
+    - name: ExceptionRaised
+      title: "Raise a task when a sample is stopped"
+      description: "When a sample is quarantined, a high-priority task asks someone to resolve it."
+      when: "status == \"QUARANTINED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SAMPLE-EXCEPTION-{{id}}"
+              name: "Resolve sample {{id}}"
+              description: "Sample {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: First-class research specimen and sample entity for life-sciences and scientific workflows.
     businessMeaning: Sample closes the research traceability graph between Compound and Experiment while keeping scientific specimens separate from quality-control InspectionSample. Sample represents research material; InspectionSample represents a selection event within a QualityInspection.
