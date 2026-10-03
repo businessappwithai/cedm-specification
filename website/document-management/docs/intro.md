@@ -10,6 +10,7 @@ description: "Document and Content Management, built on the CEDM common foundati
 
 Document and Content Management, built on the CEDM common foundation.
 
+![The Document and Content Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
