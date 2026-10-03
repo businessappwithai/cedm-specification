@@ -28,7 +28,6 @@ entity:
       summary: Captures the business meaning of quotation number for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
       relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: quotationDate
     type: date
     required: true
@@ -36,7 +35,6 @@ entity:
       summary: Records the business date associated with the quotation. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
       relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: validUntil
     type: date
     required: false
@@ -44,7 +42,6 @@ entity:
       summary: Captures the business meaning of valid until for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
       relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: status
     type: enum
     required: true
@@ -67,7 +64,6 @@ entity:
         REJECTED: Represents the rejected state or classification in the context of Quotation.
         EXPIRED: Represents the expired state or classification in the context of Quotation.
         CANCELLED: Represents the cancelled state or classification in the context of Quotation.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: currencyId
     type: reference
     target: Currency
@@ -76,7 +72,6 @@ entity:
       summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
       relationshipContext: This field connects Quotation to Currency. The reference establishes business context between the two entities and lets processes navigate from this record to the related Currency.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: totalAmount
     type: decimal
     required: true
@@ -86,7 +81,6 @@ entity:
       summary: Captures the business meaning of total amount for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
       relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: customer
     target: Customer

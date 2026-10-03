@@ -23,9 +23,9 @@ entity:
     values: [RUNNING, SUSPENDED, COMPLETED, CANCELLED, FAILED]
     help:
       summary: Whether the instance is still going.
-      businessMeaning: Indicates current workflow/control usability.
       usage: Moved on by the engine or an administrator.
       relationshipContext: Failed instances appear in the administrator's queue.
+      businessMeaning: Whether the instance is still running, and how it ended.
       valueSemantics:
         RUNNING: In progress.
         SUSPENDED: Paused by a person.

@@ -108,11 +108,11 @@ entity:
     ownership: reference
     help:
       summary: The customer who holds the subscription.
-      businessMeaning: Supplies commercial party context.
-      workflowRole: Financial settlement remains separate.
       usage: Chosen at sign-up.
       cardinalityMeaning: Every subscription belongs to one customer.
       context: Billed to this customer.
+      businessMeaning: The account that holds the subscription and is billed for it.
+      workflowRole: Its invoices, credits and renewals are all for this customer.
   - name: plan
     target: SubscriptionPlan
     cardinality: '1'

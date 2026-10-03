@@ -24,11 +24,11 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing accounting journal reference., usage: "Used by accountants, auditors, reports and integrations.", relationshipContext: "Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references.", workflowRole: Identifies the accounting record in ledgers and audit trails., requiredMeaning: Required.}
+    help: {summary: Human-facing accounting journal reference., usage: "Used by accountants, auditors, reports and integrations.", relationshipContext: "Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references.", workflowRole: Identifies the accounting record in ledgers and audit trails.}
   - name: entryDate
     type: datetime
     required: true
-    help: {summary: Accounting date at which the entry is recognized., usage: "Determines accounting period, reporting chronology and period controls.", relationshipContext: "May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date.", workflowRole: Controls the period into which the entry is posted., requiredMeaning: Required.}
+    help: {summary: Accounting date at which the entry is recognized., usage: "Determines accounting period, reporting chronology and period controls.", relationshipContext: "May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date.", workflowRole: Controls the period into which the entry is posted.}
   - name: status
     type: enum
     required: true
@@ -42,11 +42,10 @@ entity:
       usage: Controls editing, posting, reporting and reversal permissions.
       relationshipContext: Independent of Payment, Invoice, CreditNote, SupplierCreditNote, SupplierDebitNote and BankTransaction statuses.
       workflowRole: DRAFT permits preparation; POSTED establishes recognition; REVERSED preserves original history while counteracting its effect.
-      requiredMeaning: Required.
       valueSemantics:
-        DRAFT: The status of the journal entry is draft; set it when that is what the business means for this record.
-        POSTED: The status of the journal entry is posted; set it when that is what the business means for this record.
-        REVERSED: The status of the journal entry is reversed; set it when that is what the business means for this record.
+        DRAFT: Prepared, not yet in the ledger.
+        POSTED: In the ledger; its amounts count in the accounts.
+        REVERSED: Cancelled by an opposite entry.
   - name: description
     type: string
     required: false

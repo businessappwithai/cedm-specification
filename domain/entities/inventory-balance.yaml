@@ -67,19 +67,19 @@ entity:
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links an inventory balance to product, the product it relates to.
-      usage: Chosen from the existing product records when the inventory balance is created or edited.
+      summary: The product the balance counts.
       cardinalityMeaning: An inventory balance has exactly one product in this role.
-      context: Lets the inventory balance be found from, and reported with, its product.
+      usage: Set by the movement that first puts the product in the location.
+      context: The product's total stock is the sum of its balances.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
     help:
-      summary: Links an inventory balance to inventory location, the inventory location it relates to.
-      usage: Chosen from the existing inventory location records when the inventory balance is created or edited.
+      summary: The location whose stock the balance shows.
       cardinalityMeaning: An inventory balance has exactly one inventory location in this role.
-      context: Lets the inventory balance be found from, and reported with, its inventory location.
+      usage: Set by the movement that first puts the product in the location.
+      context: One balance per product, location and lot.
   - name: lot
     target: Lot
     cardinality: 0..1

@@ -32,7 +32,6 @@ entity:
       usage: Supports onboarding compliance tax contracting and reporting.
       relationshipContext: Does not replace Party identity classification.
       workflowRole: Supplies supplier classification to procurement policy.
-      optionalMeaning: Optional.
       valueSemantics:
         INDIVIDUAL: The supplier type of the supplier is individual; set it when that is what the business means for this record.
         BUSINESS: The supplier type of the supplier is business; set it when that is what the business means for this record.
@@ -60,7 +59,7 @@ entity:
         QUALIFIED: The qualification status of the supplier is qualified; set it when that is what the business means for this record.
         SUSPENDED: The qualification status of the supplier is suspended; set it when that is what the business means for this record.
         DISQUALIFIED: The qualification status of the supplier is disqualified; set it when that is what the business means for this record.
-  - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing., optionalMeaning: Optional.}}
+  - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing.}}
   - name: status
     type: enum
     required: true

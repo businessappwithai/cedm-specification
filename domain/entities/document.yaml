@@ -27,7 +27,6 @@ entity:
       summary: Captures the business meaning of document number for the Document. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: documentType
     type: string
     required: true
@@ -36,7 +35,6 @@ entity:
       summary: Captures the business meaning of document type for the Document. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: documentDate
     type: date
     required: true
@@ -44,7 +42,6 @@ entity:
       summary: Records the business date associated with the document. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -65,7 +62,6 @@ entity:
         APPROVED: Represents the approved state or classification in the context of Document.
         CANCELLED: Represents the cancelled state or classification in the context of Document.
         ARCHIVED: Represents the archived state or classification in the context of Document.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: title
     type: string
     required: false
@@ -74,7 +70,6 @@ entity:
       summary: Captures the business meaning of title for the Document. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: description
     type: string
     required: false
@@ -83,7 +78,6 @@ entity:
       summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: version
     type: integer
     required: true
@@ -101,7 +95,6 @@ entity:
       summary: Records when the issued event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: createdAt
     type: datetime
     required: true

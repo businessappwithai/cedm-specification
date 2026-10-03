@@ -23,7 +23,6 @@ entity:
       summary: 'The line number of the purchase order line: a whole number the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its line number.'
   - name: quantity
     type: decimal
     required: true
@@ -33,7 +32,6 @@ entity:
       summary: 'The quantity of the purchase order line: a number the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its quantity.'
   - name: unitPrice
     type: Money
     required: true
@@ -41,7 +39,6 @@ entity:
       summary: 'The unit price of the purchase order line: a value the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its unit price.'
   - name: lineAmount
     type: Money
     required: true
@@ -49,7 +46,6 @@ entity:
       summary: 'The line amount of the purchase order line: a value the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its line amount.'
   - name: receivedQuantity
     type: decimal
     required: true
@@ -60,7 +56,6 @@ entity:
       summary: 'The received quantity of the purchase order line: a number the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its received quantity.'
   - name: acceptedQuantity
     type: decimal
     required: true
@@ -71,7 +66,6 @@ entity:
       summary: 'The accepted quantity of the purchase order line: a number the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its accepted quantity.'
   - name: returnedQuantity
     type: decimal
     required: true
@@ -82,7 +76,6 @@ entity:
       summary: 'The returned quantity of the purchase order line: a number the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its returned quantity.'
   - name: outstandingQuantity
     type: decimal
     required: true
@@ -93,7 +86,6 @@ entity:
       summary: 'The outstanding quantity of the purchase order line: a number the business records on it.'
       usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a purchase order line cannot be understood without its outstanding quantity.'
   - name: priceSource
     type: enum
     required: false

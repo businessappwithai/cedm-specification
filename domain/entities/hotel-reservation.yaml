@@ -28,7 +28,6 @@ entity:
       summary: Captures the business meaning of reservation number for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
       relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: checkIn
     type: date
     required: true
@@ -36,7 +35,6 @@ entity:
       summary: Captures the business meaning of check in for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
       relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: checkOut
     type: date
     required: true
@@ -44,7 +42,6 @@ entity:
       summary: Captures the business meaning of check out for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
       relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -67,7 +64,6 @@ entity:
         CHECKED_OUT: Represents the checked out state or classification in the context of HotelReservation.
         CANCELLED: Represents the cancelled state or classification in the context of HotelReservation.
         NO_SHOW: Represents the no show state or classification in the context of HotelReservation.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: guestCount
     type: integer
     required: true
@@ -76,7 +72,6 @@ entity:
       summary: Captures the business meaning of guest count for the HotelReservation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating HotelReservation records, where applicable.
       relationshipContext: Its meaning is specific to HotelReservation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: hotel
     target: Hotel

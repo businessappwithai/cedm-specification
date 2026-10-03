@@ -23,9 +23,9 @@ entity:
     values: [DRAFT, ACTIVE, CLOSED]
     help:
       summary: Whether entries may be posted.
-      businessMeaning: Indicates usability/execution state of Ledger.
       usage: Moved on by finance.
       relationshipContext: Closed ledgers keep their history.
+      businessMeaning: Whether entries may be posted to the ledger.
       valueSemantics:
         DRAFT: Being set up.
         ACTIVE: Open for posting.

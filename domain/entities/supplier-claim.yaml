@@ -15,8 +15,8 @@ entity:
       summary: The permanent system identifier of the supplier claim record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a supplier claim store this identifier. The number or code people quote is a separate field.
-  - {name: claimNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier claim reference., businessMeaning: Identifies the claim for procurement quality and supplier communication., usage: Used in correspondence investigations reporting and reconciliation., relationshipContext: Distinct from PurchaseOrder GoodsReceipt Invoice SupplierReturn and financial adjustment numbers., workflowRole: Provides the operational reference throughout the claim lifecycle., requiredMeaning: Required.}}
-  - {name: claimDate, type: datetime, required: true, immutable: true, help: {summary: Date and time the claim was raised., businessMeaning: Establishes when the organization formally asserted the supplier issue., usage: Supports SLA measurement dispute aging supplier performance and audit., relationshipContext: Distinct from receipt inspection return resolution and financial-document dates., workflowRole: Anchors claim chronology., requiredMeaning: Required.}}
+  - {name: claimNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier claim reference., businessMeaning: Identifies the claim for procurement quality and supplier communication., usage: Used in correspondence investigations reporting and reconciliation., relationshipContext: Distinct from PurchaseOrder GoodsReceipt Invoice SupplierReturn and financial adjustment numbers., workflowRole: Provides the operational reference throughout the claim lifecycle.}}
+  - {name: claimDate, type: datetime, required: true, immutable: true, help: {summary: Date and time the claim was raised., businessMeaning: Establishes when the organization formally asserted the supplier issue., usage: Supports SLA measurement dispute aging supplier performance and audit., relationshipContext: Distinct from receipt inspection return resolution and financial-document dates., workflowRole: Anchors claim chronology.}}
   - name: status
     type: enum
     required: true
@@ -38,7 +38,6 @@ entity:
       usage: Controls investigation supplier response settlement and escalation.
       relationshipContext: Claim status is independent from SupplierReturn SupplierCreditNote SupplierDebitNote and SupplierClaimResolution statuses.
       workflowRole: Coordinates the case while physical and financial effects remain separate transactions.
-      requiredMeaning: Required.
       valueSemantics:
         DRAFT: The status of the supplier claim is draft; set it when that is what the business means for this record.
         OPEN: The status of the supplier claim is open; set it when that is what the business means for this record.
@@ -71,7 +70,6 @@ entity:
       usage: Drives routing evidence requirements supplier scorecards and analytics.
       relationshipContext: May be supported by QualityInspection or receiving evidence and may result in a return credit debit or other resolution.
       workflowRole: Determines investigation and resolution policy.
-      requiredMeaning: Required.
       valueSemantics:
         QUALITY: The claim type of the supplier claim is quality; set it when that is what the business means for this record.
         DAMAGE: The claim type of the supplier claim is damage; set it when that is what the business means for this record.
@@ -115,7 +113,7 @@ entity:
         PRICE_ADJUSTMENT: The resolution code of the supplier claim is price adjustment; set it when that is what the business means for this record.
         ACCEPTED_EXCEPTION: The resolution code of the supplier claim is accepted exception; set it when that is what the business means for this record.
         REJECTED: The resolution code of the supplier claim is rejected; set it when that is what the business means for this record.
-  - {name: notes, type: string, required: false, maxLength: 4000, help: {summary: Additional claim narrative and investigation context., businessMeaning: Records information not represented by structured fields., usage: Supplier communication investigation escalation and audit., relationshipContext: Complements structured inspection receipt invoice and return evidence without replacing it., workflowRole: Supports review and resolution., optionalMeaning: Optional.}}
+  - {name: notes, type: string, required: false, maxLength: 4000, help: {summary: Additional claim narrative and investigation context., businessMeaning: Records information not represented by structured fields., usage: Supplier communication investigation escalation and audit., relationshipContext: Complements structured inspection receipt invoice and return evidence without replacing it., workflowRole: Supports review and resolution.}}
   relationships:
   - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier against whom the claim is raised., businessMeaning: Identifies the external party responsible for the disputed supply or service., usage: Supports communication scorecards recovery and escalation., workflowRole: Supplies supplier qualification and commercial context.}}
   - {name: purchaseOrder, target: PurchaseOrder, cardinality: 0..1, ownership: reference, help: {summary: Procurement commitment associated with the claim., businessMeaning: Connects the supplier issue to the original purchasing commitment., usage: Supports contractual price and quantity investigation., workflowRole: Supplies commercial source evidence.}}

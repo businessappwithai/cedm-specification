@@ -20,11 +20,11 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing payment reference., businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries.", usage: "Finance, counterparties, integrations and reconciliation.", relationshipContext: Distinct from paymentId and bank transaction identifiers., workflowRole: Correlates internal payment evidence with operational and external references., requiredMeaning: Required.}
+    help: {summary: Business-facing payment reference., businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries.", usage: "Finance, counterparties, integrations and reconciliation.", relationshipContext: Distinct from paymentId and bank transaction identifiers., workflowRole: Correlates internal payment evidence with operational and external references.}
   - name: paymentDate
     type: datetime
     required: true
-    help: {summary: Timestamp at which the payment event is recognized by the business process., businessMeaning: Establishes internal settlement chronology., usage: "Accounting periods, cash reporting, reconciliation and settlement analysis.", relationshipContext: "Distinct from bank value date, clearing date, posting date, allocation date and credit-note date.", workflowRole: Provides event time for internal payment processing., requiredMeaning: Required.}
+    help: {summary: Timestamp at which the payment event is recognized by the business process., businessMeaning: Establishes internal settlement chronology., usage: "Accounting periods, cash reporting, reconciliation and settlement analysis.", relationshipContext: "Distinct from bank value date, clearing date, posting date, allocation date and credit-note date.", workflowRole: Provides event time for internal payment processing.}
   - name: direction
     type: enum
     required: true
@@ -37,7 +37,6 @@ entity:
       usage: Receivables, payables, treasury, accounting and refunds/credit settlements.
       relationshipContext: Customer refund and supplier-credit refund/settlement payments are DISBURSEMENT events and never rewrite original receipt payments.
       workflowRole: Determines cash-flow and settlement path.
-      requiredMeaning: Required.
       valueSemantics:
         RECEIPT: The direction of the payment is receipt; set it when that is what the business means for this record.
         DISBURSEMENT: The direction of the payment is disbursement; set it when that is what the business means for this record.
@@ -58,7 +57,6 @@ entity:
       usage: Controls execution, reconciliation, reporting and correction.
       relationshipContext: Independent of Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses.
       workflowRole: APPROVED authorizes processing; POSTED recognizes internally; CLEARED confirms external evidence; VOID/REVERSED handle correction.
-      requiredMeaning: Required.
       valueSemantics:
         DRAFT: The status of the payment is draft; set it when that is what the business means for this record.
         APPROVED: The status of the payment is approved; set it when that is what the business means for this record.
@@ -69,13 +67,13 @@ entity:
   - name: amount
     type: Money
     required: true
-    help: {summary: Total monetary value of the payment event., businessMeaning: "Represents money received or disbursed, not the amount allocated to one claim or credit.", usage: "Cash position, allocation validation, accounting and reconciliation.", relationshipContext: "PaymentAllocation distributes receipt payments; a credit-settlement payment settles an explicit customer or supplier credit obligation.", workflowRole: Provides source monetary amount., requiredMeaning: Required.}
+    help: {summary: Total monetary value of the payment event., businessMeaning: "Represents money received or disbursed, not the amount allocated to one claim or credit.", usage: "Cash position, allocation validation, accounting and reconciliation.", relationshipContext: "PaymentAllocation distributes receipt payments; a credit-settlement payment settles an explicit customer or supplier credit obligation.", workflowRole: Provides source monetary amount.}
   - name: currencyId
     type: reference
     target: Currency
     required: true
     immutableAfterPosting: true
-    help: {summary: Currency denomination of the payment., businessMeaning: Defines interpretation of payment amount., usage: "Allocation, exchange-rate selection, bank reconciliation, accounting and reporting.", relationshipContext: May differ from invoice or credit currency only with explicit ExchangeRate evidence., workflowRole: Establishes source currency., requiredMeaning: Required.}
+    help: {summary: Currency denomination of the payment., businessMeaning: Defines interpretation of payment amount., usage: "Allocation, exchange-rate selection, bank reconciliation, accounting and reporting.", relationshipContext: May differ from invoice or credit currency only with explicit ExchangeRate evidence., workflowRole: Establishes source currency.}
   - name: paymentMethod
     type: enum
     required: true
@@ -92,7 +90,6 @@ entity:
       usage: Execution, bank matching, treasury and reconciliation.
       relationshipContext: Refund or supplier-credit settlement method must satisfy applicable policy.
       workflowRole: Determines expected settlement evidence.
-      requiredMeaning: Required.
       valueSemantics:
         CASH: The payment method of the payment is cash; set it when that is what the business means for this record.
         BANK_TRANSFER: The payment method of the payment is bank transfer; set it when that is what the business means for this record.
@@ -108,7 +105,7 @@ entity:
     type: string
     required: false
     maxLength: 250
-    help: {summary: "External remittance, bank, processor or instrument reference.", businessMeaning: Connects internal payment evidence to external settlement identifier., usage: "Bank reconciliation, remittance matching, gateway reconciliation and audit.", relationshipContext: Does not replace allocations or credit identities., workflowRole: Helps resolve external evidence., optionalMeaning: Optional.}
+    help: {summary: "External remittance, bank, processor or instrument reference.", businessMeaning: Connects internal payment evidence to external settlement identifier., usage: "Bank reconciliation, remittance matching, gateway reconciliation and audit.", relationshipContext: Does not replace allocations or credit identities., workflowRole: Helps resolve external evidence.}
   relationships:
   - name: payer
     target: Party

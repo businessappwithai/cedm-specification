@@ -78,7 +78,6 @@ establishes temporal applicability or evidence cutoff.
 establishes temporal business meaning.
 event changes lifecycle state without rewriting prior # evidence.
 event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-every # belongs to exactly one #.
 every # belongs to exactly one governing # in this baseline model.
 exactly one #.
 exactly one source.

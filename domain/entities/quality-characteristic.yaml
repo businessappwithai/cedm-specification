@@ -25,7 +25,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Business code identifying the quality characteristic.
+      summary: The code of the characteristic, such as DIA-01 for a diameter.
       businessMeaning: Provides a stable human-readable identifier such as WEIGHT, TEMPERATURE, LENGTH, or APPEARANCE.
       usage: Used in quality plans, measurements, reports, integrations, and validation rules.
       relationshipContext: The code identifies the characteristic, while QualityPlanCharacteristic determines how that characteristic is controlled in a particular plan.
@@ -35,7 +35,7 @@ entity:
     required: true
     maxLength: 300
     help:
-      summary: Human-readable name of the quality characteristic.
+      summary: The name of the characteristic, such as "Outer diameter".
       businessMeaning: States what property the characteristic represents in language understandable to quality personnel and other users.
       usage: Used in quality-plan authoring, inspection screens, reports, analytics, and training.
       relationshipContext: Complements code and provides the business-facing meaning of measurements referencing this characteristic.

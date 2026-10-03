@@ -30,7 +30,6 @@ entity:
       summary: Identifies the related PartyRole associated with this Employee. It provides the link needed to navigate from this record to the related business object.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
       relationshipContext: This field connects Employee to PartyRole. The reference establishes business context between the two entities and lets processes navigate from this record to the related PartyRole.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: employeeNumber
     type: string
     required: true
@@ -40,7 +39,6 @@ entity:
       summary: Captures the business meaning of employee number for the Employee. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
       relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: hireDate
     type: date
     required: false
@@ -48,7 +46,6 @@ entity:
       summary: Records the business date associated with the hire. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
       relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: terminationDate
     type: date
     required: false
@@ -56,7 +53,6 @@ entity:
       summary: Records the business date associated with the termination. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
       relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: status
     type: enum
     required: true
@@ -75,7 +71,6 @@ entity:
         ON_LEAVE: Represents the on leave state or classification in the context of Employee.
         TERMINATED: Represents the terminated state or classification in the context of Employee.
         RETIRED: Represents the retired state or classification in the context of Employee.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   relationships:
   - name: person
     target: Person

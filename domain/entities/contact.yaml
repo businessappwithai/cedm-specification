@@ -23,10 +23,9 @@ entity:
     maxLength: 40
     help:
       summary: The reference of the contact.
-      businessMeaning: Human or integration-friendly reference where applicable.
-      optionalMeaning: Optional when another transaction reference supplies business identity.
       usage: Assigned when the contact is added.
       relationshipContext: Unique.
+      businessMeaning: Lets staff refer to the contact without spelling out the person's name, for example in a ticket.
   - name: jobTitle
     type: string
     required: false

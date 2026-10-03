@@ -30,7 +30,7 @@ entity:
     required: true
     maxLength: 200
     help:
-      summary: Human-readable name of the discount rule.
+      summary: The name of the discount rule, such as "Volume discount 5% over 1,000 units".
       usage: Used by business users when configuring or reviewing pricing.
       relationshipContext: Describes the policy represented by the rule.
       workflowRole: Makes discount selection understandable during price determination.
@@ -44,8 +44,8 @@ entity:
       relationshipContext: FIXED_AMOUNT requires a currency context; PERCENTAGE is applied to an eligible monetary base.
       workflowRole: Supplies the calculation method used before tax determination and final transaction totals.
       valueSemantics:
-        PERCENTAGE: The method of the discount rule is percentage; set it when that is what the business means for this record.
-        FIXED_AMOUNT: The method of the discount rule is fixed amount; set it when that is what the business means for this record.
+        PERCENTAGE: The discount is a percentage of the price.
+        FIXED_AMOUNT: The discount is an amount taken off the price.
   - name: value
     type: decimal
     required: true
@@ -85,10 +85,10 @@ entity:
       relationshipContext: Retiring a rule must not change discounts already recorded on historical transactions.
       workflowRole: Controls future applicability while preserving historical pricing evidence.
       valueSemantics:
-        DRAFT: The status of the discount rule is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the discount rule is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the discount rule is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the discount rule is retired; set it when that is what the business means for this record.
+        DRAFT: Being set up; not applied to orders.
+        ACTIVE: Applied to qualifying orders.
+        INACTIVE: Temporarily not applied.
+        RETIRED: No longer used; kept for orders that applied it.
   relationships:
   - name: currencyRef
     target: Currency

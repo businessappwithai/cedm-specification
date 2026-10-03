@@ -20,7 +20,7 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing measurement reference., businessMeaning: Provides an operational identifier for one observation., usage: "Inspection review, audit and integration.", relationshipContext: Distinct from the parent inspection number., workflowRole: Supports individual observation traceability., requiredMeaning: Required.}
+    help: {summary: Human-facing measurement reference., businessMeaning: Provides an operational identifier for one observation., usage: "Inspection review, audit and integration.", relationshipContext: Distinct from the parent inspection number., workflowRole: Supports individual observation traceability.}
   - name: characteristicCode
     type: string
     required: true
@@ -68,16 +68,15 @@ entity:
       usage: Inspection completion, nonconformance and analytics.
       relationshipContext: Contributes evidence to QualityInspection.result but does not replace it.
       workflowRole: Supplies structured evidence for the overall inspection decision.
-      requiredMeaning: Required.
       valueSemantics:
-        PASS: The result of the quality measurement is pass; set it when that is what the business means for this record.
-        FAIL: The result of the quality measurement is fail; set it when that is what the business means for this record.
-        CONDITIONAL: The result of the quality measurement is conditional; set it when that is what the business means for this record.
-        NOT_EVALUATED: The result of the quality measurement is not evaluated; set it when that is what the business means for this record.
+        PASS: Within the specification.
+        FAIL: Outside the specification.
+        CONDITIONAL: Outside the specification but accepted under an approved deviation.
+        NOT_EVALUATED: Not judged, for example because the measurement is for information only.
   - name: measuredAt
     type: datetime
     required: true
-    help: {summary: Time when the observation was captured., businessMeaning: Establishes chronology of the measured fact., usage: "Traceability, sampling, compliance and audit.", relationshipContext: Distinct from QualityInspection.inspectionDate., workflowRole: Preserves temporal measurement evidence., requiredMeaning: Required.}
+    help: {summary: Time when the observation was captured., businessMeaning: Establishes chronology of the measured fact., usage: "Traceability, sampling, compliance and audit.", relationshipContext: Distinct from QualityInspection.inspectionDate., workflowRole: Preserves temporal measurement evidence.}
   - name: method
     type: string
     required: false
@@ -87,7 +86,7 @@ entity:
     type: string
     required: false
     maxLength: 2000
-    help: {summary: Supporting context for the observation., businessMeaning: Captures anomalies or conditions not represented structurally., usage: Review and audit., relationshipContext: Complements measured values and result without replacing them., workflowRole: Provides supporting evidence., optionalMeaning: Optional.}
+    help: {summary: Supporting context for the observation., businessMeaning: Captures anomalies or conditions not represented structurally., usage: Review and audit., relationshipContext: Complements measured values and result without replacing them., workflowRole: Provides supporting evidence.}
   relationships:
   - {name: qualityInspection, target: QualityInspection, cardinality: '1', ownership: reference, help: {summary: Inspection during which the measurement was captured., businessMeaning: Provides the governing inspection context., usage: Quality traceability and aggregate evaluation., workflowRole: Parent inspection controls measurement lifecycle.}}
   - {name: inspectionSample, target: InspectionSample, cardinality: "0..1", ownership: reference, help: {summary: Exact governed inspection sample from which this observation was produced when sample-specific testing applies., businessMeaning: Preserves provenance from SamplingPlan and SamplingRule execution through selected material to the resulting observation., usage: "Sample-level traceability, laboratory chain of custody, acceptance sampling, audit, and reproducibility.", cardinalityMeaning: A measurement references zero or one InspectionSample because non-sampled or population-level observations may not have a sample record., workflowRole: "When populated, the sample must belong to the same QualityInspection and the measurement must satisfy the characteristic controls applicable to that sample."}}

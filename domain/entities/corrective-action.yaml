@@ -24,7 +24,7 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle., requiredMeaning: Required.}
+    help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle.}
   - name: actionType
     type: enum
     required: true
@@ -39,7 +39,6 @@ entity:
       usage: Determines evidence expectations, routing and effectiveness criteria.
       relationshipContext: Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence.
       workflowRole: Determines the intended outcome that verification must assess.
-      requiredMeaning: Required.
       valueSemantics:
         CONTAINMENT: The action type of the corrective action is containment; set it when that is what the business means for this record.
         CORRECTION: The action type of the corrective action is correction; set it when that is what the business means for this record.
@@ -49,7 +48,7 @@ entity:
     type: string
     required: true
     maxLength: 4000
-    help: {summary: Detailed statement of what the action will accomplish., businessMeaning: "Defines scope, intended outcome and work required to address the quality issue.", usage: "Assignment, execution, audit and effectiveness assessment.", relationshipContext: Must remain traceable to the associated Nonconformance or approved quality objective., workflowRole: Defines the implementation target for verification., requiredMeaning: Required.}
+    help: {summary: Detailed statement of what the action will accomplish., businessMeaning: "Defines scope, intended outcome and work required to address the quality issue.", usage: "Assignment, execution, audit and effectiveness assessment.", relationshipContext: Must remain traceable to the associated Nonconformance or approved quality objective., workflowRole: Defines the implementation target for verification.}
   - name: status
     type: enum
     required: true
@@ -67,7 +66,6 @@ entity:
       usage: Controls execution and closure.
       relationshipContext: COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence.
       workflowRole: VERIFICATION gates final completion when effectiveness verification is required.
-      requiredMeaning: Required.
       valueSemantics:
         OPEN: The status of the corrective action is open; set it when that is what the business means for this record.
         ASSIGNED: The status of the corrective action is assigned; set it when that is what the business means for this record.

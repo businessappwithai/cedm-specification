@@ -20,11 +20,11 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing reference assigned to the credit note., businessMeaning: "Identifies the adjustment in customer communication, tax documents, statements and finance operations.", usage: "Used for reconciliation, customer service, reporting, tax and integrations.", relationshipContext: Distinct from creditNoteId and original Invoice.invoiceNumber., workflowRole: Provides the human-recognizable adjustment reference throughout its lifecycle., requiredMeaning: Required.}
+    help: {summary: Business-facing reference assigned to the credit note., businessMeaning: "Identifies the adjustment in customer communication, tax documents, statements and finance operations.", usage: "Used for reconciliation, customer service, reporting, tax and integrations.", relationshipContext: Distinct from creditNoteId and original Invoice.invoiceNumber., workflowRole: Provides the human-recognizable adjustment reference throughout its lifecycle.}
   - name: creditNoteDate
     type: date
     required: true
-    help: {summary: Commercial and accounting date of the credit adjustment., businessMeaning: "Establishes the temporal basis for accounting, tax and customer balance treatment.", usage: "Used for accounting periods, tax reporting, statements and audit.", relationshipContext: May differ from CustomerReturn returnDate and refund payment date., workflowRole: Anchors the financial adjustment in the applicable accounting and tax period., requiredMeaning: Required.}
+    help: {summary: Commercial and accounting date of the credit adjustment., businessMeaning: "Establishes the temporal basis for accounting, tax and customer balance treatment.", usage: "Used for accounting periods, tax reporting, statements and audit.", relationshipContext: May differ from CustomerReturn returnDate and refund payment date., workflowRole: Anchors the financial adjustment in the applicable accounting and tax period.}
   - name: status
     type: enum
     required: true
@@ -36,7 +36,6 @@ entity:
       usage: Controls approval, posting, application, refund and correction workflows.
       relationshipContext: CreditNote status is independent of Invoice, CustomerReturn, Payment and CreditNoteApplication status.
       workflowRole: POSTED establishes the financial adjustment; application reduces eligible outstanding receivable; refund states apply when money must be returned.
-      requiredMeaning: Required.
       valueSemantics:
         DRAFT: The status of the credit note is draft; set it when that is what the business means for this record.
         APPROVED: The status of the credit note is approved; set it when that is what the business means for this record.
@@ -52,25 +51,25 @@ entity:
     target: Currency
     required: true
     immutableAfterPosting: true
-    help: {summary: Currency in which the credit note is denominated., businessMeaning: Defines the monetary denomination of all credit-note amounts., usage: "Used for calculation, tax, accounting, invoice application, customer balance and refund processing.", relationshipContext: "Must normally match credited Invoice currency; permitted cross-currency application requires explicit ExchangeRate evidence.", workflowRole: Establishes monetary basis for adjustment and application., requiredMeaning: Required.}
+    help: {summary: Currency in which the credit note is denominated., businessMeaning: Defines the monetary denomination of all credit-note amounts., usage: "Used for calculation, tax, accounting, invoice application, customer balance and refund processing.", relationshipContext: "Must normally match credited Invoice currency; permitted cross-currency application requires explicit ExchangeRate evidence.", workflowRole: Establishes monetary basis for adjustment and application.}
   - name: reasonCode
     type: string
     required: true
     maxLength: 100
-    help: {summary: Controlled business reason for issuing the credit., businessMeaning: Explains why customer exposure is reduced., usage: "Used for approval, policy, analytics, tax, audit and customer communication.", relationshipContext: Return reason and financial credit reason may differ., workflowRole: "Determines applicable approval, calculation, tax and posting policy.", requiredMeaning: Required.}
+    help: {summary: Controlled business reason for issuing the credit., businessMeaning: Explains why customer exposure is reduced., usage: "Used for approval, policy, analytics, tax, audit and customer communication.", relationshipContext: Return reason and financial credit reason may differ., workflowRole: "Determines applicable approval, calculation, tax and posting policy."}
   - name: subtotal
     type: Money
     required: true
-    help: {summary: Aggregate credit value before document-level tax and adjustments., businessMeaning: Sum of credit-note line bases after applicable line pricing treatment., usage: "Used for tax, reconciliation, accounting and reporting.", relationshipContext: Must reconcile with CreditNoteLine amounts and original transaction evidence., workflowRole: Feeds taxable amount and total credit calculation., requiredMeaning: Required.}
+    help: {summary: Aggregate credit value before document-level tax and adjustments., businessMeaning: Sum of credit-note line bases after applicable line pricing treatment., usage: "Used for tax, reconciliation, accounting and reporting.", relationshipContext: Must reconcile with CreditNoteLine amounts and original transaction evidence., workflowRole: Feeds taxable amount and total credit calculation.}
   - name: taxAmount
     type: Money
     required: true
     default: {amount: 0}
-    help: {summary: Tax component reversed or credited by the adjustment., businessMeaning: Represents tax reduction associated with credited transaction., usage: "Used for tax reporting, accounting and reconciliation.", relationshipContext: Must reconcile with CreditNoteLine tax evidence and original InvoiceLine treatment where applicable., workflowRole: Contributes to total adjustment., requiredMeaning: "Required, including zero."}
+    help: {summary: Tax component reversed or credited by the adjustment., businessMeaning: Represents tax reduction associated with credited transaction., usage: "Used for tax reporting, accounting and reconciliation.", relationshipContext: Must reconcile with CreditNoteLine tax evidence and original InvoiceLine treatment where applicable., workflowRole: Contributes to total adjustment.}
   - name: totalAmount
     type: Money
     required: true
-    help: {summary: Total monetary reduction represented by the credit note., businessMeaning: Amount by which eligible customer exposure is reduced before application or refund settlement., usage: "Used for receivable adjustment, statements, tax, accounting, application and refund decisions.", relationshipContext: "Not itself a cash refund; refund requires a separate Payment event.", workflowRole: Maximum amount that can be applied or refunded under policy., requiredMeaning: Required.}
+    help: {summary: Total monetary reduction represented by the credit note., businessMeaning: Amount by which eligible customer exposure is reduced before application or refund settlement., usage: "Used for receivable adjustment, statements, tax, accounting, application and refund decisions.", relationshipContext: "Not itself a cash refund; refund requires a separate Payment event.", workflowRole: Maximum amount that can be applied or refunded under policy.}
   - name: amountApplied
     type: Money
     required: true
@@ -85,7 +84,7 @@ entity:
     type: Money
     required: true
     default: {amount: 0}
-    help: {summary: Unapplied and unrefunded portion of the posted credit., businessMeaning: Represents remaining customer credit exposure available for application or refund., usage: "Drives application, refund and reconciliation decisions.", relationshipContext: Reconciles totalAmount against active application and refund evidence., workflowRole: Determines whether further application or refund is permitted., requiredMeaning: Required.}
+    help: {summary: Unapplied and unrefunded portion of the posted credit., businessMeaning: Represents remaining customer credit exposure available for application or refund., usage: "Drives application, refund and reconciliation decisions.", relationshipContext: Reconciles totalAmount against active application and refund evidence., workflowRole: Determines whether further application or refund is permitted.}
   relationships:
   - name: customer
     target: Customer

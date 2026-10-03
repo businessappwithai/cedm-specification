@@ -24,7 +24,6 @@ entity:
       summary: 'The shipment number of the shipment: a value the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a shipment cannot be understood without its shipment number.'
   - name: shipmentType
     type: enum
     required: true
@@ -37,7 +36,6 @@ entity:
       summary: 'The shipment type of the shipment: a value the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a shipment cannot be understood without its shipment type.'
       valueSemantics:
         INBOUND: The shipment type of the shipment is inbound; set it when that is what the business means for this record.
         OUTBOUND: The shipment type of the shipment is outbound; set it when that is what the business means for this record.

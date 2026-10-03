@@ -101,11 +101,11 @@ entity:
     ownership: reference
     help:
       summary: The customer who used the service.
-      businessMeaning: Supplies commercial party context.
-      workflowRole: Financial settlement remains separate.
       usage: Matched from the subscription.
       cardinalityMeaning: One per record.
       context: Billed to this customer.
+      businessMeaning: The account the usage is billed to.
+      workflowRole: Rated usage becomes charges on this customer's next invoice.
   - name: subscription
     target: Subscription
     cardinality: 0..1

@@ -24,7 +24,11 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing inventory movement reference., usage: "Used by warehouse operators, inventory controllers, auditors and integrations.", relationshipContext: Distinct from Product and source transaction numbers., workflowRole: Traces stock change from execution through reconciliation., requiredMeaning: Required.}
+    help:
+      summary: The reference of the stock movement, quoted on stock reports.
+      usage: "Used by warehouse operators, inventory controllers, auditors and integrations."
+      relationshipContext: Distinct from Product and source transaction numbers.
+      workflowRole: Traces stock change from execution through reconciliation.
   - name: movementType
     type: enum
     required: true
@@ -42,17 +46,16 @@ entity:
         RETURN: Previously controlled quantity is returned or otherwise processed under return semantics.
         RESERVATION: Quantity is committed to demand without physical movement.
         RELEASE: Previous reservation is removed.
-      requiredMeaning: Required.
   - name: quantity
     type: decimal
     required: true
     precision: 20
     scale: 6
-    help: {summary: Quantity affected by the inventory event., usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release., requiredMeaning: Required.}
+    help: {summary: Quantity affected by the inventory event., usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.}
   - name: movementDate
     type: datetime
     required: true
-    help: {summary: Timestamp at which inventory event is recognized., usage: "Stock history, period-end balances, reporting, audit and reconciliation.", relationshipContext: Distinct from source order date and record creation timestamp., workflowRole: Establishes effective chronology., requiredMeaning: Required.}
+    help: {summary: Timestamp at which inventory event is recognized., usage: "Stock history, period-end balances, reporting, audit and reconciliation.", relationshipContext: Distinct from source order date and record creation timestamp., workflowRole: Establishes effective chronology.}
   - name: reason
     type: string
     required: false

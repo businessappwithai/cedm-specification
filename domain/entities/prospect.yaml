@@ -23,10 +23,9 @@ entity:
     maxLength: 40
     help:
       summary: The reference of the prospect.
-      businessMeaning: Human or integration-friendly reference where applicable.
-      optionalMeaning: Optional when another transaction reference supplies business identity.
       usage: Assigned when it is added.
       relationshipContext: Unique.
+      businessMeaning: Lets sales refer to the prospect before it has a customer number.
   - name: name
     type: string
     required: true

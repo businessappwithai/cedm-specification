@@ -102,12 +102,12 @@ entity:
       workflowRole: Determines authoritative InventoryMovement or downstream workflow.
       requiredMeaning: Required to prevent ambiguous physical treatment.
       valueSemantics:
-        PENDING: The disposition of the customer return line is pending; set it when that is what the business means for this record.
-        RESTOCK: The disposition of the customer return line is restock; set it when that is what the business means for this record.
-        QUARANTINE: The disposition of the customer return line is quarantine; set it when that is what the business means for this record.
-        REPAIR: The disposition of the customer return line is repair; set it when that is what the business means for this record.
-        SCRAP: The disposition of the customer return line is scrap; set it when that is what the business means for this record.
-        MIXED: The disposition of the customer return line is mixed; set it when that is what the business means for this record.
+        PENDING: Not yet decided; the goods wait for inspection.
+        RESTOCK: Put back into saleable stock.
+        QUARANTINE: Held apart until quality decides.
+        REPAIR: Sent for repair before it can be sold or returned to the customer.
+        SCRAP: Destroyed because it cannot be sold.
+        MIXED: Different units of the line go to different dispositions.
   - name: approvedCreditAmount
     type: Money
     required: false

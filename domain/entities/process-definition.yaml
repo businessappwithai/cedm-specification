@@ -23,9 +23,9 @@ entity:
     values: [DRAFT, PUBLISHED, RETIRED]
     help:
       summary: Whether the version may be used to start instances.
-      businessMeaning: Indicates current workflow/control usability.
       usage: Moved on by the process owner.
       relationshipContext: Only one version of a process should be published at a time.
+      businessMeaning: Whether the version may be used to start new instances.
       valueSemantics:
         DRAFT: Being designed; cannot start instances.
         PUBLISHED: In use for new instances.

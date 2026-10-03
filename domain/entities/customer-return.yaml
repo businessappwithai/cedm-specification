@@ -26,7 +26,6 @@ entity:
       usage: Used in return authorization, transport, receiving, inspection, credit and audit.
       relationshipContext: Distinct from customerReturnId, Shipment and CreditNote numbers.
       workflowRole: Provides operational reference throughout the return lifecycle.
-      requiredMeaning: Required for operational traceability.
   - name: status
     type: enum
     required: true

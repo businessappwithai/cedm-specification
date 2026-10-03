@@ -26,7 +26,6 @@ entity:
       usage: Used for logistics, supplier communication, investigation and reconciliation.
       relationshipContext: Distinct from the original purchase order, receipt and invoice numbers.
       workflowRole: Correlates operational return activity across systems.
-      requiredMeaning: Required for operational traceability.
   - name: status
     type: enum
     required: true

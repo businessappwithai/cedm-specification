@@ -15,17 +15,26 @@ entity:
       summary: The permanent system identifier of the fiscal period record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a fiscal period store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context., requiredMeaning: Required.}}
-  - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate., requiredMeaning: Required.}}
-  - {name: endDate, type: date, required: true, help: {summary: Last accounting date in period., businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context.}}
+  - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate.}}
+  - {name: endDate, type: date, required: true, help: {summary: Last accounting date in period., businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate.}}
   - name: status
     type: enum
     required: true
     default: OPEN
     values: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
-    help: {summary: Posting-control state., businessMeaning: Governs permitted accounting recognition and correction., usage: Journal validation and close., relationshipContext: Historical posted entries remain immutable., valueSemantics: {FUTURE: Not yet normally postable., OPEN: Normal posting allowed., SOFT_CLOSED: Restricted adjustment posting only., CLOSED: Ordinary posting prohibited., LOCKED: Administratively locked against posting/reopen without exceptional governance.}, requiredMeaning: Required.}
+    help: {summary: Posting-control state., businessMeaning: Governs permitted accounting recognition and correction., usage: Journal validation and close., relationshipContext: Historical posted entries remain immutable., valueSemantics: {FUTURE: Not yet normally postable., OPEN: Normal posting allowed., SOFT_CLOSED: Restricted adjustment posting only., CLOSED: Ordinary posting prohibited., LOCKED: Administratively locked against posting/reopen without exceptional governance.}}
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Accounting organization owning period., businessMeaning: Establishes books/control boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal organization must match.}}
+  - name: organization
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Accounting organization owning period.
+      businessMeaning: Establishes books/control boundary.
+      usage: Posting and reporting.
+      workflowRole: Journal organization must match.
+      cardinalityMeaning: Every fiscal period belongs to exactly one company's calendar.
   - {name: journalEntries, target: JournalEntry, cardinality: "0..*", ownership: reference, help: {summary: Accounting entries recognized in period., businessMeaning: Provides posting chronology., usage: "Close, reporting and audit.", cardinalityMeaning: Zero or many entries., workflowRole: Posted entry date must fall within boundaries and allowed state.}}
   invariants:
   - {id: FISCAL-PERIOD-001, rule: endDate must be on or after startDate.}

@@ -15,13 +15,40 @@ entity:
       summary: The permanent system identifier of the scrap record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a scrap store this identifier. The number or code people quote is a separate field.
-  - {name: scrapNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing scrap reference., businessMeaning: Operational identifier for production loss., usage: "Shop-floor reporting, quality, costing and audit.", relationshipContext: Distinct from inventory movement reference., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity classified as scrap., businessMeaning: Quantifies governed production loss or rejected material., usage: "Yield, variance, costing and inventory.", relationshipContext: Interpreted with Product/UOM/lot/serial context., requiredMeaning: Required.}}
-  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Governed reason for scrap., businessMeaning: Classifies why material/output was lost or rejected., usage: "Quality analysis, costing and continuous improvement.", relationshipContext: Should align with controlled reason taxonomy., requiredMeaning: Required.}}
-  - {name: scrappedAt, type: datetime, required: true, help: {summary: Effective scrap time., businessMeaning: Establishes production-loss chronology., usage: "Cost period, genealogy and audit.", relationshipContext: Must align with related execution evidence., requiredMeaning: Required.}}
+  - name: scrapNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The reference of the scrap record.
+      businessMeaning: Operational identifier for production loss.
+      usage: "Shop-floor reporting, quality, costing and audit."
+      relationshipContext: Distinct from inventory movement reference.
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity classified as scrap., businessMeaning: Quantifies governed production loss or rejected material., usage: "Yield, variance, costing and inventory.", relationshipContext: Interpreted with Product/UOM/lot/serial context.}}
+  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Governed reason for scrap., businessMeaning: Classifies why material/output was lost or rejected., usage: "Quality analysis, costing and continuous improvement.", relationshipContext: Should align with controlled reason taxonomy.}}
+  - {name: scrappedAt, type: datetime, required: true, help: {summary: Effective scrap time., businessMeaning: Establishes production-loss chronology., usage: "Cost period, genealogy and audit.", relationshipContext: Must align with related execution evidence.}}
   relationships:
-  - {name: workOrder, target: ManufacturingWorkOrder, cardinality: '1', ownership: reference, help: {summary: Production order under which scrap occurred., businessMeaning: Supplies production authorization and planned context., usage: Yield and variance reconciliation., cardinalityMeaning: Exactly one work order., workflowRole: Scrap contributes to completion reconciliation.}}
-  - {name: product, target: Product, cardinality: "1", ownership: reference, help: {summary: Material or output being scrapped., businessMeaning: Identifies the item affected., usage: "Inventory, costing, quality and analysis.", cardinalityMeaning: Exactly one Product., workflowRole: Must reconcile with work-order input/output context or approved exception.}}
+  - name: workOrder
+    target: ManufacturingWorkOrder
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Production order under which scrap occurred.
+      businessMeaning: Supplies production authorization and planned context.
+      usage: Yield and variance reconciliation.
+      workflowRole: Scrap contributes to completion reconciliation.
+      cardinalityMeaning: Every scrap record belongs to exactly one production order.
+  - name: product
+    target: Product
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: Material or output being scrapped.
+      businessMeaning: Identifies the item affected.
+      usage: "Inventory, costing, quality and analysis."
+      workflowRole: Must reconcile with work-order input/output context or approved exception.
+      cardinalityMeaning: Every scrap record is of exactly one product.
   - {name: lot, target: Lot, cardinality: "0..1", ownership: reference, help: {summary: Lot affected by scrap., businessMeaning: Preserves batch genealogy and disposition., usage: "Recall, quality and inventory.", cardinalityMeaning: Required under lot-control policy., workflowRole: Lot quantity/state must reconcile.}}
   - {name: serialNumbers, target: SerialNumber, cardinality: 0..*, ownership: reference, help: {summary: Serialized units scrapped., businessMeaning: Permanently records unit-level disposition., usage: Asset/service traceability and audit., cardinalityMeaning: Required under serialization policy., workflowRole: Scrapped serials cannot re-enter available inventory without explicit corrective governance.}, inverseCardinality: 0..*}
   - {name: nonconformance, target: Nonconformance, cardinality: "0..1", ownership: reference, help: {summary: Quality nonconformance explaining scrap when applicable., businessMeaning: Connects loss to controlled defect evidence., usage: "Quality, CAPA and supplier/process analysis.", cardinalityMeaning: Optional where scrap is not quality-driven., workflowRole: Quality closure remains separate from inventory posting.}}

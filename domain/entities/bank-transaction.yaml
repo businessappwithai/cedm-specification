@@ -29,7 +29,6 @@ entity:
       usage: Used for search, duplicate detection, reconciliation, investigation, and bank-feed integration.
       relationshipContext: Must not be assumed to equal Payment.paymentNumber.
       workflowRole: Provides a primary external reference for candidate matching.
-      requiredMeaning: Required for operational traceability.
   - name: transactionDate
     type: datetime
     required: true

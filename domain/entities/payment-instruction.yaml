@@ -23,9 +23,9 @@ entity:
     values: [DRAFT, APPROVED, SENT, EXECUTED, REJECTED, CANCELLED]
     help:
       summary: Where the instruction stands.
-      businessMeaning: Indicates usability/execution state of PaymentInstruction.
       usage: Moved on by approval, transmission and the bank's reports.
       relationshipContext: Only approved instructions may be sent.
+      businessMeaning: Where the instruction is between preparation and the bank's confirmation.
       valueSemantics:
         DRAFT: Prepared, waiting for approval.
         APPROVED: Approved for release.

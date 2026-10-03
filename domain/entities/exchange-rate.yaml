@@ -111,10 +111,10 @@ entity:
       workflowRole: Prevents use of draft, cancelled, or expired rates where policy does not permit them.
       requiredMeaning: Required for controlled rate selection.
       valueSemantics:
-        DRAFT: The status of the exchange rate is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the exchange rate is active; set it when that is what the business means for this record.
-        EXPIRED: The status of the exchange rate is expired; set it when that is what the business means for this record.
-        CANCELLED: The status of the exchange rate is cancelled; set it when that is what the business means for this record.
+        DRAFT: Entered, not yet confirmed for use.
+        ACTIVE: Used to convert amounts on its date.
+        EXPIRED: Replaced by a later rate; kept for the transactions that used it.
+        CANCELLED: Entered in error and never used.
   relationships:
   - name: fromCurrencyRef
     target: Currency

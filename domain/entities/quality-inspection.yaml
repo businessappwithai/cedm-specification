@@ -20,11 +20,11 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing inspection reference., businessMeaning: Identifies the inspection in quality operations and audit., usage: "Quality records, supplier disputes and reporting.", relationshipContext: Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber., workflowRole: Provides human-recognizable traceability., requiredMeaning: Required.}
+    help: {summary: Business-facing inspection reference., businessMeaning: Identifies the inspection in quality operations and audit., usage: "Quality records, supplier disputes and reporting.", relationshipContext: Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber., workflowRole: Provides human-recognizable traceability.}
   - name: inspectionDate
     type: datetime
     required: true
-    help: {summary: Date and time inspection was performed or initiated., businessMeaning: Establishes quality chronology., usage: "Audit, release, supplier performance and compliance.", relationshipContext: May occur after receipt or return authorization and before final disposition., workflowRole: Anchors inspection evidence., requiredMeaning: Required.}
+    help: {summary: Date and time inspection was performed or initiated., businessMeaning: Establishes quality chronology., usage: "Audit, release, supplier performance and compliance.", relationshipContext: May occur after receipt or return authorization and before final disposition., workflowRole: Anchors inspection evidence.}
   - name: status
     type: enum
     required: true
@@ -42,7 +42,6 @@ entity:
       usage: Controls release and disposition workflows.
       relationshipContext: Inspection status is independent of sample status, receipt/return status, and inventory state.
       workflowRole: PASSED/FAILED/CONDITIONAL controls eligible disposition.
-      requiredMeaning: Required.
       valueSemantics:
         OPEN: The status of the quality inspection is open; set it when that is what the business means for this record.
         IN_PROGRESS: The status of the quality inspection is in progress; set it when that is what the business means for this record.
@@ -104,7 +103,7 @@ entity:
     type: string
     required: false
     maxLength: 4000
-    help: {summary: Inspection observations and supporting context., businessMeaning: Records qualitative evidence not represented by structured measurements., usage: "Quality review, supplier disputes and audit.", relationshipContext: "Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence.", workflowRole: Supports disposition decisions., optionalMeaning: Optional.}
+    help: {summary: Inspection observations and supporting context., businessMeaning: Records qualitative evidence not represented by structured measurements., usage: "Quality review, supplier disputes and audit.", relationshipContext: "Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence.", workflowRole: Supports disposition decisions.}
   relationships:
   - name: qualityPlan
     target: QualityPlan

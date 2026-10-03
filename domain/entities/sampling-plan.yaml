@@ -25,21 +25,19 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Business code identifying the sampling plan.
+      summary: The code of the sampling plan, such as AQL-2.5-II.
       businessMeaning: Provides a stable operational reference for a governed sampling definition.
       usage: Plan selection, inspection authoring, reports, and integrations.
       relationshipContext: Identifies the sampling definition rather than an individual sample or inspection.
-      requiredMeaning: Required.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: Human-readable name of the sampling plan.
+      summary: The name of the plan, such as "AQL 2.5, general inspection level II".
       businessMeaning: Explains the purpose of the sampling strategy.
       usage: Quality authoring, inspection execution, training, reporting, and audit.
       relationshipContext: Describes the overall sampling definition whose detailed rules are represented by SamplingRule.
-      requiredMeaning: Required.
   - name: method
     type: enum
     required: true
@@ -57,14 +55,13 @@ entity:
         FIXED_SIZE: A fixed number of units is selected.
         PERCENTAGE: A defined proportion of the population is selected.
         ACCEPTANCE_SAMPLING: Sample size and acceptance/rejection criteria are governed by an acceptance-sampling scheme.
-      requiredMeaning: Required.
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
     help:
-      summary: Lifecycle state of the sampling plan.
+      summary: Whether the plan may be used for new inspections.
       businessMeaning: Controls whether the sampling definition may be assigned to new governed inspections.
       usage: Governance, authoring, inspection planning, and retirement.
       relationshipContext: Retirement preserves historical inspection evidence and does not invalidate completed samples.
@@ -73,7 +70,6 @@ entity:
         ACTIVE: Approved for governed sampling.
         SUSPENDED: Temporarily unavailable for new use.
         RETIRED: No longer normally assigned to new inspections but retained for history.
-      requiredMeaning: Required.
   relationships:
   - name: qualityPlans
     target: QualityPlan

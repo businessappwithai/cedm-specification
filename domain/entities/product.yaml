@@ -24,7 +24,6 @@ entity:
       summary: 'The code of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a product cannot be understood without its code.'
   - name: name
     type: string
     required: true
@@ -33,7 +32,6 @@ entity:
       summary: 'The name of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: 'Required: a product cannot be understood without its name.'
   - name: description
     type: string
     required: false
@@ -50,7 +48,6 @@ entity:
       summary: "The product type of the product: a value the business records on it."
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a product cannot be understood without its product type."
       valueSemantics:
         GOOD: The product type of the product is good; set it when that is what the business means for this record.
         MATERIAL: The product type of the product is material; set it when that is what the business means for this record.
@@ -68,7 +65,6 @@ entity:
       summary: "The status of the product: a value the business records on it."
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a product cannot be understood without its status."
       valueSemantics:
         DRAFT: The status of the product is draft; set it when that is what the business means for this record.
         ACTIVE: The status of the product is active; set it when that is what the business means for this record.

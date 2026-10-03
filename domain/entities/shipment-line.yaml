@@ -15,17 +15,45 @@ entity:
       summary: The permanent system identifier of the shipment line record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a shipment line store this identifier. The number or code people quote is a separate field.
-  - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Sequence within the shipment., businessMeaning: Human-facing reference for shipped material., usage: "Packing, carrier documents, delivery, and audit.", relationshipContext: Unique within Shipment., requiredMeaning: Required.}}
-  - {name: plannedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity planned for logistics execution., businessMeaning: Defines intended transport quantity before dispatch., usage: "Allocation, packing, capacity, and fulfillment.", relationshipContext: Must be compatible with product/UOM and eligible source demand., requiredMeaning: Required.}}
-  - {name: dispatchedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity physically dispatched., businessMeaning: Records logistics execution quantity., usage: Fulfillment and inventory reconciliation., relationshipContext: Must reconcile with attributable issue/transfer movements., requiredMeaning: Required.}}
-  - {name: deliveredQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity evidenced as delivered., businessMeaning: Records transport completion at line level., usage: "Delivery confirmation, fulfillment, claims, and service.", relationshipContext: Delivery evidence does not itself post inventory or settle invoices., requiredMeaning: Required.}}
+  - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Sequence within the shipment., businessMeaning: Human-facing reference for shipped material., usage: "Packing, carrier documents, delivery, and audit.", relationshipContext: Unique within Shipment.}}
+  - {name: plannedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity planned for logistics execution., businessMeaning: Defines intended transport quantity before dispatch., usage: "Allocation, packing, capacity, and fulfillment.", relationshipContext: Must be compatible with product/UOM and eligible source demand.}}
+  - {name: dispatchedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity physically dispatched., businessMeaning: Records logistics execution quantity., usage: Fulfillment and inventory reconciliation., relationshipContext: Must reconcile with attributable issue/transfer movements.}}
+  - {name: deliveredQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Quantity evidenced as delivered., businessMeaning: Records transport completion at line level., usage: "Delivery confirmation, fulfillment, claims, and service.", relationshipContext: Delivery evidence does not itself post inventory or settle invoices.}}
   relationships:
-  - {name: shipment, target: Shipment, cardinality: "1", ownership: reference, inverse: lines, help: {summary: Parent logistics movement., businessMeaning: "Supplies route, carrier, type, and lifecycle.", usage: Transport execution., cardinalityMeaning: Exactly one shipment., workflowRole: Controls dispatch and delivery progression.}}
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being transported., businessMeaning: Identifies material represented by quantities., usage: Fulfillment and inventory traceability., cardinalityMeaning: Exactly one product., workflowRole: Must reconcile with source order and inventory events.}}
+  - name: shipment
+    target: Shipment
+    cardinality: "1"
+    ownership: reference
+    inverse: lines
+    help:
+      summary: Parent logistics movement.
+      businessMeaning: "Supplies route, carrier, type, and lifecycle."
+      usage: Transport execution.
+      workflowRole: Controls dispatch and delivery progression.
+      cardinalityMeaning: Every line belongs to exactly one shipment.
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Product being transported.
+      businessMeaning: Identifies material represented by quantities.
+      usage: Fulfillment and inventory traceability.
+      workflowRole: Must reconcile with source order and inventory events.
+      cardinalityMeaning: Every line ships exactly one product.
   - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference, help: {summary: Unit qualifying shipment quantities., businessMeaning: Gives quantity semantics., usage: "Conversion, fulfillment, and audit.", cardinalityMeaning: Optional when inherited unambiguously., workflowRole: Must be compatible with product and source transaction.}}
   - {name: salesOrderLine, target: SalesOrderLine, cardinality: 0..1, ownership: reference, help: {summary: Outbound demand fulfilled by this line., businessMeaning: Preserves exact sales fulfillment provenance., usage: Order fulfillment and customer service., cardinalityMeaning: Optional for non-sales shipments., workflowRole: Delivered/dispatched quantities contribute only through governed fulfillment.}}
   - {name: purchaseOrderLine, target: PurchaseOrderLine, cardinality: 0..1, ownership: reference, help: {summary: Inbound procurement commitment represented by this line., businessMeaning: Preserves expected inbound provenance., usage: Receiving and supplier performance., cardinalityMeaning: Optional for non-procurement shipments., workflowRole: Arrival remains distinct from GoodsReceipt acceptance.}}
-  - {name: inventoryMovements, target: InventoryMovement, cardinality: "0..*", ownership: reference, help: {summary: Inventory ledger effects attributable to this logistics line., businessMeaning: Separates transport evidence from authoritative stock changes., usage: Reconciliation and audit., cardinalityMeaning: "Multiple movements may support dispatch, transfer, receipt, or reversal.", workflowRole: Posted movements remain inventory truth.}}
+  - name: inventoryMovements
+    target: InventoryMovement
+    cardinality: "0..*"
+    ownership: reference
+    help:
+      summary: Inventory ledger effects attributable to this logistics line.
+      businessMeaning: Separates transport evidence from authoritative stock changes.
+      cardinalityMeaning: "Multiple movements may support dispatch, transfer, receipt, or reversal."
+      workflowRole: Posted movements remain inventory truth.
+      usage: Listed so the shipped quantity can be reconciled to the stock that left.
   invariants:
   - {id: SHIPMENT-LINE-001, rule: plannedQuantity must be greater than zero and dispatchedQuantity and deliveredQuantity must not be negative.}
   - {id: SHIPMENT-LINE-002, rule: deliveredQuantity must not exceed dispatchedQuantity except under an explicitly modeled inbound or correction workflow.}

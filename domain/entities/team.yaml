@@ -60,7 +60,7 @@ entity:
     help:
       summary: The shared mailbox of the team.
       usage: Used for notifications sent to the team.
-      relationshipContext: Optional.
+      relationshipContext: Notifications to the team go here instead of to each member.
   - name: status
     type: enum
     required: true

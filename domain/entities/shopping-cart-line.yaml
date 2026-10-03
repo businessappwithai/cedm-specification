@@ -93,10 +93,10 @@ entity:
   help:
     summary: Represents a ecommerce detail entity called ShoppingCartLine within the CEDM business model.
     businessMeaning: ShoppingCartLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate ShoppingCartLine records.
     relationshipContext: The entity participates in a wider business graph through relationships with ShoppingCart, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical ShoppingCartLine record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Created when a shopper adds a product to their cart; changed as they change quantity or remove it; copied to the order line at checkout.
+    lifecycle: A cart line lives as long as its cart; it is copied onto the order at checkout and is not edited afterwards.
+    example: "Line 2 of a web cart: 3 × 'Garden hose 25 m' at 24.90 EUR = 74.70 EUR, added 2 June 21:10."
 specification:
   version: 0.1.0
   status: draft

@@ -28,7 +28,7 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing customer business code., usage: Used in orders invoices statements integrations and communication., relationshipContext: Distinct from customerId and external legal identifiers., workflowRole: Supports customer selection and transaction recognition., requiredMeaning: Required for operational identification.}
+    help: {summary: Human-facing customer business code., usage: Used in orders invoices statements integrations and communication., relationshipContext: Distinct from customerId and external legal identifiers., workflowRole: Supports customer selection and transaction recognition.}
   - name: customerType
     type: enum
     required: false

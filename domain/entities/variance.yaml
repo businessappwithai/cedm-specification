@@ -126,11 +126,11 @@ entity:
     ownership: reference
     help:
       summary: The company or unit compared.
-      businessMeaning: Defines management/reporting boundary.
-      workflowRole: References must use compatible organization context.
       usage: Set by the calculation.
       cardinalityMeaning: Every variance is for one organization.
       context: Variances roll up the organization hierarchy.
+      businessMeaning: The company or unit whose figures are compared.
+      workflowRole: Variances of a group's companies roll up into the group's.
   - name: budget
     target: Budget
     cardinality: 0..1

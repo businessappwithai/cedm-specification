@@ -28,12 +28,12 @@ entity:
     target: ExchangeRate
     required: false
     immutable: true
-    help: {summary: Exchange-rate evidence used when debit and invoice currencies differ., businessMeaning: Provides reproducible conversion between application currencies., usage: "Accounting, tax, reconciliation and audit.", relationshipContext: Required for cross-currency application under policy., workflowRole: Determines the conversion used for invoiceAmount., optionalMeaning: Optional when currencies are identical.}
+    help: {summary: Exchange-rate evidence used when debit and invoice currencies differ., businessMeaning: Provides reproducible conversion between application currencies., usage: "Accounting, tax, reconciliation and audit.", relationshipContext: Required for cross-currency application under policy., workflowRole: Determines the conversion used for invoiceAmount.}
   - name: appliedAt
     type: datetime
     required: true
     immutable: true
-    help: {summary: Time the debit application became effective., businessMeaning: Establishes settlement chronology., usage: "Period control, audit, supplier statements and reconciliation.", workflowRole: Anchors the application event., requiredMeaning: Required.}
+    help: {summary: Time the debit application became effective., businessMeaning: Establishes settlement chronology., usage: "Period control, audit, supplier statements and reconciliation.", workflowRole: Anchors the application event.}
   - name: status
     type: enum
     required: true
@@ -49,12 +49,11 @@ entity:
       usage: Controls payable projections and remaining debit balance.
       relationshipContext: Application status does not replace SupplierDebitNote or Invoice status.
       workflowRole: ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence.
-      requiredMeaning: Required.
       valueSemantics:
-        DRAFT: The status of the supplier debit note application is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the supplier debit note application is active; set it when that is what the business means for this record.
-        REVERSED: The status of the supplier debit note application is reversed; set it when that is what the business means for this record.
-        CANCELLED: The status of the supplier debit note application is cancelled; set it when that is what the business means for this record.
+        DRAFT: Proposed, not yet applied.
+        ACTIVE: Applied; it reduces what we owe on the invoice.
+        REVERSED: Undone after being applied.
+        CANCELLED: Withdrawn before it was applied.
   - name: reversalOfApplicationId
     type: reference
     target: SupplierDebitNoteApplication

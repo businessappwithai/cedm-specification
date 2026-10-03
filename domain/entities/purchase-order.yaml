@@ -20,7 +20,7 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing procurement reference., usage: "Used by buyers, suppliers, receiving, accounts payable and integrations.", relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems., requiredMeaning: Required for operational traceability.}
+    help: {summary: Human-facing procurement reference., usage: "Used by buyers, suppliers, receiving, accounts payable and integrations.", relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems.}
   - name: orderDate
     type: datetime
     required: true

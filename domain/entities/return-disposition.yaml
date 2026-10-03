@@ -34,7 +34,6 @@ entity:
       usage: Drives warehouse execution, quality containment and eligibility for inventory availability.
       relationshipContext: The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote.
       workflowRole: Determines which downstream physical workflow is permitted.
-      requiredMeaning: Required.
       valueSemantics:
         RESTOCK: The disposition code of the return disposition is restock; set it when that is what the business means for this record.
         QUARANTINE: The disposition code of the return disposition is quarantine; set it when that is what the business means for this record.
@@ -49,7 +48,7 @@ entity:
     type: datetime
     required: true
     immutable: true
-    help: {summary: Timestamp when the disposition became effective., businessMeaning: Establishes chronology for the physical return decision., usage: "Supports audit, warehouse processing, SLA measurement and reconciliation.", relationshipContext: "Distinct from returnDate, receiptDate and financial adjustment dates.", workflowRole: Anchors execution of the disposition., requiredMeaning: Required.}
+    help: {summary: Timestamp when the disposition became effective., businessMeaning: Establishes chronology for the physical return decision., usage: "Supports audit, warehouse processing, SLA measurement and reconciliation.", relationshipContext: "Distinct from returnDate, receiptDate and financial adjustment dates.", workflowRole: Anchors execution of the disposition.}
   - name: quantity
     type: decimal
     required: true
@@ -70,7 +69,6 @@ entity:
       usage: Controls whether downstream inventory execution is permitted.
       relationshipContext: Does not replace CustomerReturn, SupplierReturn or QualityInspection status.
       workflowRole: EXECUTED requires attributable physical evidence where the disposition changes inventory.
-      requiredMeaning: Required.
       valueSemantics:
         DRAFT: The status of the return disposition is draft; set it when that is what the business means for this record.
         AUTHORIZED: The status of the return disposition is authorized; set it when that is what the business means for this record.

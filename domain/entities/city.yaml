@@ -16,8 +16,8 @@ entity:
       summary: The permanent system identifier of the city record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a city store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, unique: true, maxLength: 80, help: {summary: "The city's code: its country code and its name in capitals, such as FR-PARIS.", usage: "Quoted beside the name in lists; integration with other systems.", relationshipContext: "Unique; the country prefix keeps cities of one name in different countries apart.", requiredMeaning: "Required."}}
-  - {name: name, type: string, required: true, maxLength: 200, help: {summary: "The city's name in English.", usage: "Shown in lists and on addresses.", relationshipContext: "Not unique: two countries can have a city of one name.", requiredMeaning: "Required."}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 80, help: {summary: "The city's code: its country code and its name in capitals, such as FR-PARIS.", usage: "Quoted beside the name in lists; integration with other systems.", relationshipContext: "Unique; the country prefix keeps cities of one name in different countries apart."}}
+  - {name: name, type: string, required: true, maxLength: 200, help: {summary: "The city's name in English.", usage: "Shown in lists and on addresses.", relationshipContext: "Not unique: two countries can have a city of one name."}}
   - {name: population, type: integer, required: false, help: {summary: "The registry's population figure.", usage: "Ordering and sizing; not a current census count.", relationshipContext: "Describes the city only."}}
   - {name: latitude, type: decimal, required: false, help: {summary: "Latitude in degrees, north positive.", usage: "Maps and distance.", relationshipContext: "Describes the city only."}}
   - {name: longitude, type: decimal, required: false, help: {summary: "Longitude in degrees, east positive.", usage: "Maps and distance.", relationshipContext: "Describes the city only."}}
@@ -30,11 +30,10 @@ entity:
   - {id: CITY-001, rule: "A city belongs to one country, and its state or province, where stated, is a division of that country."}
   help:
     summary: "A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province."
-    purpose: "Give every application the same governed list, so a place or code means one thing across the enterprise."
-    businessMeaning: "A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province."
-    whenUsed: "Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes."
     howItRelates: "Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country)."
-    lifecycleUsage: "Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it."
-    commonProcesses: "Address capture, party onboarding, tax and trade determination, reporting."
     commonExamples: "A shipping address in a named city, state and country."
+    businessMeaning: A shared list of cities lets every address, site and report name a place the same way, so that deliveries, tax rules and statistics by city agree across the business.
+    usage: The list comes from GeoNames and is extended by an administrator when an address needs a city it does not hold; records choose their city from it.
+    lifecycle: Reference data. A city that is no longer used is retired rather than deleted, so addresses that name it keep their meaning.
+    workflowContext: Address capture, party onboarding, delivery routing, local tax determination and reporting by place.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-CITY}

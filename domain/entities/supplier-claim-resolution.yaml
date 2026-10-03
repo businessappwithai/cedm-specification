@@ -15,8 +15,8 @@ entity:
       summary: The permanent system identifier of the supplier claim resolution record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a supplier claim resolution store this identifier. The number or code people quote is a separate field.
-  - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing resolution reference., businessMeaning: Identifies the resolution decision for operational and supplier communication., usage: Used in approvals correspondence reconciliation and audit., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity., requiredMeaning: Required.}}
-  - {name: resolutionDate, type: datetime, required: true, help: {summary: Date and time the resolution was authorized., businessMeaning: Establishes when the agreed remedy became effective., usage: SLA reporting audit and financial control., workflowRole: Anchors downstream execution., requiredMeaning: Required.}}
+  - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing resolution reference., businessMeaning: Identifies the resolution decision for operational and supplier communication., usage: Used in approvals correspondence reconciliation and audit., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity.}}
+  - {name: resolutionDate, type: datetime, required: true, help: {summary: Date and time the resolution was authorized., businessMeaning: Establishes when the agreed remedy became effective., usage: SLA reporting audit and financial control., workflowRole: Anchors downstream execution.}}
   - name: resolutionType
     type: enum
     required: true
@@ -36,7 +36,6 @@ entity:
       usage: Routes downstream workflows and measures recovery outcomes.
       relationshipContext: RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require SupplierDebitNote; CASH_RECOVERY may require Payment.
       workflowRole: Determines required execution evidence.
-      requiredMeaning: Required.
       valueSemantics:
         NO_ACTION: The resolution type of the supplier claim resolution is no action; set it when that is what the business means for this record.
         REPLACEMENT: The resolution type of the supplier claim resolution is replacement; set it when that is what the business means for this record.
@@ -65,7 +64,6 @@ entity:
       usage: Controls downstream work and claim closure.
       relationshipContext: Resolution status does not replace SupplierClaim or downstream transaction statuses.
       workflowRole: Gates execution and confirms whether required consequences completed.
-      requiredMeaning: Required.
       valueSemantics:
         DRAFT: The status of the supplier claim resolution is draft; set it when that is what the business means for this record.
         APPROVED: The status of the supplier claim resolution is approved; set it when that is what the business means for this record.

@@ -70,7 +70,7 @@ entity:
     help:
       summary: The brand's website.
       usage: Linked from product pages.
-      relationshipContext: Optional.
+      relationshipContext: Linked from product pages so shoppers can read more about the brand.
   relationships:
   - name: products
     target: Product

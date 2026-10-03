@@ -64,7 +64,6 @@ entity:
       businessMeaning: Preserves the original transaction discount treatment.
       usage: Supports reproducibility and reconciliation.
       workflowRole: Reduces the applicable credit base.
-      requiredMeaning: Required, including zero.
   - name: taxableAmount
     type: Money
     required: true
@@ -83,7 +82,6 @@ entity:
       businessMeaning: Reverses or adjusts tax associated with the credited amount.
       usage: Supports tax reporting and accounting.
       workflowRole: Contributes to line total.
-      requiredMeaning: Required, including zero.
   - name: netAmount
     type: Money
     required: true
@@ -92,7 +90,6 @@ entity:
       businessMeaning: Represents the payable reduction attributable to the line.
       usage: Feeds SupplierCreditNote totals and payable reconciliation.
       workflowRole: Authoritative line contribution to the credit.
-      requiredMeaning: Required.
   relationships:
   - name: supplierCreditNote
     target: SupplierCreditNote

@@ -29,7 +29,6 @@ entity:
       businessMeaning: Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting.
       usage: Labels, searches, laboratory workflows, reports, integrations, and audit.
       relationshipContext: Identifies the Sample rather than the Experiment or Compound associated with it.
-      requiredMeaning: Required for operational identification.
   - name: sampleType
     type: enum
     required: true

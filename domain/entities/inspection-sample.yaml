@@ -29,7 +29,6 @@ entity:
       businessMeaning: Provides an operational reference for labeling, handling, testing, and audit.
       usage: Inspection execution, laboratory handling, reports, and traceability.
       relationshipContext: Identifies the executed sample rather than the sampling policy or parent inspection.
-      requiredMeaning: Required.
   - name: selectedAt
     type: datetime
     required: true
@@ -38,7 +37,6 @@ entity:
       businessMeaning: Establishes when the actual sampling event occurred.
       usage: Chain of custody, audit, reproducibility, and inspection chronology.
       relationshipContext: Distinct from QualityInspection.inspectionDate and measuredAt on QualityMeasurement.
-      requiredMeaning: Required.
   - name: quantity
     type: decimal
     required: true
@@ -49,7 +47,6 @@ entity:
       businessMeaning: States how much material or how many units the sample represents under its unit of measure.
       usage: Sample reconciliation, measurement scope, inventory traceability, and audit.
       relationshipContext: Must reconcile with the eligible inspection population and sample-selection rule.
-      requiredMeaning: Required.
   - name: unitOfMeasure
     type: reference
     target: UnitOfMeasure
@@ -59,7 +56,6 @@ entity:
       businessMeaning: Gives semantic meaning to the selected sample quantity.
       usage: Reconciliation, reporting, conversion, and audit.
       relationshipContext: Must be compatible with the source population and governing sampling configuration.
-      requiredMeaning: Required.
   - name: status
     type: enum
     required: true
@@ -77,7 +73,6 @@ entity:
         REJECTED: Sample itself was rejected or invalidated for the governed purpose.
         DISPOSED: Sample has been physically disposed of under an authorized process.
         CANCELLED: Sample selection was cancelled under controlled workflow.
-      requiredMeaning: Required.
   - name: selectionBasis
     type: string
     required: false

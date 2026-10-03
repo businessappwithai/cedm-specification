@@ -28,7 +28,6 @@ entity:
       summary: Captures the business meaning of service number for the TelecomService. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where applicable.
       relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: serviceType
     type: enum
     required: true
@@ -52,7 +51,6 @@ entity:
         DATA: Represents the data state or classification in the context of TelecomService.
         IOT: Represents the iot state or classification in the context of TelecomService.
         OTHER: Represents the other state or classification in the context of TelecomService.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -71,7 +69,6 @@ entity:
         ACTIVE: Represents the active state or classification in the context of TelecomService.
         SUSPENDED: Represents the suspended state or classification in the context of TelecomService.
         TERMINATED: Represents the terminated state or classification in the context of TelecomService.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: activationDate
     type: date
     required: false
@@ -79,7 +76,6 @@ entity:
       summary: Records the business date associated with the activation. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where applicable.
       relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: terminationDate
     type: date
     required: false
@@ -87,7 +83,6 @@ entity:
       summary: Records the business date associated with the termination. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating TelecomService records, where applicable.
       relationshipContext: Its meaning is specific to TelecomService; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
   - name: customer
     target: Customer

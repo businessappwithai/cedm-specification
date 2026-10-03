@@ -15,7 +15,7 @@ entity:
       summary: The permanent system identifier of the lot record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a lot store this identifier. The number or code people quote is a separate field.
-  - {name: lotNumber, type: string, required: true, maxLength: 150, help: {summary: Business-facing lot or batch identifier., businessMeaning: Traceability code used operationally and externally., usage: "Receiving, labels, picking, quality, recall, and certificates.", relationshipContext: Uniqueness is governed with Product and organizational policy., requiredMeaning: Required.}}
+  - {name: lotNumber, type: string, required: true, maxLength: 150, help: {summary: Business-facing lot or batch identifier., businessMeaning: Traceability code used operationally and externally., usage: "Receiving, labels, picking, quality, recall, and certificates.", relationshipContext: Uniqueness is governed with Product and organizational policy.}}
   - {name: manufacturedAt, type: datetime, required: false, help: {summary: Time the lot was manufactured or produced., businessMeaning: Anchors production age and provenance., usage: "Shelf-life, quality, genealogy, and recall.", relationshipContext: Distinct from receipt date., optionalMeaning: Optional when unknown or not applicable.}}
   - {name: expiresAt, type: datetime, required: false, help: {summary: Expiry or use-by time for the lot., businessMeaning: Controls eligibility where shelf life applies., usage: "FEFO allocation, quarantine, disposal, and compliance.", relationshipContext: Does not itself post inventory movement., optionalMeaning: Optional for non-expiring products.}}
   - name: status
@@ -23,9 +23,18 @@ entity:
     required: true
     default: ACTIVE
     values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
-    help: {summary: Governed usability state of the lot., businessMeaning: Controls allocation and operational eligibility while preserving stock history., usage: "Quality release, warehouse allocation, production, recall, and disposition.", relationshipContext: Status restrictions affect availability but do not rewrite movement history., valueSemantics: {ACTIVE: Operationally recognized., HOLD: Temporarily restricted., QUARANTINED: Segregated pending decision., RELEASED: Approved for governed use., EXPIRED: Past governed shelf life., REJECTED: Not approved for intended use., CONSUMED: Quantity fully consumed under tracked processes., CLOSED: Traceability lifecycle closed.}, requiredMeaning: Required.}
+    help: {summary: Governed usability state of the lot., businessMeaning: Controls allocation and operational eligibility while preserving stock history., usage: "Quality release, warehouse allocation, production, recall, and disposition.", relationshipContext: Status restrictions affect availability but do not rewrite movement history., valueSemantics: {ACTIVE: Operationally recognized., HOLD: Temporarily restricted., QUARANTINED: Segregated pending decision., RELEASED: Approved for governed use., EXPIRED: Past governed shelf life., REJECTED: Not approved for intended use., CONSUMED: Quantity fully consumed under tracked processes., CLOSED: Traceability lifecycle closed.}}
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product represented by this lot., businessMeaning: Defines item identity for all lot quantities., usage: Inventory and quality validation., cardinalityMeaning: Exactly one Product., workflowRole: Movements and balances must use the same product.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Product represented by this lot.
+      businessMeaning: Defines item identity for all lot quantities.
+      usage: Inventory and quality validation.
+      workflowRole: Movements and balances must use the same product.
+      cardinalityMeaning: Every lot is of exactly one product.
   - {name: inventoryBalances, target: InventoryBalance, cardinality: "0..*", ownership: reference, help: {summary: Current stock projections segmented by this lot., businessMeaning: Shows where lot quantity is currently held., usage: "Availability, allocation, recall, and reconciliation.", cardinalityMeaning: A lot may exist across many locations., workflowRole: Derived from lot-attributed inventory events.}}
   - {name: inventoryMovements, target: InventoryMovement, cardinality: "0..*", ownership: reference, help: {summary: Inventory events carrying this lot identity., businessMeaning: Historical ledger for lot quantity movement., usage: "Genealogy, recall, reconciliation, and audit.", cardinalityMeaning: Many events may affect a lot., workflowRole: Authoritative physical quantity history.}}
   invariants:

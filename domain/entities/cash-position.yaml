@@ -15,14 +15,43 @@ entity:
       summary: The permanent system identifier of the cash position record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a cash position store this identifier. The number or code people quote is a separate field.
-  - {name: asOf, type: datetime, required: true, help: {summary: Effective timestamp of position., businessMeaning: Defines evidence cutoff., usage: Intraday/end-of-day liquidity., relationshipContext: Transactions after cutoff are excluded., requiredMeaning: Required.}}
-  - {name: ledgerBalance, type: Money, required: true, help: {summary: Account balance recognized at cutoff under position policy., businessMeaning: Baseline cash amount., usage: Treasury reporting., relationshipContext: Must be reproducible from authoritative evidence., requiredMeaning: Required.}}
-  - {name: availableBalance, type: Money, required: true, help: {summary: Cash considered available for use at cutoff., businessMeaning: Liquidity available after restrictions/pending effects under policy., usage: Funding and payment decisions., relationshipContext: Currency must match account/position currency., requiredMeaning: Required.}}
+  - {name: asOf, type: datetime, required: true, help: {summary: Effective timestamp of position., businessMeaning: Defines evidence cutoff., usage: Intraday/end-of-day liquidity., relationshipContext: Transactions after cutoff are excluded.}}
+  - {name: ledgerBalance, type: Money, required: true, help: {summary: Account balance recognized at cutoff under position policy., businessMeaning: Baseline cash amount., usage: Treasury reporting., relationshipContext: Must be reproducible from authoritative evidence.}}
+  - {name: availableBalance, type: Money, required: true, help: {summary: Cash considered available for use at cutoff., businessMeaning: Liquidity available after restrictions/pending effects under policy., usage: Funding and payment decisions., relationshipContext: Currency must match account/position currency.}}
   - {name: forecastBalance, type: Money, required: false, help: {summary: Projected cash after included future inflows/outflows., businessMeaning: "Forward liquidity estimate, not posted cash.", usage: Treasury planning., relationshipContext: Must identify forecast policy/horizon externally or through consuming process., optionalMeaning: Optional when no forecast is calculated.}}
   relationships:
-  - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account positioned., businessMeaning: Defines cash account context., usage: Treasury and reconciliation., cardinalityMeaning: Exactly one BankAccount., workflowRole: Account status/currency constrain calculation.}}
-  - {name: bankTransactions, target: BankTransaction, cardinality: 0..*, ownership: reference, help: {summary: Bank evidence included in snapshot., businessMeaning: Supports reproducibility of observed cash., usage: Reconciliation and audit., cardinalityMeaning: Zero or many transactions depending on calculation window., workflowRole: Reversed/failed evidence handled according to policy.}, inverseCardinality: 0..*}
-  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Internal settlement events included in available/forecast treatment., businessMeaning: Adds pending recognized inflow/outflow context., usage: Liquidity forecasting., cardinalityMeaning: Zero or many Payments., workflowRole: Payment state determines inclusion semantics.}, inverseCardinality: 0..*}
+  - name: bankAccount
+    target: BankAccount
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Bank account positioned.
+      businessMeaning: Defines cash account context.
+      usage: Treasury and reconciliation.
+      workflowRole: Account status/currency constrain calculation.
+      cardinalityMeaning: Every position is for exactly one bank account.
+  - name: bankTransactions
+    target: BankTransaction
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Bank evidence included in snapshot.
+      businessMeaning: Supports reproducibility of observed cash.
+      cardinalityMeaning: Zero or many transactions depending on calculation window.
+      workflowRole: Reversed/failed evidence handled according to policy.
+      usage: Listed so that the position can be reconciled to the bank statement lines it includes.
+    inverseCardinality: 0..*
+  - name: payments
+    target: Payment
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Internal settlement events included in available/forecast treatment.
+      businessMeaning: Adds pending recognized inflow/outflow context.
+      usage: Liquidity forecasting.
+      workflowRole: Payment state determines inclusion semantics.
+      cardinalityMeaning: A position includes any number of payments, and a payment counts in many positions over time.
+    inverseCardinality: 0..*
   invariants:
   - {id: CASH-POSITION-001, rule: "CashPosition is derived/snapshot information and must not directly post BankTransaction, Payment or JournalEntry."}
   - {id: CASH-POSITION-002, rule: All Money values must use currency compatible with BankAccount or explicit governed conversion policy.}

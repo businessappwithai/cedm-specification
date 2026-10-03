@@ -27,7 +27,6 @@ entity:
       summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
       relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: name
     type: string
     required: true
@@ -36,7 +35,6 @@ entity:
       summary: The human-readable name used by people, reports, searches, and related business processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
       relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: accountType
     type: enum
     required: true
@@ -58,7 +56,6 @@ entity:
         REVENUE: Represents the revenue state or classification in the context of Account.
         EXPENSE: Represents the expense state or classification in the context of Account.
         CONTRA: Represents the contra state or classification in the context of Account.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -75,7 +72,6 @@ entity:
         ACTIVE: Represents the active state or classification in the context of Account.
         INACTIVE: Represents the inactive state or classification in the context of Account.
         RETIRED: Represents the retired state or classification in the context of Account.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: currencyId
     type: reference
     target: Currency
@@ -84,7 +80,6 @@ entity:
       summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
       relationshipContext: This field connects Account to Currency. The reference establishes business context between the two entities and lets processes navigate from this record to the related Currency.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
   - name: parentAccount
     target: Account

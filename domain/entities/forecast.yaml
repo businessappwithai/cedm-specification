@@ -110,11 +110,11 @@ entity:
     ownership: reference
     help:
       summary: The company or unit forecast.
-      businessMeaning: Defines management/reporting boundary.
-      workflowRole: References must use compatible organization context.
       usage: Chosen when starting the forecast.
       cardinalityMeaning: Every forecast is for exactly one organization.
       context: Group forecasts consolidate the companies'.
+      businessMeaning: The company or unit whose results are forecast; its actuals come from its own ledgers.
+      workflowRole: Group forecasts are consolidated from the forecasts of their companies.
   - name: scenario
     target: Scenario
     cardinality: 0..1

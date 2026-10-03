@@ -15,14 +15,23 @@ entity:
       summary: The permanent system identifier of the service level agreement record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a service level agreement store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: SLA business code., businessMeaning: Human/integration identifier., usage: Service configuration and reporting., relationshipContext: Stable across display-name changes., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: SLA business code.
+      usage: Service configuration and reporting.
+      relationshipContext: Stable across display-name changes.
+      businessMeaning: Lets contracts and service requests name the agreement unambiguously.
   - {name: responseTargetMinutes, type: integer, required: false, help: {summary: Target elapsed minutes to first qualifying response., businessMeaning: Defines response commitment., usage: Deadline calculation/escalation., relationshipContext: Calendar/pause policies may modify elapsed-time computation., optionalMeaning: Optional when SLA does not govern response.}}
   - {name: resolutionTargetMinutes, type: integer, required: false, help: {summary: Target elapsed minutes to qualifying resolution., businessMeaning: Defines resolution commitment., usage: Deadline calculation/escalation., relationshipContext: Applied according to SLA calendar/pause policy., optionalMeaning: Optional when SLA does not govern resolution.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
-    help: {summary: SLA lifecycle., businessMeaning: Controls applicability to new service work., usage: Service governance., relationshipContext: Historical service measurements retain applied SLA version., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible., SUSPENDED: Temporarily unavailable for new assignment., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+    help: {summary: SLA lifecycle., businessMeaning: Controls applicability to new service work., usage: Service governance., relationshipContext: Historical service measurements retain applied SLA version., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible., SUSPENDED: Temporarily unavailable for new assignment., RETIRED: Closed to new use.}}
   relationships:
   - {name: serviceRequests, target: ServiceRequest, cardinality: 0..*, ownership: reference, help: {summary: Requests governed by SLA., businessMeaning: Applies measurable service commitment., usage: Deadline and breach management., cardinalityMeaning: Zero or many requests., workflowRole: SLA changes do not silently recalculate closed historical evidence.}}
   - {name: contract, target: Contract, cardinality: 0..1, ownership: reference, help: {summary: Contract establishing SLA when contractual., businessMeaning: Connects operational target to legal/commercial source., usage: Entitlement and compliance., cardinalityMeaning: Optional for policy-based SLA., workflowRole: Contract eligibility constrains applicability.}}

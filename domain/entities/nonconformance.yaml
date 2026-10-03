@@ -20,7 +20,7 @@ entity:
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing nonconformance reference., businessMeaning: Identifies the issue for quality and supplier operations., usage: "Audit, reporting, CAPA and dispute handling.", workflowRole: Human-recognizable issue reference., requiredMeaning: Required.}
+    help: {summary: Business-facing nonconformance reference., businessMeaning: Identifies the issue for quality and supplier operations., usage: "Audit, reporting, CAPA and dispute handling.", workflowRole: Human-recognizable issue reference.}
   - name: severity
     type: enum
     required: true
@@ -34,7 +34,6 @@ entity:
       businessMeaning: Indicates impact and urgency.
       usage: Prioritization, containment and escalation.
       workflowRole: Determines response urgency.
-      requiredMeaning: Required.
       valueSemantics:
         LOW: The severity of the nonconformance is low; set it when that is what the business means for this record.
         MEDIUM: The severity of the nonconformance is medium; set it when that is what the business means for this record.
@@ -56,7 +55,6 @@ entity:
       businessMeaning: Indicates investigation, containment, corrective action and closure.
       usage: Quality management and audit.
       workflowRole: Controls allowed responses and closure.
-      requiredMeaning: Required.
       valueSemantics:
         OPEN: The status of the nonconformance is open; set it when that is what the business means for this record.
         UNDER_REVIEW: The status of the nonconformance is under review; set it when that is what the business means for this record.
@@ -68,11 +66,11 @@ entity:
     type: string
     required: true
     maxLength: 4000
-    help: {summary: Detailed explanation of the deviation., businessMeaning: States what requirement or expected result was not met., usage: "Investigation, supplier communication, CAPA and audit.", workflowRole: Provides issue evidence., requiredMeaning: Required.}
+    help: {summary: Detailed explanation of the deviation., businessMeaning: States what requirement or expected result was not met., usage: "Investigation, supplier communication, CAPA and audit.", workflowRole: Provides issue evidence.}
   - name: detectedAt
     type: datetime
     required: true
-    help: {summary: Time the deviation was detected., businessMeaning: Establishes chronology for containment and corrective action., usage: Audit and quality analytics., workflowRole: Anchors issue occurrence., requiredMeaning: Required.}
+    help: {summary: Time the deviation was detected., businessMeaning: Establishes chronology for containment and corrective action., usage: Audit and quality analytics., workflowRole: Anchors issue occurrence.}
   - name: closedAt
     type: datetime
     required: false

@@ -29,7 +29,6 @@ entity:
       usage: Used in customer/supplier master data, order entry, procurement, invoices, reports, and integrations.
       relationshipContext: Code identifies the reusable policy; it is not itself a due date.
       workflowRole: Provides a selectable default during commercial transaction creation.
-      requiredMeaning: Required for operational identification.
   - name: name
     type: string
     required: true

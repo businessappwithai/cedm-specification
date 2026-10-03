@@ -28,7 +28,6 @@ entity:
       summary: Captures the business meaning of engagement number for the ProfessionalEngagement. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records, where applicable.
       relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: name
     type: string
     required: true
@@ -37,7 +36,6 @@ entity:
       summary: The human-readable name used by people, reports, searches, and related business processes.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records, where applicable.
       relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: status
     type: enum
     required: true
@@ -58,7 +56,6 @@ entity:
         ON_HOLD: Represents the on hold state or classification in the context of ProfessionalEngagement.
         COMPLETED: Represents the completed state or classification in the context of ProfessionalEngagement.
         CANCELLED: Represents the cancelled state or classification in the context of ProfessionalEngagement.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
   - name: startDate
     type: date
     required: false
@@ -66,7 +63,6 @@ entity:
       summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates must follow the business chronology.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records, where applicable.
       relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   - name: endDate
     type: date
     required: false
@@ -74,7 +70,6 @@ entity:
       summary: The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted together with the corresponding start date.
       usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records, where applicable.
       relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
   relationships:
   - name: client
     target: Party

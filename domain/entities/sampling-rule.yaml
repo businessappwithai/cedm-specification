@@ -28,7 +28,6 @@ entity:
       businessMeaning: Identifies the rule within its sampling plan for authoring, review, and audit.
       usage: Configuration, inspection execution, reporting, and integration.
       relationshipContext: Rule identity is scoped to the SamplingPlan and is distinct from actual sample records.
-      requiredMeaning: Required.
   - name: populationMin
     type: integer
     required: false
@@ -55,7 +54,6 @@ entity:
       businessMeaning: Defines the required sample quantity before the inspection can satisfy the sampling requirement.
       usage: Sample selection, inspection execution, and completion gating.
       relationshipContext: Must not exceed the eligible population except where the governing method explicitly permits census behavior.
-      requiredMeaning: Required.
   - name: acceptanceNumber
     type: integer
     required: false
@@ -80,7 +78,7 @@ entity:
     default: ACTIVE
     values: [DRAFT, ACTIVE, RETIRED]
     help:
-      summary: Lifecycle state of the sampling rule.
+      summary: Whether the rule is in use.
       businessMeaning: Controls whether the rule can be selected for new sample executions.
       usage: Governance, authoring, and inspection execution.
       relationshipContext: Retired rules remain available for historical sample traceability.
@@ -88,7 +86,6 @@ entity:
         DRAFT: Rule is being prepared and is not normally selectable.
         ACTIVE: Rule is approved for sampling execution.
         RETIRED: Rule is no longer selected for new sampling but remains historical evidence.
-      requiredMeaning: Required.
   relationships:
   - name: samplingPlan
     target: SamplingPlan
