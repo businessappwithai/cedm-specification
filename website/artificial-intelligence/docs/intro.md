@@ -10,6 +10,7 @@ description: "Artificial Intelligence Operations, built on the CEDM common found
 
 Artificial Intelligence Operations, built on the CEDM common foundation.
 
+![The Artificial Intelligence Operations dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
