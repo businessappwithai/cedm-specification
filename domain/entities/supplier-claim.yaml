@@ -15,40 +15,40 @@ entity:
       summary: The permanent system identifier of the supplier claim record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a supplier claim store this identifier. The number or code people quote is a separate field.
-  - {name: claimNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier claim reference., businessMeaning: Identifies the claim for procurement quality and supplier communication., usage: Used in correspondence investigations reporting and reconciliation., relationshipContext: Distinct from PurchaseOrder GoodsReceipt Invoice SupplierReturn and financial adjustment numbers., workflowRole: Provides the operational reference throughout the claim lifecycle.}}
+  - name: claimNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The number of the claim.
+      businessMeaning: Identifies the claim for procurement quality and supplier communication.
+      usage: Used in correspondence investigations reporting and reconciliation.
+      relationshipContext: Distinct from PurchaseOrder GoodsReceipt Invoice SupplierReturn and financial adjustment numbers.
+      workflowRole: Provides the operational reference throughout the claim lifecycle.
   - {name: claimDate, type: datetime, required: true, immutable: true, help: {summary: Date and time the claim was raised., businessMeaning: Establishes when the organization formally asserted the supplier issue., usage: Supports SLA measurement dispute aging supplier performance and audit., relationshipContext: Distinct from receipt inspection return resolution and financial-document dates., workflowRole: Anchors claim chronology.}}
   - name: status
     type: enum
     required: true
-    default: OPEN
-    values:
-    - DRAFT
-    - OPEN
-    - UNDER_REVIEW
-    - ACCEPTED
-    - PARTIALLY_ACCEPTED
-    - REJECTED
-    - RESOLVED
-    - CLOSED
-    - CANCELLED
-    - ESCALATED
+    default: DRAFT
+    values: [DRAFT, OPEN, UNDER_REVIEW, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, RESOLVED, CLOSED, CANCELLED, ESCALATED]
     help:
-      summary: Lifecycle state of the supplier claim.
+      summary: Where the claim stands.
       businessMeaning: Indicates whether the issue is being prepared investigated accepted disputed resolved or closed.
       usage: Controls investigation supplier response settlement and escalation.
       relationshipContext: Claim status is independent from SupplierReturn SupplierCreditNote SupplierDebitNote and SupplierClaimResolution statuses.
       workflowRole: Coordinates the case while physical and financial effects remain separate transactions.
       valueSemantics:
-        DRAFT: The status of the supplier claim is draft; set it when that is what the business means for this record.
-        OPEN: The status of the supplier claim is open; set it when that is what the business means for this record.
-        UNDER_REVIEW: The status of the supplier claim is under review; set it when that is what the business means for this record.
-        ACCEPTED: The status of the supplier claim is accepted; set it when that is what the business means for this record.
-        PARTIALLY_ACCEPTED: The status of the supplier claim is partially accepted; set it when that is what the business means for this record.
-        REJECTED: The status of the supplier claim is rejected; set it when that is what the business means for this record.
-        RESOLVED: The status of the supplier claim is resolved; set it when that is what the business means for this record.
-        CLOSED: The status of the supplier claim is closed; set it when that is what the business means for this record.
-        CANCELLED: The status of the supplier claim is cancelled; set it when that is what the business means for this record.
-        ESCALATED: The status of the supplier claim is escalated; set it when that is what the business means for this record.
+        DRAFT: Being prepared.
+        OPEN: Sent to the supplier.
+        UNDER_REVIEW: Being investigated with the supplier.
+        ACCEPTED: The supplier accepts it in full.
+        PARTIALLY_ACCEPTED: The supplier accepts part of it.
+        REJECTED: The supplier refuses it.
+        RESOLVED: The agreed remedy has been carried out.
+        CLOSED: Finished.
+        CANCELLED: Withdrawn.
+        ESCALATED: Raised to management or legal.
   - name: claimType
     type: enum
     required: true
@@ -71,17 +71,17 @@ entity:
       relationshipContext: May be supported by QualityInspection or receiving evidence and may result in a return credit debit or other resolution.
       workflowRole: Determines investigation and resolution policy.
       valueSemantics:
-        QUALITY: The claim type of the supplier claim is quality; set it when that is what the business means for this record.
-        DAMAGE: The claim type of the supplier claim is damage; set it when that is what the business means for this record.
-        SHORTAGE: The claim type of the supplier claim is shortage; set it when that is what the business means for this record.
-        OVERAGE: The claim type of the supplier claim is overage; set it when that is what the business means for this record.
-        WRONG_ITEM: The claim type of the supplier claim is wrong item; set it when that is what the business means for this record.
-        WARRANTY: The claim type of the supplier claim is warranty; set it when that is what the business means for this record.
-        SERVICE: The claim type of the supplier claim is service; set it when that is what the business means for this record.
-        COMMERCIAL: The claim type of the supplier claim is commercial; set it when that is what the business means for this record.
-        DELIVERY: The claim type of the supplier claim is delivery; set it when that is what the business means for this record.
-        DOCUMENTATION: The claim type of the supplier claim is documentation; set it when that is what the business means for this record.
-        OTHER: The claim type of the supplier claim is other; set it when that is what the business means for this record.
+        QUALITY: Goods did not meet the specification.
+        DAMAGE: Goods arrived damaged.
+        SHORTAGE: Fewer goods arrived than invoiced or ordered.
+        OVERAGE: More goods arrived than ordered.
+        WRONG_ITEM: Different goods arrived.
+        WARRANTY: A failure under warranty.
+        SERVICE: A service was not performed as agreed.
+        COMMERCIAL: A price or terms dispute.
+        DELIVERY: Late or misdirected delivery.
+        DOCUMENTATION: Missing or wrong documents.
+        OTHER: Any other cause.
   - {name: claimedAmount, type: Money, required: false, help: {summary: Financial value asserted by the organization in the claim., businessMeaning: Represents requested or estimated monetary recovery before supplier agreement or final adjustment., usage: Supports negotiation exposure reporting and recovery analysis., relationshipContext: It is not an accounting posting and must not be confused with SupplierCreditNote.totalAmount or SupplierDebitNote.totalAmount., workflowRole: Provides commercial context for settlement negotiation., optionalMeaning: Optional for non-financial claims.}}
   - name: resolutionCode
     type: enum
@@ -104,15 +104,15 @@ entity:
       workflowRole: Summarizes the resolution after agreement.
       optionalMeaning: Optional until resolution is agreed.
       valueSemantics:
-        NO_ACTION: The resolution code of the supplier claim is no action; set it when that is what the business means for this record.
-        REPLACEMENT: The resolution code of the supplier claim is replacement; set it when that is what the business means for this record.
-        REPAIR: The resolution code of the supplier claim is repair; set it when that is what the business means for this record.
-        RETURN: The resolution code of the supplier claim is return; set it when that is what the business means for this record.
-        CREDIT: The resolution code of the supplier claim is credit; set it when that is what the business means for this record.
-        DEBIT_ADJUSTMENT: The resolution code of the supplier claim is debit adjustment; set it when that is what the business means for this record.
-        PRICE_ADJUSTMENT: The resolution code of the supplier claim is price adjustment; set it when that is what the business means for this record.
-        ACCEPTED_EXCEPTION: The resolution code of the supplier claim is accepted exception; set it when that is what the business means for this record.
-        REJECTED: The resolution code of the supplier claim is rejected; set it when that is what the business means for this record.
+        NO_ACTION: Closed without a remedy.
+        REPLACEMENT: The supplier replaces the goods.
+        REPAIR: The supplier repairs the goods.
+        RETURN: The goods are returned.
+        CREDIT: The supplier issues a credit note.
+        DEBIT_ADJUSTMENT: The buyer issues a debit note.
+        PRICE_ADJUSTMENT: The price is reduced.
+        ACCEPTED_EXCEPTION: The deviation is accepted.
+        REJECTED: The claim is refused.
   - {name: notes, type: string, required: false, maxLength: 4000, help: {summary: Additional claim narrative and investigation context., businessMeaning: Records information not represented by structured fields., usage: Supplier communication investigation escalation and audit., relationshipContext: Complements structured inspection receipt invoice and return evidence without replacing it., workflowRole: Supports review and resolution.}}
   relationships:
   - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier against whom the claim is raised., businessMeaning: Identifies the external party responsible for the disputed supply or service., usage: Supports communication scorecards recovery and escalation., workflowRole: Supplies supplier qualification and commercial context.}}
@@ -141,64 +141,61 @@ entity:
     attribute: status
     states: [DRAFT, OPEN, UNDER_REVIEW, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED, RESOLVED, CLOSED, CANCELLED, ESCALATED]
     initial: DRAFT
-    terminal: [CLOSED, REJECTED, CANCELLED]
+    terminal: [CLOSED, CANCELLED]
     transitions:
     - {from: DRAFT, to: OPEN, action: open}
     - {from: OPEN, to: UNDER_REVIEW, action: review}
     - {from: UNDER_REVIEW, to: ACCEPTED, action: accept}
-    - {from: ACCEPTED, to: PARTIALLY_ACCEPTED, action: mark_partially_accepted}
-    - {from: PARTIALLY_ACCEPTED, to: ESCALATED, action: mark_escalated}
-    - {from: ESCALATED, to: RESOLVED, action: resolve}
-    - {from: RESOLVED, to: CLOSED, action: close}
-    - {from: DRAFT, to: REJECTED, action: reject}
-    - {from: OPEN, to: REJECTED, action: reject}
+    - {from: UNDER_REVIEW, to: PARTIALLY_ACCEPTED, action: accept_in_part}
     - {from: UNDER_REVIEW, to: REJECTED, action: reject}
-    - {from: ACCEPTED, to: REJECTED, action: reject}
-    - {from: PARTIALLY_ACCEPTED, to: REJECTED, action: reject}
+    - {from: UNDER_REVIEW, to: ESCALATED, action: escalate}
+    - {from: REJECTED, to: ESCALATED, action: escalate}
+    - {from: ESCALATED, to: ACCEPTED, action: accept}
+    - {from: ESCALATED, to: PARTIALLY_ACCEPTED, action: accept_in_part}
     - {from: ESCALATED, to: REJECTED, action: reject}
+    - {from: ACCEPTED, to: RESOLVED, action: resolve}
+    - {from: PARTIALLY_ACCEPTED, to: RESOLVED, action: resolve}
+    - {from: RESOLVED, to: CLOSED, action: close}
+    - {from: REJECTED, to: CLOSED, action: close}
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: OPEN, to: CANCELLED, action: cancel}
-    - {from: UNDER_REVIEW, to: CANCELLED, action: cancel}
-    - {from: ACCEPTED, to: CANCELLED, action: cancel}
-    - {from: PARTIALLY_ACCEPTED, to: CANCELLED, action: cancel}
-    - {from: ESCALATED, to: CANCELLED, action: cancel}
   workflows:
-  - name: ApprovalRequested
-    title: "Ask for a decision when a supplier claim is put forward"
-    description: "When a supplier claim is under review, a task asks someone to decide on it."
-    when: "status == \"UNDER_REVIEW\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: decide on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "SUPPLIER-CLAIM-APPROVAL-{{id}}"
-          name: "Decide on supplier claim {{claim_number}}"
-          description: "Supplier claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-          task_type: "APPROVAL"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: FollowUpRequired
-    title: "Follow up when a supplier claim is ended"
-    description: "When a supplier claim is rejected or cancelled, a task asks someone to settle what depended on it."
-    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "SUPPLIER-CLAIM-FOLLOW-UP-{{id}}"
-          name: "Follow up on supplier claim {{claim_number}}"
-          description: "Supplier claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - name: ApprovalRequested
+      title: "Ask for a decision when a supplier claim is put forward"
+      description: "When a supplier claim is under review, a task asks someone to decide on it."
+      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CLAIM-APPROVAL-{{id}}"
+              name: "Decide on supplier claim {{claim_number}}"
+              description: "Supplier claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a supplier claim is ended"
+      description: "When a supplier claim is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SUPPLIER-CLAIM-FOLLOW-UP-{{id}}"
+              name: "Follow up on supplier claim {{claim_number}}"
+              description: "Supplier claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Provides a formal auditable case for supplier-related quality or commercial recovery while keeping the decision and physical/financial consequences as separate controlled records.
     businessMeaning: SupplierClaim explains what went wrong and what recovery was requested or agreed. SupplierClaimResolution records the authorized remedy. SupplierReturn handles physical reversal; SupplierCreditNote or SupplierDebitNote handles financial adjustment; Payment handles cash movement.

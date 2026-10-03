@@ -33,11 +33,11 @@ entity:
       relationshipContext: Does not replace Party identity classification.
       workflowRole: Supplies supplier classification to procurement policy.
       valueSemantics:
-        INDIVIDUAL: The supplier type of the supplier is individual; set it when that is what the business means for this record.
-        BUSINESS: The supplier type of the supplier is business; set it when that is what the business means for this record.
-        GOVERNMENT: The supplier type of the supplier is government; set it when that is what the business means for this record.
-        INTERNAL: The supplier type of the supplier is internal; set it when that is what the business means for this record.
-        OTHER: The supplier type of the supplier is other; set it when that is what the business means for this record.
+        INDIVIDUAL: A person supplying in their own name.
+        BUSINESS: A company.
+        GOVERNMENT: A public body.
+        INTERNAL: Another unit of the same group.
+        OTHER: Any other kind.
   - name: qualificationStatus
     type: enum
     required: false
@@ -54,11 +54,11 @@ entity:
       workflowRole: Gates new procurement commitments while historical transactions remain valid.
       optionalMeaning: Optional where supplier qualification is not used.
       valueSemantics:
-        NOT_REVIEWED: The qualification status of the supplier is not reviewed; set it when that is what the business means for this record.
-        PENDING: The qualification status of the supplier is pending; set it when that is what the business means for this record.
-        QUALIFIED: The qualification status of the supplier is qualified; set it when that is what the business means for this record.
-        SUSPENDED: The qualification status of the supplier is suspended; set it when that is what the business means for this record.
-        DISQUALIFIED: The qualification status of the supplier is disqualified; set it when that is what the business means for this record.
+        NOT_REVIEWED: Not yet assessed.
+        PENDING: Assessment in progress.
+        QUALIFIED: Approved to supply.
+        SUSPENDED: Approval temporarily withdrawn.
+        DISQUALIFIED: Not approved to supply.
   - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing.}}
   - name: status
     type: enum
@@ -76,12 +76,20 @@ entity:
       workflowRole: New procurement return claim-resolution and performance workflows must evaluate status.
       requiredMeaning: Required for eligibility.
       valueSemantics:
-        ACTIVE: The status of the supplier is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the supplier is inactive; set it when that is what the business means for this record.
-        BLOCKED: The status of the supplier is blocked; set it when that is what the business means for this record.
-        RETIRED: The status of the supplier is retired; set it when that is what the business means for this record.
+        ACTIVE: May be used for new purchases.
+        INACTIVE: Not used at present.
+        BLOCKED: Not to be used, for example during a dispute.
+        RETIRED: No longer a supplier.
   relationships:
-  - {name: partyRole, target: PartyRole, cardinality: '1', ownership: reference, help: {summary: Common PartyRole relationship., usage: Resolves underlying party and supplier role., cardinalityMeaning: Exactly one PartyRole., workflowRole: Supplies common identity.}}
+  - name: partyRole
+    target: PartyRole
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Common PartyRole relationship.
+      usage: Resolves underlying party and supplier role.
+      workflowRole: Supplies common identity.
+      cardinalityMeaning: Each supplier record stands for one supplier role of one party.
   - {name: addresses, target: Address, cardinality: 0..*, ownership: reference, help: {summary: Supplier operational addresses., usage: Supports ordering invoicing logistics tax correspondence and returns., cardinalityMeaning: Multiple purpose-specific addresses are supported., workflowRole: Consuming workflows select the appropriate address.}, inverseCardinality: 0..*}
   - {name: purchaseOrders, target: PurchaseOrder, cardinality: 0..*, ownership: reference, help: {summary: Procurement commitments issued to the supplier., usage: Supports spend fulfillment cancellation audit and performance measurement., cardinalityMeaning: Many purchase orders may exist., workflowRole: Supplier status and qualification govern new commitments.}}
   - {name: goodsReceipts, target: GoodsReceipt, cardinality: 0..*, ownership: reference, help: {summary: Accepted fulfillment records for supplier deliveries., usage: Supports quantity acceptance quality invoice matching and performance measurement., cardinalityMeaning: Many receipts may exist., workflowRole: Receipt evidence feeds matching returns and supplier scorecards.}}
