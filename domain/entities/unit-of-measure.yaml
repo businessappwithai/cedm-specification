@@ -57,15 +57,15 @@ entity:
       workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
       requiredMeaning: Required to establish dimensional compatibility.
       valueSemantics:
-        QUANTITY: The category of the unit of measure is quantity; set it when that is what the business means for this record.
-        LENGTH: The category of the unit of measure is length; set it when that is what the business means for this record.
-        AREA: The category of the unit of measure is area; set it when that is what the business means for this record.
-        VOLUME: The category of the unit of measure is volume; set it when that is what the business means for this record.
-        MASS: The category of the unit of measure is mass; set it when that is what the business means for this record.
-        TIME: The category of the unit of measure is time; set it when that is what the business means for this record.
-        COUNT: The category of the unit of measure is count; set it when that is what the business means for this record.
-        CURRENCY: The category of the unit of measure is currency; set it when that is what the business means for this record.
-        OTHER: The category of the unit of measure is other; set it when that is what the business means for this record.
+        QUANTITY: A generic amount.
+        LENGTH: Distance, such as metre.
+        AREA: Surface, such as square metre.
+        VOLUME: Space or liquid, such as litre.
+        MASS: Weight, such as kilogram.
+        TIME: Duration, such as hour.
+        COUNT: Number of items, such as piece or box.
+        CURRENCY: An amount of money.
+        OTHER: Any other kind.
   - name: conversionFactor
     type: decimal
     required: false
@@ -100,9 +100,9 @@ entity:
       workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
       requiredMeaning: Required for transaction eligibility.
       valueSemantics:
-        ACTIVE: The status of the unit of measure is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the unit of measure is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the unit of measure is retired; set it when that is what the business means for this record.
+        ACTIVE: May be used.
+        INACTIVE: Temporarily not used for new records.
+        RETIRED: No longer used.
   relationships:
   - name: baseUnit
     target: UnitOfMeasure
