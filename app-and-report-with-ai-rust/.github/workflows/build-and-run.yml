@@ -46,7 +46,7 @@ on:
       model:
         description: "Model to build, relative to the repository root"
         type: string
-        default: "common/language/examples/crm.eml.mmd"
+        default: "common/examples/crm.eml.yaml"
       profile:
         description: "demo = one PostgreSQL holding three databases; prod = two servers"
         type: choice
@@ -187,7 +187,7 @@ jobs:
             echo "| app-with-ai-rust | \`${{ needs.resolve.outputs.app_ref }}\` |"
             echo "| enterprise_reporting_rust | \`${{ needs.resolve.outputs.report_ref }}\` |"
             echo ""
-            echo "Model: \`${{ inputs.model || 'common/language/examples/crm.eml.mmd' }}\` · profile: \`${{ inputs.profile || 'demo' }}\`"
+            echo "Model: \`${{ inputs.model || 'common/examples/crm.eml.yaml' }}\` · profile: \`${{ inputs.profile || 'demo' }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
       # A hosted runner starts with ~14 GB free, and this stack does not fit in
@@ -236,7 +236,7 @@ jobs:
       # the reporting pack, keeps the secrets just written, and brings the whole
       # stack up. Everything it writes stays under common/.runtime/.
       - name: Check, generate, configure and start
-        run: ./start.sh "${{ inputs.model || 'common/language/examples/crm.eml.mmd' }}" --profile "${{ inputs.profile || 'demo' }}"
+        run: ./start.sh "${{ inputs.model || 'common/examples/crm.eml.yaml' }}" --profile "${{ inputs.profile || 'demo' }}"
 
       # nginx is the front door and answers as soon as it is up, so its health
       # endpoint says nothing about either application behind it. Both are
