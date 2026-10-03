@@ -10,6 +10,7 @@ description: "Hospitality, built on the CEDM common foundation."
 
 Hospitality, built on the CEDM common foundation.
 
+![The Hospitality dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

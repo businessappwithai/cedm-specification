@@ -13,6 +13,8 @@ Represents a hospitality entity called Hotel within the CEDM business model. Hot
 
 Open **Hotel** from the menu or from its card on the dashboard.
 
+![The Hotel list](/img/entities/hotel-list.jpg)
+
 The list shows Hotel Code, Name, Status, Location, Organization, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Hotel Code, Name, Status, Location, Organization, with the most r
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Hotel form](/img/entities/hotel-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Hotel Code**, **Name**, **Status**, **Location**.
@@ -75,6 +79,8 @@ stateDiagram-v2
 | Active | Closed | Close |
 | Planned | Retired | Retire |
 | Active | Retired | Retire |
+
+![A Hotel record with its lifecycle bar](/img/entities/hotel-record.jpg)
 
 ## Who may use it
 
