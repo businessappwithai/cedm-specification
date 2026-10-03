@@ -1,0 +1,18 @@
+---
+title: "Purchase Requisition"
+sidebar_position: 14
+description: "The business rules that run on Purchase Requisition."
+---
+
+# Rules on Purchase Requisition
+
+## Purchase requisition workflows after update
+
+Runs after a purchase requisition is changed; order 100. In **Business Rules** it is listed as `purchaseRequisitionWorkflowsAfterUpdate`.
+
+- **When** “Status” == "SUBMITTED" and “Status” != previous “Status”: **Starts a process** — “purchaseRequisitionWorkflowsAfterUpdate: ApprovalRequested” (starts the process “Purchase requisition approval requested”).
+- **When** (“Status” == "REJECTED" or “Status” == "CANCELLED") and “Status” != previous “Status”: **Starts a process** — “purchaseRequisitionWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Purchase requisition follow up required”).
+
+
+**To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
+

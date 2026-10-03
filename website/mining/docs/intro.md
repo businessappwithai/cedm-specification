@@ -10,6 +10,7 @@ description: "Mining and Natural Resources, built on the CEDM common foundation.
 
 Mining and Natural Resources, built on the CEDM common foundation.
 
+![The Mining and Natural Resources dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
