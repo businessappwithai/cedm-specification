@@ -10,6 +10,7 @@ description: "Inventory and Warehouse, built on the CEDM common foundation."
 
 Inventory and Warehouse, built on the CEDM common foundation.
 
+![The Inventory and Warehouse dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

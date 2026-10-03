@@ -12,6 +12,7 @@ Runs before a warehouse is created; order 100. In **Business Rules** it is liste
 
 - **When** “Capacity” is filled in and “Capacity” < 0: **Refuses the save** — “Capacity cannot be negative.”.
 
+![The Inventory location invariants before create rule in the editor](/img/rules/inventory-location-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a warehouse is changed; order 100. In **Business Rules** it is liste
 
 - **When** “Capacity” is filled in and “Capacity” < 0: **Refuses the save** — “Capacity cannot be negative.”.
 
+![The Inventory location invariants before update rule in the editor](/img/rules/inventory-location-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -30,6 +32,7 @@ Runs after a warehouse is changed; order 100. In **Business Rules** it is listed
 
 - **When** “Status” == "BLOCKED" and “Status” != previous “Status”: **Starts a process** — “inventoryLocationWorkflowsAfterUpdate: ExceptionRaised” (starts the process “Inventory location exception raised”).
 
+![The Inventory location workflows after update rule in the editor](/img/rules/inventory-location-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

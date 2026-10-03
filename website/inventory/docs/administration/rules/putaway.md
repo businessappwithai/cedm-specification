@@ -12,6 +12,7 @@ Runs before a putaway is created; order 100. In **Business Rules** it is listed 
 
 - **When** “Quantity” is filled in and “Quantity” < 0: **Refuses the save** — “Quantity cannot be negative.”.
 
+![The Putaway invariants before create rule in the editor](/img/rules/putaway-invariants-before-create.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -21,6 +22,7 @@ Runs before a putaway is changed; order 100. In **Business Rules** it is listed 
 
 - **When** “Quantity” is filled in and “Quantity” < 0: **Refuses the save** — “Quantity cannot be negative.”.
 
+![The Putaway invariants before update rule in the editor](/img/rules/putaway-invariants-before-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
@@ -32,6 +34,7 @@ Runs after a putaway is changed; order 100. In **Business Rules** it is listed a
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “putawayWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Putaway follow up required”).
 - **When** “Status” == "COMPLETED" and “Status” != previous “Status”: **Starts a process** — “putawayWorkflowsAfterUpdate: CompletionConfirmed” (starts the process “Putaway completion confirmed”).
 
+![The Putaway workflows after update rule in the editor](/img/rules/putaway-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 
