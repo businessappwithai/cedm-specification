@@ -41,8 +41,23 @@ let viewport = "";
 let captured = 0;
 let skipped = 0;
 
+let recovering = false;
+let restarts = 0;
+
 function b(...args: string[]): { ok: boolean; out: string } {
   const result = spawnSync(browse, args, { encoding: "utf8", timeout: 90_000 });
+  // A command that times out means the browser daemon is wedged (a heavy page, a
+  // crashed tab). Restart it, sign in again — a restart loses the session — and
+  // let the caller's own failure handling skip the capture that was in flight.
+  if (result.status === null && !recovering && restarts < 8) {
+    recovering = true;
+    restarts++;
+    console.log(`  browser wedged on \`${args[0]}\`; restarting it (${restarts})`);
+    spawnSync(browse, ["--force-restart", "status"], { encoding: "utf8", timeout: 90_000 });
+    viewport = "";
+    signIn();
+    recovering = false;
+  }
   return { ok: result.status === 0, out: `${result.stdout ?? ""}${result.stderr ?? ""}` };
 }
 

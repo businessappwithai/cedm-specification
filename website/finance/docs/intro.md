@@ -10,6 +10,7 @@ description: "Finance and Accounting, built on the CEDM common foundation."
 
 Finance and Accounting, built on the CEDM common foundation.
 
+![The Finance and Accounting dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
