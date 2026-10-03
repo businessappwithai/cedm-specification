@@ -5,6 +5,7 @@ entity:
   description: A declaration of goods and trade information submitted to a customs authority.
   ui:
     icon: table
+    recordLabel: [declarationNumber]
   identity:
     key: customsDeclarationId
     type: uuid
@@ -25,9 +26,9 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of declaration number for the CustomsDeclaration. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records, where applicable.
-      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The number customs assigned to the declaration (the movement reference).
+      usage: Quoted to carriers and in any customs enquiry.
+      relationshipContext: Unique.
   - name: declarationType
     type: enum
     required: true
@@ -38,15 +39,15 @@ entity:
     - TEMPORARY_IMPORT
     - OTHER
     help:
-      summary: Captures the business meaning of declaration type for the CustomsDeclaration. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records, where applicable.
-      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: What movement of goods the declaration covers.
+      usage: Decides which data and duties apply.
+      relationshipContext: Read with the customs procedure.
       valueSemantics:
-        IMPORT: Represents the import state or classification in the context of CustomsDeclaration.
-        EXPORT: Represents the export state or classification in the context of CustomsDeclaration.
-        TRANSIT: Represents the transit state or classification in the context of CustomsDeclaration.
-        TEMPORARY_IMPORT: Represents the temporary import state or classification in the context of CustomsDeclaration.
-        OTHER: Represents the other state or classification in the context of CustomsDeclaration.
+        IMPORT: Goods entering the customs territory.
+        EXPORT: Goods leaving the customs territory.
+        TRANSIT: Goods passing through under customs control.
+        TEMPORARY_IMPORT: Goods brought in for a limited time and re-exported, such as exhibition goods.
+        OTHER: Any other procedure.
   - name: status
     type: enum
     required: true
@@ -60,82 +61,98 @@ entity:
     - REJECTED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records, where applicable.
-      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the declaration is with customs.
+      usage: Moved on by customs responses.
+      relationshipContext: Goods may move only once the declaration is cleared.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of CustomsDeclaration.
-        SUBMITTED: Represents the submitted state or classification in the context of CustomsDeclaration.
-        ACCEPTED: Represents the accepted state or classification in the context of CustomsDeclaration.
-        UNDER_INSPECTION: Represents the under inspection state or classification in the context of CustomsDeclaration.
-        CLEARED: Represents the cleared state or classification in the context of CustomsDeclaration.
-        REJECTED: Represents the rejected state or classification in the context of CustomsDeclaration.
-        CANCELLED: Represents the cancelled state or classification in the context of CustomsDeclaration.
+        DRAFT: Being prepared.
+        SUBMITTED: Sent to customs.
+        ACCEPTED: Accepted by customs; a movement reference was issued.
+        UNDER_INSPECTION: Held for a documentary or physical check.
+        CLEARED: Goods released.
+        REJECTED: Refused by customs.
+        CANCELLED: Withdrawn.
   - name: declaredValue
     type: decimal
     required: false
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of declared value for the CustomsDeclaration. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records, where applicable.
-      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The customs value of the goods.
+      usage: Duties and import VAT are computed from it.
+      relationshipContext: In the declaration's currency.
   - name: currencyId
     type: reference
     target: Currency
     required: false
     help:
-      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records, where applicable.
-      relationshipContext: This field connects CustomsDeclaration to Currency. The reference establishes business context between the two entities and lets processes navigate from this record to the related Currency.
+      summary: The currency of the declared value.
+      usage: Set from the commercial invoice.
+      relationshipContext: Converted at the customs exchange rate.
   - name: declarationDate
     type: date
     required: true
     help:
-      summary: Records the business date associated with the declaration. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating CustomsDeclaration records, where applicable.
-      relationshipContext: Its meaning is specific to CustomsDeclaration; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The day the declaration was lodged.
+      usage: Decides the duty rates and exchange rate that apply.
+      relationshipContext: Not in the future.
+  - name: customsProcedureCode
+    type: string
+    required: false
+    maxLength: 10
+    help:
+      summary: The customs procedure code, such as 4000 for release for free circulation.
+      usage: Decides the treatment of the goods.
+      relationshipContext: From the customs tariff.
+  - name: dutyAmount
+    type: Money
+    required: false
+    help:
+      summary: The duty and taxes assessed.
+      usage: Paid to customs and booked to landed cost.
+      relationshipContext: In the local currency.
   relationships:
   - name: declarant
     target: Party
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects CustomsDeclaration to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a CustomsDeclaration.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Who lodged the declaration — the importer or exporter, or their broker.
+      usage: Set when preparing it.
+      cardinalityMeaning: Every declaration has exactly one declarant.
+      context: Responsible to customs for its accuracy.
   - name: authority
     target: Organization
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects CustomsDeclaration to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a CustomsDeclaration.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The customs office the declaration is lodged with.
+      usage: Set when preparing it.
+      cardinalityMeaning: Exactly one.
+      context: Its decisions move the status.
   - name: shipment
     target: Shipment
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects CustomsDeclaration to Shipment so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Shipment records associated with a CustomsDeclaration.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The shipment the declaration covers.
+      usage: Linked when preparing it.
+      cardinalityMeaning: At most one.
+      context: The shipment waits for clearance.
   - name: documents
     target: Document
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects CustomsDeclaration to Document so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Document records associated with a CustomsDeclaration.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Supporting documents, such as the commercial invoice and certificates of origin.
+      usage: Attached when preparing the declaration.
+      cardinalityMeaning: Many documents per declaration; a document may support several.
+      context: A many-to-many relation.
     inverseCardinality: 0..*
   invariants:
   - id: CUSTOMS-001
     rule: declaredValue must be zero or greater when supplied.
+  - {id: CUSTOMS-DECLARATION-EXE-001, rule: "Duty Amount cannot be negative.", violatedWhen: "duty_amount != null and duty_amount < 0", message: "Duty Amount cannot be negative."}
   lifecycle:
     title: Customs Declaration Lifecycle
     attribute: status
@@ -195,10 +212,10 @@ entity:
   help:
     summary: Represents a trade entity called CustomsDeclaration within the CEDM business model.
     businessMeaning: CustomsDeclaration is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate CustomsDeclaration records.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Shipment, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical CustomsDeclaration record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Trade compliance or the appointed customs broker prepares the declaration for each import or export movement, submits it electronically, answers queries and inspections, and records clearance; duties paid and the movement reference are kept for audit.
+    lifecycle: Drafted, submitted to customs, accepted with a movement reference, possibly held for inspection, and cleared when the goods are released. Customs may reject it; a draft may be cancelled.
+    example: Export declaration 24FR000123456789A1 for shipment SH-55120, goods value 186,400 EUR, declared by ACME France via broker, submitted 11 March, cleared 11 March 15:20.
 specification:
   version: 0.1.0
   status: draft

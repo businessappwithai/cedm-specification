@@ -5,6 +5,7 @@ entity:
   description: A clinical finding or condition identified during healthcare assessment.
   ui:
     icon: table
+    recordLabel: [code, description]
   identity:
     key: diagnosisId
     type: uuid
@@ -24,25 +25,25 @@ entity:
     required: true
     maxLength: 50
     help:
-      summary: Captures the business meaning of code system for the Diagnosis. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Diagnosis records, where applicable.
-      relationshipContext: Its meaning is specific to Diagnosis; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The coding system of the diagnosis code, such as ICD-10 or SNOMED CT.
+      usage: Tells systems how to interpret the code.
+      relationshipContext: Read with the code.
   - name: code
     type: string
     required: true
     maxLength: 50
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Diagnosis records, where applicable.
-      relationshipContext: Its meaning is specific to Diagnosis; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The diagnosis code, such as E11.9.
+      usage: Used for billing, reporting and decision support.
+      relationshipContext: Valid in its coding system.
   - name: description
     type: string
     required: true
     maxLength: 1000
     help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Diagnosis records, where applicable.
-      relationshipContext: Its meaning is specific to Diagnosis; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The diagnosis in words.
+      usage: Shown on the patient record.
+      relationshipContext: Usually the code's display text.
   - name: diagnosisType
     type: enum
     required: true
@@ -53,48 +54,71 @@ entity:
     - HISTORICAL
     - OTHER
     help:
-      summary: Captures the business meaning of diagnosis type for the Diagnosis. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Diagnosis records, where applicable.
-      relationshipContext: Its meaning is specific to Diagnosis; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The role of the diagnosis in the encounter.
+      usage: Decides how it is reported and billed.
+      relationshipContext: One primary diagnosis per encounter.
       valueSemantics:
-        PRIMARY: Represents the primary state or classification in the context of Diagnosis.
-        SECONDARY: Represents the secondary state or classification in the context of Diagnosis.
-        SUSPECTED: Represents the suspected state or classification in the context of Diagnosis.
-        HISTORICAL: Represents the historical state or classification in the context of Diagnosis.
-        OTHER: Represents the other state or classification in the context of Diagnosis.
+        PRIMARY: The main reason for the encounter.
+        SECONDARY: An additional condition relevant to the encounter.
+        SUSPECTED: Considered but not yet confirmed.
+        HISTORICAL: A past condition recorded for context.
+        OTHER: Any other role.
   - name: onsetDate
     type: date
     required: false
     help:
-      summary: Records the business date associated with the onset. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Diagnosis records, where applicable.
-      relationshipContext: Its meaning is specific to Diagnosis; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: When the condition began.
+      usage: Entered if known.
+      relationshipContext: Approximate dates are acceptable.
+  - name: clinicalStatus
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, REMISSION, RESOLVED, ENTERED_IN_ERROR]
+    help:
+      summary: Whether the condition is current.
+      usage: Updated by clinicians over time.
+      relationshipContext: Resolved conditions stay on the history.
+      valueSemantics:
+        ACTIVE: The condition is present.
+        REMISSION: The condition is present but not causing problems.
+        RESOLVED: The condition is over.
+        ENTERED_IN_ERROR: Recorded by mistake.
+  - name: resolvedDate
+    type: date
+    required: false
+    help:
+      summary: When the condition resolved.
+      usage: Recorded when the clinical status becomes resolved.
+      relationshipContext: Not earlier than the onset date.
   relationships:
   - name: encounter
     target: HealthcareEncounter
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Diagnosis to HealthcareEncounter so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HealthcareEncounter records associated with a Diagnosis.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The encounter during which the diagnosis was made.
+      usage: Set when recording it.
+      cardinalityMeaning: Every diagnosis is recorded in exactly one encounter.
+      context: Listed among the encounter's diagnoses.
   - name: patient
     target: HealthcarePatient
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Diagnosis to HealthcarePatient so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about HealthcarePatient records associated with a Diagnosis.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The patient diagnosed.
+      usage: The encounter's patient.
+      cardinalityMeaning: Every diagnosis is of exactly one patient.
+      context: Appears on the patient's problem list.
   help:
     summary: Represents a healthcare clinical entity called Diagnosis within the CEDM business model.
     businessMeaning: Diagnosis is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Diagnosis records.
     relationshipContext: The entity participates in a wider business graph through relationships with HealthcareEncounter, HealthcarePatient. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Diagnosis record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Clinicians record diagnoses during encounters, coded in a standard system; the patient's problem list, care plans, orders and billing all draw on them.
+    lifecycle: A diagnosis is recorded as active; it may be confirmed or refuted, and later marked resolved or in remission. A diagnosis entered by mistake is marked entered in error, never deleted.
+    example: E11.9 'Type 2 diabetes mellitus without complications' (ICD-10), primary, recorded in encounter E-24-30112, onset 2019, confirmed, active.
+  invariants:
+  - {id: DIAGNOSIS-001, rule: A condition does not resolve before it started., violatedWhen: resolved_date != null and onset_date != null and resolved_date < onset_date, message: The resolved date is earlier than the onset date.}
 specification:
   version: 0.1.0
   status: draft

@@ -5,6 +5,7 @@ entity:
   description: An authorized customer return that reverses or adjusts previously fulfilled sales demand without deleting the original SalesOrder, Shipment, InventoryMovement, or Invoice evidence. It coordinates return authorization, physical receipt, inspection, disposition, inventory effects, and financial adjustment.
   ui:
     icon: user-round
+    recordLabel: [returnNumber]
   identity: {key: customerReturnId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: customerReturnId
@@ -21,7 +22,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Business-facing customer return reference.
+      summary: The return authorisation number (RMA) the customer quotes on the parcel.
       businessMeaning: Identifies the return for customer service, warehouse and finance operations.
       usage: Used in return authorization, transport, receiving, inspection, credit and audit.
       relationshipContext: Distinct from customerReturnId, Shipment and CreditNote numbers.
@@ -38,15 +39,15 @@ entity:
       relationshipContext: Return status does not itself change inventory or invoice balances.
       workflowRole: Coordinates dependent return workflows; CreditNote posting is a separate financial state.
       valueSemantics:
-        DRAFT: The status of the customer return is draft; set it when that is what the business means for this record.
-        AUTHORIZED: The status of the customer return is authorized; set it when that is what the business means for this record.
-        IN_TRANSIT: The status of the customer return is in transit; set it when that is what the business means for this record.
-        RECEIVED: The status of the customer return is received; set it when that is what the business means for this record.
-        INSPECTION_PENDING: The status of the customer return is inspection pending; set it when that is what the business means for this record.
-        DISPOSITIONED: The status of the customer return is dispositioned; set it when that is what the business means for this record.
-        COMPLETED: The status of the customer return is completed; set it when that is what the business means for this record.
-        CANCELLED: The status of the customer return is cancelled; set it when that is what the business means for this record.
-        EXCEPTION: The status of the customer return is exception; set it when that is what the business means for this record.
+        DRAFT: Requested; not yet authorised.
+        AUTHORIZED: Authorised; the customer may send the goods.
+        IN_TRANSIT: On its way back to us.
+        RECEIVED: Arrived at the returns desk.
+        INSPECTION_PENDING: Waiting for inspection to decide what to do with the goods.
+        DISPOSITIONED: Each line has been restocked, repaired, scrapped or quarantined.
+        COMPLETED: Goods dealt with and the customer credited or replaced.
+        CANCELLED: Withdrawn before the goods came back.
+        EXCEPTION: Stopped by a problem, such as the wrong goods arriving.
   - name: returnDate
     type: datetime
     required: true
@@ -163,86 +164,76 @@ entity:
     attribute: status
     states: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
     initial: DRAFT
-    terminal: [DISPOSITIONED, CANCELLED]
+    terminal: [COMPLETED, CANCELLED]
     transitions:
     - {from: DRAFT, to: AUTHORIZED, action: authorize}
-    - {from: AUTHORIZED, to: IN_TRANSIT, action: mark_in_transit}
+    - {from: AUTHORIZED, to: IN_TRANSIT, action: ship_back}
     - {from: IN_TRANSIT, to: RECEIVED, action: receive}
-    - {from: RECEIVED, to: COMPLETED, action: complete}
-    - {from: COMPLETED, to: DISPOSITIONED, action: mark_dispositioned}
-    - {from: AUTHORIZED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-    - {from: INSPECTION_PENDING, to: AUTHORIZED, action: resume}
-    - {from: IN_TRANSIT, to: INSPECTION_PENDING, action: mark_inspection_pending}
-    - {from: INSPECTION_PENDING, to: IN_TRANSIT, action: resume}
-    - {from: RECEIVED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-    - {from: INSPECTION_PENDING, to: RECEIVED, action: resume}
-    - {from: AUTHORIZED, to: EXCEPTION, action: mark_exception}
-    - {from: EXCEPTION, to: AUTHORIZED, action: resolve_exception}
-    - {from: IN_TRANSIT, to: EXCEPTION, action: mark_exception}
-    - {from: EXCEPTION, to: IN_TRANSIT, action: resolve_exception}
-    - {from: RECEIVED, to: EXCEPTION, action: mark_exception}
-    - {from: EXCEPTION, to: RECEIVED, action: resolve_exception}
+    - {from: AUTHORIZED, to: RECEIVED, action: receive}
+    - {from: RECEIVED, to: INSPECTION_PENDING, action: inspect}
+    - {from: INSPECTION_PENDING, to: DISPOSITIONED, action: disposition}
+    - {from: RECEIVED, to: DISPOSITIONED, action: disposition}
+    - {from: DISPOSITIONED, to: COMPLETED, action: complete}
+    - {from: RECEIVED, to: EXCEPTION, action: raise_exception}
+    - {from: INSPECTION_PENDING, to: EXCEPTION, action: raise_exception}
+    - {from: EXCEPTION, to: INSPECTION_PENDING, action: resolve}
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: AUTHORIZED, to: CANCELLED, action: cancel}
-    - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
-    - {from: RECEIVED, to: CANCELLED, action: cancel}
-    - {from: INSPECTION_PENDING, to: CANCELLED, action: cancel}
-    - {from: EXCEPTION, to: CANCELLED, action: cancel}
   workflows:
-  - name: ExceptionRaised
-    title: "Raise a task when a customer return is stopped"
-    description: "When a customer return is exception, a high-priority task asks someone to resolve it."
-    when: "status == \"EXCEPTION\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: resolve"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "CUSTOMER-RETURN-EXCEPTION-{{id}}"
-          name: "Resolve customer return {{return_number}}"
-          description: "Customer return {{return_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "HIGH"
-  - name: FollowUpRequired
-    title: "Follow up when a customer return is ended"
-    description: "When a customer return is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "CUSTOMER-RETURN-FOLLOW-UP-{{id}}"
-          name: "Follow up on customer return {{return_number}}"
-          description: "Customer return {{return_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: CompletionConfirmed
-    title: "Confirm when a customer return is done"
-    description: "When a customer return is completed, a task asks someone to confirm the outcome."
-    when: "status == \"COMPLETED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: confirm"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "CUSTOMER-RETURN-COMPLETED-{{id}}"
-          name: "Confirm customer return {{return_number}}"
-          description: "Customer return {{return_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "LOW"
+    - name: ExceptionRaised
+      title: "Raise a task when a customer return is stopped"
+      description: "When a customer return is exception, a high-priority task asks someone to resolve it."
+      when: "status == \"EXCEPTION\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CUSTOMER-RETURN-EXCEPTION-{{id}}"
+              name: "Resolve customer return {{return_number}}"
+              description: "Customer return {{return_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a customer return is ended"
+      description: "When a customer return is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CUSTOMER-RETURN-FOLLOW-UP-{{id}}"
+              name: "Follow up on customer return {{return_number}}"
+              description: "Customer return {{return_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a customer return is done"
+      description: "When a customer return is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "CUSTOMER-RETURN-COMPLETED-{{id}}"
+              name: "Confirm customer return {{return_number}}"
+              description: "Customer return {{return_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
     summary: Coordinates the controlled reversal of a customer fulfillment while preserving original commercial, inventory and financial history.
     businessMeaning: A return is a new business event caused by a prior sale; it is not deletion or mutation of the original sale. A CreditNote is the separate financial consequence.
