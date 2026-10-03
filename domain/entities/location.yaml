@@ -21,67 +21,67 @@ entity:
     maxLength: 100
     unique: true
     help:
-      summary: "The code of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      summary: The short code of the location.
+      usage: Used on documents, labels and in integrations.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: "The name of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      summary: The name people use for the location.
+      usage: Shown in lists and on documents.
+      relationshipContext: Should be unambiguous within the organisation.
   - name: locationType
     type: enum
     required: true
     values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
     help:
-      summary: "The location type of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      summary: What kind of place the location is.
+      usage: Decides which operations may happen there, such as storing stock or selling.
+      relationshipContext: Chosen when the location is created.
       valueSemantics:
-        SITE: The location type of the location is site; set it when that is what the business means for this record.
-        WAREHOUSE: The location type of the location is warehouse; set it when that is what the business means for this record.
-        STORE: The location type of the location is store; set it when that is what the business means for this record.
-        OFFICE: The location type of the location is office; set it when that is what the business means for this record.
-        FACTORY: The location type of the location is factory; set it when that is what the business means for this record.
-        YARD: The location type of the location is yard; set it when that is what the business means for this record.
-        PORT: The location type of the location is port; set it when that is what the business means for this record.
-        DEPOT: The location type of the location is depot; set it when that is what the business means for this record.
-        VIRTUAL: The location type of the location is virtual; set it when that is what the business means for this record.
-        OTHER: The location type of the location is other; set it when that is what the business means for this record.
+        SITE: A site grouping other locations.
+        WAREHOUSE: A place where stock is stored.
+        STORE: A shop serving customers.
+        OFFICE: An office.
+        FACTORY: A production plant.
+        YARD: An outdoor area for vehicles or goods.
+        PORT: A sea, river or air port.
+        DEPOT: A distribution or vehicle depot.
+        VIRTUAL: A logical location with no physical place.
+        OTHER: Any other kind.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
     help:
-      summary: "The status of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      summary: Whether the location is in use.
+      usage: Changed by the location's manager.
+      relationshipContext: Closed and retired locations take no new transactions.
       valueSemantics:
-        PLANNED: The status of the location is planned; set it when that is what the business means for this record.
-        ACTIVE: The status of the location is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the location is inactive; set it when that is what the business means for this record.
-        CLOSED: The status of the location is closed; set it when that is what the business means for this record.
-        RETIRED: The status of the location is retired; set it when that is what the business means for this record.
+        PLANNED: Being set up; not yet in use.
+        ACTIVE: In use.
+        INACTIVE: Temporarily not in use.
+        CLOSED: Shut down; kept for history.
+        RETIRED: Withdrawn for good.
   - name: addressId
     type: reference
     target: Address
     required: false
     help:
-      summary: "The address id of the location: a link to another record the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      summary: The postal address of the location.
+      usage: Used for deliveries and documents.
+      relationshipContext: Empty for virtual locations.
   - name: parentLocationId
     type: reference
     target: Location
     required: false
     help:
-      summary: "The parent location id of the location: a link to another record the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      summary: The location this one is part of.
+      usage: Builds the location hierarchy.
+      relationshipContext: Never the location itself or one of its own children.
   - name: createdAt
     type: datetime
     required: true
@@ -107,38 +107,38 @@ entity:
     ownership: reference
     inverse: childLocations
     help:
-      summary: Links a location to location, the parent location it relates to.
-      usage: Chosen from the existing location records when the location is created or edited.
+      summary: The location this one is part of, such as the site of a warehouse.
       cardinalityMeaning: A location has at most one location in this role.
-      context: Lets the location be found from, and reported with, its location.
+      usage: Set when the location is placed in the hierarchy.
+      context: No cycles.
   - name: childLocations
     target: Location
     cardinality: 0..*
     ownership: reference
     inverse: parentLocation
     help:
-      summary: Links a location to location, the child locations it relates to.
-      usage: Chosen from the existing location records when the location is created or edited.
+      summary: Locations that are part of this one.
       cardinalityMeaning: A location has any number of location in this role.
-      context: Lets the location be found from, and reported with, its location.
+      usage: Listed on the location.
+      context: Each child has this location as its parent.
   - name: address
     target: Address
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a location to address, the address it relates to.
-      usage: Chosen from the existing address records when the location is created or edited.
+      summary: The postal address of the location.
       cardinalityMeaning: A location has at most one address in this role.
-      context: Lets the location be found from, and reported with, its address.
+      usage: Set when the location has a physical address.
+      context: Shared addresses are allowed.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a location to organization, the organization it relates to.
-      usage: Chosen from the existing organization records when the location is created or edited.
+      summary: The organisation that runs the location.
       cardinalityMeaning: A location has at most one organization in this role.
-      context: Lets the location be found from, and reported with, its organization.
+      usage: Set when the location is created.
+      context: Its policies apply at the location.
   invariants:
   - id: LOCATION-001
     rule: A Location cannot be its own parent.
