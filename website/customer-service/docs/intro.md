@@ -10,6 +10,7 @@ description: "Customer Service and CRM, built on the CEDM common foundation."
 
 Customer Service and CRM, built on the CEDM common foundation.
 
+![The Customer Service and CRM dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

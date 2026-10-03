@@ -13,6 +13,8 @@ Governed measurable service commitment. SLA defines service targets; service tra
 
 Open **Service Level Agreement** from the menu or from its card on the dashboard.
 
+![The Service Level Agreement list](/img/entities/service-level-agreement-list.jpg)
+
 The list shows Code, Response Target Minutes, Resolution Target Minutes, Status, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Code, Response Target Minutes, Resolution Target Minutes, Status,
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Service Level Agreement form](/img/entities/service-level-agreement-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Code**, **Status**.
@@ -75,6 +79,8 @@ stateDiagram-v2
 | Draft | Retired | Retire |
 | Active | Retired | Retire |
 | Suspended | Retired | Retire |
+
+![A Service Level Agreement record with its lifecycle bar](/img/entities/service-level-agreement-record.jpg)
 
 ## Who may use it
 
