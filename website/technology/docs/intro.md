@@ -10,6 +10,7 @@ description: "Technology and IT Service Management, built on the CEDM common fou
 
 Technology and IT Service Management, built on the CEDM common foundation.
 
+![The Technology and IT Service Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
