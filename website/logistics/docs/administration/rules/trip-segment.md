@@ -12,6 +12,7 @@ Runs after a trip is changed; order 100. In **Business Rules** it is listed as `
 
 - **When** “Status” == "CANCELLED" and “Status” != previous “Status”: **Starts a process** — “tripSegmentWorkflowsAfterUpdate: FollowUpRequired” (starts the process “Trip segment follow up required”).
 
+![The Trip segment workflows after update rule in the editor](/img/rules/trip-segment-workflows-after-update.jpg)
 
 **To change it:** open **Business Rules**, find the rule by name (or search for it), choose the pencil icon, change the decision table under **Decision Logic** and choose **Save Changes**. Use **Test Rule** to try a sample record first. The **Active** switch under **Rule Details** turns the rule off without deleting it.
 

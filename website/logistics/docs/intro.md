@@ -10,6 +10,7 @@ description: "Transportation and Logistics, built on the CEDM common foundation.
 
 Transportation and Logistics, built on the CEDM common foundation.
 
+![The Transportation and Logistics dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

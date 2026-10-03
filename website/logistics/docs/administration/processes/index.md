@@ -8,6 +8,7 @@ description: "The automated multi-step processes this application runs."
 
 A process is a sequence of steps the application runs for you: create a task, update a record, call a service. A business rule usually starts it; you can also run one by hand from the Workflow Designer. Every run is logged step by step in the Workflow Monitor. This application has **11** processes.
 
+![The Workflow Designer](/img/admin/workflow-definitions.jpg)
 
 ## Party exception raised {#party-exception-raised}
 
@@ -23,6 +24,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Party exception raised process in the Workflow Designer](/img/processes/party-exception-raised.jpg)
 
 ## Exchange rate follow up required {#exchange-rate-follow-up-required}
 
@@ -38,6 +40,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Exchange rate follow up required process in the Workflow Designer](/img/processes/exchange-rate-follow-up-required.jpg)
 
 ## Shipment exception raised {#shipment-exception-raised}
 
@@ -53,6 +56,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Shipment exception raised process in the Workflow Designer](/img/processes/shipment-exception-raised.jpg)
 
 ## Shipment follow up required {#shipment-follow-up-required}
 
@@ -68,6 +72,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Shipment follow up required process in the Workflow Designer](/img/processes/shipment-follow-up-required.jpg)
 
 ## Shipment completion confirmed {#shipment-completion-confirmed}
 
@@ -83,6 +88,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Shipment completion confirmed process in the Workflow Designer](/img/processes/shipment-completion-confirmed.jpg)
 
 ## Sales order follow up required {#sales-order-follow-up-required}
 
@@ -98,6 +104,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Sales order follow up required process in the Workflow Designer](/img/processes/sales-order-follow-up-required.jpg)
 
 ## Sales order completion confirmed {#sales-order-completion-confirmed}
 
@@ -113,6 +120,7 @@ flowchart TD
 
 1. **Raise a task: confirm** — creates a **Task** record.
 
+![The Sales order completion confirmed process in the Workflow Designer](/img/processes/sales-order-completion-confirmed.jpg)
 
 ## Trip follow up required {#trip-follow-up-required}
 
@@ -128,6 +136,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Trip follow up required process in the Workflow Designer](/img/processes/trip-follow-up-required.jpg)
 
 ## Trip segment follow up required {#trip-segment-follow-up-required}
 
@@ -143,6 +152,7 @@ flowchart TD
 
 1. **Raise a task: follow up on** — creates a **Task** record.
 
+![The Trip segment follow up required process in the Workflow Designer](/img/processes/trip-segment-follow-up-required.jpg)
 
 ## Customer exception raised {#customer-exception-raised}
 
@@ -158,6 +168,7 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Customer exception raised process in the Workflow Designer](/img/processes/customer-exception-raised.jpg)
 
 ## Product exception raised {#product-exception-raised}
 
@@ -173,4 +184,5 @@ flowchart TD
 
 1. **Raise a task: resolve** — creates a **Task** record.
 
+![The Product exception raised process in the Workflow Designer](/img/processes/product-exception-raised.jpg)
 
