@@ -5,6 +5,7 @@ entity:
   description: A planned quantity for a product at a location and time within a supply plan.
   ui:
     icon: table
+    recordLabel: [planningDate, plannedQuantity]
   identity:
     key: supplyPlanLineId
     type: uuid
@@ -23,27 +24,27 @@ entity:
     type: date
     required: true
     help:
-      summary: Records the business date associated with the planning. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SupplyPlanLine records, where applicable.
-      relationshipContext: Its meaning is specific to SupplyPlanLine; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The date the quantity is needed by.
+      usage: Places the line in the plan's time buckets.
+      relationshipContext: Within the plan's horizon.
   - name: plannedQuantity
     type: decimal
     required: true
     precision: 20
     scale: 6
     help:
-      summary: Captures the business meaning of planned quantity for the SupplyPlanLine. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SupplyPlanLine records, where applicable.
-      relationshipContext: Its meaning is specific to SupplyPlanLine; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The quantity to supply.
+      usage: Becomes the order quantity when released.
+      relationshipContext: Not negative.
   - name: safetyStockQuantity
     type: decimal
     required: false
     precision: 20
     scale: 6
     help:
-      summary: Captures the business meaning of safety stock quantity for the SupplyPlanLine. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SupplyPlanLine records, where applicable.
-      relationshipContext: Its meaning is specific to SupplyPlanLine; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The stock to keep in reserve against uncertainty.
+      usage: Added to demand when computing supply.
+      relationshipContext: Not negative.
   - name: status
     type: enum
     required: true
@@ -54,47 +55,46 @@ entity:
     - FULFILLED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating SupplyPlanLine records, where applicable.
-      relationshipContext: Its meaning is specific to SupplyPlanLine; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the line stands.
+      usage: Moved on as orders are created and completed.
+      relationshipContext: Only planned lines can be changed freely.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of SupplyPlanLine.
-        RELEASED: Represents the released state or classification in the context of SupplyPlanLine.
-        FULFILLED: Represents the fulfilled state or classification in the context of SupplyPlanLine.
-        CANCELLED: Represents the cancelled state or classification in the context of SupplyPlanLine.
+        PLANNED: Proposed by the plan.
+        RELEASED: The order has been created.
+        FULFILLED: The order has been completed.
+        CANCELLED: No longer needed.
   relationships:
   - name: supplyPlan
     target: SupplyPlan
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects SupplyPlanLine to SupplyPlan so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about SupplyPlan records associated with a SupplyPlanLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The plan the line belongs to.
+      usage: Set when the line is created.
+      cardinalityMeaning: Each line belongs to one plan.
+      context: Shares its horizon and approval.
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects SupplyPlanLine to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a SupplyPlanLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The product planned.
+      usage: Set when the line is created.
+      cardinalityMeaning: Each line is for one product.
+      context: Must be in the plan's products.
   - name: location
     target: Location
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects SupplyPlanLine to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a SupplyPlanLine.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Where the quantity is needed.
+      usage: Set when the line is created.
+      cardinalityMeaning: Each line is for one location.
+      context: Must be in the plan's locations.
   invariants:
-  - id: SUPPLY-PLAN-LINE-001
-    rule: plannedQuantity must not be negative.
+  - {id: SUPPLY-PLAN-LINE-001, rule: Planned quantities are not negative., violatedWhen: planned_quantity < 0, message: The planned quantity cannot be negative.}
+  - {id: SUPPLY-PLAN-LINE-002, rule: Safety stock is not negative., violatedWhen: safety_stock_quantity != null and safety_stock_quantity < 0, message: Safety stock cannot be negative.}
   - {id: SUPPLY-PLAN-LINE-EXE-001, rule: "Planned Quantity cannot be negative.", violatedWhen: "planned_quantity != null and planned_quantity < 0", message: "Planned Quantity cannot be negative."}
-  - {id: SUPPLY-PLAN-LINE-EXE-002, rule: "Safety Stock Quantity cannot be negative.", violatedWhen: "safety_stock_quantity != null and safety_stock_quantity < 0", message: "Safety Stock Quantity cannot be negative."}
   lifecycle:
     title: Supply Plan Line Lifecycle
     attribute: status
@@ -128,10 +128,10 @@ entity:
   help:
     summary: Represents a supply chain entity called SupplyPlanLine within the CEDM business model.
     businessMeaning: SupplyPlanLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate SupplyPlanLine records.
     relationshipContext: The entity participates in a wider business graph through relationships with SupplyPlan, Product, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical SupplyPlanLine record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Planners set, for each product, location and date of the plan, the quantity to make, buy or move and the safety stock to hold; released lines become purchase, production or transfer orders.
+    lifecycle: A line is planned, released when the order it calls for is created, and fulfilled when that order is completed; a planned or released line may be cancelled.
+    example: Plan SP-2024-W23, 'Cordless drill X200' at Lyon DC, week of 17 June 2024, 1,200 units, safety stock 300, released.
 specification:
   version: 0.1.0
   status: draft

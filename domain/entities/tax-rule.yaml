@@ -21,17 +21,17 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: 'The code of the tax rule: a value the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: The code of the tax rule.
+      usage: Recorded on the tax lines it produced.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: 'The name of the tax rule: a value the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: The name of the rule.
+      usage: Shown when maintaining tax rules.
+      relationshipContext: Names the tax, rate and scope.
   - name: rate
     type: decimal
     required: true
@@ -39,17 +39,17 @@ entity:
     scale: 8
     minimum: 0
     help:
-      summary: 'The rate of the tax rule: a number the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: The tax rate in percent.
+      usage: Applied to the taxable amount.
+      relationshipContext: Not negative.
   - name: jurisdictionCode
     type: string
     required: false
     maxLength: 100
     help:
-      summary: 'The jurisdiction code of the tax rule: a value the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: The code of the tax jurisdiction, such as a country or state code.
+      usage: Matched against the transaction's place of supply.
+      relationshipContext: As used by the tax authority.
   - name: taxType
     type: enum
     required: true
@@ -61,30 +61,30 @@ entity:
     - WITHHOLDING
     - OTHER
     help:
-      summary: 'The tax type of the tax rule: a value the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: The kind of tax.
+      usage: Decides how the tax is reported.
+      relationshipContext: Chosen when defining the rule.
       valueSemantics:
-        SALES: The tax type of the tax rule is sales; set it when that is what the business means for this record.
-        VAT: The tax type of the tax rule is vat; set it when that is what the business means for this record.
-        GST: The tax type of the tax rule is gst; set it when that is what the business means for this record.
-        USE: The tax type of the tax rule is use; set it when that is what the business means for this record.
-        WITHHOLDING: The tax type of the tax rule is withholding; set it when that is what the business means for this record.
-        OTHER: The tax type of the tax rule is other; set it when that is what the business means for this record.
+        SALES: Sales tax charged on sales to end customers.
+        VAT: Value-added tax.
+        GST: Goods and services tax.
+        USE: Use tax on purchases where no sales tax was charged.
+        WITHHOLDING: Tax withheld from a payment.
+        OTHER: Any other tax.
   - name: validFrom
     type: datetime
     required: false
     help:
-      summary: 'The valid from of the tax rule: a point in time the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: When the rule starts to apply.
+      usage: Transactions before it use an earlier rule.
+      relationshipContext: Not after the end.
   - name: validTo
     type: datetime
     required: false
     help:
-      summary: 'The valid to of the tax rule: a point in time the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: When the rule stops applying.
+      usage: Set when the rate changes or the tax ends.
+      relationshipContext: Empty while in force.
   - name: status
     type: enum
     required: true
@@ -95,53 +95,53 @@ entity:
     - INACTIVE
     - RETIRED
     help:
-      summary: 'The status of the tax rule: a value the business records on it.'
-      usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its own.
+      summary: Whether the rule is used.
+      usage: Changed by tax administrators.
+      relationshipContext: Only active rules determine tax.
       valueSemantics:
-        DRAFT: The status of the tax rule is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the tax rule is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the tax rule is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the tax rule is retired; set it when that is what the business means for this record.
+        DRAFT: Being defined.
+        ACTIVE: In use.
+        INACTIVE: Temporarily not used.
+        RETIRED: No longer used.
   relationships:
   - name: jurisdiction
     target: Location
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a tax rule to location, the jurisdiction it relates to.
-      usage: Chosen from the existing location records when the tax rule is created or edited.
+      summary: The place the rule applies to.
       cardinalityMeaning: A tax rule has at most one location in this role.
-      context: Lets the tax rule be found from, and reported with, its location.
+      usage: Matched against the place of supply.
+      context: Empty for rules that apply everywhere.
   - name: products
     target: Product
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a tax rule to product, the products it relates to.
-      usage: Chosen from the existing product records when the tax rule is created or edited.
+      summary: Products the rule applies to.
       cardinalityMeaning: A tax rule has any number of product in this role.
-      context: Lets the tax rule be found from, and reported with, its product.
+      usage: Chosen when the rule is limited to certain products.
+      context: Empty means all products.
     inverseCardinality: 0..*
   - name: customers
     target: Customer
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a tax rule to customer, the customers it relates to.
-      usage: Chosen from the existing customer records when the tax rule is created or edited.
+      summary: Customers the rule applies to.
       cardinalityMeaning: A tax rule has any number of customer in this role.
-      context: Lets the tax rule be found from, and reported with, its customer.
+      usage: Chosen for customer-specific treatment, such as exemptions.
+      context: Empty means all customers.
     inverseCardinality: 0..*
   - name: organizations
     target: Organization
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Links a tax rule to organization, the organizations it relates to.
-      usage: Chosen from the existing organization records when the tax rule is created or edited.
+      summary: Selling organisations the rule applies to.
       cardinalityMeaning: A tax rule has any number of organization in this role.
-      context: Lets the tax rule be found from, and reported with, its organization.
+      usage: Chosen when the rule applies to certain companies only.
+      context: Empty means all.
     inverseCardinality: 0..*
   invariants:
   - {id: TAX-RULE-001, rule: rate must be zero or greater.}
