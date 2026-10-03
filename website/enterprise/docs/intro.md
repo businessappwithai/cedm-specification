@@ -10,6 +10,7 @@ description: "Enterprise Management, built on the CEDM common foundation."
 
 Enterprise Management, built on the CEDM common foundation.
 
+![The Enterprise Management dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

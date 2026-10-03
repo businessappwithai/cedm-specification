@@ -13,6 +13,8 @@ The foundational CEDM business concept for an identifiable person or organizatio
 
 Open **Party** from the menu or from its card on the dashboard.
 
+![The Party list](/img/entities/party-list.jpg)
+
 The list shows Party Type, Display Name, Status, External Reference, ERP, Business Transaction, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
