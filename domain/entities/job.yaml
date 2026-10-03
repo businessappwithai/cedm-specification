@@ -15,15 +15,89 @@ entity:
       summary: The permanent system identifier of the job record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a job store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed job code., businessMeaning: Human/integration classification identifier., usage: HCM and reporting., relationshipContext: Independent of employee/position identity., requiredMeaning: Required.}}
-  - {name: title, type: string, required: true, maxLength: 300, help: {summary: Standard job title., businessMeaning: Names the reusable work role., usage: Organization design and HR., relationshipContext: Position may have contextual display title., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The code of the job in the job catalogue, such as FIN-AP-02.
+      businessMeaning: Human/integration classification identifier.
+      usage: Used by HR in job architecture and pay structures.
+      relationshipContext: Unique.
+  - name: title
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The job title, such as "Accounts Payable Specialist".
+      businessMeaning: Names the reusable work role.
+      usage: Shown on positions and job adverts.
+      relationshipContext: Several positions share one job.
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
-    help: {summary: Job-definition lifecycle., businessMeaning: Controls future position assignment., usage: HCM governance., relationshipContext: Historical employment remains valid., valueSemantics: {DRAFT: Being designed., ACTIVE: Available., INACTIVE: Temporarily unavailable., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+    help:
+      summary: Whether the job may be used for positions.
+      businessMeaning: Controls future position assignment.
+      usage: Moved on by HR.
+      relationshipContext: Retired jobs remain on existing positions until they are changed.
+      valueSemantics:
+        DRAFT: Being defined.
+        ACTIVE: Available for positions.
+        INACTIVE: Temporarily not used.
+        RETIRED: No longer used.
+  - name: jobFamily
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The family the job belongs to, such as Finance or Engineering.
+      usage: Used in workforce reporting and career paths.
+      relationshipContext: From the job architecture.
+  - name: jobLevel
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The level or grade of the job.
+      usage: Links the job to a pay range.
+      relationshipContext: From the grading structure.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the job involves.
+      usage: Used in job adverts and evaluations.
+      relationshipContext: Free text.
+  - name: qualifications
+    type: text
+    required: false
+    help:
+      summary: The skills, education and experience the job requires.
+      usage: Used in recruiting and promotion decisions.
+      relationshipContext: Free text.
+  - name: flsaExempt
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether the job is exempt from overtime rules where such rules apply.
+      usage: Decides how overtime is paid.
+      relationshipContext: Depends on local law.
   relationships:
-  - {name: positions, target: Position, cardinality: 0..*, ownership: reference, help: {summary: Organizational positions based on job definition., businessMeaning: Instantiates reusable work definition in organization structure., usage: Workforce planning., cardinalityMeaning: Zero or many Positions., workflowRole: Job lifecycle affects new position use but not historical employment.}}
+  - name: positions
+    target: Position
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The positions defined from this job.
+      businessMeaning: Instantiates reusable work definition in organization structure.
+      workflowRole: Job lifecycle affects new position use but not historical employment.
+      usage: Listed from the job.
+      cardinalityMeaning: A job has any number of positions; each position has one job.
+      context: The position records its job.
   invariants:
   - {id: JOB-001, rule: RETIRED Job cannot be newly assigned to a Position without governed reinstatement/migration.}
   - {id: JOB-002, rule: Job definition changes must not rewrite historical Employment terms.}

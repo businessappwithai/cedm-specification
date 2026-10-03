@@ -15,19 +15,61 @@ entity:
       summary: The permanent system identifier of the product lifecycle record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a product lifecycle store this identifier. The number or code people quote is a separate field.
-  - {name: effectiveAt, type: datetime, required: true, help: {summary: Time lifecycle transition becomes effective., businessMeaning: Establishes point-in-time product eligibility., usage: "Catalog, transaction validation and audit.", relationshipContext: Historical transactions use status effective at relevant time., requiredMeaning: Required.}}
+  - name: effectiveAt
+    type: datetime
+    required: true
+    help:
+      summary: When the change of lifecycle status takes effect.
+      businessMeaning: Establishes point-in-time product eligibility.
+      usage: Set by the product manager; the product's status changes at this time.
+      relationshipContext: Records are read in this order to give the product's lifecycle history.
   - name: lifecycleStatus
     type: enum
     required: true
     values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
-    help: {summary: Product lifecycle state established by event., businessMeaning: Governs future product eligibility., usage: Master-data workflow., relationshipContext: Reconciles to current Product.status., valueSemantics: {DRAFT: Not yet generally usable., ACTIVE: Eligible., DISCONTINUED: No new ordinary demand., BLOCKED: Temporarily restricted., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
-  - {name: reason, type: string, required: true, maxLength: 1000, help: {summary: Business reason for transition., businessMeaning: Provides governance/audit justification., usage: Approval and downstream exception handling., relationshipContext: Does not itself reverse existing obligations., requiredMeaning: Required.}}
+    help:
+      summary: The status the product enters.
+      businessMeaning: Governs future product eligibility.
+      usage: Decides whether the product may be sold, bought or made from this time.
+      relationshipContext: The product's current status is that of its latest effective record.
+      valueSemantics:
+        DRAFT: Being set up; not yet sold or bought.
+        ACTIVE: Available for normal business.
+        DISCONTINUED: No longer replenished; remaining stock may be sold.
+        BLOCKED: Temporarily barred, for example for a quality problem.
+        RETIRED: No longer used at all.
+  - name: reason
+    type: string
+    required: true
+    maxLength: 1000
+    help:
+      summary: Why the status changed.
+      businessMeaning: Provides governance/audit justification.
+      usage: Written by the person making the change.
+      relationshipContext: Such as "replaced by model 40B".
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product whose lifecycle changes., businessMeaning: Supplies governed master context., usage: Eligibility and audit., cardinalityMeaning: Exactly one Product., workflowRole: Transition triggers dependency validation.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product whose status changes.
+      businessMeaning: Supplies governed master context.
+      workflowRole: Transition triggers dependency validation.
+      usage: Set when the change is recorded.
+      cardinalityMeaning: Every record belongs to one product.
+      context: Listed in the product's lifecycle history.
+  - name: approvedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who approved the change.
+      usage: Recorded with the change.
+      cardinalityMeaning: One per record.
+      context: Status changes affecting customers need approval.
   invariants:
-  - {id: PRODUCT-LIFECYCLE-001, rule: Lifecycle events for a Product must form a non-contradictory effective chronology.}
-  - {id: PRODUCT-LIFECYCLE-002, rule: "Restrictive transitions require validation of open sales, procurement, inventory, manufacturing, service and fulfillment obligations."}
-  - {id: PRODUCT-LIFECYCLE-003, rule: Lifecycle transition never rewrites completed historical transaction evidence.}
+  - {id: PRODUCT-LIFECYCLE-001, rule: Lifecycle records are not edited; a correction is a new record.}
   help:
     summary: Effective-dated audit trail of product eligibility changes.
     businessMeaning: Product.status is current state; ProductLifecycle preserves governed transition history and reason.

@@ -15,17 +15,94 @@ entity:
       summary: The permanent system identifier of the brand record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a brand store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed brand code., businessMeaning: Stable business/integration identifier., usage: Catalog and integration., relationshipContext: Unique in brand master., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Brand display name., businessMeaning: Customer/supplier-facing market identity., usage: "Catalog, documents, search and reporting.", relationshipContext: Presentation can change without changing brand identity., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The short code of the brand.
+      businessMeaning: Stable business/integration identifier.
+      usage: Used in product data and reports.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The brand name as shown to customers.
+      businessMeaning: Customer/supplier-facing market identity.
+      usage: Shown in catalogues and on product pages.
+      relationshipContext: Identifies the brand.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, RETIRED]
-    help: {summary: Brand lifecycle state., businessMeaning: Controls future assignment/use., usage: Master-data governance., relationshipContext: Historical product/transaction references remain valid., valueSemantics: {ACTIVE: Eligible for new assignment., INACTIVE: Temporarily unavailable for new assignment., RETIRED: Permanently unavailable for new assignment.}, requiredMeaning: Required.}
+    help:
+      summary: Whether the brand is in use.
+      businessMeaning: Controls future assignment/use.
+      usage: Changed by the category manager.
+      relationshipContext: Retired brands are not offered on new products.
+      valueSemantics:
+        ACTIVE: In use.
+        INACTIVE: Temporarily not used.
+        RETIRED: No longer used.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the brand stands for.
+      usage: Used in catalogues and marketing.
+      relationshipContext: Free text.
+  - name: isOwnBrand
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether the brand belongs to the business (a private label).
+      usage: Own brands carry different margins and sourcing rules.
+      relationshipContext: Third-party brands are supplied by their owners.
+  - name: websiteUrl
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: The brand's website.
+      usage: Linked from product pages.
+      relationshipContext: Optional.
   relationships:
-  - {name: products, target: Product, cardinality: 0..*, ownership: reference, help: {summary: Products marketed/manufactured under brand., businessMeaning: Connects product portfolio to market identity., usage: Catalog and reporting., cardinalityMeaning: Zero or many Products., workflowRole: Brand lifecycle affects future assignments but not historical evidence.}}
-  - {name: variants, target: ProductVariant, cardinality: 0..*, ownership: reference, help: {summary: Variants explicitly associated with brand., businessMeaning: Supports variant-specific brand assignment., usage: Catalog and commerce., cardinalityMeaning: Zero or many variants., workflowRole: Variant may inherit brand from parent Product when policy allows.}}
+  - name: products
+    target: Product
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: The products sold under the brand.
+      businessMeaning: Connects product portfolio to market identity.
+      workflowRole: Brand lifecycle affects future assignments but not historical evidence.
+      usage: Listed from the brand.
+      cardinalityMeaning: A brand has any number of products; each product has one brand.
+      context: The product records its brand.
+  - name: variants
+    target: ProductVariant
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Variants sold under the brand when it differs from the product's.
+      businessMeaning: Supports variant-specific brand assignment.
+      workflowRole: Variant may inherit brand from parent Product when policy allows.
+      usage: Listed from the brand.
+      cardinalityMeaning: Any number of variants.
+      context: The variant records its brand.
+  - name: owner
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company that owns the brand.
+      usage: Recorded for licensing and sourcing.
+      cardinalityMeaning: One owner per brand.
+      context: Our own company for own brands.
   invariants:
   - {id: BRAND-001, rule: code must be unique.}
   - {id: BRAND-002, rule: RETIRED brand must not be newly assigned without governed reinstatement or migration.}

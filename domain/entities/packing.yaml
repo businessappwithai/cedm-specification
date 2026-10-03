@@ -15,22 +15,103 @@ entity:
       summary: The permanent system identifier of the packing record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a packing store this identifier. The number or code people quote is a separate field.
-  - {name: packedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity confirmed packed., businessMeaning: Measures goods prepared for transport., usage: Shipment readiness and reconciliation., relationshipContext: Must not exceed eligible picked quantity., requiredMeaning: Required.}}
+  - name: packedQuantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How many units were packed into the handling unit.
+      businessMeaning: Measures goods prepared for transport.
+      usage: Counted or scanned at the packing station.
+      relationshipContext: Compared with the picked quantity; a difference is an exception.
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, IN_PROGRESS, PACKED, CANCELLED, EXCEPTION]
-    help: {summary: Packing task state., businessMeaning: Controls packaging workflow., usage: WMS and shipping readiness., relationshipContext: PACKED is not dispatch/delivery evidence., valueSemantics: {PLANNED: Awaiting work., IN_PROGRESS: Packaging underway., PACKED: Confirmed complete., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    help:
+      summary: Where the packing task stands.
+      businessMeaning: Controls packaging workflow.
+      usage: Moved on at the packing station.
+      relationshipContext: Only packed units can be shipped.
+      valueSemantics:
+        PLANNED: Waiting to be packed.
+        IN_PROGRESS: Being packed.
+        PACKED: Packed and labelled.
+        CANCELLED: No longer needed.
+        EXCEPTION: Stopped by a problem a supervisor must resolve.
+  - name: packingNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the packing task.
+      usage: Printed on the packing slip and scanned at the packing station.
+      relationshipContext: Unique.
+  - name: packedAt
+    type: datetime
+    required: false
+    help:
+      summary: When packing was finished.
+      usage: Recorded when the unit is closed.
+      relationshipContext: Present once packed.
+  - name: exceptionReason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: What went wrong, such as missing items or damage found.
+      usage: Written when the task goes into exception.
+      relationshipContext: Read by the supervisor who resolves it.
   relationships:
-  - {name: picking, target: Picking, cardinality: 0..1, ownership: reference, help: {summary: Pick task supplying goods., businessMeaning: Preserves pick-to-pack provenance., usage: Fulfillment reconciliation., cardinalityMeaning: Optional for packing not driven by a single pick., workflowRole: Packed quantity cannot exceed eligible picked quantity.}}
-  - {name: handlingUnit, target: HandlingUnit, cardinality: "1", ownership: reference, help: {summary: Package/pallet/tote receiving packed goods., businessMeaning: Establishes physical logistics identity., usage: "Labels, staging, loading and tracking.", cardinalityMeaning: Exactly one target handling unit per packing record., workflowRole: Contents/custody remain traceable.}}
-  - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Shipment for which package is prepared., businessMeaning: Connects warehouse packaging to transport., usage: Shipment readiness and loading., cardinalityMeaning: Optional before shipment assignment., workflowRole: Packing does not dispatch shipment.}}
-  - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Shipment product line represented by packed quantity., businessMeaning: Preserves line-level fulfillment provenance., usage: Packing and dispatch reconciliation., cardinalityMeaning: Optional for mixed/general packing records., workflowRole: Product/UOM/quantity must reconcile.}}
+  - name: picking
+    target: Picking
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The pick that supplied the goods.
+      businessMeaning: Preserves pick-to-pack provenance.
+      workflowRole: Packed quantity cannot exceed eligible picked quantity.
+      usage: Linked when picked goods arrive at packing.
+      cardinalityMeaning: At most one pick.
+      context: The packed quantity should equal the picked quantity.
+  - name: handlingUnit
+    target: HandlingUnit
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The carton or pallet the goods are packed into.
+      businessMeaning: Establishes physical logistics identity.
+      workflowRole: Contents/custody remain traceable.
+      usage: Created or scanned at the packing station.
+      cardinalityMeaning: Every packing task fills exactly one handling unit.
+      context: The unit's label is printed at packing.
+  - name: shipment
+    target: Shipment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The shipment the packed unit will travel on.
+      businessMeaning: Connects warehouse packaging to transport.
+      workflowRole: Packing does not dispatch shipment.
+      usage: Set from the order being packed.
+      cardinalityMeaning: At most one.
+      context: Lets the unit be loaded on the right vehicle.
+  - name: shipmentLine
+    target: ShipmentLine
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The shipment line the goods fulfil.
+      businessMeaning: Preserves line-level fulfillment provenance.
+      workflowRole: Product/UOM/quantity must reconcile.
+      usage: Set from the order line being packed.
+      cardinalityMeaning: At most one.
+      context: Lets the packing slip list line by line.
   invariants:
-  - {id: PACKING-001, rule: packedQuantity must be greater than zero.}
-  - {id: PACKING-002, rule: Packed quantity must not exceed eligible picked or shipment quantity and must preserve lot/serial identity where controlled.}
-  - {id: PACKING-003, rule: "Packing must not itself create inventory issue, dispatch, delivery, invoice or payment effects."}
+  - {id: PACKING-001, rule: An exception says what went wrong., violatedWhen: status == "EXCEPTION" and exception_reason == null, message: Describe the exception.}
   - {id: PACKING-EXE-001, rule: "Packed Quantity cannot be negative.", violatedWhen: "packed_quantity != null and packed_quantity < 0", message: "Packed Quantity cannot be negative."}
   lifecycle:
     title: Packing Lifecycle

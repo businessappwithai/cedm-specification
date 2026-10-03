@@ -15,23 +15,107 @@ entity:
       summary: The permanent system identifier of the putaway record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a putaway store this identifier. The number or code people quote is a separate field.
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed for storage., businessMeaning: Defines task execution quantity., usage: Putaway confirmation and variance., relationshipContext: Must reconcile with transfer/movement., requiredMeaning: Required.}}
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 20
+    scale: 6
+    help:
+      summary: How many units are to be put away.
+      businessMeaning: Defines task execution quantity.
+      usage: Set from the receipt or transfer.
+      relationshipContext: In the product's stock unit.
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
-    help: {summary: Putaway task state., businessMeaning: Controls executable storage work., usage: WMS orchestration., relationshipContext: Completion alone does not alter stock without inventory posting., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being executed., COMPLETED: Confirmed and reconciled., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    help:
+      summary: Where the putaway task stands.
+      businessMeaning: Controls executable storage work.
+      usage: Moved on by release and by the operator.
+      relationshipContext: Stock becomes available in the target location on completion.
+      valueSemantics:
+        PLANNED: Created, not yet released.
+        RELEASED: Released to operators.
+        IN_PROGRESS: Being moved.
+        COMPLETED: Confirmed in the target location.
+        CANCELLED: No longer needed.
+        EXCEPTION: Stopped by a problem, such as a full location.
+  - name: putawayNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the putaway task.
+      usage: Shown on the operator's device.
+      relationshipContext: Unique.
+  - name: completedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the goods were confirmed in their storage location.
+      usage: Recorded by the operator's device.
+      relationshipContext: Present once completed.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., cardinalityMeaning: Exactly one Product., workflowRole: Must match transfer.}}
-  - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Receiving/staging origin., businessMeaning: Current controlled position., usage: Execution., cardinalityMeaning: Exactly one source., workflowRole: Must contain eligible stock.}}
-  - {name: targetLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Directed storage destination., businessMeaning: Selected eligible storage position., usage: Putaway optimization., cardinalityMeaning: Exactly one target., workflowRole: Zone/location constraints must be satisfied.}}
-  - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Physical pallet/carton/tote moved as unit., businessMeaning: Supports scan-based execution., usage: WMS mobility., cardinalityMeaning: Optional for loose stock., workflowRole: Handling-unit location must reconcile.}}
-  - {name: inventoryTransfer, target: InventoryTransfer, cardinality: '1', ownership: reference, help: {summary: Inventory relocation authorization/execution associated with putaway., businessMeaning: Separates warehouse task from stock ledger., usage: Reconciliation., cardinalityMeaning: Exactly one governed transfer., workflowRole: Completed task must reconcile to posted movement.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The product put away.
+      businessMeaning: Identifies handled inventory.
+      workflowRole: Must match transfer.
+      usage: Set from the receipt.
+      cardinalityMeaning: Every putaway moves exactly one product.
+      context: Its storage conditions limit the target locations.
+  - name: sourceLocation
+    target: InventoryLocation
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Where the goods are taken from, usually the receiving area.
+      businessMeaning: Current controlled position.
+      workflowRole: Must contain eligible stock.
+      usage: Set from the receipt.
+      cardinalityMeaning: Exactly one.
+      context: Goods leave this location on completion.
+  - name: targetLocation
+    target: InventoryLocation
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The storage location the goods go to.
+      businessMeaning: Selected eligible storage position.
+      workflowRole: Zone/location constraints must be satisfied.
+      usage: Chosen by the putaway rules.
+      cardinalityMeaning: Exactly one.
+      context: Must be able to hold the product and quantity.
+  - name: handlingUnit
+    target: HandlingUnit
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The pallet or carton moved.
+      businessMeaning: Supports scan-based execution.
+      workflowRole: Handling-unit location must reconcile.
+      usage: Scanned by the operator.
+      cardinalityMeaning: At most one.
+      context: Moving a unit moves everything on it.
+  - name: inventoryTransfer
+    target: InventoryTransfer
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The stock transfer the putaway carries out.
+      businessMeaning: Separates warehouse task from stock ledger.
+      workflowRole: Completed task must reconcile to posted movement.
+      usage: Created with the putaway.
+      cardinalityMeaning: Every putaway carries out exactly one transfer.
+      context: The transfer records the stock movement.
   invariants:
-  - {id: PUTAWAY-001, rule: quantity must be greater than zero and source/target must differ.}
-  - {id: PUTAWAY-002, rule: "Target must satisfy WarehouseZone, product, quality, capacity and handling constraints."}
-  - {id: PUTAWAY-003, rule: COMPLETED requires attributable transfer/movement evidence and retries must be idempotent.}
+  - {id: PUTAWAY-001, rule: A completed putaway records when it finished., violatedWhen: status == "COMPLETED" and completed_at == null, message: Record when the putaway was completed.}
   - {id: PUTAWAY-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   lifecycle:
     title: Putaway Lifecycle

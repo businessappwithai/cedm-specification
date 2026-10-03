@@ -5,6 +5,7 @@ entity:
   description: A sellable, purchasable, manufacturable, or stockable variation of a parent Product distinguished by governed option or attribute values while retaining the parent product family identity.
   ui:
     icon: package
+    recordLabel: [code]
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: productVariantId
@@ -15,17 +16,97 @@ entity:
       summary: The permanent system identifier of the product variant record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a product variant store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of variant., businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code., requiredMeaning: Required.}}
-  - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help:
+      summary: The code of the variant, such as TSHIRT-RED-M.
+      businessMeaning: Human/integration identifier for the configuration.
+      usage: Used in orders and stock records.
+      relationshipContext: Unique.
+  - name: sku
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The stock-keeping unit used in the warehouse and shop.
+      businessMeaning: Operational inventory/commercial identifier where variants are stocked separately.
+      optionalMeaning: Optional for non-stocked variants.
+      usage: Scanned and searched in store and warehouse systems.
+      relationshipContext: Often equal to the code.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
-    help: {summary: Variant lifecycle state., businessMeaning: Controls future eligibility of this configuration., usage: Catalog and transaction validation., relationshipContext: Parent Product restrictions also apply., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible for governed use., BLOCKED: Temporarily prohibited., DISCONTINUED: No longer offered for new demand., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
+    help:
+      summary: Whether the variant may be sold.
+      businessMeaning: Controls future eligibility of this configuration.
+      usage: Moved on by the product manager.
+      relationshipContext: Blocked variants cannot be ordered.
+      valueSemantics:
+        DRAFT: Being set up.
+        ACTIVE: On sale.
+        BLOCKED: Temporarily barred.
+        DISCONTINUED: No longer replenished.
+        RETIRED: No longer used.
+  - name: name
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The name of the variant, such as "T-shirt, red, M".
+      usage: Shown on product pages and order lines.
+      relationshipContext: Usually the product name plus the options.
+  - name: optionValues
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: The options that distinguish the variant, such as "Colour=Red; Size=M".
+      usage: Shown to shoppers and used to filter.
+      relationshipContext: Each combination of options is one variant.
+  - name: gtin
+    type: string
+    required: false
+    maxLength: 14
+    help:
+      summary: The barcode number of the variant.
+      usage: Scanned in stores and warehouses.
+      relationshipContext: Each variant has its own GTIN.
+  - name: priceAdjustment
+    type: Money
+    required: false
+    help:
+      summary: How much the variant's price differs from the product's base price.
+      usage: Added to the base price; zero when the variant costs the same.
+      relationshipContext: In the product's price currency.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, inverse: variants, help: {summary: Parent product family., businessMeaning: Supplies shared identity and semantics., usage: Catalog and master-data inheritance., cardinalityMeaning: Exactly one parent Product., workflowRole: Parent restrictions propagate to variant eligibility.}}
-  - {name: brand, target: Brand, cardinality: 0..1, ownership: reference, help: {summary: Brand associated with variant where different or explicit., businessMeaning: Provides market identity., usage: Catalog and commerce., cardinalityMeaning: Optional; may inherit parent brand., workflowRole: Brand retirement affects future presentation/eligibility policy.}}
+  - name: product
+    target: Product
+    cardinality: '1'
+    ownership: reference
+    inverse: variants
+    help:
+      summary: The product the variant belongs to.
+      businessMeaning: Supplies shared identity and semantics.
+      workflowRole: Parent restrictions propagate to variant eligibility.
+      usage: Set when the variant is created.
+      cardinalityMeaning: Every variant belongs to exactly one product.
+      context: Inherits the product's description and category.
+  - name: brand
+    target: Brand
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The brand of the variant when it differs from the product's.
+      businessMeaning: Provides market identity.
+      workflowRole: Brand retirement affects future presentation/eligibility policy.
+      usage: Set for co-branded or licensed variants.
+      cardinalityMeaning: At most one.
+      context: Usually empty.
   invariants:
   - {id: PRODUCT-VARIANT-001, rule: code must be unique and variant must reference exactly one Product.}
   - {id: PRODUCT-VARIANT-002, rule: ACTIVE variant cannot override a parent Product restriction that prohibits new use.}
