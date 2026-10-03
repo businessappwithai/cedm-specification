@@ -10,6 +10,7 @@ description: "International Trade and Customs, built on the CEDM common foundati
 
 International Trade and Customs, built on the CEDM common foundation.
 
+![The International Trade and Customs dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

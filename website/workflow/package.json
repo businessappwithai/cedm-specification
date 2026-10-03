@@ -1,0 +1,26 @@
+{
+  "name": "@appwithai/docs-workflow",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "serve": "docusaurus serve"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.9.2",
+    "@docusaurus/preset-classic": "3.9.2",
+    "@docusaurus/theme-mermaid": "3.9.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "overrides": {
+    "webpack": "5.99.9"
+  },
+  "resolutions": {
+    "webpack": "5.99.9"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
