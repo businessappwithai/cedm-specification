@@ -25,19 +25,17 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of store code for the Store. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Store records, where applicable.
-      relationshipContext: Its meaning is specific to Store; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: The code of the store, such as LYO-01.
+      usage: Printed on receipts and used in every store report.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Store records, where applicable.
-      relationshipContext: Its meaning is specific to Store; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+      summary: The name of the store as customers know it.
+      usage: Shown on receipts, the store locator and reports.
+      relationshipContext: Identifies the store for people.
   - name: status
     type: enum
     required: true
@@ -48,44 +46,106 @@ entity:
     - CLOSED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Store records, where applicable.
-      relationshipContext: Its meaning is specific to Store; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the store is trading.
+      usage: Moved on by retail operations.
+      relationshipContext: Only active stores take sales.
       valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Store.
-        ACTIVE: Represents the active state or classification in the context of Store.
-        CLOSED: Represents the closed state or classification in the context of Store.
-        RETIRED: Represents the retired state or classification in the context of Store.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        PLANNED: Being prepared.
+        ACTIVE: Trading.
+        CLOSED: Not trading.
+        RETIRED: No longer part of the estate.
+  - name: storeFormat
+    type: enum
+    required: true
+    default: STANDARD
+    values: [FLAGSHIP, STANDARD, EXPRESS, OUTLET, POP_UP]
+    help:
+      summary: The kind of store.
+      usage: Decides its range and staffing model.
+      relationshipContext: Read with its size.
+      valueSemantics:
+        FLAGSHIP: A large showcase store.
+        STANDARD: A regular store.
+        EXPRESS: A small convenience store.
+        OUTLET: A store selling discounted stock.
+        POP_UP: A temporary store.
+  - name: openingDate
+    type: date
+    required: false
+    help:
+      summary: The day the store opened.
+      usage: Used to compare like-for-like sales.
+      relationshipContext: Not later than the closing date.
+  - name: closingDate
+    type: date
+    required: false
+    help:
+      summary: The day the store closed.
+      usage: Recorded when it closes.
+      relationshipContext: Present only for closed stores.
+  - name: floorAreaM2
+    type: decimal
+    required: false
+    precision: 10
+    scale: 2
+    help:
+      summary: The selling area, in square metres.
+      usage: Used for sales per square metre.
+      relationshipContext: Excludes stockrooms.
+  - name: openingHours
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: When the store is open.
+      usage: Shown on the store locator.
+      relationshipContext: Such as "Mon–Sat 09:30–19:30".
+  - name: phone
+    type: string
+    required: false
+    maxLength: 40
+    help:
+      summary: The store's telephone number.
+      usage: Shown on the store locator.
+      relationshipContext: International format.
   relationships:
   - name: location
     target: Location
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Store to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Store.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Where the store is.
+      usage: Set when the store is created.
+      cardinalityMeaning: Every store is at exactly one location.
+      context: Its address is shown on the store locator.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Store to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Store.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The company that operates the store.
+      usage: Set when the store is created.
+      cardinalityMeaning: At most one.
+      context: Franchise stores name the franchisee.
   - name: products
     target: Product
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Store to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a Store.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The products the store ranges.
+      usage: Set by merchandising.
+      cardinalityMeaning: A store ranges many products; a product is ranged in many stores.
+      context: A many-to-many relation; neither side holds the key.
     inverseCardinality: 0..*
+  - name: manager
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The store manager.
+      usage: Receives the store's reports.
+      cardinalityMeaning: One per store.
+      context: Accountable for its results.
   lifecycle:
     title: Store Lifecycle
     attribute: status
@@ -99,11 +159,13 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
   help:
     summary: Represents a retail entity called Store within the CEDM business model.
-    businessMeaning: Store is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Store records.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Store record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    businessMeaning: A store is where the business meets customers in person. Each store has its own location, opening hours, manager, range and performance, so stock, staff and sales can be planned and measured store by store.
+    usage: Retail operations open and maintain stores; merchandising assigns their ranges; sales and stock are recorded per store; store reports compare performance.
+    lifecycle: Planned while being prepared, active while trading, closed when it stops trading (temporarily or for good), and retired when it is no longer part of the estate.
+    example: Store LYO-01 'Lyon Part-Dieu', manager Sophie Laurent, opened 3 March 2019, 450 m², open Monday–Saturday 9:30–19:30.
+  invariants:
+  - {id: STORE-001, rule: A store does not close before it opened., violatedWhen: closing_date != null and opening_date != null and closing_date < opening_date, message: The closing date is earlier than the opening date.}
 specification:
   version: 0.1.0
   status: draft

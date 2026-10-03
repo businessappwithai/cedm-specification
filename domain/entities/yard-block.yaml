@@ -24,55 +24,78 @@ entity:
     required: true
     maxLength: 50
     help:
-      summary: The operational code used by people and systems to identify the block.
+      summary: The code of the block, such as A or R1.
       businessMeaning: Provides the concise block designation shown on yard maps, operator instructions, dashboards, gate/move messages, and integrations.
-      usage: Used for navigation, slot addressing, capacity reporting, movement planning, and exception handling.
-      relationshipContext: The code is interpreted within its parent Yard and should be unique within that yard; it is not the identity of a bay or slot.
       requiredMeaning: Required because operators and systems need a practical hierarchical address.
+      usage: Used in container positions and yard plans.
+      relationshipContext: Unique within its yard.
   - name: name
     type: string
     required: false
     maxLength: 150
     help:
-      summary: A descriptive name for the block used in user-facing operations and reporting.
+      summary: A descriptive name, such as "Reefer block 1".
       businessMeaning: Allows a block to be identified by operational purpose, physical area, or local terminology in addition to its code.
-      usage: Used in yard maps, dashboards, reports, planning screens, and operator interfaces.
-      relationshipContext: Describes the same block identified by yardBlockId and code and should not replace those technical/business identifiers.
       optionalMeaning: Optional when the operational code is sufficient.
+      usage: Shown in yard plans.
+      relationshipContext: Optional; the code identifies the block.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, BLOCKED, CLOSED]
     help:
-      summary: The operational availability of the entire block for container storage and movement activity.
+      summary: Whether the block is in use.
       businessMeaning: Determines whether subordinate bays may normally be selected for placement, relocation, or planning.
-      usage: Used by allocation and optimization algorithms to exclude unavailable storage areas.
-      relationshipContext: "Block status is an upper-level constraint: a BLOCKED or CLOSED block can make otherwise ACTIVE bays and slots unusable for new placement."
-      valueSemantics:
-        ACTIVE: The block may participate in normal yard operations subject to bay, tier, slot, equipment, safety, and container constraints.
-        BLOCKED: The block is temporarily unavailable for normal placement or movement, for example because of maintenance, safety, congestion, inspection, or an incident.
-        CLOSED: The block is administratively or permanently unavailable for normal operations.
       requiredMeaning: Required because block availability affects all subordinate storage positions.
+      usage: Changed when the block is blocked or closed.
+      relationshipContext: Blocked blocks are skipped by planning.
+      valueSemantics:
+        ACTIVE: In use.
+        BLOCKED: Temporarily unusable.
+        CLOSED: Permanently out of use.
+  - name: blockType
+    type: enum
+    required: true
+    default: GENERAL
+    values: [GENERAL, REEFER, HAZARDOUS, EMPTY, EXPORT, IMPORT]
+    help:
+      summary: What the block is used for.
+      usage: Decides which containers the planners put in it.
+      relationshipContext: Hazardous and reefer blocks have their own rules.
+      valueSemantics:
+        GENERAL: Dry containers.
+        REEFER: Refrigerated containers needing power.
+        HAZARDOUS: Containers with dangerous goods.
+        EMPTY: Empty container storage.
+        EXPORT: Containers waiting to be loaded on a vessel.
+        IMPORT: Containers discharged and waiting for collection.
+  - name: capacityTeu
+    type: integer
+    required: false
+    help:
+      summary: How many twenty-foot equivalent units the block can hold.
+      usage: Used for yard utilisation reports.
+      relationshipContext: Sum of its bays' capacity.
   relationships:
   - name: yard
     target: Yard
     cardinality: '1'
     ownership: reference
     help:
-      summary: Places the block within its parent Yard facility.
-      usage: Supplies facility identity, location, operating status, capacity context, and the top-level yard rules governing the block.
-      cardinalityMeaning: Every YardBlock belongs to exactly one Yard.
-      context: Yard is the facility boundary; YardBlock is a subdivision within that facility.
+      summary: The yard the block is part of.
+      usage: Set when the yard layout is defined.
+      cardinalityMeaning: Every block belongs to exactly one yard.
+      context: Listed in the yard plan.
   - name: bays
     target: YardBay
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Defines the YardBays that subdivide this block into more precise storage positions.
-      usage: Supports navigation from block-level capacity and strategy to bay-level placement and eventually atomic slots.
-      cardinalityMeaning: A modeled operational block contains one or more bays.
-      context: Bay codes are scoped by the block. The block provides the physical and operational context for its bays.
+      summary: The bays in the block.
+      usage: Defined with the yard layout.
+      cardinalityMeaning: A block has at least one bay.
+      context: Each bay belongs to one block.
   invariants:
   - id: YARD-BLOCK-001
     rule: code must be unique within its Yard.

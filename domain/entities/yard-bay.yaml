@@ -24,55 +24,70 @@ entity:
     required: true
     maxLength: 50
     help:
-      summary: The operational business code used to identify the bay.
+      summary: The code of the bay, such as A-12.
       businessMeaning: Provides the human-facing bay address used by operators, terminal systems, equipment instructions, maps, reports, and integrations.
-      usage: Used in container move instructions, search, visualization, slot addressing, and exception handling.
-      relationshipContext: The code is scoped to the parent YardBlock and should not be treated as a globally unique yard address.
       requiredMeaning: Required for deterministic operational addressing.
+      usage: Painted on the ground and used in container positions.
+      relationshipContext: Unique within its block.
   - name: bayNumber
     type: integer
     required: true
     minimum: 1
     help:
-      summary: The ordinal position of the bay within its parent YardBlock.
+      summary: The position of the bay along its block.
       businessMeaning: Represents the bay's longitudinal sequence in the block's physical addressing scheme.
-      usage: Used for sorting, navigation, visualization, slot-code construction, distance estimation, and movement optimization.
-      relationshipContext: It is meaningful within the block; a bayNumber of 12 in two different blocks does not identify the same physical location.
       requiredMeaning: Required to provide deterministic physical ordering.
+      usage: Gives crane and straddle carriers their target.
+      relationshipContext: Counted from the block's reference end.
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, BLOCKED, CLOSED]
     help:
-      summary: The operational availability of the bay and its subordinate tiers and slots.
+      summary: Whether containers may be placed in the bay.
       businessMeaning: Determines whether the bay can normally participate in container placement, retrieval, relocation, and planning.
-      usage: Used by allocation and optimization algorithms to eliminate unavailable storage lanes before evaluating individual slots.
-      relationshipContext: Bay status is an upper-level constraint. A blocked bay can make otherwise active tiers and slots unavailable for new placement while containers already occupying them remain physically valid.
-      valueSemantics:
-        ACTIVE: The bay may participate in normal operations subject to tier, slot, container, equipment, safety, and yard rules.
-        BLOCKED: The bay is temporarily unavailable for normal placement or movement, for example because of maintenance, safety, congestion, inspection, or an incident.
-        CLOSED: The bay is administratively or physically unavailable for normal operations until an explicit reopening or reconfiguration process occurs.
       requiredMeaning: Required because bay availability affects all subordinate storage positions.
+      usage: Changed when the bay is blocked or closed.
+      relationshipContext: Blocked bays are skipped by planning.
+      valueSemantics:
+        ACTIVE: In use.
+        BLOCKED: Temporarily unusable.
+        CLOSED: Permanently out of use.
+  - name: maxTiers
+    type: integer
+    required: false
+    help:
+      summary: How many containers may be stacked in the bay.
+      usage: Limits the stack height the planners use.
+      relationshipContext: Set by ground strength and equipment reach.
+  - name: reeferPlugs
+    type: integer
+    required: true
+    default: 0
+    help:
+      summary: How many refrigerated-container power points the bay has.
+      usage: Reefer containers are placed only where a plug is free.
+      relationshipContext: Zero for bays without power.
   relationships:
   - name: block
     target: YardBlock
     cardinality: '1'
     ownership: reference
     help:
-      summary: Places the bay inside its parent YardBlock.
-      usage: Supplies the yard, zoning, operational rules, capacity context, and addressing scope for the bay.
-      cardinalityMeaning: Every YardBay belongs to exactly one YardBlock.
-      context: YardBlock is the planning/storage-area boundary; YardBay is the longitudinal lane within that boundary.
+      summary: The yard block the bay belongs to.
+      usage: Set when the yard layout is defined.
+      cardinalityMeaning: Every bay belongs to exactly one block.
+      context: The block's handling rules apply to it.
   - name: tiers
     target: YardTier
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Defines the vertical stack levels available within the bay.
-      usage: Supports stack-height rules, container placement, rehandle planning, and precise physical addressing.
-      cardinalityMeaning: A modeled operational bay contains one or more tiers.
-      context: YardTier adds the vertical dimension. YardSlot below the tier represents the atomic position actually occupied by a container.
+      summary: The stacking levels of the bay.
+      usage: Defined with the yard layout.
+      cardinalityMeaning: A bay has at least one tier.
+      context: Each tier belongs to one bay.
   invariants:
   - id: YARD-BAY-001
     rule: bayNumber must be unique within its YardBlock.

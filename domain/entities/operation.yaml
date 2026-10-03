@@ -5,6 +5,7 @@ entity:
   description: A sequenced manufacturing process step defining work, resource assignment, standard time, and optional quality requirements within a Routing.
   ui:
     icon: settings
+    recordLabel: [sequence, name]
   identity: {key: operationId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: operationId
@@ -15,13 +16,94 @@ entity:
       summary: The permanent system identifier of the operation record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a operation store this identifier. The number or code people quote is a separate field.
-  - {name: sequence, type: integer, required: true, minimum: 1, help: {summary: Execution order within routing., businessMeaning: Defines process precedence., usage: Scheduling and shop-floor control., relationshipContext: Unique within Routing., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Name of work performed., businessMeaning: Communicates operation purpose., usage: "Instructions, planning, and reporting.", relationshipContext: Interpreted within Routing., requiredMeaning: Required.}}
-  - {name: standardMinutes, type: decimal, required: false, precision: 12, scale: 3, help: {summary: Standard processing duration., businessMeaning: Planning/costing expectation rather than actual elapsed time., usage: Capacity scheduling and costing., relationshipContext: Actual execution may differ., optionalMeaning: Optional when time standard is unavailable.}}
+  - name: sequence
+    type: integer
+    required: true
+    minimum: 1
+    help:
+      summary: The position of the step in the routing, such as 10, 20, 30.
+      businessMeaning: Defines process precedence.
+      usage: Steps are performed in this order.
+      relationshipContext: Gaps leave room for inserted steps.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: What the step does, such as "Turn shaft" or "Final inspection".
+      businessMeaning: Communicates operation purpose.
+      usage: Shown on work instructions and job cards.
+      relationshipContext: Identifies the step for people.
+  - name: standardMinutes
+    type: decimal
+    required: false
+    precision: 12
+    scale: 3
+    help:
+      summary: The standard run time per unit, in minutes.
+      businessMeaning: Planning/costing expectation rather than actual elapsed time.
+      optionalMeaning: Optional when time standard is unavailable.
+      usage: Used to schedule and cost production.
+      relationshipContext: Excludes setup time.
+  - name: setupMinutes
+    type: decimal
+    required: false
+    precision: 10
+    scale: 2
+    help:
+      summary: The time to set the work centre up for the step, in minutes.
+      usage: Added once per production order.
+      relationshipContext: Spread over the lot when costing.
+  - name: instructions
+    type: text
+    required: false
+    help:
+      summary: How to carry out the step.
+      usage: Printed on the job card or shown at the work centre.
+      relationshipContext: Linked documents give detail.
+  - name: isQualityCheckpoint
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether the step ends with a quality check that must pass before continuing.
+      usage: Production stops at the step until the check passes.
+      relationshipContext: Read with the quality plan.
   relationships:
-  - {name: routing, target: Routing, cardinality: '1', ownership: reference, inverse: operations, help: {summary: Parent manufacturing process definition., businessMeaning: Supplies product/process context., usage: Sequencing and version control., cardinalityMeaning: Exactly one Routing., workflowRole: Routing lifecycle controls eligibility.}}
-  - {name: workCenter, target: WorkCenter, cardinality: 0..1, ownership: reference, help: {summary: Default capacity resource for the step., businessMeaning: Defines where/by whom work is normally executed., usage: Scheduling and costing., cardinalityMeaning: Optional for non-capacity-controlled steps., workflowRole: Resource availability constrains execution.}}
-  - {name: qualityPlan, target: QualityPlan, cardinality: 0..1, ownership: reference, help: {summary: Quality requirements applicable at this process step., businessMeaning: Embeds inspection/control into production routing., usage: In-process quality gates., cardinalityMeaning: Optional when no formal quality plan applies., workflowRole: Required inspections may gate operation/order completion.}}
+  - name: routing
+    target: Routing
+    cardinality: '1'
+    ownership: reference
+    inverse: operations
+    help:
+      summary: The routing the step belongs to.
+      businessMeaning: Supplies product/process context.
+      workflowRole: Routing lifecycle controls eligibility.
+      usage: Set when the step is defined.
+      cardinalityMeaning: Every step belongs to exactly one routing.
+      context: Listed in sequence under the routing.
+  - name: workCenter
+    target: WorkCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the step is carried out.
+      businessMeaning: Defines where/by whom work is normally executed.
+      workflowRole: Resource availability constrains execution.
+      usage: Chosen by production engineering.
+      cardinalityMeaning: At most one.
+      context: Its capacity and rates apply.
+  - name: qualityPlan
+    target: QualityPlan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The inspection plan applied at the step.
+      businessMeaning: Embeds inspection/control into production routing.
+      workflowRole: Required inspections may gate operation/order completion.
+      usage: Set for checkpoint steps.
+      cardinalityMeaning: At most one.
+      context: Results are recorded as quality inspections.
   invariants:
   - {id: OPERATION-001, rule: sequence must be unique within Routing.}
   - {id: OPERATION-002, rule: standardMinutes must be greater than zero when specified.}
