@@ -6,6 +6,7 @@ entity:
   description: A party role representing the enterprise's commercial relationship with a buyer or consumer of goods, services, subscriptions, or other offerings.
   ui:
     icon: user-round
+    recordLabel: [customerCode]
   identity: {key: customerId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: customerId
@@ -45,11 +46,11 @@ entity:
       workflowRole: Supplies customer classification to transaction policy.
       optionalMeaning: Optional when not needed.
       valueSemantics:
-        INDIVIDUAL: The customer type of the customer is individual; set it when that is what the business means for this record.
-        BUSINESS: The customer type of the customer is business; set it when that is what the business means for this record.
-        GOVERNMENT: The customer type of the customer is government; set it when that is what the business means for this record.
-        INTERNAL: The customer type of the customer is internal; set it when that is what the business means for this record.
-        OTHER: The customer type of the customer is other; set it when that is what the business means for this record.
+        INDIVIDUAL: A private person.
+        BUSINESS: A company or other organization.
+        GOVERNMENT: A public body.
+        INTERNAL: Another unit of our own group.
+        OTHER: Any other kind of customer.
   - name: creditStatus
     type: enum
     required: false
@@ -65,10 +66,10 @@ entity:
       workflowRole: SalesOrder confirmation must evaluate current credit policy when applicable.
       optionalMeaning: Optional where credit controls are not used.
       valueSemantics:
-        NOT_REVIEWED: The credit status of the customer is not reviewed; set it when that is what the business means for this record.
-        APPROVED: The credit status of the customer is approved; set it when that is what the business means for this record.
-        ON_HOLD: The credit status of the customer is on hold; set it when that is what the business means for this record.
-        BLOCKED: The credit status of the customer is blocked; set it when that is what the business means for this record.
+        NOT_REVIEWED: Credit has not yet been assessed.
+        APPROVED: Credit approved up to the credit limit.
+        ON_HOLD: New orders wait for credit review.
+        BLOCKED: No credit; orders need prepayment.
   - name: creditLimit
     type: Money
     required: false
@@ -94,10 +95,10 @@ entity:
       workflowRole: New workflows must evaluate status; historical records remain valid.
       requiredMeaning: Required for eligibility decisions.
       valueSemantics:
-        ACTIVE: The status of the customer is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the customer is inactive; set it when that is what the business means for this record.
-        BLOCKED: The status of the customer is blocked; set it when that is what the business means for this record.
-        RETIRED: The status of the customer is retired; set it when that is what the business means for this record.
+        ACTIVE: May place orders.
+        INACTIVE: Not currently buying; kept for history.
+        BLOCKED: Orders refused, for example for unpaid invoices.
+        RETIRED: No longer a customer.
   relationships:
   - name: partyRole
     target: PartyRole

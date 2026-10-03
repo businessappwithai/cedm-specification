@@ -5,6 +5,7 @@ entity:
   description: A crop or cultivated plant category managed within an agricultural operation.
   ui:
     icon: sprout
+    recordLabel: [code, name]
   identity:
     key: cropId
     type: uuid
@@ -25,25 +26,25 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Crop records, where applicable.
-      relationshipContext: Its meaning is specific to Crop; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The code of the crop.
+      usage: Used in planting plans and field records.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Crop records, where applicable.
-      relationshipContext: Its meaning is specific to Crop; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The name of the crop as the farm knows it.
+      usage: Shown in planting and harvest records.
+      relationshipContext: Identifies the crop for people.
   - name: cropType
     type: string
     required: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of crop type for the Crop. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Crop records, where applicable.
-      relationshipContext: Its meaning is specific to Crop; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The crop group, such as cereal, oilseed, vegetable or fruit.
+      usage: Groups crops in rotation planning and reports.
+      relationshipContext: From the farm's list of crop groups.
   - name: status
     type: enum
     required: true
@@ -53,41 +54,73 @@ entity:
     - INACTIVE
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Crop records, where applicable.
-      relationshipContext: Its meaning is specific to Crop; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the crop is grown.
+      usage: Changed by the agronomist.
+      relationshipContext: Retired crops are not offered for planting.
       valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Crop.
-        INACTIVE: Represents the inactive state or classification in the context of Crop.
-        RETIRED: Represents the retired state or classification in the context of Crop.
+        ACTIVE: Grown by the operation.
+        INACTIVE: Not grown this season.
+        RETIRED: No longer grown.
+  - name: scientificName
+    type: string
+    required: false
+    maxLength: 150
+    help:
+      summary: The botanical name, such as Triticum aestivum.
+      usage: Used in seed and regulatory records.
+      relationshipContext: Genus and species.
+  - name: variety
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The variety or cultivar grown.
+      usage: Recorded for traceability and yield comparison.
+      relationshipContext: As on the seed certificate.
+  - name: growingDays
+    type: integer
+    required: false
+    help:
+      summary: Typical days from sowing to harvest.
+      usage: Used to plan sowing and harvest dates.
+      relationshipContext: Depends on climate.
+  - name: typicalYieldPerHectare
+    type: decimal
+    required: false
+    precision: 10
+    scale: 2
+    help:
+      summary: The usual yield, in tonnes per hectare.
+      usage: Used for planning and to judge a season's results.
+      relationshipContext: An average over recent seasons.
   relationships:
   - name: farms
     target: Farm
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Crop to Farm so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Farm records associated with a Crop.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Farms that grow the crop.
+      usage: Listed from the crop.
+      cardinalityMeaning: Many farms per crop; a farm grows many crops.
+      context: A many-to-many relation.
   - name: fields
     target: FarmField
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Crop to FarmField so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about FarmField records associated with a Crop.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Fields planted with the crop.
+      usage: Listed from the crop.
+      cardinalityMeaning: Many fields per crop; a field carries different crops over time.
+      context: A many-to-many relation.
   - name: products
     target: Product
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects Crop to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a Crop.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The products the crop is sold as.
+      usage: Linked for sales and stock.
+      cardinalityMeaning: Many products per crop; a product may come from several crops.
+      context: A many-to-many relation.
     inverseCardinality: 0..*
   lifecycle:
     title: Crop Lifecycle
@@ -103,10 +136,10 @@ entity:
   help:
     summary: Represents a agriculture master entity called Crop within the CEDM business model.
     businessMeaning: Crop is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Crop records.
     relationshipContext: The entity participates in a wider business graph through relationships with Farm, FarmField, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Crop record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Agronomists maintain the crops the operation grows; fields are planted with them each season; yields, inputs and sales are reported by crop.
+    lifecycle: Active while grown; inactive when not grown this season; retired when dropped from the operation. History stays reportable.
+    example: Crop WHT-SOFT 'Soft winter wheat', Triticum aestivum, cereal, sown October, harvested July, typical yield 7.5 t/ha.
 specification:
   version: 0.1.0
   status: draft
