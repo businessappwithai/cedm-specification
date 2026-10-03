@@ -10,6 +10,7 @@ description: "E-Commerce and Marketplace, built on the CEDM common foundation."
 
 E-Commerce and Marketplace, built on the CEDM common foundation.
 
+![The E-Commerce and Marketplace dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

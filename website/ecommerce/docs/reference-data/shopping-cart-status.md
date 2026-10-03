@@ -13,6 +13,8 @@ The values of shopping cart status, maintained by the business: reword, reorder 
 
 Open **Shopping Cart Status** from the menu (under Reference Data) or from its card on the dashboard.
 
+![The Shopping Cart Status list](/img/entities/shopping-cart-status-list.jpg)
+
 The list shows Code, Name, Description, Sequence, Is Active, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
