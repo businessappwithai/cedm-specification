@@ -10,6 +10,7 @@ description: "Professional Services, built on the CEDM common foundation."
 
 Professional Services, built on the CEDM common foundation.
 
+![The Professional Services dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
