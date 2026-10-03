@@ -10,6 +10,7 @@ description: "Automotive, built on the CEDM common foundation."
 
 Automotive, built on the CEDM common foundation.
 
+![The Automotive dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
