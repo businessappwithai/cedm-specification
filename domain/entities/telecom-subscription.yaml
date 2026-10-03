@@ -133,12 +133,12 @@ entity:
     - {from: ACTIVE, to: EXPIRED, action: expire}
     - {from: SUSPENDED, to: EXPIRED, action: expire}
   help:
-    summary: Represents a telecommunications entity called TelecomSubscription within the CEDM business model.
-    businessMeaning: TelecomSubscription is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A customer's sign-up to a tariff plan on a service for a period.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, TelecomService, Product, Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Sales and care agents sign customers up to a plan for a service, change or suspend it, and end it; billing charges the plan's recurring fees for each active subscription.
     lifecycle: A subscription is pending until it starts, active while billed, may be suspended and resumed, and ends by being cancelled or expiring at the end of its term.
     example: Subscription SUB-2024-0081234, 'Unlimited 5G 24 months' on line +39 347 123 4567 for Bianchi Marco, 1 March 2024–28 February 2026, active.
+    businessMeaning: Subscriptions determine recurring revenue and what the customer is entitled to.
 specification:
   version: 0.1.0
   status: draft

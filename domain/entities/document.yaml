@@ -181,12 +181,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a core business entity called Document within the CEDM business model.
-    businessMeaning: Document is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A file or record the business keeps as evidence or for reference, such as a contract, certificate or report.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: People create documents in the business's processes — letters, specifications, certificates, reports — classify them, issue them and file them; other records link to the documents that evidence them; retention rules decide how long they are kept.
     lifecycle: Drafted, issued, approved where approval is required, and archived when no longer in active use. A document can be cancelled before approval. Content changes are new document versions.
     example: Document DOC-2024-01882 'Specification — bearing housing H-40', specification, dated 4 March 2024, version 3, approved, owner Product Engineering.
+    businessMeaning: Documents prove what was agreed, delivered or decided; they must be findable, versioned and kept for as long as rules require.
 specification:
   version: 0.1.0
   status: draft

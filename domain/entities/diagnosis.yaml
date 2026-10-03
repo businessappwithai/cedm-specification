@@ -111,12 +111,12 @@ entity:
       cardinalityMeaning: Every diagnosis is of exactly one patient.
       context: Appears on the patient's problem list.
   help:
-    summary: Represents a healthcare clinical entity called Diagnosis within the CEDM business model.
-    businessMeaning: Diagnosis is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A condition a clinician has identified in a patient, recorded with its code and status.
     relationshipContext: The entity participates in a wider business graph through relationships with HealthcareEncounter, HealthcarePatient. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Clinicians record diagnoses during encounters, coded in a standard system; the patient's problem list, care plans, orders and billing all draw on them.
     lifecycle: A diagnosis is recorded as active; it may be confirmed or refuted, and later marked resolved or in remission. A diagnosis entered by mistake is marked entered in error, never deleted.
     example: E11.9 'Type 2 diabetes mellitus without complications' (ICD-10), primary, recorded in encounter E-24-30112, onset 2019, confirmed, active.
+    businessMeaning: Diagnoses drive treatment decisions, billing and public-health reporting, so they must be coded correctly and kept current.
   invariants:
   - {id: DIAGNOSIS-001, rule: A condition does not resolve before it started., violatedWhen: resolved_date != null and onset_date != null and resolved_date < onset_date, message: The resolved date is earlier than the onset date.}
 specification:

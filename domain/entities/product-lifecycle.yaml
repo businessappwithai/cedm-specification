@@ -76,4 +76,5 @@ entity:
     usage: PIM governance, product introduction, blocking, discontinuation and retirement.
     relationshipContext: Changes propagate to open dependent workflows while historical evidence remains immutable.
     lifecycle: Append-only governed transition history for Product.
+    example: "'Cordless drill X200' discontinued effective 1 July 2024, reason replaced by X300."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-LIFECYCLE}

@@ -129,12 +129,12 @@ entity:
     - {from: DRAFT, to: RETIRED, action: retire}
     - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a utilities entity called EnergyTariff within the CEDM business model.
-    businessMeaning: EnergyTariff is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A price plan for energy or utility services, with its rates and conditions.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Energy retailers and procurement teams record the tariffs that price energy — unit rates, standing charges, time-of-use bands — with their validity, so bills can be computed or checked.
     lifecycle: Drafted, active during its validity, expired after its end date, and retired when withdrawn.
     example: Tariff EDF-PRO-HPHC-2024 'Professional peak/off-peak', 0.2128 EUR/kWh peak, 0.1612 EUR/kWh off-peak, standing charge 31.20 EUR/month, valid 1 February 2024 to 31 January 2025.
+    businessMeaning: The tariff determines what each customer is charged; it must be correct and in force for the period billed.
 specification:
   version: 0.1.0
   status: draft

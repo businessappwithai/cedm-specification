@@ -147,6 +147,8 @@ entity:
     help:
       summary: Party that maintains or uses this reusable address.
       workflowRole: Provides party master-data context for address selection.
+      cardinalityMeaning: At most one party; a party may have several addresses.
+      usage: Set when the address belongs to a person or organisation.
   - name: location
     target: Location
     cardinality: 0..1
@@ -154,6 +156,8 @@ entity:
     help:
       summary: Location associated with this address.
       workflowRole: Provides physical/place context for operational and geographic processes.
+      cardinalityMeaning: At most one location; a location usually has one address.
+      usage: Set when the address is a site's address.
   invariants:
   - id: ADDRESS-001
     rule: An address names its country.

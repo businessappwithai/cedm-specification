@@ -50,14 +50,77 @@ entity:
   - {name: amountApplied, type: Money, required: true, default: {amount: 0}, help: {summary: Portion of supplier credit already applied to payable claims., businessMeaning: Separates credit created from portion consumed against invoices., usage: Drives open credit and payable reconciliation., relationshipContext: Must reconcile with active SupplierCreditNoteApplication records., workflowRole: Changes only through explicit application/reversal events.}}
   - {name: amountUnapplied, type: Money, required: true, default: {amount: 0}, help: {summary: Remaining supplier credit not yet applied., businessMeaning: Available credit exposure under policy., usage: Future invoice application or supplier settlement/refund processing., workflowRole: Reconciles totalAmount less active applications.}}
   relationships:
-  - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier associated with the credit., businessMeaning: Identifies supplier whose payable exposure is reduced., usage: Payables and supplier statements., workflowRole: Reconciles source Invoice SupplierClaim and SupplierReturn context.}}
-  - {name: sourceReturn, target: SupplierReturn, cardinality: 0..1, ownership: reference, help: {summary: Supplier return that caused the credit., businessMeaning: Connects financial adjustment to physical reverse-procurement event., usage: Return-to-credit traceability and approval., workflowRole: Provides return eligibility evidence.}}
-  - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Supplier claim supporting the credit., businessMeaning: Connects the financial adjustment to the business case and evidence for recovery., usage: Claim resolution audit and reconciliation., workflowRole: Provides case context for credit authorization.}}
-  - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution that approved this credit remedy., businessMeaning: Connects the credit to the controlled decision authorizing the financial recovery., usage: Governance approval execution tracking and claim closure., workflowRole: Supplies execution mandate for CREDIT resolution.}}
-  - {name: lines, target: SupplierCreditNoteLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed credit components and original financial evidence., businessMeaning: Explain which supplier invoice values are reduced., usage: Calculation tax audit and reconciliation., workflowRole: Feed subtotal tax and total.}}
-  - {name: invoices, target: Invoice, cardinality: 1..*, ownership: reference, help: {summary: Supplier invoices whose payable claims are reduced., businessMeaning: Identifies original claims without modifying them., usage: Application and payable reconciliation., workflowRole: Controls eligible application.}}
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Supplier associated with the credit.
+      businessMeaning: Identifies supplier whose payable exposure is reduced.
+      usage: Payables and supplier statements.
+      workflowRole: Reconciles source Invoice SupplierClaim and SupplierReturn context.
+      cardinalityMeaning: Each credit note is from one supplier.
+  - name: sourceReturn
+    target: SupplierReturn
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Supplier return that caused the credit.
+      businessMeaning: Connects financial adjustment to physical reverse-procurement event.
+      usage: Return-to-credit traceability and approval.
+      workflowRole: Provides return eligibility evidence.
+      cardinalityMeaning: At most one return that caused it.
+  - name: supplierClaim
+    target: SupplierClaim
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Supplier claim supporting the credit.
+      businessMeaning: Connects the financial adjustment to the business case and evidence for recovery.
+      usage: Claim resolution audit and reconciliation.
+      workflowRole: Provides case context for credit authorization.
+      cardinalityMeaning: At most one claim it settles.
+  - name: supplierClaimResolution
+    target: SupplierClaimResolution
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Authorized claim resolution that approved this credit remedy.
+      businessMeaning: Connects the credit to the controlled decision authorizing the financial recovery.
+      usage: Governance approval execution tracking and claim closure.
+      workflowRole: Supplies execution mandate for CREDIT resolution.
+      cardinalityMeaning: At most one resolution it carries out.
+  - name: lines
+    target: SupplierCreditNoteLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Detailed credit components and original financial evidence.
+      businessMeaning: Explain which supplier invoice values are reduced.
+      usage: Calculation tax audit and reconciliation.
+      workflowRole: Feed subtotal tax and total.
+      cardinalityMeaning: One or more lines, kept with the credit note.
+  - name: invoices
+    target: Invoice
+    cardinality: 1..*
+    ownership: reference
+    help:
+      summary: Supplier invoices whose payable claims are reduced.
+      businessMeaning: Identifies original claims without modifying them.
+      usage: Application and payable reconciliation.
+      workflowRole: Controls eligible application.
+      cardinalityMeaning: One or more invoices it reduces.
   - {name: applications, target: SupplierCreditNoteApplication, cardinality: 0..*, ownership: reference, help: {summary: Explicit applications of this supplier credit against eligible purchase invoices., businessMeaning: Records exactly how the posted credit is consumed without rewriting original invoice history., usage: Supports accounts payable supplier statements reconciliation audit reversal and remaining-credit calculation., cardinalityMeaning: A supplier credit may be unapplied partially applied or consumed through multiple controlled applications., workflowRole: Active applications drive amountApplied and amountUnapplied and application status.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries recognizing supplier credit., businessMeaning: Separates accounting recognition from credit document., usage: Payable expense/inventory tax and audit accounting., workflowRole: Posted credit requires balanced accounting recognition.}}
+  - name: journalEntries
+    target: JournalEntry
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Accounting entries recognizing supplier credit.
+      businessMeaning: Separates accounting recognition from credit document.
+      usage: Payable expense/inventory tax and audit accounting.
+      workflowRole: Posted credit requires balanced accounting recognition.
+      cardinalityMeaning: Any number of postings.
   invariants:
   - {id: SUPPLIER-CREDIT-001, rule: A POSTED supplier credit must contain at least one line.}
   - {id: SUPPLIER-CREDIT-002, rule: totalAmount must reconcile with line values tax and rounding evidence.}

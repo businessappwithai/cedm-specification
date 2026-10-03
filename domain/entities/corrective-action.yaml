@@ -87,12 +87,22 @@ entity:
     target: Nonconformance
     cardinality: 0..1
     ownership: reference
-    help: {summary: Quality issue that caused or requires this action., businessMeaning: "Connects the action to the deviation and its containment, disposition and closure requirements.", usage: "CAPA traceability, root-cause analysis and audit.", workflowRole: Supplies the problem context the action is intended to address.}
+    help:
+      summary: Quality issue that caused or requires this action.
+      businessMeaning: "Connects the action to the deviation and its containment, disposition and closure requirements."
+      usage: "CAPA traceability, root-cause analysis and audit."
+      workflowRole: Supplies the problem context the action is intended to address.
+      cardinalityMeaning: At most one nonconformance; preventive actions have none.
   - name: owner
     target: Party
     cardinality: 0..1
     ownership: reference
-    help: {summary: Party accountable for implementing the action., businessMeaning: Identifies the responsible person or organization for execution., usage: "Assignment, escalation and accountability.", workflowRole: Owns implementation evidence and completion proposal.}
+    help:
+      summary: Party accountable for implementing the action.
+      businessMeaning: Identifies the responsible person or organization for execution.
+      usage: "Assignment, escalation and accountability."
+      workflowRole: Owns implementation evidence and completion proposal.
+      cardinalityMeaning: At most one owner.
   - name: verifications
     target: CorrectiveActionVerification
     cardinality: 0..*

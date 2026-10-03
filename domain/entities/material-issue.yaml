@@ -143,4 +143,5 @@ entity:
     relationshipContext: ManufacturingWorkOrder authorizes demand, BOMComponent supplies standard requirement, Lot/SerialNumber preserve provenance.
     lifecycle: Prepared → validated → issued/posted → immutable history; corrections compensate.
     changePropagation: Issue posting updates inventory projections and manufacturing material reconciliation and contributes input genealogy for produced output.
+    example: 'Issue MI-24-8821: 500 battery packs BP-18V to work order MO-24-3310, issued 3 June 2024 06:15, cost 11,250 EUR.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MATERIAL-ISSUE}

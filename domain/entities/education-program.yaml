@@ -133,12 +133,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents an education entity called EducationProgram within the CEDM business model.
-    businessMeaning: EducationProgram is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A programme of study leading to a qualification, such as a bachelor's degree, with its required courses.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Enrollment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Institutions define the programmes they offer, with their award, duration and credit requirements; admissions recruit students to them; the registry checks students' progress against them and confers the award.
     lifecycle: Drafted while being designed and accredited, active while open to new students, suspended when intake stops for a while, and retired when it closes; current students may finish a retired programme.
     example: Programme BSC-CS 'BSc Computer Science', degree, 3 years full-time, 180 ECTS, accredited, active.
+    businessMeaning: Programmes decide what a student must complete to graduate and are what the institution is accredited for.
 specification:
   version: 0.1.0
   status: draft

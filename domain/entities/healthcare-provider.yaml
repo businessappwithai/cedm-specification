@@ -121,12 +121,12 @@ entity:
     - {from: INACTIVE, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a healthcare party role called HealthcareProvider within the CEDM business model.
-    businessMeaning: HealthcareProvider is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A clinician or care organisation registered to provide healthcare.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, HealthcareEncounter. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Credentialing staff register clinicians and facilities with their licence number and type; schedulers book encounters with them and billing quotes their number on claims.
     lifecycle: A provider is active while authorised to practise, inactive when temporarily not practising, suspended while their licence is under review, and retired when they stop for good.
     example: Provider NPI 1234567893, Dr. Anna Rossi, physician, at St. Mary's Clinic, active.
+    businessMeaning: Only credentialed providers may treat patients and be paid; scheduling and claims refer to the provider.
 specification:
   version: 0.1.0
   status: draft

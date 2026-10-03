@@ -117,17 +117,32 @@ entity:
     target: PurchaseOrder
     cardinality: '1'
     ownership: reference
-    help: {summary: Parent procurement commitment., businessMeaning: "Supplies supplier, organization, currency and lifecycle context.", workflowRole: Controls commitment and closure.}
+    help:
+      summary: Parent procurement commitment.
+      businessMeaning: "Supplies supplier, organization, currency and lifecycle context."
+      workflowRole: Controls commitment and closure.
+      cardinalityMeaning: Each line belongs to one order; an order has one or more lines.
+      usage: Set when the line is entered.
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
-    help: {summary: Product or item being procured., businessMeaning: Identifies what was committed., workflowRole: "Must reconcile across receipt, return and invoice evidence."}
+    help:
+      summary: Product or item being procured.
+      businessMeaning: Identifies what was committed.
+      workflowRole: "Must reconcile across receipt, return and invoice evidence."
+      cardinalityMeaning: Each line is for one product.
+      usage: Chosen from the supplier's catalogue.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
-    help: {summary: Unit used to quantify the commitment., businessMeaning: Defines how quantity is interpreted., workflowRole: Must reconcile with receiving and return conversions.}
+    help:
+      summary: Unit used to quantify the commitment.
+      businessMeaning: Defines how quantity is interpreted.
+      workflowRole: Must reconcile with receiving and return conversions.
+      cardinalityMeaning: At most one unit; defaults to the product's purchase unit.
+      usage: Defaults from the product or supplier agreement.
   - name: supplierQuotationLine
     target: SupplierQuotationLine
     cardinality: 0..1
@@ -142,12 +157,22 @@ entity:
     target: GoodsReceiptLine
     cardinality: 0..*
     ownership: reference
-    help: {summary: Receipt evidence against this commitment., businessMeaning: Records actual received and accepted fulfillment., workflowRole: Supplies eligibility for later supplier returns.}
+    help:
+      summary: Receipt evidence against this commitment.
+      businessMeaning: Records actual received and accepted fulfillment.
+      workflowRole: Supplies eligibility for later supplier returns.
+      cardinalityMeaning: Any number of receipts; a line may arrive in several deliveries.
+      usage: Received quantities are summed from them.
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
     ownership: reference
-    help: {summary: Supplier invoice lines matched to this commitment., businessMeaning: Records financial claims against the order line., workflowRole: Uses accepted receipt and original price evidence.}
+    help:
+      summary: Supplier invoice lines matched to this commitment.
+      businessMeaning: Records financial claims against the order line.
+      workflowRole: Uses accepted receipt and original price evidence.
+      cardinalityMeaning: Any number of invoice lines bill the line.
+      usage: Matched against the received quantity.
   - name: supplierReturnLines
     target: SupplierReturnLine
     cardinality: 0..*

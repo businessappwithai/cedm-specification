@@ -138,12 +138,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a travel entity called Trip within the CEDM business model.
-    businessMeaning: Trip is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A journey by one or more travellers, made of segments and bookings.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, TripSegment, BusinessTransaction. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Travellers and travel managers plan trips, book their segments and accommodation, follow them while under way, and close them for expense settlement and travel reporting.
     lifecycle: A trip is planned, booked once its segments are reserved, in progress while travelling, and completed on return; it can be cancelled before it ends.
     example: Trip TR-2024-0412 'Customer visits in Munich', Lisa Weber, 10–12 June 2024, two flights and one hotel, booked.
+    businessMeaning: Travel approvals, costs and duty of care are managed per trip.
 specification:
   version: 0.1.0
   status: draft

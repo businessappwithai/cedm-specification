@@ -66,4 +66,5 @@ entity:
     relationshipContext: ManufacturingWorkOrder supplies context; Nonconformance may explain quality cause; Lot/Serial preserve genealogy; InventoryMovement records stock consequence when applicable.
     lifecycle: Recorded → validated/authorized → inventory/quality reconciled → immutable historical evidence.
     changePropagation: Scrap updates yield/cost/quality analysis and inventory only through governed attributable transactions.
+    example: 'Scrap SC-24-0207: 20 housings scrapped at operation 30 of MO-24-3310, reason cracked moulding, 5 June 2024.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SCRAP}

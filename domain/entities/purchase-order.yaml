@@ -55,22 +55,36 @@ entity:
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help: {summary: Supplier receiving the procurement commitment., usage: "Drives sourcing, delivery, receiving, supplier performance, returns and accounts payable.", context: GoodsReceipt and SupplierReturn supplier should normally match this supplier.}
+    help:
+      summary: Supplier receiving the procurement commitment.
+      usage: "Drives sourcing, delivery, receiving, supplier performance, returns and accounts payable."
+      context: GoodsReceipt and SupplierReturn supplier should normally match this supplier.
+      cardinalityMeaning: Each order goes to one supplier.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
-    help: {summary: Buying organization responsible for the commitment., usage: "Supports authorization, legal entity, budget, tax and reporting."}
+    help:
+      summary: Buying organization responsible for the commitment.
+      usage: "Supports authorization, legal entity, budget, tax and reporting."
+      cardinalityMeaning: At most one buying organisation.
   - name: lines
     target: PurchaseOrderLine
     cardinality: 1..*
     ownership: aggregate
-    help: {summary: Individual commercial commitments within the order., usage: "Defines products/services, quantities, units, prices and fulfillment expectations.", context: GoodsReceipt and SupplierReturn quantities must be evaluated against these ordered lines.}
+    help:
+      summary: Individual commercial commitments within the order.
+      usage: "Defines products/services, quantities, units, prices and fulfillment expectations."
+      context: GoodsReceipt and SupplierReturn quantities must be evaluated against these ordered lines.
+      cardinalityMeaning: One or more lines, kept with the order.
   - name: deliveryLocation
     target: Location
     cardinality: 0..1
     ownership: reference
-    help: {summary: Intended operational destination for ordered goods or services., usage: Used for receiving and logistics planning.}
+    help:
+      summary: Intended operational destination for ordered goods or services.
+      usage: Used for receiving and logistics planning.
+      cardinalityMeaning: At most one delivery place.
   - name: goodsReceipts
     target: GoodsReceipt
     cardinality: 0..*

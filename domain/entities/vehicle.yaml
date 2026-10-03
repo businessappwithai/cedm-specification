@@ -123,12 +123,12 @@ entity:
     - {from: MAINTENANCE, to: RETIRED, action: retire}
     - {from: OUT_OF_SERVICE, to: RETIRED, action: retire}
   help:
-    summary: Represents a logistics asset called Vehicle within the CEDM business model.
-    businessMeaning: Vehicle is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A truck, trailer, forklift or other vehicle used in operations.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Location, ContainerMovement. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Fleet and yard managers register vehicles with their type and capacity, assign operators, track where they are, take them into maintenance and retire them; dispatchers assign them to movements.
     lifecycle: A vehicle is active while available, goes into maintenance and back, may be taken out of service and returned, and is retired at the end of its life.
     example: Vehicle AB 123 CD, tractor unit, capacity 40 t, operated by Trasporti Rossi, at Genoa port, active.
+    businessMeaning: Vehicles are assigned to work, maintained and costed individually.
 specification:
   version: 0.1.0
   status: draft

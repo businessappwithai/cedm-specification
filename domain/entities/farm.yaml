@@ -150,12 +150,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a agriculture entity called Farm within the CEDM business model.
-    businessMeaning: Farm is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A farm business with its land, buildings and operations.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Party, FarmField, Crop. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Farm managers register their farms with their fields and crops; planting, inputs, harvests and subsidies are recorded per farm and field; buyers and certifiers trace produce back to the farm.
     lifecycle: Planned before operations start, active while farmed, inactive when operations pause, and retired when sold or closed.
     example: Farm FRM-BEA-01 'Ferme des Saules', mixed crop and livestock, 186 ha in the Beauce, owned by the Martin family, organic certified since 2019.
+    businessMeaning: Fields, crops, livestock, subsidies and compliance records are all held per farm.
 specification:
   version: 0.1.0
   status: draft

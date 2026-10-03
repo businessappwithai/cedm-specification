@@ -178,4 +178,5 @@ entity:
     relationshipContext: Inspections and measurements supply evidence; Product and receipt/shipment provide material context.
     lifecycle: Draft → approved → issued → superseded/void under controlled document history.
     changePropagation: Changes to open source evidence invalidate draft/approved certificates for revalidation; issued certificates retain historical source references and are corrected by supersession.
+    example: Certificate COA-24-0331 for lot L240312-07 of citric acid, issued 13 March 2024, conforms to specification, approved by QA manager R. Lenz.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CERTIFICATE-OF-ANALYSIS}

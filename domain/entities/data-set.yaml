@@ -163,12 +163,12 @@ entity:
   invariants:
   - {id: DATASET-EXE-001, rule: "Record Count cannot be negative.", violatedWhen: "record_count != null and record_count < 0", message: "Record Count cannot be negative."}
   help:
-    summary: Represents a data entity called Dataset within the CEDM business model.
-    businessMeaning: Dataset is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A named collection of data with an owner, a source and rules for its use.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, DataQualityAssessment, AIModel. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Data owners register datasets in the catalogue with their classification, owner and format; consumers find and request them there; quality is assessed regularly; AI teams record which datasets trained which models.
     lifecycle: Drafted while being prepared, active while published for use, archived when kept only for history, and retired when deleted under the retention policy.
     example: Dataset CUST-MASTER 'Customer master', confidential, Parquet, owner Sales Operations, 412,000 records refreshed daily, used to train churn model CHN-v2.
+    businessMeaning: Knowing what data exists, who owns it and how it may be used is needed for analytics, AI training and privacy compliance.
 specification:
   version: 0.1.0
   status: draft

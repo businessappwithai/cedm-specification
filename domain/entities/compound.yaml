@@ -125,12 +125,12 @@ entity:
     - {from: CANDIDATE, to: DISCONTINUED, action: discontinue}
     - {from: DEVELOPMENT, to: DISCONTINUED, action: discontinue}
   help:
-    summary: Represents a life sciences entity called Compound within the CEDM business model.
-    businessMeaning: Compound is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A chemical or biological substance the research organisation makes or tests, identified by its registry number and structure.
     relationshipContext: The entity participates in a wider business graph through relationships with Experiment, Sample. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Chemists register each compound they make or acquire; experiments and samples refer to it; project teams move promising compounds from research through candidate selection and development; the compound register is the reference for intellectual-property filings.
     lifecycle: A compound starts in research; promising ones are nominated as candidates, taken into development, and, rarely, approved as products. A compound can be discontinued at any stage.
     example: Compound ACM-004512, C21H27N5O2, MW 381.47, research → candidate 12 March 2024 after potency 4 nM and acceptable solubility.
+    businessMeaning: Compounds are what research produces and what patents protect; every experiment, sample and result is tied back to the compound it concerns.
 specification:
   version: 0.1.0
   status: draft

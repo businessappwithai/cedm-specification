@@ -158,7 +158,7 @@ entity:
     - {from: PLANNED, to: RETIRED, action: retire}
     - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a retail entity called Store within the CEDM business model.
+    summary: A shop where the business sells to customers.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     businessMeaning: A store is where the business meets customers in person. Each store has its own location, opening hours, manager, range and performance, so stock, staff and sales can be planned and measured store by store.
     usage: Retail operations open and maintain stores; merchandising assigns their ranges; sales and stock are recorded per store; store reports compare performance.

@@ -169,4 +169,5 @@ entity:
     relationshipContext: Product/location/lot/serial define count scope; InventoryAdjustment resolves approved variance.
     lifecycle: Planned/performed → reviewed → reconciled → closed; evidence retained.
     changePropagation: Approved variance may create adjustments; observations themselves never post inventory.
+    example: Count CNT-24-1102 at bin A-04-02, cycle count, counted 37, system 40, difference −3, 18 May 2024 07:40.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-COUNT}

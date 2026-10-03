@@ -64,4 +64,5 @@ entity:
     relationshipContext: BankAccount defines account/currency; bank transactions and payments supply observed/pending cash evidence.
     lifecycle: Calculated for an as-of cutoff → reviewed/published where required → retained or superseded by later snapshots.
     changePropagation: New/reversed/reconciled cash evidence affects subsequent positions and forecasts, not source transaction history.
+    example: 'Cash position of the EUR operating account at Banca Uno, as of 14 May 2024 17:00: ledger 1,240,500 EUR, available 1,198,200 EUR, forecast end of week 905,000 EUR.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CASH-POSITION}

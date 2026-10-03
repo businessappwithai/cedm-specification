@@ -173,4 +173,5 @@ entity:
     usage: Fulfillment, package labeling, staging, carrier handoff and traceability.
     relationshipContext: Picking supplies goods; HandlingUnit identifies package; Shipment/ShipmentLine supply transport context.
     lifecycle: Planned → in progress → packed, cancelled or exception.
+    example: 'Packing PK-24-5521: 6 units packed into carton SSCC …0123 for shipment SH-88412, 20 May 2024 10:12, completed.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PACKING}

@@ -127,27 +127,27 @@ entity:
     ownership: reference
     help:
       summary: The category the product is classified in.
-      cardinalityMeaning: A product has at most one product category in this role.
       usage: Used to browse the catalogue and for reports.
       context: Only active categories are assigned.
+      cardinalityMeaning: At most one category; a category holds many products.
   - name: suppliers
     target: Supplier
     cardinality: 0..*
     ownership: reference
     help:
       summary: Suppliers who can supply the product.
-      cardinalityMeaning: A product has any number of supplier in this role.
       usage: Proposed when purchasing.
       context: Many suppliers per product; a supplier supplies many products.
+      cardinalityMeaning: Any number of suppliers; a supplier supplies many products.
   - name: locations
     target: Location
     cardinality: 0..*
     ownership: reference
     help:
       summary: Locations where the product is stocked or sold.
-      cardinalityMeaning: A product has any number of location in this role.
       usage: Used for availability and assortment.
       context: Many locations per product.
+      cardinalityMeaning: Any number of locations; a location stocks or sells many products.
     inverseCardinality: 0..*
   - name: salesOrderLines
     target: SalesOrderLine
@@ -155,45 +155,45 @@ entity:
     ownership: reference
     help:
       summary: Sales order lines for the product.
-      cardinalityMeaning: A product has any number of sales order line in this role.
       usage: Listed for sales history.
       context: Each line is for one product.
+      cardinalityMeaning: Any number of sales order lines over time.
   - name: purchaseOrderLines
     target: PurchaseOrderLine
     cardinality: 0..*
     ownership: reference
     help:
       summary: Purchase order lines for the product.
-      cardinalityMeaning: A product has any number of purchase order line in this role.
       usage: Listed for purchase history.
       context: Each line is for one product.
+      cardinalityMeaning: Any number of purchase order lines over time.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
     ownership: reference
     help:
       summary: Stock of the product by location.
-      cardinalityMeaning: A product has any number of inventory balance in this role.
       usage: Shown as availability.
       context: One balance per location.
+      cardinalityMeaning: One balance for each location that holds the product.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
     help:
       summary: Stock movements of the product.
-      cardinalityMeaning: A product has any number of inventory movement in this role.
       usage: Listed for stock history.
       context: Each movement is of one product.
+      cardinalityMeaning: Any number of movements over the product's life.
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
     ownership: reference
     help:
       summary: Invoice lines that bill the product.
-      cardinalityMeaning: A product has any number of invoice line in this role.
       usage: Listed for billing history.
       context: Each line bills one product.
+      cardinalityMeaning: Any number of invoice lines bill the product.
   - name: lots
     target: Lot
     cardinality: 0..*

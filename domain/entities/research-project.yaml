@@ -141,12 +141,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a scientific research entity called ResearchProject within the CEDM business model.
-    businessMeaning: ResearchProject is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A scientific project with an objective, a team and the experiments it runs.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Experiment, Document, Party. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Principal investigators set up research projects with their objective and team, run experiments under them, and report results to funders and management; finished projects are archived with their documents.
     lifecycle: A project is planned, active while research is done, may be suspended and resumed, and is completed when its objective is answered; completed projects are archived, and a project may be cancelled before completion.
     example: Research project KX-INH-2024 'Selective inhibitors of kinase X', Acme Pharma Discovery, lead Dr. M. Weber, 46 experiments, active.
+    businessMeaning: Research budgets, results and intellectual property are managed per project.
 specification:
   version: 0.1.0
   status: draft

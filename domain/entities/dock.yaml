@@ -125,4 +125,5 @@ entity:
     usage: Inbound, outbound, cross-dock, appointment, staging and loading workflows.
     relationshipContext: Warehouse owns operational context; InventoryLocation supplies stock-control context; Shipment supplies transport work.
     lifecycle: Configured → active/restricted → retired with historical execution retained.
+    example: Dock D-07 'North door 7', loading dock, 16.5 m maximum vehicle length, leveller, not temperature controlled, active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCK}

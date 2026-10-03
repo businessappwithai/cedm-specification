@@ -110,12 +110,12 @@ entity:
     - {from: PENDING, to: REVOKED, action: revoke}
     - {from: ACTIVE, to: REVOKED, action: revoke}
   help:
-    summary: Represents a media legal entity called MediaRight within the CEDM business model.
-    businessMeaning: MediaRight is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A right to use media content in a way, territory and period.
     relationshipContext: The entity participates in a wider business graph through relationships with MediaContent, Party, Contract. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Rights managers record each licence or restriction on a work — what use, where and for how long — and check it before content is published or sold.
     lifecycle: A right is pending until the deal is concluded, active during its validity, and ends by expiring or being revoked.
     example: Streaming right for 'Rivers of the Alps' held by StreamCo, territory EU, 1 June 2024–31 May 2026, active.
+    businessMeaning: Using content without a valid right is infringement; rights also decide revenue from licensing.
 specification:
   version: 0.1.0
   status: draft

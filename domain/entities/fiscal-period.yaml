@@ -61,4 +61,5 @@ entity:
     relationshipContext: Organization defines books; JournalEntry carries accounting date; period state controls posting eligibility.
     lifecycle: Future → open → soft closed → closed → locked, with governed reopen where policy permits.
     changePropagation: Closing/reopening immediately revalidates pending postings and close processes while preserving already posted history.
+    example: Fiscal period 2024-05, 1–31 May 2024, open for posting until the month-end close on 5 June.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FISCAL-PERIOD}

@@ -125,4 +125,5 @@ entity:
     relationshipContext: Products and variants reference Brand; category remains independent classification.
     lifecycle: Active → inactive → active or retired.
     changePropagation: Lifecycle/name changes update future catalog/master usage while preserving historical references.
+    example: Brand ACME-PRO 'Acme Professional', own brand, www.acme-pro.example, active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BRAND}

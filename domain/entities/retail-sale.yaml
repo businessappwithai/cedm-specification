@@ -120,31 +120,31 @@ entity:
     - {from: OPEN, to: VOIDED, action: void}
     - {from: COMPLETED, to: REFUNDED, action: refund}
   workflows:
-    - name: CompletionConfirmed
-      title: "Confirm when a retail sale is done"
-      description: "When a retail sale is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "RETAIL-SALE-COMPLETED-{{id}}"
-              name: "Confirm retail sale {{receipt_number}}"
-              description: "Retail sale {{receipt_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: CompletionConfirmed
+    title: "Confirm when a retail sale is done"
+    description: "When a retail sale is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "RETAIL-SALE-COMPLETED-{{id}}"
+          name: "Confirm retail sale {{receipt_number}}"
+          description: "Retail sale {{receipt_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
-    summary: Represents a retail transaction called RetailSale within the CEDM business model.
-    businessMeaning: RetailSale is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A sale rung up at a till, with its lines and payments.
     relationshipContext: The entity participates in a wider business graph through relationships with Store, Customer, RetailSaleLine, Payment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Cashiers and self-checkouts record each sale at the till; store managers reconcile takings, handle voids and refunds, and sales are summed for stock replenishment and reporting.
     lifecycle: A sale is open while items are scanned, completed when paid, or voided before payment; a completed sale may be refunded.
     example: Receipt 0142-20240514-0087 at store 0142, 14 May 2024 17:42, 4 lines, 38.70 EUR paid by card, completed.
+    businessMeaning: Retail sales are the store's revenue; takings, stock and tax are reconciled from them.
 specification:
   version: 0.1.0
   status: draft

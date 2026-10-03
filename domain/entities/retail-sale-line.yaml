@@ -102,12 +102,12 @@ entity:
   - {id: RETAIL-SALE-LINE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   - {id: RETAIL-SALE-LINE-EXE-005, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
-    summary: Represents a retail transaction line called RetailSaleLine within the CEDM business model.
-    businessMeaning: RetailSaleLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: One item sold in a retail sale.
     relationshipContext: The entity participates in a wider business graph through relationships with RetailSale, Product, UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: The till adds a line for each item scanned, applying the price, discounts and tax; lines drive stock reduction and sales reporting by product.
     lifecycle: A line has no states of its own; it is completed, voided or refunded with its sale.
     example: 2 × 'Organic milk 1 l' at 1.45 EUR, discount 0.30 EUR, tax 0.10 EUR, line 2.60 EUR.
+    businessMeaning: Lines reduce store stock and are the basis of product sales reports.
 specification:
   version: 0.1.0
   status: draft

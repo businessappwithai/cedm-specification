@@ -109,4 +109,5 @@ entity:
     relationshipContext: Lot follows Product quantities through InventoryMovement and InventoryBalance and may later connect to receipt, production, shipment, inspection, and certificate evidence.
     lifecycle: Created/received → active or quarantined → released/held → consumed/expired/rejected → closed.
     changePropagation: Status, expiry, or quality changes immediately revalidate availability, reservations, picking, shipment, production consumption, and disposition without altering historical movements.
+    example: Lot L240312-07 of citric acid, manufactured 12 March 2024, expires 12 March 2026, released.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LOT}

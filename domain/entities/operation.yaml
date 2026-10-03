@@ -115,4 +115,5 @@ entity:
     relationshipContext: Routing sequences operations; WorkCenter provides capacity; QualityPlan governs inspection.
     lifecycle: Governed by parent routing version; historical released work retains its definition snapshot/reference.
     changePropagation: Definition/resource/quality changes affect future or unreleased work and trigger impact analysis for active work.
+    example: Operation 30 'Fit battery housing' of routing R-X200, 2.5 minutes per unit, 15 minutes set-up, quality checkpoint.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OPERATION}

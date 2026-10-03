@@ -142,12 +142,12 @@ entity:
     - {from: CONTAINED, to: RESOLVED, action: resolve}
     - {from: RESOLVED, to: CLOSED, action: close}
   help:
-    summary: Represents a security entity called SecurityIncident within the CEDM business model.
-    businessMeaning: SecurityIncident is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A security event that harmed or threatened the organisation's information or systems.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Party, Risk. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Staff and monitoring tools report incidents; the security team triages them by severity, investigates, contains the damage, resolves the cause and closes them with lessons learned; management reviews incident trends.
     lifecycle: An incident is opened, investigated, contained when the damage is stopped, then resolved and closed; containment may reopen the investigation.
     example: Incident SEC-2024-0091, phishing leading to a compromised mailbox, high, detected 3 April 2024 08:12, contained 09:40, resolved 5 April.
+    businessMeaning: Incidents must be contained and resolved quickly, and some must be reported to regulators within hours.
 specification:
   version: 0.1.0
   status: draft

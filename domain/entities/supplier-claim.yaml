@@ -115,15 +115,100 @@ entity:
         REJECTED: The claim is refused.
   - {name: notes, type: string, required: false, maxLength: 4000, help: {summary: Additional claim narrative and investigation context., businessMeaning: Records information not represented by structured fields., usage: Supplier communication investigation escalation and audit., relationshipContext: Complements structured inspection receipt invoice and return evidence without replacing it., workflowRole: Supports review and resolution.}}
   relationships:
-  - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier against whom the claim is raised., businessMeaning: Identifies the external party responsible for the disputed supply or service., usage: Supports communication scorecards recovery and escalation., workflowRole: Supplies supplier qualification and commercial context.}}
-  - {name: purchaseOrder, target: PurchaseOrder, cardinality: 0..1, ownership: reference, help: {summary: Procurement commitment associated with the claim., businessMeaning: Connects the supplier issue to the original purchasing commitment., usage: Supports contractual price and quantity investigation., workflowRole: Supplies commercial source evidence.}}
-  - {name: goodsReceipts, target: GoodsReceipt, cardinality: 0..*, ownership: reference, help: {summary: Receipt evidence supporting the supplier claim., businessMeaning: Identifies received goods or services involved in the issue., usage: Supports quantity date acceptance and supplier-performance investigation., workflowRole: Supplies authoritative receiving evidence.}, inverseCardinality: 0..*}
-  - {name: qualityInspections, target: QualityInspection, cardinality: 0..*, ownership: reference, help: {summary: Quality inspections supporting the claim., businessMeaning: Links claim assertions to structured quality evidence., usage: Supports defect nonconformance and supplier-quality investigations., workflowRole: Supplies inspection results and disposition evidence.}, inverseCardinality: 0..*}
-  - {name: supplierReturns, target: SupplierReturn, cardinality: 0..*, ownership: reference, help: {summary: Physical supplier returns associated with the claim., businessMeaning: Connects the case to reverse-procurement transactions used to return material., usage: Supports quantity recovery logistics inventory and claim resolution., workflowRole: A RETURN resolution may require one or more SupplierReturn records.}, inverseCardinality: 0..*}
-  - {name: supplierCreditNotes, target: SupplierCreditNote, cardinality: 0..*, ownership: reference, help: {summary: Supplier financial credits associated with the claim., businessMeaning: Connects commercial recovery to explicit financial adjustment evidence., usage: Supports accounts payable reconciliation and recovery reporting., workflowRole: A CREDIT resolution may result in one or more SupplierCreditNote records.}}
-  - {name: supplierDebitNotes, target: SupplierDebitNote, cardinality: 0..*, ownership: reference, help: {summary: Buyer-issued financial debits associated with the claim., businessMeaning: Connects an approved recovery case to explicit debit adjustment evidence without mutating the original Invoice., usage: Supports accounts payable recovery and supplier reconciliation., workflowRole: A DEBIT_ADJUSTMENT resolution may result in one or more SupplierDebitNote records.}}
-  - {name: resolutions, target: SupplierClaimResolution, cardinality: 0..*, ownership: reference, help: {summary: Controlled decisions that define how this claim is to be resolved., businessMeaning: Separates the claim case from the authorized remedy and its downstream execution., usage: Approval governance execution tracking and audit., workflowRole: Bridges accepted claim evidence to SupplierReturn SupplierCreditNote SupplierDebitNote or Payment execution.}}
-  - {name: invoices, target: Invoice, cardinality: 0..*, ownership: reference, help: {summary: Supplier invoices relevant to the claim., businessMeaning: Identifies original payable claims used as commercial or financial evidence without rewriting them., usage: Supports overcharge shortage tax and payable recovery investigation., workflowRole: Supplies transaction-time financial evidence for credit or debit resolution.}, inverseCardinality: 0..*}
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Supplier against whom the claim is raised.
+      businessMeaning: Identifies the external party responsible for the disputed supply or service.
+      usage: Supports communication scorecards recovery and escalation.
+      workflowRole: Supplies supplier qualification and commercial context.
+      cardinalityMeaning: Each claim is against one supplier.
+  - name: purchaseOrder
+    target: PurchaseOrder
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Procurement commitment associated with the claim.
+      businessMeaning: Connects the supplier issue to the original purchasing commitment.
+      usage: Supports contractual price and quantity investigation.
+      workflowRole: Supplies commercial source evidence.
+      cardinalityMeaning: At most one order the claim concerns.
+  - name: goodsReceipts
+    target: GoodsReceipt
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Receipt evidence supporting the supplier claim.
+      businessMeaning: Identifies received goods or services involved in the issue.
+      usage: Supports quantity date acceptance and supplier-performance investigation.
+      workflowRole: Supplies authoritative receiving evidence.
+      cardinalityMeaning: Any number of receipts the claim concerns.
+    inverseCardinality: 0..*
+  - name: qualityInspections
+    target: QualityInspection
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Quality inspections supporting the claim.
+      businessMeaning: Links claim assertions to structured quality evidence.
+      usage: Supports defect nonconformance and supplier-quality investigations.
+      workflowRole: Supplies inspection results and disposition evidence.
+      cardinalityMeaning: Any number of inspections that support the claim.
+    inverseCardinality: 0..*
+  - name: supplierReturns
+    target: SupplierReturn
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Physical supplier returns associated with the claim.
+      businessMeaning: Connects the case to reverse-procurement transactions used to return material.
+      usage: Supports quantity recovery logistics inventory and claim resolution.
+      workflowRole: A RETURN resolution may require one or more SupplierReturn records.
+      cardinalityMeaning: Any number of returns made under the claim.
+    inverseCardinality: 0..*
+  - name: supplierCreditNotes
+    target: SupplierCreditNote
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Supplier financial credits associated with the claim.
+      businessMeaning: Connects commercial recovery to explicit financial adjustment evidence.
+      usage: Supports accounts payable reconciliation and recovery reporting.
+      workflowRole: A CREDIT resolution may result in one or more SupplierCreditNote records.
+      cardinalityMeaning: Any number of credit notes received for the claim.
+  - name: supplierDebitNotes
+    target: SupplierDebitNote
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Buyer-issued financial debits associated with the claim.
+      businessMeaning: Connects an approved recovery case to explicit debit adjustment evidence without mutating the original Invoice.
+      usage: Supports accounts payable recovery and supplier reconciliation.
+      workflowRole: A DEBIT_ADJUSTMENT resolution may result in one or more SupplierDebitNote records.
+      cardinalityMeaning: Any number of debit notes raised for the claim.
+  - name: resolutions
+    target: SupplierClaimResolution
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Controlled decisions that define how this claim is to be resolved.
+      businessMeaning: Separates the claim case from the authorized remedy and its downstream execution.
+      usage: Approval governance execution tracking and audit.
+      workflowRole: Bridges accepted claim evidence to SupplierReturn SupplierCreditNote SupplierDebitNote or Payment execution.
+      cardinalityMeaning: Any number of resolutions.
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Supplier invoices relevant to the claim.
+      businessMeaning: Identifies original payable claims used as commercial or financial evidence without rewriting them.
+      usage: Supports overcharge shortage tax and payable recovery investigation.
+      workflowRole: Supplies transaction-time financial evidence for credit or debit resolution.
+      cardinalityMeaning: Any number of invoices the claim disputes.
+    inverseCardinality: 0..*
   invariants:
   - {id: SUPPLIER-CLAIM-001, rule: OPEN or later claim status requires supplier context and claimType.}
   - {id: SUPPLIER-CLAIM-002, rule: "claimedAmount, when present, must be non-negative and use the governed claim currency."}
@@ -160,42 +245,42 @@ entity:
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: OPEN, to: CANCELLED, action: cancel}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a supplier claim is put forward"
-      description: "When a supplier claim is under review, a task asks someone to decide on it."
-      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUPPLIER-CLAIM-APPROVAL-{{id}}"
-              name: "Decide on supplier claim {{claim_number}}"
-              description: "Supplier claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a supplier claim is ended"
-      description: "When a supplier claim is rejected or cancelled, a task asks someone to settle what depended on it."
-      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUPPLIER-CLAIM-FOLLOW-UP-{{id}}"
-              name: "Follow up on supplier claim {{claim_number}}"
-              description: "Supplier claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a supplier claim is put forward"
+    description: "When a supplier claim is under review, a task asks someone to decide on it."
+    when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUPPLIER-CLAIM-APPROVAL-{{id}}"
+          name: "Decide on supplier claim {{claim_number}}"
+          description: "Supplier claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a supplier claim is ended"
+    description: "When a supplier claim is rejected or cancelled, a task asks someone to settle what depended on it."
+    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUPPLIER-CLAIM-FOLLOW-UP-{{id}}"
+          name: "Follow up on supplier claim {{claim_number}}"
+          description: "Supplier claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Provides a formal auditable case for supplier-related quality or commercial recovery while keeping the decision and physical/financial consequences as separate controlled records.
     businessMeaning: SupplierClaim explains what went wrong and what recovery was requested or agreed. SupplierClaimResolution records the authorized remedy. SupplierReturn handles physical reversal; SupplierCreditNote or SupplierDebitNote handles financial adjustment; Payment handles cash movement.

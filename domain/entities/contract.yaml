@@ -212,12 +212,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a legal commercial entity called Contract within the CEDM business model.
-    businessMeaning: Contract is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A signed agreement between parties that sets out who must do what, for what price and for how long.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Document, ContractObligation. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Sales, procurement and legal draft contracts, negotiate and approve them, record signature and dates, and manage them through renewal or termination. Orders, invoices and obligations refer to the contract that governs them.
     lifecycle: Drafted, sent for approval, negotiated with the other party as needed, and active once signed and effective. It may be suspended, and it ends by expiring at the end of its term, by termination, or by cancellation before it takes effect.
     example: Contract C-2022-0145, 'Supply of bearings 2023–2025', purchase contract with SKF France, effective 1 January 2023 to 31 December 2025, auto-renew off, signed 12 December 2022, active.
+    businessMeaning: Contracts create rights and obligations the organisation must honour and enforce; renewals, prices, penalties and disputes all depend on them.
 specification:
   version: 0.1.0
   status: draft

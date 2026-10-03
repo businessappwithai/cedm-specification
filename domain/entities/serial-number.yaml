@@ -152,4 +152,5 @@ entity:
     relationshipContext: SerialNumber travels through InventoryMovement and may be associated with a Lot while preserving unique unit identity.
     lifecycle: Expected → available/reserved → in transit/installed/consumed/returned/quarantined → scrapped/retired as applicable.
     changePropagation: Status and custody changes revalidate inventory, reservation, shipment, service, return, and asset workflows; historical custody is never rewritten.
+    example: Serial X200-24-0045812 of 'Cordless drill X200', manufactured 5 June 2024, warranty to 5 June 2027, sold.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERIAL-NUMBER}

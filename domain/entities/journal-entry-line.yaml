@@ -81,12 +81,12 @@ entity:
   - id: JOURNAL-LINE-002
     rule: debitAmount and creditAmount must not be negative.
   help:
-    summary: Represents a financial transaction line called JournalEntryLine within the CEDM business model.
-    businessMeaning: JournalEntryLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: One debit or credit of a journal entry to one account.
     relationshipContext: The entity participates in a wider business graph through relationships with JournalEntry, Account. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Accountants enter one line per account a journal entry posts to, with a debit or a credit; ledger balances and trial balances are built from posted lines.
     lifecycle: A line has no states of its own; it is posted, reversed or cancelled with its journal entry.
     example: "Line 2 of entry JE-2024-03-0117: credit 1,200.00 to account 4000 Sales, 'Invoice INV-5521'."
+    businessMeaning: Lines are what account balances and financial statements are summed from; together they must balance.
 specification:
   version: 0.1.0
   status: draft

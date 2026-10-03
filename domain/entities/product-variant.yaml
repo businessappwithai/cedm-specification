@@ -154,4 +154,5 @@ entity:
     relationshipContext: Variant inherits/shared semantics from Product while allowing configuration-specific identity and SKU.
     lifecycle: Draft → active → blocked/discontinued → retired.
     changePropagation: Status/configuration changes revalidate open variant-specific demand and supply while preserving historical transactions.
+    example: Variant X200-RED of 'Cordless drill X200', SKU X200-R, red, GTIN 04012345678913, price +5.00 EUR, active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-VARIANT}

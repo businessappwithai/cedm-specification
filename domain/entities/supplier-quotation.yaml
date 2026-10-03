@@ -98,4 +98,5 @@ entity:
     relationshipContext: Connects Supplier and RFQ to resulting PurchaseOrders without conflating offer and commitment.
     lifecycle: Received → under review → accepted/rejected/expired/withdrawn.
     changePropagation: Supplier qualification, RFQ changes, and validity changes revalidate open evaluation; accepted historical offers remain immutable evidence.
+    example: Quotation SQ-BAT-0412 from Volta Cells GmbH for RFQ-24-0091, submitted 14 May 2024, valid until 14 June 2024, 106,000 EUR, accepted.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-QUOTATION}

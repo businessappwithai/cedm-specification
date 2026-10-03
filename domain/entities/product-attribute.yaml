@@ -33,4 +33,6 @@ entity:
     usage: PIM, catalog, configuration, search, procurement, sales and integration.
     relationshipContext: Supports Product and ProductVariant without replacing category, brand or quality characteristics.
     lifecycle: Governed definition evolves through controlled version/change management.
+    example: Attribute COLOR 'Colour', text, defines variants.
+  relationships: []
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-ATTRIBUTE}

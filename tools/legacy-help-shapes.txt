@@ -1,6 +1,8 @@
-# Shapes of help text stamped from the retired template generators
-# (tools/enrich_*.py), taken from the library before it was rewritten.
-# tools/help_quality.py refuses any help text with one of these shapes.
+; Shapes of help text stamped from the retired template generators
+; (the retired tools/enrich_*.py), taken from the library before it was rewritten.
+; tools/help_quality.py refuses any help text with one of these shapes. Lines opening with ";" are comments: "#" stands for a name.
+; Lines opening with "re:" are regular expressions, for templates that vary by more than a name.
+re:^Represents an? [a-z ]+ called \w+ within the CEDM business model\.$
 # affected by this lifecycle record.
 # governed by this record.
 # has any number of # in this role.

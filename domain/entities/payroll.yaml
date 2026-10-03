@@ -114,4 +114,5 @@ entity:
     relationshipContext: Employee and Employment provide eligibility; attendance and leave may supply time inputs; JournalEntry and Payment record separate downstream effects.
     lifecycle: Draft → calculated → approved → posted → paid, with controlled reversal.
     changePropagation: Changes to open-period employment/time/compensation inputs trigger recalculation; posted or paid history is corrected through controlled reversal.
+    example: Payroll PR-2024-05, 1–31 May 2024, gross 1,284,000 EUR, net 902,300 EUR, paid.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PAYROLL}

@@ -191,6 +191,7 @@ entity:
       usage: Supports receivables, statements, collections, tax, credit, and customer reporting.
       relationshipContext: Required for SALES invoices unless another controlled party model applies.
       workflowRole: Supplies commercial party context for the claim and settlement.
+      cardinalityMeaning: At most one customer; set on sales invoices.
   - name: supplier
     target: Supplier
     cardinality: 0..1
@@ -201,6 +202,7 @@ entity:
       usage: Supports payables, supplier statements, procurement reconciliation, tax, and payment processing.
       relationshipContext: Required for PURCHASE invoices unless another controlled party model applies.
       workflowRole: Supplies commercial party context for three-way matching and settlement.
+      cardinalityMeaning: At most one supplier; set on purchase invoices.
   - name: lines
     target: InvoiceLine
     cardinality: 1..*
@@ -221,6 +223,7 @@ entity:
       usage: Supports due-date calculation, aging, collections, payables, and payment planning.
       relationshipContext: The effective term on an issued invoice must remain auditable even if master PaymentTerm later changes.
       workflowRole: Feeds invoice due-date calculation and overdue determination.
+      cardinalityMeaning: At most one set of payment terms.
   - name: paymentAllocations
     target: PaymentAllocation
     cardinality: 0..*
@@ -241,6 +244,7 @@ entity:
       usage: Supports order-to-cash traceability, billing reconciliation, and revenue processes.
       relationshipContext: SalesOrder is the commercial commitment; Invoice is the financial claim.
       workflowRole: Provides source context for sales billing.
+      cardinalityMeaning: At most one sales order the invoice bills.
   - name: purchaseOrder
     target: PurchaseOrder
     cardinality: 0..1
@@ -251,6 +255,7 @@ entity:
       usage: Supports three-way matching and accounts payable controls.
       relationshipContext: PurchaseOrder is commitment; GoodsReceipt is accepted fulfillment; Invoice is the claim.
       workflowRole: Supplies ordered quantity and price context for InvoiceLine matching.
+      cardinalityMeaning: At most one purchase order the invoice bills.
   - name: goodsReceipts
     target: GoodsReceipt
     cardinality: 0..*

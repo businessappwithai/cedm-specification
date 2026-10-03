@@ -135,12 +135,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a nonprofit entity called NonprofitCampaign within the CEDM business model.
-    businessMeaning: NonprofitCampaign is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A fundraising or awareness campaign with a target and a period.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Fundraising staff plan campaigns with an objective and target, record the donors who give, and report progress to the board and donors.
     lifecycle: A campaign is planned, active while it runs, then completed; a planned or running campaign may be cancelled.
     example: Campaign WIN-2024 'Winter shelter appeal', Helping Hands Foundation, target 250,000 EUR, active, 1,840 donors.
+    businessMeaning: Campaigns raise the funds a nonprofit depends on; donors and boards judge them by results against target.
 specification:
   version: 0.1.0
   status: draft

@@ -99,12 +99,12 @@ entity:
     - {from: PLANNED, to: DISCONTINUED, action: discontinue}
     - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
   help:
-    summary: Represents a automotive master entity called VehicleModel within the CEDM business model.
-    businessMeaning: VehicleModel is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A manufacturer's model of vehicle in a model year.
     relationshipContext: The entity participates in a wider business graph through relationships with Product, Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Product and sales teams maintain the models a manufacturer offers, by model year; vehicles, parts and service plans refer to the model.
     lifecycle: A model is planned before launch, active while produced and sold, and discontinued when production ends.
     example: Model AX3-2024 'Axia 3 Hatchback', manufacturer Axia Motors, model year 2024, active.
+    businessMeaning: Pricing, parts, service plans and recalls are organised by model.
 specification:
   version: 0.1.0
   status: draft

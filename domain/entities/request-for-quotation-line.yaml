@@ -135,4 +135,5 @@ entity:
     relationshipContext: PurchaseRequisitionLine supplies demand; SupplierQuotationLine supplies responses; PurchaseOrderLine executes awarded commitment.
     lifecycle: Prepared with RFQ, issued for response, closed/awarded with sourcing event, retained historically.
     changePropagation: Issued-line changes revalidate supplier responses and downstream awards without rewriting historical submissions.
+    example: 'Line 1 of RFQ-24-0091: 5,000 battery packs BP-18V to specification SP-BP-03, required by 1 September 2024, target price 21.50 EUR.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-REQUEST-FOR-QUOTATION-LINE}

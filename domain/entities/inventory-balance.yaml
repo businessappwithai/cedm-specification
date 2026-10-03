@@ -68,18 +68,18 @@ entity:
     ownership: reference
     help:
       summary: The product the balance counts.
-      cardinalityMeaning: An inventory balance has exactly one product in this role.
       usage: Set by the movement that first puts the product in the location.
       context: The product's total stock is the sum of its balances.
+      cardinalityMeaning: Each balance is the stock of one product; a product has a balance per location.
   - name: inventoryLocation
     target: InventoryLocation
     cardinality: '1'
     ownership: reference
     help:
       summary: The location whose stock the balance shows.
-      cardinalityMeaning: An inventory balance has exactly one inventory location in this role.
       usage: Set by the movement that first puts the product in the location.
       context: One balance per product, location and lot.
+      cardinalityMeaning: Each balance is the stock at one location; a location holds balances for many products.
   - name: lot
     target: Lot
     cardinality: 0..1

@@ -210,12 +210,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a trade entity called CustomsDeclaration within the CEDM business model.
-    businessMeaning: CustomsDeclaration is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A declaration of goods made to customs for import, export or transit.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Shipment, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Trade compliance or the appointed customs broker prepares the declaration for each import or export movement, submits it electronically, answers queries and inspections, and records clearance; duties paid and the movement reference are kept for audit.
     lifecycle: Drafted, submitted to customs, accepted with a movement reference, possibly held for inspection, and cleared when the goods are released. Customs may reject it; a draft may be cancelled.
     example: Export declaration 24FR000123456789A1 for shipment SH-55120, goods value 186,400 EUR, declared by ACME France via broker, submitted 11 March, cleared 11 March 15:20.
+    businessMeaning: Goods cannot cross the border until customs accepts the declaration; it also determines the duties and taxes owed.
 specification:
   version: 0.1.0
   status: draft

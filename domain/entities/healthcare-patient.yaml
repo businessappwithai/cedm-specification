@@ -115,12 +115,12 @@ entity:
     - {from: ACTIVE, to: MERGED, action: merge}
     - {from: INACTIVE, to: MERGED, action: merge}
   help:
-    summary: Represents a industry specialization called HealthcarePatient within the CEDM business model.
-    businessMeaning: HealthcarePatient is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: The medical record of a person receiving care, identified by a medical record number.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, HealthcareEncounter, CarePlan, Allergy. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Registration staff create the patient record once, linked to the person; clinicians open it to see encounters, care plans and allergies; record managers merge duplicates.
     lifecycle: A patient is active while receiving care and inactive when no longer seen; an active or inactive record becomes deceased on death or merged when found to duplicate another.
     example: Patient MRN 0048812, Maria Costa, preferred language Italian, active, allergy to penicillin.
+    businessMeaning: All clinical information is attached to the patient record; one person must have exactly one, kept accurate.
 specification:
   version: 0.1.0
   status: draft

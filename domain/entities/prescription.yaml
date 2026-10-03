@@ -125,49 +125,49 @@ entity:
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a prescription is ended"
-      description: "When a prescription is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PRESCRIPTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on prescription {{prescription_number}}"
-              description: "Prescription {{prescription_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a prescription is done"
-      description: "When a prescription is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PRESCRIPTION-COMPLETED-{{id}}"
-              name: "Confirm prescription {{prescription_number}}"
-              description: "Prescription {{prescription_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a prescription is ended"
+    description: "When a prescription is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PRESCRIPTION-FOLLOW-UP-{{id}}"
+          name: "Follow up on prescription {{prescription_number}}"
+          description: "Prescription {{prescription_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a prescription is done"
+    description: "When a prescription is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PRESCRIPTION-COMPLETED-{{id}}"
+          name: "Confirm prescription {{prescription_number}}"
+          description: "Prescription {{prescription_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
-    summary: Represents a healthcare transaction called Prescription within the CEDM business model.
-    businessMeaning: Prescription is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: An order by a clinician for a patient to take a medication in a stated way.
     relationshipContext: The entity participates in a wider business graph through relationships with HealthcarePatient, Medication, HealthcareProvider. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Prescribers write prescriptions for their patients; pharmacists check and dispense them; nurses give doses as prescribed; prescribers stop or change therapy by discontinuing a prescription.
     lifecycle: A prescription is drafted, active once signed, and completed at the end of the therapy; a draft can be cancelled and an active prescription discontinued early.
     example: 'Prescription RX-2024-77812 for patient MRN 0048812: Amoxicillin 500 mg capsule, one capsule three times a day by mouth, 14–21 May 2024, by Dr. A. Rossi.'
+    businessMeaning: Prescriptions authorise dispensing and administration and are central to medication safety.
 specification:
   version: 0.1.0
   status: draft

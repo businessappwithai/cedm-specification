@@ -133,31 +133,31 @@ entity:
     - {from: DELAYED, to: CANCELLED, action: cancel}
     - {from: BOARDING, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a flight is ended"
-      description: "When a flight is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "FLIGHT-FOLLOW-UP-{{id}}"
-              name: "Follow up on flight {{flight_number}}"
-              description: "Flight {{flight_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a flight is ended"
+    description: "When a flight is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FLIGHT-FOLLOW-UP-{{id}}"
+          name: "Follow up on flight {{flight_number}}"
+          description: "Flight {{flight_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a travel transport entity called Flight within the CEDM business model.
-    businessMeaning: Flight is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A scheduled flight on a date, with its route, times and aircraft.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Location, Organization, Aircraft. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Airlines and travel managers record flights with their schedule, aircraft and status; bookings and trip segments refer to them; operations update their status from departure control and flight tracking.
     lifecycle: Scheduled, possibly delayed, boarding, departed and arrived. A flight can be cancelled before it departs.
     example: Flight AF1234 Lyon → Paris CDG, scheduled 07:15–08:20 on 4 June 2024, Airbus A320 F-HBXA, departed 07:22, arrived 08:24.
+    businessMeaning: Bookings, crew and aircraft assignments, and operational performance are all organised by flight.
 specification:
   version: 0.1.0
   status: draft

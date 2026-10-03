@@ -185,12 +185,12 @@ entity:
     - {from: DEPLOYED, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents an ai entity called AIModel within the CEDM business model.
-    businessMeaning: AIModel is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A trained model the organisation uses to predict, classify, recommend or generate, registered with its purpose, version and owner.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, AIEvaluation, AIPrediction, AIPolicy. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Data-science teams register each model when development starts, record its evaluations, have it approved under the applicable AI policy and deploy it; operations watches its predictions; risk and compliance review the inventory of models by risk level.
     lifecycle: Draft while designed, in training, in validation while evaluated, approved by the governance board, deployed for use, suspended if it misbehaves, and retired when replaced. A model reaches deployment only through approval.
     example: Model CS-v4 'Consumer credit scoring', classification, version 4.2, risk high, governed by policy AIP-02, approved 14 May 2024, deployed 20 May.
+    businessMeaning: Models make or shape business decisions, so the organisation must know which model produced a result, whether it was approved for that use, and when it must be retrained or withdrawn.
 specification:
   version: 0.1.0
   status: draft

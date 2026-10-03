@@ -160,12 +160,12 @@ entity:
   invariants:
   - {id: FACILITY-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
   help:
-    summary: Represents a facilities entity called Facility within the CEDM business model.
-    businessMeaning: Facility is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A building or site the organisation uses, such as an office, plant or warehouse.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, Asset, ServiceRequest. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Facilities managers register sites and buildings with their type, size and occupancy; maintenance, service requests, assets and space planning are organised by facility.
     lifecycle: Planned before opening, active while in use, inactive when temporarily unused, and closed when vacated for good.
     example: Facility LYO-HQ 'Lyon head office', office building, 6,200 m², 420 workstations, owned by ACME France, active.
+    businessMeaning: Facilities carry costs, capacity and safety obligations; maintenance, space planning and service requests are organised by facility.
 specification:
   version: 0.1.0
   status: draft

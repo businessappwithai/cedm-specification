@@ -382,6 +382,19 @@ def reference_data_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> Non
                     errors.append(f"{name}.{holder['name']}: REF-004 {holder.get('target')} has no key to {controlled}, so {control} cannot narrow it")
 
 
+def help_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
+    """HELP-001 No help text has the shape of one the retired generators stamped.
+
+    The library's help was rewritten by hand; `tools/legacy-help-shapes.txt`
+    records what the old generators wrote, compared by shape so a template
+    cannot return with only an entity's name changed (tools/help_quality.py).
+    """
+    import help_quality
+
+    for where, text in sorted(help_quality.legacy({n: e for n, (_, e) in entities.items()}).items()):
+        errors.append(f"{where}: HELP-001 template help text {text!r}; write what this record means")
+
+
 def main() -> int:
     if not REGISTRY.exists():
         errors.append(f"Missing registry: {REGISTRY}")
@@ -478,6 +491,7 @@ def main() -> int:
     structure_checks(entities)
     business_logic_checks(entities)
     reference_data_checks(entities)
+    help_checks(entities)
 
     registered_set = set(registered)
     actual_set = set(entities)

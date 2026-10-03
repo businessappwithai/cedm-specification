@@ -199,11 +199,11 @@ entity:
     - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: A specific check or safeguard that keeps a risk in bounds, such as an approval, a reconciliation or an access restriction.
-    businessMeaning: Control is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Risk, Policy. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Risk and compliance teams define controls, assign owners and map them to the risks and policies they address; owners operate them; internal audit tests them and rates their effectiveness; failed controls lead to findings and corrective action.
     lifecycle: Drafted while designed, active while operated, inactive when paused, and retired when no longer needed. A retired control keeps its test history.
     example: "Control P2P-07 'Three-way match before payment': preventive, continuous and automated, owner the AP manager, addresses risk R-012 'Payment of goods not received', key control, tested effective 30 June 2024."
+    businessMeaning: Controls are how the organisation shows auditors and regulators that its risks are managed; a control that is not designed or not working leaves the risk open.
 specification:
   version: 0.1.0
   status: draft

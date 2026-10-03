@@ -129,12 +129,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a supply chain entity called SupplyPlan within the CEDM business model.
-    businessMeaning: SupplyPlan is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A plan that balances expected demand with supply and stock for a period.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Product, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Supply planners build plans that balance forecast demand with supply and stock for each product and location over a horizon, have them approved, and release the replenishment actions they contain.
     lifecycle: A plan is drafted, approved, active while it drives replenishment, and closed at the end of its horizon; a plan may be cancelled before it closes.
     example: Supply plan SP-2024-W23, Europe, 3 June–1 September 2024, 412 products at 6 warehouses, active.
+    businessMeaning: Supply plans decide what to buy, make and move; good plans avoid both stock-outs and excess stock.
 specification:
   version: 0.1.0
   status: draft

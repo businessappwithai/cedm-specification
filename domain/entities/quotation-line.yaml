@@ -101,27 +101,27 @@ entity:
     inverse: lines
     help:
       summary: The quotation the line belongs to.
-      cardinalityMeaning: A quotation line has exactly one quotation in this role.
       usage: Set when the line is added.
       context: Its currency applies.
+      cardinalityMeaning: Each line belongs to one quotation; a quotation has one or more lines.
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
     help:
       summary: The product or service offered.
-      cardinalityMeaning: A quotation line has at most one product in this role.
       usage: Chosen from the catalogue.
       context: Empty for free-text lines.
+      cardinalityMeaning: At most one product; free-text lines have none.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
     help:
       summary: The unit the quantity is in.
-      cardinalityMeaning: A quotation line has at most one unit of measure in this role.
       usage: Defaults to the product's unit.
       context: Must convert to the product's unit.
+      cardinalityMeaning: At most one unit; defaults to the product's.
   invariants:
   - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
   - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}

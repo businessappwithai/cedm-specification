@@ -122,12 +122,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: ON_LEAVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a party role specialization called Employee within the CEDM business model.
-    businessMeaning: Employee is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A person employed by the organisation, with their employee number and current job.
     relationshipContext: The entity participates in a wider business graph through relationships with Person, Organization. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: HR creates an employee record when someone is hired, keeps it current through changes, and closes it when they leave; payroll, time, access and organization charts all read it.
     lifecycle: Active while employed; on leave during long absences; terminated when employment ends; retired when they leave on retirement. Records are kept after leaving as the law requires.
     example: Employee 004812, Maria Lopez, hired 1 April 2024 by ACME France, Accounts Payable department, active.
+    businessMeaning: Payroll, time recording, access and the organisation chart all depend on knowing who is employed and in what role.
 specification:
   version: 0.1.0
   status: draft

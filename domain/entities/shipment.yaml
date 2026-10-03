@@ -92,36 +92,36 @@ entity:
     ownership: reference
     help:
       summary: Where the shipment leaves from.
-      cardinalityMeaning: A shipment has at most one location in this role.
       usage: Set when planning.
       context: A warehouse or supplier location.
+      cardinalityMeaning: At most one origin.
   - name: destination
     target: Location
     cardinality: 0..1
     ownership: reference
     help:
       summary: Where the shipment goes.
-      cardinalityMeaning: A shipment has at most one location in this role.
       usage: Set when planning.
       context: A customer or own location.
+      cardinalityMeaning: At most one destination.
   - name: carrier
     target: Party
     cardinality: 0..1
     ownership: reference
     help:
       summary: The carrier transporting the goods.
-      cardinalityMeaning: A shipment has at most one party in this role.
       usage: Chosen when booking.
       context: Rates and service levels come from it.
+      cardinalityMeaning: At most one carrier per shipment.
   - name: containers
     target: Container
     cardinality: 0..*
     ownership: reference
     help:
       summary: Containers the goods travel in.
-      cardinalityMeaning: A shipment has any number of container in this role.
       usage: Linked when loading.
       context: Tracked separately.
+      cardinalityMeaning: Any number of containers.
     inverseCardinality: 0..*
   - name: salesOrder
     target: SalesOrder
@@ -129,27 +129,27 @@ entity:
     ownership: reference
     help:
       summary: The sales order the shipment delivers.
-      cardinalityMeaning: A shipment has at most one sales order in this role.
       usage: Set for outbound shipments.
       context: Delivery updates the order's fulfilment.
+      cardinalityMeaning: At most one sales order; an order may leave in several shipments.
   - name: purchaseOrder
     target: PurchaseOrder
     cardinality: 0..1
     ownership: reference
     help:
       summary: The purchase order the shipment delivers.
-      cardinalityMeaning: A shipment has at most one purchase order in this role.
       usage: Set for inbound shipments.
       context: Receipt is matched against it.
+      cardinalityMeaning: At most one purchase order; an order may arrive in several shipments.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
     help:
       summary: Stock movements caused by the shipment.
-      cardinalityMeaning: A shipment has any number of inventory movement in this role.
       usage: Posted at dispatch and receipt.
       context: Stock changes only through them.
+      cardinalityMeaning: Any number of stock movements.
     inverseCardinality: '1'
   - name: handlingUnits
     target: HandlingUnit

@@ -1235,8 +1235,22 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   free-form `kind` to a class, and `tools/validate.py` enforces DICT-001…010 /
   ENUM-001…003 (`ui.icon` a lucide 0.312 id, help on every entity, attribute and
   relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
-  prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
-  round trip rewraps every folded line in the library).
+  prints coverage.
+- **The library's help is written, not generated, and the gates refuse a
+  template.** Every entity, attribute, relationship and enumeration value carries
+  help an author wrote for that record. `HELP-001` (`tools/validate.py`) and
+  `tools/validate_help.py` refuse any text with the shape of one the retired
+  generators stamped — `tools/legacy-help-shapes.txt`, compared by shape through
+  `tools/help_quality.py`, so a template cannot return with only the entity's
+  name changed (`re:` lines cover templates that vary by more than a name; lines
+  opening `;` are comments, because `#` stands for a name). The enrichers that
+  produced that text (`tools/enrich_*.py` and the CI workflow that ran them on
+  every push) are deleted. To change help or structure, write a batch and run
+  `bash tools/author.sh <batch.yaml>` — `apply_authored`, `identity_help`,
+  `derive_business_logic`, `derive_workflows`, `build_enumerations`, `validate`,
+  idempotent; the batch format is in the header of `tools/apply_authored.py`, and
+  `tools/help_skeleton.py <Entity…>` shows an entity with every unwritten slot
+  starred (`--todo` lists the entities that still have one).
 - **Reference data comes from the common specification.** Country, StateProvince,
   City, Currency and Language are library entities whose rows live in
   `domain/reference-data/*.yaml` (`tools/build_reference_data.py`, from ISO 3166/4217/639

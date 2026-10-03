@@ -154,46 +154,47 @@ entity:
     - {from: RELEASED, to: CANCELLED, action: cancel}
     - {from: EXCEPTION, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a picking is stopped"
-      description: "When a picking is exception, a high-priority task asks someone to resolve it."
-      when: "status == \"EXCEPTION\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PICKING-EXCEPTION-{{id}}"
-              name: "Resolve picking {{pick_number}}"
-              description: "Picking {{pick_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a picking is ended"
-      description: "When a picking is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PICKING-FOLLOW-UP-{{id}}"
-              name: "Follow up on picking {{pick_number}}"
-              description: "Picking {{pick_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a picking is stopped"
+    description: "When a picking is exception, a high-priority task asks someone to resolve it."
+    when: "status == \"EXCEPTION\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PICKING-EXCEPTION-{{id}}"
+          name: "Resolve picking {{pick_number}}"
+          description: "Picking {{pick_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a picking is ended"
+    description: "When a picking is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PICKING-FOLLOW-UP-{{id}}"
+          name: "Follow up on picking {{pick_number}}"
+          description: "Picking {{pick_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Warehouse inventory-selection task for authorized demand.
     businessMeaning: Picking selects/handles committed stock; inventory and fulfillment ledgers remain authoritative separately.
     usage: Sales fulfillment, production staging, transfer and service demand.
     relationshipContext: Reservation supplies commitment; InventoryLocation supplies source; ShipmentLine may supply outbound demand.
     lifecycle: Planned → released → in progress → picked/short, cancelled or exception.
+    example: "Pick PK-24-11872: 6 units of 'Cordless drill X200' from bin A-04-02 for order SO-10442, picked 6, 20 May 2024 09:58."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PICKING}

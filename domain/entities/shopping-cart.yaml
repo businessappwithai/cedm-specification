@@ -119,7 +119,7 @@ entity:
     - {from: ABANDONED, to: EXPIRED, action: expire}
     - {from: ACTIVE, to: EXPIRED, action: expire}
   help:
-    summary: Represents a ecommerce entity called ShoppingCart within the CEDM business model.
+    summary: The products a shopper has selected online but not yet ordered.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, ShoppingCartLine. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     businessMeaning: A cart holds what a shopper intends to buy before they commit. Keeping carts lets shoppers come back to them, lets the shop recover abandoned carts with a reminder, and shows which products are considered but not bought.
     usage: Created when a shopper adds a first product; updated as they shop; converted into an order at checkout; marked abandoned after inactivity and expired after the retention period.

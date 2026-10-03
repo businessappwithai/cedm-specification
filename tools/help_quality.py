@@ -96,15 +96,22 @@ def stamped(entities: dict[str, dict]) -> dict[str, str]:
 
 def legacy_shapes() -> set[str]:
     lines = LEGACY_FILE.read_text().splitlines() if LEGACY_FILE.exists() else []
-    return {line for line in lines if line and not line.startswith("#")}
+    return {line for line in lines if line and not line.startswith((";", "re:"))}
+
+
+def legacy_patterns() -> list[re.Pattern[str]]:
+    """Templates whose varying part is not a name (an entity's kind, say), as `re:` lines."""
+    lines = LEGACY_FILE.read_text().splitlines() if LEGACY_FILE.exists() else []
+    return [re.compile(line[3:]) for line in lines if line.startswith("re:")]
 
 
 def legacy(entities: dict[str, dict]) -> dict[str, str]:
     """Every help text with the shape of one the retired generators wrote, keyed by path."""
     shapes = legacy_shapes()
+    patterns = legacy_patterns()
     found: dict[str, str] = {}
     for name, entity in entities.items():
         for path, text, names in texts(name, entity):
-            if shape(text, *names) in shapes:
+            if shape(text, *names) in shapes or any(p.search(text) for p in patterns):
                 found[path] = text
     return found

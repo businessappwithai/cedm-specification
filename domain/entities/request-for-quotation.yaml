@@ -74,4 +74,5 @@ entity:
     relationshipContext: Bridges requisitions and suppliers to comparable responses and resulting purchase orders.
     lifecycle: Draft → issued → closed/awarded, with cancellation.
     changePropagation: Demand or supplier eligibility changes revalidate open sourcing; awarded history remains auditable and downstream orders require controlled amendment.
+    example: RFQ-24-0091 for battery packs, issued to three suppliers on 2 May 2024, responses due 16 May 2024, closed.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-REQUEST-FOR-QUOTATION}

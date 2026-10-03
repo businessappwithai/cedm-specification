@@ -52,4 +52,5 @@ entity:
     relationshipContext: QualityPlanCharacteristic selects the method; QualityMeasurement records evidence produced under it.
     lifecycle: Draft → active → suspended/retired under controlled change.
     changePropagation: Method lifecycle or semantic changes revalidate affected open configurations and inspections while completed evidence remains historically stable.
+    example: Test method TM-PH-01 'pH by potentiometry', calibrate with buffers 4, 7 and 10, then measure at 20 °C; active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TEST-METHOD}

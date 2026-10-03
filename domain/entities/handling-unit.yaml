@@ -151,4 +151,5 @@ entity:
     relationshipContext: Can occupy InventoryLocation, nest inside another HandlingUnit and join Shipment.
     lifecycle: Created/received → stored/moved → picked/packed → staged/shipped → unpacked/closed or reused.
     changePropagation: Location/shipment/nesting changes must reconcile with warehouse execution and cannot silently move underlying stock.
+    example: Handling unit SSCC 003401234567890123, Euro pallet, 642 kg, 120 × 80 × 145 cm, packed for shipment SH-88412.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HANDLING-UNIT}

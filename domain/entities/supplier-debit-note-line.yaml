@@ -23,10 +23,47 @@ entity:
   - {name: netAmount, type: Money, required: true, help: {summary: Final financial amount represented by this debit line., businessMeaning: Represents the line's gross adjustment plus applicable tax under governing calculation policy., usage: Supplier reconciliation and accounting., workflowRole: Contributes to SupplierDebitNote.totalAmount.}}
   - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Reason explaining why this particular debit amount is being raised., businessMeaning: Provides line-level cause such as shortage overcharge damage or penalty., usage: Supplier dispute reporting and recovery analytics., relationshipContext: Complements SupplierClaim.claimType and source transaction evidence., workflowRole: Supports validation and approval., requiredMeaning: Required for line-level auditability.}}
   relationships:
-  - {name: supplierDebitNote, target: SupplierDebitNote, cardinality: '1', ownership: reference, help: {summary: Parent supplier debit note containing this line., businessMeaning: Supplies supplier currency lifecycle and posting context., workflowRole: Controls whether the line can be posted.}}
-  - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Claim evidence supporting the debit line., businessMeaning: Connects the monetary adjustment to the supplier issue being recovered., usage: Investigation approval and audit., workflowRole: Supplies justification for the debit.}}
-  - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution supporting this debit line., businessMeaning: Links the line to the approved recovery decision and its financial limit., usage: Approval audit and claim closure., workflowRole: Supplies remedy authorization for DEBIT_ADJUSTMENT.}}
-  - {name: invoiceLines, target: InvoiceLine, cardinality: 0..*, ownership: reference, help: {summary: Original supplier invoice lines affected by this debit., businessMeaning: Identifies historical payable evidence relevant to the adjustment., usage: AP reconciliation and audit., workflowRole: Supplies transaction-time quantity price and tax evidence.}, inverseCardinality: 0..*}
+  - name: supplierDebitNote
+    target: SupplierDebitNote
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Parent supplier debit note containing this line.
+      businessMeaning: Supplies supplier currency lifecycle and posting context.
+      workflowRole: Controls whether the line can be posted.
+      cardinalityMeaning: Each line belongs to one debit note; a debit note has one or more lines.
+      usage: Set when the line is entered.
+  - name: supplierClaim
+    target: SupplierClaim
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Claim evidence supporting the debit line.
+      businessMeaning: Connects the monetary adjustment to the supplier issue being recovered.
+      usage: Investigation approval and audit.
+      workflowRole: Supplies justification for the debit.
+      cardinalityMeaning: At most one claim the line recovers.
+  - name: supplierClaimResolution
+    target: SupplierClaimResolution
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Authorized claim resolution supporting this debit line.
+      businessMeaning: Links the line to the approved recovery decision and its financial limit.
+      usage: Approval audit and claim closure.
+      workflowRole: Supplies remedy authorization for DEBIT_ADJUSTMENT.
+      cardinalityMeaning: At most one resolution the line carries out.
+  - name: invoiceLines
+    target: InvoiceLine
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Original supplier invoice lines affected by this debit.
+      businessMeaning: Identifies historical payable evidence relevant to the adjustment.
+      usage: AP reconciliation and audit.
+      workflowRole: Supplies transaction-time quantity price and tax evidence.
+      cardinalityMeaning: Any number of invoice lines the debit relates to.
+    inverseCardinality: 0..*
   invariants:
   - {id: SUPPLIER-DEBIT-LINE-001, rule: lineNumber must be unique within SupplierDebitNote.}
   - {id: SUPPLIER-DEBIT-LINE-002, rule: Monetary values must use SupplierDebitNote.currencyId.}

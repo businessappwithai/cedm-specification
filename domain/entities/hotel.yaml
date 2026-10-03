@@ -148,7 +148,7 @@ entity:
     - {from: PLANNED, to: RETIRED, action: retire}
     - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a hospitality entity called Hotel within the CEDM business model.
+    summary: A hotel property operated or represented by the business, with its rooms and services.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, HotelRoom, HotelReservation. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     businessMeaning: A hotel is the property guests stay at. It holds its rooms, its star rating, its check-in and check-out times and the company that operates it, so reservations, room allocation, pricing and reports all work per property.
     usage: Hospitality operations set up each property with its rooms and policies; reservations are made for a hotel; occupancy and revenue are reported per hotel.

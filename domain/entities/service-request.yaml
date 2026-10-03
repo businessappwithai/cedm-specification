@@ -171,31 +171,31 @@ entity:
     - {from: ASSIGNED, to: CANCELLED, action: cancel}
     - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a service request is ended"
-      description: "When a service request is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SERVICE-REQUEST-FOLLOW-UP-{{id}}"
-              name: "Follow up on service request {{request_number}}"
-              description: "Service request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a service request is ended"
+    description: "When a service request is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SERVICE-REQUEST-FOLLOW-UP-{{id}}"
+          name: "Follow up on service request {{request_number}}"
+          description: "Service request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a service management entity called ServiceRequest within the CEDM business model.
-    businessMeaning: ServiceRequest is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A request from a user or customer for help or a service, such as fixing a laptop.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Party, Organization, Location, Task. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Requesters raise service requests through a portal, email or phone; the service desk triages and assigns them, technicians resolve them, and service levels are measured from them.
     lifecycle: A request is opened, triaged, assigned, worked on and resolved, then closed when the requester confirms; it may be cancelled before resolution.
     example: Request SR-2024-11872 'Laptop does not boot', IT hardware, high, requested by Ana Silva 14 May 09:05, assigned to desk team B, resolved 11:30.
+    businessMeaning: Requests are how service work arrives; service levels and staffing are measured from them.
 specification:
   version: 0.1.0
   status: draft

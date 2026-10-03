@@ -132,49 +132,49 @@ entity:
     - {from: SETTLED, to: CLOSED, action: close}
     - {from: DENIED, to: CLOSED, action: close}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when an insurance claim is put forward"
-      description: "When an insurance claim is under review, a task asks someone to decide on it."
-      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INSURANCE-CLAIM-APPROVAL-{{id}}"
-              name: "Decide on insurance claim {{claim_number}}"
-              description: "Insurance claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when an insurance claim is ended"
-      description: "When an insurance claim is denied, a task asks someone to settle what depended on it."
-      when: "status == \"DENIED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INSURANCE-CLAIM-FOLLOW-UP-{{id}}"
-              name: "Follow up on insurance claim {{claim_number}}"
-              description: "Insurance claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when an insurance claim is put forward"
+    description: "When an insurance claim is under review, a task asks someone to decide on it."
+    when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INSURANCE-CLAIM-APPROVAL-{{id}}"
+          name: "Decide on insurance claim {{claim_number}}"
+          description: "Insurance claim {{claim_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when an insurance claim is ended"
+    description: "When an insurance claim is denied, a task asks someone to settle what depended on it."
+    when: "status == \"DENIED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INSURANCE-CLAIM-FOLLOW-UP-{{id}}"
+          name: "Follow up on insurance claim {{claim_number}}"
+          description: "Insurance claim {{claim_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents an insurance transaction called InsuranceClaim within the CEDM business model.
-    businessMeaning: InsuranceClaim is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A request by an insured party to be paid or helped under a policy after a loss.
     relationshipContext: The entity participates in a wider business graph through relationships with InsurancePolicy, Party, BusinessTransaction. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Claimants report a loss; claims handlers check coverage under the policy, assess the amount, decide, and pay the settlement; managers track reserves and handling times.
     lifecycle: A claim is reported, reviewed, then approved in full or in part, or denied; an approved claim is settled by payment, and settled or denied claims are closed.
     example: Claim CL-2024-55120 under policy HOME-778812, water damage on 2 February 2024, claimed 8,400 EUR, approved 7,250 EUR, settled 1 March 2024.
+    businessMeaning: Claims are where the insurer pays out; handling them accurately and quickly drives cost and customer trust.
 specification:
   version: 0.1.0
   status: draft

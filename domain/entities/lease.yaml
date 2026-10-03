@@ -150,31 +150,31 @@ entity:
     - {from: SUSPENDED, to: TERMINATED, action: terminate}
     - {from: DRAFT, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a lease is ended"
-      description: "When a lease is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "LEASE-FOLLOW-UP-{{id}}"
-              name: "Follow up on lease {{lease_number}}"
-              description: "Lease {{lease_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a lease is ended"
+    description: "When a lease is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "LEASE-FOLLOW-UP-{{id}}"
+          name: "Follow up on lease {{lease_number}}"
+          description: "Lease {{lease_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a real estate commercial entity called Lease within the CEDM business model.
-    businessMeaning: Lease is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: An agreement letting a party use a property or asset for a period in return for rent.
     relationshipContext: The entity participates in a wider business graph through relationships with Property, Party, Party, Contract. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Property and asset managers record leases with their parties, term and rent; finance invoices or pays the periodic amount and accounts for the lease; managers track expiries and renewals.
     lifecycle: A lease is drafted, active once signed and started, may be suspended and resumed, and ends when it expires at the end of its term or is terminated early; a draft may be cancelled.
     example: Lease LS-2024-014, commercial lease of unit 3B at Via Roma 12 from Immobiliare Sud to Caffè Nero Srl, 1 May 2024–30 April 2030, 3,800 EUR a month, active.
+    businessMeaning: Leases set rent income or cost and must be accounted for under lease accounting rules; expiries and renewals need attention.
 specification:
   version: 0.1.0
   status: draft

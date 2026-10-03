@@ -141,4 +141,5 @@ entity:
     relationshipContext: Work order supplies production authorization; Lot/SerialNumber identify output; quality governs release; movement updates stock.
     lifecycle: Prepared → quality/quantity validated → received/posted → immutable history.
     changePropagation: Receipt updates inventory and production completion and connects consumed material genealogy to output identities.
+    example: 'Receipt PRD-24-4410: 480 units from work order MO-24-3310, received 5 June 2024 15:30, 20 scrapped, final receipt.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCTION-RECEIPT}

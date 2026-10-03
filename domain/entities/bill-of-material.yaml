@@ -112,12 +112,12 @@ entity:
     - {from: DRAFT, to: OBSOLETE, action: mark_obsolete}
     - {from: ACTIVE, to: OBSOLETE, action: mark_obsolete}
   help:
-    summary: Represents a manufacturing master entity called BillOfMaterial within the CEDM business model.
-    businessMeaning: BillOfMaterial is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: The list of components and quantities needed to make one unit of a product.
     relationshipContext: The entity participates in a wider business graph through relationships with Product, BOMComponent. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Product engineering maintains a bill of materials for each manufactured product; planning explodes it to work out component requirements; production issues components against it; costing rolls it up into the product's standard cost.
     lifecycle: Drafted while engineering designs the product, made active when released for production, and made obsolete when replaced by a new version. Production orders keep the version they were released with.
     example: 'BOM WIDGET-40 version 3: 1 × housing H-40, 2 × bearing 6312, 4 × screw M6×20, 0.05 kg grease; active from 1 March 2024.'
+    businessMeaning: Production, purchasing and costing all read the bill of material; a wrong component or quantity means shortages, waste or a wrong product cost.
 specification:
   version: 0.1.0
   status: draft

@@ -209,12 +209,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a project management entity called Project within the CEDM business model.
-    businessMeaning: Project is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A piece of work with objectives, a budget and a schedule, run by a project manager.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, ProjectTask, Milestone, ResourceAssignment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Project managers plan the project's phases, tasks, milestones and resources, track progress and spend against the budget, and report status to sponsors.
     lifecycle: A project is drafted, planned, then active while work is done; it may be put on hold and resumed, is completed when delivered and closed when its accounts are settled; it may be cancelled before completion.
     example: Project WMS-2024 'New warehouse management system', IT, manager Paolo Ferri, 1 February–31 October 2024, budget 420,000 EUR, active.
+    businessMeaning: Projects consume budget and deliver change; tracking them shows whether money is well spent and outcomes are delivered.
 specification:
   version: 0.1.0
   status: draft

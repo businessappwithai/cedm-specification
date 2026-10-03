@@ -143,49 +143,49 @@ entity:
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: SUBMITTED, to: CANCELLED, action: cancel}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a trade declaration is put forward"
-      description: "When a trade declaration is submitted or under review, a task asks someone to decide on it."
-      when: "(status == \"SUBMITTED\" or status == \"UNDER_REVIEW\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TRADE-DECLARATION-APPROVAL-{{id}}"
-              name: "Decide on trade declaration {{declaration_number}}"
-              description: "Trade declaration {{declaration_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a trade declaration is ended"
-      description: "When a trade declaration is rejected or cancelled, a task asks someone to settle what depended on it."
-      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "TRADE-DECLARATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on trade declaration {{declaration_number}}"
-              description: "Trade declaration {{declaration_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a trade declaration is put forward"
+    description: "When a trade declaration is submitted or under review, a task asks someone to decide on it."
+    when: "(status == \"SUBMITTED\" or status == \"UNDER_REVIEW\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "TRADE-DECLARATION-APPROVAL-{{id}}"
+          name: "Decide on trade declaration {{declaration_number}}"
+          description: "Trade declaration {{declaration_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a trade declaration is ended"
+    description: "When a trade declaration is rejected or cancelled, a task asks someone to settle what depended on it."
+    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "TRADE-DECLARATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on trade declaration {{declaration_number}}"
+          description: "Trade declaration {{declaration_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a international trade entity called TradeDeclaration within the CEDM business model.
-    businessMeaning: TradeDeclaration is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A declaration to customs for goods crossing a border.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Party, Shipment, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Customs brokers and trade compliance staff prepare declarations for goods crossing a border, submit them to customs, answer checks, and record the release; finance uses them for duties and VAT.
     lifecycle: A declaration is drafted, submitted, accepted by customs, possibly reviewed, and ends released or rejected; a draft or submitted declaration may be cancelled.
     example: Declaration 24IT00012345678901, import into Italy for shipment SH-88412, customs value 48,200 EUR, released 6 May 2024.
+    businessMeaning: Goods move only once released by customs; duties and VAT are computed from the declaration.
 specification:
   version: 0.1.0
   status: draft

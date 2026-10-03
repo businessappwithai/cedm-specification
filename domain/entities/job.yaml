@@ -114,5 +114,11 @@ entity:
     - {from: DRAFT, to: RETIRED, action: retire}
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: INACTIVE, to: RETIRED, action: retire}
-  help: {summary: Reusable definition of work in HCM., businessMeaning: "Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements.", usage: "Workforce planning, recruiting, position management and compensation.", relationshipContext: "Position instantiates Job; Employment remains transaction/relationship evidence."}
+  help:
+    summary: Reusable definition of work in HCM.
+    businessMeaning: "Job defines what work is; Position defines an organizational seat; Employment connects a person/employee to governed work arrangements."
+    usage: "Workforce planning, recruiting, position management and compensation."
+    relationshipContext: "Position instantiates Job; Employment remains transaction/relationship evidence."
+    example: Job ACC-II 'Accountant II', job family Finance, level 5, requires a degree in accounting and three years' experience, exempt, active.
+    lifecycle: A job is drafted, active while positions may use it, may be made inactive and reactivated, and is retired when no longer used.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-JOB}

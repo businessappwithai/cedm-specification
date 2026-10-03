@@ -108,9 +108,9 @@ entity:
     inverse: childLocations
     help:
       summary: The location this one is part of, such as the site of a warehouse.
-      cardinalityMeaning: A location has at most one location in this role.
       usage: Set when the location is placed in the hierarchy.
       context: No cycles.
+      cardinalityMeaning: At most one parent; the top of the hierarchy has none.
   - name: childLocations
     target: Location
     cardinality: 0..*
@@ -118,27 +118,27 @@ entity:
     inverse: parentLocation
     help:
       summary: Locations that are part of this one.
-      cardinalityMeaning: A location has any number of location in this role.
       usage: Listed on the location.
       context: Each child has this location as its parent.
+      cardinalityMeaning: Any number of locations may be part of this one.
   - name: address
     target: Address
     cardinality: 0..1
     ownership: reference
     help:
       summary: The postal address of the location.
-      cardinalityMeaning: A location has at most one address in this role.
       usage: Set when the location has a physical address.
       context: Shared addresses are allowed.
+      cardinalityMeaning: At most one postal address; virtual locations have none.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
       summary: The organisation that runs the location.
-      cardinalityMeaning: A location has at most one organization in this role.
       usage: Set when the location is created.
       context: Its policies apply at the location.
+      cardinalityMeaning: At most one organisation runs the location.
   invariants:
   - id: LOCATION-001
     rule: A Location cannot be its own parent.

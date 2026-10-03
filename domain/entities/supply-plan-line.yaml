@@ -126,12 +126,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a supply chain entity called SupplyPlanLine within the CEDM business model.
-    businessMeaning: SupplyPlanLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A planned quantity of a product at a location for a date.
     relationshipContext: The entity participates in a wider business graph through relationships with SupplyPlan, Product, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Planners set, for each product, location and date of the plan, the quantity to make, buy or move and the safety stock to hold; released lines become purchase, production or transfer orders.
     lifecycle: A line is planned, released when the order it calls for is created, and fulfilled when that order is completed; a planned or released line may be cancelled.
     example: Plan SP-2024-W23, 'Cordless drill X200' at Lyon DC, week of 17 June 2024, 1,200 units, safety stock 300, released.
+    businessMeaning: Released lines become purchase, production or transfer orders.
 specification:
   version: 0.1.0
   status: draft

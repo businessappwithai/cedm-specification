@@ -134,60 +134,60 @@ entity:
     - {from: REQUESTED, to: REJECTED, action: reject}
     - {from: APPROVED, to: POSTED, action: post}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when an inventory adjustment is put forward"
-      description: "When an inventory adjustment is requested, a task asks someone to decide on it."
-      when: "status == \"REQUESTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INVENTORY-ADJUSTMENT-APPROVAL-{{id}}"
-              name: "Decide on inventory adjustment {{adjustment_number}}"
-              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when an inventory adjustment is ended"
-      description: "When an inventory adjustment is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INVENTORY-ADJUSTMENT-FOLLOW-UP-{{id}}"
-              name: "Follow up on inventory adjustment {{adjustment_number}}"
-              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when an inventory adjustment is done"
-      description: "When an inventory adjustment is posted, a task asks someone to confirm the outcome."
-      when: "status == \"POSTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INVENTORY-ADJUSTMENT-COMPLETED-{{id}}"
-              name: "Confirm inventory adjustment {{adjustment_number}}"
-              description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: ApprovalRequested
+    title: "Ask for a decision when an inventory adjustment is put forward"
+    description: "When an inventory adjustment is requested, a task asks someone to decide on it."
+    when: "status == \"REQUESTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INVENTORY-ADJUSTMENT-APPROVAL-{{id}}"
+          name: "Decide on inventory adjustment {{adjustment_number}}"
+          description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when an inventory adjustment is ended"
+    description: "When an inventory adjustment is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INVENTORY-ADJUSTMENT-FOLLOW-UP-{{id}}"
+          name: "Follow up on inventory adjustment {{adjustment_number}}"
+          description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when an inventory adjustment is done"
+    description: "When an inventory adjustment is posted, a task asks someone to confirm the outcome."
+    when: "status == \"POSTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INVENTORY-ADJUSTMENT-COMPLETED-{{id}}"
+          name: "Confirm inventory adjustment {{adjustment_number}}"
+          description: "Inventory adjustment {{adjustment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Controlled discrepancy correction with explicit evidence and stock posting.
     businessMeaning: InventoryAdjustment authorizes why stock should be corrected; InventoryMovement remains the physical ledger.
@@ -195,4 +195,5 @@ entity:
     relationshipContext: Usually follows InventoryCount but may use other authorized evidence.
     lifecycle: Proposed → approved → posted → immutable historical evidence.
     changePropagation: Posting updates balances and variance analytics; corrections compensate rather than rewrite.
+    example: "Adjustment ADJ-24-0518 at bin A-04-02: −3 units of 'Cordless drill X200', reason damaged in storage, value −267.00 EUR, approved 18 May 2024."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-ADJUSTMENT}

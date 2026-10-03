@@ -72,6 +72,8 @@ entity:
       summary: Parent reverse-procurement transaction containing this line.
       businessMeaning: Supplies supplier, authorization and overall lifecycle context.
       workflowRole: Controls whether this line may execute.
+      cardinalityMeaning: Each line belongs to one return; a return has one or more lines.
+      usage: Set when the line is entered.
   - name: purchaseOrderLine
     target: PurchaseOrderLine
     cardinality: '1'
@@ -80,6 +82,8 @@ entity:
       summary: Original procurement commitment associated with the returned item.
       businessMeaning: Identifies what was originally ordered.
       workflowRole: Supplies product, UOM and commercial context.
+      cardinalityMeaning: Each line returns goods from one order line.
+      usage: Set from the receipt being returned.
   - name: goodsReceiptLines
     target: GoodsReceiptLine
     cardinality: 1..*
@@ -88,6 +92,8 @@ entity:
       summary: Accepted receipt evidence from which this return quantity originates.
       businessMeaning: Establishes the physical receipt history supporting the return.
       workflowRole: Supplies authoritative eligibility and quantity evidence.
+      cardinalityMeaning: One or more receipt lines the goods came in on.
+      usage: Limits the quantity that may be returned.
   - name: qualityInspections
     target: QualityInspection
     cardinality: 0..*
@@ -106,6 +112,8 @@ entity:
       summary: Supplier invoice lines financially associated with the returned goods.
       businessMeaning: Identifies claims that may require a supplier credit.
       workflowRole: Supplies original transaction-value and tax evidence for financial adjustment.
+      cardinalityMeaning: Any number of invoice lines that billed the goods.
+      usage: Used to compute the credit due.
     inverseCardinality: 0..*
   - name: returnDispositions
     target: ReturnDisposition
@@ -125,6 +133,8 @@ entity:
       summary: Inventory ledger events that remove returned goods from organizational stock.
       businessMeaning: Records physical stock consequence independently of the return instruction.
       workflowRole: Authoritative evidence that the physical reversal was posted.
+      cardinalityMeaning: Any number of stock movements that send the goods out.
+      usage: Posted when the goods leave.
   - name: supplierCreditNoteLines
     target: SupplierCreditNoteLine
     cardinality: 0..*
@@ -133,6 +143,8 @@ entity:
       summary: Financial adjustment lines generated from this supplier return line.
       businessMeaning: Connects approved physical returns to payable reductions.
       workflowRole: Provides explicit financial evidence without modifying original InvoiceLine history.
+      cardinalityMeaning: Any number of credit note lines received for the goods.
+      usage: Show whether the return has been credited.
   invariants:
   - {id: SUPPLIER-RETURN-LINE-001, rule: quantityReturned must be greater than zero.}
   - {id: SUPPLIER-RETURN-LINE-002, rule: quantityReturned must not exceed the eligible accepted quantity from referenced GoodsReceiptLine records except under an authorized exception.}

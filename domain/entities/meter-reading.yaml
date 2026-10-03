@@ -89,12 +89,12 @@ entity:
   - id: METER-READING-001
     rule: readingValue must not be negative unless the meter configuration permits signed values.
   help:
-    summary: Represents a utility transaction called MeterReading within the CEDM business model.
-    businessMeaning: MeterReading is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A value read from a meter at a point in time.
     relationshipContext: The entity participates in a wider business graph through relationships with EnergyMeter, UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Meter readers, smart meters and customers submit readings; billing computes consumption from successive readings, and analysts check suspect values before they are billed.
     lifecycle: A reading has no states; a wrong reading is not edited but followed by a corrected one.
     example: Reading of meter EM-0048812 on 31 March 2024 00:00, 18,422.6 kWh, actual, quality good.
+    businessMeaning: Consumption, bills and settlements are calculated from readings, so they must be accurate and validated.
 specification:
   version: 0.1.0
   status: draft

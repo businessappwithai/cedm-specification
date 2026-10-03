@@ -91,7 +91,12 @@ entity:
     target: Customer
     cardinality: '1'
     ownership: reference
-    help: {summary: Customer whose financial exposure is reduced., businessMeaning: Identifies party receiving financial benefit., usage: "Supports statements, receivables, approval, tax, refund and audit.", workflowRole: Provides customer eligibility and settlement context.}
+    help:
+      summary: Customer whose financial exposure is reduced.
+      businessMeaning: Identifies party receiving financial benefit.
+      usage: "Supports statements, receivables, approval, tax, refund and audit."
+      workflowRole: Provides customer eligibility and settlement context.
+      cardinalityMeaning: Each credit note is for one customer.
   - name: originalInvoices
     target: Invoice
     cardinality: 1..*
@@ -101,12 +106,22 @@ entity:
     target: CreditNoteLine
     cardinality: 1..*
     ownership: aggregate
-    help: {summary: "Detailed credited quantities, values, taxes and source references.", businessMeaning: Provides calculation evidence for credit total., usage: "Supports return-based credit, pricing corrections, tax adjustments and audit.", workflowRole: "Lines determine subtotal, tax and total."}
+    help:
+      summary: "Detailed credited quantities, values, taxes and source references."
+      businessMeaning: Provides calculation evidence for credit total.
+      usage: "Supports return-based credit, pricing corrections, tax adjustments and audit."
+      workflowRole: "Lines determine subtotal, tax and total."
+      cardinalityMeaning: One or more lines, kept with the credit note.
   - name: customerReturns
     target: CustomerReturn
     cardinality: 0..*
     ownership: reference
-    help: {summary: Customer returns providing physical or commercial justification., businessMeaning: Links financial adjustment to reverse fulfillment., usage: "Supports return-to-credit traceability, approval and audit.", workflowRole: Approved return disposition provides eligibility and quantity basis.}
+    help:
+      summary: Customer returns providing physical or commercial justification.
+      businessMeaning: Links financial adjustment to reverse fulfillment.
+      usage: "Supports return-to-credit traceability, approval and audit."
+      workflowRole: Approved return disposition provides eligibility and quantity basis.
+      cardinalityMeaning: Any number of returns the credit settles.
   - name: applications
     target: CreditNoteApplication
     cardinality: 0..*
@@ -116,12 +131,22 @@ entity:
     target: JournalEntry
     cardinality: 0..*
     ownership: reference
-    help: {summary: Accounting entries recognizing the credit note and its reversals., businessMeaning: Separates accounting recognition from the business adjustment document., usage: "Supports receivable, revenue, tax and audit accounting.", workflowRole: Posted credit requires appropriate accounting recognition.}
+    help:
+      summary: Accounting entries recognizing the credit note and its reversals.
+      businessMeaning: Separates accounting recognition from the business adjustment document.
+      usage: "Supports receivable, revenue, tax and audit accounting."
+      workflowRole: Posted credit requires appropriate accounting recognition.
+      cardinalityMeaning: Any number of postings, including reversals.
   - name: refundPayments
     target: Payment
     cardinality: 0..*
     ownership: reference
-    help: {summary: Payments disbursed to settle a refund arising from the credit note., businessMeaning: Connects financial adjustment to actual cash returned., usage: "Supports refund execution, bank reconciliation and audit.", workflowRole: Refund Payment is separate settlement evidence and never overwrites original payment history.}
+    help:
+      summary: Payments disbursed to settle a refund arising from the credit note.
+      businessMeaning: Connects financial adjustment to actual cash returned.
+      usage: "Supports refund execution, bank reconciliation and audit."
+      workflowRole: Refund Payment is separate settlement evidence and never overwrites original payment history.
+      cardinalityMeaning: Any number of refunds; a credit may be refunded in parts.
   invariants:
   - {id: CREDIT-NOTE-001, rule: "totalAmount must reconcile with CreditNoteLine values, tax, rounding and applicable adjustment policy."}
   - {id: CREDIT-NOTE-002, rule: A posted CreditNote must reference at least one eligible original Invoice or explicitly supported source transaction.}

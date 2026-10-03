@@ -248,12 +248,12 @@ entity:
   - master-data
   - business-application
   help:
-    summary: Represents a root business entity called ERP within the CEDM business model.
-    businessMeaning: ERP is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: The business application context — company, ledgers, processes and shared master data — that other records belong to.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Location, Product, BusinessProcess, Workflow, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Defined once per business system context — the company's ERP instance — to record its base currency, time zone and locale, and to group the organizations, processes and master data it manages. Integrations and reports name the context they belong to.
     lifecycle: Drafted during implementation, active once live, suspended during a migration freeze, and retired when replaced.
     example: ERP context ACME-PROD 'ACME production ERP', base currency EUR, Europe/Paris, fr-FR, managing ACME France SAS and ACME Iberia SL, live since January 2021.
+    businessMeaning: It groups the organisation's master data and transactions so they can be configured, secured and reported as one system.
 specification:
   version: 0.1.0
   status: draft

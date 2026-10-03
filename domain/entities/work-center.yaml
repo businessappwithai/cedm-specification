@@ -51,4 +51,5 @@ entity:
     relationshipContext: Operation defines work; Routing sequences work; ManufacturingWorkOrder executes it.
     lifecycle: Active → temporarily unavailable/maintenance → active or retired.
     changePropagation: Capacity/status changes revalidate affected schedules and unreleased work without rewriting completed execution.
+    example: Work centre AL-02 'Assembly line 2', 120 units per hour, active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WORK-CENTER}

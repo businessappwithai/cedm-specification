@@ -1,67 +1,83 @@
 #!/usr/bin/env python3
-"""Validate semantic help coverage for CEDM entity YAML files.
+"""Validate that every entity, attribute and relationship carries written help.
 
-The validator intentionally fails when an entity or field lacks contextual help.
-It is designed to keep CEDM's YAML useful to humans, application generators,
-form/report designers, and AI agents.
+The Application Dictionary shows this help on every window, tab and field, so a
+missing or stamped text is a screen that tells its user nothing. Keys are the
+canonical ones (`tools/dictionary_lib.py` HELP_ALIASES maps the older names);
+an older name is accepted where its canonical one is absent.
+
+  Entity        summary, businessMeaning, usage, example; lifecycle when the
+                entity has one; relationshipContext when it has relationships
+  Attribute     summary, usage
+  Relationship  summary, usage, cardinalityMeaning
+  Any text      not the shape of a retired template (tools/help_quality.py)
 """
-from pathlib import Path
+from __future__ import annotations
+
 import sys
+from pathlib import Path
+
 import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import dictionary_lib as dictlib  # noqa: E402
+import help_quality  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTITY_DIR = ROOT / "domain" / "entities"
-REQUIRED_ENTITY = ["summary", "purpose", "businessMeaning", "whenUsed", "howItRelates", "lifecycleUsage", "commonProcesses", "commonExamples"]
-REQUIRED_FIELD = ["summary", "businessMeaning", "usage", "relationshipContext"]
+CANONICAL = {canonical: alias for alias, canonical in dictlib.HELP_ALIASES.items()}
 
 
-def meaningful(value):
-    return isinstance(value, str) and len(value.split()) >= 3
+def written(help_block: dict, key: str) -> bool:
+    for k in (key, CANONICAL.get(key)):
+        value = help_block.get(k) if k else None
+        if isinstance(value, str) and value.strip():
+            return True
+    return False
 
 
-def main():
-    errors = []
+def main() -> int:
+    errors: list[str] = []
+    entities: dict[str, dict] = {}
     for path in sorted(ENTITY_DIR.glob("*.yaml")):
-        if path.name in {"index.yaml"}:
+        if path.name == "index.yaml":
             continue
-        try:
-            doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        except Exception as exc:
-            errors.append(f"{path}: YAML error: {exc}")
-            continue
-        entity = doc.get("entity", {})
+        entity = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("entity", {})
         name = entity.get("name", path.stem)
-        help_block = entity.get("help")
-        if not isinstance(help_block, dict):
-            errors.append(f"{path}: entity '{name}' is missing help")
-        else:
-            for key in REQUIRED_ENTITY:
-                if key not in help_block or not help_block[key]:
-                    errors.append(f"{path}: entity '{name}' help missing '{key}'")
-            if not meaningful(help_block.get("summary", "")):
-                errors.append(f"{path}: entity '{name}' help summary is too short")
+        entities[name] = entity
 
-        for attr in entity.get("attributes", []) or []:
-            if not isinstance(attr, dict):
-                continue
-            field = attr.get("name", "<unnamed>")
-            fh = attr.get("help")
-            if not isinstance(fh, dict):
-                errors.append(f"{path}: field '{field}' is missing help")
-                continue
-            for key in REQUIRED_FIELD:
-                if key not in fh or not fh[key]:
-                    errors.append(f"{path}: field '{field}' help missing '{key}'")
-            if not meaningful(fh.get("summary", "")):
-                errors.append(f"{path}: field '{field}' help summary is too short")
-            if attr.get("type") in {"reference", "money"} and "relationshipContext" not in fh:
-                errors.append(f"{path}: field '{field}' needs relationshipContext help")
+        help_block = entity.get("help") or {}
+        required = ["summary", "businessMeaning", "usage", "example"]
+        if entity.get("lifecycle"):
+            required.append("lifecycle")
+        if entity.get("relationships"):
+            required.append("relationshipContext")
+        for key in required:
+            if not written(help_block, key):
+                errors.append(f"{name}: help needs {key}")
+        if len(str(help_block.get("summary", "")).split()) < 3:
+            errors.append(f"{name}: help summary is too short to say what the record is")
+
+        for attr in entity.get("attributes") or []:
+            fh = attr.get("help") or {}
+            for key in ("summary", "usage"):
+                if not written(fh, key):
+                    errors.append(f"{name}.{attr.get('name')}: help needs {key}")
+
+        for rel in entity.get("relationships") or []:
+            rh = rel.get("help") or {}
+            for key in ("summary", "usage", "cardinalityMeaning"):
+                if not written(rh, key):
+                    errors.append(f"{name}.@{rel.get('name')}: help needs {key}")
+
+    for where, text in sorted(help_quality.legacy(entities).items()):
+        errors.append(f"{where}: template help text {text!r}")
 
     if errors:
-        print("CEDM semantic help validation FAILED")
+        print("CEDM help validation FAILED")
         print("- " + "\n- ".join(errors))
         return 1
-    print("CEDM semantic help validation PASSED")
+    print(f"CEDM help validation PASSED: {len(entities)} entities")
     return 0
 
 

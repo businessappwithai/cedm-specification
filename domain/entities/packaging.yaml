@@ -143,4 +143,5 @@ entity:
     usage: PIM, procurement, sales, WMS, shipping and labeling.
     relationshipContext: Product defines contents, UOM defines quantity semantics, HandlingUnit represents physical execution instances.
     lifecycle: Created/activated → revised/retired under controlled master-data change.
+    example: 'Packaging X200-CASE: 6 units per case, case level, GTIN 04012345678906, 9.4 kg, 40 × 30 × 25 cm.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PACKAGING}

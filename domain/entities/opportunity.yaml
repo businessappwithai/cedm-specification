@@ -136,12 +136,12 @@ entity:
     - {from: PROPOSAL, to: LOST, action: lose}
     - {from: NEGOTIATION, to: LOST, action: lose}
   help:
-    summary: Represents a crm entity called Opportunity within the CEDM business model.
-    businessMeaning: Opportunity is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A qualified chance to sell, with an estimated value, probability and closing date.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, Party, Lead, SalesOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Salespeople work each opportunity through the stages of the sales process, estimating its value, probability and closing date; managers forecast revenue from the pipeline; a won opportunity becomes a sales order.
     lifecycle: An opportunity moves from qualification through discovery and proposal to negotiation, may go back from negotiation to proposal, and ends won or lost.
     example: Opportunity OP-3301 'Warehouse automation for Bauer GmbH', negotiation, 180,000 EUR, 60 %, expected close 30 June 2024, owner Lisa Weber.
+    businessMeaning: The opportunity pipeline is the basis for sales forecasts and for deciding where salespeople spend their time.
 specification:
   version: 0.1.0
   status: draft

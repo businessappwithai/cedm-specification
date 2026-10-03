@@ -158,12 +158,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a travel entity called TripSegment within the CEDM business model.
-    businessMeaning: TripSegment is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: One leg of a trip, such as a flight or train journey.
     relationshipContext: The entity participates in a wider business graph through relationships with Trip, Location, Location, Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Travellers and the travel desk plan each leg of a trip with its mode, times and route; carriers' changes update it and the traveller's itinerary is built from the segments in order.
     lifecycle: A segment is planned, booked, in progress while travelling, then completed; it can be cancelled before it ends.
     example: 'Segment 1 of trip TR-2024-0412: air, Milan Linate 10 June 07:05 to Munich 08:20, booked.'
+    businessMeaning: Segments make up the itinerary and are booked and changed individually.
 specification:
   version: 0.1.0
   status: draft

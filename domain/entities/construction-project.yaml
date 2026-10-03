@@ -181,12 +181,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a construction entity called ConstructionProject within the CEDM business model.
-    businessMeaning: ConstructionProject is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A building or civil-engineering job, from design to handover, with its site, client, budget and schedule.
     relationshipContext: The entity participates in a wider business graph through relationships with Project, Location, Contract, Asset. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Project managers run each construction project through design, procurement, construction and commissioning; contracts, assets and site records hang off it; owners and lenders follow progress by phase.
     lifecycle: Planned, then design, procurement, construction and commissioning in turn, and completed at handover. A project may be cancelled at any stage before completion.
     example: Construction project CP-2024-03, new distribution centre Lyon-Est, building, site at Saint-Priest; construction since 2 May 2024; main contract with BTP Rhône; handover planned March 2025.
+    businessMeaning: Construction projects commit large sums over long periods; tracking scope, cost and progress against the contract decides profit and penalties.
 specification:
   version: 0.1.0
   status: draft

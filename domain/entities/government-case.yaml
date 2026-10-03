@@ -164,12 +164,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a public sector entity called GovernmentCase within the CEDM business model.
-    businessMeaning: GovernmentCase is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A matter a public agency handles for a citizen or business, such as a permit application or benefit claim.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Task, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Caseworkers open a case for each application, request or investigation, attach its documents, assign tasks, and record the decision; supervisors monitor caseloads and processing times.
     lifecycle: A case is drafted, opened when submitted, put under review, and then approved or denied; an approved case is closed when the service is delivered; a case not yet decided may be cancelled.
     example: Case BP-2024-00317, building permit application by Jane Doe at the Planning Department, opened 3 April 2024, approved 21 May 2024, closed 30 May 2024.
+    businessMeaning: Cases are how public services are delivered and measured; deadlines, decisions and appeals are tracked per case.
 specification:
   version: 0.1.0
   status: draft

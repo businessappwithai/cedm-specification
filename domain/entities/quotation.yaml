@@ -137,49 +137,49 @@ entity:
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: SUBMITTED, to: CANCELLED, action: cancel}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a quotation is put forward"
-      description: "When a quotation is submitted, a task asks someone to decide on it."
-      when: "status == \"SUBMITTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "QUOTATION-APPROVAL-{{id}}"
-              name: "Decide on quotation {{quotation_number}}"
-              description: "Quotation {{quotation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a quotation is ended"
-      description: "When a quotation is rejected or cancelled, a task asks someone to settle what depended on it."
-      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "QUOTATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on quotation {{quotation_number}}"
-              description: "Quotation {{quotation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a quotation is put forward"
+    description: "When a quotation is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "QUOTATION-APPROVAL-{{id}}"
+          name: "Decide on quotation {{quotation_number}}"
+          description: "Quotation {{quotation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a quotation is ended"
+    description: "When a quotation is rejected or cancelled, a task asks someone to settle what depended on it."
+    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "QUOTATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on quotation {{quotation_number}}"
+          description: "Quotation {{quotation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a commercial transaction called Quotation within the CEDM business model.
-    businessMeaning: Quotation is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A priced offer to a customer, valid until a date.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, Opportunity, QuotationLine, PaymentTerm. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Salespeople prepare quotations from the price list and the customer's terms, send them, and follow them up; an accepted quotation becomes a sales order with the same prices.
     lifecycle: A quotation is drafted, submitted to the customer, then accepted, rejected, or expires at the end of its validity; a draft or submitted quotation can be cancelled.
     example: Quotation Q-2024-0457 to Bauer GmbH, 2 April 2024, valid until 2 May 2024, 3 lines, 182,400 EUR, net 30 days, accepted.
+    businessMeaning: Quotations commit the seller to prices if accepted and become sales orders; they also show what is in the pipeline.
 specification:
   version: 0.1.0
   status: draft

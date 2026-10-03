@@ -124,49 +124,49 @@ entity:
     - {from: RELEASED, to: EXPIRED, action: expire}
     - {from: QUARANTINED, to: EXPIRED, action: expire}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a chemical batch is stopped"
-      description: "When a chemical batch is quarantined, a high-priority task asks someone to resolve it."
-      when: "status == \"QUARANTINED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CHEMICAL-BATCH-EXCEPTION-{{id}}"
-              name: "Resolve chemical batch {{batch_number}}"
-              description: "Chemical batch {{batch_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a chemical batch is ended"
-      description: "When a chemical batch is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CHEMICAL-BATCH-FOLLOW-UP-{{id}}"
-              name: "Follow up on chemical batch {{batch_number}}"
-              description: "Chemical batch {{batch_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a chemical batch is stopped"
+    description: "When a chemical batch is quarantined, a high-priority task asks someone to resolve it."
+    when: "status == \"QUARANTINED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CHEMICAL-BATCH-EXCEPTION-{{id}}"
+          name: "Resolve chemical batch {{batch_number}}"
+          description: "Chemical batch {{batch_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a chemical batch is ended"
+    description: "When a chemical batch is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CHEMICAL-BATCH-FOLLOW-UP-{{id}}"
+          name: "Follow up on chemical batch {{batch_number}}"
+          description: "Chemical batch {{batch_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a process industry entity called ChemicalBatch within the CEDM business model.
-    businessMeaning: ChemicalBatch is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A quantity of chemical made or received together under the same conditions and tracked as one unit.
     relationshipContext: The entity participates in a wider business graph through relationships with Product, Location, QualityInspection. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Production records each batch it makes; quality tests it while it is quarantined and releases or rejects it; the warehouse ships only released, unexpired batches; recalls trace batches to customers.
     lifecycle: A planned batch is made and placed in quarantine; quality releases it for use or rejects it; a released batch is consumed in production or shipped, may be put back into quarantine if a problem appears, and expires at its expiry date if unused.
     example: Batch CB-24-0412 of ethyl acetate 99.5%, made 3 April 2024 in Plant Lyon reactor R2, released 5 April after assay 99.7%, expires 3 April 2026.
+    businessMeaning: Quality, safety and recalls work batch by batch; knowing a batch's origin, tests and status decides whether it may be used or shipped.
 specification:
   version: 0.1.0
   status: draft

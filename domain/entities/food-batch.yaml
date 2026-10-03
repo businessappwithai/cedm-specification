@@ -106,49 +106,49 @@ entity:
     - {from: RELEASED, to: EXPIRED, action: expire}
     - {from: QUARANTINED, to: EXPIRED, action: expire}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a food batch is stopped"
-      description: "When a food batch is quarantined, a high-priority task asks someone to resolve it."
-      when: "status == \"QUARANTINED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "FOOD-BATCH-EXCEPTION-{{id}}"
-              name: "Resolve food batch {{batch_number}}"
-              description: "Food batch {{batch_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a food batch is ended"
-      description: "When a food batch is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "FOOD-BATCH-FOLLOW-UP-{{id}}"
-              name: "Follow up on food batch {{batch_number}}"
-              description: "Food batch {{batch_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a food batch is stopped"
+    description: "When a food batch is quarantined, a high-priority task asks someone to resolve it."
+    when: "status == \"QUARANTINED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FOOD-BATCH-EXCEPTION-{{id}}"
+          name: "Resolve food batch {{batch_number}}"
+          description: "Food batch {{batch_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a food batch is ended"
+    description: "When a food batch is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FOOD-BATCH-FOLLOW-UP-{{id}}"
+          name: "Follow up on food batch {{batch_number}}"
+          description: "Food batch {{batch_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a food industry entity called FoodBatch within the CEDM business model.
-    businessMeaning: FoodBatch is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A quantity of food made or received together and tracked as one unit for safety and traceability.
     relationshipContext: The entity participates in a wider business graph through relationships with Product, Supplier, QualityInspection. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Quality and production staff register each batch made or received, hold it in quarantine until inspection, release it for use or sale, and trace it forward and back when a recall is needed.
     lifecycle: A batch is planned when production is scheduled, quarantined once it exists, then released after inspection or rejected; a released batch is consumed, expires, or is put back on hold.
     example: Batch YG-240312-02 of 'Greek yoghurt 500 g', produced 12 March 2024, expires 2 April 2024; released after micro test QI-8812.
+    businessMeaning: Food law requires tracing every batch one step forward and back; a batch's status decides whether it may be sold.
 specification:
   version: 0.1.0
   status: draft

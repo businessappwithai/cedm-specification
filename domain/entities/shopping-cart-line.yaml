@@ -91,12 +91,12 @@ entity:
   - {id: SHOPPING-CART-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
   - {id: SHOPPING-CART-LINE-EXE-003, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
-    summary: Represents a ecommerce detail entity called ShoppingCartLine within the CEDM business model.
-    businessMeaning: ShoppingCartLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: One product and quantity in a shopping cart.
     relationshipContext: The entity participates in a wider business graph through relationships with ShoppingCart, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Created when a shopper adds a product to their cart; changed as they change quantity or remove it; copied to the order line at checkout.
     lifecycle: A cart line lives as long as its cart; it is copied onto the order at checkout and is not edited afterwards.
     example: "Line 2 of a web cart: 3 × 'Garden hose 25 m' at 24.90 EUR = 74.70 EUR, added 2 June 21:10."
+    businessMeaning: Lines become order lines at checkout and show what shoppers want.
 specification:
   version: 0.1.0
   status: draft

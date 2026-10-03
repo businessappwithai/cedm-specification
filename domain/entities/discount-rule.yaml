@@ -89,16 +89,7 @@ entity:
         ACTIVE: Applied to qualifying orders.
         INACTIVE: Temporarily not applied.
         RETIRED: No longer used; kept for orders that applied it.
-  relationships:
-  - name: currencyRef
-    target: Currency
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a fixed monetary discount to its currency.
-      usage: Provides denomination context for fixed discounts.
-      cardinalityMeaning: Zero or one currency because percentage discounts do not require a currency.
-      workflowRole: Prevents a fixed discount from being applied without monetary denomination.
+  relationships: []
   invariants:
   - id: DISCOUNT-RULE-001
     rule: value must be greater than or equal to zero.

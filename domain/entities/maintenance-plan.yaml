@@ -142,12 +142,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a maintenance definition called MaintenancePlan within the CEDM business model.
-    businessMeaning: MaintenancePlan is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A recurring maintenance schedule for assets, such as a service every 500 hours.
     relationshipContext: The entity participates in a wider business graph through relationships with Asset, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Maintenance planners define recurring work for assets — what is done and how often — and the system generates work orders when a plan comes due; reliability engineers adjust plans from results.
     lifecycle: A plan is drafted, active while it generates work, may be suspended and resumed, and is retired when no longer needed.
     example: Plan PM-CMP-500H 'Compressor 500-hour service', preventive, every 500 hours, for compressors C-101 to C-104, active.
+    businessMeaning: Planned maintenance prevents breakdowns and is often required by law or warranty.
 specification:
   version: 0.1.0
   status: draft

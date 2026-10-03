@@ -100,12 +100,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a authorization entity called Permission within the CEDM business model.
-    businessMeaning: Permission is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: The right to perform one operation on one resource, such as approving invoices.
     relationshipContext: The entity participates in a wider business graph through relationships with Role. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Security administrators define the operations that can be granted on each resource and group them into roles; the application checks a user's permissions before letting them act.
     lifecycle: A permission is active while it can be granted, inactive when temporarily withdrawn, and retired when the operation no longer exists.
     example: Permission INVOICE.APPROVE, resource Invoice, action approve, granted to the role Finance Manager.
+    businessMeaning: Permissions, grouped into roles, decide what each user may do, which protects data and enforces segregation of duties.
 specification:
   version: 0.1.0
   status: draft

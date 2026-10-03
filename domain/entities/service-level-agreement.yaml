@@ -52,5 +52,11 @@ entity:
     - {from: DRAFT, to: RETIRED, action: retire}
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
-  help: {summary: Governed measurable service commitment., businessMeaning: "SLA defines service targets; service transactions provide actual timestamps/outcomes used to measure compliance.", usage: "Customer service, support, maintenance and contractual service.", relationshipContext: "ServiceRequest consumes SLA; Contract may establish commercial/legal basis.", lifecycle: Draft to active/suspended to retired with historical versions retained.}
+  help:
+    summary: Governed measurable service commitment.
+    businessMeaning: "SLA defines service targets; service transactions provide actual timestamps/outcomes used to measure compliance."
+    usage: "Customer service, support, maintenance and contractual service."
+    relationshipContext: "ServiceRequest consumes SLA; Contract may establish commercial/legal basis."
+    lifecycle: Draft to active/suspended to retired with historical versions retained.
+    example: "SLA IT-STD 'Standard IT support': response within 60 minutes, resolution within 480 minutes, active."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-LEVEL-AGREEMENT}

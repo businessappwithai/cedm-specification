@@ -177,31 +177,31 @@ entity:
     - {from: DELINQUENT, to: PAID_OFF, action: pay_off}
     - {from: DELINQUENT, to: DEFAULTED, action: default}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a bank loan is ended"
-      description: "When a bank loan is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BANK-LOAN-FOLLOW-UP-{{id}}"
-              name: "Follow up on bank loan {{loan_number}}"
-              description: "Bank loan {{loan_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a bank loan is ended"
+    description: "When a bank loan is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BANK-LOAN-FOLLOW-UP-{{id}}"
+          name: "Follow up on bank loan {{loan_number}}"
+          description: "Bank loan {{loan_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a banking entity called BankLoan within the CEDM business model.
-    businessMeaning: BankLoan is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A loan a bank has granted or is considering, with its amount, rate, term and repayment status.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Currency. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Treasury records each loan when it is approved, follows drawdowns, interest and repayments, monitors covenants and maturities, and reports debt by lender and currency. Lending institutions use the same record for loans they grant.
     lifecycle: An application becomes an approved loan, then active once funds are drawn. It is delinquent while a repayment is overdue and returns to active once paid up; it ends paid off, defaulted after a failure to pay that the lender enforces, or cancelled before drawdown.
     example: 'Loan LN-2023-004: 500,000 EUR term loan from Bank A to ACME France, 5.25% fixed, drawn 1 June 2023, repaid in 20 quarterly instalments, maturity 1 June 2028, active.'
+    businessMeaning: Loans are the bank's main source of interest income and credit risk; tracking them decides what the borrower owes, what the bank provisions and what regulators see.
 specification:
   version: 0.1.0
   status: draft

@@ -81,12 +81,22 @@ entity:
     target: CorrectiveAction
     cardinality: '1'
     ownership: reference
-    help: {summary: Corrective action being evaluated., businessMeaning: Connects verification evidence to the action whose implementation is assessed., usage: CAPA closure audit and quality reporting., workflowRole: Verification result controls whether action can be completed.}
+    help:
+      summary: Corrective action being evaluated.
+      businessMeaning: Connects verification evidence to the action whose implementation is assessed.
+      usage: CAPA closure audit and quality reporting.
+      workflowRole: Verification result controls whether action can be completed.
+      cardinalityMeaning: Each verification checks one corrective action; an action may be verified more than once.
   - name: nonconformance
     target: Nonconformance
     cardinality: 0..1
     ownership: reference
-    help: {summary: Nonconformance for which the action was established., businessMeaning: Connects effectiveness evidence to the original quality deviation., usage: Issue closure and recurrence analysis., workflowRole: Provides context for determining whether the underlying issue is controlled.}
+    help:
+      summary: Nonconformance for which the action was established.
+      businessMeaning: Connects effectiveness evidence to the original quality deviation.
+      usage: Issue closure and recurrence analysis.
+      workflowRole: Provides context for determining whether the underlying issue is controlled.
+      cardinalityMeaning: At most one nonconformance, the one the action addressed.
   invariants:
   - {id: CORRECTIVE-ACTION-VERIFICATION-001, rule: A COMPLETED verification must have a result and findings.}
   - {id: CORRECTIVE-ACTION-VERIFICATION-002, rule: EFFECTIVE verification may support CorrectiveAction completion only when all required implementation evidence exists.}
@@ -108,42 +118,42 @@ entity:
     - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
     - {from: REOPENED, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a corrective action verification is ended"
-      description: "When a corrective action verification is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CORRECTIVE-ACTION-VERIFICATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on corrective action verification {{verification_number}}"
-              description: "Corrective action verification {{verification_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a corrective action verification is done"
-      description: "When a corrective action verification is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CORRECTIVE-ACTION-VERIFICATION-COMPLETED-{{id}}"
-              name: "Confirm corrective action verification {{verification_number}}"
-              description: "Corrective action verification {{verification_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a corrective action verification is ended"
+    description: "When a corrective action verification is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CORRECTIVE-ACTION-VERIFICATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on corrective action verification {{verification_number}}"
+          description: "Corrective action verification {{verification_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a corrective action verification is done"
+    description: "When a corrective action verification is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CORRECTIVE-ACTION-VERIFICATION-COMPLETED-{{id}}"
+          name: "Confirm corrective action verification {{verification_number}}"
+          description: "Corrective action verification {{verification_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Provides independent auditable evidence that a corrective or preventive action achieved its intended result.
     businessMeaning: CorrectiveAction records what was done; CorrectiveActionVerification records whether it worked; Nonconformance records the original quality problem.

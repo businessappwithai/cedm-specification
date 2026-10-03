@@ -83,13 +83,76 @@ entity:
     default: {amount: 0}
     help: {summary: Unapplied portion of the posted supplier debit., businessMeaning: Represents debit value still available for payable application or governed settlement handling., usage: Reconciliation supplier statements and resolution tracking., workflowRole: Determines whether the debit is fully applied.}
   relationships:
-  - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier responsible for the financial adjustment., businessMeaning: Identifies the external party whose payable exposure is adjusted., usage: Payables supplier communication and reconciliation., workflowRole: Establishes party context.}}
-  - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Supplier claim that provides the commercial or quality case for the debit., businessMeaning: Connects financial adjustment to the case that established the recovery entitlement., usage: Traceability approval and dispute management., workflowRole: Provides supporting evidence without replacing the debit document.}}
-  - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution that approved this debit remedy., businessMeaning: Connects the posted financial adjustment to the controlled decision that authorized the recovery., usage: Governance approval audit and claim closure., workflowRole: Supplies the execution mandate for DEBIT_ADJUSTMENT or another authorized financial remedy.}}
-  - {name: invoices, target: Invoice, cardinality: 0..*, ownership: reference, help: {summary: Supplier invoices whose payable exposure is affected by the debit., businessMeaning: Identifies original financial claims without mutating their historical values., usage: Accounts payable reconciliation and audit., workflowRole: Supplies eligible source claims.}}
-  - {name: lines, target: SupplierDebitNoteLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed components of the supplier debit., businessMeaning: Explains quantities prices tax and reasons contributing to the adjustment., usage: Calculation supplier dispute audit and reconciliation., workflowRole: Supplies authoritative detail for header totals.}}
-  - {name: applications, target: SupplierDebitNoteApplication, cardinality: 0..*, ownership: reference, help: {summary: Explicit applications of this posted supplier debit against eligible supplier invoices., businessMeaning: Records how the debit is consumed against payable claims without changing original invoice history., usage: Accounts payable reconciliation supplier statements and audit., workflowRole: Active applications determine amountApplied and amountRemaining.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries recognizing the supplier debit., businessMeaning: Separates accounting recognition from the adjustment document., usage: General ledger AP tax and audit., workflowRole: Posted debit requires balanced accounting treatment.}}
+  - name: supplier
+    target: Supplier
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Supplier responsible for the financial adjustment.
+      businessMeaning: Identifies the external party whose payable exposure is adjusted.
+      usage: Payables supplier communication and reconciliation.
+      workflowRole: Establishes party context.
+      cardinalityMeaning: Each debit note is against one supplier.
+  - name: supplierClaim
+    target: SupplierClaim
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Supplier claim that provides the commercial or quality case for the debit.
+      businessMeaning: Connects financial adjustment to the case that established the recovery entitlement.
+      usage: Traceability approval and dispute management.
+      workflowRole: Provides supporting evidence without replacing the debit document.
+      cardinalityMeaning: At most one claim it recovers.
+  - name: supplierClaimResolution
+    target: SupplierClaimResolution
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Authorized claim resolution that approved this debit remedy.
+      businessMeaning: Connects the posted financial adjustment to the controlled decision that authorized the recovery.
+      usage: Governance approval audit and claim closure.
+      workflowRole: Supplies the execution mandate for DEBIT_ADJUSTMENT or another authorized financial remedy.
+      cardinalityMeaning: At most one resolution it carries out.
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Supplier invoices whose payable exposure is affected by the debit.
+      businessMeaning: Identifies original financial claims without mutating their historical values.
+      usage: Accounts payable reconciliation and audit.
+      workflowRole: Supplies eligible source claims.
+      cardinalityMeaning: Any number of invoices it relates to.
+  - name: lines
+    target: SupplierDebitNoteLine
+    cardinality: 1..*
+    ownership: aggregate
+    help:
+      summary: Detailed components of the supplier debit.
+      businessMeaning: Explains quantities prices tax and reasons contributing to the adjustment.
+      usage: Calculation supplier dispute audit and reconciliation.
+      workflowRole: Supplies authoritative detail for header totals.
+      cardinalityMeaning: One or more lines, kept with the debit note.
+  - name: applications
+    target: SupplierDebitNoteApplication
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Explicit applications of this posted supplier debit against eligible supplier invoices.
+      businessMeaning: Records how the debit is consumed against payable claims without changing original invoice history.
+      usage: Accounts payable reconciliation supplier statements and audit.
+      workflowRole: Active applications determine amountApplied and amountRemaining.
+      cardinalityMeaning: Any number of applications against invoices.
+  - name: journalEntries
+    target: JournalEntry
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Accounting entries recognizing the supplier debit.
+      businessMeaning: Separates accounting recognition from the adjustment document.
+      usage: General ledger AP tax and audit.
+      workflowRole: Posted debit requires balanced accounting treatment.
+      cardinalityMeaning: Any number of postings.
   invariants:
   - {id: SUPPLIER-DEBIT-001, rule: POSTED supplier debit must contain at least one line.}
   - {id: SUPPLIER-DEBIT-002, rule: totalAmount must reconcile with line values tax and rounding evidence.}

@@ -181,12 +181,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a professional services entity called ProfessionalEngagement within the CEDM business model.
-    businessMeaning: ProfessionalEngagement is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A client engagement under which a firm provides professional services, such as an audit or a consulting project.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Contract, Project, Timesheet. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Partners and engagement managers set up each client engagement, staff it, track time against it, and bill it under the contract; finance reports profitability per engagement.
     lifecycle: An engagement is proposed, active while work is done, may be put on hold and resumed, and is completed when the work is delivered; a proposal or engagement can be cancelled.
     example: Engagement ENG-24-118 'ERP selection for Novara Foods', client Novara Foods SpA, 1 March–30 June 2024, time and materials, active.
+    businessMeaning: Engagements are what a professional-services firm sells; time, billing and profitability are tracked per engagement.
 specification:
   version: 0.1.0
   status: draft

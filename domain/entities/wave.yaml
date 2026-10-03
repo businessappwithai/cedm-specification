@@ -178,4 +178,5 @@ entity:
     usage: Labor planning, batch/zone picking, putaway and shipping-cutoff execution.
     relationshipContext: Warehouse supplies facility; Picking and Putaway supply executable tasks.
     lifecycle: Planned to released to in progress to completed or cancelled.
+    example: Wave W-24-0520-03, picking wave, released 20 May 2024 08:00, 142 tasks, planned completion 11:00, completed 10:41.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WAVE}

@@ -110,12 +110,12 @@ entity:
     - {from: ACTIVE, to: EXPIRED, action: expire}
     - {from: SUSPENDED, to: EXPIRED, action: expire}
   help:
-    summary: Represents a security identity entity called Identity within the CEDM business model.
-    businessMeaning: Identity is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A way a user signs in, such as a password, single sign-on account or API key.
     relationshipContext: The entity participates in a wider business graph through relationships with User. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Security administrators register how each user signs in — a password, a single sign-on account, an API key or a certificate — and suspend or revoke it when access must stop.
     lifecycle: An identity is active while it may be used to sign in; it can be suspended and reactivated, and ends when revoked or when it expires.
     example: SSO identity for user jdoe, subject 00u1a2b3c4 at the company identity provider, issued 2 January 2024, active.
+    businessMeaning: Controlling and revoking sign-in identities protects the organisation's systems and data.
 specification:
   version: 0.1.0
   status: draft

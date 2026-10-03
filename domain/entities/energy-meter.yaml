@@ -141,12 +141,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: DISCONNECTED, to: RETIRED, action: retire}
   help:
-    summary: Represents a utility entity called EnergyMeter within the CEDM business model.
-    businessMeaning: EnergyMeter is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A meter or metering point that measures consumption or production of electricity, gas, water or heat.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Customer, MeterReading. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Utilities and energy managers register meters at supply points; readings are recorded against them, by hand or from smart-meter feeds; consumption is billed and analysed per meter.
     lifecycle: Planned before installation, active while recording, disconnected when supply is cut off, and retired when removed.
     example: Meter 14523987, electricity, smart meter at Plant Lyon main supply, installed 3 May 2021, readings every 30 minutes, active.
+    businessMeaning: Bills, settlements and network planning are calculated from meter readings, so each meter must be identified and its readings trusted.
 specification:
   version: 0.1.0
   status: draft

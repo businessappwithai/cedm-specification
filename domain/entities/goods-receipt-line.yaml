@@ -30,33 +30,63 @@ entity:
     target: GoodsReceipt
     cardinality: '1'
     ownership: reference
-    help: {summary: Parent receipt containing this line., businessMeaning: Provides document context for original receipt evidence., usage: "Receiving, inventory and audit.", workflowRole: Parent receipt controls header lifecycle.}
+    help:
+      summary: Parent receipt containing this line.
+      businessMeaning: Provides document context for original receipt evidence.
+      usage: "Receiving, inventory and audit."
+      workflowRole: Parent receipt controls header lifecycle.
+      cardinalityMeaning: Each line belongs to one receipt; a receipt has one or more lines.
   - name: purchaseOrderLine
     target: PurchaseOrderLine
     cardinality: '1'
     ownership: reference
-    help: {summary: Procurement commitment fulfilled by this receipt line., businessMeaning: Connects actual receipt to ordered product and quantity., usage: "Fulfillment, matching and return eligibility.", workflowRole: Supplies source commitment context.}
+    help:
+      summary: Procurement commitment fulfilled by this receipt line.
+      businessMeaning: Connects actual receipt to ordered product and quantity.
+      usage: "Fulfillment, matching and return eligibility."
+      workflowRole: Supplies source commitment context.
+      cardinalityMeaning: Each line receives against one order line; an order line may be received in several deliveries.
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
-    help: {summary: Product received on this line., businessMeaning: Identifies stock item., usage: "Receiving, inventory, quality and returns.", workflowRole: Determines item identity for movements and returns.}
+    help:
+      summary: Product received on this line.
+      businessMeaning: Identifies stock item.
+      usage: "Receiving, inventory, quality and returns."
+      workflowRole: Determines item identity for movements and returns.
+      cardinalityMeaning: Each line is for one product.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: '1'
     ownership: reference
-    help: {summary: Unit used for receipt quantities., businessMeaning: Defines measurement semantics., usage: "Receiving, inventory and return quantity conversion.", workflowRole: Supplies conversion context.}
+    help:
+      summary: Unit used for receipt quantities.
+      businessMeaning: Defines measurement semantics.
+      usage: "Receiving, inventory and return quantity conversion."
+      workflowRole: Supplies conversion context.
+      cardinalityMeaning: Each line counts in one unit.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
-    help: {summary: Inventory events attributable to accepted receipt quantity., businessMeaning: Records stock consequence separately from receipt evidence., usage: Inventory audit and reconciliation., workflowRole: Accepted quantities create receipt movements.}
+    help:
+      summary: Inventory events attributable to accepted receipt quantity.
+      businessMeaning: Records stock consequence separately from receipt evidence.
+      usage: Inventory audit and reconciliation.
+      workflowRole: Accepted quantities create receipt movements.
+      cardinalityMeaning: Any number of stock movements, such as put-away and quarantine.
     inverseCardinality: '1'
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
     ownership: reference
-    help: {summary: Supplier invoice lines supported by this accepted receipt evidence., businessMeaning: Connects fulfillment to payable claims., usage: Three-way matching and audit., workflowRole: Provides accepted quantity and price evidence.}
+    help:
+      summary: Supplier invoice lines supported by this accepted receipt evidence.
+      businessMeaning: Connects fulfillment to payable claims.
+      usage: Three-way matching and audit.
+      workflowRole: Provides accepted quantity and price evidence.
+      cardinalityMeaning: Any number of invoice lines matched to the receipt.
   - name: supplierReturnLines
     target: SupplierReturnLine
     cardinality: 0..*

@@ -117,26 +117,26 @@ entity:
     - {from: RECORDED, to: REJECTED, action: reject}
     - {from: VERIFIED, to: REJECTED, action: reject}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a production record is ended"
-      description: "When a production record is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PRODUCTION-RECORD-FOLLOW-UP-{{id}}"
-              name: "Follow up on production record {{id}}"
-              description: "Production record {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a production record is ended"
+    description: "When a production record is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PRODUCTION-RECORD-FOLLOW-UP-{{id}}"
+          name: "Follow up on production record {{id}}"
+          description: "Production record {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a industrial transaction called ProductionRecord within the CEDM business model.
+    summary: The quantity a site produced in a period, recorded for operations and reporting.
     relationshipContext: The entity participates in a wider business graph through relationships with Product, Location, MiningSite, ManufacturingWorkOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     businessMeaning: Production records state what was actually made or extracted, when and where. They are the basis for stock receipts, yield and efficiency measures, royalties in extractive industries, and reconciliation with planned output.
     usage: Entered by operators or captured from machines at the end of a shift or batch; verified by supervisors; rejected records are corrected by new ones.

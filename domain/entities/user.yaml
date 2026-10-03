@@ -150,12 +150,12 @@ entity:
     - {from: LOCKED, to: RETIRED, action: retire}
     - {from: DISABLED, to: RETIRED, action: retire}
   help:
-    summary: Represents an identity entity called User within the CEDM business model.
-    businessMeaning: User is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A person or system that signs in to the application.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Role, Identity. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Administrators create users when people join or systems are connected, grant them access through roles, lock or disable them when needed, and retire them when people leave. Every action in the application is performed as a user and recorded in the audit trail under it.
     lifecycle: Pending until first activated; active while in use; locked automatically after repeated failed sign-ins and unlocked by an administrator; disabled when access must be suspended; retired when the person leaves for good. A retired user is never reused, so the audit trail keeps pointing at the right person.
     example: User m.lopez (Maria Lopez, Accounts Payable), active since 1 April 2024, roles Accounts Payable Clerk and Employee Self-Service, last signed in 4 June 08:12.
+    businessMeaning: Access, accountability and audit trails depend on each action being attributed to a user.
   invariants:
   - {id: USER-001, rule: The failed sign-in count is not negative., violatedWhen: failed_login_count != null and failed_login_count < 0, message: The failed sign-in count cannot be negative.}
 specification:

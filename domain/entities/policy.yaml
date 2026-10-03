@@ -142,11 +142,11 @@ entity:
     - {from: DRAFT, to: RETIRED, action: retire}
   help:
     summary: A written rule or principle the organisation commits to follow, such as a travel, privacy or credit policy.
-    businessMeaning: Policy is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Control, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Policy owners draft and approve policies, publish the active version, link the controls that enforce them, and review them periodically; staff consult them to know what is allowed.
     lifecycle: A policy is drafted, approved, then active from its effective date; it may be suspended and reinstated, and is retired when replaced or withdrawn.
     example: Policy FIN-007 'Travel and expenses', finance policy, version 3.1, owner Group Finance, active from 1 January 2024.
+    businessMeaning: Policies set the organisation's rules; staff are held to them and auditors check compliance against them.
 specification:
   version: 0.1.0
   status: draft

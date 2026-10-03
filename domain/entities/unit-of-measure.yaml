@@ -112,6 +112,7 @@ entity:
       summary: Links a derived unit to its base measurement unit.
       usage: Supports conversion and dimensional consistency.
       workflowRole: Provides the canonical measurement basis used when quantities must be compared across transactions.
+      cardinalityMeaning: At most one base unit; base units have none.
   - name: derivedUnits
     target: UnitOfMeasure
     cardinality: 0..*
@@ -120,6 +121,7 @@ entity:
       summary: Lists units derived from this unit as their base.
       usage: Supports conversion navigation and master-data maintenance.
       workflowRole: Enables quantity conversion paths for procurement, sales, receiving, inventory, and billing.
+      cardinalityMeaning: Any number of units defined from this one.
     inverse: baseUnit
   - name: products
     target: Product
@@ -128,6 +130,8 @@ entity:
     help:
       summary: Products using this unit as a standard measurement basis.
       workflowRole: A UOM change must validate affected Product defaults and all open transactions using those products.
+      cardinalityMeaning: Any number of products counted in the unit.
+      usage: Listed before the unit is changed or retired.
     inverseCardinality: '1'
   - name: salesOrderLines
     target: SalesOrderLine
@@ -136,6 +140,8 @@ entity:
     help:
       summary: Sales commitments expressed in this unit.
       workflowRole: Open lines must be checked before conversion semantics are changed or the unit is retired.
+      cardinalityMeaning: Any number of sales order lines.
+      usage: Checked before the unit is retired.
   - name: purchaseOrderLines
     target: PurchaseOrderLine
     cardinality: 0..*
@@ -143,6 +149,8 @@ entity:
     help:
       summary: Procurement commitments expressed in this unit.
       workflowRole: Open procurement lines must be validated before conversion semantics are changed.
+      cardinalityMeaning: Any number of purchase order lines.
+      usage: Checked before the unit is retired.
   - name: goodsReceiptLines
     target: GoodsReceiptLine
     cardinality: 0..*
@@ -150,6 +158,8 @@ entity:
     help:
       summary: Receipt quantities expressed in this unit.
       workflowRole: Historical receipt quantities retain their original UOM; future receipts require an active compatible unit.
+      cardinalityMeaning: Any number of receipt lines.
+      usage: Checked before the unit is retired.
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
@@ -157,6 +167,8 @@ entity:
     help:
       summary: Billed quantities expressed in this unit.
       workflowRole: Issued invoices retain their recorded UOM; future invoice calculations require compatible active units.
+      cardinalityMeaning: Any number of invoice lines.
+      usage: Checked before the unit is retired.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
@@ -164,6 +176,8 @@ entity:
     help:
       summary: Inventory events expressed in this unit.
       workflowRole: Movement history is immutable in measurement meaning; future movements must use a valid conversion.
+      cardinalityMeaning: Any number of stock movements.
+      usage: Checked before the unit is retired.
     inverseCardinality: '1'
   invariants:
   - {id: UOM-001, rule: conversionFactor must be positive when supplied.}

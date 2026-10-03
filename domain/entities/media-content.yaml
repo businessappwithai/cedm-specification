@@ -125,12 +125,12 @@ entity:
     - {from: PRODUCED, to: RETIRED, action: retire}
     - {from: PUBLISHED, to: RETIRED, action: retire}
   help:
-    summary: Represents a media entity called MediaContent within the CEDM business model.
-    businessMeaning: MediaContent is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A film, song, article or other work the business produces, licenses or publishes.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Document, MediaRight. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Editors and producers register each work, attach its files and documents, record the rights held in it, and publish it to channels; rights managers check what may be used where.
     lifecycle: Content is drafted, produced when finished, then published; published content is archived when taken down, and content can be retired at any stage before.
     example: Content DOC-2024-031 'Rivers of the Alps', video documentary owned by Alpine Media, produced, published 12 May 2024, streaming rights for EU.
+    businessMeaning: Content is the media business's product; its rights and publication decide where and how it earns revenue.
 specification:
   version: 0.1.0
   status: draft

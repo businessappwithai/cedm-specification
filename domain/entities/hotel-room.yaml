@@ -100,12 +100,12 @@ entity:
     - {from: CLEANING, to: OUT_OF_SERVICE, action: take_out_of_service}
     - {from: OUT_OF_SERVICE, to: AVAILABLE, action: return_to_service}
   help:
-    summary: Represents a hospitality asset called HotelRoom within the CEDM business model.
-    businessMeaning: HotelRoom is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A room in a hotel that can be booked, with its type and capacity.
     relationshipContext: The entity participates in a wider business graph through relationships with Hotel, HotelReservation. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Front-desk and housekeeping staff see each room's state at a glance, assign rooms to reservations, mark them for cleaning after departure and take them out of service for repairs.
     lifecycle: A room is available, reserved for an arriving guest, occupied during a stay, then cleaned and made available again; it can be taken out of service and put back.
     example: Room 412, Hotel Lumière, deluxe double, capacity 2, being cleaned after check-out.
+    businessMeaning: Room status decides which rooms can be sold and which need cleaning or repair.
   invariants:
   - {id: HOTEL-ROOM-001, rule: A room sleeps at least one guest., violatedWhen: capacity < 1, message: Capacity must be at least one.}
 specification:

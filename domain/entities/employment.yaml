@@ -144,12 +144,12 @@ entity:
     - {from: ACTIVE, to: TERMINATED, action: terminate}
     - {from: SUSPENDED, to: TERMINATED, action: terminate}
   help:
-    summary: Represents a workforce relationship called Employment within the CEDM business model.
-    businessMeaning: Employment is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: One period of employment of a person with an organisation, from hire to termination.
     relationshipContext: The entity participates in a wider business graph through relationships with Employee, Organization, Position. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: HR records each employment contract a person has with a company — its type, dates, position, hours and pay basis — so that payroll, leave and reporting use the terms that applied at any date.
     lifecycle: Pending until the start date, active while in force, suspended during an approved suspension, and terminated at its end.
     example: 'Employment of Maria Lopez with ACME France: full-time, permanent, from 1 April 2024, position AP Clerk (POS-1210), 35 hours a week, monthly salary.'
+    businessMeaning: Employment periods decide pay, benefits, seniority and legal obligations, and keep a person's history across rehires.
 specification:
   version: 0.1.0
   status: draft

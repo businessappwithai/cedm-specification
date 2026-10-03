@@ -128,12 +128,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a healthcare clinical entity called Procedure within the CEDM business model.
-    businessMeaning: Procedure is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A clinical procedure performed or planned for a patient, recorded with its code.
     relationshipContext: The entity participates in a wider business graph through relationships with HealthcareEncounter, HealthcarePatient, HealthcareProvider. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Clinicians plan and record the procedures they perform during an encounter, coded for billing and statistics; the patient's record lists them in order.
     lifecycle: A procedure is planned, in progress while performed, then completed; a planned or ongoing procedure may be cancelled.
     example: Procedure CPT 45378 'Diagnostic colonoscopy' for patient MRN 0048812, performed by Dr. L. Neri on 20 May 2024 at 10:15, completed.
+    businessMeaning: Procedures are billed, audited and reported; the patient record shows what was done and by whom.
 specification:
   version: 0.1.0
   status: draft

@@ -96,12 +96,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a authorization entity called Role within the CEDM business model.
-    businessMeaning: Role is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A named bundle of permissions granted to users, such as 'Finance manager'.
     relationshipContext: The entity participates in a wider business graph through relationships with Permission, User. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Security administrators define roles that bundle permissions for a job, grant them to users, and review who holds which role; the application decides what a user may do from their roles.
     lifecycle: A role is drafted, active while it can be granted, may be made inactive and reactivated, and is retired when no longer used.
     example: "Role FIN_MGR 'Finance manager': approve invoices, approve payments, read the ledger; held by 4 users."
+    businessMeaning: Roles make access manageable and reviewable; users get exactly the permissions their job needs.
 specification:
   version: 0.1.0
   status: draft

@@ -179,12 +179,12 @@ entity:
           status: "CREATED"
           priority: "LOW"
   help:
-    summary: Represents a healthcare transaction called HealthcareEncounter within the CEDM business model.
-    businessMeaning: HealthcareEncounter is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A visit or stay in which a patient is seen by a clinician.
     relationshipContext: The entity participates in a wider business graph through relationships with HealthcarePatient, HealthcareProvider, Diagnosis, Procedure, HealthcareOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Clinicians and administrative staff schedule encounters, record what happened during them, and attach diagnoses, procedures and orders; billing and reporting are built from completed encounters.
     lifecycle: An encounter is planned, in progress while the patient is seen, then completed; a planned or ongoing encounter may be cancelled.
     example: Outpatient encounter for patient MRN 0048812 with Dr. A. Rossi, 14 May 2024 09:30–09:50, reason 'persistent cough', diagnosis J20.9 recorded.
+    businessMeaning: Encounters are where care is delivered and documented; billing, clinical records and quality measures are built from them.
 specification:
   version: 0.1.0
   status: draft

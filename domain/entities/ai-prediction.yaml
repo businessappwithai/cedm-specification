@@ -108,12 +108,12 @@ entity:
   invariants:
   - {id: AIPREDICTION-001, rule: An overridden prediction says why., violatedWhen: human_review_status == "OVERRIDDEN" and override_reason == null, message: Give the reason for overriding the prediction.}
   help:
-    summary: Represents an ai runtime entity called AIPrediction within the CEDM business model.
-    businessMeaning: AIPrediction is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: One output a model produced for one input, kept with the model version and the context it ran in.
     relationshipContext: The entity participates in a wider business graph through relationships with AIModel, Party. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Written by the serving platform for every prediction that informs a decision; reviewed by a person where the policy requires; sampled by monitoring to detect drift and by auditors to check decisions.
     lifecycle: A prediction is recorded once and not changed. Its review status moves from pending to accepted, overridden or rejected when a person reviews it.
     example: "Prediction by CS-v4.2 for application APP-88213 at 10:42:07: decline, confidence 0.87; reviewed by the credit officer and overridden to approve with reason 'verified income'."
+    businessMeaning: A prediction can approve a loan or flag a fraud; keeping it lets people review, explain and correct automated decisions and measure how well the model performs.
 specification:
   version: 0.1.0
   status: draft

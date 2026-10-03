@@ -99,6 +99,8 @@ entity:
       summary: Parent supplier credit document.
       businessMeaning: Supplies supplier, currency and lifecycle context.
       workflowRole: Controls whether the line may be posted.
+      cardinalityMeaning: Each line belongs to one credit note; a credit note has one or more lines.
+      usage: Set when the line is entered.
   - name: supplierReturnLine
     target: SupplierReturnLine
     cardinality: 0..1
@@ -107,6 +109,8 @@ entity:
       summary: Return line that caused the credit.
       businessMeaning: Connects financial adjustment to physical reverse procurement.
       workflowRole: Supplies approved quantity and credit eligibility.
+      cardinalityMeaning: At most one return line the credit is for.
+      usage: Set for credits caused by a return.
   - name: invoiceLine
     target: InvoiceLine
     cardinality: 0..1
@@ -115,6 +119,8 @@ entity:
       summary: Original supplier invoice line being financially adjusted.
       businessMeaning: Preserves traceability to the original payable claim.
       workflowRole: Supplies original price, discount, tax and amount evidence.
+      cardinalityMeaning: At most one invoice line credited.
+      usage: Set to the invoice line whose amount is reduced.
   invariants:
   - {id: SUPPLIER-CREDIT-LINE-001, rule: lineNumber must be unique within SupplierCreditNote.}
   - {id: SUPPLIER-CREDIT-LINE-002, rule: All monetary values must use the SupplierCreditNote currency.}

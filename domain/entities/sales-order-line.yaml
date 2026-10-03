@@ -105,36 +105,36 @@ entity:
     ownership: reference
     help:
       summary: The order the line belongs to.
-      cardinalityMeaning: A sales order line has exactly one sales order in this role.
       usage: Set when the line is entered.
       context: Its currency and terms apply.
+      cardinalityMeaning: Each line belongs to one order; an order has one or more lines.
   - name: product
     target: Product
     cardinality: '1'
     ownership: reference
     help:
       summary: The product or service ordered.
-      cardinalityMeaning: A sales order line has exactly one product in this role.
       usage: Chosen from the catalogue.
       context: Must be active.
+      cardinalityMeaning: Each line is for one product.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
     help:
       summary: The unit the quantity is in.
-      cardinalityMeaning: A sales order line has at most one unit of measure in this role.
       usage: Defaults to the product's unit.
       context: Must convert to the product's unit.
+      cardinalityMeaning: At most one unit; defaults to the product's.
   - name: shipments
     target: Shipment
     cardinality: 0..*
     ownership: reference
     help:
       summary: Shipments that carry the line.
-      cardinalityMeaning: A sales order line has any number of shipment in this role.
       usage: Linked when shipped.
       context: Fulfilled quantity is counted from them.
+      cardinalityMeaning: Any number of shipments; a line may be delivered in parts.
     inverseCardinality: 0..*
   - name: reservations
     target: InventoryReservation
@@ -142,18 +142,18 @@ entity:
     ownership: reference
     help:
       summary: Stock reservations for the line.
-      cardinalityMeaning: A sales order line has any number of inventory reservation in this role.
       usage: Created when the order is allocated.
       context: Allocated quantity is counted from them.
+      cardinalityMeaning: Any number of reservations, possibly at several locations.
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*
     ownership: reference
     help:
       summary: Invoice lines that bill the line.
-      cardinalityMeaning: A sales order line has any number of invoice line in this role.
       usage: Created when billing.
       context: Not more than billable.
+      cardinalityMeaning: Any number of invoice lines; a line may be billed in parts.
     inverseCardinality: '1'
   invariants:
   - {id: SALES-ORDER-LINE-001, rule: quantity must be greater than zero.}

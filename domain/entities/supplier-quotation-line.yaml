@@ -46,4 +46,5 @@ entity:
     relationshipContext: Answers RequestForQuotationLine and may produce one or more PurchaseOrderLines.
     lifecycle: Received → evaluated → accepted/partially accepted/rejected → retained as sourcing evidence.
     changePropagation: Offer or award changes revalidate downstream unissued commitments; issued commitments require controlled amendments.
+    example: 'Line 1 of quotation SQ-BAT-0412: 5,000 battery packs BP-18V at 21.20 EUR, delivery by 20 August 2024, awarded.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-QUOTATION-LINE}

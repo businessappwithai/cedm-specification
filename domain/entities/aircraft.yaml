@@ -159,12 +159,12 @@ entity:
     - {from: MAINTENANCE, to: RETIRED, action: retire}
     - {from: GROUNDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a aerospace asset called Aircraft within the CEDM business model.
-    businessMeaning: Aircraft is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: An aircraft the operator owns or leases, identified by its registration and tracked for airworthiness and use.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Location, MaintenanceWorkOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Fleet and maintenance teams register each aircraft, keep its hours and certificates current, plan and record maintenance, and change its status when it goes in for maintenance or is grounded. Operations assign only active aircraft to flights.
     lifecycle: Planned before delivery, active while airworthy and in service, in maintenance during scheduled checks, grounded when it must not fly, and retired when it leaves the fleet.
     example: Aircraft F-HBXA, Airbus A320-214, serial 4521, built 2011, 180 seats, home base Lyon, 34,210 flight hours, certificate of airworthiness valid to 31 March 2025, active.
+    businessMeaning: Aircraft are the operator's main revenue assets and are heavily regulated; flights, maintenance and crew planning all depend on knowing each aircraft's state.
   invariants:
   - {id: AIRCRAFT-001, rule: Flight hours are not negative., violatedWhen: total_flight_hours != null and total_flight_hours < 0, message: The flight hours cannot be negative.}
   - {id: AIRCRAFT-EXE-001, rule: "Seat Capacity cannot be negative.", violatedWhen: "seat_capacity != null and seat_capacity < 0", message: "Seat Capacity cannot be negative."}

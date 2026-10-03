@@ -220,12 +220,12 @@ entity:
           status: "CREATED"
           priority: "LOW"
   help:
-    summary: Represents a core business transaction called BusinessTransaction within the CEDM business model.
-    businessMeaning: BusinessTransaction is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A business event recorded as it happened, such as a booking, a transfer or a sale, used where a specific transaction type is not modelled.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Product, Document, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Raised by the business's processes for transactions that have no more specific record, and used as a common index of all business events across domains — so reports and audits can list everything that happened to a party, product or location in one place.
     lifecycle: Drafted, opened for processing, approved, posted to the books, and completed. A posted transaction is never edited; it is reversed by an opposite one. It may be cancelled before posting.
     example: Transaction BT-2024-118220, type 'Internal recharge', 4 June 2024, 12,400 EUR from IT to Plant Lyon, approved by the controller, posted 30 June.
+    businessMeaning: Transactions are the evidence of what the business did and owes; they feed accounting, audit and reporting.
 specification:
   version: 0.1.0
   status: draft

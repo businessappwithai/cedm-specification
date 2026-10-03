@@ -193,12 +193,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a project management entity called ProjectTask within the CEDM business model.
-    businessMeaning: ProjectTask is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A work item in a project, assigned to someone with a due date.
     relationshipContext: The entity participates in a wider business graph through relationships with Project, Party, ProjectTask, Milestone. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Project teams break the project into tasks, assign them, record progress and blockers, and link them to the milestones they lead to.
     lifecycle: A task is not started, in progress while worked on, blocked while waiting and back in progress when unblocked, and ends completed or cancelled.
     example: Task T-014 'Configure put-away rules', project WMS-2024, assigned to Sara Galli, high priority, 60 % complete, due 15 June 2024.
+    businessMeaning: Tasks are how project work is planned, assigned and tracked to completion.
 specification:
   version: 0.1.0
   status: draft

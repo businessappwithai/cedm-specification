@@ -70,4 +70,5 @@ entity:
     relationshipContext: Shipment supplies logistics context; order lines supply demand/commitment; InventoryMovement supplies stock effects.
     lifecycle: Planned → dispatched → delivered or exception/cancellation according to parent shipment.
     changePropagation: Quantity or source-line changes revalidate allocation, inventory, receiving, fulfillment, and delivery workflows.
+    example: "Line 1 of shipment SH-88412: 120 units of 'Cordless drill X200' planned, 120 dispatched, 118 delivered."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SHIPMENT-LINE}

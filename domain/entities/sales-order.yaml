@@ -79,18 +79,18 @@ entity:
     ownership: reference
     help:
       summary: The customer who placed the order.
-      cardinalityMeaning: A sales order has exactly one customer in this role.
       usage: Chosen when entering the order.
       context: The customer's terms, prices and credit limit apply.
+      cardinalityMeaning: Each order is placed by one customer; a customer places many orders.
   - name: organization
     target: Organization
     cardinality: 0..1
     ownership: reference
     help:
       summary: The selling organisation.
-      cardinalityMeaning: A sales order has at most one organization in this role.
       usage: Set from the user's company.
       context: Books the revenue.
+      cardinalityMeaning: At most one selling organisation.
   - name: lines
     target: SalesOrderLine
     cardinality: 1..*
@@ -106,27 +106,27 @@ entity:
     ownership: reference
     help:
       summary: Where the goods are delivered.
-      cardinalityMeaning: A sales order has at most one location in this role.
       usage: Defaults to the customer's delivery address.
       context: Used to plan transport and tax.
+      cardinalityMeaning: At most one delivery place per order.
   - name: shipments
     target: Shipment
     cardinality: 0..*
     ownership: reference
     help:
       summary: Shipments that deliver the order.
-      cardinalityMeaning: A sales order has any number of shipment in this role.
       usage: Created when the order is picked and shipped.
       context: Fulfilment is counted from them.
+      cardinalityMeaning: Any number of shipments; an order may be delivered in parts.
   - name: invoices
     target: Invoice
     cardinality: 0..*
     ownership: reference
     help:
       summary: Invoices that bill the order.
-      cardinalityMeaning: A sales order has any number of invoice in this role.
       usage: Created when the order is billed.
       context: Billing follows the order's terms.
+      cardinalityMeaning: Any number of invoices; an order may be billed in parts.
   invariants:
   - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
   - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
@@ -160,42 +160,42 @@ entity:
     - {from: ALLOCATED, to: CANCELLED, action: cancel}
     - {from: PARTIALLY_FULFILLED, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a sales order is ended"
-      description: "When a sales order is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SALES-ORDER-FOLLOW-UP-{{id}}"
-              name: "Follow up on sales order {{order_number}}"
-              description: "Sales order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a sales order is done"
-      description: "When a sales order is fulfilled, a task asks someone to confirm the outcome."
-      when: "status == \"FULFILLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SALES-ORDER-COMPLETED-{{id}}"
-              name: "Confirm sales order {{order_number}}"
-              description: "Sales order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a sales order is ended"
+    description: "When a sales order is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SALES-ORDER-FOLLOW-UP-{{id}}"
+          name: "Follow up on sales order {{order_number}}"
+          description: "Sales order {{order_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a sales order is done"
+    description: "When a sales order is fulfilled, a task asks someone to confirm the outcome."
+    when: "status == \"FULFILLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SALES-ORDER-COMPLETED-{{id}}"
+          name: "Confirm sales order {{order_number}}"
+          description: "Sales order {{order_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
     businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.

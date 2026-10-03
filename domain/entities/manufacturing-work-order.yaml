@@ -100,4 +100,5 @@ entity:
     relationshipContext: Product is output; BOM and Routing are controlled definitions; MaterialIssue consumes inputs; ProductionReceipt accepts outputs; Scrap explains governed losses.
     lifecycle: Planned → released → in progress → completed → closed, with controlled cancellation.
     changePropagation: Release freezes effective definitions; execution updates inventory and genealogy; corrections use compensating evidence rather than rewriting posted history.
+    example: "Work order MO-24-3310: 500 units of 'Cordless drill X200', planned 3–5 June 2024 on assembly line 2, released."
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-MANUFACTURING-WORK-ORDER}

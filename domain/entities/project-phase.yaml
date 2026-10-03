@@ -157,5 +157,11 @@ entity:
           task_type: "USER"
           status: "CREATED"
           priority: "NORMAL"
-  help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."}
+  help:
+    summary: Governed project lifecycle stage.
+    businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones.
+    usage: "Project planning, delivery, resources and costing."
+    relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."
+    example: Phase 2 'Build and test' of project WMS-2024, 1 April–31 August 2024, budget 210,000 EUR, active.
+    lifecycle: A phase is planned, active while its work is done, and completed; a planned or active phase may be cancelled.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-PHASE}

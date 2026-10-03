@@ -133,4 +133,5 @@ entity:
     relationshipContext: Zone rules guide InventoryTransfer and WMS tasks but do not themselves alter inventory.
     lifecycle: Configured → active/restricted → retired while historical transactions retain zone context.
     changePropagation: Zone control changes revalidate future putaway/picking/transfer destinations without rewriting completed movements.
+    example: Zone CH-01 'Chilled', temperature-controlled zone of Lyon DC, 2–8 °C, restricted access, active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WAREHOUSE-ZONE}

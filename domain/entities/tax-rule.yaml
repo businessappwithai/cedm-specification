@@ -110,18 +110,18 @@ entity:
     ownership: reference
     help:
       summary: The place the rule applies to.
-      cardinalityMeaning: A tax rule has at most one location in this role.
       usage: Matched against the place of supply.
       context: Empty for rules that apply everywhere.
+      cardinalityMeaning: At most one jurisdiction; empty means everywhere.
   - name: products
     target: Product
     cardinality: 0..*
     ownership: reference
     help:
       summary: Products the rule applies to.
-      cardinalityMeaning: A tax rule has any number of product in this role.
       usage: Chosen when the rule is limited to certain products.
       context: Empty means all products.
+      cardinalityMeaning: Any number of products; empty means all.
     inverseCardinality: 0..*
   - name: customers
     target: Customer
@@ -129,9 +129,9 @@ entity:
     ownership: reference
     help:
       summary: Customers the rule applies to.
-      cardinalityMeaning: A tax rule has any number of customer in this role.
       usage: Chosen for customer-specific treatment, such as exemptions.
       context: Empty means all customers.
+      cardinalityMeaning: Any number of customers; empty means all.
     inverseCardinality: 0..*
   - name: organizations
     target: Organization
@@ -139,9 +139,9 @@ entity:
     ownership: reference
     help:
       summary: Selling organisations the rule applies to.
-      cardinalityMeaning: A tax rule has any number of organization in this role.
       usage: Chosen when the rule applies to certain companies only.
       context: Empty means all.
+      cardinalityMeaning: Any number of selling organisations; empty means all.
     inverseCardinality: 0..*
   invariants:
   - {id: TAX-RULE-001, rule: rate must be zero or greater.}

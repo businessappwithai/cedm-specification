@@ -130,12 +130,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents an education entity called EducationCourse within the CEDM business model.
-    businessMeaning: EducationCourse is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A course a school or university offers, such as 'Introduction to Statistics', with its credits and level.
     relationshipContext: The entity participates in a wider business graph through relationships with EducationProgram, Party, Enrollment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Academic departments define courses with their credits, level and instructors; programmes are built from them; timetabling schedules them each term; students enrol on them and receive their grades.
     lifecycle: Drafted while designed, active while offered, inactive in terms it is not taught, and retired when withdrawn from the catalogue.
     example: Course CS-201 'Data structures', 6 ECTS credits, level 2, taught by Dr Kim, part of the BSc Computer Science, offered every autumn term.
+    businessMeaning: Courses are what students enrol in and what timetables, teaching loads and transcripts are built from.
 specification:
   version: 0.1.0
   status: draft

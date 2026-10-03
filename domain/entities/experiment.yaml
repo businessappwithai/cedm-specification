@@ -177,12 +177,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents a research entity called Experiment within the CEDM business model.
-    businessMeaning: Experiment is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A planned scientific test with an objective, method and recorded result.
     relationshipContext: The entity participates in a wider business graph through relationships with Compound, Sample, Project. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Scientists plan experiments with their objective and design, record their execution and results, and link the compounds and samples used; project teams review results to decide what to make or test next.
     lifecycle: Planned, running while performed, then completed with results or failed; a planned or running experiment may be cancelled; completed experiments are archived once their results are reported.
     example: Experiment EXP-24-0912 'IC50 of ACM-004512 against kinase X', objective — confirm potency below 10 nM; run 4–6 March 2024; completed, IC50 4.1 nM.
+    businessMeaning: Experiments produce the evidence research decisions and regulatory filings rest on; they must be reproducible and traceable.
 specification:
   version: 0.1.0
   status: draft

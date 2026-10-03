@@ -77,12 +77,12 @@ entity:
   invariants:
   - {id: EVENT-001, rule: Events are append-only; they are never changed.}
   help:
-    summary: Represents a cross domain event called Event within the CEDM business model.
-    businessMeaning: Event is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: Something that happened that other processes need to react to, such as an order shipped or a threshold crossed.
     relationshipContext: The entity participates in a wider business graph through relationships with Party. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Raised by applications and devices when something significant happens — a sensor threshold, a system alert, a user action — and consumed by workflows, notifications and integrations; kept for audit and analysis.
     lifecycle: An event is recorded once and never changed; what is done about it is recorded by the processes it starts.
     example: Event 'TemperatureExceeded' from sensor COLD-1-T03 at 02:14:07, payload 9.6 °C (limit 8 °C), correlation COLD-1, raised a cold-chain incident.
+    businessMeaning: Events trigger workflows, notifications and integrations, and form an audit trail of what happened when.
 specification:
   version: 0.1.0
   status: draft

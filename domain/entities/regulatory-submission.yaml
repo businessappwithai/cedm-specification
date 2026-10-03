@@ -126,49 +126,49 @@ entity:
     - {from: UNDER_REVIEW, to: WITHDRAWN, action: withdraw}
     - {from: QUESTIONS, to: WITHDRAWN, action: withdraw}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a regulatory submission is put forward"
-      description: "When a regulatory submission is submitted or under review, a task asks someone to decide on it."
-      when: "(status == \"SUBMITTED\" or status == \"UNDER_REVIEW\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "REGULATORY-SUBMISSION-APPROVAL-{{id}}"
-              name: "Decide on regulatory submission {{submission_number}}"
-              description: "Regulatory submission {{submission_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a regulatory submission is ended"
-      description: "When a regulatory submission is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "REGULATORY-SUBMISSION-FOLLOW-UP-{{id}}"
-              name: "Follow up on regulatory submission {{submission_number}}"
-              description: "Regulatory submission {{submission_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a regulatory submission is put forward"
+    description: "When a regulatory submission is submitted or under review, a task asks someone to decide on it."
+    when: "(status == \"SUBMITTED\" or status == \"UNDER_REVIEW\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "REGULATORY-SUBMISSION-APPROVAL-{{id}}"
+          name: "Decide on regulatory submission {{submission_number}}"
+          description: "Regulatory submission {{submission_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a regulatory submission is ended"
+    description: "When a regulatory submission is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "REGULATORY-SUBMISSION-FOLLOW-UP-{{id}}"
+          name: "Follow up on regulatory submission {{submission_number}}"
+          description: "Regulatory submission {{submission_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a regulatory entity called RegulatorySubmission within the CEDM business model.
-    businessMeaning: RegulatorySubmission is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A filing made to a regulator to obtain an approval or meet an obligation.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Regulatory affairs staff prepare submissions with their dossier, file them with the authority, answer its questions and record the decision; managers track submissions by status and deadline.
     lifecycle: A submission is drafted, submitted, reviewed by the authority — which may send questions that are answered — and then approved or rejected; it can be withdrawn before a decision.
     example: Submission IND-2024-018, investigational new drug application for ACM-004512 to the FDA, sponsor Acme Pharma, submitted 8 April 2024, approved 8 May 2024.
+    businessMeaning: Approvals let the business sell or operate; missing a submission deadline or a question can stop it.
 specification:
   version: 0.1.0
   status: draft

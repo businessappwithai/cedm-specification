@@ -83,9 +83,9 @@ entity:
     ownership: reference
     help:
       summary: The warehouse the location is in.
-      cardinalityMeaning: An inventory location has exactly one warehouse in this role.
       usage: Set when the location is created.
       context: Location codes are unique within it.
+      cardinalityMeaning: Each location is in one warehouse; a warehouse has many locations.
   - name: inventoryBalances
     target: InventoryBalance
     cardinality: 0..*
@@ -93,6 +93,8 @@ entity:
     help:
       summary: Current product/location stock projections.
       workflowRole: Location status changes must validate balances and outstanding reservations before new operations are blocked.
+      cardinalityMeaning: One balance per product held at the location, kept with it.
+      usage: Shown as the location's contents.
   - name: openReservations
     target: InventoryReservation
     cardinality: 0..*
@@ -100,6 +102,8 @@ entity:
     help:
       summary: Active reservations dependent on the location's available stock.
       workflowRole: Blocking or retiring a location requires controlled handling of outstanding reservations before the location is removed from future allocation.
+      cardinalityMeaning: Any number of reservations holding stock at the location.
+      usage: Checked before blocking or emptying the location.
   - name: warehouseZone
     target: WarehouseZone
     cardinality: 0..1

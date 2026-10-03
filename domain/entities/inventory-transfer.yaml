@@ -204,4 +204,5 @@ entity:
     relationshipContext: Product/Lot/Serial identify stock; InventoryLocation supplies origin/destination; InventoryMovement provides authoritative physical effect.
     lifecycle: Planned → released → in progress → completed or cancelled.
     changePropagation: Release reserves/validates eligible stock where policy requires; execution updates balances only through movements.
+    example: "Transfer TR-24-0771: 200 units of 'Cordless drill X200' from Lyon DC to Paris store 0142, reason replenishment, completed 20 May 2024."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-TRANSFER}

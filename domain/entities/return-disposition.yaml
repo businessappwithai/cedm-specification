@@ -90,7 +90,12 @@ entity:
     target: CustomerReturnLine
     cardinality: 0..1
     ownership: reference
-    help: {summary: Customer return line whose quantity is dispositioned., businessMeaning: Provides exact returned item and quantity context., usage: Supports partial disposition and inventory reconciliation., workflowRole: Supplies the eligible quantity for customer-return execution.}
+    help:
+      summary: Customer return line whose quantity is dispositioned.
+      businessMeaning: Provides exact returned item and quantity context.
+      usage: Supports partial disposition and inventory reconciliation.
+      workflowRole: Supplies the eligible quantity for customer-return execution.
+      cardinalityMeaning: At most one customer return line decided on.
   - name: supplierReturn
     target: SupplierReturn
     cardinality: 0..1
@@ -100,17 +105,32 @@ entity:
     target: SupplierReturnLine
     cardinality: 0..1
     ownership: reference
-    help: {summary: Supplier return line whose quantity is dispositioned., businessMeaning: Provides exact returned item and quantity context., usage: Supports partial disposition and inventory reconciliation., workflowRole: Supplies the eligible quantity for supplier-return execution.}
+    help:
+      summary: Supplier return line whose quantity is dispositioned.
+      businessMeaning: Provides exact returned item and quantity context.
+      usage: Supports partial disposition and inventory reconciliation.
+      workflowRole: Supplies the eligible quantity for supplier-return execution.
+      cardinalityMeaning: At most one supplier return line decided on.
   - name: qualityInspection
     target: QualityInspection
     cardinality: 0..1
     ownership: reference
-    help: {summary: Quality inspection supporting the disposition decision., businessMeaning: Links the operational outcome to quality evidence where inspection is required., usage: "Supports release, quarantine, rejection, repair, scrap and return decisions.", workflowRole: Provides controlled evidence for disposition authorization.}
+    help:
+      summary: Quality inspection supporting the disposition decision.
+      businessMeaning: Links the operational outcome to quality evidence where inspection is required.
+      usage: "Supports release, quarantine, rejection, repair, scrap and return decisions."
+      workflowRole: Provides controlled evidence for disposition authorization.
+      cardinalityMeaning: At most one inspection the decision rests on.
   - name: inventoryMovements
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
-    help: {summary: Physical inventory movements resulting from this disposition., businessMeaning: Records the actual stock consequence of the decision rather than treating the disposition as a stock transaction., usage: Supports inventory audit and reconciliation., workflowRole: Executes permitted physical consequences and must be attributable to the disposition.}
+    help:
+      summary: Physical inventory movements resulting from this disposition.
+      businessMeaning: Records the actual stock consequence of the decision rather than treating the disposition as a stock transaction.
+      usage: Supports inventory audit and reconciliation.
+      workflowRole: Executes permitted physical consequences and must be attributable to the disposition.
+      cardinalityMeaning: Any number of stock movements that carry out the decision.
     inverseCardinality: '1'
   invariants:
   - {id: RETURN-DISPOSITION-001, rule: Exactly one of customerReturn/customerReturnLine or supplierReturn/supplierReturnLine must identify the applicable return context.}

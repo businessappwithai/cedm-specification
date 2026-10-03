@@ -125,12 +125,12 @@ entity:
     - {from: SUSPENDED, to: TERMINATED, action: terminate}
     - {from: PENDING, to: TERMINATED, action: cancel}
   help:
-    summary: Represents a telecom entity called TelecomService within the CEDM business model.
-    businessMeaning: TelecomService is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A line or connection provided to a customer, such as a mobile number or broadband link.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, Product, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Telecom operators provision a service for each line, connection or device a customer has, activate it, suspend it for non-payment or on request, and terminate it when the contract ends.
     lifecycle: A service is pending until activated, active while in use, may be suspended and restored, and is terminated at the end.
     example: Service +39 347 123 4567, mobile, for customer Bianchi Marco, activated 2 February 2023, active.
+    businessMeaning: The network is provisioned and usage is billed per service.
 specification:
   version: 0.1.0
   status: draft

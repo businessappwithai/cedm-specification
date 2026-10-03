@@ -134,4 +134,5 @@ entity:
     relationshipContext: Product is the output; Operations define steps; WorkCenters provide capacity; ManufacturingWorkOrder executes a selected version.
     lifecycle: Draft → active → suspended/obsolete with versioned replacement.
     changePropagation: Routing changes revalidate planned/unreleased work; released/completed work retains historical version.
+    example: Routing R-X200 'Cordless drill assembly', version 3, lots of 100–1,000, valid from 1 January 2024, active.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ROUTING}

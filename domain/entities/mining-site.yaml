@@ -104,12 +104,12 @@ entity:
     - {from: SUSPENDED, to: CLOSED, action: close}
     - {from: EXPLORATION, to: CLOSED, action: abandon}
   help:
-    summary: Represents a mining entity called MiningSite within the CEDM business model.
-    businessMeaning: MiningSite is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A mine or deposit the company explores, develops or operates.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, ProductionRecord. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Mining companies register each site with the resource it holds, follow it from exploration through development to production, and record its production, permits and closure.
     lifecycle: A site is explored, developed, then active while producing; it may be suspended and resumed, and is closed at the end of its life or when exploration is abandoned.
     example: Site CL-ATA-03 'Atacama North', copper, operated by Minera Andina, active since 2019.
+    businessMeaning: Production, permits, safety and closure obligations are managed per site.
 specification:
   version: 0.1.0
   status: draft

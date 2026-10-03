@@ -80,37 +80,72 @@ entity:
     target: Invoice
     cardinality: '1'
     ownership: reference
-    help: {summary: Parent invoice containing the original claim line., businessMeaning: Provides financial document context., usage: "Supports billing, settlement, adjustment and audit.", workflowRole: Parent claim owns the line's historical calculation.}
+    help:
+      summary: Parent invoice containing the original claim line.
+      businessMeaning: Provides financial document context.
+      usage: "Supports billing, settlement, adjustment and audit."
+      workflowRole: Parent claim owns the line's historical calculation.
+      cardinalityMeaning: Each line belongs to one invoice; an invoice has one or more lines.
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
-    help: {summary: Product or service identified by the original invoice line., businessMeaning: Identifies what was billed without making current product master data a live dependency of posted history., usage: "Supports billing, fulfillment and return traceability.", workflowRole: Supplies source item context.}
+    help:
+      summary: Product or service identified by the original invoice line.
+      businessMeaning: Identifies what was billed without making current product master data a live dependency of posted history.
+      usage: "Supports billing, fulfillment and return traceability."
+      workflowRole: Supplies source item context.
+      cardinalityMeaning: At most one product; charges and adjustments may have none.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
-    help: {summary: Unit in which the original quantity was billed., businessMeaning: Defines measurement semantics for the historical quantity., usage: "Supports billing, fulfillment and return conversion.", workflowRole: Provides source measurement context for eligible credits.}
+    help:
+      summary: Unit in which the original quantity was billed.
+      businessMeaning: Defines measurement semantics for the historical quantity.
+      usage: "Supports billing, fulfillment and return conversion."
+      workflowRole: Provides source measurement context for eligible credits.
+      cardinalityMeaning: At most one unit.
   - name: purchaseOrderLine
     target: PurchaseOrderLine
     cardinality: 0..1
     ownership: reference
-    help: {summary: Procurement line associated with a purchase invoice line., businessMeaning: Connects payable billing to the original procurement commitment., usage: Supports three-way matching and supplier-return traceability., workflowRole: Supplies source procurement evidence.}
+    help:
+      summary: Procurement line associated with a purchase invoice line.
+      businessMeaning: Connects payable billing to the original procurement commitment.
+      usage: Supports three-way matching and supplier-return traceability.
+      workflowRole: Supplies source procurement evidence.
+      cardinalityMeaning: At most one order line the supplier bills.
   - name: goodsReceiptLines
     target: GoodsReceiptLine
     cardinality: 0..*
     ownership: reference
-    help: {summary: Accepted receipt lines supporting the original purchase invoice., businessMeaning: Connects billed quantity to accepted fulfillment evidence., usage: Supports three-way matching and supplier-return eligibility., workflowRole: Provides receipt evidence.}
+    help:
+      summary: Accepted receipt lines supporting the original purchase invoice.
+      businessMeaning: Connects billed quantity to accepted fulfillment evidence.
+      usage: Supports three-way matching and supplier-return eligibility.
+      workflowRole: Provides receipt evidence.
+      cardinalityMeaning: Any number of receipt lines the billed quantity is matched to.
   - name: discountRule
     target: DiscountRule
     cardinality: 0..1
     ownership: reference
-    help: {summary: Discount policy referenced by the original line., businessMeaning: Identifies the policy source while discountEvidence preserves the transaction-time result., usage: Supports audit and controlled recalculation., workflowRole: Supplies original discount policy context.}
+    help:
+      summary: Discount policy referenced by the original line.
+      businessMeaning: Identifies the policy source while discountEvidence preserves the transaction-time result.
+      usage: Supports audit and controlled recalculation.
+      workflowRole: Supplies original discount policy context.
+      cardinalityMeaning: At most one discount rule applied.
   - name: taxRule
     target: TaxRule
     cardinality: 0..1
     ownership: reference
-    help: {summary: Tax policies referenced by the original line., businessMeaning: Identifies governing tax treatment while taxEvidence preserves historical results., usage: Supports tax compliance and audit., workflowRole: Supplies original tax policy context.}
+    help:
+      summary: Tax policies referenced by the original line.
+      businessMeaning: Identifies governing tax treatment while taxEvidence preserves historical results.
+      usage: Supports tax compliance and audit.
+      workflowRole: Supplies original tax policy context.
+      cardinalityMeaning: At most one tax rule applied.
   - name: creditNoteLines
     target: CreditNoteLine
     cardinality: 0..*

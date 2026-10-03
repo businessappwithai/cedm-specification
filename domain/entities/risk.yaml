@@ -174,11 +174,11 @@ entity:
     - {from: MATERIALIZED, to: CLOSED, action: close}
   help:
     summary: Something that might happen and would affect the organisation's objectives, recorded so it can be assessed, treated and monitored.
-    businessMeaning: Risk is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Control, RiskTreatment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Risk owners record risks with their likelihood and impact, decide how to treat them, link the controls that reduce them, and review them periodically; management reviews the risk register.
     lifecycle: A risk is identified, assessed, then mitigated or accepted; it is closed when it no longer applies, and recorded as materialised if it happens.
     example: Risk R-OPS-014 'Single supplier for lithium cells', operations, likely, major, owner Head of Procurement, mitigating through a second supplier.
+    businessMeaning: Managing risks explicitly lets the organisation decide which to reduce, transfer or accept, and shows boards and regulators that it does so.
 specification:
   version: 0.1.0
   status: draft

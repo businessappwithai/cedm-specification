@@ -113,49 +113,49 @@ entity:
     - {from: RESERVED, to: CANCELLED, action: cancel}
     - {from: RESERVED, to: NO_SHOW, action: mark_no_show}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a hotel reservation is put forward"
-      description: "When a hotel reservation is requested, a task asks someone to decide on it."
-      when: "status == \"REQUESTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "HOTEL-RESERVATION-APPROVAL-{{id}}"
-              name: "Decide on hotel reservation {{reservation_number}}"
-              description: "Hotel reservation {{reservation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a hotel reservation is ended"
-      description: "When a hotel reservation is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "HOTEL-RESERVATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on hotel reservation {{reservation_number}}"
-              description: "Hotel reservation {{reservation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a hotel reservation is put forward"
+    description: "When a hotel reservation is requested, a task asks someone to decide on it."
+    when: "status == \"REQUESTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "HOTEL-RESERVATION-APPROVAL-{{id}}"
+          name: "Decide on hotel reservation {{reservation_number}}"
+          description: "Hotel reservation {{reservation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a hotel reservation is ended"
+    description: "When a hotel reservation is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "HOTEL-RESERVATION-FOLLOW-UP-{{id}}"
+          name: "Follow up on hotel reservation {{reservation_number}}"
+          description: "Hotel reservation {{reservation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a hospitality transaction called HotelReservation within the CEDM business model.
-    businessMeaning: HotelReservation is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A booking of a hotel room for given dates and guests.
     relationshipContext: The entity participates in a wider business graph through relationships with Hotel, HotelRoom, Party. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Reservation agents and booking channels create reservations with dates and guest count; front-desk staff assign a room, check the guest in and out, and record no-shows.
     lifecycle: A reservation is requested, confirmed as reserved, checked in on arrival and checked out on departure; a request or confirmed reservation may be cancelled, and a confirmed one becomes a no-show when the guest does not arrive.
     example: Reservation RS-88120 at Hotel Lumière, 2 guests, 14–17 June 2024, room 412 assigned, checked in 14 June at 15:20.
+    businessMeaning: Reservations fill the hotel and forecast revenue; check-in, billing and housekeeping follow from them.
 specification:
   version: 0.1.0
   status: draft

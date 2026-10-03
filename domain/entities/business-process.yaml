@@ -145,12 +145,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a process definition entity called BusinessProcess within the CEDM business model.
-    businessMeaning: BusinessProcess is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A documented way the organisation gets something done, such as order to cash or hire to retire, with its steps and owner.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Workflow, Task, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Process owners document the business's processes, their owners and their effective periods; workflows, tasks and documents are linked to the process they belong to; process reviews and audits start from it.
     lifecycle: Drafted while being designed, active while in force, suspended while it is paused, and retired when replaced; only one version of a process is active at a time.
     example: Process P2P-01 'Procure to pay', version 3, owner the procurement director, active from 1 January 2024; workflows for requisition approval and invoice matching.
+    businessMeaning: Naming processes and their owners lets the organisation improve them, automate them with workflows, and show auditors how work is controlled.
 specification:
   version: 0.1.0
   status: draft

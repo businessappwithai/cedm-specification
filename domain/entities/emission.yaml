@@ -142,12 +142,12 @@ entity:
     rule: quantity must be zero or greater.
   - {id: EMISSION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
-    summary: Represents a sustainability entity called Emission within the CEDM business model.
-    businessMeaning: Emission is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A quantity of greenhouse gas or pollutant released by an activity, measured or calculated for a period.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Location, Product. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Sustainability teams record emissions from meters, invoices and supplier data, by source and scope; they are summed into the company's carbon inventory and reported to regulators, investors and customers.
     lifecycle: An emission record is entered, then verified; once included in a published report it is not changed, and later corrections are recorded as new adjustments.
     example: 'Scope 1, natural gas boilers, Plant Lyon, March 2024: 18.4 t CO2e, calculated from 92,100 kWh with the national emission factor.'
+    businessMeaning: Emissions must be reported to regulators and investors and reduced against targets; each figure needs a source and a method.
 specification:
   version: 0.1.0
   status: draft

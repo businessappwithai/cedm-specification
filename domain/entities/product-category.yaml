@@ -61,9 +61,9 @@ entity:
     inverse: childCategories
     help:
       summary: The category this one is part of.
-      cardinalityMeaning: A product category has at most one product category in this role.
       usage: Builds the catalogue tree.
       context: No cycles.
+      cardinalityMeaning: At most one parent; top-level categories have none.
   - name: childCategories
     target: ProductCategory
     cardinality: 0..*
@@ -71,9 +71,9 @@ entity:
     inverse: parentCategory
     help:
       summary: Categories within this one.
-      cardinalityMeaning: A product category has any number of product category in this role.
       usage: Shown under it in the catalogue tree.
       context: Each child has this category as its parent.
+      cardinalityMeaning: Any number of categories may sit under this one.
   - name: products
     target: Product
     cardinality: 0..*
@@ -81,6 +81,8 @@ entity:
     help:
       summary: Products classified directly under this category.
       workflowRole: Category changes must identify affected Products before becoming effective.
+      cardinalityMeaning: Any number of products; a product is in at most one category.
+      usage: Listed when browsing the category.
   invariants:
   - {id: PRODUCT-CATEGORY-001, rule: A category cannot reference itself as its parent.}
   - {id: PRODUCT-CATEGORY-002, rule: The parentCategory hierarchy must be acyclic.}

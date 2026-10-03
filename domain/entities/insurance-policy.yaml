@@ -156,12 +156,12 @@ entity:
           status: "CREATED"
           priority: "NORMAL"
   help:
-    summary: Represents an insurance entity called InsurancePolicy within the CEDM business model.
-    businessMeaning: InsurancePolicy is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: An insurance contract that covers stated risks for a period in return for a premium.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Contract, InsuranceClaim. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Underwriters quote and issue policies with their coverage period and premium; policy administrators suspend, renew or cancel them; claims handlers check coverage against them.
     lifecycle: A policy is quoted, then active once accepted; it may be suspended and reinstated, ends by expiring at the end of its term, or is cancelled.
     example: Policy HOME-778812, home insurance by Allianz for Marco Bianchi, 1 January–31 December 2024, premium 640 EUR a year, active.
+    businessMeaning: Policies define what the insurer must pay and what premium it earns; claims are checked against them.
 specification:
   version: 0.1.0
   status: draft

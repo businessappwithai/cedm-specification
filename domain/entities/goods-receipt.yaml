@@ -51,12 +51,22 @@ entity:
     target: PurchaseOrder
     cardinality: '1'
     ownership: reference
-    help: {summary: Procurement commitment fulfilled by this receipt., businessMeaning: Connects received goods to what was ordered., usage: "Receiving, fulfillment, matching and supplier return eligibility.", workflowRole: Supplies original procurement context.}
+    help:
+      summary: Procurement commitment fulfilled by this receipt.
+      businessMeaning: Connects received goods to what was ordered.
+      usage: "Receiving, fulfillment, matching and supplier return eligibility."
+      workflowRole: Supplies original procurement context.
+      cardinalityMeaning: Each receipt is against one purchase order; an order may arrive in several receipts.
   - name: supplier
     target: Supplier
     cardinality: '1'
     ownership: reference
-    help: {summary: Supplier that delivered the receipt., businessMeaning: Identifies the commercial party responsible for the delivery., usage: "Receiving, procurement, audit and supplier return processing.", workflowRole: Supplies supplier context for subsequent returns.}
+    help:
+      summary: Supplier that delivered the receipt.
+      businessMeaning: Identifies the commercial party responsible for the delivery.
+      usage: "Receiving, procurement, audit and supplier return processing."
+      workflowRole: Supplies supplier context for subsequent returns.
+      cardinalityMeaning: Each receipt is from one supplier.
   - name: lines
     target: GoodsReceiptLine
     cardinality: 1..*
@@ -66,13 +76,23 @@ entity:
     target: InventoryMovement
     cardinality: 0..*
     ownership: reference
-    help: {summary: Inventory events created from accepted receipt quantities., businessMeaning: Records physical stock consequences of the receipt separately from receipt evidence., usage: Inventory audit and reconciliation., workflowRole: Accepted quantities create attributable receipt movements.}
+    help:
+      summary: Inventory events created from accepted receipt quantities.
+      businessMeaning: Records physical stock consequences of the receipt separately from receipt evidence.
+      usage: Inventory audit and reconciliation.
+      workflowRole: Accepted quantities create attributable receipt movements.
+      cardinalityMeaning: Any number of stock movements.
     inverseCardinality: '1'
   - name: invoices
     target: Invoice
     cardinality: 0..*
     ownership: reference
-    help: {summary: Purchase invoices matched to accepted receipt evidence., businessMeaning: Connects fulfillment to supplier financial claims., usage: Three-way matching and accounts payable., workflowRole: Supplies receipt evidence for InvoiceLine matching.}
+    help:
+      summary: Purchase invoices matched to accepted receipt evidence.
+      businessMeaning: Connects fulfillment to supplier financial claims.
+      usage: Three-way matching and accounts payable.
+      workflowRole: Supplies receipt evidence for InvoiceLine matching.
+      cardinalityMeaning: Any number of invoices matched to the receipt.
   - name: supplierReturns
     target: SupplierReturn
     cardinality: 0..*

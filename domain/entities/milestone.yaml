@@ -98,31 +98,31 @@ entity:
     - {from: PLANNED, to: CANCELLED, action: cancel}
     - {from: AT_RISK, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a milestone is ended"
-      description: "When a milestone is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "MILESTONE-FOLLOW-UP-{{id}}"
-              name: "Follow up on milestone {{name}}"
-              description: "Milestone {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a milestone is ended"
+    description: "When a milestone is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "MILESTONE-FOLLOW-UP-{{id}}"
+          name: "Follow up on milestone {{name}}"
+          description: "Milestone {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
-    summary: Represents a project management entity called Milestone within the CEDM business model.
-    businessMeaning: Milestone is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A checkpoint in a project with a target date, such as go-live.
     relationshipContext: The entity participates in a wider business graph through relationships with Project, ProjectTask. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Project managers set milestones with target dates, link the tasks that lead to them, flag those at risk, and report which were achieved or missed to sponsors.
     lifecycle: A milestone is planned, flagged at risk when its date is threatened and back to planned when recovered, and ends achieved, missed, or cancelled.
     example: Milestone M3 'Go-live of the new warehouse system', project WMS-2024, target 30 September 2024, at risk.
+    businessMeaning: Milestones show sponsors whether a project is on track and often trigger payments.
 specification:
   version: 0.1.0
   status: draft

@@ -196,4 +196,5 @@ entity:
     usage: Receiving, cross-dock exceptions, replenishment and storage optimization.
     relationshipContext: InventoryLocation/Zone define eligibility; HandlingUnit supports physical execution.
     lifecycle: Planned → released → in progress → completed, cancelled or exception.
+    example: "Put-away PA-24-6612: 40 units of 'Cordless drill X200' from receiving dock to bin A-04-02, completed 18 May 2024 11:05."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PUTAWAY}

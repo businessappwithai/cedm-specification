@@ -129,12 +129,12 @@ entity:
     - {from: QUALIFYING, to: LOST, action: mark_lost}
     - {from: QUALIFIED, to: LOST, action: mark_lost}
   help:
-    summary: Represents a crm entity called Lead within the CEDM business model.
-    businessMeaning: Lead is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A possible customer who has shown interest but has not yet been qualified.
     relationshipContext: The entity participates in a wider business graph through relationships with Party, Customer, Party, Opportunity. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Marketing and sales staff capture leads from campaigns, events and enquiries, qualify them, and convert qualified leads into opportunities or drop them.
     lifecycle: A lead is new until someone works on it, qualifying while contact is made, then qualified or disqualified; a qualified lead is converted into an opportunity or lost.
     example: Lead LD-2024-1188 from the Hannover trade fair, Bauer GmbH, estimated value 45,000 EUR, owner Lisa Weber, qualified and converted to opportunity OP-3301.
+    businessMeaning: Leads feed the sales pipeline; working them quickly and measuring where they come from decides marketing spend.
   invariants:
   - {id: LEAD-001, rule: A converted lead names its opportunity., violatedWhen: status == "CONVERTED" and opportunity_id == null, message: Link the opportunity before marking the lead converted.}
 specification:

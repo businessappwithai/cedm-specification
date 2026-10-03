@@ -61,9 +61,36 @@ entity:
     immutable: true
     help: {summary: Prior application being reversed., businessMeaning: Provides explicit lineage for a corrective reversal., usage: "Audit, reconciliation and error correction.", relationshipContext: Reversal is a new event and does not mutate the original application., workflowRole: Links compensating evidence to the prior application., optionalMeaning: Required when status is REVERSED under the reversal model.}
   relationships:
-  - {name: supplierDebitNote, target: SupplierDebitNote, cardinality: '1', ownership: reference, help: {summary: Posted supplier debit being applied., businessMeaning: Identifies the source financial adjustment., usage: Remaining-balance and audit reconciliation., workflowRole: Supplies available debit amount and supplier context.}}
-  - {name: invoice, target: Invoice, cardinality: "1", ownership: reference, help: {summary: Supplier payable invoice receiving the debit application., businessMeaning: Identifies the eligible original payable claim whose outstanding exposure is reduced., usage: "Accounts payable, reconciliation and supplier statements.", workflowRole: Supplies target claim and currency context.}}
-  - {name: exchangeRate, target: ExchangeRate, cardinality: 0..1, ownership: reference, help: {summary: Exchange-rate evidence for cross-currency application., businessMeaning: Supports reproducible conversion between source debit and target invoice currencies., usage: Accounting and audit., workflowRole: Qualifies invoiceAmount when currencies differ.}}
+  - name: supplierDebitNote
+    target: SupplierDebitNote
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: Posted supplier debit being applied.
+      businessMeaning: Identifies the source financial adjustment.
+      usage: Remaining-balance and audit reconciliation.
+      workflowRole: Supplies available debit amount and supplier context.
+      cardinalityMeaning: Each application uses one debit note; a debit note may be applied to several invoices.
+  - name: invoice
+    target: Invoice
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: Supplier payable invoice receiving the debit application.
+      businessMeaning: Identifies the eligible original payable claim whose outstanding exposure is reduced.
+      usage: "Accounts payable, reconciliation and supplier statements."
+      workflowRole: Supplies target claim and currency context.
+      cardinalityMeaning: Each application reduces one invoice.
+  - name: exchangeRate
+    target: ExchangeRate
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Exchange-rate evidence for cross-currency application.
+      businessMeaning: Supports reproducible conversion between source debit and target invoice currencies.
+      usage: Accounting and audit.
+      workflowRole: Qualifies invoiceAmount when currencies differ.
+      cardinalityMeaning: At most one exchange rate, when currencies differ.
   invariants:
   - {id: SUPPLIER-DEBIT-APPLICATION-001, rule: supplierDebitAmount and invoiceAmount must be greater than zero.}
   - {id: SUPPLIER-DEBIT-APPLICATION-002, rule: Source SupplierDebitNote must be POSTED and must have sufficient unapplied amount for the active application.}

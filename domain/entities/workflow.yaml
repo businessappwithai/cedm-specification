@@ -141,12 +141,12 @@ entity:
     - {from: ACTIVE, to: RETIRED, action: retire}
     - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a process definition entity called Workflow within the CEDM business model.
-    businessMeaning: Workflow is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A definition of the steps, decisions and tasks that carry out a business process.
     relationshipContext: The entity participates in a wider business graph through relationships with BusinessProcess, Task. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Process owners define workflows that coordinate people and systems through the steps of a business process; the workflow engine runs them and creates tasks; administrators activate, suspend and retire versions.
     lifecycle: A workflow is drafted, activated once its definition is valid, may be suspended and resumed, and is retired when replaced by a new version or no longer needed.
     example: Workflow INV-APPROVAL 'Supplier invoice approval', definition version 2.1, hybrid, BPMN, active.
+    businessMeaning: Workflows automate and enforce how work is done; versions must be controlled because running instances depend on them.
 specification:
   version: 0.1.0
   status: draft

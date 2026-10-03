@@ -132,12 +132,12 @@ entity:
     - {from: ACTIVE, to: DECOMMISSIONED, action: mark_decommissioned}
     - {from: MAINTENANCE, to: DECOMMISSIONED, action: mark_decommissioned}
   help:
-    summary: Represents an energy entity called EnergyAsset within the CEDM business model.
-    businessMeaning: EnergyAsset is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A plant or piece of equipment that produces, stores, carries or uses energy, such as a turbine or a battery.
     relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization, MaintenanceWorkOrder. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Energy companies and large consumers register their generation, storage, network and consuming assets with their capacity; operations follow their availability and output; maintenance is planned against them.
     lifecycle: Planned before commissioning, active while in service, in maintenance during outages, and decommissioned at end of life.
     example: Asset PV-LYO-01, rooftop solar array, 850 kWp, Plant Lyon roof, commissioned June 2022, active.
+    businessMeaning: Energy assets are capital-intensive and regulated; operating, maintaining and reporting on them is the core of an energy business.
 specification:
   version: 0.1.0
   status: draft

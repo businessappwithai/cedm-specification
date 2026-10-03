@@ -204,12 +204,12 @@ entity:
     - {from: IN_PROGRESS, to: FAILED, action: fail}
     - {from: BLOCKED, to: FAILED, action: fail}
   help:
-    summary: Represents a process runtime entity called Task within the CEDM business model.
-    businessMeaning: Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A unit of work for a person or system, often created by a workflow.
     relationshipContext: The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: Workflows and people create tasks for work to be done; assignees pick them up from their work lists, record progress and blockers, and complete them; supervisors watch overdue and failed tasks.
     lifecycle: A task is created, ready when it can be worked, assigned, in progress, and ends completed, cancelled or failed; a task may be blocked at any working stage and resumes where it stopped.
     example: Task APR-INV-5521 'Approve invoice INV-5521', approval, high, assigned to Marta Conti, due 16 May 2024 17:00, in progress.
+    businessMeaning: Tasks make work visible and assignable, and their completion moves processes forward.
 specification:
   version: 0.1.0
   status: draft

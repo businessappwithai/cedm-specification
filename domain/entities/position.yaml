@@ -120,12 +120,12 @@ entity:
     - {from: OPEN, to: RETIRED, action: retire}
     - {from: FROZEN, to: RETIRED, action: retire}
   help:
-    summary: Represents a workforce master entity called Position within the CEDM business model.
-    businessMeaning: Position is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
+    summary: A post in the organisation chart, such as 'Accounts payable specialist', that one or more people fill.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Position, Employee. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
     usage: HR and managers define the positions of the organisation chart, with their reporting line and job; recruiters open vacancies for them and fill them with employees; finance plans headcount by position.
     lifecycle: A position is open while vacant, filled when someone holds it and open again when they leave; a vacancy can be frozen and released; the position is closed when no longer needed.
     example: Position FIN-AP-02 'Accounts payable specialist', Finance Lyon, reports to FIN-AP-01, job 'Accountant II', filled by Claire Martin.
+    businessMeaning: Positions define the organisation's structure, headcount budget and reporting lines, independent of who holds them.
 specification:
   version: 0.1.0
   status: draft
