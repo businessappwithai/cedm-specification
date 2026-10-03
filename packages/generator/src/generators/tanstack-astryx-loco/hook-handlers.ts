@@ -337,17 +337,29 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
       })
       .filter((e): e is { entity: string; forEvent: CompiledHook[] } => e !== null);
 
+    const handlerPath = (entity: string, hook: CompiledHook): string =>
+      `handlers::${handlerModule(entity)}::${snakeCase(hook.handler)}`;
+
     const callsFor = (entity: string, forEvent: CompiledHook[], indent: string): string =>
       forEvent
-        .map((hook) => {
-          const path = `handlers::${handlerModule(entity)}::${snakeCase(hook.handler)}`;
-          return contract.returns === "bool"
-            ? `${indent}if !${path}(${contract.call}).await? {\n` +
-                `${indent}    return Ok(false);\n` +
-                `${indent}}\n`
-            : `${indent}${path}(${contract.call}).await?;\n`;
-        })
+        .map((hook) => `${indent}${handlerPath(entity, hook)}(${contract.call}).await?;\n`)
         .join("");
+
+    // A guard event (`beforeDelete`) answers with a verdict rather than running
+    // for its side effects, so each entity's handlers become one expression:
+    // the single handler's own result, or every handler's verdict joined with
+    // `&&`, which stops at the first refusal exactly as an early return would.
+    // An expression rather than `if !h(..).await? { return Ok(false); }` is not
+    // a matter of taste: an arm or an `if` whose whole body is that `if` is what
+    // clippy's `collapsible_match` and `collapsible_if` reject under
+    // `-D warnings`, so how many entities guard a delete would decide whether
+    // the crate builds.
+    const verdictFor = (entity: string, forEvent: CompiledHook[]): string => {
+      const calls = forEvent.map((hook) => `${handlerPath(entity, hook)}(${contract.call}).await`);
+      return calls.length === 1
+        ? (calls[0] as string)
+        : `Ok(${calls.map((c) => `${c}?`).join(" && ")})`;
+    };
 
     const ok = contract.returns === "bool" ? "Ok(true)" : "Ok(())";
 
@@ -370,9 +382,23 @@ export function buildHookRegistry(hooks: CompiledHook[]): string {
       const only = declaring[0] as { entity: string; forEvent: CompiledHook[] };
       out +=
         `    if key(entity) == "${key(only.entity)}" {\n` +
-        callsFor(only.entity, only.forEvent, "        ") +
+        (contract.returns === "bool"
+          ? `        return ${verdictFor(only.entity, only.forEvent)};\n`
+          : callsFor(only.entity, only.forEvent, "        ")) +
         `    }\n` +
         `    ${ok}\n` +
+        `}\n`;
+    } else if (contract.returns === "bool") {
+      out +=
+        `    match key(entity).as_str() {\n` +
+        declaring
+          .map(
+            ({ entity, forEvent }) =>
+              `        "${key(entity)}" => ${verdictFor(entity, forEvent)},\n`
+          )
+          .join("") +
+        `        _ => ${ok},\n` +
+        `    }\n` +
         `}\n`;
     } else {
       out +=

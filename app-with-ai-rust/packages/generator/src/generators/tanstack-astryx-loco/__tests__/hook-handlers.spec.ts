@@ -141,10 +141,35 @@ describe("buildHookRegistry", () => {
     expect(registry).toContain("_ => {}");
   });
 
-  it("short-circuits `beforeDelete`, so one refusal blocks the delete", () => {
+  it("answers `beforeDelete` with the handler's own verdict", () => {
+    // No nested `if` for clippy's `collapsible_if` to reject.
     const registry = buildHookRegistry([hook("Compound", "beforeDelete", "blockIfReferenced", 0)]);
-    expect(registry).toContain("if !handlers::compound::block_if_referenced(id).await? {");
-    expect(registry).toContain("return Ok(false);");
+    expect(registry).toContain(
+      "        return handlers::compound::block_if_referenced(id).await;\n"
+    );
+    expect(registry).not.toContain("return Ok(false);");
+  });
+
+  it("stops `beforeDelete` at the first refusal, in declaration order", () => {
+    const registry = buildHookRegistry([
+      hook("Compound", "beforeDelete", "first", 0),
+      hook("Compound", "beforeDelete", "second", 1),
+    ]);
+    expect(registry).toContain(
+      "return Ok(handlers::compound::first(id).await? && handlers::compound::second(id).await?);"
+    );
+  });
+
+  it("makes each `beforeDelete` arm one expression, so `collapsible_match` has nothing to collapse", () => {
+    const registry = buildHookRegistry([
+      hook("Account", "beforeDelete", "keepOpen", 0),
+      hook("SupportCase", "beforeDelete", "keepOpenCase", 0),
+    ]);
+    expect(registry).toContain('        "account" => handlers::account::keep_open(id).await,\n');
+    expect(registry).toContain(
+      '        "supportcase" => handlers::support_case::keep_open_case(id).await,\n'
+    );
+    expect(registry).toContain("        _ => Ok(true),\n    }\n}\n");
   });
 
   it("normalises the entity spelling the caller used", () => {
