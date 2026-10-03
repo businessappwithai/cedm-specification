@@ -2,23 +2,205 @@ entity:
   name: ForeignExchangeTransaction
   namespace: cedm.domain
   kind: treasury_transaction
-  description: A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties.
+  description: A deal to exchange one currency for another — spot, forward or swap — with the amounts, the agreed rate, the trade and settlement dates and the bank on the other side.
   ui:
-    icon: file-text
+    icon: arrow-left-right
+    recordLabel: [dealNumber]
   identity: {key: foreignExchangeTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: foreignExchangeTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ForeignExchangeTransaction., businessMeaning: Identifies one governed ForeignExchangeTransaction record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
-  relationships: []
+  - name: dealNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: Our reference for the deal.
+      usage: Assigned when the deal is recorded; matched with the bank's confirmation.
+      relationshipContext: Unique.
+  - name: dealType
+    type: enum
+    required: true
+    default: SPOT
+    values: [SPOT, FORWARD, SWAP]
+    help:
+      summary: What kind of exchange deal it is.
+      usage: Chosen when recording; it decides how the deal is valued before settlement.
+      relationshipContext: Forwards and swaps are valued at each period end.
+      valueSemantics:
+        SPOT: Settled within the normal spot period, usually two business days.
+        FORWARD: Settled on an agreed later date at a rate fixed now.
+        SWAP: One leg of a pair of opposite deals for different dates.
+  - name: soldAmount
+    type: Money
+    required: true
+    help:
+      summary: The amount of the currency the company sells.
+      usage: Agreed in the deal; paid out on the value date.
+      relationshipContext: In the sold currency.
+  - name: boughtAmount
+    type: Money
+    required: true
+    help:
+      summary: The amount of the currency the company buys.
+      usage: Agreed in the deal; received on the value date.
+      relationshipContext: In the bought currency; equals the sold amount times the rate.
+  - name: exchangeRate
+    type: decimal
+    required: true
+    precision: 18
+    scale: 8
+    help:
+      summary: The agreed rate, as units of the bought currency per unit of the sold currency.
+      usage: Agreed when dealing; checked against the bank's confirmation.
+      relationshipContext: The quoting direction is fixed so that amounts reconcile.
+  - name: tradeDate
+    type: date
+    required: true
+    help:
+      summary: The day the deal was struck.
+      usage: Recorded when dealing.
+      relationshipContext: Not later than the value date.
+  - name: valueDate
+    type: date
+    required: true
+    help:
+      summary: The day the currencies are exchanged.
+      usage: Agreed in the deal; cash is moved on this day.
+      relationshipContext: Business days of both currencies apply.
+  - name: swapReference
+    type: string
+    required: false
+    maxLength: 40
+    help:
+      summary: The reference shared by the two legs of a swap.
+      usage: Set on both legs so they can be read together.
+      relationshipContext: Empty for spot and forward deals.
+  - name: purpose
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the deal was made, such as "pay supplier invoice batch 23" or "hedge Q3 USD receipts".
+      usage: Recorded for hedge documentation and later review.
+      relationshipContext: Hedge accounting requires it.
+  - name: confirmedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the bank's confirmation was matched with the deal.
+      usage: Recorded by the back office.
+      relationshipContext: An unconfirmed deal near its value date is chased.
+  - name: settledAt
+    type: datetime
+    required: false
+    help:
+      summary: When both payments of the deal were made.
+      usage: Recorded on settlement.
+      relationshipContext: Present once settled.
+  - name: status
+    type: enum
+    required: true
+    default: DEALT
+    values: [DEALT, CONFIRMED, SETTLED, CANCELLED]
+    help:
+      summary: Where the deal stands.
+      usage: Moved on by confirmation and settlement.
+      relationshipContext: Only unsettled deals count in open positions.
+      valueSemantics:
+        DEALT: Agreed with the bank, not yet confirmed.
+        CONFIRMED: Matched with the bank's confirmation.
+        SETTLED: Both currencies exchanged on the value date.
+        CANCELLED: Cancelled by agreement before settlement.
+  relationships:
+  - name: soldCurrency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency the company sells.
+      usage: Chosen when recording the deal.
+      cardinalityMeaning: One per deal.
+      context: Different from the bought currency.
+  - name: boughtCurrency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency the company buys.
+      usage: Chosen when recording the deal.
+      cardinalityMeaning: One per deal.
+      context: Different from the sold currency.
+  - name: counterparty
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The bank the deal is made with.
+      usage: Chosen when dealing; exposure to it is monitored.
+      cardinalityMeaning: One bank per deal.
+      context: Must be an approved dealing counterparty.
+  - name: payingAccount
+    target: BankAccount
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company account the sold currency is paid from.
+      usage: Chosen for settlement.
+      cardinalityMeaning: One per deal.
+      context: In the sold currency.
+  - name: receivingAccount
+    target: BankAccount
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company account the bought currency is received into.
+      usage: Chosen for settlement.
+      cardinalityMeaning: One per deal.
+      context: In the bought currency.
   invariants:
-  - {id: FOREIGN-EXCHANGE-TRANSACTION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: FOREIGN-EXCHANGE-TRANSACTION-001, rule: A deal is recorded exactly as struck; a correction is a cancellation and a new deal.}
+  - {id: FOREIGN-EXCHANGE-TRANSACTION-002, rule: The value date must not be earlier than the trade date., violatedWhen: value_date != null and trade_date != null and value_date < trade_date, message: The value date is earlier than the trade date.}
+  - {id: FOREIGN-EXCHANGE-TRANSACTION-003, rule: The exchange rate is positive., violatedWhen: exchange_rate != null and exchange_rate <= 0, message: The exchange rate must be greater than zero.}
+  - {id: FOREIGN-EXCHANGE-TRANSACTION-004, rule: A settled deal records when it was settled., violatedWhen: status == "SETTLED" and settled_at == null, message: Record when the deal was settled.}
+  - {id: FOREIGN-EXCHANGE-TRANSACTION-EXE-001, rule: "Sold Amount cannot be negative.", violatedWhen: "sold_amount != null and sold_amount < 0", message: "Sold Amount cannot be negative."}
+  - {id: FOREIGN-EXCHANGE-TRANSACTION-EXE-002, rule: "Bought Amount cannot be negative.", violatedWhen: "bought_amount != null and bought_amount < 0", message: "Bought Amount cannot be negative."}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when a foreign exchange transaction is ended"
+    description: "When a foreign exchange transaction is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FOREIGN-EXCHANGE-TRANSACTION-FOLLOW-UP-{{id}}"
+          name: "Follow up on foreign exchange transaction {{deal_number}}"
+          description: "Foreign exchange transaction {{deal_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  lifecycle:
+    title: Foreign Exchange Transaction Lifecycle
+    attribute: status
+    states: [DEALT, CONFIRMED, SETTLED, CANCELLED]
+    initial: DEALT
+    terminal: [SETTLED, CANCELLED]
+    transitions:
+    - {from: DEALT, to: CONFIRMED, action: confirm}
+    - {from: CONFIRMED, to: SETTLED, action: settle}
+    - {from: DEALT, to: CANCELLED, action: cancel}
+    - {from: CONFIRMED, to: CANCELLED, action: cancel}
   help:
-    summary: A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties.
-    purpose: Provide canonical enterprise semantics for ForeignExchangeTransaction.
-    businessMeaning: A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: One currency exchange deal with a bank, what was bought and sold, at what rate, settling when.
+    businessMeaning: Companies trading abroad buy and sell currencies to pay suppliers, convert receipts and hedge exposures. Each deal fixes amounts and a rate with a counterparty bank for a settlement date, so treasury must record it exactly as dealt, confirm it with the bank, settle it through the right accounts, and value open forwards.
+    usage: Treasury records deals as they are struck, matches them with the bank's confirmation, settles them on the value date through the company's bank accounts, and reports open positions and their market value. Accounting posts the settlement and any realised exchange difference.
+    relationshipContext: A deal sells one Currency and buys another, with a counterparty bank (an Organization), and settles through the company's BankAccounts in each currency. A swap's two legs are recorded as two deals sharing a swap reference.
+    lifecycle: Dealt, then confirmed against the bank's confirmation, then settled on the value date. A deal may be cancelled before settlement by agreement with the bank.
+    workflowContext: Exposure management decides hedges; dealing records deals; back-office confirmation matching protects against errors; settlement moves the cash; period-end valuation measures open forwards.
+    example: 'Deal FX-24-0412, forward: sell 1,000,000 USD, buy 921,400 EUR at 0.92140, traded 5 March, value 5 June, with Bank B; confirmed 5 March; settled 5 June through accounts USD-01 and EUR-OP-01.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FOREIGN-EXCHANGE-TRANSACTION}

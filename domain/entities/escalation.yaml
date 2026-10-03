@@ -2,57 +2,188 @@ entity:
   name: Escalation
   namespace: cedm.domain
   kind: workflow_control_event
-  description: A governed workflow event raising overdue, breached, exceptional, or unresolved work to another responsibility or control level.
+  description: The raising of a stalled, overdue or serious matter — an incident, a service request, a task — to a higher level of responsibility, with why it was raised, to whom, and how it ended.
   ui:
-    icon: activity
+    icon: arrow-up-circle
+    recordLabel: [escalationNumber]
   identity: {key: escalationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Escalation., businessMeaning: Identifies one governed Escalation record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of Escalation., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: OPEN
+    values: [OPEN, ACKNOWLEDGED, RESOLVED, ESCALATED_FURTHER, WITHDRAWN]
+    help:
+      summary: Where the escalation stands.
+      usage: Moved on by the person escalated to.
+      relationshipContext: An open escalation past its target is escalated again.
+      valueSemantics:
+        OPEN: Raised and waiting for the person escalated to.
+        ACKNOWLEDGED: Taken on by the person escalated to.
+        RESOLVED: The matter is back on track.
+        ESCALATED_FURTHER: Passed to the next level; a new escalation is raised there.
+        WITHDRAWN: Raised in error and withdrawn.
+  - name: escalationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the escalation.
+      usage: Assigned when it is raised.
+      relationshipContext: Unique.
+  - name: level
+    type: integer
+    required: true
+    default: 1
+    help:
+      summary: How far up the matter has been raised — 1 for the first escalation, higher for further ones.
+      usage: Set by the escalation rule or by whoever raises it.
+      relationshipContext: Each further escalation of the same matter has a higher level.
+  - name: reason
+    type: enum
+    required: true
+    default: SLA_BREACH
+    values: [SLA_BREACH, DUE_DATE_PASSED, CUSTOMER_REQUEST, SEVERITY, BLOCKED]
+    help:
+      summary: Why the matter was escalated.
+      usage: Chosen when raising; escalation analysis groups by it.
+      relationshipContext: Read with the description.
+      valueSemantics:
+        SLA_BREACH: A response or resolution target was missed.
+        DUE_DATE_PASSED: A due date passed without the work being done.
+        CUSTOMER_REQUEST: The customer asked for the matter to be escalated.
+        SEVERITY: The matter is serious enough to need senior attention at once.
+        BLOCKED: The handler cannot proceed without a decision from higher up.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the problem is and what is needed from the person escalated to.
+      usage: Written when raising, so the receiver can act without asking.
+      relationshipContext: Free text.
+  - name: raisedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the escalation was raised.
+      usage: Set when it is raised; the time to acknowledge is measured from it.
+      relationshipContext: Precedes the acknowledgement.
+  - name: acknowledgedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the person escalated to took the matter on.
+      usage: Recorded on acknowledgement.
+      relationshipContext: Present once acknowledged.
+  - name: resolvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the escalation was resolved.
+      usage: Recorded with the resolution.
+      relationshipContext: Present once resolved.
+  - name: resolution
+    type: text
+    required: false
+    help:
+      summary: What was done to get the matter back on track.
+      usage: Written when resolving; read in reviews of recurring escalations.
+      relationshipContext: Required to resolve.
+  - name: recordType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The kind of matter escalated when it is neither an incident, a service request nor a task.
+      usage: Given with the record reference for other matters.
+      relationshipContext: Empty when the matter is linked directly.
+  - name: recordReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The reference of the matter escalated when it is of another kind.
+      usage: Lets the receiver open the matter.
+      relationshipContext: Read with the record type.
+  relationships:
+  - name: incident
+    target: Incident
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The incident escalated.
+      usage: Linked when the matter is an incident.
+      cardinalityMeaning: At most one incident per escalation.
+      context: The incident shows its escalations.
+  - name: serviceRequest
+    target: ServiceRequest
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The service request escalated.
+      usage: Linked when the matter is a service request.
+      cardinalityMeaning: At most one per escalation.
+      context: The request shows its escalations.
+  - name: task
+    target: Task
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The task escalated.
+      usage: Linked when the matter is a task.
+      cardinalityMeaning: At most one per escalation.
+      context: The task shows its escalations.
+  - name: serviceLevelAgreement
+    target: ServiceLevelAgreement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The service-level agreement whose target was missed.
+      usage: Linked for service-level breaches.
+      cardinalityMeaning: At most one per escalation.
+      context: Breach reports count escalations per agreement.
+  - name: raisedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who raised the escalation; empty when it was raised automatically.
+      usage: Recorded when raised.
+      cardinalityMeaning: One per escalation.
+      context: Usually the handler or the customer's contact.
+  - name: escalatedTo
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person the matter was escalated to.
+      usage: Chosen by the escalation rule or by whoever raises it.
+      cardinalityMeaning: One per escalation.
+      context: Must have authority above the matter's handler.
   invariants:
-  - {id: ESCALATION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  - {id: ESCALATION-001, rule: A resolved escalation records when and how it was resolved., violatedWhen: status == "RESOLVED" and (resolved_at == null or resolution == null), message: Record when and how the escalation was resolved.}
+  - {id: ESCALATION-002, rule: The level is at least 1., violatedWhen: level != null and level < 1, message: The escalation level must be 1 or more.}
   lifecycle:
     title: Escalation Lifecycle
     attribute: status
-    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    initial: PENDING
-    terminal: [COMPLETED, CANCELLED]
+    states: [OPEN, ACKNOWLEDGED, RESOLVED, ESCALATED_FURTHER, WITHDRAWN]
+    initial: OPEN
+    terminal: [RESOLVED, ESCALATED_FURTHER, WITHDRAWN]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when an escalation is ended"
-      description: "When an escalation is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ESCALATION-FOLLOW-UP-{{id}}"
-              name: "Follow up on escalation {{id}}"
-              description: "Escalation {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: OPEN, to: ACKNOWLEDGED, action: acknowledge}
+    - {from: ACKNOWLEDGED, to: RESOLVED, action: resolve}
+    - {from: OPEN, to: RESOLVED, action: resolve}
+    - {from: OPEN, to: ESCALATED_FURTHER, action: escalate}
+    - {from: ACKNOWLEDGED, to: ESCALATED_FURTHER, action: escalate}
+    - {from: OPEN, to: WITHDRAWN, action: withdraw}
   help:
-    summary: A governed workflow event raising overdue, breached, exceptional, or unresolved work to another responsibility or control level.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed workflow event raising overdue, breached, exceptional, or unresolved work to another responsibility or control level.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: A matter passed up to someone with more authority because it was late, stuck or serious.
+    businessMeaning: Service commitments and controls are only as good as what happens when they slip. An escalation records that a matter was raised beyond its normal handler, why, to whom and when, and what that person did, so that breaches are acted on and patterns of escalation can be analysed.
+    usage: Raised automatically when a service level or due date is breached, or by a person who needs help. The person escalated to acknowledges it, acts, and records the resolution; managers review escalations to find recurring causes.
+    relationshipContext: An escalation concerns an Incident, a ServiceRequest or a Task, and may cite the ServiceLevelAgreement that was breached. It names who raised it and who it was raised to; a matter may be escalated several times, to higher levels each time.
+    lifecycle: Open when raised, acknowledged when the person escalated to takes it on, and resolved when the matter is back on track. It may be withdrawn if raised in error, or escalated again to the next level.
+    workflowContext: Service-level monitoring raises escalations; incident and request management resolve them; problem management studies them.
+    example: 'Escalation ESC-2024-0377: service request SR-88213 breached its 8-hour resolution target; raised to level 2, the service desk team lead, at 17:05; acknowledged 17:20; resolved 19:40 by assigning a specialist.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ESCALATION}

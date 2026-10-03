@@ -33,6 +33,7 @@ key this tool does not touch stay as they were.
 """
 from __future__ import annotations
 
+import json
 import pathlib
 import re
 import sys
@@ -163,7 +164,7 @@ def apply(name: str, entry: dict, path: pathlib.Path, stamped: dict[str, set[str
             continue
         attr_name = key.lstrip("+")
         # Re-running a batch updates what an earlier run added.
-        new = key.startswith("+") and attr_name not in by_name
+        new = attr_name not in by_name and (key.startswith("+") or bool(spec.get("t")))
         where = f"{name}.{attr_name}"
         if attr_name in MANAGED:
             raise SystemExit(f"{where}: managed column; every table already has it")
@@ -219,7 +220,7 @@ def apply(name: str, entry: dict, path: pathlib.Path, stamped: dict[str, set[str
                 relationships.remove(rel_by_name.pop(gone))
             continue
         rel_name = key.lstrip("+")
-        new = key.startswith("+") and rel_name not in rel_by_name
+        new = rel_name not in rel_by_name and (key.startswith("+") or bool(spec.get("t")))
         where = f"{name}.@{rel_name}"
         authored = {RELATIONSHIP_KEYS[k]: v for k, v in spec.items() if k in RELATIONSHIP_KEYS}
         if new:
@@ -315,6 +316,26 @@ def apply(name: str, entry: dict, path: pathlib.Path, stamped: dict[str, set[str
     return buffer.getvalue()
 
 
+PROSE = re.compile(r"^(\s*(?:- )?[A-Za-z0-9_+\-]+): (.+)$")
+
+
+def lenient(text: str) -> str:
+    """Quote prose values, so a colon or a `#` inside a sentence does not break YAML.
+
+    A value that opens with a YAML structure (`{`, `[`, a quote, `|`, `>`) is
+    left alone; anything else on a `key: value` line is taken as a sentence.
+    """
+    out = []
+    for line in text.split("\n"):
+        m = PROSE.match(line)
+        if m and not m.group(2).lstrip().startswith(("{", "[", '"', "'", "|", ">", "&", "*", "!")):
+            value = m.group(2).rstrip()
+            if ": " in value or " #" in value or value.endswith(":"):
+                line = f"{m.group(1)}: {json.dumps(value, ensure_ascii=False)}"
+        out.append(line)
+    return "\n".join(out)
+
+
 def plain(value):
     """ruamel's containers as plain dicts and lists, for comparison."""
     if isinstance(value, dict):
@@ -352,7 +373,7 @@ def main() -> int:
     stamped = stamped_by_path()
     changed = 0
     for source in args:
-        authored = pyyaml.safe_load(pathlib.Path(source).read_text()) or {}
+        authored = pyyaml.safe_load(lenient(pathlib.Path(source).read_text())) or {}
         split = split_text(authored)
         if split:
             raise SystemExit(f"{source}: text cut at a comma by a flow mapping at {split[0]}; quote it or write the map as a block")

@@ -2,23 +2,170 @@ entity:
   name: ComplianceRequirement
   namespace: cedm.domain
   kind: governance_requirement
-  description: A governed legal, regulatory, contractual, policy, or standards requirement against which enterprise controls and evidence are assessed.
+  description: An obligation the business must meet — a clause of a law, regulation, standard, contract or internal policy — stated precisely enough that controls can be mapped to it and evidence assessed against it.
   ui:
-    icon: table
+    icon: scale
+    recordLabel: [reference, title]
   identity: {key: complianceRequirementId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: complianceRequirementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ComplianceRequirement., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
-  relationships: []
+  - name: reference
+    type: string
+    required: true
+    unique: true
+    maxLength: 60
+    help:
+      summary: The citation of the requirement within its source, such as "GDPR Art. 30(1)" or "ISO 27001 A.5.15".
+      usage: Entered when the requirement is recorded; controls and audit findings quote it.
+      relationshipContext: Unique across requirements, so the source is part of it.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: A short statement of what the requirement is about.
+      usage: Shown in compliance registers, such as "Record of processing activities".
+      relationshipContext: Identifies the requirement for people, with the reference.
+  - name: requirementText
+    type: text
+    required: true
+    help:
+      summary: What the requirement demands, in the words of the source or a faithful summary.
+      usage: Read by control owners to design controls that meet it.
+      relationshipContext: The source document remains authoritative.
+  - name: sourceType
+    type: enum
+    required: true
+    default: REGULATION
+    values: [LAW, REGULATION, STANDARD, CONTRACT, INTERNAL_POLICY]
+    help:
+      summary: What kind of source the requirement comes from.
+      usage: Chosen when recording it; regulatory requirements carry legal risk, internal ones do not.
+      relationshipContext: Determines who may waive it — nobody inside the company can waive a law.
+      valueSemantics:
+        LAW: An act of a legislature.
+        REGULATION: A rule made by a regulator or under a law.
+        STANDARD: A voluntary standard the company has adopted or is certified against.
+        CONTRACT: An obligation taken on in a contract with a customer or supplier.
+        INTERNAL_POLICY: A rule the company has set for itself.
+  - name: sourceName
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The name of the law, regulation, standard or contract.
+      usage: Such as "Regulation (EU) 2016/679 (GDPR)".
+      relationshipContext: Several requirements share one source.
+  - name: jurisdiction
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: Where the requirement applies, such as "European Union" or "State of California".
+      usage: Lets the business see which obligations apply to which operations.
+      relationshipContext: Empty for standards and contracts that apply wherever the company operates them.
+  - name: effectiveFrom
+    type: date
+    required: false
+    help:
+      summary: The day the requirement starts to apply.
+      usage: Taken from the source; compliance must be in place by then.
+      relationshipContext: Must not be later than the end date.
+  - name: effectiveTo
+    type: date
+    required: false
+    help:
+      summary: The day the requirement stops applying.
+      usage: Set when the source is repealed or replaced.
+      relationshipContext: Empty while it applies.
+  - name: obligationLevel
+    type: enum
+    required: true
+    default: MANDATORY
+    values: [MANDATORY, RECOMMENDED, OPTIONAL]
+    help:
+      summary: How binding the requirement is.
+      usage: Decides how a gap is treated — a mandatory gap must be remedied, a recommended one may be accepted.
+      relationshipContext: Read with the risk rating.
+      valueSemantics:
+        MANDATORY: Must be met.
+        RECOMMENDED: Expected unless there is a documented reason not to.
+        OPTIONAL: Good practice the business may choose to follow.
+  - name: riskRating
+    type: enum
+    required: false
+    default: MEDIUM
+    values: [LOW, MEDIUM, HIGH, CRITICAL]
+    help:
+      summary: How serious it would be to fail the requirement.
+      usage: Used to prioritize control testing and remediation.
+      relationshipContext: Reflects fines, legal exposure and harm to customers.
+      valueSemantics:
+        LOW: Minor consequences.
+        MEDIUM: Noticeable penalties or harm.
+        HIGH: Heavy penalties, legal action or serious harm.
+        CRITICAL: Could stop the business or cause severe harm.
+  - name: status
+    type: enum
+    required: true
+    default: IDENTIFIED
+    values: [IDENTIFIED, ACTIVE, NOT_APPLICABLE, RETIRED]
+    help:
+      summary: Whether the requirement currently applies to the business.
+      usage: Moved on by the compliance team after assessment.
+      relationshipContext: Only active requirements need working controls.
+      valueSemantics:
+        IDENTIFIED: Recorded and being assessed for applicability.
+        ACTIVE: Applies to the business and must be met.
+        NOT_APPLICABLE: Assessed as not applying, with the reason recorded.
+        RETIRED: No longer applies because the source was repealed or replaced.
+  - name: applicabilityNote
+    type: text
+    required: false
+    help:
+      summary: Why the requirement does or does not apply, and to which parts of the business.
+      usage: Written after the applicability assessment; required when marking it not applicable.
+      relationshipContext: Regulators may ask for this reasoning.
+  relationships:
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person accountable for meeting the requirement.
+      usage: Assigned when it becomes active; receives assessment results and gaps.
+      cardinalityMeaning: One owner per requirement.
+      context: Usually the head of the function the requirement affects.
+  - name: policy
+    target: Policy
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The internal policy that restates the requirement for staff.
+      usage: Linked when a policy implements the requirement.
+      cardinalityMeaning: At most one policy per requirement.
+      context: The policy is how the requirement reaches the people who must follow it.
   invariants:
-  - {id: COMPLIANCE-REQUIREMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: COMPLIANCE-REQUIREMENT-001, rule: The end of applicability must not be earlier than its start., violatedWhen: effective_to != null and effective_from != null and effective_to < effective_from, message: The effective-to date is earlier than the effective-from date.}
+  - {id: COMPLIANCE-REQUIREMENT-002, rule: A requirement marked not applicable records why., violatedWhen: status == "NOT_APPLICABLE" and applicability_note == null, message: Explain why the requirement does not apply.}
+  lifecycle:
+    title: Compliance Requirement Lifecycle
+    attribute: status
+    states: [IDENTIFIED, ACTIVE, NOT_APPLICABLE, RETIRED]
+    initial: IDENTIFIED
+    terminal: [RETIRED]
+    transitions:
+    - {from: IDENTIFIED, to: ACTIVE, action: activate}
+    - {from: IDENTIFIED, to: NOT_APPLICABLE, action: mark_not_applicable}
+    - {from: NOT_APPLICABLE, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: NOT_APPLICABLE, to: RETIRED, action: retire}
   help:
-    summary: A governed legal, regulatory, contractual, policy, or standards requirement against which enterprise controls and evidence are assessed.
-    purpose: Provide durable, implementation-neutral governance semantics for ComplianceRequirement.
-    businessMeaning: A governed legal, regulatory, contractual, policy, or standards requirement against which enterprise controls and evidence are assessed.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: One obligation the business has to comply with, and where it comes from.
+    businessMeaning: Compliance is proven requirement by requirement. Breaking a regulation or standard into individual requirements — with their source, what they demand, who owns them and when they apply — is what lets the business map controls to each one, test them, and show a regulator or certifier that nothing is left uncovered.
+    usage: Compliance teams record requirements when a new law or standard applies, assign an owner, and map controls to them. Assessments and audits record whether each requirement is met; a requirement without a working control is a gap.
+    relationshipContext: A requirement comes from a source document and belongs to an owner. Controls implement requirements; audit cases and findings test them; a Policy may restate them for staff.
+    lifecycle: Identified when the obligation becomes known, active once it applies, and retired when the source is repealed or replaced. A requirement may be marked not applicable after assessment.
+    workflowContext: Regulatory change management records new requirements; control design maps controls to them; compliance assessments and audits test them; gaps lead to corrective actions.
+    example: 'GDPR Art. 30(1): the controller must maintain a record of processing activities. Source: Regulation (EU) 2016/679, effective 25 May 2018, owner: Data Protection Officer, mandatory, high risk if unmet.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COMPLIANCE-REQUIREMENT}

@@ -2,23 +2,132 @@ entity:
   name: AuditEvent
   namespace: cedm.domain
   kind: audit_event
-  description: An immutable evidence record describing a significant governed action, state change, access, decision, or control event.
+  description: An append-only entry recording that something significant happened — a sign-in, a change to a record, an approval, an access refused — with who did it, to what, when and from where.
   ui:
-    icon: activity
+    icon: history
+    recordLabel: [eventType, occurredAt]
   identity: {key: auditEventId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: auditEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AuditEvent., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
-  relationships: []
+  - name: eventType
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: What kind of action happened, such as "Record updated", "Sign-in failed" or "Approval granted".
+      usage: Set by the application; investigators filter the trail by it.
+      relationshipContext: Each kind of action is recorded under one consistent name.
+  - name: category
+    type: enum
+    required: true
+    default: DATA_CHANGE
+    values: [AUTHENTICATION, AUTHORIZATION, DATA_CHANGE, DATA_ACCESS, APPROVAL, CONFIGURATION, SYSTEM]
+    help:
+      summary: The broad class of the action.
+      usage: Used to route events to the people who review them and to set retention periods.
+      relationshipContext: Security events are kept longer and reviewed more often.
+      valueSemantics:
+        AUTHENTICATION: Signing in or out, or a failed attempt.
+        AUTHORIZATION: Access given, refused or changed.
+        DATA_CHANGE: A business record created, changed or deleted.
+        DATA_ACCESS: A sensitive record read or exported.
+        APPROVAL: A decision recorded in an approval.
+        CONFIGURATION: A change to settings, rules or the application dictionary.
+        SYSTEM: An action taken by the system itself, such as a scheduled job.
+  - name: action
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The specific action, such as create, update, delete, approve or export.
+      usage: Set by the application.
+      relationshipContext: Read with the event type and the record touched.
+  - name: occurredAt
+    type: datetime
+    required: true
+    help:
+      summary: When the action happened, to the second, in UTC.
+      usage: Set by the application at the moment of the action; the trail is read in this order.
+      relationshipContext: Never edited.
+  - name: recordType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The kind of record acted on, such as "Purchase order".
+      usage: Set by the application; empty for actions that touch no record, such as signing in.
+      relationshipContext: Read with the record identifier.
+  - name: recordId
+    type: string
+    required: false
+    maxLength: 64
+    help:
+      summary: The identifier of the record acted on.
+      usage: Lets an investigator list every action ever taken on one record.
+      relationshipContext: Together with the record type it identifies the record.
+  - name: outcome
+    type: enum
+    required: true
+    default: SUCCESS
+    values: [SUCCESS, FAILURE, DENIED]
+    help:
+      summary: Whether the action succeeded.
+      usage: Failed actions matter as much as successful ones, for example repeated failed sign-ins.
+      relationshipContext: A denied action records the attempt even though nothing changed.
+      valueSemantics:
+        SUCCESS: The action was carried out.
+        FAILURE: The action was attempted and failed for a technical or validation reason.
+        DENIED: The action was refused because the actor lacked the right to do it.
+  - name: details
+    type: text
+    required: false
+    help:
+      summary: What changed — for a change, the fields with their old and new values.
+      usage: Written by the application; read by investigators to see exactly what was done.
+      relationshipContext: Sensitive values are masked rather than recorded in clear.
+  - name: sourceAddress
+    type: string
+    required: false
+    maxLength: 64
+    help:
+      summary: The network address the action came from.
+      usage: Recorded by the application; used in security investigations.
+      relationshipContext: Treated as personal data in some jurisdictions.
+  - name: actorName
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The name of the actor as it was at the time of the action.
+      usage: Kept so that the trail still reads correctly after the user is renamed or removed.
+      relationshipContext: For system actions it names the job or integration.
+  relationships:
+  - name: actor
+    target: User
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The user who carried out the action.
+      usage: Set by the application from the signed-in user; empty for actions by the system itself.
+      cardinalityMeaning: One actor per event.
+      context: The actor's name is also copied onto the event so the trail survives changes to the user.
+  - name: auditCase
+    target: AuditCase
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The audit case that cites this event as evidence.
+      usage: Linked by an auditor gathering evidence; most events belong to no case.
+      cardinalityMeaning: At most one case per event.
+      context: Linking an event to a case does not change the event itself.
   invariants:
-  - {id: AUDIT-EVENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: AUDIT-EVENT-001, rule: Audit events are append-only; they are never edited or deleted during their retention period.}
   help:
-    summary: An immutable evidence record describing a significant governed action, state change, access, decision, or control event.
-    purpose: Provide durable, implementation-neutral governance semantics for AuditEvent.
-    businessMeaning: An immutable evidence record describing a significant governed action, state change, access, decision, or control event.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A permanent entry in the audit trail saying who did what to which record, and when.
+    businessMeaning: Accountability needs a trail that cannot be rewritten. Each audit event records one significant action — the actor, the action, the record it touched, the time, the outcome and where it came from — so that investigators and auditors can reconstruct what happened.
+    usage: Written by the application whenever a significant action occurs; never typed by people. Read by security teams investigating incidents, by auditors testing controls, and by support staff answering "who changed this?".
+    relationshipContext: An event names the user who acted and the record acted on, by the record's kind and identifier. Many events may belong to one audit case when they are gathered as evidence.
+    lifecycle: 'An audit event has no lifecycle: it is written once and never changed or deleted within its retention period.'
+    workflowContext: Security monitoring raises incidents from patterns of events; access reviews read sign-in and permission events; audit cases cite events as evidence.
+    example: 14 May 2024 09:42:17 UTC — user j.meyer updated purchase order PO-10233 (field 'delivery date' changed), outcome success, from IP 10.20.4.11.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AUDIT-EVENT}

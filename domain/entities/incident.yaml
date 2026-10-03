@@ -2,23 +2,196 @@ entity:
   name: Incident
   namespace: cedm.domain
   kind: risk_incident
-  description: A governed record of an adverse, disruptive, security, operational, safety, compliance, or other risk event requiring response and analysis.
+  description: Something that went wrong or nearly did — an outage, an accident, a security breach, a compliance breach — recorded with its severity, impact, response and root cause.
   ui:
-    icon: table
+    icon: siren
+    recordLabel: [incidentNumber, title]
   identity: {key: incidentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: incidentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Incident., businessMeaning: Identifies one governed Incident record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
-  relationships: []
+  - name: incidentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the incident.
+      usage: Assigned when it is reported.
+      relationshipContext: Unique.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: A one-line statement of what happened.
+      usage: Shown in incident lists and reports.
+      relationshipContext: Identifies the incident for people, with the number.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What happened, as reported.
+      usage: Written by the reporter and completed during investigation.
+      relationshipContext: Facts only; causes go in the root cause.
+  - name: category
+    type: enum
+    required: true
+    default: OPERATIONAL
+    values: [OPERATIONAL, IT_OUTAGE, SECURITY, SAFETY, ENVIRONMENTAL, COMPLIANCE, QUALITY]
+    help:
+      summary: What kind of incident it is.
+      usage: Chosen at triage; it decides which team responds and which reports it appears in.
+      relationshipContext: Some categories carry legal duties to notify an authority.
+      valueSemantics:
+        OPERATIONAL: A failure of a process or of equipment that disrupted operations.
+        IT_OUTAGE: A system or network was unavailable or degraded.
+        SECURITY: A breach or attempted breach of information or physical security.
+        SAFETY: An accident, injury or dangerous occurrence.
+        ENVIRONMENTAL: A spill, emission or other harm to the environment.
+        COMPLIANCE: A breach of a law, regulation or internal policy.
+        QUALITY: A product or service failed to meet its requirements in a way that reached a customer.
+  - name: severity
+    type: enum
+    required: true
+    default: MEDIUM
+    values: [LOW, MEDIUM, HIGH, CRITICAL]
+    help:
+      summary: How serious the incident is.
+      usage: Set at triage; it decides the response time and who must be told.
+      relationshipContext: May be raised or lowered as the investigation learns more.
+      valueSemantics:
+        LOW: Little impact; handled within the normal working day.
+        MEDIUM: Noticeable impact on a team, a site or some customers.
+        HIGH: Serious impact; management is informed at once.
+        CRITICAL: Threatens the business, people's safety or legal standing; the crisis process starts.
+  - name: occurredAt
+    type: datetime
+    required: true
+    help:
+      summary: When the incident happened, or started.
+      usage: Given by the reporter; may be corrected by the investigation.
+      relationshipContext: Not later than when it was reported.
+  - name: reportedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the incident was reported.
+      usage: Set when the report is recorded; response times are measured from it.
+      relationshipContext: Notification deadlines usually count from detection, which is close to this.
+  - name: containedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the incident stopped getting worse.
+      usage: Recorded by the responders.
+      relationshipContext: Present once contained.
+  - name: resolvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When normal operation was restored.
+      usage: Recorded by the responders.
+      relationshipContext: Present once resolved.
+  - name: impactDescription
+    type: text
+    required: false
+    help:
+      summary: Who and what the incident affected, and how much.
+      usage: Completed during the investigation; used to decide on notification.
+      relationshipContext: The financial cost, if any, is recorded as a loss event.
+  - name: rootCause
+    type: text
+    required: false
+    help:
+      summary: Why the incident happened.
+      usage: Written after investigation; required to close the incident.
+      relationshipContext: Recurring root causes are taken up by problem management.
+  - name: regulatorNotified
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether an authority was notified of the incident.
+      usage: Set when a reportable incident is notified, such as a data breach to the data-protection authority.
+      relationshipContext: The notification itself is a filing.
+  - name: status
+    type: enum
+    required: true
+    default: REPORTED
+    values: [REPORTED, INVESTIGATING, CONTAINED, RESOLVED, CLOSED, INVALID]
+    help:
+      summary: Where the response stands.
+      usage: Moved on by the coordinator and responders.
+      relationshipContext: Closed incidents have a root cause.
+      valueSemantics:
+        REPORTED: Reported and waiting for triage.
+        INVESTIGATING: Triaged; responders are working on it.
+        CONTAINED: The effect has been stopped from spreading.
+        RESOLVED: Normal operation is restored.
+        CLOSED: Root cause and lessons recorded; nothing more to do.
+        INVALID: Not an incident after all.
+  relationships:
+  - name: reportedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who reported the incident.
+      usage: Recorded with the report; contacted for details.
+      cardinalityMeaning: One reporter per incident.
+      context: Reporters are told when their incident is closed.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who coordinates the response and answers for it.
+      usage: Assigned at triage.
+      cardinalityMeaning: One owner per incident.
+      context: Closes the incident once its root cause is recorded.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the incident happened.
+      usage: Given by the reporter.
+      cardinalityMeaning: One location per incident.
+      context: Site safety statistics are counted by location.
+  - name: risk
+    target: Risk
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The known risk the incident is an occurrence of.
+      usage: Linked at investigation when the incident materialises a risk in the register.
+      cardinalityMeaning: At most one risk per incident.
+      context: Incidents linked to a risk show whether its controls are working.
   invariants:
-  - {id: INCIDENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: INCIDENT-001, rule: An incident is not reported before it happened., violatedWhen: reported_at != null and occurred_at != null and reported_at < occurred_at, message: The incident is reported before it happened.}
+  - {id: INCIDENT-002, rule: A closed incident records its root cause., violatedWhen: status == "CLOSED" and root_cause == null, message: Record the root cause before closing the incident.}
+  - {id: INCIDENT-003, rule: A resolved or closed incident records when it was resolved., violatedWhen: (status == "RESOLVED" or status == "CLOSED") and resolved_at == null, message: Record when normal operation was restored.}
+  lifecycle:
+    title: Incident Lifecycle
+    attribute: status
+    states: [REPORTED, INVESTIGATING, CONTAINED, RESOLVED, CLOSED, INVALID]
+    initial: REPORTED
+    terminal: [CLOSED, INVALID]
+    transitions:
+    - {from: REPORTED, to: INVESTIGATING, action: triage}
+    - {from: INVESTIGATING, to: CONTAINED, action: contain}
+    - {from: CONTAINED, to: RESOLVED, action: resolve}
+    - {from: INVESTIGATING, to: RESOLVED, action: resolve}
+    - {from: RESOLVED, to: CLOSED, action: close}
+    - {from: RESOLVED, to: INVESTIGATING, action: reopen}
+    - {from: REPORTED, to: INVALID, action: reject}
+    - {from: INVESTIGATING, to: INVALID, action: reject}
   help:
-    summary: A governed record of an adverse, disruptive, security, operational, safety, compliance, or other risk event requiring response and analysis.
-    purpose: Provide canonical governance semantics for Incident.
-    businessMeaning: A governed record of an adverse, disruptive, security, operational, safety, compliance, or other risk event requiring response and analysis.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: An unplanned event that disrupted or threatened the business, and how it was handled.
+    businessMeaning: Incidents are where risk becomes real. Recording each one — what happened, how severe it was, who was affected, what was done and why it happened — lets the business respond in a controlled way, meet its notification duties, and learn so that the same thing does not happen again.
+    usage: Anyone can report an incident; a coordinator triages it, sets its severity and assigns responders. Responders contain and resolve it; the owner records the root cause and closes it. Risk and management reports count incidents by category and severity; serious ones are reviewed individually.
+    relationshipContext: An incident may materialise a known Risk and may lead to a LossEvent recording its financial cost. Escalations and Tasks are raised from it. It is reported by and owned by people, and happens at a Location.
+    lifecycle: Reported, then under investigation once triaged, contained when its effect is stopped, resolved when normal operation is restored, and closed after the root cause and lessons are recorded. A report that turns out not to be an incident is closed as invalid.
+    workflowContext: Incident response — report, triage, contain, resolve, review — and problem management for recurring causes; regulatory notification for reportable incidents; risk reporting.
+    example: 'Incident INC-2024-0291: forklift collision in aisle 14 of the Lyon DC on 3 April, 09:10; severity medium, one minor injury, no stock loss; contained 09:30; root cause — blind corner without a mirror; mirror installed 5 April; closed 12 April.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INCIDENT}

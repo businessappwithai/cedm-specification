@@ -2,23 +2,192 @@ entity:
   name: Interest
   namespace: cedm.domain
   kind: financial_accrual
-  description: A governed interest accrual or charge calculated for an eligible financial balance, rate basis, and period.
+  description: The interest due on a balance for one period — on a loan, a deposit, an overdue invoice or a credit line — with the rate, day count and amount, and whether it has been posted.
   ui:
-    icon: table
+    icon: percent
+    recordLabel: [calculationNumber]
   identity: {key: interestId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: interestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Interest., businessMeaning: Identifies one governed Interest record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
-  relationships: []
+  - name: calculationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the calculation.
+      usage: Assigned when it is calculated; quoted on statements and postings.
+      relationshipContext: Unique.
+  - name: interestType
+    type: enum
+    required: true
+    default: LOAN
+    values: [LOAN, DEPOSIT, LATE_PAYMENT, CREDIT_LINE, INTERCOMPANY]
+    help:
+      summary: What the interest is on.
+      usage: Set by the run or person that calculates it; it decides whether the interest is income or expense.
+      relationshipContext: Read with the balance it refers to.
+      valueSemantics:
+        LOAN: Interest the company pays on borrowing.
+        DEPOSIT: Interest the company earns on money placed with a bank.
+        LATE_PAYMENT: Interest charged to a customer who paid late.
+        CREDIT_LINE: Interest on a drawn credit facility.
+        INTERCOMPANY: Interest between group companies.
+  - name: balance
+    type: Money
+    required: true
+    help:
+      summary: The balance the interest is computed on.
+      usage: Taken from the loan, deposit or invoice for the period.
+      relationshipContext: In the calculation's currency.
+  - name: ratePercent
+    type: decimal
+    required: true
+    precision: 9
+    scale: 5
+    help:
+      summary: The annual rate applied, in percent.
+      usage: Taken from the agreement or the late-payment policy.
+      relationshipContext: For a floating rate, the rate in force for the period.
+  - name: dayCountBasis
+    type: enum
+    required: true
+    default: ACT_360
+    values: [ACT_360, ACT_365, THIRTY_360]
+    help:
+      summary: How days are counted.
+      usage: Taken from the agreement.
+      relationshipContext: Changes the amount for the same rate.
+      valueSemantics:
+        ACT_360: Actual days divided by 360.
+        ACT_365: Actual days divided by 365.
+        THIRTY_360: Each month counted as 30 days, divided by 360.
+  - name: periodStart
+    type: date
+    required: true
+    help:
+      summary: The first day of the period interest is computed for.
+      usage: Set by the run.
+      relationshipContext: Not later than the period end.
+  - name: periodEnd
+    type: date
+    required: true
+    help:
+      summary: The last day of the period.
+      usage: Set by the run.
+      relationshipContext: Periods for the same balance do not overlap.
+  - name: days
+    type: integer
+    required: false
+    help:
+      summary: How many days the interest is computed for under the day-count basis.
+      usage: Computed from the period.
+      relationshipContext: Shown so the amount can be checked.
+  - name: interestAmount
+    type: Money
+    required: true
+    help:
+      summary: The interest due for the period.
+      usage: Computed as balance × rate × days ÷ basis; posted to the accounts.
+      relationshipContext: Rounded to the currency's smallest unit.
+  - name: postedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the interest was booked.
+      usage: Recorded on posting.
+      relationshipContext: Present once posted.
+  - name: status
+    type: enum
+    required: true
+    default: CALCULATED
+    values: [CALCULATED, POSTED, CANCELLED, REVERSED]
+    help:
+      summary: Whether the interest has been booked.
+      usage: Moved on by posting or cancelling.
+      relationshipContext: Only posted interest is in the accounts.
+      valueSemantics:
+        CALCULATED: Worked out and waiting to be checked and posted.
+        POSTED: Booked to the accounts.
+        CANCELLED: Found wrong before posting and replaced by a new calculation.
+        REVERSED: Posted, then reversed by an opposite entry.
+  relationships:
+  - name: loan
+    target: BankLoan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The loan the interest is on.
+      usage: Set for loan interest.
+      cardinalityMeaning: At most one per calculation.
+      context: The loan's statement lists its interest.
+  - name: deposit
+    target: Deposit
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The deposit the interest is on.
+      usage: Set for deposit interest.
+      cardinalityMeaning: At most one per calculation.
+      context: Compared with the bank's interest credit.
+  - name: invoice
+    target: Invoice
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The invoice charged late-payment interest.
+      usage: Set for late-payment interest.
+      cardinalityMeaning: At most one per calculation.
+      context: Charged to the invoice's customer.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the balance and the interest.
+      usage: Taken from the balance.
+      cardinalityMeaning: One per calculation.
+      context: Balance and amount share it.
   invariants:
-  - {id: INTEREST-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: INTEREST-001, rule: Posted interest is not edited; a correction reverses it and posts a new calculation.}
+  - {id: INTEREST-002, rule: The period must not end before it starts., violatedWhen: period_end != null and period_start != null and period_end < period_start, message: The period ends before it starts.}
+  - {id: INTEREST-003, rule: Posted interest records when it was posted., violatedWhen: status == "POSTED" and posted_at == null, message: Record when the interest was posted.}
+  - {id: INTEREST-EXE-001, rule: "Rate Percent is a percentage between 0 and 100.", violatedWhen: "rate_percent != null and (rate_percent < 0 or rate_percent > 100)", message: "Rate Percent must be between 0 and 100."}
+  lifecycle:
+    title: Interest Lifecycle
+    attribute: status
+    states: [CALCULATED, POSTED, CANCELLED, REVERSED]
+    initial: CALCULATED
+    terminal: [CANCELLED, REVERSED]
+    transitions:
+    - {from: CALCULATED, to: POSTED, action: post}
+    - {from: CALCULATED, to: CANCELLED, action: cancel}
+    - {from: POSTED, to: REVERSED, action: reverse}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when an interest is ended"
+      description: "When an interest is cancelled or reversed, a task asks someone to settle what depended on it."
+      when: "(status == \"CANCELLED\" or status == \"REVERSED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INTEREST-FOLLOW-UP-{{id}}"
+              name: "Follow up on interest {{calculation_number}}"
+              description: "Interest {{calculation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: A governed interest accrual or charge calculated for an eligible financial balance, rate basis, and period.
-    purpose: Provide canonical enterprise semantics for Interest.
-    businessMeaning: A governed interest accrual or charge calculated for an eligible financial balance, rate basis, and period.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: Interest worked out on one balance for one period, ready to be charged, paid or booked.
+    businessMeaning: Interest arises wherever money is owed over time — on loans, deposits, credit lines and late payments. Each calculation records the balance, the rate, the period and the day-count convention it was computed with, so the amount can be checked, charged or paid, and booked in the right period.
+    usage: Calculated by period-end and billing runs, or manually for late-payment interest. Accounting reviews the calculations and posts them; customer or lender statements show them.
+    relationshipContext: A calculation belongs to the balance it is computed on — a BankLoan, a Deposit, or an Invoice charged late-payment interest — and is in that balance's Currency. Posted calculations become journal entries.
+    lifecycle: Calculated, then posted to the accounts. A calculation found to be wrong before posting is cancelled and recalculated; a posted one is reversed.
+    workflowContext: Period-end accruals, loan and deposit statements, late-payment charging and treasury reporting.
+    example: 'Interest INT-24-03-0017 on loan LN-2023-004: balance 500,000 EUR, 5.25% actual/360, 1–31 March (31 days), 2,260.42 EUR, posted 31 March.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INTEREST}

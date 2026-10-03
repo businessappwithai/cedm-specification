@@ -2,23 +2,208 @@ entity:
   name: LegalMatter
   namespace: cedm.domain
   kind: legal_case_management
-  description: A governed legal work matter grouping parties, counsel, documents, obligations, filings, issues, costs, and outcomes.
+  description: A piece of legal work handled for the business — advice, a dispute, a transaction, an investigation — with its type, counsel, budget, costs, risk and outcome.
   ui:
-    icon: table
+    icon: briefcase
+    recordLabel: [matterNumber, title]
   identity: {key: legalMatterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: legalMatterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalMatter., businessMeaning: Identifies one governed LegalMatter record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
-  relationships: []
+  - name: matterNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the matter.
+      usage: Assigned when it is opened; outside counsel bill against it.
+      relationshipContext: Unique.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What the matter is about.
+      usage: Shown in matter lists.
+      relationshipContext: Identifies the matter for people, with the number.
+  - name: matterType
+    type: enum
+    required: true
+    default: ADVISORY
+    values: [ADVISORY, CONTRACT, LITIGATION, ARBITRATION, REGULATORY, CORPORATE, EMPLOYMENT, INTELLECTUAL_PROPERTY]
+    help:
+      summary: What kind of legal work it is.
+      usage: Chosen at intake; workload and spend are reported by type.
+      relationshipContext: Litigation matters may have court cases.
+      valueSemantics:
+        ADVISORY: Advice on a question of law or a business proposal.
+        CONTRACT: Drafting, reviewing or negotiating an agreement.
+        LITIGATION: A dispute before a court or tribunal.
+        ARBITRATION: A dispute before an arbitrator.
+        REGULATORY: Dealings with a regulator, including investigations.
+        CORPORATE: Company law work such as mergers, acquisitions and restructurings.
+        EMPLOYMENT: Employment disputes and advice.
+        INTELLECTUAL_PROPERTY: Patents, trademarks, copyright and their enforcement.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: The background and what the business needs.
+      usage: Written at intake.
+      relationshipContext: Privileged; access is limited to the legal team.
+  - name: openedDate
+    type: date
+    required: true
+    help:
+      summary: The day the matter was opened.
+      usage: Set at intake.
+      relationshipContext: Not later than the closing date.
+  - name: closedDate
+    type: date
+    required: false
+    help:
+      summary: The day the matter was closed.
+      usage: Recorded with the outcome.
+      relationshipContext: Present once closed.
+  - name: budget
+    type: Money
+    required: false
+    help:
+      summary: The expected cost of outside counsel and expenses.
+      usage: Agreed at opening; spend is compared with it.
+      relationshipContext: In the matter's currency.
+  - name: spendToDate
+    type: Money
+    required: false
+    help:
+      summary: What has been spent so far.
+      usage: Updated from approved counsel invoices.
+      relationshipContext: Exceeding the budget needs approval.
+  - name: outcomeLikelihood
+    type: enum
+    required: false
+    values: [REMOTE, POSSIBLE, PROBABLE]
+    help:
+      summary: How likely an adverse outcome is, in the legal team's judgement.
+      usage: Reviewed each quarter for disputes; finance provisions for probable losses.
+      relationshipContext: Read with the estimated exposure.
+      valueSemantics:
+        REMOTE: An adverse outcome is very unlikely.
+        POSSIBLE: An adverse outcome is possible but not likely; disclosed rather than provided for.
+        PROBABLE: An adverse outcome is likely; a provision is needed.
+  - name: estimatedExposure
+    type: Money
+    required: false
+    help:
+      summary: How much the business could have to pay if the outcome is adverse.
+      usage: Estimated by the legal team for disputes.
+      relationshipContext: Used for provisions and disclosures.
+  - name: outcome
+    type: text
+    required: false
+    help:
+      summary: How the matter ended.
+      usage: Written when it closes, such as "settled for 45,000 EUR" or "contract signed".
+      relationshipContext: Required to close a dispute.
+  - name: status
+    type: enum
+    required: true
+    default: OPEN
+    values: [OPEN, ON_HOLD, CLOSED]
+    help:
+      summary: Whether the matter is being worked on.
+      usage: Moved on by the responsible lawyer.
+      relationshipContext: Closed matters have an outcome.
+      valueSemantics:
+        OPEN: Work is in progress.
+        ON_HOLD: Waiting on the business, the counterparty or a court.
+        CLOSED: The work is finished and the outcome recorded.
+  relationships:
+  - name: legalEntity
+    target: LegalEntity
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The group company the matter is for.
+      usage: Chosen at intake.
+      cardinalityMeaning: One per matter.
+      context: Provisions are booked in this entity.
+  - name: counterparty
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The other side, if there is one.
+      usage: Chosen for disputes and negotiations.
+      cardinalityMeaning: The main counterparty; others are named in the description.
+      context: Conflict checks look at it.
+  - name: responsibleLawyer
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The in-house lawyer handling the matter.
+      usage: Assigned at intake.
+      cardinalityMeaning: One per matter.
+      context: Approves counsel invoices.
+  - name: outsideCounsel
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The law firm instructed on the matter.
+      usage: Chosen when outside help is needed.
+      cardinalityMeaning: The lead firm; others are noted in the description.
+      context: Its invoices are checked against the budget.
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The currency of the budget, spend and exposure.
+      usage: Set at opening.
+      cardinalityMeaning: One per matter.
+      context: All money on the matter uses it.
   invariants:
-  - {id: LEGAL-MATTER-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: LEGAL-MATTER-001, rule: A matter is not closed before it was opened., violatedWhen: closed_date != null and opened_date != null and closed_date < opened_date, message: The closing date is earlier than the opening date.}
+  - {id: LEGAL-MATTER-002, rule: A closed matter records when it closed and how it ended., violatedWhen: status == "CLOSED" and (closed_date == null or outcome == null), message: Record the closing date and the outcome.}
+  - {id: LEGAL-MATTER-EXE-001, rule: "A legal matter that is closed states when (closed date).", violatedWhen: "status == \"CLOSED\" and closed_date == null", message: "Record closed date when the legal matter is closed."}
+  lifecycle:
+    title: Legal Matter Lifecycle
+    attribute: status
+    states: [OPEN, ON_HOLD, CLOSED]
+    initial: OPEN
+    terminal: [CLOSED]
+    transitions:
+    - {from: OPEN, to: ON_HOLD, action: hold}
+    - {from: ON_HOLD, to: OPEN, action: resume}
+    - {from: OPEN, to: CLOSED, action: close}
+    - {from: ON_HOLD, to: CLOSED, action: close}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a legal matter is stopped"
+      description: "When a legal matter is on hold, a high-priority task asks someone to resolve it."
+      when: "status == \"ON_HOLD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LEGAL-MATTER-EXCEPTION-{{id}}"
+              name: "Resolve legal matter {{title}}"
+              description: "Legal matter {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
-    summary: A governed legal work matter grouping parties, counsel, documents, obligations, filings, issues, costs, and outcomes.
-    purpose: Provide canonical governance semantics for LegalMatter.
-    businessMeaning: A governed legal work matter grouping parties, counsel, documents, obligations, filings, issues, costs, and outcomes.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: One legal file the legal team is working on, from opening to its outcome.
+    businessMeaning: Legal work costs money and carries risk. A matter gathers everything about one piece of work — what it is, who handles it inside and outside, how much it is expected to cost, how likely an adverse outcome is and what was decided — so the legal department can manage its workload, its spend on outside counsel, and the exposures it reports to finance.
+    usage: The legal team opens a matter for each request or dispute, assigns a lawyer and, if needed, outside counsel, tracks budget against spend, and records the outcome when it closes. Finance reads open disputes with probable adverse outcomes for provisions.
+    relationshipContext: A matter is for a LegalEntity of the group, may involve a counterparty Party, may become or contain a LegalCase in court, and produces Filings and Documents. Outside counsel is an Organization.
+    lifecycle: Open while the work is in progress, on hold when it waits on someone else, and closed with an outcome when the work is done.
+    workflowContext: Legal intake opens matters; contract review, litigation and investigations are worked in them; e-billing from outside counsel is checked against them; provisions and disclosures read them.
+    example: Matter LM-2024-044, 'Dispute with Northwind Labs over late delivery penalties', litigation, opened 8 February; counsel Smith & Partners; budget 60,000 EUR, spend to date 23,400 EUR; adverse outcome possible; exposure 180,000 EUR.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-MATTER}

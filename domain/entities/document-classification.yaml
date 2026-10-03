@@ -2,23 +2,145 @@ entity:
   name: DocumentClassification
   namespace: cedm.domain
   kind: document_governance
-  description: A governed classification assigned to Documents for retention, sensitivity, access, regulatory, or business-purpose controls.
+  description: A class documents are filed under, such as "Supplier invoice" or "Employment contract", that sets how sensitive they are, who may read them and how long they must be kept.
   ui:
-    icon: file-text
+    icon: folder-tree
+    recordLabel: [code, name]
   identity: {key: documentClassificationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentClassification., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
-  relationships: []
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 30
+    help:
+      summary: The code of the class in the classification scheme, such as FIN-AP-INV.
+      usage: Used when filing documents and in retention reports.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the class, such as "Supplier invoice".
+      usage: Shown when a user chooses a class for a document.
+      relationshipContext: Identifies the class for people, with the code.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: Which documents belong in the class.
+      usage: Read by whoever files a document and must choose its class.
+      relationshipContext: Should give examples of what belongs and what does not.
+  - name: sensitivity
+    type: enum
+    required: true
+    default: INTERNAL
+    values: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED]
+    help:
+      summary: How carefully documents in the class must be protected.
+      usage: Decides who may read the documents and whether they may leave the company.
+      relationshipContext: Documents containing personal data are confidential or above.
+      valueSemantics:
+        PUBLIC: May be shared outside the company.
+        INTERNAL: For staff only.
+        CONFIDENTIAL: For the people who need them for their work.
+        RESTRICTED: For named people only; disclosure would do serious harm.
+  - name: retentionYears
+    type: integer
+    required: false
+    help:
+      summary: How many years documents in the class must be kept.
+      usage: Taken from the retention schedule; disposal is not allowed before the period has run.
+      relationshipContext: Counted from the retention trigger.
+  - name: retentionTrigger
+    type: enum
+    required: true
+    default: CREATION
+    values: [CREATION, FISCAL_YEAR_END, CONTRACT_END, EMPLOYMENT_END, CASE_CLOSURE]
+    help:
+      summary: The event the retention period is counted from.
+      usage: Taken from the retention schedule.
+      relationshipContext: Read with the number of years.
+      valueSemantics:
+        CREATION: The day the document was created.
+        FISCAL_YEAR_END: The end of the fiscal year the document belongs to.
+        CONTRACT_END: The end of the contract the document belongs to.
+        EMPLOYMENT_END: The day the employee the document concerns left.
+        CASE_CLOSURE: The closing of the case the document belongs to.
+  - name: disposalAction
+    type: enum
+    required: true
+    default: DESTROY
+    values: [DESTROY, ARCHIVE, REVIEW]
+    help:
+      summary: What happens to a document when its retention period has run.
+      usage: Applied by the retention run.
+      relationshipContext: Legal hold stops it whatever the class says.
+      valueSemantics:
+        DESTROY: Destroyed securely.
+        ARCHIVE: Moved to a permanent archive.
+        REVIEW: Reviewed by a person who decides.
+  - name: legalBasis
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: The law or rule that sets the retention period.
+      usage: Recorded so that the period can be justified to an auditor or regulator.
+      relationshipContext: Often a commercial or tax code article.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [DRAFT, ACTIVE, RETIRED]
+    help:
+      summary: Whether documents may be filed under the class.
+      usage: Retired classes are not offered for new documents.
+      relationshipContext: Documents already filed keep their class.
+      valueSemantics:
+        DRAFT: Being prepared; not yet offered.
+        ACTIVE: In use.
+        RETIRED: No longer used for new documents.
+  relationships:
+  - name: parentClass
+    target: DocumentClassification
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The broader class this one sits under.
+      usage: Builds the scheme's hierarchy, such as Finance → Accounts payable → Supplier invoice.
+      cardinalityMeaning: At most one parent.
+      context: A class without its own rules is read under its parent's.
+  - name: complianceRequirement
+    target: ComplianceRequirement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The requirement that sets the class's retention or protection.
+      usage: Linked so that a change in the requirement shows which classes it affects.
+      cardinalityMeaning: At most one per class.
+      context: The legal basis text summarises it.
   invariants:
-  - {id: DOCUMENT-CLASSIFICATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: DOCUMENT-CLASSIFICATION-001, rule: 'A class cannot be its own parent, directly or through other classes.'}
+  - {id: DOCUMENT-CLASSIFICATION-002, rule: The retention period is not negative., violatedWhen: retention_years != null and retention_years < 0, message: The retention period cannot be negative.}
+  lifecycle:
+    title: Document Classification Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: DRAFT, to: RETIRED, action: retire}
   help:
-    summary: A governed classification assigned to Documents for retention, sensitivity, access, regulatory, or business-purpose controls.
-    purpose: Provide durable, implementation-neutral governance semantics for DocumentClassification.
-    businessMeaning: A governed classification assigned to Documents for retention, sensitivity, access, regulatory, or business-purpose controls.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A category of documents and the handling rules every document in it follows.
+    businessMeaning: Documents carry obligations — personal data must be protected, tax records kept for years, legal holds respected. Handling each document case by case is impossible; classifying it once, under a class that carries the sensitivity, retention period and disposal rule, makes the right handling automatic.
+    usage: Records managers maintain the classification scheme from the retention schedule; users or capture rules classify each document when it is filed. Retention runs dispose of documents whose class period has passed, unless they are on legal hold.
+    relationshipContext: Documents name their class. Classes form a hierarchy, each one may have a parent class. A class may rest on a ComplianceRequirement that dictates its retention.
+    lifecycle: Drafted, active while documents may be filed under it, and retired when the scheme changes; documents keep the class they were filed under.
+    workflowContext: Document capture classifies; access control reads sensitivity; retention and disposal read the period and the trigger; legal hold suspends disposal.
+    example: "Class FIN-AP-INV, 'Supplier invoice': confidential, keep 10 years from the end of the fiscal year, then destroy securely; required by the local commercial code."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCUMENT-CLASSIFICATION}

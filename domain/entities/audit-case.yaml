@@ -2,23 +2,186 @@ entity:
   name: AuditCase
   namespace: cedm.domain
   kind: audit_case
-  description: A governed audit investigation or review grouping scope, evidence, findings, actions, and conclusions.
+  description: One audit engagement — internal, external or regulatory — with its scope, period under review, lead auditor, timetable and overall conclusion. Its findings are recorded as Findings.
   ui:
-    icon: scroll-text
+    icon: clipboard-check
+    recordLabel: [caseNumber, title]
   identity: {key: auditCaseId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: auditCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AuditCase., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
-  relationships: []
+  - name: caseNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the audit engagement.
+      usage: Assigned when the case is opened; the report, the findings and correspondence quote it.
+      relationshipContext: Unique across all audit cases.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What is being audited, in a few words.
+      usage: Shown in the audit plan and on the report cover, such as "Purchase-to-pay controls, Plant Lyon".
+      relationshipContext: Identifies the engagement for people, together with the case number.
+  - name: auditType
+    type: enum
+    required: true
+    default: INTERNAL
+    values: [INTERNAL, EXTERNAL, REGULATORY, CERTIFICATION, SUPPLIER]
+    help:
+      summary: Who performs the audit and for whom.
+      usage: Chosen when the case is opened; it decides who receives the report and how findings are followed up.
+      relationshipContext: External and regulatory findings usually carry deadlines set by the auditor.
+      valueSemantics:
+        INTERNAL: Performed by the company's own internal audit function.
+        EXTERNAL: Performed by the statutory or another independent auditor.
+        REGULATORY: Performed or required by a regulator.
+        CERTIFICATION: Performed by a certification body against a standard such as ISO 9001.
+        SUPPLIER: Performed by the company at a supplier's premises.
+  - name: scope
+    type: text
+    required: false
+    help:
+      summary: What the audit covers and what it leaves out.
+      usage: Agreed with management before fieldwork starts; findings outside the scope are noted but not rated.
+      relationshipContext: Read with the period under review.
+  - name: periodFrom
+    type: date
+    required: false
+    help:
+      summary: The first day of the period whose records are examined.
+      usage: Agreed in the scope; samples are drawn from this period.
+      relationshipContext: Must not be later than the end of the period.
+  - name: periodTo
+    type: date
+    required: false
+    help:
+      summary: The last day of the period whose records are examined.
+      usage: Agreed in the scope.
+      relationshipContext: Usually before the fieldwork starts.
+  - name: fieldworkStart
+    type: date
+    required: false
+    help:
+      summary: When the auditors start gathering evidence.
+      usage: Planned in the audit plan and confirmed with the audited unit.
+      relationshipContext: Must not be later than the fieldwork end.
+  - name: fieldworkEnd
+    type: date
+    required: false
+    help:
+      summary: When evidence gathering is planned to finish.
+      usage: Planned in the audit plan; reporting starts after it.
+      relationshipContext: Delays beyond it are reported to the audit committee.
+  - name: reportIssuedDate
+    type: date
+    required: false
+    help:
+      summary: The day the final report was issued.
+      usage: Recorded when the report is sent; the case can then be closed.
+      relationshipContext: A closed case has one.
+  - name: opinion
+    type: enum
+    required: false
+    values: [SATISFACTORY, NEEDS_IMPROVEMENT, UNSATISFACTORY, NOT_RATED]
+    help:
+      summary: The auditors' overall conclusion.
+      usage: Given in the final report; summarizes how well the audited area is controlled.
+      relationshipContext: Read with the findings, whose severities support it.
+      valueSemantics:
+        SATISFACTORY: Controls are well designed and work as intended.
+        NEEDS_IMPROVEMENT: Controls mostly work, with weaknesses to correct.
+        UNSATISFACTORY: Significant weaknesses put the area's objectives at risk.
+        NOT_RATED: The engagement did not give an overall opinion, such as a consulting review.
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, FIELDWORK, REPORTING, CLOSED, CANCELLED]
+    help:
+      summary: Where the engagement stands, from the plan to the issued report.
+      usage: Moved on by the audit team as the work proceeds.
+      relationshipContext: A closed case has an issued report.
+      valueSemantics:
+        PLANNED: In the audit plan; work has not started.
+        FIELDWORK: Auditors are gathering evidence.
+        REPORTING: Evidence is complete and the report is being drafted and agreed.
+        CLOSED: The report is issued and findings handed over for follow-up.
+        CANCELLED: Dropped from the plan before completion.
+  relationships:
+  - name: leadAuditor
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The auditor in charge of the engagement.
+      usage: Named in the plan; signs the report.
+      cardinalityMeaning: One lead per engagement.
+      context: Must be independent of the audited area.
+  - name: auditedOrganization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company, unit or supplier audited.
+      usage: Chosen when the case is opened; the unit's audit history is listed from it.
+      cardinalityMeaning: One audited organization per case; a multi-unit review is split into cases.
+      context: Its management receives the report and owns the responses.
+  - name: complianceRequirement
+    target: ComplianceRequirement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The law, regulation or standard the audit tests against, where there is one.
+      usage: Chosen for regulatory and certification audits.
+      cardinalityMeaning: At most one per case.
+      context: Findings are then nonconformities against that requirement.
   invariants:
-  - {id: AUDIT-CASE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+  - {id: AUDIT-CASE-001, rule: An issued report is not altered; corrections are issued as an addendum recorded on the case.}
+  - {id: AUDIT-CASE-002, rule: The end of the period under review must not be earlier than its start., violatedWhen: period_to != null and period_from != null and period_to < period_from, message: The end of the period is earlier than its start.}
+  - {id: AUDIT-CASE-003, rule: The fieldwork must not end before it starts., violatedWhen: fieldwork_end != null and fieldwork_start != null and fieldwork_end < fieldwork_start, message: The fieldwork end is earlier than its start.}
+  - {id: AUDIT-CASE-004, rule: A closed audit records when its report was issued., violatedWhen: status == "CLOSED" and report_issued_date == null, message: Give the date the report was issued.}
+  lifecycle:
+    title: Audit Case Lifecycle
+    attribute: status
+    states: [PLANNED, FIELDWORK, REPORTING, CLOSED, CANCELLED]
+    initial: PLANNED
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+    - {from: PLANNED, to: FIELDWORK, action: start_fieldwork}
+    - {from: FIELDWORK, to: REPORTING, action: start_reporting}
+    - {from: REPORTING, to: FIELDWORK, action: reopen_fieldwork}
+    - {from: REPORTING, to: CLOSED, action: issue_report}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: FIELDWORK, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when an audit case is ended"
+      description: "When an audit case is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "AUDIT-CASE-FOLLOW-UP-{{id}}"
+              name: "Follow up on audit case {{title}}"
+              description: "Audit case {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: A governed audit investigation or review grouping scope, evidence, findings, actions, and conclusions.
-    purpose: Provide durable, implementation-neutral governance semantics for AuditCase.
-    businessMeaning: A governed audit investigation or review grouping scope, evidence, findings, actions, and conclusions.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A planned audit or review of one area of the business, from scoping to the issued report.
+    businessMeaning: Audits test whether controls work and whether records can be relied on. The audit case is the file of one engagement — what was examined, over which period, by whom, when it was done and what the auditors concluded — so that findings, evidence and follow-up actions all hang off one record.
+    usage: Internal audit opens a case for each engagement in the annual plan; external and regulatory audits are opened when they are announced. The team records its fieldwork dates, raises findings against the case and issues the report; the audit committee follows open cases and overdue reports.
+    relationshipContext: An audit case covers a scope within the business and may test one Control or a set of controls under a ComplianceRequirement. Findings refer back to their case. The lead auditor is a person; the audited unit is an Organization.
+    lifecycle: Planned in the audit plan, then in fieldwork while evidence is gathered, in reporting while the report is drafted and agreed with management, and closed once the report is issued and its findings handed over. An engagement dropped from the plan is cancelled.
+    workflowContext: The audit plan opens cases; fieldwork raises findings; management responses turn findings into corrective actions; follow-up audits verify those actions and close the findings.
+    example: Case IA-2024-07, 'Purchase-to-pay controls, Plant Lyon', internal audit, period 1 January to 30 June 2024, fieldwork 2–13 September, report issued 4 October with the opinion 'needs improvement' and five findings.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AUDIT-CASE}

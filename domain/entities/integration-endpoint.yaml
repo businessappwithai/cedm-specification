@@ -2,23 +2,159 @@ entity:
   name: IntegrationEndpoint
   namespace: cedm.domain
   kind: integration_master
-  description: A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system.
+  description: A connection point to another system — a partner's API, a bank's file server, an internal service — with its address, protocol, data format, authentication method and the person responsible.
   ui:
-    icon: database
+    icon: plug
+    recordLabel: [code, name]
   identity: {key: integrationEndpointId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of IntegrationEndpoint., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
-  relationships: []
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The code of the endpoint, such as BANKB-SFTP-PAY.
+      usage: Used in configuration and in message logs.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: A readable name for the endpoint.
+      usage: Shown in monitoring screens.
+      relationshipContext: Identifies the endpoint for people, with the code.
+  - name: direction
+    type: enum
+    required: true
+    default: OUTBOUND
+    values: [INBOUND, OUTBOUND, BIDIRECTIONAL]
+    help:
+      summary: Whether data goes out through the endpoint, comes in, or both.
+      usage: Set when registering it.
+      relationshipContext: Inbound endpoints are watched for messages that stop arriving.
+      valueSemantics:
+        INBOUND: Data comes into the application.
+        OUTBOUND: Data goes out of the application.
+        BIDIRECTIONAL: Data goes both ways.
+  - name: protocol
+    type: enum
+    required: true
+    default: HTTPS
+    values: [HTTPS, SFTP, AS2, MESSAGE_QUEUE, EMAIL, DATABASE]
+    help:
+      summary: How data travels to or from the endpoint.
+      usage: Set when registering it; it decides which adapter delivers the messages.
+      relationshipContext: Read with the address.
+      valueSemantics:
+        HTTPS: A web service or REST API over HTTPS.
+        SFTP: Files exchanged over secure file transfer.
+        AS2: Business documents exchanged over AS2.
+        MESSAGE_QUEUE: Messages through a queue or event broker.
+        EMAIL: Messages sent or received as email.
+        DATABASE: Direct access to another system's database.
+  - name: address
+    type: string
+    required: true
+    maxLength: 500
+    help:
+      summary: Where the endpoint is reached — a URL, server and folder, or queue name.
+      usage: Entered by the integration administrator.
+      relationshipContext: Credentials are kept in a secrets store, never here.
+  - name: dataFormat
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The format of the data exchanged, such as "ISO 20022 pain.001", "EDIFACT DESADV" or "JSON".
+      usage: Recorded so that a change in the partner's format can be traced to the interfaces it affects.
+      relationshipContext: Message mappings depend on it.
+  - name: authenticationMethod
+    type: enum
+    required: true
+    default: API_KEY
+    values: [NONE, API_KEY, OAUTH2, CERTIFICATE, SSH_KEY, BASIC]
+    help:
+      summary: How the application proves its identity to the endpoint.
+      usage: Set when registering it; the secret itself is in the secrets store.
+      relationshipContext: Certificate- and key-based methods need renewal before expiry.
+      valueSemantics:
+        NONE: No authentication, only for internal non-sensitive endpoints.
+        API_KEY: A key sent with each request.
+        OAUTH2: Tokens obtained from an authorization server.
+        CERTIFICATE: A client certificate.
+        SSH_KEY: An SSH key pair, for file transfer.
+        BASIC: User name and password.
+  - name: credentialExpiryDate
+    type: date
+    required: false
+    help:
+      summary: When the credential used for the endpoint expires.
+      usage: Watched so that it is renewed before the interface stops working.
+      relationshipContext: Empty for credentials that do not expire.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the endpoint is used for and anything unusual about it.
+      usage: Read by whoever investigates a failure.
+      relationshipContext: Free text.
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, ACTIVE, SUSPENDED, RETIRED]
+    help:
+      summary: Whether the endpoint is in use.
+      usage: Moved on as the interface goes live, is paused or is decommissioned.
+      relationshipContext: Only active endpoints receive messages.
+      valueSemantics:
+        PLANNED: Being built or tested; no live traffic.
+        ACTIVE: In live use.
+        SUSPENDED: Traffic stopped for now; messages wait.
+        RETIRED: Decommissioned.
+  relationships:
+  - name: organization
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The organization whose system the endpoint belongs to.
+      usage: Chosen when registering it, such as the bank or carrier.
+      cardinalityMeaning: One per endpoint.
+      context: The partner's technical contact is found from it.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person responsible for the endpoint on our side.
+      usage: Contacted when the endpoint fails or must change.
+      cardinalityMeaning: One per endpoint.
+      context: Receives credential-expiry reminders.
   invariants:
-  - {id: INTEGRATION-ENDPOINT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+  - {id: INTEGRATION-ENDPOINT-001, rule: 'Credentials are never stored on the endpoint record; it names the method, and the secret is kept in a secrets store.'}
+  lifecycle:
+    title: Integration Endpoint Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, SUSPENDED, RETIRED]
+    initial: PLANNED
+    terminal: [RETIRED]
+    transitions:
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: SUSPENDED, to: RETIRED, action: retire}
+    - {from: PLANNED, to: RETIRED, action: retire}
   help:
-    summary: A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system.
-    purpose: Provide canonical implementation-neutral integration semantics for IntegrationEndpoint.
-    businessMeaning: A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system.
-    whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
-    howItRelates: Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
-    lifecycleUsage: Created and processed through governed integration states; attempts and finalized evidence are retained.
-    commonProcesses: Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-    commonExamples: Enterprise application integration and event-driven workflows.
+    summary: One place the application exchanges data with another system, and how it does so.
+    businessMeaning: Business processes depend on data flowing to banks, carriers, tax authorities and internal systems. Each connection has an address, a protocol, a format and credentials, and someone must own it. Recording endpoints makes the integration landscape visible, so that a failing interface can be traced to its owner and a change of partner system can be planned.
+    usage: Integration administrators register endpoints and keep them current; operations staff look up an endpoint when messages fail; architects review the list when systems change. Messages and business events are delivered through endpoints.
+    relationshipContext: An endpoint belongs to the system of an Organization — a partner, a supplier, a bank or the company itself — and is owned by a person. Messages name the endpoint they were sent to or received from.
+    lifecycle: Planned while the interface is being built, active once in use, suspended when traffic must stop temporarily, and retired when the connection is decommissioned.
+    workflowContext: Payment files go to bank endpoints, carrier bookings to carrier endpoints, e-invoices to tax-authority endpoints; message monitoring reports errors per endpoint.
+    example: 'Endpoint BANKB-SFTP-PAY: Bank B payment-file server, sftp://files.bankb.example/in, ISO 20022 pain.001 XML, outbound, key-based authentication, owned by the treasury systems lead, active.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INTEGRATION-ENDPOINT}

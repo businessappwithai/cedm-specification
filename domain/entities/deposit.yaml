@@ -2,23 +2,183 @@ entity:
   name: Deposit
   namespace: cedm.domain
   kind: banking_transaction
-  description: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
+  description: Money placed with a bank for a term or on call — a time deposit, call deposit or certificate of deposit — with its principal, interest rate, value and maturity dates.
   ui:
-    icon: file-text
+    icon: piggy-bank
+    recordLabel: [depositNumber]
   identity: {key: depositId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: depositId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Deposit., businessMeaning: Identifies one governed Deposit record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
-  relationships: []
+  - name: depositNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: Our reference for the deposit.
+      usage: Assigned when the deposit is arranged; matched to the bank's confirmation.
+      relationshipContext: Unique; the bank's own reference is kept separately.
+  - name: bankReference
+    type: string
+    required: false
+    maxLength: 60
+    help:
+      summary: The bank's reference on its deposit confirmation.
+      usage: Entered from the confirmation; quoted when talking to the bank.
+      relationshipContext: Known once the bank confirms.
+  - name: depositType
+    type: enum
+    required: true
+    default: TIME
+    values: [TIME, CALL, CERTIFICATE]
+    help:
+      summary: What kind of deposit it is.
+      usage: Chosen when arranging it; it decides whether the money can be called back early.
+      relationshipContext: Call deposits have no fixed maturity date.
+      valueSemantics:
+        TIME: Placed for a fixed term at a fixed rate.
+        CALL: Repayable on demand or at short notice, at a variable rate.
+        CERTIFICATE: A negotiable certificate of deposit.
+  - name: principal
+    type: Money
+    required: true
+    help:
+      summary: The amount placed with the bank.
+      usage: Agreed when the deposit is arranged; leaves the funding account on the value date.
+      relationshipContext: Stated in the deposit's currency.
+  - name: interestRatePercent
+    type: decimal
+    required: true
+    precision: 9
+    scale: 5
+    help:
+      summary: The annual interest rate, in percent.
+      usage: Agreed with the bank; used with the day-count basis to compute interest.
+      relationshipContext: A call deposit's rate may change; the current rate is recorded.
+  - name: dayCountBasis
+    type: enum
+    required: true
+    default: ACT_360
+    values: [ACT_360, ACT_365, THIRTY_360]
+    help:
+      summary: How days are counted to compute interest.
+      usage: Taken from the bank's terms.
+      relationshipContext: The same rate earns slightly more on actual/360 than on actual/365.
+      valueSemantics:
+        ACT_360: Actual days divided by 360.
+        ACT_365: Actual days divided by 365.
+        THIRTY_360: Each month counted as 30 days, divided by 360.
+  - name: valueDate
+    type: date
+    required: true
+    help:
+      summary: The day the money is placed and starts to earn interest.
+      usage: Agreed with the bank; the funding account is debited on this day.
+      relationshipContext: Must not be later than the maturity date.
+  - name: maturityDate
+    type: date
+    required: false
+    help:
+      summary: The day principal and interest are repaid.
+      usage: Agreed for time deposits; cash forecasts count the repayment on this day.
+      relationshipContext: Empty for call deposits.
+  - name: expectedInterest
+    type: Money
+    required: false
+    help:
+      summary: The interest the deposit will earn if held to maturity.
+      usage: Computed from principal, rate, day count and term; accrued period by period.
+      relationshipContext: The amount actually received is recorded when the deposit matures.
+  - name: interestReceived
+    type: Money
+    required: false
+    help:
+      summary: The interest actually received.
+      usage: Recorded at maturity or on breaking the deposit.
+      relationshipContext: Differences from the expected interest are investigated.
+  - name: status
+    type: enum
+    required: true
+    default: ARRANGED
+    values: [ARRANGED, ACTIVE, MATURED, BROKEN, CANCELLED]
+    help:
+      summary: Where the deposit stands.
+      usage: Moved on by treasury from placement to repayment.
+      relationshipContext: Only active deposits count against bank limits.
+      valueSemantics:
+        ARRANGED: Agreed with the bank but not yet placed.
+        ACTIVE: Placed and earning interest.
+        MATURED: Repaid at maturity with its interest.
+        BROKEN: Repaid early, usually with reduced interest or a fee.
+        CANCELLED: Called off before the money was placed.
+  relationships:
+  - name: bank
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The bank the money is placed with.
+      usage: Chosen when arranging the deposit; counterparty exposure is summed per bank.
+      cardinalityMeaning: Every deposit is with exactly one bank.
+      context: Each bank has an exposure limit set by treasury policy.
+  - name: fundingAccount
+    target: BankAccount
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company account the money comes from and returns to.
+      usage: Debited on the value date and credited at maturity.
+      cardinalityMeaning: One account per deposit.
+      context: Must be in the deposit's currency.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the deposit.
+      usage: Chosen when arranging it.
+      cardinalityMeaning: One currency per deposit.
+      context: Principal and interest are both in it.
   invariants:
-  - {id: DEPOSIT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: DEPOSIT-001, rule: A confirmed deposit's terms are not edited; a change of terms is a new deposit.}
+  - {id: DEPOSIT-002, rule: The maturity date must not be earlier than the value date., violatedWhen: maturity_date != null and value_date != null and maturity_date < value_date, message: The maturity date is earlier than the value date.}
+  - {id: DEPOSIT-003, rule: A time deposit has a maturity date., violatedWhen: deposit_type == "TIME" and maturity_date == null, message: Give the maturity date of the time deposit.}
+  workflows:
+  - name: FollowUpRequired
+    title: "Follow up when a deposit is ended"
+    description: "When a deposit is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "DEPOSIT-FOLLOW-UP-{{id}}"
+          name: "Follow up on deposit {{deposit_number}}"
+          description: "Deposit {{deposit_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  lifecycle:
+    title: Deposit Lifecycle
+    attribute: status
+    states: [ARRANGED, ACTIVE, MATURED, BROKEN, CANCELLED]
+    initial: ARRANGED
+    terminal: [MATURED, BROKEN, CANCELLED]
+    transitions:
+    - {from: ARRANGED, to: ACTIVE, action: place}
+    - {from: ACTIVE, to: MATURED, action: mature}
+    - {from: ACTIVE, to: BROKEN, action: break}
+    - {from: ARRANGED, to: CANCELLED, action: cancel}
   help:
-    summary: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
-    purpose: Provide canonical enterprise semantics for Deposit.
-    businessMeaning: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: A sum placed with a bank to earn interest for a fixed term or until it is called back.
+    businessMeaning: Treasury invests surplus cash in deposits. Each one ties up a principal at a known rate for a known time, so the business must know how much is placed with which bank, what it will earn, when it comes back, and how much counterparty exposure it has to each bank.
+    usage: Treasury records each deposit when it is placed, confirms it against the bank's confirmation, accrues its interest each period, and plans cash around maturities. Risk reviews sum deposits by bank to check counterparty limits.
+    relationshipContext: A deposit is held with a bank (an Organization) and funded from and repaid to one of the company's BankAccounts. Its principal and interest are in one Currency.
+    lifecycle: Arranged with the bank, then active from the value date, and matured when principal and interest are repaid. It may be broken before maturity, usually at a cost. A deposit that never settles is cancelled.
+    workflowContext: Cash forecasting identifies surplus; treasury places deposits; accounting accrues interest; maturity returns cash to the forecast; counterparty-limit monitoring reads open deposits.
+    example: 'Deposit TD-2024-019: 2,000,000 EUR with Bank A, 3.40% actual/360, value 2 April 2024, maturity 2 July 2024, interest 17,188.89 EUR, funded from and repaid to account EUR-OP-01.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DEPOSIT}

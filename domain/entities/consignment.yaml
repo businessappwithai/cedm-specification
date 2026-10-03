@@ -2,23 +2,250 @@ entity:
   name: Consignment
   namespace: cedm.domain
   kind: logistics_transaction
-  description: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
+  description: A set of goods handed to one carrier, under one transport document, to move from one shipper to one consignee — the unit a carrier quotes, carries, tracks and invoices.
   ui:
-    icon: file-text
+    icon: package-check
+    recordLabel: [code]
   identity: {key: consignmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: consignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Consignment., businessMeaning: Identifies one governed Consignment record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Consignment., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
-  relationships: []
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: Our own reference for the consignment, such as CN-24-008812.
+      usage: Assigned when the consignment is created; printed on labels and quoted to the carrier.
+      relationshipContext: Unique; the carrier's own reference is kept separately in the waybill number.
+  - name: transportDocumentNumber
+    type: string
+    required: false
+    maxLength: 60
+    help:
+      summary: The number of the waybill, bill of lading or consignment note issued for the goods.
+      usage: Entered when the carrier issues the document; tracking and freight invoices quote it.
+      relationshipContext: Issued by the carrier, so it is known only after booking.
+  - name: transportMode
+    type: enum
+    required: true
+    default: ROAD
+    values: [ROAD, RAIL, SEA, AIR, PARCEL, MULTIMODAL]
+    help:
+      summary: How the goods travel.
+      usage: Chosen when booking; it decides which transport document is used and which rules apply.
+      relationshipContext: A multimodal journey is recorded as its main mode, with the legs as trip segments.
+      valueSemantics:
+        ROAD: By truck or van.
+        RAIL: By train.
+        SEA: By ship.
+        AIR: By aircraft.
+        PARCEL: By a parcel or courier network.
+        MULTIMODAL: By more than one mode under one contract.
+  - name: serviceLevel
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The carrier's service ordered, such as "Express 24h" or "Groupage".
+      usage: Chosen when booking; it sets the promised transit time and the price.
+      relationshipContext: The carrier's own name for the service.
+  - name: incoterm
+    type: string
+    required: false
+    maxLength: 3
+    help:
+      summary: The Incoterms rule that says who pays and bears risk for the carriage, such as DAP or FCA.
+      usage: Copied from the order; it decides whether the freight charge is ours or the customer's.
+      relationshipContext: Three-letter Incoterms 2020 code.
+  - name: packageCount
+    type: integer
+    required: false
+    help:
+      summary: How many packages, pallets or pieces the carrier accepted.
+      usage: Counted at hand-over and printed on the transport document.
+      relationshipContext: Must match the labels; a shortfall on delivery is a claim.
+  - name: grossWeightKg
+    type: decimal
+    required: false
+    precision: 12
+    scale: 3
+    help:
+      summary: The total weight of the goods with packaging, in kilograms.
+      usage: Declared at booking and confirmed at hand-over; freight is usually charged on it.
+      relationshipContext: Compared with the carrier's measured weight on its invoice.
+  - name: volumeM3
+    type: decimal
+    required: false
+    precision: 12
+    scale: 3
+    help:
+      summary: The space the goods take, in cubic metres.
+      usage: Declared at booking; used for volumetric pricing and loading plans.
+      relationshipContext: Air and parcel carriers may charge on volume instead of weight.
+  - name: plannedPickupAt
+    type: datetime
+    required: false
+    help:
+      summary: When the carrier is due to collect the goods.
+      usage: Agreed at booking; the warehouse plans dispatch around it.
+      relationshipContext: Must not be later than the planned delivery.
+  - name: plannedDeliveryAt
+    type: datetime
+    required: false
+    help:
+      summary: When the goods are due at the destination.
+      usage: Promised by the carrier for the service ordered; customer delivery dates rely on it.
+      relationshipContext: Late delivery is measured against it.
+  - name: pickedUpAt
+    type: datetime
+    required: false
+    help:
+      summary: When the carrier actually collected the goods.
+      usage: Recorded at hand-over; from this point the carrier is responsible.
+      relationshipContext: Present once the consignment is in transit.
+  - name: deliveredAt
+    type: datetime
+    required: false
+    help:
+      summary: When the goods were actually delivered.
+      usage: Taken from the proof of delivery.
+      relationshipContext: Present once the consignment is delivered.
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, EXCEPTION, CANCELLED]
+    help:
+      summary: Where the consignment is between planning and delivery.
+      usage: Moved on by booking, hand-over, tracking updates and the proof of delivery.
+      relationshipContext: An exception needs someone to act before the consignment can continue.
+      valueSemantics:
+        PLANNED: Put together but not yet booked with a carrier.
+        BOOKED: Booked; the carrier has confirmed collection.
+        IN_TRANSIT: Collected by the carrier and on its way.
+        DELIVERED: Delivered and signed for at the destination.
+        EXCEPTION: The carrier reported a problem, such as damage, a failed delivery or a hold at customs.
+        CANCELLED: Called off before the carrier collected it.
+  relationships:
+  - name: carrier
+    target: Carrier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The transport company that carries the goods.
+      usage: Chosen when booking; its service, documents and invoice apply to the consignment.
+      cardinalityMeaning: One carrier per consignment; a change of carrier means a new consignment.
+      context: Subcontracted legs stay the carrier's responsibility.
+  - name: shipment
+    target: Shipment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The shipment whose goods the consignment carries.
+      usage: Linked when the consignment is built from a shipment.
+      cardinalityMeaning: The main shipment; consolidated consignments name their first shipment and list the rest in the notes.
+      context: The shipment's status follows the consignment's.
+  - name: origin
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the carrier collects the goods.
+      usage: Taken from the shipment or the warehouse dispatching it.
+      cardinalityMeaning: One origin per consignment.
+      context: Printed as the shipper's address on the transport document.
+  - name: destination
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the carrier delivers the goods.
+      usage: Taken from the order's delivery address.
+      cardinalityMeaning: One destination per consignment.
+      context: Printed as the consignee's address on the transport document.
   invariants:
-  - {id: CONSIGNMENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: CONSIGNMENT-001, rule: 'Once the carrier has collected the goods, the counts and weights it accepted are not edited; differences found later are recorded as claims.'}
+  - {id: CONSIGNMENT-002, rule: The planned delivery must not be earlier than the planned pickup., violatedWhen: planned_delivery_at != null and planned_pickup_at != null and planned_delivery_at < planned_pickup_at, message: The planned delivery is earlier than the planned pickup.}
+  - {id: CONSIGNMENT-003, rule: A consignment in transit records when it was collected., violatedWhen: status == "IN_TRANSIT" and picked_up_at == null, message: Record when the carrier collected the goods.}
+  - {id: CONSIGNMENT-004, rule: A delivered consignment records when it was delivered., violatedWhen: status == "DELIVERED" and delivered_at == null, message: Record when the goods were delivered.}
+  - {id: CONSIGNMENT-EXE-001, rule: "Package Count cannot be negative.", violatedWhen: "package_count != null and package_count < 0", message: "Package Count cannot be negative."}
+  workflows:
+  - name: ExceptionRaised
+    title: "Raise a task when a consignment is stopped"
+    description: "When a consignment is exception, a high-priority task asks someone to resolve it."
+    when: "status == \"EXCEPTION\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CONSIGNMENT-EXCEPTION-{{id}}"
+          name: "Resolve consignment {{code}}"
+          description: "Consignment {{code}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a consignment is ended"
+    description: "When a consignment is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CONSIGNMENT-FOLLOW-UP-{{id}}"
+          name: "Follow up on consignment {{code}}"
+          description: "Consignment {{code}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a consignment is done"
+    description: "When a consignment is delivered, a task asks someone to confirm the outcome."
+    when: "status == \"DELIVERED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CONSIGNMENT-COMPLETED-{{id}}"
+          name: "Confirm consignment {{code}}"
+          description: "Consignment {{code}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
+  lifecycle:
+    title: Consignment Lifecycle
+    attribute: status
+    states: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, EXCEPTION, CANCELLED]
+    initial: PLANNED
+    terminal: [DELIVERED, CANCELLED]
+    transitions:
+    - {from: PLANNED, to: BOOKED, action: book}
+    - {from: BOOKED, to: IN_TRANSIT, action: pick_up}
+    - {from: IN_TRANSIT, to: DELIVERED, action: deliver}
+    - {from: IN_TRANSIT, to: EXCEPTION, action: report_exception}
+    - {from: EXCEPTION, to: IN_TRANSIT, action: resolve}
+    - {from: EXCEPTION, to: DELIVERED, action: deliver}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: BOOKED, to: CANCELLED, action: cancel}
   help:
-    summary: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
-    purpose: Provide canonical implementation-neutral semantics for Consignment across enterprise applications.
-    businessMeaning: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: Goods tendered together to one carrier, from one place to another, under one transport document.
+    businessMeaning: A shipment is what the business plans to move; a consignment is what it actually hands over to a carrier. It is the unit the carrier's contract, its waybill, its tracking and its freight invoice all refer to, so it carries the agreed service, the counts and weights the carrier accepted, and the transport document number.
+    usage: Transport planners build consignments from one or more shipments, book them with a carrier and print the waybill. Dispatch confirms the hand-over; customer service tracks consignments with the carrier's reference; freight audit matches the carrier's invoice line to the consignment.
+    relationshipContext: A consignment is carried by one Carrier and may contain one Shipment's goods or several. It goes from an origin Location to a destination Location. Tracking events and freight charges refer to the consignment; deliveries close it.
+    lifecycle: Planned, booked with the carrier, handed over (in transit), and delivered. It may be cancelled before hand-over, or held as an exception when the carrier reports a problem that someone has to resolve.
+    workflowContext: Order fulfilment and transport planning create consignments; carrier booking and labelling act on them; proof of delivery closes them; freight settlement pays for them.
+    example: 'Consignment CN-24-008812: 3 pallets, 612 kg, 1.9 m³, Lyon DC to Customer Depot Milan, carrier Fercam, road groupage, waybill FC1234567, collected 12 March, delivered 14 March.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONSIGNMENT}

@@ -2,57 +2,127 @@ entity:
   name: BillingCycle
   namespace: cedm.domain
   kind: billing_control
-  description: A governed recurring billing interval and cutoff definition used to determine charge-generation periods.
+  description: A recurring billing period — monthly, quarterly, annual — with its cut-off and invoice dates, used to decide which usage and charges fall into which bill.
   ui:
-    icon: table
+    icon: calendar-clock
+    recordLabel: [code, name]
   identity: {key: billingCycleId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: billingCycleId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BillingCycle., businessMeaning: Identifies one governed BillingCycle record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of BillingCycle., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: DRAFT
+    values: [DRAFT, ACTIVE, RETIRED]
+    help:
+      summary: Whether the cycle may be used.
+      usage: Only active cycles are offered for new subscriptions.
+      relationshipContext: A retired cycle must have no active subscriptions left.
+      valueSemantics:
+        DRAFT: Being set up; not yet offered.
+        ACTIVE: Offered and in use by the billing run.
+        RETIRED: No longer offered; kept for the history of past bills.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 20
+    help:
+      summary: The short code of the cycle, such as MON-01.
+      usage: Chosen when the cycle is created; subscriptions and billing reports refer to it.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The name of the cycle, such as "Monthly, 1st of the month".
+      usage: Shown when a subscription is placed on a cycle.
+      relationshipContext: Identifies the cycle for people, with the code.
+  - name: frequency
+    type: enum
+    required: true
+    default: MONTHLY
+    values: [WEEKLY, MONTHLY, QUARTERLY, SEMI_ANNUAL, ANNUAL]
+    help:
+      summary: How long each billing period lasts.
+      usage: Chosen when the cycle is created; it cannot change once subscriptions use the cycle.
+      relationshipContext: Read with the interval count, which multiplies it.
+      valueSemantics:
+        WEEKLY: One week.
+        MONTHLY: One calendar month.
+        QUARTERLY: Three calendar months.
+        SEMI_ANNUAL: Six calendar months.
+        ANNUAL: One year.
+  - name: intervalCount
+    type: integer
+    required: true
+    default: 1
+    help:
+      summary: How many units of the frequency make one period — 2 with monthly means every two months.
+      usage: Usually 1.
+      relationshipContext: Must be at least 1.
+  - name: anchorDay
+    type: integer
+    required: false
+    help:
+      summary: The day of the month (or of the week, for weekly cycles) each period starts on.
+      usage: Set so that billing dates are predictable, such as the 1st of the month.
+      relationshipContext: Days beyond the end of a short month fall on its last day.
+  - name: cutoffOffsetDays
+    type: integer
+    required: true
+    default: 0
+    help:
+      summary: How many days after a period ends usage is still accepted into it.
+      usage: Gives late usage feeds time to arrive before the period is rated.
+      relationshipContext: Usage arriving after the cut-off goes into the next period.
+  - name: invoiceOffsetDays
+    type: integer
+    required: true
+    default: 1
+    help:
+      summary: How many days after a period ends its invoice is produced.
+      usage: Used by the billing run to schedule invoicing.
+      relationshipContext: Should not be less than the cut-off offset.
+  - name: paymentDueDays
+    type: integer
+    required: false
+    help:
+      summary: How many days after the invoice date payment is due.
+      usage: Copied onto invoices produced for this cycle unless the customer's payment terms say otherwise.
+      relationshipContext: Payment terms agreed with the customer take precedence.
+  relationships:
+  - name: currency
+    target: Currency
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The currency the cycle bills in, when it is specific to one.
+      usage: Set when cycles differ by currency; empty when any currency may use it.
+      cardinalityMeaning: At most one currency per cycle.
+      context: Subscriptions on the cycle bill in its currency.
   invariants:
-  - {id: BILLING-CYCLE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: BILLING-CYCLE-001, rule: Changing a cycle does not move periods already billed; past bills keep the periods they were produced for.}
+  - {id: BILLING-CYCLE-002, rule: A period is at least one unit of the frequency long., violatedWhen: interval_count != null and interval_count < 1, message: The interval count must be 1 or more.}
+  - {id: BILLING-CYCLE-003, rule: The invoice is produced no earlier than the usage cut-off., violatedWhen: invoice_offset_days != null and cutoff_offset_days != null and invoice_offset_days < cutoff_offset_days, message: Invoices would be produced before usage is closed.}
+  - {id: BILLING-CYCLE-EXE-001, rule: "Interval Count cannot be negative.", violatedWhen: "interval_count != null and interval_count < 0", message: "Interval Count cannot be negative."}
   lifecycle:
     title: Billing Cycle Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, ACTIVE, RETIRED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a billing cycle is ended"
-      description: "When a billing cycle is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BILLING-CYCLE-FOLLOW-UP-{{id}}"
-              name: "Follow up on billing cycle {{id}}"
-              description: "Billing cycle {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: DRAFT, to: RETIRED, action: retire}
   help:
-    summary: A governed recurring billing interval and cutoff definition used to determine charge-generation periods.
-    purpose: Provide canonical enterprise semantics for BillingCycle while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed recurring billing interval and cutoff definition used to determine charge-generation periods.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: The rhythm on which customers are billed, and the dates that define each billing period.
+    businessMeaning: Subscription and usage businesses bill in cycles. The cycle fixes how long a billing period is, on which day it closes for usage, and when the invoice is produced and due, so that every charge lands in exactly one bill and customers are billed on predictable dates.
+    usage: Billing administrators define the cycles the business offers; each subscription is placed on one. The billing run closes the current period of each cycle on its cut-off day, rates the usage, and issues the invoices.
+    relationshipContext: Subscriptions and subscription plans name the cycle they are billed on. Charges and usage records fall into the periods the cycle defines. A cycle may be specific to one currency.
+    lifecycle: A cycle is drafted, made active once it may be assigned to subscriptions, and retired when it is no longer offered; subscriptions already on a retired cycle are moved before it stops running.
+    workflowContext: Order-to-cash for subscriptions — subscription activation assigns the cycle, the billing run uses its cut-off, invoicing uses its invoice and due dates, collections use the due date.
+    example: 'Cycle MON-01: monthly, periods start on the 1st, usage cut-off at the end of the last day, invoices produced on the 2nd, due 14 days later.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BILLING-CYCLE}

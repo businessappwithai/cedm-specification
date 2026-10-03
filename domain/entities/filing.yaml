@@ -2,23 +2,214 @@ entity:
   name: Filing
   namespace: cedm.domain
   kind: legal_filing
-  description: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
+  description: A document lodged with a court, regulator, registry or tax authority — a pleading, an annual return, a tax return, a patent application — with its deadline, the date it was lodged and the authority's acknowledgement.
   ui:
-    icon: table
+    icon: stamp
+    recordLabel: [filingNumber, title]
   identity: {key: filingId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: filingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Filing., businessMeaning: Identifies one governed Filing record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
-  relationships: []
+  - name: filingNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: Our reference for the filing.
+      usage: Assigned when the filing is recorded.
+      relationshipContext: Unique; the authority's reference is kept as the acknowledgement.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What is being filed, such as "Annual accounts 2023".
+      usage: Shown in deadline calendars.
+      relationshipContext: Identifies the filing for people, with the number.
+  - name: filingType
+    type: enum
+    required: true
+    values: [COURT, REGULATORY, CORPORATE_REGISTRY, TAX, INTELLECTUAL_PROPERTY, OTHER]
+    help:
+      summary: What kind of filing it is.
+      usage: Chosen when recording it; deadlines and responsible teams differ by type.
+      relationshipContext: Read with the authority.
+      valueSemantics:
+        COURT: A pleading or other submission to a court.
+        REGULATORY: A report or notification to a regulator.
+        CORPORATE_REGISTRY: An annual return, accounts or a change notified to a company registry.
+        TAX: A tax return or declaration.
+        INTELLECTUAL_PROPERTY: A patent, trademark or design application or renewal.
+        OTHER: Any other submission to an authority.
+  - name: dueDate
+    type: date
+    required: true
+    help:
+      summary: The last day the filing may be lodged.
+      usage: Taken from the law, the court's order or the authority's notice; calendars warn before it.
+      relationshipContext: A filing submitted after it is late.
+  - name: submittedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the filing was lodged.
+      usage: Recorded on submission; it is the proof of meeting the deadline.
+      relationshipContext: Present once submitted.
+  - name: submissionChannel
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: How the filing was lodged, such as the authority's portal, post or in person.
+      usage: Recorded on submission.
+      relationshipContext: Some authorities accept only their own portal.
+  - name: acknowledgementReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The reference the authority gave on receipt.
+      usage: Entered from the acknowledgement; quoted in any later correspondence.
+      relationshipContext: The evidence that the authority received the filing.
+  - name: feeAmount
+    type: Money
+    required: false
+    help:
+      summary: The fee paid to the authority for the filing.
+      usage: Recorded for expense tracking.
+      relationshipContext: Many filings carry no fee.
+  - name: rejectionReason
+    type: text
+    required: false
+    help:
+      summary: Why the authority rejected the filing.
+      usage: Recorded when it is rejected, so the corrected filing addresses it.
+      relationshipContext: Present only on rejected filings.
+  - name: status
+    type: enum
+    required: true
+    default: REQUIRED
+    values: [REQUIRED, IN_PREPARATION, SUBMITTED, ACCEPTED, REJECTED, WITHDRAWN]
+    help:
+      summary: Where the filing stands.
+      usage: Moved on as it is prepared, lodged and answered.
+      relationshipContext: A required filing past its due date is overdue.
+      valueSemantics:
+        REQUIRED: Known to be needed; work has not started.
+        IN_PREPARATION: Being prepared.
+        SUBMITTED: Lodged with the authority.
+        ACCEPTED: Accepted by the authority.
+        REJECTED: Refused by the authority; a corrected filing is needed.
+        WITHDRAWN: Found not to be needed, or withdrawn after lodging.
+  relationships:
+  - name: authority
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The court, regulator, registry or tax authority the filing is made with.
+      usage: Chosen when recording it.
+      cardinalityMeaning: One authority per filing.
+      context: Its rules decide the format and the deadline.
+  - name: legalEntity
+    target: LegalEntity
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The company the filing is made for.
+      usage: Chosen when recording it; each company's filing calendar is drawn from these.
+      cardinalityMeaning: One company per filing.
+      context: Group companies each have their own filings.
+  - name: legalCase
+    target: LegalCase
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The court case the filing belongs to.
+      usage: Linked for court filings.
+      cardinalityMeaning: At most one case per filing.
+      context: The case lists its filings in date order.
+  - name: document
+    target: Document
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The document as filed.
+      usage: Linked on submission.
+      cardinalityMeaning: One filed document; supporting papers are attachments.
+      context: The filed version is kept unchanged.
+  - name: preparedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person responsible for preparing and lodging the filing.
+      usage: Receives deadline reminders.
+      cardinalityMeaning: One per filing.
+      context: Should be reassigned when they are absent near the deadline.
   invariants:
-  - {id: FILING-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: FILING-001, rule: A submitted filing is not changed; a correction is a new filing.}
+  - {id: FILING-002, rule: A submitted filing records when it was submitted., violatedWhen: (status == "SUBMITTED" or status == "ACCEPTED" or status == "REJECTED") and submitted_at == null, message: Record when the filing was lodged.}
+  - {id: FILING-003, rule: A rejected filing records why., violatedWhen: status == "REJECTED" and rejection_reason == null, message: Give the reason the filing was rejected.}
+  - {id: FILING-EXE-001, rule: "Fee Amount cannot be negative.", violatedWhen: "fee_amount != null and fee_amount < 0", message: "Fee Amount cannot be negative."}
+  workflows:
+  - name: ApprovalRequested
+    title: "Ask for a decision when a filing is put forward"
+    description: "When a filing is submitted, a task asks someone to decide on it."
+    when: "status == \"SUBMITTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FILING-APPROVAL-{{id}}"
+          name: "Decide on filing {{title}}"
+          description: "Filing {{title}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a filing is ended"
+    description: "When a filing is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "FILING-FOLLOW-UP-{{id}}"
+          name: "Follow up on filing {{title}}"
+          description: "Filing {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  lifecycle:
+    title: Filing Lifecycle
+    attribute: status
+    states: [REQUIRED, IN_PREPARATION, SUBMITTED, ACCEPTED, REJECTED, WITHDRAWN]
+    initial: REQUIRED
+    terminal: [ACCEPTED, REJECTED, WITHDRAWN]
+    transitions:
+    - {from: REQUIRED, to: IN_PREPARATION, action: start}
+    - {from: IN_PREPARATION, to: SUBMITTED, action: submit}
+    - {from: REQUIRED, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: ACCEPTED, action: accept}
+    - {from: SUBMITTED, to: REJECTED, action: reject}
+    - {from: REQUIRED, to: WITHDRAWN, action: withdraw}
+    - {from: IN_PREPARATION, to: WITHDRAWN, action: withdraw}
+    - {from: SUBMITTED, to: WITHDRAWN, action: withdraw}
   help:
-    summary: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
-    purpose: Provide canonical governance semantics for Filing.
-    businessMeaning: A governed submission or filing made to a court, regulator, registry, authority, or other external body with immutable submission evidence.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: One submission to an outside authority, with its due date and the proof that it was made.
+    businessMeaning: Missing a filing deadline can mean fines, a lost case or a struck-off company. A filing record holds what must be lodged, with whom, by when, what was actually submitted and when, and the authority's acknowledgement, which is the evidence that the obligation was met.
+    usage: Legal, company-secretarial and tax staff record each required filing with its deadline, prepare and lodge it, and attach the acknowledgement. Calendars of upcoming deadlines and reports of late filings are drawn from these records.
+    relationshipContext: A filing is made with an authority (an Organization), on behalf of a LegalEntity, and may belong to a LegalCase or LegalMatter. The filed document itself is a Document.
+    lifecycle: Required once the obligation is known, in preparation, submitted when lodged, then accepted or rejected by the authority. A rejected filing is corrected and filed again as a new filing. A filing that turns out not to be needed is withdrawn.
+    workflowContext: Compliance calendars create filings; legal and tax processes prepare them; submission records evidence; rejections create corrective filings.
+    example: 'Filing FIL-2024-112: annual accounts of ACME France SAS to the Greffe of Lyon, due 31 July 2024, submitted 22 July, acknowledgement 2024-LY-88412, accepted 29 July.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FILING}
