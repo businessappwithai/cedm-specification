@@ -75,10 +75,12 @@ and workflows written in the document are running in the generated application,
 not scaffolded as TODOs.
 
 ```
-one .eml.yaml model →  generate  →  Postgres schema + NestJS API + TanStack Start UI
+one .eml.yaml model →  generate  →  Postgres schema + Loco.rs API + TanStack Start UI
                                    + Application Dictionary + audit trail
                                    + rules engine + workflow engine, all wired
 ```
+
+
 
 Two properties follow, and most confusion about this system comes from missing
 one of them:
@@ -97,22 +99,27 @@ one of them:
 ## 1. Repository topology
 
 ```
-app-with-ai-tanstack/
-├── language/          # EML: the language. Definition, schema, spec, checker, CLI
+app-with-ai-rust/
+├── language/          # EML: the language. Definition, YAML schema, spec, checker, CLI
+│   ├── yaml/          #   the YAML model language — eml.schema.json, the reader
+│   ├── cedm/          #   CEDM application models, lowered to the YAML document
+│   └── browser/       #   entries bundled for a browser: the validator, the viewers'
+│                      #     reader, and the Loco pipeline itself
 ├── packages/
 │   ├── core/          # Shared types, hooks, services, auth, rules, DB config
 │   ├── generator/     # ⭐ The generator: pipeline, compilers, Handlebars templates
-│   ├── ai/            # Mastra agents, HITL ERD workflow, pgvector retrieval
+│   ├── ai/            # Mastra agents, HITL ERD workflow
 │   └── web/           # The modelling tool itself (TanStack Start, :3000)
+├── crates/
+│   └── appwithai-gen/ # The generator's Rust port — emits the same backend, byte
+│                      #   for byte; also built for wasm32-wasip1
 ├── database/          # Migrations for the modelling tool's own database
 ├── website/           # What the site publishes from this repository
-│   ├── llmtext/       #   This file, and its companion
+│   ├── llmtext/       #   This file, and its companions
 │   └── viewers/       #   The model viewers — https://www.appwithai.org/viewers
-├── html/              # The human guide published at https://www.appwithai.org/guide, plus
-│                   #   model-yaml.js — the published validator — and
-│                   #   the pages that run a whole stack in a browser tab
-├── scripts/           # Build and CI scripts, incl. the four --check bundlers (§8)
-├── tests/             # Playwright: the modelling tool, and the browser stack
+├── html/              # The validator bundle published at https://www.appwithai.org/guide
+├── scripts/           # Build and CI scripts, incl. the parity gate (§8)
+├── tests/             # Playwright: the modelling tool
 ├── docs/              # Architecture notes and QA reports
 ├── generated-projects/# Output of the generator
 └── examples/          # Sample models (.eml.yaml / .cedm.yaml)
@@ -122,10 +129,16 @@ Two applications live here and must not be confused:
 
 | | The **modelling tool** | The **generated application** |
 |---|---|---|
-| Where | `packages/web`, port 3000 | `generated-projects/<name>`, ports 4000/4001 |
+| Where | `packages/web`, port 3000 | `generated-projects/<name>`, API on 3000, front end on 3001 |
 | What | Where you author and generate a model | What the generator produced |
-| Stack | TanStack Start + Vite 8 | TanStack Start (4000) + NestJS (4001) |
+| Stack | TanStack Start + Vite 8 | Loco.rs backend (Axum + SeaORM/sqlx) + TanStack Start + Astryx front end |
 | Database | `database/migrations/` | its own, per generated app |
+
+Both default to 3000: the modelling tool is a development tool, and a generated
+application is run on its own or behind a proxy (the orchestrator serves it at
+`/app`). Run them side by side with `--port`.
+
+
 
 When a request says "the app", resolve which one from context. "Generate",
 "designer", "wizard", "project" → the modelling tool. "bus_ table",
@@ -1677,7 +1690,7 @@ TanStack/Loco application generators do not yet.
 ### 4.1 One pipeline, three entry points
 
 `packages/generator/src/pipeline/generate-application.ts` is **the** generation
-path. The CLI, the modelling tool's `/api/generate`, and the WASM CLI (§4.1.1)
+path. The CLI, the modelling tool's `/api/generate`, and the browser build (§4.1.1)
 all go through it, so a model produces the same application however it was
 submitted.
 
@@ -1687,47 +1700,49 @@ submitted.
 > model declared and fell back to a single "General" group.
 
 ```bash
-bun packages/generator/src/cli/generate.ts generate \
+bun packages/generator/dist/cli/generate.js generate \
   --input language/yaml/examples/crm.eml.yaml \
   --output generated-projects/crm --name crm \
-  --port 4001 --frontend-port 4000 \
+  --stack tanstack-astryx-loco --db postgres \
   --records-per-entity 25 --force --no-setup
 ```
 
+(`bun run generate:tanstack -- …` is the same with `--stack` pinned.)
+
 Subcommands: `generate` `generate:backend` `generate:frontend` `generate:entity`
-`inspect` `validate` `diff` `info` `wizard` `list` `deploy`.
+`inspect` `validate` `convert` `diff` `info` `wizard` `list` `deploy`.
 
 Key flags: `--force` overwrite · `--dry-run` preview · `--no-setup` skip
-install/migrate/seed · `--no-tests` skip the E2E suite · `--records-per-entity`
-(default 1000) · `--db postgresql|sqlite` · `--run-tests`.
+build/migrate/seed · `--no-tests` skip the bun:test E2E suite ·
+`--records-per-entity` (default 1000) · `--db postgres|neon` · `--port` (the
+API, default 3000) · `--frontend-port` (default port + 1) · `--run-tests` ·
+`--skip-cli-scaffold` (offline: skip `loco new`, §4.3).
 
-**Ports**: generated apps use 4000 (app) and 4001 (API), deliberately off 3000
-where the modelling tool runs. Source of truth
-`generator/src/generators/ports.ts`; `web/src/lib/generated-ports.ts` mirrors it
-for client components with a unit test asserting they stay equal.
+**Ports**: the generated API listens on 3000 and its front end on 3001. The
+modelling tool also uses 3000, so pass `--port` when running both on one
+machine.
 
-### 4.1.1 The third entry point — the browser stack
+### 4.1.1 The other entry points — the Rust generator and the browser
 
-`bun run wasm generate` (`generator/src/cli-wasm/generate.ts`) runs **the same
-pipeline**, then applies an overlay. It is not a second stack, and the CI checks
-in §8 exist to keep that true: the overlay changes 9 files and adds 6, and
-exactly one of the nine is application source.
+The same backend comes out of three runtimes, held equal by the parity gate (§8):
 
-Two modes, and they produce very different things:
-
-| | Default | `--standalone` |
+| Entry point | Runs | Emits |
 |---|---|---|
-| Output | ~430 files — the full NestJS + TanStack source, with `pg` swapped for WebAssembly Postgres and `bun` for `node` | ~40 files — a self-contained browser application |
-| The model becomes | the same generated source any other stack gets | `app/model.json` plus `schema.sys.sql` / `schema.bus.sql`; **no per-entity source at all** |
-| Needs | `npm install`, a build | neither — open `index.html` |
+| `appwithai generate` | the TypeScript pipeline above | the whole application |
+| `cargo run -p appwithai-gen -- generate --skip-cli-scaffold` | the Rust port (`crates/appwithai-gen`) | the backend, byte for byte equal to the TypeScript one apart from the `Generated:` line |
+| `bun run wasm generate …` | the Rust port built for `wasm32-wasip1` (`bun run build:wasm`), hosted on Node's WASI | the same backend again |
 
-The standalone mode is the one that surprises people: there is no
-`bus_lead.controller.ts` to read, because the entities are data the runtime
-interprets, exactly as the Application Dictionary already made screens data
-(§5.3). Its runtime lives in `templates/wasm/` and `templates/wasm-overlay/` as
-plain `.js` copied verbatim — **after editing either, run `bun run
-build:wasm-runtime` from the repo root**, or the generator keeps emitting
-yesterday's runtime while the diff shows today's.
+The front end and the bun:test suite are emitted by TypeScript only — `cargo`
+owns `backend/`, `bun` owns `frontend/` and `tests/`, and that split is
+deliberate.
+
+**In a browser tab**, `language/browser/loco-generator.entry.ts` runs
+`generateApplication` itself — unchanged — against an in-memory filesystem that
+holds the templates, the language definition and the CEDM specification, with
+the `loco new` scaffold skipped. That is how the website hands over a whole
+application as a `.zip`; `scripts/sites/build-site-bundles.ts` in the
+`app-with-ai-rust` copy builds it, and a comparison against `appwithai generate`
+over every published model holds it to the same files.
 
 ### 4.1.2 The fourth entry point — the reporting target
 
@@ -1808,103 +1823,105 @@ Full detail, including that platform's own architecture, is in
 is an error at its line rather than a grouping that silently falls into the
 default `General` category.
 
-### 4.3 Templates — 171 Handlebars files, plus two verbatim trees
+### 4.3 Templates — the Loco backend, the front end and the test suites
 
 ```
 packages/generator/templates/
-├── common/                        11 .hbs — stack-independent
-│   ├── migrations/                bus-tables, sys-tables, fix-numeric-columns
-│   ├── seeds/                     sys-dictionary, sys-references, business-rules,
-│   │                              business-data, entity-categories, users-and-roles,
-│   │                              operation-access, report-designs
-│   └── design-tokens.json         the palette, stated once (not a template)
-├── tanstack-start-nestjs/
-│   ├── backend/    94 .hbs — modules: ai, audit, auth, bus, electric, hooks,
-│   │                         jobs, model-context, rules, sys, workflow,
-│   │                         workflow-definitions
-│   ├── frontend/   27 .hbs — routes, components, automation UI, i18n, fonts
-│   └── tests/      34 .hbs — harness/ + suites/ + run.ts (§4.4)
-├── wasm/           35 files — the standalone browser runtime. Not Handlebars:
-│                             plain .js copied verbatim, so after editing it run
-│                             `bun run build:wasm-runtime` from the repo root to
-│                             re-inline it. CI compares the inlined copy byte for
-│                             byte and fails on drift.
-└── wasm-overlay/    7 files — what the WASM stack swaps in over the generated
-                              app (pg → WebAssembly Postgres, bun → node). Also
-                              verbatim; the same re-inline step applies.
+├── common/                 12 .hbs — migrations, seeds, hooks, services shared by the stack
+└── tanstack-astryx-loco/
+    ├── docker-compose.yml.hbs     rendered; branches on --db (no postgres service for neon)
+    ├── backend/   105 .hbs — the Loco crate: Cargo workspace + Cargo.lock, migration/
+    │                         crate (m0000–m0019 and the bus tables), config/*.yaml,
+    │                         controllers (bus, sys, auth, me, rules, workflow, audit,
+    │                         records, reports, jobs, ai), services (dictionary,
+    │                         dynamic_repo, row_json, authz, promotion, workflow),
+    │                         tasks (seed_dictionary, seed_workflows, seed_access,
+    │                         seed_reports, ensure_admin), src/openapi.rs, and the
+    │                         request test suites
+    ├── frontend/   71 .hbs — TanStack Start routes and components, the Astryx overlay
+    │                         (all components/ui adapters), i18n, the manual
+    └── tests/      36 .hbs — the bun:test harness and suites (§4.4)
 ```
 
 The counts move. Treat them as the shape of the tree rather than a fact to
 quote back — `find packages/generator/templates -name '*.hbs' | wc -l` is the
 answer at any given moment.
 
-Adding a template: create the `.hbs`, register it in
-`generator/src/templates/loader.ts`, supply context in the matching generator
-class — **then generate an app and build it.** Templates are `.hbs` text until
-rendered, so `bun run type-check` in this repo proves nothing about them. Two
-bugs reached main that way. CI's `generated-app` job exists for exactly this.
+**`loco new` does the scaffolding; the templates fill the rest.** Phase 1 shells
+out to the Loco CLI (installing it if missing) in a scratch directory and copies
+its output across — the framework's own CI workflow, `.rustfmt.toml`,
+`AGENTS.md` — then prunes the starter files this architecture replaces. Phase 2
+overlays the templates. `--skip-cli-scaffold` skips phase 1 for offline builds.
 
-### 4.4 The generated test suite
+Adding a template: create the `.hbs`, register it in `RENDERED_FILES` in **both**
+`loco-backend.generator.ts` and `crates/appwithai-gen/src/backend.rs` (or in the
+front end's static-copy list for a verbatim file), supply context in the
+generator's `prepareContext()` — **then generate an app and build it.** Templates
+are `.hbs` text until rendered, so `bun run type-check` in this repository proves
+nothing about them, and Handlebars strict mode is off in both engines: a helper
+missing from one of them renders as an empty string.
 
-`templates/tanstack-start-nestjs/tests/` renders a runnable **`node:test`**
-suite into every generated app. Not `bun:test` — it was ported, because the
-WASM stack has no Bun in it anywhere and a suite that needed one could not test
-the application it shipped with. `harness/testing.ts` supplies the twenty lines
-of `expect` that `node:test` lacks.
+### 4.4 The generated test suites
 
-- `harness/` — auth, http, factory, entities, rules, workflows, metrics,
-  report, manifest, server, and **`model.ts`**
-- `suites/`, in the order they run:
+Every generated application ships two independent end-to-end suites over the
+same HTTP surface. Both are generated from the model, so both grow when it does.
+
+**`backend/tests/` — the Rust request suites, the primary gate.** `LOCO_ENV=test
+cargo test --test app` against `<crate>_test`: a `crud_<entity>` and a
+`rules_<entity>` suite per entity, plus shared suites for authentication,
+the dictionary, permissions, `rbac`, rules, transitions, sagas, reports, jobs,
+records, the OpenAPI document and the request log. `requests/permissions.rs`
+sends no credentials at all and `requests/rbac.rs` builds a genuinely
+non-master caller — every other suite signs in as the master-role administrator,
+which passes every gate, so those two are the only ones that can see a hole in
+access control.
+
+**`tests/` — the bun:test suites**, driven by `run.ts`:
 
 | | Asserts |
 |---|---|
 | `00-health`, `01-auth` | the app is up and a session works |
-| `02-dictionary` | every column the ERD declared reached `sys_column` |
+| `02-dictionary` | every column the model declared reached `sys_column` |
 | `02b-dictionary-layout` | every entity has a window, a tab under it, and a field per column — a missing `sys_field` row errors nowhere, it just renders a form without that input |
-| `02c-dictionary-references` | every column resolves to a control: dropdowns carry their enum values, lookups carry a target table and a label column. A degraded reference is a plain text box, which is invisible to a test that only checks the column exists |
+| `02c-dictionary-references` | every column resolves to a control: dropdowns carry their enum values, lookups carry a target table and a label column |
 | `03-crud.<entity>` | CRUD per entity |
 | `04-bulk-seed` | volume, and that a re-run against a populated database still inserts |
 | `05-rules.<entity>` | the rules bound to each entity |
 | `06-rules-workflow`, `06b-workflow-transitions` | rules firing workflows; and that every transition a state machine declares is accepted and every move it does not is refused |
 | `07`, `09` | random and multi-step workflow runs |
 | `08-users-roles` | roles and what they may reach |
+| `09-browser-volume` | 100k records through real Chromium (`--browser-volume`) |
 | `10-benchmark`, `11-performance-budget` | measures and reports; then asserts on *ratios* (deep page vs first page, filtered vs unfiltered), which survive the change of machine that an absolute millisecond does not |
 
 **`harness/model.ts` is the point of the newer suites.** It carries the model's
 own enum values and state-machine transitions into the assertions. A suite that
 reads the running application's dictionary and then asserts against that same
 dictionary proves only that the application is self-consistent — it passes just
-as happily when the generator dropped a value on the floor. Asserting against
-the model is what makes a lost dropdown option or a missing transition fail.
+as happily when the generator dropped a value on the floor.
 
 **Run it with `run.ts`**, which the generated `package.json` exposes as
-`npm run test:e2e` (and `test:e2e:attach` for a backend that is already up):
+`bun run test:e2e` (and `test:e2e:attach` for a backend that is already up):
 
 ```
-node run.ts                 # everything, in order, 1000 records/entity
-node run.ts --small         # 10 records — a smoke run
-node run.ts --records 250   # an arbitrary volume
-node run.ts --fast          # skip the bulk-seed volume suite
-node run.ts --only crud     # substring filter on suite file names
-node run.ts --no-server     # attach to a backend already listening
+bun run run.ts                  # everything, in order, 1000 records/entity
+bun run run.ts --small          # 10 records — a smoke run
+bun run run.ts --records 250    # an arbitrary volume
+bun run run.ts --fast           # skip the bulk-seed volume suite
+bun run run.ts --only crud      # substring filter on suite file names
+bun run run.ts --no-server      # attach to a backend already listening
 ```
 
-Do **not** suggest `bun test` or `node --test suites/` over the whole
-directory. The suites are ordered (seed before rules before workflows) and
-`run.ts` gives each one its own process so a crash in one cannot take the rest
-down. Run together in a single parallel process they interfere — a delete rolls
-back because another suite is holding a reference to the row — and *which* test
-fails moves between runs.
+Do **not** suggest a bare `bun test` over the whole directory. The suites are
+ordered (seed before rules before workflows) and `run.ts` gives each one its own
+process, so a crash in one cannot take the rest down; run together they interfere,
+and *which* test fails moves between runs. Prefer `cargo test` as the regression
+gate — it covers the same ground in a quarter of the time and needs no separate
+process; reach for the bun suites when a failure needs a readable HTTP
+transcript.
 
-Two properties worth knowing before reading a failure:
-
-- **The suites leave their rows behind on purpose**, so a re-run against a
-  populated database is the normal case, not an abuse. Unique values are salted
-  with a per-run token (`E2E_RUN_TOKEN`, printed at the top of every run) folded
-  into any caller-supplied salt. Set it to reproduce an earlier run exactly.
-- **A backend the runner started is stopped by killing its process group**, not
-  its pid: `npm run start` is a launcher whose child holds the port. An orphan
-  left listening poisons the *next* run, which attaches to it.
+The suites leave their rows behind on purpose, so a re-run against a populated
+database is the normal case. Unique values are salted with a per-run token
+(`E2E_RUN_TOKEN`, printed at the top of every run); set it to reproduce a run.
 
 ---
 
@@ -1914,15 +1931,26 @@ Two properties worth knowing before reading a failure:
 
 ```
 generated-projects/<name>/
-├── backend/    NestJS + Fastify + Kysely, :4001
-│   └── src/{modules,migrations,database,common,lib,trigger}, main.ts, seed.ts
-├── frontend/   TanStack Start + React 19, :4000
-│   └── src/{routes,components,hooks,contexts,providers,i18n,lib}
-├── tests/      node:test E2E suite, driven by its own run.ts (see 4.4)
-├── model/      the .eml.yaml it was generated from, byte for byte
-├── frontend/public/manual.html   the generated manual (see 5.6)
-└── Dockerfile, docker-compose.yml, README.md
+├── backend/    the Loco crate — API on :3000
+│   ├── src/{controllers,services,models,tasks,hooks}, openapi.rs, app.rs
+│   ├── migration/   the migration crate (raw SQL under migration/sql)
+│   ├── seed/        dictionary.sql, workflows.sql, access.sql, reports.sql, rules.sql
+│   ├── config/      development.yaml, production.yaml, test.yaml
+│   └── tests/       the Rust request suites (§4.4)
+├── frontend/   TanStack Start + Astryx — :3001
+│   ├── src/{routes,components,hooks,contexts,providers,i18n,lib}
+│   └── public/manual.html   the generated manual (see 5.6)
+├── tests/      the bun:test E2E suite, driven by its own run.ts (see 4.4)
+├── model/      model.eml.yaml — the model it was generated from, byte for byte
+├── cedm/       the common CEDM specification the model draws on
+└── docker-compose.yml, package.json, README.md
 ```
+
+`cargo` owns `backend/` and `bun` owns `frontend/` and `tests/`; the backend has
+no `package.json`. `cargo loco` is an alias the crate's `.cargo/config.toml`
+defines (`run --bin <name>-cli --`), so `cargo loco db migrate`, `cargo loco db
+seed` and `cargo loco start` work without installing anything. The database is
+`<crate>_development`, which `cargo loco db migrate` does not create.
 
 ### 5.2 Database — three families
 
@@ -1969,40 +1997,54 @@ in `/admin`. Do not go looking for `LeadForm.tsx` — it does not exist.
 
 ### 5.4 Backend API
 
-Global prefix `/api`. Controllers:
+Global prefix `/api`. Every controller returns JSON; the backend renders no HTML.
 
 | Route | Purpose |
 |---|---|
-| `GET/POST/PUT/DELETE /api/bus/:entity[/:id]` | generic CRUD for every entity |
-| `GET /api/bus/:entity/meta` | dictionary metadata for the entity |
-| `GET /api/bus/:entity/fields/{form,grid}` | field definitions driving the UI |
-| `POST /api/bus/:entity/:id/promote` | entity promotion |
-| `/api/sys/{tables,columns,windows,tabs,fields,elements,references,field-groups}` | dictionary CRUD |
-| `/api/rules`, `/api/rules/:id/history`, `/api/rules/validate`, `/dry-run` | rules admin |
-| `/api/workflows/runs[/:runId]`, `/runs/:runId/retry`, `/entity/:name/:id` | workflow runs |
-| `GET /api/workflows/transitions[?table=&from=]` | the state-machine edges the model declared |
-| `/api/audit/:id/verify`, `/api/audit/:id/history` | audit trail |
-| `/api/auth/{health,permissions}` | auth |
-| `/api/model-context` | retrieval over the model |
-| `/api/v1/shape` | Electric sync (excluded from the prefix) |
+| `GET/POST /api/bus/{entity}`, `GET/PUT/PATCH/DELETE /api/bus/{entity}/{id}` | generic CRUD for every entity the dictionary describes |
+| `GET /api/bus/{entity}/meta`, `/fields/{form,grid}` | dictionary metadata and the field definitions driving the UI |
+| `GET /api/bus/{entity}/lookup/{column}` | a lookup's rows, narrowed by the values the record passes |
+| `/api/sys/{segment}[/{id}]`, `/api/sys/fields/batch-reorder`, `/api/sys/categories/…` | dictionary reads (open) and writes (master role) |
+| `GET /api/me/dashboard`, `/api/me/permissions`, `/api/me/health` | the caller-scoped front page, what this caller may open, a readiness probe |
+| `/api/rules`, `/api/rules/{id}/history`, `/api/rules/validate`, `/dry-run`, `/evaluate` | rules admin |
+| `/api/workflow`, `/api/workflow/{id}/execute`, `/runs`, `/entity/{entity}/{id}` | workflow definitions and runs |
+| `GET /api/workflow/transitions[?table=&from=]` | the state-machine edges the model declared |
+| `/api/audit`, `/api/audit/{id}/verify` | the hash-chained audit trail |
+| `/api/records/{entity}/{id}/{history,notes}` | a record's history and notes |
+| `GET /api/reports`, `/api/reports/{name}/run` | the model's `reports`, run read-only |
+| `/api/jobs/{kind}` | background jobs |
+| `POST /api/ai/query` | the natural-language query |
+| `/api/auth/{register,login,me,logout,change-password}` | sign-in (a JWT in an HttpOnly cookie, or a Bearer header) |
+| `GET /api/v1/shape` | Electric sync |
+
+`/api/bus/*` is authorised, not only authenticated: one `principal()` lookup per
+request, then `sys_access`, the model's `rbac` operation rules, and — on a status
+write — the drawn transitions, which bind everyone including the master role.
+The application describes itself at `/openapi.json`, with `/redoc` and `/scalar`.
 
 Accounts are **administrator-created by design** — a generated back-office app
 has no self-service signup.
 
 ### 5.5 Frontend
 
-TanStack Start, file-based routing, dynamic segments use `$`:
+TanStack Start + Astryx, file-based routing, dynamic segments use `$`:
 
 ```
 routes/
-├── $entity.$id.tsx            generic record view — the dictionary-driven one
-├── <entity>.tsx, <entity>.$id.tsx   per-entity list and record
+├── dashboard.tsx              the categories, scoped to the reader
+├── <entity>.tsx, <entity>.$id.tsx   per-entity list, and a record (id `new` creates)
+├── $entity.tsx, $entity.$id.tsx     the generic, dictionary-driven fallbacks
+├── reports.index.tsx, reports.$name.tsx, ask.tsx
+├── auth/login.tsx
 └── admin/
     ├── window/$windowId/tab/$tabId/field/$fieldId.tsx   dictionary editors
-    ├── elements.tsx, references.tsx, categories.tsx, roles.tsx
-    ├── rules/{index,new,$id.edit}.tsx
-    └── workflow-definitions/{index,$id/edit}.tsx
+    ├── table/$tableId/column/$columnId.tsx, elements.tsx, references.tsx
+    ├── categories.tsx, roles.tsx, users.tsx, system.tsx, audit.tsx
+    ├── rules/{index,new,$id.edit}.tsx, automations.tsx
+    └── workflow-definitions/{index,new,$id.edit}.tsx
 ```
+
+
 
 The dashboard is your `categories`: one block per category, heading
 and description taken from the model. A final block, Application Dictionary, is
@@ -2030,8 +2072,7 @@ the application was built.
 | | |
 |---|---|
 | Rendered by | `packages/generator/src/manual/index.ts`, from the `ParsedModel` |
-| NestJS stack | `frontend/public/manual.html`, served at `/manual.html`, and also in the downloadable zip |
-| Browser stack | `manual.html` in the file map, served by the Service Worker |
+| Generated application | `frontend/public/manual.html`, served at `/manual.html`, and in the downloadable `.zip` |
 | Linked from | the **Manual** button on both dashboards |
 
 No stylesheet, no script, no font, no image — it is served by a Service Worker,
@@ -2377,18 +2418,15 @@ isHookType("beforeCreate");  // true
 | `bun run build:language-tools` | rebuild `html/model-yaml.js`, the published validator (§10.3) |
 | `bun run test:language-tools` | assert it is current |
 | `bun run check:language-bundle` | run it over every model in headless Chromium and compare with the CLI |
-| `bun run test:wasm` | drive the browser stack in Chromium |
-| `bun run build:wasm-runtime -- --check` | is the inlined WASM runtime current? |
-| `bun run build:fullstack-browser --check` | is `html/assets/appwithai-fullstack.js` current? |
-| `bun run build:wasm-browser -- --check` | is `html/assets/appwithai-wasm.js` current? |
+| `bun run parity` | generate every corpus model with both generators (and the WASM build) and diff the backends; compare the two CEDM lowerings |
+| `bun run build:wasm` / `bun run wasm …` | build the Rust generator for `wasm32-wasip1`, and run it on Node's WASI |
+| `bun scripts/sites/build-site-bundles.ts --check` | in the `app-with-ai-rust` copy: are the website's bundles current? |
 
-The four `--check` variants compare a committed artifact against a fresh build,
-byte for byte. Two of the four are `Bun.build` output, whose bytes depend on the
-bun version **and** the platform, so a mismatch does not always mean "you forgot
-to rebuild" — the failure message says which case it is and what to do. Drop the
-`--check` to rebuild. CI pins bun `1.4.0` on `linux-x64` for exactly this
-reason; building elsewhere produces a third variant that looks right locally and
-is byte-wrong for CI.
+The `--check` variants compare a committed artifact against a fresh build, byte
+for byte. Bundles are `Bun.build` output, whose bytes depend on the bun version
+**and** the platform, so a mismatch does not always mean "you forgot to
+rebuild". CI pins bun on `linux-x64` for exactly this reason; building
+elsewhere produces a variant that looks right locally and is byte-wrong for CI.
 
 **Known-broken**, do not recommend: `bun run build && bun run start`. With a
 reachable `DATABASE_URL` the built server loads `@ag-ui/mcp-apps-middleware`,
@@ -2435,21 +2473,17 @@ optional for those settings. Bootstrap variables (`DATABASE_URL`,
 
 ### CI
 
-`ci.yml` pins `BUN_VERSION: "1.4.0"` and runs four jobs:
-
-| Job | Does |
+| Workflow | Does |
 |---|---|
-| **checks** | type-check, Biome (errors only), unit tests, then the four bundle-currency `--check` steps and `test:language-tools` |
-| **generated-app** | generate from `examples/drug-discovery.eml.yaml` → build backend/frontend → type-check `tests/` → migrate+seed a pgvector Postgres → start the backend → `node run.ts --no-server` |
-| **generated-wasm-app** | generate the stack twice, with and without the overlay, and assert the list of files the overlay changed; assert no Bun is left in the generated app; type-check the suite and load every harness module under Node; then migrate, seed and exercise it on WebAssembly Postgres — on a runner with no Postgres installed, which is the claim |
-| **wasm-e2e** | `test:wasm` — the browser stack in Chromium, plus the CLI specs that assert the overlay's whole footprint: 9 files changed, 6 added, none removed, and **exactly one** of the nine is application source (`immudb.service.ts`). That last number is the claim the approach rests on — the backend never knew what was behind its `Pool` |
+| `parity.yml` | type-check, generator unit tests, the Rust generator's format/clippy/test, the backend parity gate, the language bundles' currency, and the YAML bundle in a real browser |
+| `project-git.yml` | the modelling tool's per-project Git history against a real Postgres |
+| `validate.yml` | the CEDM specification: schema, dictionary coverage, help, enumerations |
+| `enrich-entity-help.yml` | fills gaps in CEDM entity help and commits them |
 
-| Other workflow | Does |
-|---|---|
-| `github-neon.yml` | generate from an online `.eml.yaml`, run against Neon, verify, optionally publish |
-| `eml-generate-and-publish.yml` | run the `eml` CLI over a model, publish the app to a repo |
-
-All three pin the same `BUN_VERSION`; none uses `bun-version: latest`.
+**Clippy is only a gate on CI's toolchain.** `parity.yml` uses the moving
+`stable` toolchain, so a lint added since the local one passes here and fails
+there; run `cargo +<CI's version> clippy -p appwithai-gen --all-targets -- -D
+warnings` before pushing Rust changes.
 
 ### Known security limits — state these plainly if asked
 
@@ -3026,8 +3060,8 @@ The user should be able to take that one file straight to `appwithai generate`.
 
 ## 11. Rules for answering questions about this system
 
-1. **Resolve which application** — the modelling tool (:3000) or the generated
-   app (:4000/4001)? Most ambiguity in questions about "the app" is this.
+1. **Resolve which application** — the modelling tool (`packages/web`) or a
+   generated app (API :3000, front end :3001)? Most ambiguity in questions about "the app" is this.
 2. **Check a construct's status before promising behaviour** (§3.0). A
    construct the schema accepts and no compiler reads will not change a
    generated application. An entity's `help` is never inert: it becomes
