@@ -10,6 +10,7 @@ description: "Energy and Utilities, built on the CEDM common foundation."
 
 Energy and Utilities, built on the CEDM common foundation.
 
+![The Energy and Utilities dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 
