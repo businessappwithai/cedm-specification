@@ -5,6 +5,7 @@ entity:
   description: A commercial offer specifying products, services, quantities, prices, terms, and validity.
   ui:
     icon: file-text
+    recordLabel: [quotationNumber]
   identity:
     key: quotationId
     type: uuid
@@ -25,23 +26,23 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Captures the business meaning of quotation number for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-      relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The number of the quotation.
+      usage: Quoted by the customer when ordering.
+      relationshipContext: Unique.
   - name: quotationDate
     type: date
     required: true
     help:
-      summary: Records the business date associated with the quotation. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-      relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The date the quotation was issued.
+      usage: Printed on the quotation; validity runs from it.
+      relationshipContext: Not after the validity date.
   - name: validUntil
     type: date
     required: false
     help:
-      summary: Captures the business meaning of valid until for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-      relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The last day the offer can be accepted.
+      usage: The quotation expires after it.
+      relationshipContext: Not before the quotation date.
   - name: status
     type: enum
     required: true
@@ -54,70 +55,70 @@ entity:
     - EXPIRED
     - CANCELLED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-      relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Where the quotation stands.
+      usage: Moved on by the salesperson.
+      relationshipContext: Only accepted quotations become orders.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of Quotation.
-        SUBMITTED: Represents the submitted state or classification in the context of Quotation.
-        ACCEPTED: Represents the accepted state or classification in the context of Quotation.
-        REJECTED: Represents the rejected state or classification in the context of Quotation.
-        EXPIRED: Represents the expired state or classification in the context of Quotation.
-        CANCELLED: Represents the cancelled state or classification in the context of Quotation.
+        DRAFT: Being prepared.
+        SUBMITTED: Sent to the customer.
+        ACCEPTED: Accepted by the customer.
+        REJECTED: Declined by the customer.
+        EXPIRED: Not accepted in time.
+        CANCELLED: Withdrawn by the seller.
   - name: currencyId
     type: reference
     target: Currency
     required: true
     help:
-      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-      relationshipContext: This field connects Quotation to Currency. The reference establishes business context between the two entities and lets processes navigate from this record to the related Currency.
+      summary: The currency the prices are in.
+      usage: All lines use it.
+      relationshipContext: Usually the customer's currency.
   - name: totalAmount
     type: decimal
     required: true
     precision: 20
     scale: 4
     help:
-      summary: Captures the business meaning of total amount for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-      relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The total value of the quotation.
+      usage: Summed from the lines; shown in the pipeline.
+      relationshipContext: Not negative.
   relationships:
   - name: customer
     target: Customer
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects Quotation to Customer so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Customer records associated with a Quotation.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The customer the offer is made to.
+      usage: Set when drafting.
+      cardinalityMeaning: Each quotation is for one customer.
+      context: The customer's terms and prices apply.
   - name: opportunity
     target: Opportunity
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Quotation to Opportunity so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Opportunity records associated with a Quotation.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The opportunity the quotation is part of.
+      usage: Linked when the quotation comes from a tracked deal.
+      cardinalityMeaning: At most one opportunity.
+      context: Moves the opportunity to proposal.
   - name: lines
     target: QuotationLine
     cardinality: 1..*
     ownership: aggregate
     help:
-      summary: Connects Quotation to QuotationLine so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about QuotationLine records associated with a Quotation.
-      cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The products and services offered.
+      usage: Entered when drafting.
+      cardinalityMeaning: At least one line, kept with the quotation.
+      context: Line items of the quotation.
   - name: paymentTerms
     target: PaymentTerm
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Connects Quotation to PaymentTerm so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about PaymentTerm records associated with a Quotation.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The payment terms offered.
+      usage: Default from the customer.
+      cardinalityMeaning: At most one set of terms.
+      context: Carried to the order.
   invariants:
   - id: QUOTATION-001
     rule: validUntil must not precede quotationDate.
@@ -127,62 +128,58 @@ entity:
     attribute: status
     states: [DRAFT, SUBMITTED, ACCEPTED, REJECTED, EXPIRED, CANCELLED]
     initial: DRAFT
-    terminal: [REJECTED, EXPIRED, CANCELLED]
+    terminal: [ACCEPTED, REJECTED, EXPIRED, CANCELLED]
     transitions:
     - {from: DRAFT, to: SUBMITTED, action: submit}
     - {from: SUBMITTED, to: ACCEPTED, action: accept}
-    - {from: DRAFT, to: REJECTED, action: reject}
     - {from: SUBMITTED, to: REJECTED, action: reject}
-    - {from: ACCEPTED, to: REJECTED, action: reject}
     - {from: SUBMITTED, to: EXPIRED, action: expire}
-    - {from: ACCEPTED, to: EXPIRED, action: expire}
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: SUBMITTED, to: CANCELLED, action: cancel}
-    - {from: ACCEPTED, to: CANCELLED, action: cancel}
   workflows:
-  - name: ApprovalRequested
-    title: "Ask for a decision when a quotation is put forward"
-    description: "When a quotation is submitted, a task asks someone to decide on it."
-    when: "status == \"SUBMITTED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: decide on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "QUOTATION-APPROVAL-{{id}}"
-          name: "Decide on quotation {{quotation_number}}"
-          description: "Quotation {{quotation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-          task_type: "APPROVAL"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: FollowUpRequired
-    title: "Follow up when a quotation is ended"
-    description: "When a quotation is rejected or cancelled, a task asks someone to settle what depended on it."
-    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "QUOTATION-FOLLOW-UP-{{id}}"
-          name: "Follow up on quotation {{quotation_number}}"
-          description: "Quotation {{quotation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - name: ApprovalRequested
+      title: "Ask for a decision when a quotation is put forward"
+      description: "When a quotation is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "QUOTATION-APPROVAL-{{id}}"
+              name: "Decide on quotation {{quotation_number}}"
+              description: "Quotation {{quotation_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a quotation is ended"
+      description: "When a quotation is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "QUOTATION-FOLLOW-UP-{{id}}"
+              name: "Follow up on quotation {{quotation_number}}"
+              description: "Quotation {{quotation_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a commercial transaction called Quotation within the CEDM business model.
     businessMeaning: Quotation is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Quotation records.
     relationshipContext: The entity participates in a wider business graph through relationships with Customer, Opportunity, QuotationLine, PaymentTerm. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Quotation record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Salespeople prepare quotations from the price list and the customer's terms, send them, and follow them up; an accepted quotation becomes a sales order with the same prices.
+    lifecycle: A quotation is drafted, submitted to the customer, then accepted, rejected, or expires at the end of its validity; a draft or submitted quotation can be cancelled.
+    example: Quotation Q-2024-0457 to Bauer GmbH, 2 April 2024, valid until 2 May 2024, 3 lines, 182,400 EUR, net 30 days, accepted.
 specification:
   version: 0.1.0
   status: draft

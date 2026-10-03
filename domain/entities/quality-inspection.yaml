@@ -43,12 +43,12 @@ entity:
       relationshipContext: Inspection status is independent of sample status, receipt/return status, and inventory state.
       workflowRole: PASSED/FAILED/CONDITIONAL controls eligible disposition.
       valueSemantics:
-        OPEN: The status of the quality inspection is open; set it when that is what the business means for this record.
-        IN_PROGRESS: The status of the quality inspection is in progress; set it when that is what the business means for this record.
-        PASSED: The status of the quality inspection is passed; set it when that is what the business means for this record.
-        FAILED: The status of the quality inspection is failed; set it when that is what the business means for this record.
-        CONDITIONAL: The status of the quality inspection is conditional; set it when that is what the business means for this record.
-        CANCELLED: The status of the quality inspection is cancelled; set it when that is what the business means for this record.
+        OPEN: Planned; not started.
+        IN_PROGRESS: Being performed.
+        PASSED: Met the requirements.
+        FAILED: Did not meet the requirements.
+        CONDITIONAL: Passed with restrictions or awaiting a decision.
+        CANCELLED: Not performed.
   - name: result
     type: enum
     required: false
@@ -65,10 +65,10 @@ entity:
       workflowRole: Supplies aggregate evidence for controlled disposition.
       optionalMeaning: Optional until testing is complete.
       valueSemantics:
-        PASS: The result of the quality inspection is pass; set it when that is what the business means for this record.
-        FAIL: The result of the quality inspection is fail; set it when that is what the business means for this record.
-        CONDITIONAL: The result of the quality inspection is conditional; set it when that is what the business means for this record.
-        NOT_TESTED: The result of the quality inspection is not tested; set it when that is what the business means for this record.
+        PASS: Meets the requirements.
+        FAIL: Does not meet the requirements.
+        CONDITIONAL: Acceptable with restrictions.
+        NOT_TESTED: No result was obtained.
   - name: disposition
     type: enum
     required: false
@@ -90,15 +90,15 @@ entity:
       workflowRole: Converts quality result into an authorized physical disposition.
       optionalMeaning: Optional until a disposition decision is made.
       valueSemantics:
-        RELEASE: The disposition of the quality inspection is release; set it when that is what the business means for this record.
-        ACCEPT: The disposition of the quality inspection is accept; set it when that is what the business means for this record.
-        REJECT: The disposition of the quality inspection is reject; set it when that is what the business means for this record.
-        QUARANTINE: The disposition of the quality inspection is quarantine; set it when that is what the business means for this record.
-        RETURN_TO_SUPPLIER: The disposition of the quality inspection is return to supplier; set it when that is what the business means for this record.
-        REWORK: The disposition of the quality inspection is rework; set it when that is what the business means for this record.
-        REPAIR: The disposition of the quality inspection is repair; set it when that is what the business means for this record.
-        SCRAP: The disposition of the quality inspection is scrap; set it when that is what the business means for this record.
-        CONDITIONAL_RELEASE: The disposition of the quality inspection is conditional release; set it when that is what the business means for this record.
+        RELEASE: Release for normal use.
+        ACCEPT: Accept from the supplier.
+        REJECT: Refuse the material.
+        QUARANTINE: Hold pending a decision.
+        RETURN_TO_SUPPLIER: Send back to the supplier.
+        REWORK: Rework to meet the requirements.
+        REPAIR: Repair for use.
+        SCRAP: Destroy.
+        CONDITIONAL_RELEASE: Release with restrictions.
   - name: notes
     type: string
     required: false
@@ -183,50 +183,50 @@ entity:
     terminal: [PASSED, FAILED, CANCELLED]
     transitions:
     - {from: OPEN, to: IN_PROGRESS, action: start}
-    - {from: IN_PROGRESS, to: CONDITIONAL, action: mark_conditional}
-    - {from: CONDITIONAL, to: PASSED, action: mark_passed}
+    - {from: IN_PROGRESS, to: PASSED, action: pass}
     - {from: IN_PROGRESS, to: FAILED, action: fail}
+    - {from: IN_PROGRESS, to: CONDITIONAL, action: pass_conditionally}
+    - {from: CONDITIONAL, to: PASSED, action: pass}
     - {from: CONDITIONAL, to: FAILED, action: fail}
     - {from: OPEN, to: CANCELLED, action: cancel}
     - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
-    - {from: CONDITIONAL, to: CANCELLED, action: cancel}
   workflows:
-  - name: ExceptionRaised
-    title: "Raise a task when a quality inspection is stopped"
-    description: "When a quality inspection is failed, a high-priority task asks someone to resolve it."
-    when: "status == \"FAILED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: resolve"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "QUALITY-INSPECTION-EXCEPTION-{{id}}"
-          name: "Resolve quality inspection {{inspection_number}}"
-          description: "Quality inspection {{inspection_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "HIGH"
-  - name: FollowUpRequired
-    title: "Follow up when a quality inspection is ended"
-    description: "When a quality inspection is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "QUALITY-INSPECTION-FOLLOW-UP-{{id}}"
-          name: "Follow up on quality inspection {{inspection_number}}"
-          description: "Quality inspection {{inspection_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - name: ExceptionRaised
+      title: "Raise a task when a quality inspection is stopped"
+      description: "When a quality inspection is failed, a high-priority task asks someone to resolve it."
+      when: "status == \"FAILED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "QUALITY-INSPECTION-EXCEPTION-{{id}}"
+              name: "Resolve quality inspection {{inspection_number}}"
+              description: "Quality inspection {{inspection_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a quality inspection is ended"
+      description: "When a quality inspection is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "QUALITY-INSPECTION-FOLLOW-UP-{{id}}"
+              name: "Follow up on quality inspection {{inspection_number}}"
+              description: "Quality inspection {{inspection_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Represents a quality inspection and its controlled sampling, measurements, result and disposition across inbound receiving and supplier-return workflows.
     businessMeaning: QualityInspection provides the execution context and overall decision; InspectionSample records the actual selected sample; QualityMeasurement records individual factual observations. The inspection does not itself perform inventory or financial changes.

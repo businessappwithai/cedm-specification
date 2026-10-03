@@ -20,18 +20,18 @@ entity:
     required: true
     minimum: 1
     help:
-      summary: 'The line number of the quotation line: a whole number the business records on it.'
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+      summary: The position of the line on the quotation.
+      usage: Orders the lines on the document.
+      relationshipContext: Unique within the quotation.
   - name: quantity
     type: decimal
     required: true
     precision: 20
     scale: 6
     help:
-      summary: 'The quantity of the quotation line: a number the business records on it.'
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+      summary: The quantity offered.
+      usage: Multiplied by the unit price.
+      relationshipContext: More than zero.
   - name: unitPrice
     type: Money
     required: true
@@ -70,12 +70,12 @@ entity:
       workflowRole: Explains why the quoted price was selected.
       optionalMeaning: Optional when the quotation does not require source attribution.
       valueSemantics:
-        PRICE_LIST: The price source of the quotation line is price list; set it when that is what the business means for this record.
-        CONTRACT: The price source of the quotation line is contract; set it when that is what the business means for this record.
-        CUSTOMER_AGREEMENT: The price source of the quotation line is customer agreement; set it when that is what the business means for this record.
-        MANUAL: The price source of the quotation line is manual; set it when that is what the business means for this record.
-        PROMOTION: The price source of the quotation line is promotion; set it when that is what the business means for this record.
-        OTHER: The price source of the quotation line is other; set it when that is what the business means for this record.
+        PRICE_LIST: The price list.
+        CONTRACT: A sales contract.
+        CUSTOMER_AGREEMENT: An agreement with the customer.
+        MANUAL: Entered by the salesperson.
+        PROMOTION: A promotion.
+        OTHER: Any other source.
   - name: priceDeterminedAt
     type: datetime
     required: false
@@ -90,9 +90,9 @@ entity:
     required: false
     maxLength: 1000
     help:
-      summary: "The description of the quotation line: a value the business records on it."
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+      summary: The text printed for the line.
+      usage: Defaults to the product name; may describe a service.
+      relationshipContext: Required when there is no product.
   relationships:
   - name: quotation
     target: Quotation
@@ -100,28 +100,28 @@ entity:
     ownership: reference
     inverse: lines
     help:
-      summary: Links a quotation line to quotation, the quotation it relates to.
-      usage: Chosen from the existing quotation records when the quotation line is created or edited.
+      summary: The quotation the line belongs to.
       cardinalityMeaning: A quotation line has exactly one quotation in this role.
-      context: Lets the quotation line be found from, and reported with, its quotation.
+      usage: Set when the line is added.
+      context: Its currency applies.
   - name: product
     target: Product
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a quotation line to product, the product it relates to.
-      usage: Chosen from the existing product records when the quotation line is created or edited.
+      summary: The product or service offered.
       cardinalityMeaning: A quotation line has at most one product in this role.
-      context: Lets the quotation line be found from, and reported with, its product.
+      usage: Chosen from the catalogue.
+      context: Empty for free-text lines.
   - name: unitOfMeasure
     target: UnitOfMeasure
     cardinality: 0..1
     ownership: reference
     help:
-      summary: Links a quotation line to unit of measure, the unit of measure it relates to.
-      usage: Chosen from the existing unit of measure records when the quotation line is created or edited.
+      summary: The unit the quantity is in.
       cardinalityMeaning: A quotation line has at most one unit of measure in this role.
-      context: Lets the quotation line be found from, and reported with, its unit of measure.
+      usage: Defaults to the product's unit.
+      context: Must convert to the product's unit.
   invariants:
   - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
   - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}

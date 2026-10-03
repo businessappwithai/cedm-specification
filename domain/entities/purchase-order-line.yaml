@@ -20,32 +20,32 @@ entity:
     required: true
     minimum: 1
     help:
-      summary: 'The line number of the purchase order line: a whole number the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The position of the line on the order.
+      usage: Quoted by the supplier on delivery notes and invoices.
+      relationshipContext: Unique within the order.
   - name: quantity
     type: decimal
     required: true
     precision: 20
     scale: 6
     help:
-      summary: 'The quantity of the purchase order line: a number the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The quantity ordered.
+      usage: Receipts and invoices are matched against it.
+      relationshipContext: More than zero.
   - name: unitPrice
     type: Money
     required: true
     help:
-      summary: 'The unit price of the purchase order line: a value the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The agreed price per unit.
+      usage: Invoices are checked against it.
+      relationshipContext: In the order's currency.
   - name: lineAmount
     type: Money
     required: true
     help:
-      summary: 'The line amount of the purchase order line: a value the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The value of the line.
+      usage: Summed into the order total.
+      relationshipContext: Quantity times unit price, after discounts.
   - name: receivedQuantity
     type: decimal
     required: true
@@ -53,9 +53,9 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: 'The received quantity of the purchase order line: a number the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The quantity delivered so far.
+      usage: Updated from goods receipts.
+      relationshipContext: Not changed by hand.
   - name: acceptedQuantity
     type: decimal
     required: true
@@ -63,9 +63,9 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: 'The accepted quantity of the purchase order line: a number the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The quantity delivered and accepted by inspection.
+      usage: Invoices are paid against it.
+      relationshipContext: Not more than received.
   - name: returnedQuantity
     type: decimal
     required: true
@@ -73,9 +73,9 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: 'The returned quantity of the purchase order line: a number the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The quantity sent back to the supplier.
+      usage: Updated from supplier returns.
+      relationshipContext: Not more than accepted.
   - name: outstandingQuantity
     type: decimal
     required: true
@@ -83,9 +83,9 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: 'The outstanding quantity of the purchase order line: a number the business records on it.'
-      usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+      summary: The quantity still to be delivered.
+      usage: Shown to buyers chasing deliveries.
+      relationshipContext: Ordered less accepted.
   - name: priceSource
     type: enum
     required: false
@@ -102,12 +102,12 @@ entity:
       relationshipContext: Does not replace transaction-time unitPrice.
       workflowRole: Explains price determination.
       valueSemantics:
-        PRICE_LIST: The price source of the purchase order line is price list; set it when that is what the business means for this record.
-        CONTRACT: The price source of the purchase order line is contract; set it when that is what the business means for this record.
-        SUPPLIER_AGREEMENT: The price source of the purchase order line is supplier agreement; set it when that is what the business means for this record.
-        QUOTATION: The price source of the purchase order line is quotation; set it when that is what the business means for this record.
-        MANUAL: The price source of the purchase order line is manual; set it when that is what the business means for this record.
-        OTHER: The price source of the purchase order line is other; set it when that is what the business means for this record.
+        PRICE_LIST: The supplier's price list.
+        CONTRACT: A purchase contract.
+        SUPPLIER_AGREEMENT: A framework agreement with the supplier.
+        QUOTATION: The supplier's quotation.
+        MANUAL: Entered by the buyer.
+        OTHER: Any other source.
   - name: priceDeterminedAt
     type: datetime
     required: false
