@@ -91,7 +91,7 @@ entity:
     help:
       summary: An outside reference, such as the counterparty's document number.
       usage: Quoted when talking to the counterparty.
-      relationshipContext: Optional.
+      relationshipContext: Kept alongside our own number so either side's reference finds the transaction.
   - name: createdAt
     type: datetime
     required: true
