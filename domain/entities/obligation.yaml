@@ -2,23 +2,214 @@ entity:
   name: Obligation
   namespace: cedm.domain
   kind: legal_obligation
-  description: A governed duty owed by a party under law, agreement, policy, order, or other authoritative source.
+  description: Something a party is bound to do or refrain from by law, contract, court order or policy — pay, deliver, report, keep confidential — with its due date, the party owing it and the evidence that it was met.
   ui:
-    icon: table
+    icon: list-checks
+    recordLabel: [obligationNumber, title]
   identity: {key: obligationId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: obligationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Obligation., businessMeaning: Identifies one governed Obligation record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
-  relationships: []
+  - name: obligationNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the obligation.
+      usage: Assigned when it is recorded.
+      relationshipContext: Unique.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What has to be done, in one line.
+      usage: Shown in obligation calendars, such as "Deliver SOC 2 Type II report".
+      relationshipContext: Identifies the obligation for people, with the number.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: The duty in full, as the source states it.
+      usage: Read by the owner to know exactly what must be done.
+      relationshipContext: The source remains authoritative.
+  - name: obligationType
+    type: enum
+    required: true
+    default: PERFORMANCE
+    values: [PAYMENT, DELIVERY, REPORTING, PERFORMANCE, CONFIDENTIALITY, RESTRICTION]
+    help:
+      summary: What kind of duty it is.
+      usage: Chosen when recording it.
+      relationshipContext: Payment obligations usually also appear in the accounts.
+      valueSemantics:
+        PAYMENT: To pay an amount.
+        DELIVERY: To deliver goods, a service or a document.
+        REPORTING: To report or notify something.
+        PERFORMANCE: To perform an action or reach a standard.
+        CONFIDENTIALITY: To keep information secret.
+        RESTRICTION: Not to do something, such as compete or solicit staff.
+  - name: sourceReference
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: Where the duty comes from, such as "MSA-2022-07, clause 14.3" or "GDPR Art. 33".
+      usage: Recorded so that the duty can be checked against its source.
+      relationshipContext: Read with the linked agreement, contract or requirement.
+  - name: isOwedByUs
+    type: boolean
+    required: true
+    default: true
+    help:
+      summary: Whether the duty is ours or the other party's.
+      usage: Separates what we must do from what we must make others do.
+      relationshipContext: Our own duties need an internal owner; others' need someone to follow them up.
+  - name: dueDate
+    type: date
+    required: false
+    help:
+      summary: The date the next performance is due.
+      usage: Owners are reminded before it; a duty not met by then is breached.
+      relationshipContext: Moved to the next occurrence when a recurring duty is met.
+  - name: frequency
+    type: enum
+    required: true
+    default: ONCE
+    values: [ONCE, MONTHLY, QUARTERLY, ANNUAL, ONGOING]
+    help:
+      summary: How often the duty recurs.
+      usage: Decides the next due date after each performance.
+      relationshipContext: One-off duties have no next occurrence.
+      valueSemantics:
+        ONCE: Performed once.
+        MONTHLY: Every month.
+        QUARTERLY: Every quarter.
+        ANNUAL: Every year.
+        ONGOING: Continuously, such as confidentiality; has no due date.
+  - name: metDate
+    type: date
+    required: false
+    help:
+      summary: When the duty was last performed.
+      usage: Recorded with the evidence.
+      relationshipContext: Present once met.
+  - name: evidence
+    type: text
+    required: false
+    help:
+      summary: How performance was shown, such as the report sent and its date.
+      usage: Recorded when met; auditors read it.
+      relationshipContext: Supporting files are attached to the obligation.
+  - name: status
+    type: enum
+    required: true
+    default: PENDING
+    values: [PENDING, MET, WAIVED, BREACHED]
+    help:
+      summary: Whether the duty has been met.
+      usage: Moved on by the owner, or to breached when the due date passes.
+      relationshipContext: Breached obligations are escalated.
+      valueSemantics:
+        PENDING: Not yet due, or due and not yet performed.
+        MET: Performed.
+        WAIVED: Released by the party it is owed to.
+        BREACHED: Not performed by its due date.
+  relationships:
+  - name: obligor
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The party that owes the duty.
+      usage: Chosen when recording it.
+      cardinalityMeaning: One per obligation.
+      context: Our own company when the duty is ours.
+  - name: obligee
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The party the duty is owed to.
+      usage: Chosen when recording it.
+      cardinalityMeaning: One per obligation.
+      context: Only this party can waive it.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who sees that the duty is met or followed up.
+      usage: Receives due-date reminders.
+      cardinalityMeaning: One per obligation.
+      context: Should be reassigned when they leave.
+  - name: agreement
+    target: Agreement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The agreement the duty comes from.
+      usage: Linked when the source is an agreement.
+      cardinalityMeaning: At most one per obligation.
+      context: The agreement lists its obligations.
+  - name: contract
+    target: Contract
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The contract the duty comes from.
+      usage: Linked when the source is a contract.
+      cardinalityMeaning: At most one per obligation.
+      context: The contract lists its obligations.
+  - name: complianceRequirement
+    target: ComplianceRequirement
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The legal or regulatory requirement the duty comes from.
+      usage: Linked when the source is a law or regulation.
+      cardinalityMeaning: At most one per obligation.
+      context: Breaches are compliance incidents.
   invariants:
-  - {id: OBLIGATION-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+  - {id: OBLIGATION-001, rule: A met obligation records when it was met., violatedWhen: status == "MET" and met_date == null, message: Record when the obligation was met.}
+  - {id: OBLIGATION-002, rule: Anything other than an ongoing duty has a due date., violatedWhen: frequency != "ONGOING" and due_date == null, message: Give the due date.}
+  workflows:
+  - name: ExceptionRaised
+    title: "Raise a task when an obligation is stopped"
+    description: "When an obligation is breached, a high-priority task asks someone to resolve it."
+    when: "status == \"BREACHED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "OBLIGATION-EXCEPTION-{{id}}"
+          name: "Resolve obligation {{title}}"
+          description: "Obligation {{title}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  lifecycle:
+    title: Obligation Lifecycle
+    attribute: status
+    states: [PENDING, MET, WAIVED, BREACHED]
+    initial: PENDING
+    terminal: [MET, WAIVED]
+    transitions:
+    - {from: PENDING, to: MET, action: meet}
+    - {from: PENDING, to: WAIVED, action: waive}
+    - {from: PENDING, to: BREACHED, action: breach}
+    - {from: BREACHED, to: MET, action: cure}
+    - {from: BREACHED, to: WAIVED, action: waive}
   help:
-    summary: A governed duty owed by a party under law, agreement, policy, order, or other authoritative source.
-    purpose: Provide canonical governance semantics for Obligation.
-    businessMeaning: A governed duty owed by a party under law, agreement, policy, order, or other authoritative source.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: One duty a party has to perform, by when, and whether it has been met.
+    businessMeaning: Contracts and laws create duties that are easy to forget — renew insurance, send a quarterly report, return confidential data at the end of a project. Recording each as an obligation, with who owes it, to whom, by when and on what authority, lets the business meet its own duties on time and hold counterparties to theirs.
+    usage: Legal, contract and compliance staff record obligations when a contract is signed, a law starts to apply or a court orders something; owners are reminded before each due date and record the evidence when it is met. Breached obligations are escalated.
+    relationshipContext: An obligation arises from a source — an Agreement, a Contract, a ComplianceRequirement or a LegalMatter — is owed by one Party to another, and has an internal owner. Recurring obligations repeat on a stated frequency.
+    lifecycle: Pending until it falls due, then met when performed, waived if the other party releases it, or breached when the due date passes without it being met. A breach can still be cured later.
+    workflowContext: Contract management, regulatory compliance and litigation follow-up all track obligations; breaches feed disputes and risk reporting.
+    example: 'Obligation OB-2024-311: supplier Contoso must deliver a SOC 2 Type II report to us within 90 days of each calendar year end, under agreement MSA-2022-07; next due 31 March 2025; owner: vendor risk manager.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OBLIGATION}

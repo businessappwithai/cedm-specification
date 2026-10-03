@@ -2,24 +2,190 @@ entity:
   name: Collateral
   namespace: cedm.domain
   kind: credit_risk_master
-  description: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
+  description: Security pledged for a loan or credit facility — property, equipment, receivables, cash or a guarantee — with its valuation, the share of it the lender counts, and the dates of its charge and release.
   ui:
-    icon: database
+    icon: shield
+    recordLabel: [collateralNumber]
   identity: {key: collateralId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Collateral., businessMeaning: Identifies one governed Collateral record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - name: collateralNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the collateral item.
+      usage: Assigned when it is recorded.
+      relationshipContext: Unique.
+  - name: collateralType
+    type: enum
+    required: true
+    default: REAL_ESTATE
+    values: [REAL_ESTATE, EQUIPMENT, INVENTORY, RECEIVABLES, CASH, GUARANTEE]
+    help:
+      summary: What kind of security it is.
+      usage: Decides the valuation method and haircut.
+      relationshipContext: Guarantees are promises by a third party, not assets.
+      valueSemantics:
+        REAL_ESTATE: Land or buildings.
+        EQUIPMENT: Machinery, vehicles or other movable assets.
+        INVENTORY: Stock of goods.
+        RECEIVABLES: Amounts owed to the borrower by its customers.
+        CASH: Cash deposits or securities.
+        GUARANTEE: A guarantee given by a third party.
+  - name: description
+    type: text
+    required: true
+    help:
+      summary: What the collateral is, precisely enough to identify it.
+      usage: Copied into the security agreement.
+      relationshipContext: Such as an address and land register number, or a serial number.
+  - name: valuationAmount
+    type: Money
+    required: true
+    help:
+      summary: The market value at the last valuation.
+      usage: Recorded from the valuation report.
+      relationshipContext: Revalued periodically.
+  - name: valuationDate
+    type: date
+    required: true
+    help:
+      summary: The day the value was assessed.
+      usage: Old valuations prompt a revaluation.
+      relationshipContext: Not in the future.
+  - name: haircutPercent
+    type: decimal
+    required: true
+    precision: 5
+    scale: 2
+    default: 0
+    help:
+      summary: The reduction the lender applies to the value for risk.
+      usage: Set by credit policy for the collateral type.
+      relationshipContext: Between 0 and 100.
+  - name: lendingValue
+    type: Money
+    required: false
+    help:
+      summary: 'The value the lender counts: valuation less the haircut.'
+      usage: Compared with the secured exposure.
+      relationshipContext: Recomputed on each revaluation.
+  - name: chargeRank
+    type: integer
+    required: false
+    help:
+      summary: The ranking of this lender's claim on the collateral — 1 for first-ranking.
+      usage: Recorded from the registration.
+      relationshipContext: Lower ranks are paid only after higher ones.
+  - name: registeredDate
+    type: date
+    required: false
+    help:
+      summary: The day the charge was registered with the competent registry.
+      usage: Recorded on registration; protects the lender against third parties.
+      relationshipContext: Not every collateral type is registered.
+  - name: releasedDate
+    type: date
+    required: false
+    help:
+      summary: The day the collateral was released.
+      usage: Recorded on release.
+      relationshipContext: Present once released.
+  - name: status
+    type: enum
+    required: true
+    default: PROPOSED
+    values: [PROPOSED, PLEDGED, RELEASED, ENFORCED]
+    help:
+      summary: Whether the collateral currently secures a loan.
+      usage: Moved on as the charge is created, released or enforced.
+      relationshipContext: Only pledged collateral counts towards coverage.
+      valueSemantics:
+        PROPOSED: Offered during credit approval; no charge yet.
+        PLEDGED: Charged in favour of the lender.
+        RELEASED: Freed after repayment.
+        ENFORCED: Taken by the lender after default.
   relationships:
-  - {name: bankLoan, target: BankLoan, cardinality: 0..1, ownership: reference, help: {summary: Loan secured by collateral., businessMeaning: Connects pledged value to credit exposure., usage: Credit risk and lending., cardinalityMeaning: Optional when securing a Facility or other exposure., workflowRole: Release/substitution requires governed lifecycle evidence.}}
+  - name: bankLoan
+    target: BankLoan
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The loan the collateral secures.
+      businessMeaning: Connects pledged value to credit exposure.
+      workflowRole: Release/substitution requires governed lifecycle evidence.
+      usage: Set when the collateral is recorded.
+      cardinalityMeaning: One loan per collateral item; an item securing several loans is recorded per loan.
+      context: Coverage of the loan is the sum of its pledged collateral.
+  - name: owner
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who owns the collateral.
+      usage: Recorded when it is pledged.
+      cardinalityMeaning: One per item.
+      context: May be a third party, such as a guarantor.
+  - name: asset
+    target: Asset
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The asset pledged, when it is one of the business's own assets.
+      usage: Linked so the asset register shows the encumbrance.
+      cardinalityMeaning: At most one.
+      context: A pledged asset cannot be disposed of without the lender's consent.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the values.
+      usage: Set when recording it.
+      cardinalityMeaning: One per item.
+      context: Values are converted for coverage in the loan's currency.
   invariants:
-  - {id: COLLATERAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: COLLATERAL-001, rule: The haircut is a percentage between 0 and 100., violatedWhen: haircut_percent != null and (haircut_percent < 0 or haircut_percent > 100), message: The haircut must be between 0 and 100 percent.}
+  - {id: COLLATERAL-002, rule: A released item records when it was released., violatedWhen: status == "RELEASED" and released_date == null, message: Give the date the collateral was released.}
+  - {id: COLLATERAL-EXE-001, rule: "Valuation Amount cannot be negative.", violatedWhen: "valuation_amount != null and valuation_amount < 0", message: "Valuation Amount cannot be negative."}
+  lifecycle:
+    title: Collateral Lifecycle
+    attribute: status
+    states: [PROPOSED, PLEDGED, RELEASED, ENFORCED]
+    initial: PROPOSED
+    terminal: [RELEASED, ENFORCED]
+    transitions:
+    - {from: PROPOSED, to: PLEDGED, action: pledge}
+    - {from: PLEDGED, to: RELEASED, action: release}
+    - {from: PLEDGED, to: ENFORCED, action: enforce}
+    - {from: PROPOSED, to: RELEASED, action: withdraw}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a collateral is put forward"
+      description: "When a collateral is proposed, a task asks someone to decide on it."
+      when: "status == \"PROPOSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "COLLATERAL-APPROVAL-{{id}}"
+              name: "Decide on collateral {{collateral_number}}"
+              description: "Collateral {{collateral_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
-    purpose: Provide canonical enterprise semantics for Collateral.
-    businessMeaning: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: An asset or guarantee pledged to secure a loan, and what the lender counts it as worth.
+    businessMeaning: Secured lending depends on collateral that can be valued and enforced. Recording each item — what it is, who owns it, what it was valued at and when, the haircut the lender applies and the resulting lending value, and whether the charge is registered — lets the lender monitor coverage of each loan and the borrower know which of its assets are encumbered.
+    usage: Credit teams record collateral when a loan is approved, register the charge, revalue periodically, and release it when the loan is repaid. Coverage reports compare lending values with exposures.
+    relationshipContext: Collateral secures a BankLoan and is owned by a Party. It may be an Asset of the business. Values are in one Currency.
+    lifecycle: Proposed during credit approval, pledged once the charge is created, released when the obligation is repaid, or enforced when the lender takes it after default.
+    workflowContext: Credit approval, security perfection and registration, periodic revaluation, release on repayment, enforcement on default.
+    example: 'Collateral COL-2023-019: warehouse at 12 rue du Port, Lyon, owned by ACME France SAS; valued 4,200,000 EUR on 1 June 2023; 30% haircut; lending value 2,940,000 EUR; first-ranking mortgage registered 20 June 2023; secures loan LN-2023-004.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COLLATERAL}

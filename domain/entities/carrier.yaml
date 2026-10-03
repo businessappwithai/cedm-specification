@@ -2,24 +2,133 @@ entity:
   name: Carrier
   namespace: cedm.domain
   kind: logistics_party
-  description: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
+  description: A transport company the business ships with — road haulier, parcel network, shipping line, airline or forwarder — with its identifiers, the modes it serves, its contract status and its performance.
   ui:
     icon: truck
+    recordLabel: [code, name]
   identity: {key: carrierId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: carrierId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Carrier., businessMeaning: Identifies one governed Carrier record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Carrier., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 30
+    help:
+      summary: Our short code for the carrier.
+      usage: Used in booking screens and reports.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: The carrier's trading name.
+      usage: Shown wherever the carrier is chosen.
+      relationshipContext: The legal name is on its party record.
+  - name: carrierType
+    type: enum
+    required: true
+    default: ROAD
+    values: [ROAD, PARCEL, RAIL, OCEAN, AIR, FORWARDER]
+    help:
+      summary: What kind of transport the carrier provides.
+      usage: Planners filter carriers by it.
+      relationshipContext: A carrier offering several modes takes its main one.
+      valueSemantics:
+        ROAD: Road haulage, full or part loads.
+        PARCEL: Parcel and courier networks.
+        RAIL: Rail freight.
+        OCEAN: Shipping lines.
+        AIR: Airlines and air cargo carriers.
+        FORWARDER: A freight forwarder arranging transport with other carriers.
+  - name: scac
+    type: string
+    required: false
+    maxLength: 4
+    help:
+      summary: The Standard Carrier Alpha Code, used in North American and ocean documents.
+      usage: Printed on bills of lading and used in EDI.
+      relationshipContext: Four letters.
+  - name: iataCode
+    type: string
+    required: false
+    maxLength: 3
+    help:
+      summary: The carrier's IATA airline code, for air carriers.
+      usage: Used on air waybills.
+      relationshipContext: Two or three characters.
+  - name: insuranceExpiryDate
+    type: date
+    required: false
+    help:
+      summary: When the carrier's liability insurance certificate expires.
+      usage: Watched so that bookings stop with uninsured carriers.
+      relationshipContext: A new certificate must be received before it.
+  - name: onTimePercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share of the carrier's deliveries that arrived on time, over the last review period.
+      usage: Updated by the carrier scorecard; read when choosing carriers.
+      relationshipContext: Between 0 and 100.
+  - name: trackingUrlTemplate
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: The web address for tracking a consignment, with a placeholder for the tracking number.
+      usage: Used to link customers and staff straight to the carrier's tracking page.
+      relationshipContext: Such as https://track.example.com/?id={tracking}.
+  - name: status
+    type: enum
+    required: true
+    default: PROSPECTIVE
+    values: [PROSPECTIVE, APPROVED, SUSPENDED, INACTIVE]
+    help:
+      summary: Whether the carrier may be booked.
+      usage: Moved on by logistics procurement.
+      relationshipContext: Only approved carriers are offered when booking.
+      valueSemantics:
+        PROSPECTIVE: Being onboarded; not yet bookable.
+        APPROVED: Bookable.
+        SUSPENDED: Temporarily not bookable after problems.
+        INACTIVE: No longer used.
   relationships:
-  - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Canonical party providing carrier service., businessMeaning: Separates logistics role from Party identity., usage: Shipment tendering and performance., cardinalityMeaning: Exactly one Party., workflowRole: Carrier eligibility derives from governed party role/status.}}
+  - name: party
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The party record of the carrier, with its legal name, addresses and contacts.
+      businessMeaning: Separates logistics role from Party identity.
+      workflowRole: Carrier eligibility derives from governed party role/status.
+      usage: Linked when the carrier is created.
+      cardinalityMeaning: Every carrier is exactly one party.
+      context: The carrier's invoices are issued by this party.
   invariants:
-  - {id: CARRIER-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: CARRIER-001, rule: The on-time rate is a percentage between 0 and 100., violatedWhen: on_time_percent != null and (on_time_percent < 0 or on_time_percent > 100), message: The on-time rate must be between 0 and 100 percent.}
+  lifecycle:
+    title: Carrier Lifecycle
+    attribute: status
+    states: [PROSPECTIVE, APPROVED, SUSPENDED, INACTIVE]
+    initial: PROSPECTIVE
+    terminal: [INACTIVE]
+    transitions:
+    - {from: PROSPECTIVE, to: APPROVED, action: approve}
+    - {from: APPROVED, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: APPROVED, action: reinstate}
+    - {from: APPROVED, to: INACTIVE, action: deactivate}
+    - {from: SUSPENDED, to: INACTIVE, action: deactivate}
+    - {from: PROSPECTIVE, to: INACTIVE, action: reject}
   help:
-    summary: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
-    purpose: Provide canonical implementation-neutral semantics for Carrier across enterprise applications.
-    businessMeaning: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A company that carries goods for the business, and the terms on which it is used.
+    businessMeaning: Transport is bought from carriers. To book, track and pay them, the business needs each carrier's identity, the modes and services it offers, the identifiers carriers use (SCAC, IATA code), whether it is approved and insured, and how reliably it performs.
+    usage: Logistics procurement onboards carriers and keeps them approved; planners choose carriers when booking consignments and loads; freight audit pays them; performance reviews use on-time delivery and claims.
+    relationshipContext: A carrier is a Party (usually an Organization). Consignments, Loads, Routes, Trips and FreightCharges name the carrier.
+    lifecycle: Prospective while being onboarded, approved once checks are complete, suspended after serious performance or compliance problems, and inactive when no longer used.
+    workflowContext: Carrier onboarding, transport tendering, booking, tracking, freight settlement and carrier scorecards.
+    example: 'Carrier FERCAM: Fercam SpA, road and groupage, SCAC FRCM, insurance certificate valid to 31 December 2024, approved; on-time rate last quarter 96.4%.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CARRIER}

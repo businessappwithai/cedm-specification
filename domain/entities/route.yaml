@@ -2,23 +2,146 @@ entity:
   name: Route
   namespace: cedm.domain
   kind: logistics_master
-  description: A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution.
+  description: A standard transport route — a fixed sequence of stops served on a schedule, such as a daily milk run or a linehaul between two hubs — with its distance, duration and the days it runs.
   ui:
     icon: route
+    recordLabel: [code, name]
   identity: {key: routeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Route., businessMeaning: Identifies one governed Route record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Route., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
-  relationships: []
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The code of the route, such as LYO-MIL-01.
+      usage: Used by planners and on trip documents.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the route, such as "Lyon – Milan via Turin".
+      usage: Shown in planning screens.
+      relationshipContext: Identifies the route for people, with the code.
+  - name: transportMode
+    type: enum
+    required: true
+    default: ROAD
+    values: [ROAD, RAIL, SEA, AIR]
+    help:
+      summary: How vehicles on the route travel.
+      usage: Set when defining it.
+      relationshipContext: Multimodal routes are split into routes per mode.
+      valueSemantics:
+        ROAD: By road.
+        RAIL: By rail.
+        SEA: By sea.
+        AIR: By air.
+  - name: stopSequence
+    type: text
+    required: false
+    help:
+      summary: The stops in the order they are served, between origin and destination.
+      usage: Lists intermediate stops, such as "Turin depot; Novara cross-dock".
+      relationshipContext: Origin and destination are linked separately.
+  - name: distanceKm
+    type: decimal
+    required: false
+    precision: 10
+    scale: 1
+    help:
+      summary: The length of the route in kilometres.
+      usage: Used for cost and emission estimates.
+      relationshipContext: Measured along the stops in order.
+  - name: durationMinutes
+    type: integer
+    required: false
+    help:
+      summary: How long the route takes from first departure to last arrival.
+      usage: Used for delivery-date promising and driver planning.
+      relationshipContext: Includes planned stop times.
+  - name: operatingDays
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The days the route runs, such as "Mon–Fri".
+      usage: Trips are created on these days.
+      relationshipContext: Holidays follow the calendar of the origin.
+  - name: departureTime
+    type: string
+    required: false
+    maxLength: 5
+    help:
+      summary: The usual departure time, as HH:MM local time.
+      usage: Shown to warehouses so goods are ready.
+      relationshipContext: Local time of the origin.
+  - name: status
+    type: enum
+    required: true
+    default: PLANNED
+    values: [PLANNED, ACTIVE, SUSPENDED, RETIRED]
+    help:
+      summary: Whether the route is operating.
+      usage: Moved on by the transport planner.
+      relationshipContext: Only active routes generate trips.
+      valueSemantics:
+        PLANNED: Being set up.
+        ACTIVE: Operating on its schedule.
+        SUSPENDED: Paused, for example out of season.
+        RETIRED: No longer operated.
+  relationships:
+  - name: origin
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the route starts.
+      usage: Set when defining it.
+      cardinalityMeaning: One per route.
+      context: Usually a warehouse or hub.
+  - name: destination
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the route ends.
+      usage: Set when defining it.
+      cardinalityMeaning: One per route.
+      context: Round trips end where they start.
+  - name: carrier
+    target: Carrier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The carrier that usually operates the route.
+      usage: Set when the route is contracted.
+      cardinalityMeaning: At most one regular carrier.
+      context: A trip may still be given to another carrier.
   invariants:
-  - {id: ROUTE-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: ROUTE-001, rule: The distance is positive., violatedWhen: distance_km != null and distance_km <= 0, message: The distance must be greater than zero.}
+  lifecycle:
+    title: Route Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, SUSPENDED, RETIRED]
+    initial: PLANNED
+    terminal: [RETIRED]
+    transitions:
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: SUSPENDED, to: RETIRED, action: retire}
+    - {from: PLANNED, to: RETIRED, action: retire}
   help:
-    summary: A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution.
-    purpose: Provide canonical implementation-neutral semantics for Route across enterprise applications.
-    businessMeaning: A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A planned path between places that vehicles follow repeatedly.
+    businessMeaning: Many transport flows repeat — a daily delivery round, a weekly linehaul between depots. Defining them as routes, with their stops, distance, expected duration and operating days, lets planners assign shipments to the right route, carriers to price it, and customers to be told on which days they are served.
+    usage: Transport planners define routes and their schedules; order promising uses them to give delivery dates; trips are created from routes each operating day.
+    relationshipContext: A route runs from an origin Location to a destination Location, possibly via intermediate stops, and is usually operated by one Carrier. Trips are the daily runs of a route.
+    lifecycle: Planned while being set up, active while it runs, suspended for seasonal pauses, and retired when no longer operated.
+    workflowContext: Network planning, order promising, daily trip creation, carrier contracting.
+    example: 'Route LYO-MIL-01: Lyon DC → Turin depot → Milan hub, 445 km, 6 h 30, Monday to Friday, departs 05:30, operated by Fercam.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ROUTE}

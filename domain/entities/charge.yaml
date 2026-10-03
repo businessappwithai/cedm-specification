@@ -2,32 +2,158 @@ entity:
   name: Charge
   namespace: cedm.domain
   kind: billing_transaction
-  description: A governed billable monetary amount created from subscription, usage, service, product, fee, or adjustment rules before settlement.
+  description: An amount to be billed to a customer — a recurring fee, a usage charge, a one-off fee, a penalty or an adjustment — for a period, waiting to be put on an invoice.
   ui:
-    icon: file-text
+    icon: receipt-text
+    recordLabel: [chargeNumber]
   identity: {key: chargeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: chargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Charge., businessMeaning: Identifies one governed Charge record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Charge., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: PENDING
+    values: [PENDING, INVOICED, CANCELLED]
+    help:
+      summary: Whether the charge has been invoiced.
+      usage: Moved on by invoicing.
+      relationshipContext: Only pending charges are picked up by the next invoice.
+      valueSemantics:
+        PENDING: Waiting to be invoiced.
+        INVOICED: On an invoice.
+        CANCELLED: Raised in error; never invoiced.
+  - name: chargeNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the charge.
+      usage: Assigned when the charge is created; shown on the invoice detail.
+      relationshipContext: Unique.
+  - name: chargeType
+    type: enum
+    required: true
+    default: RECURRING
+    values: [RECURRING, USAGE, ONE_TIME, PENALTY, ADJUSTMENT]
+    help:
+      summary: What the charge is for.
+      usage: Set by the process that creates it; decides how it is described on the invoice.
+      relationshipContext: Adjustments may be negative.
+      valueSemantics:
+        RECURRING: A fee for a billing period of a subscription.
+        USAGE: A charge for measured usage.
+        ONE_TIME: A one-off fee, such as setup.
+        PENALTY: A fee for a breach of terms, such as late payment or early termination.
+        ADJUSTMENT: A correction or credit to earlier charges.
+  - name: description
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: What the customer is charged for, as printed on the invoice.
+      usage: Written by the process or person creating the charge.
+      relationshipContext: Should let the customer recognise the charge.
+  - name: periodStart
+    type: date
+    required: false
+    help:
+      summary: The first day of the period the charge covers.
+      usage: Set for recurring and usage charges.
+      relationshipContext: Not later than the period end.
+  - name: periodEnd
+    type: date
+    required: false
+    help:
+      summary: The last day of the period the charge covers.
+      usage: Set for recurring and usage charges.
+      relationshipContext: Charges for the same subscription do not cover overlapping periods.
+  - name: quantity
+    type: decimal
+    required: true
+    precision: 18
+    scale: 4
+    default: 1
+    help:
+      summary: How many units are charged.
+      usage: Users, usage units, or 1 for a flat fee.
+      relationshipContext: Read with the unit price.
+  - name: unitPrice
+    type: Money
+    required: false
+    help:
+      summary: The price per unit.
+      usage: Taken from the plan or price list.
+      relationshipContext: In the charge's currency.
+  - name: amount
+    type: Money
+    required: true
+    help:
+      summary: The amount charged before tax.
+      usage: Quantity times unit price, or the stated amount for flat charges and adjustments.
+      relationshipContext: Negative for credits.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The customer charged.
+      usage: Set when the charge is created.
+      cardinalityMeaning: Every charge is for one customer.
+      context: The customer's next invoice collects their pending charges.
+  - name: subscription
+    target: Subscription
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The subscription the charge comes from.
+      usage: Set for recurring and usage charges.
+      cardinalityMeaning: At most one.
+      context: Lets every charge of a subscription be listed.
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The product charged for.
+      usage: Used for revenue reporting by product.
+      cardinalityMeaning: At most one.
+      context: Taken from the subscription's plan when there is one.
+  - name: invoice
+    target: Invoice
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The invoice the charge is on.
+      usage: Set when the charge is invoiced.
+      cardinalityMeaning: At most one.
+      context: Present once invoiced.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the charge.
+      usage: Taken from the subscription or the customer.
+      cardinalityMeaning: One per charge.
+      context: Charges on one invoice share its currency.
   invariants:
-  - {id: CHARGE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: CHARGE-001, rule: An invoiced charge is not edited; a correction is an adjustment charge.}
+  - {id: CHARGE-002, rule: The period does not end before it starts., violatedWhen: period_end != null and period_start != null and period_end < period_start, message: The period ends before it starts.}
+  - {id: CHARGE-003, rule: An invoiced charge names its invoice., violatedWhen: status == "INVOICED" and invoice_id == null, message: Link the invoice the charge is on.}
+  - {id: CHARGE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+  - {id: CHARGE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+  - {id: CHARGE-EXE-003, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Charge Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [PENDING, INVOICED, CANCELLED]
+    initial: PENDING
+    terminal: [INVOICED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: PENDING, to: INVOICED, action: invoice}
+    - {from: PENDING, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a charge is ended"
@@ -42,36 +168,17 @@ entity:
             as: taskId
             fields:
               code: "CHARGE-FOLLOW-UP-{{id}}"
-              name: "Follow up on charge {{id}}"
-              description: "Charge {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              name: "Follow up on charge {{charge_number}}"
+              description: "Charge {{charge_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
               task_type: "USER"
               status: "CREATED"
               priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a charge is done"
-      description: "When a charge is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CHARGE-COMPLETED-{{id}}"
-              name: "Confirm charge {{id}}"
-              description: "Charge {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
   help:
-    summary: A governed billable monetary amount created from subscription, usage, service, product, fee, or adjustment rules before settlement.
-    purpose: Provide canonical enterprise semantics for Charge while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed billable monetary amount created from subscription, usage, service, product, fee, or adjustment rules before settlement.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: One amount the customer owes for something, before it is invoiced.
+    businessMeaning: Recurring and usage billing produce many small amounts from different sources — the monthly fee, metered usage, a setup fee, a credit for an outage. Each becomes a charge with its period, quantity, price and amount, so that billing can collect them onto invoices, nothing is billed twice, and every invoice line can be traced to its source.
+    usage: Billing runs create charges from subscriptions and rated usage; billing staff add one-off charges and adjustments. Invoicing collects open charges of a customer for a cycle onto an invoice; disputes reverse or adjust individual charges.
+    relationshipContext: A charge is for a Customer, usually arises from a Subscription (or its usage), is billed in a BillingCycle period, and ends up on an Invoice. It may be for a Product.
+    lifecycle: Pending until invoiced, then invoiced; a charge raised in error is cancelled before invoicing, and an invoiced one is credited through an adjustment.
+    workflowContext: Recurring billing, usage rating, invoicing, billing disputes and adjustments.
+    example: "Charge CH-24-03-118822: subscription SUB-4471, 'Pro, monthly', 12 users × 49 EUR = 588 EUR for 1–31 March 2024, recurring, invoiced on INV-2024-03-0912."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CHARGE}

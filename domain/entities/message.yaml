@@ -2,23 +2,181 @@ entity:
   name: Message
   namespace: cedm.domain
   kind: integration_message
-  description: A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence.
+  description: One message exchanged with another system through an integration endpoint — an order sent, a payment file received, an event published — with its direction, type, payload, correlation and delivery outcome.
   ui:
-    icon: table
+    icon: mail
+    recordLabel: [messageType, sentAt]
   identity: {key: messageId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Message., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
-  relationships: []
+  - name: messageType
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: What kind of message it is, such as "Sales order", "Despatch advice" or "pain.001 payment batch".
+      usage: Set by the integration layer; monitoring groups messages by it.
+      relationshipContext: Each type has its own mapping and format.
+  - name: direction
+    type: enum
+    required: true
+    default: OUTBOUND
+    values: [INBOUND, OUTBOUND]
+    help:
+      summary: Whether the message was sent or received.
+      usage: Set by the integration layer.
+      relationshipContext: Received messages are processed into business records; sent ones come from them.
+      valueSemantics:
+        INBOUND: Received from another system.
+        OUTBOUND: Sent to another system.
+  - name: correlationReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The reference shared by all messages of one business transaction, such as an order number.
+      usage: Lets an operator follow an order or a payment run across every message about it.
+      relationshipContext: Set from the business record the message concerns.
+  - name: externalReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The identifier the other system gave the message.
+      usage: Quoted when asking the partner about a message.
+      relationshipContext: Known once the other side has accepted or sent it.
+  - name: payload
+    type: text
+    required: false
+    help:
+      summary: The content of the message as sent or received.
+      usage: Opened by operators investigating a failure.
+      relationshipContext: Sensitive content is masked or held encrypted according to policy.
+  - name: payloadFormat
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The format of the content, such as JSON, XML, EDIFACT or CSV.
+      usage: Recorded so that the content can be displayed correctly.
+      relationshipContext: Matches the endpoint's data format.
+  - name: sentAt
+    type: datetime
+    required: false
+    help:
+      summary: When the message was sent or received.
+      usage: Set by the integration layer.
+      relationshipContext: Messages are listed in this order.
+  - name: acknowledgedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the other side confirmed it had the message.
+      usage: Recorded when an acknowledgement arrives.
+      relationshipContext: Not every protocol gives one.
+  - name: attemptCount
+    type: integer
+    required: true
+    default: 0
+    help:
+      summary: How many times delivery has been attempted.
+      usage: Increased by each try.
+      relationshipContext: After the configured maximum the message is dead-lettered.
+  - name: errorDetail
+    type: text
+    required: false
+    help:
+      summary: What went wrong on the last failed attempt.
+      usage: Read by the operator deciding whether to resend, correct or discard.
+      relationshipContext: Present while the message is failing.
+  - name: status
+    type: enum
+    required: true
+    default: QUEUED
+    values: [QUEUED, SENT, ACKNOWLEDGED, FAILED, DEAD_LETTERED, DISCARDED]
+    help:
+      summary: Where the message is in its delivery.
+      usage: Moved on by the integration layer and, for dead letters, by an operator.
+      relationshipContext: Failed and dead-lettered messages appear in the monitoring screen.
+      valueSemantics:
+        QUEUED: Waiting to be sent or processed.
+        SENT: Sent, or received and handed over for processing.
+        ACKNOWLEDGED: Confirmed by the other side, or processed successfully.
+        FAILED: The last attempt failed; it will be retried.
+        DEAD_LETTERED: Given up after repeated failures; a person must act.
+        DISCARDED: Deliberately not delivered by an operator.
+  relationships:
+  - name: endpoint
+    target: IntegrationEndpoint
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The endpoint the message went through.
+      usage: Set by the integration layer.
+      cardinalityMeaning: One per message.
+      context: Endpoint error rates are counted from its messages.
+  - name: businessEvent
+    target: BusinessEvent
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The business event the message carries.
+      usage: Linked when an event is published through the endpoint.
+      cardinalityMeaning: At most one event per message.
+      context: The event may go to several endpoints, each with its own message.
+  - name: inReplyTo
+    target: Message
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The message this one answers, such as an acknowledgement for an order.
+      usage: Set by the integration layer when it matches a reply.
+      cardinalityMeaning: At most one.
+      context: Lets the exchange be followed as a conversation.
   invariants:
-  - {id: MESSAGE-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+  - {id: MESSAGE-001, rule: A message's payload is not edited; a corrected message is sent as a new message.}
+  - {id: MESSAGE-002, rule: An acknowledged message records when it was acknowledged., violatedWhen: status == "ACKNOWLEDGED" and acknowledged_at == null, message: Record when the message was acknowledged.}
+  - {id: MESSAGE-EXE-001, rule: "Attempt Count cannot be negative.", violatedWhen: "attempt_count != null and attempt_count < 0", message: "Attempt Count cannot be negative."}
+  workflows:
+  - name: ExceptionRaised
+    title: "Raise a task when a message is stopped"
+    description: "When a message is failed, a high-priority task asks someone to resolve it."
+    when: "status == \"FAILED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "MESSAGE-EXCEPTION-{{id}}"
+          name: "Resolve message {{id}}"
+          description: "Message {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  lifecycle:
+    title: Message Lifecycle
+    attribute: status
+    states: [QUEUED, SENT, ACKNOWLEDGED, FAILED, DEAD_LETTERED, DISCARDED]
+    initial: QUEUED
+    terminal: [ACKNOWLEDGED, DISCARDED]
+    transitions:
+    - {from: QUEUED, to: SENT, action: send}
+    - {from: SENT, to: ACKNOWLEDGED, action: acknowledge}
+    - {from: QUEUED, to: FAILED, action: fail}
+    - {from: SENT, to: FAILED, action: fail}
+    - {from: FAILED, to: SENT, action: retry}
+    - {from: FAILED, to: DEAD_LETTERED, action: dead_letter}
+    - {from: DEAD_LETTERED, to: QUEUED, action: requeue}
+    - {from: DEAD_LETTERED, to: DISCARDED, action: discard}
   help:
-    summary: A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence.
-    purpose: Provide canonical implementation-neutral integration semantics for Message.
-    businessMeaning: A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence.
-    whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
-    howItRelates: Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
-    lifecycleUsage: Created and processed through governed integration states; attempts and finalized evidence are retained.
-    commonProcesses: Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-    commonExamples: Enterprise application integration and event-driven workflows.
+    summary: A single piece of data sent to or received from another system, and whether it got through.
+    businessMeaning: When an order never reaches the warehouse system or a payment file is rejected by the bank, someone has to find the message, see what it contained and why it failed, and send it again. A message record keeps each exchange with its content, its correlation to the business transaction and its delivery outcome, so integration problems can be found and fixed without guessing.
+    usage: Written by the integration layer for every message in or out. Operations staff monitor failed and retrying messages, open them to see the error, and resend or discard them; auditors use them to show what was sent to whom and when.
+    relationshipContext: Each message passes through one IntegrationEndpoint and may carry a BusinessEvent. Messages of one transaction share a correlation reference, and a reply names the message it answers.
+    lifecycle: Queued, then sent (or received), then acknowledged by the other side or processed. A message that fails is retried, and after too many failures it is dead-lettered for a person to deal with.
+    workflowContext: Order exchange with partners, payment and statement files with banks, e-invoicing, carrier bookings and status feeds all travel as messages.
+    example: Message 7f3c…, outbound, type 'pain.001 payment batch', to endpoint BANKB-SFTP-PAY, correlation PAYRUN-2024-03-28, sent 28 March 14:02, acknowledged by the bank 14:07 with status ACCP.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-MESSAGE}

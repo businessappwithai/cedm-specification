@@ -2,75 +2,196 @@ entity:
   name: ProcessInstance
   namespace: cedm.domain
   kind: workflow_transaction
-  description: A governed execution instance of a ProcessDefinition preserving the effective process version, business context, state, and audit history.
+  description: One run of a process definition for one business case — such as the onboarding of one supplier — with the version it follows, its current step, who started it and how long it took.
   ui:
-    icon: file-text
+    icon: play-circle
+    recordLabel: [instanceNumber]
   identity: {key: processInstanceId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: processInstanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessInstance., businessMeaning: Identifies one governed ProcessInstance record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of ProcessInstance., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: RUNNING
+    values: [RUNNING, SUSPENDED, COMPLETED, CANCELLED, FAILED]
+    help:
+      summary: Whether the instance is still going.
+      businessMeaning: Indicates current workflow/control usability.
+      usage: Moved on by the engine or an administrator.
+      relationshipContext: Failed instances appear in the administrator's queue.
+      valueSemantics:
+        RUNNING: In progress.
+        SUSPENDED: Paused by a person.
+        COMPLETED: Reached an end of the process.
+        CANCELLED: Stopped on purpose before the end.
+        FAILED: Stopped by an error that a person must resolve.
+  - name: instanceNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the instance.
+      usage: Assigned when it starts.
+      relationshipContext: Unique.
+  - name: definitionVersion
+    type: integer
+    required: true
+    help:
+      summary: The version of the definition the instance follows.
+      usage: Fixed when the instance starts.
+      relationshipContext: A later version does not change a running instance.
+  - name: recordType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The kind of record the instance is for, such as "Supplier".
+      usage: Set when the instance starts.
+      relationshipContext: Read with the record reference.
+  - name: recordReference
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The reference of the record the instance is for.
+      usage: Lets users open the case's record.
+      relationshipContext: One record may have several instances of different processes.
+  - name: currentStep
+    type: string
+    required: false
+    maxLength: 150
+    help:
+      summary: The step the instance is at now.
+      usage: Updated by the engine; shown in monitoring.
+      relationshipContext: Empty once finished.
+  - name: startedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the instance started.
+      usage: Set by the engine.
+      relationshipContext: Durations are measured from it.
+  - name: completedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the instance finished.
+      usage: Set when it completes or is cancelled.
+      relationshipContext: Present once finished.
+  - name: dueAt
+    type: datetime
+    required: false
+    help:
+      summary: When the instance should be finished by.
+      usage: Computed from the definition's target duration.
+      relationshipContext: Running instances past it are overdue.
+  - name: failureReason
+    type: text
+    required: false
+    help:
+      summary: What stopped the instance.
+      usage: Recorded when it fails; read by the administrator who restarts it.
+      relationshipContext: Present only on failed instances.
+  relationships:
+  - name: processDefinition
+    target: ProcessDefinition
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The process the instance runs.
+      usage: Chosen when starting it.
+      cardinalityMeaning: Every instance runs exactly one definition.
+      context: The definition's version at start is copied to the instance.
+  - name: startedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who started the instance; empty when an event started it.
+      usage: Recorded at start.
+      cardinalityMeaning: One per instance.
+      context: Told when the instance finishes.
   invariants:
-  - {id: PROCESS-INSTANCE-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  - {id: PROCESS-INSTANCE-001, rule: An instance does not finish before it started., violatedWhen: completed_at != null and started_at != null and completed_at < started_at, message: The completion time is earlier than the start time.}
+  - {id: PROCESS-INSTANCE-002, rule: A completed instance records when it finished., violatedWhen: status == "COMPLETED" and completed_at == null, message: Record when the instance completed.}
+  - {id: PROCESS-INSTANCE-003, rule: A failed instance records why., violatedWhen: status == "FAILED" and failure_reason == null, message: Give the reason the instance failed.}
+  workflows:
+  - name: ExceptionRaised
+    title: "Raise a task when a process instance is stopped"
+    description: "When a process instance is failed, a high-priority task asks someone to resolve it."
+    when: "status == \"FAILED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PROCESS-INSTANCE-EXCEPTION-{{id}}"
+          name: "Resolve process instance {{instance_number}}"
+          description: "Process instance {{instance_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a process instance is ended"
+    description: "When a process instance is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PROCESS-INSTANCE-FOLLOW-UP-{{id}}"
+          name: "Follow up on process instance {{instance_number}}"
+          description: "Process instance {{instance_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a process instance is done"
+    description: "When a process instance is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PROCESS-INSTANCE-COMPLETED-{{id}}"
+          name: "Confirm process instance {{instance_number}}"
+          description: "Process instance {{instance_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   lifecycle:
     title: Process Instance Lifecycle
     attribute: status
-    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    initial: PENDING
+    states: [RUNNING, SUSPENDED, COMPLETED, CANCELLED, FAILED]
+    initial: RUNNING
     terminal: [COMPLETED, CANCELLED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a process instance is ended"
-      description: "When a process instance is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PROCESS-INSTANCE-FOLLOW-UP-{{id}}"
-              name: "Follow up on process instance {{id}}"
-              description: "Process instance {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a process instance is done"
-      description: "When a process instance is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PROCESS-INSTANCE-COMPLETED-{{id}}"
-              name: "Confirm process instance {{id}}"
-              description: "Process instance {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+    - {from: RUNNING, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: RUNNING, action: resume}
+    - {from: RUNNING, to: COMPLETED, action: complete}
+    - {from: RUNNING, to: CANCELLED, action: cancel}
+    - {from: SUSPENDED, to: CANCELLED, action: cancel}
+    - {from: RUNNING, to: FAILED, action: fail}
+    - {from: FAILED, to: RUNNING, action: retry}
+    - {from: FAILED, to: CANCELLED, action: cancel}
   help:
-    summary: A governed execution instance of a ProcessDefinition preserving the effective process version, business context, state, and audit history.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed execution instance of a ProcessDefinition preserving the effective process version, business context, state, and audit history.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: One case going through a defined process, from start to finish.
+    businessMeaning: Each time a process runs, for one supplier, one claim or one request, its progress has to be visible and its history kept. The instance records which process version it follows, which business record it is for, where it is now and when it started and finished, so work can be followed, measured and audited.
+    usage: Started by a user or by an event; the process engine moves it from step to step and creates tasks for the people involved. Process owners watch running and overdue instances; auditors look at completed ones.
+    relationshipContext: An instance runs a ProcessDefinition (in the version it started on) for one business record, named by its kind and reference. Tasks are created for its human steps. It is started by a person.
+    lifecycle: Running from its start; suspended when paused; completed when it reaches an end; cancelled when stopped deliberately; failed when a system step cannot continue and needs intervention.
+    workflowContext: Case handling for any defined process; process mining and duration reporting.
+    example: Instance PI-24-00918 of SUP-ONB v3 for supplier Contoso GmbH, started 4 March 09:12 by the buyer; current step 'Finance approval'; completed 7 March 16:40 (3.3 working days).
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROCESS-INSTANCE}

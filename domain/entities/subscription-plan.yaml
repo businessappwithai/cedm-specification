@@ -2,57 +2,157 @@ entity:
   name: SubscriptionPlan
   namespace: cedm.domain
   kind: subscription_master
-  description: A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions.
+  description: A plan customers can subscribe to — what it includes, its recurring price, billing frequency, included usage and overage price, trial and commitment terms — such as "Pro, monthly, 10 users".
   ui:
-    icon: repeat
+    icon: layout-list
+    recordLabel: [code, name]
   identity: {key: subscriptionPlanId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: subscriptionPlanId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of SubscriptionPlan., businessMeaning: Identifies one governed SubscriptionPlan record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of SubscriptionPlan., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: DRAFT
+    values: [DRAFT, PUBLISHED, RETIRED]
+    help:
+      summary: Whether the plan is on sale.
+      usage: Moved on by the product team.
+      relationshipContext: Only published plans can be subscribed to.
+      valueSemantics:
+        DRAFT: Being designed.
+        PUBLISHED: On sale.
+        RETIRED: No longer sold; existing subscribers keep it until migrated.
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The code of the plan, such as PRO-M-EUR.
+      usage: Used by billing, the portal and integrations.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name customers see, such as "Pro, monthly".
+      usage: Shown on the pricing page, in contracts and on invoices.
+      relationshipContext: Identifies the plan for people, with the code.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the plan includes, as customers read it.
+      usage: Shown on the pricing page.
+      relationshipContext: Must match the plan's configured entitlements.
+  - name: recurringFee
+    type: Money
+    required: true
+    help:
+      summary: The fee charged each billing period.
+      usage: Charged by every billing run for each active subscription.
+      relationshipContext: Per unit when the plan is priced per user or per seat.
+  - name: pricingUnit
+    type: enum
+    required: true
+    default: FLAT
+    values: [FLAT, PER_USER, PER_UNIT]
+    help:
+      summary: What the recurring fee is charged per.
+      usage: Decides whether the fee is multiplied by the subscription's quantity.
+      relationshipContext: Read with the recurring fee.
+      valueSemantics:
+        FLAT: One fee for the whole subscription.
+        PER_USER: The fee times the number of users.
+        PER_UNIT: The fee times another counted unit, such as devices or sites.
+  - name: includedUsage
+    type: decimal
+    required: false
+    precision: 18
+    scale: 4
+    help:
+      summary: How much usage each period includes before overage is charged.
+      usage: Billing rates usage above it at the overage price.
+      relationshipContext: In the plan's usage unit.
+  - name: usageUnit
+    type: string
+    required: false
+    maxLength: 50
+    help:
+      summary: The unit usage is measured in, such as "API calls" or "GB".
+      usage: Shown on invoices next to usage quantities.
+      relationshipContext: Usage records are in this unit.
+  - name: overagePrice
+    type: Money
+    required: false
+    help:
+      summary: The price per unit of usage above what is included.
+      usage: Applied by usage rating.
+      relationshipContext: Empty when extra usage is not allowed or not charged.
+  - name: trialDays
+    type: integer
+    required: false
+    help:
+      summary: How many days a new subscriber may use the plan free.
+      usage: The first charge falls after the trial.
+      relationshipContext: Empty or zero for no trial.
+  - name: minimumTermMonths
+    type: integer
+    required: false
+    help:
+      summary: The minimum commitment, in months.
+      usage: A subscription cannot be cancelled to take effect before it ends.
+      relationshipContext: Empty for no commitment.
+  relationships:
+  - name: product
+    target: Product
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The product the plan sells.
+      usage: Linked for revenue reporting by product.
+      cardinalityMeaning: One per plan.
+      context: A product is usually sold in several plans.
+  - name: billingCycle
+    target: BillingCycle
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The cycle subscriptions on the plan are billed on.
+      usage: Copied to new subscriptions.
+      cardinalityMeaning: One per plan.
+      context: Monthly and annual variants are separate plans.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the plan's prices.
+      usage: Set when designing the plan.
+      cardinalityMeaning: One per plan.
+      context: Each currency needs its own plan.
   invariants:
-  - {id: SUBSCRIPTION-PLAN-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: SUBSCRIPTION-PLAN-001, rule: Prices of a published plan are not changed; a new price is a new plan to which subscribers are migrated.}
+  - {id: SUBSCRIPTION-PLAN-002, rule: The included usage is not negative., violatedWhen: included_usage != null and included_usage < 0, message: The included usage cannot be negative.}
+  - {id: SUBSCRIPTION-PLAN-EXE-001, rule: "Recurring Fee cannot be negative.", violatedWhen: "recurring_fee != null and recurring_fee < 0", message: "Recurring Fee cannot be negative."}
+  - {id: SUBSCRIPTION-PLAN-EXE-002, rule: "Overage Price cannot be negative.", violatedWhen: "overage_price != null and overage_price < 0", message: "Overage Price cannot be negative."}
   lifecycle:
     title: Subscription Plan Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, PUBLISHED, RETIRED]
     initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a subscription plan is ended"
-      description: "When a subscription plan is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUBSCRIPTION-PLAN-FOLLOW-UP-{{id}}"
-              name: "Follow up on subscription plan {{id}}"
-              description: "Subscription plan {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: DRAFT, to: PUBLISHED, action: publish}
+    - {from: PUBLISHED, to: RETIRED, action: retire}
+    - {from: DRAFT, to: RETIRED, action: discard}
   help:
-    summary: A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions.
-    purpose: Provide canonical enterprise semantics for SubscriptionPlan while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: An offer customers subscribe to, with its price, billing rhythm and what it includes.
+    businessMeaning: Subscription businesses sell plans rather than one-off products. A plan fixes the recurring fee, how often it is billed, what usage is included and what extra usage costs, any trial and minimum term, so that every subscription on the plan is billed the same way and plan changes can be managed as new versions.
+    usage: Product and pricing teams design plans and publish them; sales and the self-service portal sign customers up to published plans; billing reads the plan to charge each subscription. Retired plans stay for existing subscribers until they are migrated.
+    relationshipContext: A plan sells a Product, is billed on a BillingCycle in a Currency, and has many Subscriptions. Upgrades and downgrades move a subscription from one plan to another.
+    lifecycle: Drafted, then published for sale, then retired when no longer sold. Subscribers of a retired plan keep it until they move.
+    workflowContext: Plan design and pricing approval, subscription sign-up, recurring billing and usage rating, upgrades and downgrades.
+    example: "Plan PRO-M-EUR: 'Pro, monthly', 49 EUR per user per month billed on cycle MON-01, includes 10,000 API calls, 0.002 EUR per extra call, 14-day trial, no minimum term."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUBSCRIPTION-PLAN}

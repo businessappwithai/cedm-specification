@@ -2,24 +2,211 @@ entity:
   name: AssetDisposal
   namespace: cedm.domain
   kind: asset_transaction
-  description: A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences.
+  description: The event of removing a fixed asset from the business — sold, scrapped, donated, lost or traded in — with the date, the proceeds, the book value at disposal and the resulting gain or loss.
   ui:
-    icon: box
+    icon: package-minus
+    recordLabel: [disposalNumber]
   identity: {key: assetDisposalId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: assetDisposalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetDisposal., businessMeaning: Identifies one governed AssetDisposal record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - name: disposalNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the disposal.
+      usage: Assigned when it is requested.
+      relationshipContext: Unique.
+  - name: disposalMethod
+    type: enum
+    required: true
+    default: SALE
+    values: [SALE, SCRAP, DONATION, TRADE_IN, LOSS_OR_THEFT, TRANSFER_OUT]
+    help:
+      summary: How the asset leaves the business.
+      usage: Chosen when requesting the disposal; decides whether proceeds are expected.
+      relationshipContext: Losses and thefts are written off with no proceeds.
+      valueSemantics:
+        SALE: Sold to a buyer.
+        SCRAP: Scrapped or recycled.
+        DONATION: Given away.
+        TRADE_IN: Handed in as part payment for a replacement.
+        LOSS_OR_THEFT: Lost, stolen or destroyed.
+        TRANSFER_OUT: Transferred to another group company.
+  - name: disposalDate
+    type: date
+    required: false
+    help:
+      summary: The day the asset left the business.
+      usage: Depreciation stops at this date.
+      relationshipContext: Required to complete the disposal.
+  - name: reason
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Why the asset is being disposed of.
+      usage: Read by the approver.
+      relationshipContext: Such as "replaced by a newer model" or "beyond economic repair".
+  - name: proceeds
+    type: Money
+    required: false
+    help:
+      summary: What the business received for the asset.
+      usage: Recorded for sales and trade-ins.
+      relationshipContext: Zero for scrapping, donations and losses.
+  - name: bookValueAtDisposal
+    type: Money
+    required: false
+    help:
+      summary: The asset's net book value on the disposal date.
+      usage: Computed from the asset's cost and accumulated depreciation.
+      relationshipContext: Fixed when the disposal is completed.
+  - name: gainOrLoss
+    type: Money
+    required: false
+    help:
+      summary: Proceeds minus book value; positive for a gain, negative for a loss.
+      usage: Posted to the gain or loss on disposal account.
+      relationshipContext: The one amount on a disposal that may be negative.
+  - name: approvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the disposal was approved.
+      usage: Recorded on approval.
+      relationshipContext: Required before completion.
+  - name: status
+    type: enum
+    required: true
+    default: REQUESTED
+    values: [REQUESTED, APPROVED, COMPLETED, REJECTED, CANCELLED]
+    help:
+      summary: Where the disposal stands.
+      usage: Moved on by approval and completion.
+      relationshipContext: Only completed disposals remove the asset.
+      valueSemantics:
+        REQUESTED: Asked for, waiting for approval.
+        APPROVED: Approved; the asset may be removed.
+        COMPLETED: The asset has gone and the disposal is posted.
+        REJECTED: Not approved; the asset stays.
+        CANCELLED: Withdrawn before completion.
   relationships:
-  - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: Asset affected by this lifecycle record., businessMeaning: Supplies canonical asset identity., usage: Asset lifecycle and audit., cardinalityMeaning: Exactly one Asset., workflowRole: Event changes lifecycle state without rewriting prior asset evidence.}}
+  - name: asset
+    target: Asset
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The asset disposed of.
+      usage: Chosen when requesting the disposal.
+      cardinalityMeaning: Every disposal is of exactly one asset.
+      context: The asset is retired or marked disposed when the disposal completes.
+  - name: buyer
+    target: Party
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who bought or received the asset.
+      usage: Set for sales, donations and transfers.
+      cardinalityMeaning: At most one.
+      context: The proceeds are invoiced to them.
+  - name: approvedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who approved the disposal.
+      usage: Recorded on approval.
+      cardinalityMeaning: One per disposal.
+      context: Must have authority for the asset's value.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the amounts.
+      usage: Usually the company currency.
+      cardinalityMeaning: One per disposal.
+      context: All amounts on the disposal use it.
   invariants:
-  - {id: ASSET-DISPOSAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: ASSET-DISPOSAL-001, rule: A completed disposal is not edited; a correction is a reversal through accounting.}
+  - {id: ASSET-DISPOSAL-002, rule: A completed disposal records its date and book value., violatedWhen: status == "COMPLETED" and (disposal_date == null or book_value_at_disposal == null), message: Give the disposal date and the book value at disposal.}
+  - {id: ASSET-DISPOSAL-003, rule: An approved or completed disposal records when it was approved., violatedWhen: (status == "APPROVED" or status == "COMPLETED") and approved_at == null, message: Record when the disposal was approved.}
+  - {id: ASSET-DISPOSAL-EXE-001, rule: "An asset disposal that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the asset disposal is approved."}
+  lifecycle:
+    title: Asset Disposal Lifecycle
+    attribute: status
+    states: [REQUESTED, APPROVED, COMPLETED, REJECTED, CANCELLED]
+    initial: REQUESTED
+    terminal: [COMPLETED, REJECTED, CANCELLED]
+    transitions:
+    - {from: REQUESTED, to: APPROVED, action: approve}
+    - {from: REQUESTED, to: REJECTED, action: reject}
+    - {from: APPROVED, to: COMPLETED, action: complete}
+    - {from: REQUESTED, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when an asset disposal is put forward"
+      description: "When an asset disposal is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-DISPOSAL-APPROVAL-{{id}}"
+              name: "Decide on asset disposal {{disposal_number}}"
+              description: "Asset disposal {{disposal_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when an asset disposal is ended"
+      description: "When an asset disposal is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-DISPOSAL-FOLLOW-UP-{{id}}"
+              name: "Follow up on asset disposal {{disposal_number}}"
+              description: "Asset disposal {{disposal_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when an asset disposal is done"
+      description: "When an asset disposal is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-DISPOSAL-COMPLETED-{{id}}"
+              name: "Confirm asset disposal {{disposal_number}}"
+              description: "Asset disposal {{disposal_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
-    summary: A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences.
-    purpose: Provide canonical enterprise semantics for AssetDisposal.
-    businessMeaning: A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: How and when an asset left the business, and what gain or loss resulted.
+    businessMeaning: When an asset is sold or scrapped it must leave the asset register and the accounts, and the difference between what it fetched and its remaining book value is a gain or loss. The disposal records the method, date, proceeds, book value and result, with approval, so the register stays true and the accounting can be shown.
+    usage: Asset owners request disposals; finance approves and posts them, which stops depreciation and removes the asset. Disposal reports feed the fixed-asset note and tax computations.
+    relationshipContext: A disposal ends one Asset. A sale names the buyer (a Party) and may produce an Invoice for the proceeds. Amounts are in one Currency.
+    lifecycle: Requested, approved, then completed when the asset has gone and the disposal is posted. A request may be rejected or cancelled before completion.
+    workflowContext: Asset retirement and replacement, sale of surplus equipment, write-off after loss or damage, period-end fixed-asset reconciliation.
+    example: 'Disposal AD-2024-0031 of forklift FA-08812: sold to a dealer on 15 May 2024 for 6,000 EUR; book value 4,250 EUR; gain 1,750 EUR; approved by the plant controller; posted 31 May.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-DISPOSAL}

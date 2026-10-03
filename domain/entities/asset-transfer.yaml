@@ -2,24 +2,219 @@ entity:
   name: AssetTransfer
   namespace: cedm.domain
   kind: asset_transaction
-  description: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
+  description: The move of a fixed asset to another location, cost centre, custodian or group company, with the date it takes effect, so the register shows where each asset is and who answers for it.
   ui:
-    icon: box
+    icon: arrow-right-left
+    recordLabel: [transferNumber]
   identity: {key: assetTransferId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: assetTransferId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetTransfer., businessMeaning: Identifies one governed AssetTransfer record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - name: transferNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the transfer.
+      usage: Assigned when it is requested.
+      relationshipContext: Unique.
+  - name: transferType
+    type: enum
+    required: true
+    default: LOCATION
+    values: [LOCATION, COST_CENTER, CUSTODIAN, INTERCOMPANY]
+    help:
+      summary: What changes with the transfer.
+      usage: Chosen when requesting it; decides who must confirm and whether accounting is posted.
+      relationshipContext: Several changes at once are one transfer of the main type.
+      valueSemantics:
+        LOCATION: The asset moves to another place.
+        COST_CENTER: Another unit bears the asset's cost.
+        CUSTODIAN: Another person becomes responsible for the asset.
+        INTERCOMPANY: The asset moves to another group company.
+  - name: effectiveDate
+    type: date
+    required: true
+    help:
+      summary: The day the change takes effect for the register and depreciation.
+      usage: Set by finance; depreciation before it stays with the old unit.
+      relationshipContext: Usually the first day of a period.
+  - name: reason
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Why the asset is moving.
+      usage: Read by the approver and the receiver.
+      relationshipContext: Free text.
+  - name: shippedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the asset left its old location.
+      usage: Recorded for physical moves.
+      relationshipContext: Present once in transit.
+  - name: receivedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the receiver confirmed the asset arrived.
+      usage: Recorded on confirmation.
+      relationshipContext: Present once completed.
+  - name: status
+    type: enum
+    required: true
+    default: REQUESTED
+    values: [REQUESTED, IN_TRANSIT, COMPLETED, CANCELLED]
+    help:
+      summary: Where the transfer stands.
+      usage: Moved on by shipment and confirmation.
+      relationshipContext: The register changes when the transfer completes.
+      valueSemantics:
+        REQUESTED: Asked for; the asset has not moved.
+        IN_TRANSIT: The asset has left and not yet arrived.
+        COMPLETED: The receiver confirmed; the register is updated.
+        CANCELLED: Called off.
   relationships:
-  - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: Asset affected by this lifecycle record., businessMeaning: Supplies canonical asset identity., usage: Asset lifecycle and audit., cardinalityMeaning: Exactly one Asset., workflowRole: Event changes lifecycle state without rewriting prior asset evidence.}}
+  - name: asset
+    target: Asset
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The asset moved.
+      usage: Chosen when requesting the transfer.
+      cardinalityMeaning: Every transfer is of exactly one asset.
+      context: The asset's location, cost centre and custodian follow completed transfers.
+  - name: fromLocation
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the asset was.
+      usage: Copied from the asset when the transfer is requested.
+      cardinalityMeaning: One per transfer.
+      context: Should match the asset's location.
+  - name: toLocation
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the asset goes.
+      usage: Chosen when requesting a location transfer.
+      cardinalityMeaning: One per transfer.
+      context: Becomes the asset's location on completion.
+  - name: fromCostCenter
+    target: CostCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The cost centre that bore the asset's cost.
+      usage: Copied from the asset.
+      cardinalityMeaning: One per transfer.
+      context: Bears depreciation up to the effective date.
+  - name: toCostCenter
+    target: CostCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The cost centre that will bear the asset's cost.
+      usage: Chosen for cost-centre transfers.
+      cardinalityMeaning: One per transfer.
+      context: Bears depreciation from the effective date.
+  - name: fromCustodian
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who was responsible for the asset.
+      usage: Copied from the asset.
+      cardinalityMeaning: One per transfer.
+      context: Hands the asset over.
+  - name: toCustodian
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who becomes responsible for the asset.
+      usage: Chosen for custodian transfers; confirms receipt.
+      cardinalityMeaning: One per transfer.
+      context: Answers for the asset from completion.
   invariants:
-  - {id: ASSET-TRANSFER-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: ASSET-TRANSFER-001, rule: A completed transfer records when the asset was received., violatedWhen: status == "COMPLETED" and received_at == null, message: Record when the asset was received.}
+  - {id: ASSET-TRANSFER-002, rule: The asset is not received before it was shipped., violatedWhen: received_at != null and shipped_at != null and received_at < shipped_at, message: The receipt is earlier than the shipment.}
+  lifecycle:
+    title: Asset Transfer Lifecycle
+    attribute: status
+    states: [REQUESTED, IN_TRANSIT, COMPLETED, CANCELLED]
+    initial: REQUESTED
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+    - {from: REQUESTED, to: IN_TRANSIT, action: ship}
+    - {from: IN_TRANSIT, to: COMPLETED, action: receive}
+    - {from: REQUESTED, to: COMPLETED, action: complete}
+    - {from: REQUESTED, to: CANCELLED, action: cancel}
+    - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when an asset transfer is put forward"
+      description: "When an asset transfer is requested, a task asks someone to decide on it."
+      when: "status == \"REQUESTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-TRANSFER-APPROVAL-{{id}}"
+              name: "Decide on asset transfer {{transfer_number}}"
+              description: "Asset transfer {{transfer_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when an asset transfer is ended"
+      description: "When an asset transfer is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-TRANSFER-FOLLOW-UP-{{id}}"
+              name: "Follow up on asset transfer {{transfer_number}}"
+              description: "Asset transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when an asset transfer is done"
+      description: "When an asset transfer is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "ASSET-TRANSFER-COMPLETED-{{id}}"
+              name: "Confirm asset transfer {{transfer_number}}"
+              description: "Asset transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
-    summary: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
-    purpose: Provide canonical enterprise semantics for AssetTransfer.
-    businessMeaning: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: A change in where an asset is, who looks after it or which unit carries its cost.
+    businessMeaning: Assets move — a machine to another plant, a laptop to another employee, a vehicle to another company. Each move changes where the asset should be found in a count, who is accountable for it and which unit bears its depreciation. A transfer records the move and its effective date, keeping the history of where the asset has been.
+    usage: Asset owners or facilities request transfers; receiving units confirm them; finance posts transfers between cost centres or companies. Physical counts and custody reports rely on completed transfers.
+    relationshipContext: A transfer moves one Asset from one Location, CostCenter or custodian Person to another, and between LegalEntities for intercompany moves.
+    lifecycle: Requested, then in transit when the asset has left, and completed when the receiver confirms it. A transfer may be cancelled before it completes.
+    workflowContext: Relocation, employee equipment hand-over, intercompany asset transfers, fixed-asset counts.
+    example: 'Transfer AT-2024-0157: CNC lathe FA-07730 from Plant Lyon (cost centre 4100) to Plant Grenoble (cost centre 4200), shipped 2 September, received and confirmed 5 September, effective 1 September for depreciation.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-TRANSFER}

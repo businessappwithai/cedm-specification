@@ -2,57 +2,122 @@ entity:
   name: OrganizationMembership
   namespace: cedm.domain
   kind: iam_membership
-  description: A governed relationship connecting a User or Party to an Organization with membership status and role context.
+  description: A person's membership of an organization or unit — employee, contractor, partner user, board member — with their role in it and the period it covers.
   ui:
-    icon: building-2
+    icon: users
+    recordLabel: [membershipRole]
   identity: {key: organizationMembershipId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: organizationMembershipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of OrganizationMembership., businessMeaning: Identifies one governed OrganizationMembership record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of OrganizationMembership., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
-  relationships: []
+    default: PENDING
+    values: [PENDING, ACTIVE, SUSPENDED, ENDED]
+    help:
+      summary: Whether the membership is in effect.
+      usage: Moved on as the person joins, is absent or leaves.
+      relationshipContext: Only active memberships count for routing and access.
+      valueSemantics:
+        PENDING: Recorded but not yet started.
+        ACTIVE: In effect.
+        SUSPENDED: Temporarily not in effect, such as during a leave of absence.
+        ENDED: Over.
+  - name: membershipRole
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The capacity in which the person belongs, such as "Accounts payable clerk" or "Board member".
+      usage: Shown in organization charts and member lists.
+      relationshipContext: Access rights come from access grants, not from this text.
+  - name: membershipType
+    type: enum
+    required: true
+    default: EMPLOYEE
+    values: [EMPLOYEE, CONTRACTOR, PARTNER_USER, BOARD_MEMBER, VOLUNTEER]
+    help:
+      summary: The kind of membership.
+      usage: Chosen when recording it; it decides which processes apply, such as payroll.
+      relationshipContext: External members see only what is shared with them.
+      valueSemantics:
+        EMPLOYEE: An employee of the organization.
+        CONTRACTOR: Someone working for the organization under contract.
+        PARTNER_USER: A person from a customer, supplier or partner given access.
+        BOARD_MEMBER: A director or member of a governing body.
+        VOLUNTEER: An unpaid member, such as a volunteer.
+  - name: isPrimary
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether this is the person's main membership.
+      usage: The primary membership decides the person's home unit in reports and approvals.
+      relationshipContext: A person has at most one primary membership at a time.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: The day the membership begins.
+      usage: Recorded when the person joins.
+      relationshipContext: Not later than the end date.
+  - name: endDate
+    type: date
+    required: false
+    help:
+      summary: The day the membership ends.
+      usage: Recorded when the person leaves; empty while open-ended.
+      relationshipContext: Access tied to the membership should end with it.
+  relationships:
+  - name: person
+    target: Person
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The person who is a member.
+      usage: Chosen when recording the membership.
+      cardinalityMeaning: Every membership is for exactly one person.
+      context: The person's memberships make up their place in the organization.
+  - name: organization
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The organization or unit the person belongs to.
+      usage: Chosen when recording the membership.
+      cardinalityMeaning: Every membership is in exactly one organization.
+      context: The organization's member list is drawn from its active memberships.
+  - name: user
+    target: User
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The user account the person uses in this organization.
+      usage: Linked when the membership gives access to the application.
+      cardinalityMeaning: At most one account per membership.
+      context: Ending the membership should lead to disabling or re-scoping the account.
   invariants:
-  - {id: ORGANIZATION-MEMBERSHIP-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+  - {id: ORGANIZATION-MEMBERSHIP-001, rule: The membership does not end before it starts., violatedWhen: end_date != null and start_date != null and end_date < start_date, message: The end date is earlier than the start date.}
+  - {id: ORGANIZATION-MEMBERSHIP-002, rule: An ended membership records when it ended., violatedWhen: status == "ENDED" and end_date == null, message: Give the date the membership ended.}
   lifecycle:
     title: Organization Membership Lifecycle
     attribute: status
-    states: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+    states: [PENDING, ACTIVE, SUSPENDED, ENDED]
     initial: PENDING
-    terminal: [COMPLETED, CANCELLED]
+    terminal: [ENDED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PENDING, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a organization membership is ended"
-      description: "When a organization membership is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "ORGANIZATION-MEMBERSHIP-FOLLOW-UP-{{id}}"
-              name: "Follow up on organization membership {{id}}"
-              description: "Organization membership {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+    - {from: PENDING, to: ACTIVE, action: start}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: ACTIVE, to: ENDED, action: end}
+    - {from: SUSPENDED, to: ENDED, action: end}
+    - {from: PENDING, to: ENDED, action: end}
   help:
-    summary: A governed relationship connecting a User or Party to an Organization with membership status and role context.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed relationship connecting a User or Party to an Organization with membership status and role context.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: The fact that a person belongs to an organization, in what capacity, and since when.
+    businessMeaning: People act on behalf of organizations — staff of a department, users at a customer, members of a board. Knowing who belongs to which organization, in what role and for which period, is what lets the business route work, grant access by membership and show who could act for whom at a given date.
+    usage: HR and administrators record memberships when someone joins a unit or a partner organization's users are onboarded, and end them when they leave. Access rules and organization charts read current memberships.
+    relationshipContext: A membership connects a Person, or a User account, to an Organization. A person may hold memberships in several organizations at once, one of which is usually primary.
+    lifecycle: Pending until it starts, active while it lasts, ended when the person leaves, and suspended for temporary absences such as a leave of absence.
+    workflowContext: Joiner-mover-leaver, partner portal onboarding, organization charts, approval routing by unit.
+    example: Maria Lopez — member of Finance Department, ACME France, role 'Accounts payable clerk', primary membership, from 1 April 2024.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ORGANIZATION-MEMBERSHIP}
