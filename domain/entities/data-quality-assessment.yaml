@@ -2,9 +2,10 @@ entity:
   name: DataQualityAssessment
   namespace: cedm.domain
   kind: data_governance_entity
-  description: A governed assessment of Dataset quality across completeness, validity, consistency, timeliness, and other declared dimensions.
+  description: A measurement of a dataset's quality on stated dimensions — completeness, validity, uniqueness, timeliness — with the scores, the rules applied, the issues found and whether it meets its targets.
   ui:
     icon: badge-check
+    recordLabel: [dataQualityAssessmentCode]
   identity:
     key: dataQualityAssessmentId
     type: uuid
@@ -25,83 +26,159 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the DataQualityAssessment.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the assessment.
+      usage: Assigned when it is planned.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    default: PLANNED
+    values: [PLANNED, RUNNING, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the DataQualityAssessment.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related Dataset workflows but never erase historical evidence.
+      summary: Where the assessment stands.
+      usage: Moved on by the data steward.
+      relationshipContext: Completed assessments are not changed.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        PLANNED: Scheduled, not yet run.
+        RUNNING: Rules are executing.
+        COMPLETED: Finished, with scores.
+        CANCELLED: Abandoned.
+  - name: assessedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the assessment ran.
+      usage: Recorded on completion; trends are plotted by it.
+      relationshipContext: Present once completed.
+  - name: recordsAssessed
+    type: integer
+    required: false
+    help:
+      summary: How many records were checked.
+      usage: Recorded on completion.
+      relationshipContext: Scores are percentages of it.
+  - name: completenessPercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share of required values present.
+      usage: Measured by the completeness rules.
+      relationshipContext: Between 0 and 100.
+  - name: validityPercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share of values that meet their format and domain rules.
+      usage: Measured by the validity rules.
+      relationshipContext: Between 0 and 100.
+  - name: uniquenessPercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share of records that are not duplicates.
+      usage: Measured by the matching rules.
+      relationshipContext: Between 0 and 100.
+  - name: timelinessPercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share of records updated within the expected time.
+      usage: Measured by the freshness rules.
+      relationshipContext: Between 0 and 100.
+  - name: overallScore
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The combined quality score.
+      usage: Weighted from the dimension scores; shown in data catalogs.
+      relationshipContext: Between 0 and 100.
+  - name: meetsTarget
+    type: boolean
+    required: false
+    help:
+      summary: Whether every dimension met its target.
+      usage: Decides whether issues are raised.
+      relationshipContext: Present once completed.
+  - name: issuesSummary
+    type: text
+    required: false
+    help:
+      summary: What was wrong, in summary.
+      usage: Read by the data owner.
+      relationshipContext: Detailed issue lists are attached.
   relationships:
-  - name: context
+  - name: dataset
     target: Dataset
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing Dataset associated with this DataQualityAssessment.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every DataQualityAssessment belongs to exactly one governing Dataset in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The dataset assessed.
+      usage: Chosen when planning the assessment.
+      cardinalityMeaning: Every assessment is of exactly one dataset.
+      context: Listed among the dataset's quality assessments.
+  - name: steward
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The data steward who ran the assessment.
+      usage: Recorded when planning it.
+      cardinalityMeaning: One per assessment.
+      context: Follows up issues with the owner.
   invariants:
-  - id: DATA-QUALITY-ASSESSMENT-001
-    rule: The governing Dataset relationship is required and must reference a valid record.
-  - id: DATA-QUALITY-ASSESSMENT-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: DATA-QUALITY-ASSESSMENT-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: DATA-QUALITY-ASSESSMENT-001, rule: A completed assessment records when it ran., violatedWhen: status == "COMPLETED" and assessed_at == null, message: Record when the assessment ran.}
+  - {id: DATA-QUALITY-ASSESSMENT-EXE-001, rule: "Completeness Percent is a percentage between 0 and 100.", violatedWhen: "completeness_percent != null and (completeness_percent < 0 or completeness_percent > 100)", message: "Completeness Percent must be between 0 and 100."}
+  - {id: DATA-QUALITY-ASSESSMENT-EXE-002, rule: "Validity Percent is a percentage between 0 and 100.", violatedWhen: "validity_percent != null and (validity_percent < 0 or validity_percent > 100)", message: "Validity Percent must be between 0 and 100."}
+  - {id: DATA-QUALITY-ASSESSMENT-EXE-003, rule: "Uniqueness Percent is a percentage between 0 and 100.", violatedWhen: "uniqueness_percent != null and (uniqueness_percent < 0 or uniqueness_percent > 100)", message: "Uniqueness Percent must be between 0 and 100."}
+  - {id: DATA-QUALITY-ASSESSMENT-EXE-004, rule: "Timeliness Percent is a percentage between 0 and 100.", violatedWhen: "timeliness_percent != null and (timeliness_percent < 0 or timeliness_percent > 100)", message: "Timeliness Percent must be between 0 and 100."}
   lifecycle:
     title: Data Quality Assessment Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
+    states: [PLANNED, RUNNING, COMPLETED, CANCELLED]
+    initial: PLANNED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-    - {from: DRAFT, to: ACTIVE, action: activate}
-    - {from: ACTIVE, to: COMPLETED, action: complete}
-    - {from: DRAFT, to: CANCELLED, action: cancel}
-    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: RUNNING, action: start}
+    - {from: RUNNING, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: RUNNING, to: CANCELLED, action: cancel}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a data quality assessment is ended"
-    description: "When a data quality assessment is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "DATA-QUALITY-ASSESSMENT-FOLLOW-UP-{{id}}"
-          name: "Follow up on data quality assessment {{id}}"
-          description: "Data quality assessment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a data quality assessment is ended"
+      description: "When a data quality assessment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "DATA-QUALITY-ASSESSMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on data quality assessment {{id}}"
+              description: "Data quality assessment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: Represents DataQualityAssessment as a first-class governed CEDM business concept.
-    businessMeaning: A governed assessment of Dataset quality across completeness, validity, consistency, timeliness, and other declared dimensions.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: Dataset supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A DataQualityAssessment is created for a valid Dataset, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: How good a dataset was found to be on a given date, against stated targets.
+    businessMeaning: Decisions, reports and AI models are only as good as their data. Measuring a dataset's quality regularly against agreed rules and targets, and recording the scores and issues, tells data owners what to fix and tells consumers whether they can rely on the data.
+    usage: Data stewards run assessments on a schedule or after loads; scores below target raise issues for the data owner; trends show whether quality is improving.
+    relationshipContext: An assessment is of one Dataset and is listed among its quality assessments. Issues it finds may become Tasks for the owner.
+    lifecycle: Planned, running while the rules execute, and completed with its scores; superseded by the next assessment for trends. An assessment can be cancelled before it completes.
+    workflowContext: Data governance, data-quality monitoring, AI model validation, regulatory data quality.
+    example: "Assessment DQA-2024-05-CUST of dataset 'Customer master': completeness 97.2% (target 98%), validity 99.1%, uniqueness 99.8%, timeliness 100%; 412 records missing tax numbers; below target."
 specification:
   version: 0.1.0
   status: draft

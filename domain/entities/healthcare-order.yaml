@@ -2,9 +2,10 @@ entity:
   name: HealthcareOrder
   namespace: cedm.domain
   kind: healthcare_transaction
-  description: A clinical or operational order issued within healthcare for a test, medication, procedure, service, or other governed action.
+  description: A clinician's order for a patient — a laboratory test, imaging, a medication, a procedure, a referral — with its priority, instructions, who ordered it and when it was carried out.
   ui:
-    icon: shopping-cart
+    icon: clipboard-pen
+    recordLabel: [healthcareOrderCode]
   identity:
     key: healthcareOrderId
     type: uuid
@@ -25,101 +26,191 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the HealthcareOrder.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the order.
+      usage: Assigned when the order is placed; printed on labels and requests.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
     default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    values: [DRAFT, ACTIVE, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the HealthcareOrder.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related HealthcareEncounter workflows but never erase historical evidence.
+      summary: Where the order stands.
+      usage: Moved on by the clinician and the performing department.
+      relationshipContext: Only active orders are worked.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        DRAFT: Being written; not yet signed.
+        ACTIVE: Signed and sent.
+        IN_PROGRESS: Being carried out.
+        ON_HOLD: Paused by the clinician.
+        COMPLETED: Carried out.
+        CANCELLED: Withdrawn.
+  - name: orderType
+    type: enum
+    required: true
+    default: LABORATORY
+    values: [LABORATORY, IMAGING, MEDICATION, PROCEDURE, REFERRAL, NURSING]
+    help:
+      summary: What kind of order it is.
+      usage: Decides which department receives it.
+      relationshipContext: Medication orders follow the prescribing rules.
+      valueSemantics:
+        LABORATORY: A laboratory test.
+        IMAGING: An imaging study.
+        MEDICATION: A medicine to be given or dispensed.
+        PROCEDURE: A procedure to be performed.
+        REFERRAL: A referral to another service or specialist.
+        NURSING: A nursing intervention.
+  - name: orderDescription
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: What is ordered, such as "Full blood count" or "Chest X-ray PA".
+      usage: Chosen from the order catalogue or written.
+      relationshipContext: Coded orders are preferred.
+  - name: priority
+    type: enum
+    required: true
+    default: ROUTINE
+    values: [ROUTINE, URGENT, STAT]
+    help:
+      summary: How urgently the order must be carried out.
+      usage: Decides the order's place in the performing department's queue.
+      relationshipContext: STAT orders are done immediately.
+      valueSemantics:
+        ROUTINE: In the normal course.
+        URGENT: Sooner than routine.
+        STAT: Immediately.
+  - name: instructions
+    type: text
+    required: false
+    help:
+      summary: Instructions for whoever carries out the order.
+      usage: Written by the ordering clinician.
+      relationshipContext: Such as fasting requirements or the side to image.
+  - name: clinicalReason
+    type: string
+    required: false
+    maxLength: 300
+    help:
+      summary: Why the order is needed.
+      usage: Read by the performing department to interpret the request.
+      relationshipContext: Often the suspected diagnosis.
+  - name: orderedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the order was placed.
+      usage: Recorded on signing; turnaround is measured from it.
+      relationshipContext: Not later than its completion.
+  - name: completedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the order was carried out.
+      usage: Recorded by the performing department.
+      relationshipContext: Present once completed.
   relationships:
-  - name: context
+  - name: encounter
     target: HealthcareEncounter
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing HealthcareEncounter associated with this HealthcareOrder.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every HealthcareOrder belongs to exactly one governing HealthcareEncounter in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The encounter during which the order was placed.
+      usage: Set when the order is entered.
+      cardinalityMeaning: Every order belongs to exactly one encounter.
+      context: Listed among the encounter's orders; the patient is the encounter's.
+  - name: orderedBy
+    target: HealthcareProvider
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The clinician who placed the order.
+      usage: Recorded on signing.
+      cardinalityMeaning: One per order.
+      context: Accountable for the order.
   invariants:
-  - id: HEALTHCARE-ORDER-001
-    rule: The governing HealthcareEncounter relationship is required and must reference a valid record.
-  - id: HEALTHCARE-ORDER-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: HEALTHCARE-ORDER-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: HEALTHCARE-ORDER-001, rule: A completed order records when it was carried out., violatedWhen: status == "COMPLETED" and completed_at == null, message: Record when the order was carried out.}
   lifecycle:
     title: Healthcare Order Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    states: [DRAFT, ACTIVE, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
     initial: DRAFT
     terminal: [COMPLETED, CANCELLED]
     transitions:
-    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: DRAFT, to: ACTIVE, action: sign}
+    - {from: ACTIVE, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: COMPLETED, action: complete}
     - {from: ACTIVE, to: COMPLETED, action: complete}
+    - {from: ACTIVE, to: ON_HOLD, action: hold}
+    - {from: ON_HOLD, to: ACTIVE, action: resume}
     - {from: DRAFT, to: CANCELLED, action: cancel}
     - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: ON_HOLD, to: CANCELLED, action: cancel}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a healthcare order is ended"
-    description: "When a healthcare order is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "HEALTHCARE-ORDER-FOLLOW-UP-{{id}}"
-          name: "Follow up on healthcare order {{id}}"
-          description: "Healthcare order {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: CompletionConfirmed
-    title: "Confirm when a healthcare order is done"
-    description: "When a healthcare order is completed, a task asks someone to confirm the outcome."
-    when: "status == \"COMPLETED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: confirm"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "HEALTHCARE-ORDER-COMPLETED-{{id}}"
-          name: "Confirm healthcare order {{id}}"
-          description: "Healthcare order {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "LOW"
+    - name: ExceptionRaised
+      title: "Raise a task when a healthcare order is stopped"
+      description: "When a healthcare order is on hold, a high-priority task asks someone to resolve it."
+      when: "status == \"ON_HOLD\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HEALTHCARE-ORDER-EXCEPTION-{{id}}"
+              name: "Resolve healthcare order {{id}}"
+              description: "Healthcare order {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: FollowUpRequired
+      title: "Follow up when a healthcare order is ended"
+      description: "When a healthcare order is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HEALTHCARE-ORDER-FOLLOW-UP-{{id}}"
+              name: "Follow up on healthcare order {{id}}"
+              description: "Healthcare order {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a healthcare order is done"
+      description: "When a healthcare order is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "HEALTHCARE-ORDER-COMPLETED-{{id}}"
+              name: "Confirm healthcare order {{id}}"
+              description: "Healthcare order {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
-    summary: Represents HealthcareOrder as a first-class governed CEDM business concept.
-    businessMeaning: A clinical or operational order issued within healthcare for a test, medication, procedure, service, or other governed action.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: HealthcareEncounter supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A HealthcareOrder is created for a valid HealthcareEncounter, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: An instruction from a clinician to do something for a patient.
+    businessMeaning: Care is delivered through orders. Each order states exactly what is to be done, for which patient, how urgently and by whom it was ordered, so the department that carries it out knows what to do, the result can be traced back to the request, and nothing ordered is forgotten.
+    usage: Entered by the ordering clinician during an encounter; sent to the performing department; marked completed when carried out, with its result recorded separately.
+    relationshipContext: An order is placed during one HealthcareEncounter, for the encounter's patient, by a HealthcareProvider. Medication orders become Prescriptions.
+    lifecycle: Draft until signed, then active (sent to the performing department), in progress while being carried out, and completed. It may be put on hold or cancelled.
+    workflowContext: Computerised order entry, laboratory and imaging workflows, medication management, referrals.
+    example: 'Order HO-24-118021: full blood count, priority routine, ordered by Dr Martin during encounter E-24-30112 on 3 June 09:40; specimen taken 10:05; completed 11:20.'
 specification:
   version: 0.1.0
   status: draft

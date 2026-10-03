@@ -2,9 +2,10 @@ entity:
   name: PartyRelationship
   namespace: cedm.domain
   kind: party_relationship
-  description: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship.
+  description: A relationship between two parties — parent company and subsidiary, employer and employee, agent and principal, spouse, guarantor — with its type, direction and the period it holds.
   ui:
-    icon: users
+    icon: link
+    recordLabel: [code, name]
   identity: {key: partyRelationshipId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: partyRelationshipId
@@ -15,19 +16,112 @@ entity:
       summary: The permanent system identifier of the party relationship record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a party relationship store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for PartyRelationship., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of PartyRelationship., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The reference of the relationship.
+      usage: Assigned when it is recorded.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: A short description, such as "Subsidiary of Northwind Holding".
+      usage: Shown in the parties' relationship lists.
+      relationshipContext: Identifies the relationship for people.
+  - name: relationshipType
+    type: enum
+    required: true
+    default: OTHER
+    values: [SUBSIDIARY_OF, BRANCH_OF, EMPLOYEE_OF, AGENT_OF, GUARANTOR_FOR, BENEFICIAL_OWNER_OF, HOUSEHOLD_MEMBER_OF, OTHER]
+    help:
+      summary: What the relationship is.
+      usage: Chosen when recording it; decides how it is used.
+      relationshipContext: The direction is from the first party to the second.
+      valueSemantics:
+        SUBSIDIARY_OF: The first party is a subsidiary of the second.
+        BRANCH_OF: The first party is a branch of the second.
+        EMPLOYEE_OF: The first party is employed by the second.
+        AGENT_OF: The first party acts as agent for the second.
+        GUARANTOR_FOR: The first party guarantees the second's obligations.
+        BENEFICIAL_OWNER_OF: The first party ultimately owns or controls the second.
+        HOUSEHOLD_MEMBER_OF: The first party belongs to the same household as the second.
+        OTHER: Any other relationship, described in the name.
+  - name: ownershipPercent
+    type: decimal
+    required: false
+    precision: 5
+    scale: 2
+    help:
+      summary: The share the parent or owner holds, for ownership relationships.
+      usage: Used in consolidation and beneficial-ownership checks.
+      relationshipContext: Between 0 and 100.
+  - name: validFrom
+    type: date
+    required: false
+    help:
+      summary: The day the relationship started.
+      usage: Recorded when known.
+      relationshipContext: Not later than the valid-to date.
+  - name: validTo
+    type: date
+    required: false
+    help:
+      summary: The day the relationship ended.
+      usage: Recorded when it ends.
+      relationshipContext: Empty while it holds.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, ENDED]
+    help:
+      summary: Whether the relationship holds.
+      usage: Ended when the relationship stops.
+      relationshipContext: Ended relationships are kept for history.
+      valueSemantics:
+        ACTIVE: Holds now.
+        ENDED: No longer holds.
   relationships:
-  - {name: fromParty, target: Party, cardinality: "1", ownership: reference, help: {summary: Governing Party context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Party., workflowRole: Referenced workflows must remain compatible with governing context.}}
+  - name: fromParty
+    target: Party
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The first party — the subsidiary, employee, agent or guarantor.
+      usage: Chosen when recording the relationship.
+      cardinalityMeaning: Every relationship has exactly one first party.
+      context: Read with the type.
+  - name: toParty
+    target: Party
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The second party — the parent, employer, principal or borrower.
+      usage: Chosen when recording the relationship.
+      cardinalityMeaning: Every relationship has exactly one second party.
+      context: Different from the first party.
   invariants:
-  - {id: PARTY-RELATIONSHIP-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  - {id: PARTY-RELATIONSHIP-001, rule: The relationship does not end before it starts., violatedWhen: valid_to != null and valid_from != null and valid_to < valid_from, message: The valid-to date is earlier than the valid-from date.}
+  - {id: PARTY-RELATIONSHIP-002, rule: The ownership share is a percentage between 0 and 100., violatedWhen: ownership_percent != null and (ownership_percent < 0 or ownership_percent > 100), message: The ownership share must be between 0 and 100 percent.}
+  - {id: PARTY-RELATIONSHIP-003, rule: A party is not related to itself.}
+  lifecycle:
+    title: Party Relationship Lifecycle
+    attribute: status
+    states: [ACTIVE, ENDED]
+    initial: ACTIVE
+    terminal: [ENDED]
+    transitions:
+    - {from: ACTIVE, to: ENDED, action: end}
   help:
-    summary: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: How one person or organization is related to another, and since when.
+    businessMeaning: Parties are connected — subsidiaries to parents, agents to principals, guarantors to borrowers, members of a household. Recording each connection with its type and validity lets the business see group exposures, know who may act for whom, and respect relationships in credit, compliance and marketing.
+    usage: Recorded by master-data, credit or compliance staff as relationships become known; read by credit exposure, KYC, consolidation and householding.
+    relationshipContext: A relationship goes from one Party to another, in the direction its type states (the "from" party is the parent, employer or agent).
+    lifecycle: Active between its dates; ended when the relationship stops; history is kept.
+    workflowContext: Group exposure, know-your-customer checks, beneficial ownership, consolidation, householding.
+    example: Northwind Distribution GmbH (from) is SUBSIDIARY_OF Northwind Holding AG (to), 100%, from 1 January 2020.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PARTY-RELATIONSHIP}

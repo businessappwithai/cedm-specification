@@ -2,9 +2,10 @@ entity:
   name: Department
   namespace: cedm.domain
   kind: organization_structure
-  description: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit.
+  description: A department of an organization — finance, procurement, a plant's maintenance team — with its manager, cost centre, parent department and location, that people and positions belong to.
   ui:
-    icon: table
+    icon: network
+    recordLabel: [code, name]
   identity: {key: departmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: departmentId
@@ -15,19 +16,113 @@ entity:
       summary: The permanent system identifier of the department record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a department store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Department., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Department., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The code of the department.
+      usage: Used in assignments and reports.
+      relationshipContext: Unique within the organization.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: The name of the department.
+      usage: Shown in organization charts.
+      relationshipContext: Identifies it for people.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What the department is responsible for.
+      usage: Read by people placing staff or work.
+      relationshipContext: Free text.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE]
+    help:
+      summary: Whether the department exists.
+      usage: Made inactive after a reorganisation.
+      relationshipContext: Inactive departments are not offered.
+      valueSemantics:
+        ACTIVE: Exists.
+        INACTIVE: No longer exists.
   relationships:
-  - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: Governing Organization context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Organization., workflowRole: Referenced workflows must remain compatible with governing context.}}
+  - name: organization
+    target: Organization
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The company the department belongs to.
+      usage: Set when it is created.
+      cardinalityMeaning: Every department belongs to exactly one organization.
+      context: Its employees work for this company.
+  - name: businessUnit
+    target: BusinessUnit
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The business unit the department is part of.
+      usage: Set where the organization is divided into business units.
+      cardinalityMeaning: At most one.
+      context: Used in business-unit reporting.
+  - name: parentDepartment
+    target: Department
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The department this one reports to.
+      usage: Builds the hierarchy used for approvals.
+      cardinalityMeaning: At most one.
+      context: Cannot be itself.
+  - name: manager
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person who leads the department.
+      usage: Approves its requests and receives its reports.
+      cardinalityMeaning: One per department.
+      context: Approval routing goes to this person.
+  - name: costCenter
+    target: CostCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The cost centre that carries the department's costs.
+      usage: Defaulted onto the department's purchases and time.
+      cardinalityMeaning: At most one.
+      context: Set by controlling.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the department is based.
+      usage: Used in directories and space planning.
+      cardinalityMeaning: At most one.
+      context: Staff may work elsewhere.
   invariants:
-  - {id: DEPARTMENT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  - {id: DEPARTMENT-001, rule: 'A department cannot report to itself, directly or through others.'}
+  lifecycle:
+    title: Department Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    terminal: []
+    transitions:
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
-    summary: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A unit of the organization that people work in and a manager leads.
+    businessMeaning: The organization chart is made of departments. Each says who leads it, where it sits in the hierarchy and which cost centre carries its costs, so people and positions can be placed, approvals can go up the right line, and headcount and cost can be reported by unit.
+    usage: HR and administration maintain departments; positions, employees and teams are assigned to them; approval routing follows the department hierarchy.
+    relationshipContext: A department belongs to an Organization, may be part of a BusinessUnit and of a parent department, has a manager, and is charged through a CostCenter.
+    lifecycle: Active while it exists; inactive after a reorganisation, with its history kept.
+    workflowContext: Organization design, joiner-mover-leaver, approval routing, headcount and cost reporting.
+    example: Department FIN-AP 'Accounts Payable', parent FIN 'Finance', ACME France, manager Claire Dubois, cost centre 1210, Lyon head office.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DEPARTMENT}

@@ -2,9 +2,10 @@ entity:
   name: Timesheet
   namespace: cedm.domain
   kind: professional_services_transaction
-  description: A governed record of time reported for work performed by a person against an engagement, project, task, or other accountable context.
+  description: The hours a person reports for a week or period — against an engagement, project or task, billable or not — submitted, approved and then used for billing and costing.
   ui:
-    icon: clock
+    icon: timer
+    recordLabel: [timesheetCode]
   identity:
     key: timesheetId
     type: uuid
@@ -25,101 +26,176 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the Timesheet.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the timesheet.
+      usage: Assigned when it is opened.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    default: OPEN
+    values: [OPEN, SUBMITTED, APPROVED, REJECTED, INVOICED]
     help:
-      summary: Lifecycle state of the Timesheet.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related ProfessionalEngagement workflows but never erase historical evidence.
+      summary: Where the timesheet stands.
+      usage: Moved on by the person and the approver.
+      relationshipContext: Only approved timesheets are billed.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        OPEN: Being filled in.
+        SUBMITTED: Waiting for approval.
+        APPROVED: Accepted.
+        REJECTED: Returned for correction.
+        INVOICED: Billed to the client.
+  - name: periodStart
+    type: date
+    required: true
+    help:
+      summary: The first day the timesheet covers.
+      usage: Usually a Monday.
+      relationshipContext: Not later than the period end.
+  - name: periodEnd
+    type: date
+    required: true
+    help:
+      summary: The last day the timesheet covers.
+      usage: Usually a Sunday.
+      relationshipContext: Timesheets of one person do not overlap.
+  - name: totalHours
+    type: decimal
+    required: true
+    precision: 7
+    scale: 2
+    default: 0
+    help:
+      summary: The hours reported in the period.
+      usage: Summed from the daily entries.
+      relationshipContext: Not negative.
+  - name: billableHours
+    type: decimal
+    required: false
+    precision: 7
+    scale: 2
+    help:
+      summary: The hours that may be billed to the client.
+      usage: Used for billing and utilisation.
+      relationshipContext: Not more than the total hours.
+  - name: description
+    type: text
+    required: false
+    help:
+      summary: What was worked on.
+      usage: Read by the approver and, for billable work, often shown to the client.
+      relationshipContext: Should be specific enough to justify the hours.
+  - name: submittedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the timesheet was submitted.
+      usage: Recorded on submission.
+      relationshipContext: Late submission is reported.
+  - name: approvedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the timesheet was approved.
+      usage: Recorded on approval.
+      relationshipContext: Required before billing.
+  - name: rejectionReason
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Why the timesheet was rejected.
+      usage: Read by the person to correct it.
+      relationshipContext: Present only when rejected.
   relationships:
-  - name: context
+  - name: engagement
     target: ProfessionalEngagement
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing ProfessionalEngagement associated with this Timesheet.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every Timesheet belongs to exactly one governing ProfessionalEngagement in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The engagement the time was worked on.
+      usage: Chosen when entering time.
+      cardinalityMeaning: Every timesheet is for exactly one engagement.
+      context: Its rates decide the billing.
+  - name: person
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Whose time it is.
+      usage: Set when the timesheet is opened.
+      cardinalityMeaning: One per timesheet.
+      context: Their timesheets do not overlap.
+  - name: approvedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who approved the timesheet.
+      usage: Recorded on approval.
+      cardinalityMeaning: One per timesheet.
+      context: Must not be the person whose time it is.
   invariants:
-  - id: TIMESHEET-001
-    rule: The governing ProfessionalEngagement relationship is required and must reference a valid record.
-  - id: TIMESHEET-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: TIMESHEET-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: TIMESHEET-001, rule: The period does not end before it starts., violatedWhen: period_end != null and period_start != null and period_end < period_start, message: The period ends before it starts.}
+  - {id: TIMESHEET-002, rule: Billable hours do not exceed the total hours., violatedWhen: billable_hours != null and total_hours != null and billable_hours > total_hours, message: More hours are billable than were worked.}
+  - {id: TIMESHEET-003, rule: A rejected timesheet says why., violatedWhen: status == "REJECTED" and rejection_reason == null, message: Give the reason for rejecting the timesheet.}
+  - {id: TIMESHEET-EXE-001, rule: "A timesheet that is approved states when (approved at).", violatedWhen: "status == \"APPROVED\" and approved_at == null", message: "Record approved at when the timesheet is approved."}
   lifecycle:
     title: Timesheet Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [OPEN, SUBMITTED, APPROVED, REJECTED, INVOICED]
+    initial: OPEN
+    terminal: [INVOICED]
     transitions:
-    - {from: DRAFT, to: ACTIVE, action: activate}
-    - {from: ACTIVE, to: COMPLETED, action: complete}
-    - {from: DRAFT, to: CANCELLED, action: cancel}
-    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: OPEN, to: SUBMITTED, action: submit}
+    - {from: SUBMITTED, to: APPROVED, action: approve}
+    - {from: SUBMITTED, to: REJECTED, action: reject}
+    - {from: REJECTED, to: SUBMITTED, action: resubmit}
+    - {from: APPROVED, to: INVOICED, action: invoice}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a timesheet is ended"
-    description: "When a timesheet is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "TIMESHEET-FOLLOW-UP-{{id}}"
-          name: "Follow up on timesheet {{id}}"
-          description: "Timesheet {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: CompletionConfirmed
-    title: "Confirm when a timesheet is done"
-    description: "When a timesheet is completed, a task asks someone to confirm the outcome."
-    when: "status == \"COMPLETED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: confirm"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "TIMESHEET-COMPLETED-{{id}}"
-          name: "Confirm timesheet {{id}}"
-          description: "Timesheet {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "LOW"
+    - name: ApprovalRequested
+      title: "Ask for a decision when a timesheet is put forward"
+      description: "When a timesheet is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TIMESHEET-APPROVAL-{{id}}"
+              name: "Decide on timesheet {{id}}"
+              description: "Timesheet {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a timesheet is ended"
+      description: "When a timesheet is rejected, a task asks someone to settle what depended on it."
+      when: "status == \"REJECTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "TIMESHEET-FOLLOW-UP-{{id}}"
+              name: "Follow up on timesheet {{id}}"
+              description: "Timesheet {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: Represents Timesheet as a first-class governed CEDM business concept.
-    businessMeaning: A governed record of time reported for work performed by a person against an engagement, project, task, or other accountable context.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: ProfessionalEngagement supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A Timesheet is created for a valid ProfessionalEngagement, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: The time one person worked in a period and what they worked on.
+    businessMeaning: Professional services sell time, and projects cost time. A timesheet records the hours a person worked, on what and whether they are billable, and is approved before it is used, so clients are billed for real work, projects are costed correctly and utilisation can be measured.
+    usage: People enter their hours each week and submit them; their manager or the engagement lead approves them; approved hours are billed and costed; rejected timesheets are corrected and resubmitted.
+    relationshipContext: A timesheet is a Person's time on a ProfessionalEngagement, optionally on a Project task. Approved hours feed invoices and project costs.
+    lifecycle: Open while being filled in, submitted for approval, approved or rejected (back to the person), and finally invoiced once billed.
+    workflowContext: Time recording, approval, client billing, project costing, utilisation reporting.
+    example: 'Timesheet TS-2024-W14-PSHAH: Priya Shah, week of 1 April 2024, 32 h on engagement ENG-0412 (billable) and 6 h internal training; approved 8 April by the engagement manager.'
 specification:
   version: 0.1.0
   status: draft

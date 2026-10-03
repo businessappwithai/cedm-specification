@@ -2,9 +2,10 @@ entity:
   name: ResourceAssignment
   namespace: cedm.domain
   kind: project_transaction
-  description: A governed assignment of a person, role, or resource to a Project with defined responsibility and allocation.
+  description: The assignment of a person or role to a project for a period — with their project role, planned allocation, rates and the hours planned and booked — used for staffing and project costing.
   ui:
-    icon: file-text
+    icon: user-plus
+    recordLabel: [resourceAssignmentCode]
   identity:
     key: resourceAssignmentId
     type: uuid
@@ -25,101 +26,169 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the ResourceAssignment.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the assignment.
+      usage: Assigned when it is proposed.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    default: PROPOSED
+    values: [PROPOSED, CONFIRMED, ACTIVE, COMPLETED, DECLINED]
     help:
-      summary: Lifecycle state of the ResourceAssignment.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related Project workflows but never erase historical evidence.
+      summary: Where the assignment stands.
+      usage: Moved on by the resource manager and the project manager.
+      relationshipContext: Only confirmed and active assignments accept time.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        PROPOSED: Requested by the project manager.
+        CONFIRMED: Agreed by the resource manager.
+        ACTIVE: The person is working on the project.
+        COMPLETED: The person has rolled off.
+        DECLINED: The request was not agreed.
+  - name: projectRole
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The role the person plays on the project, such as "Data engineer".
+      usage: Shown in the project's staffing plan.
+      relationshipContext: May differ from the person's job title.
+  - name: startDate
+    type: date
+    required: true
+    help:
+      summary: The first day of the assignment.
+      usage: Set when planning.
+      relationshipContext: Not later than the end date.
+  - name: endDate
+    type: date
+    required: false
+    help:
+      summary: The last day of the assignment.
+      usage: Set when planning; moved if the project slips.
+      relationshipContext: Empty for open-ended assignments.
+  - name: allocationPercent
+    type: decimal
+    required: true
+    precision: 5
+    scale: 2
+    default: 100
+    help:
+      summary: The share of the person's time the project takes.
+      usage: Summed across a person's assignments to check for overbooking.
+      relationshipContext: Between 0 and 100.
+  - name: plannedHours
+    type: decimal
+    required: false
+    precision: 10
+    scale: 2
+    help:
+      summary: The hours planned for the assignment.
+      usage: Compared with hours booked.
+      relationshipContext: Usually allocation times available hours.
+  - name: costRate
+    type: Money
+    required: false
+    help:
+      summary: The internal cost of an hour of the person's time.
+      usage: Used to cost the project.
+      relationshipContext: From the person's grade.
+  - name: billRate
+    type: Money
+    required: false
+    help:
+      summary: The rate charged to the client per hour, for billable projects.
+      usage: Used to bill the project.
+      relationshipContext: From the contract or rate card.
   relationships:
-  - name: context
+  - name: project
     target: Project
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing Project associated with this ResourceAssignment.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every ResourceAssignment belongs to exactly one governing Project in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The project the person is assigned to.
+      usage: Chosen when proposing the assignment.
+      cardinalityMeaning: Every assignment is to exactly one project.
+      context: The project's staffing plan lists its assignments.
+  - name: person
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The person assigned.
+      usage: Named once known; a role may be requested before a person is found.
+      cardinalityMeaning: At most one.
+      context: Their availability limits the allocation.
+  - name: task
+    target: ProjectTask
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The project task the assignment is for, when it is that specific.
+      usage: Set for task-level staffing.
+      cardinalityMeaning: At most one.
+      context: Time booked rolls up to the task.
   invariants:
-  - id: RESOURCE-ASSIGNMENT-001
-    rule: The governing Project relationship is required and must reference a valid record.
-  - id: RESOURCE-ASSIGNMENT-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: RESOURCE-ASSIGNMENT-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: RESOURCE-ASSIGNMENT-001, rule: The assignment does not end before it starts., violatedWhen: end_date != null and start_date != null and end_date < start_date, message: The end date is earlier than the start date.}
+  - {id: RESOURCE-ASSIGNMENT-EXE-001, rule: "Allocation Percent is a percentage between 0 and 100.", violatedWhen: "allocation_percent != null and (allocation_percent < 0 or allocation_percent > 100)", message: "Allocation Percent must be between 0 and 100."}
+  - {id: RESOURCE-ASSIGNMENT-EXE-002, rule: "Cost Rate cannot be negative.", violatedWhen: "cost_rate != null and cost_rate < 0", message: "Cost Rate cannot be negative."}
+  - {id: RESOURCE-ASSIGNMENT-EXE-003, rule: "Bill Rate cannot be negative.", violatedWhen: "bill_rate != null and bill_rate < 0", message: "Bill Rate cannot be negative."}
   lifecycle:
     title: Resource Assignment Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [PROPOSED, CONFIRMED, ACTIVE, COMPLETED, DECLINED]
+    initial: PROPOSED
+    terminal: [COMPLETED, DECLINED]
     transitions:
-    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: PROPOSED, to: CONFIRMED, action: confirm}
+    - {from: PROPOSED, to: DECLINED, action: decline}
+    - {from: CONFIRMED, to: ACTIVE, action: start}
     - {from: ACTIVE, to: COMPLETED, action: complete}
-    - {from: DRAFT, to: CANCELLED, action: cancel}
-    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: CONFIRMED, to: COMPLETED, action: complete}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a resource assignment is ended"
-    description: "When a resource assignment is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "RESOURCE-ASSIGNMENT-FOLLOW-UP-{{id}}"
-          name: "Follow up on resource assignment {{id}}"
-          description: "Resource assignment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
-  - name: CompletionConfirmed
-    title: "Confirm when a resource assignment is done"
-    description: "When a resource assignment is completed, a task asks someone to confirm the outcome."
-    when: "status == \"COMPLETED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: confirm"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "RESOURCE-ASSIGNMENT-COMPLETED-{{id}}"
-          name: "Confirm resource assignment {{id}}"
-          description: "Resource assignment {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "LOW"
+    - name: ApprovalRequested
+      title: "Ask for a decision when a resource assignment is put forward"
+      description: "When a resource assignment is proposed, a task asks someone to decide on it."
+      when: "status == \"PROPOSED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RESOURCE-ASSIGNMENT-APPROVAL-{{id}}"
+              name: "Decide on resource assignment {{id}}"
+              description: "Resource assignment {{id}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: CompletionConfirmed
+      title: "Confirm when a resource assignment is done"
+      description: "When a resource assignment is completed, a task asks someone to confirm the outcome."
+      when: "status == \"COMPLETED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: confirm"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RESOURCE-ASSIGNMENT-COMPLETED-{{id}}"
+              name: "Confirm resource assignment {{id}}"
+              description: "Resource assignment {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "LOW"
   help:
-    summary: Represents ResourceAssignment as a first-class governed CEDM business concept.
-    businessMeaning: A governed assignment of a person, role, or resource to a Project with defined responsibility and allocation.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: Project supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A ResourceAssignment is created for a valid Project, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: A person staffed on a project, for how long and how much of their time.
+    businessMeaning: Projects are delivered by people whose time is scarce. Recording who is assigned to which project, in which role, for what share of their time and at what rate lets project managers plan, resource managers avoid overbooking, and finance cost and bill the project.
+    usage: Project managers request resources; resource managers confirm assignments; people book time against their assignments; utilisation and project-cost reports read them.
+    relationshipContext: An assignment puts a Person on a Project, optionally against a ProjectTask. Timesheets record the hours actually worked.
+    lifecycle: Proposed, then confirmed by the resource manager, active while the person works on the project, and completed when they roll off. A proposal may be declined.
+    workflowContext: Project staffing, capacity planning, time recording, project costing and billing.
+    example: 'Assignment RA-24-0412: Priya Shah as data engineer on project P-2024-017, 60% from 1 April to 30 June, planned 300 h, cost rate 65 EUR/h, bill rate 110 EUR/h; confirmed 20 March.'
 specification:
   version: 0.1.0
   status: draft

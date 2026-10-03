@@ -2,9 +2,10 @@ entity:
   name: ContactPoint
   namespace: cedm.domain
   kind: party_contact_master
-  description: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
+  description: One way to reach a party — an email address, a phone or mobile number, a website or a messaging handle — with what it is used for, whether it is preferred and whether it has been verified.
   ui:
-    icon: database
+    icon: phone
+    recordLabel: [channel, value]
   identity: {key: contactPointId, type: uuid, generated: true, immutable: true}
   attributes:
   - name: contactPointId
@@ -15,19 +16,119 @@ entity:
       summary: The permanent system identifier of the contact point record.
       usage: Assigned by the application when the record is created and never changed; integrations and links use it to find the record.
       relationshipContext: Other records that refer to a contact point store this identifier. The number or code people quote is a separate field.
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for ContactPoint., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of ContactPoint., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    maxLength: 100
+    help:
+      summary: The reference of the contact point.
+      usage: Assigned when it is added.
+      relationshipContext: Unique within its party.
+  - name: name
+    type: string
+    required: true
+    maxLength: 300
+    help:
+      summary: A short label for the contact point, such as "Billing email" or "Head office switchboard".
+      usage: Shown in lists of the party's contact details.
+      relationshipContext: Helps tell several channels of the same kind apart.
+  - name: channel
+    type: enum
+    required: true
+    default: EMAIL
+    values: [EMAIL, PHONE, MOBILE, FAX, WEBSITE, MESSAGING]
+    help:
+      summary: What kind of channel it is.
+      usage: Chosen when adding it; decides how the value is validated.
+      relationshipContext: Read with the value.
+      valueSemantics:
+        EMAIL: An email address.
+        PHONE: A landline telephone number.
+        MOBILE: A mobile telephone number.
+        FAX: A fax number.
+        WEBSITE: A web address.
+        MESSAGING: A messaging-app handle.
+  - name: value
+    type: string
+    required: true
+    maxLength: 320
+    help:
+      summary: The address or number itself.
+      usage: Entered in its standard form — international format for phone numbers.
+      relationshipContext: Validated according to the channel.
+  - name: purpose
+    type: enum
+    required: true
+    default: GENERAL
+    values: [GENERAL, BILLING, ORDERS, DELIVERY, SUPPORT, MARKETING]
+    help:
+      summary: What the channel is used for.
+      usage: Processes pick the contact point for their purpose.
+      relationshipContext: A channel used for several purposes takes the main one.
+      valueSemantics:
+        GENERAL: Any purpose.
+        BILLING: Invoices and statements.
+        ORDERS: Order confirmations and purchase orders.
+        DELIVERY: Delivery notices.
+        SUPPORT: Service and support.
+        MARKETING: Marketing communication, where consent allows.
+  - name: isPreferred
+    type: boolean
+    required: true
+    default: false
+    help:
+      summary: Whether this is the preferred channel for its purpose.
+      usage: Used first when several channels serve the same purpose.
+      relationshipContext: One preferred channel per party, channel and purpose.
+  - name: verifiedAt
+    type: datetime
+    required: false
+    help:
+      summary: When the channel was last confirmed to work.
+      usage: Recorded by a verification message or call.
+      relationshipContext: Unverified channels may be refused for sensitive messages.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, INACTIVE, INVALID]
+    help:
+      summary: Whether the channel works.
+      usage: Changed when it stops being used or bounces.
+      relationshipContext: Inactive and invalid channels are not used.
+      valueSemantics:
+        ACTIVE: In use.
+        INACTIVE: No longer used.
+        INVALID: Known not to work, such as a bouncing address.
   relationships:
-  - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Governing Party context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Party., workflowRole: Referenced workflows must remain compatible with governing context.}}
+  - name: party
+    target: Party
+    cardinality: "1"
+    ownership: reference
+    help:
+      summary: The person or organization the channel belongs to.
+      usage: Set when adding it.
+      cardinalityMeaning: Every contact point belongs to exactly one party.
+      context: Listed among the party's contact details.
   invariants:
   - {id: CONTACT-POINT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+  lifecycle:
+    title: Contact Point Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, INVALID]
+    initial: ACTIVE
+    terminal: []
+    transitions:
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: INVALID, action: mark_invalid}
+    - {from: INVALID, to: ACTIVE, action: reactivate}
   help:
-    summary: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: An email address, phone number or other channel for reaching a person or organization.
+    businessMeaning: People and organizations have many ways to be reached, each for different purposes. Keeping each channel as its own record, with its purpose, preference and verification, lets processes pick the right one — the invoicing email for invoices, the mobile for delivery notices — and keeps contact details current in one place.
+    usage: Entered when a party is created or updated; verified by sending a code or a test message; processes choose the contact point by purpose and preference.
+    relationshipContext: A contact point belongs to one Party. Contacts, Customers and Suppliers reach their party's contact points through the party.
+    lifecycle: Active while it works; inactive when the address or number is no longer used. A contact point that bounces may be marked invalid.
+    workflowContext: Notifications, invoicing by email, delivery notices, marketing, two-factor authentication.
+    example: invoices@northwind.example — email, purpose billing, preferred for billing, verified 2 March 2024, belonging to Northwind Distribution GmbH.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTACT-POINT}

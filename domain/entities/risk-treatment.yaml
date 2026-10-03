@@ -2,9 +2,10 @@ entity:
   name: RiskTreatment
   namespace: cedm.domain
   kind: risk_management_entity
-  description: A governed treatment or response planned and executed to modify, accept, transfer, avoid, or monitor a Risk.
+  description: An action taken on a risk — to reduce, avoid, transfer or accept it — with its owner, due date, cost, the risk level it should bring the risk to, and its progress.
   ui:
-    icon: alert-triangle
+    icon: shield-plus
+    recordLabel: [riskTreatmentCode, title]
   identity:
     key: riskTreatmentId
     type: uuid
@@ -25,83 +26,154 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the RiskTreatment.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
+      summary: The reference of the treatment.
+      usage: Assigned when it is planned.
+      relationshipContext: Unique.
   - name: status
     type: enum
     required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+    default: PLANNED
+    values: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the RiskTreatment.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
+      summary: Where the treatment stands.
+      usage: Moved on by the owner.
+      relationshipContext: A completed treatment leads to reassessing the risk.
       valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+        PLANNED: Agreed, not started.
+        IN_PROGRESS: Actions under way.
+        COMPLETED: Actions done.
+        CANCELLED: No longer pursued.
+  - name: title
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: What will be done, in one line.
+      usage: Shown in risk reports.
+      relationshipContext: Identifies the treatment for people.
+  - name: strategy
+    type: enum
+    required: true
+    default: REDUCE
+    values: [REDUCE, AVOID, TRANSFER, ACCEPT]
+    help:
+      summary: The kind of response.
+      usage: Chosen when planning.
+      relationshipContext: Accepting a risk needs approval at the right level.
+      valueSemantics:
+        REDUCE: Lower the likelihood or impact, usually through controls.
+        AVOID: Stop the activity that creates the risk.
+        TRANSFER: Pass the risk to another party, such as an insurer.
+        ACCEPT: Bear the risk knowingly.
+  - name: actionPlan
+    type: text
+    required: false
+    help:
+      summary: The actions that make up the treatment.
+      usage: Written by the owner; progress is reported against it.
+      relationshipContext: Specific enough to judge when it is done.
+  - name: dueDate
+    type: date
+    required: false
+    help:
+      summary: When the treatment should be complete.
+      usage: Overdue treatments are reported.
+      relationshipContext: Agreed with the risk owner.
+  - name: estimatedCost
+    type: Money
+    required: false
+    help:
+      summary: What the treatment is expected to cost.
+      usage: Weighed against the reduction in risk.
+      relationshipContext: In the company currency.
+  - name: targetRating
+    type: enum
+    required: false
+    values: [LOW, MEDIUM, HIGH]
+    help:
+      summary: The residual rating the treatment should bring the risk to.
+      usage: Compared with the reassessment after completion.
+      relationshipContext: From the same rating scale as risk assessments.
+      valueSemantics:
+        LOW: Accepted; monitored routinely.
+        MEDIUM: Accepted with monitoring by the owner.
+        HIGH: Still needs treatment and management attention.
+  - name: completedDate
+    type: date
+    required: false
+    help:
+      summary: When the treatment was completed.
+      usage: Recorded by the owner.
+      relationshipContext: Present once completed.
   relationships:
-  - name: context
+  - name: risk
     target: Risk
     cardinality: '1'
     ownership: reference
     help:
-      summary: Governing Risk associated with this RiskTreatment.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every RiskTreatment belongs to exactly one governing Risk in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+      summary: The risk treated.
+      usage: Chosen when planning the treatment.
+      cardinalityMeaning: Every treatment is of exactly one risk.
+      context: Listed among the risk's treatments.
+  - name: owner
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who is responsible for carrying the treatment out.
+      usage: Agreed when planning it.
+      cardinalityMeaning: One per treatment.
+      context: Reports progress in risk reviews.
+  - name: control
+    target: Control
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The control the treatment introduces or strengthens.
+      usage: Linked for reduce treatments that work through a control.
+      cardinalityMeaning: At most one.
+      context: The control's testing shows whether the treatment worked.
   invariants:
-  - id: RISK-TREATMENT-001
-    rule: The governing Risk relationship is required and must reference a valid record.
-  - id: RISK-TREATMENT-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: RISK-TREATMENT-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+  - {id: RISK-TREATMENT-001, rule: A completed treatment records when it was completed., violatedWhen: status == "COMPLETED" and completed_date == null, message: Record when the treatment was completed.}
+  - {id: RISK-TREATMENT-EXE-001, rule: "Estimated Cost cannot be negative.", violatedWhen: "estimated_cost != null and estimated_cost < 0", message: "Estimated Cost cannot be negative."}
   lifecycle:
     title: Risk Treatment Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
+    states: [PLANNED, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: PLANNED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-    - {from: DRAFT, to: ACTIVE, action: activate}
-    - {from: ACTIVE, to: COMPLETED, action: complete}
-    - {from: DRAFT, to: CANCELLED, action: cancel}
-    - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   workflows:
-  - name: FollowUpRequired
-    title: "Follow up when a risk treatment is ended"
-    description: "When a risk treatment is cancelled, a task asks someone to settle what depended on it."
-    when: "status == \"CANCELLED\" and status != _previous_status"
-    steps:
-    - id: S1
-      type: CreateEntity
-      label: "Raise a task: follow up on"
-      properties:
-        entity: Task
-        as: taskId
-        fields:
-          code: "RISK-TREATMENT-FOLLOW-UP-{{id}}"
-          name: "Follow up on risk treatment {{id}}"
-          description: "Risk treatment {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-          task_type: "USER"
-          status: "CREATED"
-          priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a risk treatment is ended"
+      description: "When a risk treatment is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "RISK-TREATMENT-FOLLOW-UP-{{id}}"
+              name: "Follow up on risk treatment {{title}}"
+              description: "Risk treatment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
-    summary: Represents RiskTreatment as a first-class governed CEDM business concept.
-    businessMeaning: A governed treatment or response planned and executed to modify, accept, transfer, avoid, or monitor a Risk.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: Risk supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A RiskTreatment is created for a valid Risk, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: What is being done about a risk, by whom and by when.
+    businessMeaning: Identifying risks is useless unless something is done about those outside appetite. A treatment records the chosen response — reduce, avoid, transfer or accept — the actions, who owns them, when they are due, what they cost and the risk level they are meant to achieve, so management can follow them to completion and check they worked.
+    usage: Risk owners plan treatments for risks rated above appetite; progress is reported in risk reviews; completed treatments lead to reassessment of the risk.
+    relationshipContext: A treatment belongs to one Risk and is listed among its treatments. It may introduce or strengthen a Control.
+    lifecycle: Planned, in progress, and completed; one overtaken by events is cancelled. Treatments past their due date are reported as overdue.
+    workflowContext: Risk response planning, risk reviews, control improvement.
+    example: "Treatment RT-2024-011 for risk R-031 'Single-source supplier for motors': reduce — qualify a second supplier; owner the category manager; due 30 September; cost 25,000 EUR; target residual rating medium."
 specification:
   version: 0.1.0
   status: draft
