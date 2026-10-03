@@ -5,6 +5,7 @@ entity:
   description: A structured educational program leading to a qualification, credential, or defined learning outcome.
   ui:
     icon: table
+    recordLabel: [code, name]
   identity:
     key: educationProgramId
     type: uuid
@@ -25,17 +26,17 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationProgram records, where applicable.
-      relationshipContext: Its meaning is specific to EducationProgram; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The code of the programme.
+      usage: Used in admissions, enrolments and transcripts.
+      relationshipContext: Unique.
   - name: name
     type: string
     required: true
     maxLength: 300
     help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationProgram records, where applicable.
-      relationshipContext: Its meaning is specific to EducationProgram; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: The name of the programme, such as "BSc Computer Science".
+      usage: Shown in the prospectus and on awards.
+      relationshipContext: Identifies it for students.
   - name: programType
     type: enum
     required: true
@@ -47,16 +48,16 @@ entity:
     - TRAINING
     - OTHER
     help:
-      summary: Captures the business meaning of program type for the EducationProgram. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationProgram records, where applicable.
-      relationshipContext: Its meaning is specific to EducationProgram; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: What the programme leads to.
+      usage: Decides the rules for awards and funding.
+      relationshipContext: Read with its duration.
       valueSemantics:
-        DEGREE: Represents the degree state or classification in the context of EducationProgram.
-        DIPLOMA: Represents the diploma state or classification in the context of EducationProgram.
-        CERTIFICATE: Represents the certificate state or classification in the context of EducationProgram.
-        COURSE: Represents the course state or classification in the context of EducationProgram.
-        TRAINING: Represents the training state or classification in the context of EducationProgram.
-        OTHER: Represents the other state or classification in the context of EducationProgram.
+        DEGREE: An academic degree.
+        DIPLOMA: A diploma.
+        CERTIFICATE: A certificate.
+        COURSE: A single course offered on its own.
+        TRAINING: A professional training programme.
+        OTHER: Any other programme.
   - name: status
     type: enum
     required: true
@@ -67,33 +68,57 @@ entity:
     - SUSPENDED
     - RETIRED
     help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationProgram records, where applicable.
-      relationshipContext: Its meaning is specific to EducationProgram; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+      summary: Whether the programme takes students.
+      usage: Moved on by the academic board.
+      relationshipContext: Only active programmes take new enrolments.
       valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of EducationProgram.
-        ACTIVE: Represents the active state or classification in the context of EducationProgram.
-        SUSPENDED: Represents the suspended state or classification in the context of EducationProgram.
-        RETIRED: Represents the retired state or classification in the context of EducationProgram.
+        DRAFT: Being designed or accredited.
+        ACTIVE: Open to new students.
+        SUSPENDED: Intake paused.
+        RETIRED: Closed to new students.
+  - name: durationMonths
+    type: integer
+    required: false
+    help:
+      summary: How long the programme takes full-time, in months.
+      usage: Sets students' expected completion dates.
+      relationshipContext: Part-time students take longer.
+  - name: requiredCredits
+    type: decimal
+    required: false
+    precision: 8
+    scale: 2
+    help:
+      summary: The credits needed to complete the programme.
+      usage: Checked before the award is conferred.
+      relationshipContext: Summed from passed courses.
+  - name: awardTitle
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The award conferred, such as "Bachelor of Science in Computer Science".
+      usage: Printed on the certificate.
+      relationshipContext: As accredited.
   relationships:
   - name: institution
     target: Organization
     cardinality: '1'
     ownership: reference
     help:
-      summary: Connects EducationProgram to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a EducationProgram.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: The institution that runs the programme.
+      usage: Set when it is created.
+      cardinalityMeaning: Every programme belongs to exactly one institution.
+      context: Its rules apply.
   - name: enrollments
     target: Enrollment
     cardinality: 0..*
     ownership: reference
     help:
-      summary: Connects EducationProgram to Enrollment so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Enrollment records associated with a EducationProgram.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+      summary: Students enrolled on the programme.
+      usage: Listed from the programme.
+      cardinalityMeaning: Any number; each enrolment is on one programme.
+      context: The enrolment records its programme.
   lifecycle:
     title: Education Program Lifecycle
     attribute: status
@@ -110,10 +135,10 @@ entity:
   help:
     summary: Represents an education entity called EducationProgram within the CEDM business model.
     businessMeaning: EducationProgram is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate EducationProgram records.
     relationshipContext: The entity participates in a wider business graph through relationships with Organization, Enrollment. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical EducationProgram record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    usage: Institutions define the programmes they offer, with their award, duration and credit requirements; admissions recruit students to them; the registry checks students' progress against them and confers the award.
+    lifecycle: Drafted while being designed and accredited, active while open to new students, suspended when intake stops for a while, and retired when it closes; current students may finish a retired programme.
+    example: Programme BSC-CS 'BSc Computer Science', degree, 3 years full-time, 180 ECTS, accredited, active.
 specification:
   version: 0.1.0
   status: draft
