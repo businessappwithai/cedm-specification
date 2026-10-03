@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Check an EML model against the published validators — the same engines the command line runs — and follow the authoring protocol that turns a business description into a model a generator will accept.">
-  <meta name="keywords" content="AppWithAI, EML checker, EML fixer, model validation, authoring protocol, Mermaid model, ERD, business rules, BPMN workflow, saga, code generation, LLM specification, llms-full.txt">
+  <meta name="keywords" content="AppWithAI, model validator, model fixer, model validation, authoring protocol, YAML model, ERD, business rules, BPMN workflow, saga, code generation, LLM specification, llms-full.txt">
   <title>11 · Check a model — Build a CRM with AppWithAI</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -83,12 +83,11 @@
             <li><a href="11-check-a-model.html" aria-current="page"><span class="guide-num">11</span> Check a model</a></li>
           </ul>
           <div class="guide-sidebar-foot">
-            The checker and fixer on this page are the published modules at
-            <code>/guide/checker.js</code> and <code>/guide/fixer.js</code> — the same engines
-            the command line runs. For a shell, <code>/guide/check-model.mjs</code> runs them
-            in one command.
+            The validator on this page is the published module at
+            <code>/guide/model-yaml.js</code> — the same reader the command line runs. For a
+            shell, <code>/guide/check-model.mjs</code> runs it in one command.
             <br><br>
-            EML <span data-eml-version>1.2.0</span>
+            EML <span data-eml-version>2.0.0</span>
           </div>
         </div>
       </details>
@@ -100,17 +99,19 @@
 <span class="eyebrow">Chapter 11</span>
 <h1>Check a model before you ship it</h1>
 <p class="lede">
-  A model is not finished when it is written. It is finished when the checker accepts it. This chapter
-  is the procedure for getting there — and the checker itself, running on this page, so you can put a
+  A model is not finished when it is written. It is finished when the validator accepts it. This chapter
+  is the procedure for getting there — and the validator itself, running on this page, so you can put a
   document through it without installing anything.
 </p>
 
-<h2 id="validators">The published validators</h2>
+<h2 id="validators">The published validator</h2>
 <p>
-  Two ES modules are published at fixed URLs on this site. They are bundled from
-  <code>language/checker.ts</code> and <code>language/fixer.ts</code> by
-  <code>scripts/build-language-tools.ts</code> — the same engines the command line runs, not a lighter
-  web edition — so a document that passes here is a document <code>appwithai</code> will accept.
+  One ES module is published at a fixed URL on this site. It is bundled from the language's own reader
+  — <code>language/browser/model-yaml.entry.ts</code>, built by <code>scripts/build-site-bundles.ts</code> —
+  the same engine the command line runs, not a lighter web edition, so a model that passes here is a
+  model <code>appwithai</code> will accept. It reads a model in four layers: the YAML itself, the JSON
+  Schema, the language checker, and what each construct means; every finding is reported at the YAML
+  line and column that caused it.
 </p>
 
 <div class="table-wrap">
@@ -118,14 +119,11 @@
   <thead><tr><th>Module</th><th>URL</th><th>What it gives you</th></tr></thead>
   <tbody>
     <tr>
-      <td><code>checker.js</code></td>
-      <td><code data-url="checker.js">https://www.appwithai.org/guide/checker.js</code></td>
-      <td>Every diagnostic <code>bun language/checker.ts</code> prints, as <code>check(source)</code>.</td>
-    </tr>
-    <tr>
-      <td><code>fixer.js</code></td>
-      <td><code data-url="fixer.js">https://www.appwithai.org/guide/fixer.js</code></td>
-      <td>The five auto-repairs, plus <code>checkAndFix(source)</code> — repair and re-check in one call.</td>
+      <td><code>model-yaml.js</code></td>
+      <td><code data-url="model-yaml.js">https://www.appwithai.org/guide/model-yaml.js</code></td>
+      <td><code>validate(text)</code> — every finding <code>appwithai validate</code> prints — and
+      <code>fix(text)</code>, which repairs what can be repaired mechanically, keeps your comments, and
+      re-checks.</td>
     </tr>
   </tbody>
 </table>
@@ -133,20 +131,19 @@
 
 <div class="code">
   <div class="code-head"><span class="tag">javascript</span></div>
-<pre><code>import { check, formatReport } from "<span data-url="checker.js">https://www.appwithai.org/guide/checker.js</span>";
-import { checkAndFix }         from "<span data-url="fixer.js">https://www.appwithai.org/guide/fixer.js</span>";
+<pre><code>import { validate, fix } from "<span data-url="model-yaml.js">https://www.appwithai.org/guide/model-yaml.js</span>";
 
-const report = check(source);
-<span class="c-com">// { ok, counts: { errors, warnings, infos }, issues: [...], languageVersion }</span>
+const result = validate(text);
+<span class="c-com">// { ok, document, diagnostics: [{ severity, code, message, line, column, hint }] }</span>
 
-console.log(formatReport(report));</code></pre>
+const repaired = fix(text);
+<span class="c-com">// { ok, text, applied: [{ code, description }], diagnostics }</span></code></pre>
 </div>
 
 <p>
-  Both also attach themselves to <code>globalThis</code> as <code>EMLChecker</code> and
-  <code>EMLFixer</code>, so a page that loaded them with a bare <code>import</code> and no bindings can
-  still call them. They are built against EML <span data-eml-version>1.2.0</span>, and every report says
-  which version produced it.
+  It also attaches itself to <code>globalThis</code> as <code>EMLYaml</code>, so a page that loaded it
+  with a bare <code>import</code> and no bindings can still call it. It is built against EML
+  <span data-eml-version>2.0.0</span>, and <code>LANGUAGE_VERSION</code> says which.
 </p>
 
 <h2 id="try">Check a model now</h2>
@@ -168,42 +165,42 @@ console.log(formatReport(report));</code></pre>
         <button type="button" class="choice" id="choice-crm" aria-pressed="true">
           <span class="choice__name">The CRM model</span>
           <span class="choice__desc">The seventeen-entity model this guide builds. It comes back clean — which is the point of showing it.</span>
-          <span class="choice__meta">crm.eml.mmd</span>
+          <span class="choice__meta">crm.eml.yaml</span>
         </button>
         <button type="button" class="choice" id="choice-drug" aria-pressed="false">
           <span class="choice__name">The drug-discovery model</span>
           <span class="choice__desc">A regulated-lab model — compounds, experiments, deviations, CAPAs.</span>
-          <span class="choice__meta">drug-discovery.eml.mmd</span>
+          <span class="choice__meta">drug-discovery.eml.yaml</span>
         </button>
         <button type="button" class="choice" id="choice-hospital" aria-pressed="false">
           <span class="choice__name">The hospital model</span>
           <span class="choice__desc">Thirty entities, no <code>User</code> entity — the person columns resolve to <code>Staff</code>. Clean, and the widest use of the language published here: ten state machines, ten sagas, twenty-seven hooks and fifty-nine declared indexes.</span>
-          <span class="choice__meta">hospital-management-system.eml.mmd</span>
+          <span class="choice__meta">hospital-management-system.eml.yaml</span>
         </button>
         <button type="button" class="choice" id="choice-dance" aria-pressed="false">
           <span class="choice__name">The dance-studio model</span>
           <span class="choice__desc">Nine entities: a booking business, and the worked example for the interactive protocol in <code>llmdetailed.txt</code> §10. It comes back clean, which is what a model written against that section is supposed to do.</span>
-          <span class="choice__meta">dance-studio.eml.mmd</span>
+          <span class="choice__meta">dance-studio.eml.yaml</span>
         </button>
         <button type="button" class="choice" id="choice-investment" aria-pressed="false">
           <span class="choice__name">The wealth-management model</span>
-          <span class="choice__desc">Ninety-one entities, eight rules, eleven state machines and three sagas — the largest model published here, and the one worth running the checker against if you want to know how it behaves at enterprise size. Clean, with five notes it explains.</span>
-          <span class="choice__meta">investment-planning-wealth-management-system.eml.mmd</span>
+          <span class="choice__desc">Ninety-one entities, eight rules, eleven state machines and three sagas — the largest model published here, and the one worth running the checker against if you want to know how it behaves at enterprise size. Clean, with six notes it explains.</span>
+          <span class="choice__meta">investment-planning-wealth-management-system.eml.yaml</span>
         </button>
         <button type="button" class="choice" id="choice-broken" aria-pressed="false">
           <span class="choice__name">A broken model</span>
           <span class="choice__desc">Four faults on purpose: one error the fixer cannot touch, and three warnings it can. Press Check, then Check and repair.</span>
-          <span class="choice__meta">tiny-shop.mmd</span>
+          <span class="choice__meta">tiny-shop.eml.yaml</span>
         </button>
         <button type="button" class="choice" id="choice-paste" aria-pressed="false">
           <span class="choice__name">Your own</span>
           <span class="choice__desc">Paste it below, or choose a file. It is read in this tab and uploaded nowhere.</span>
-          <span class="choice__meta">.mmd · .eml.mmd · .md</span>
+          <span class="choice__meta">.eml.yaml · .yaml · .yml</span>
         </button>
       </div>
 
       <label class="dropzone" for="file">
-        <input type="file" id="file" accept=".mmd,.md,.txt,text/plain">
+        <input type="file" id="file" accept=".yaml,.yml,text/yaml,application/yaml,text/plain">
         <b>Choose a file</b> instead of pasting
       </label>
 
@@ -213,7 +210,7 @@ console.log(formatReport(report));</code></pre>
       <div class="actions">
         <button type="button" class="btn btn--primary" id="check">Check</button>
         <button type="button" class="btn btn--go" id="fix">Check and repair</button>
-        <button type="button" class="btn" id="download-fixed" hidden>Download as .mmd</button>
+        <button type="button" class="btn" id="download-fixed" hidden>Download as .eml.yaml</button>
       </div>
 
       <div class="result" id="check-result"></div>
@@ -229,12 +226,11 @@ console.log(formatReport(report));</code></pre>
   run.
 </p>
 <p>
-  <b>The deliverable is one file — <code>&lt;business-name&gt;.mmd</code>, every byte of it Mermaid.</b>
+  <b>The deliverable is one file — <code>&lt;business-name&gt;.eml.yaml</code>, one YAML document.</b>
   Steps 1, 3 and 4 exist to make that file correct; only step 2 produces it. A reply that
   <i>describes</i> the model instead — headings, an entity glossary, a lifecycle drawn as an arrow in a
-  sentence — is not a model however thorough it is. Paste one into the checker above and it answers
-  <code>EML004</code>, <i>empty document: no entities, rules, or workflows found</i>, because to the
-  parser it is empty.
+  sentence — is not a model however thorough it is. Paste one into the validator above and it answers
+  that the document is not a model at all, because to the reader it is prose.
 </p>
 
 <ol class="steps">
@@ -247,14 +243,14 @@ console.log(formatReport(report));</code></pre>
       is a table, a rule or a workflow.
     </p>
     <p>
-      So think the business through before writing a byte of Mermaid: an enhanced specification, stated
+      So think the business through before writing a byte of the model: an enhanced specification, stated
       back to the user in the reply. It is analysis, not the artifact — it never becomes the file, and
-      it never carries the <code>.mmd</code> name. It covers all five of:
+      it never carries the <code>.eml.yaml</code> name. It covers all five of:
     </p>
     <ul>
       <li><b>The entity model</b> — every entity the business needs, not only the ones named, with types, modifiers, keys, foreign keys and cardinalities, including the reference and lookup entities the described flow silently depends on.</li>
       <li><b>Each entity's workflow</b> — the states a record moves through, the event on each edge, and who may make each move. An entity with a <code>status</code> field has a state machine whether or not anyone drew it.</li>
-      <li><b>The business rules</b> — what decides what, the inputs each reads, and whether it merely <i>decides</i> or must also <i>act</i>. A rule that must act needs <code>%%action</code>.</li>
+      <li><b>The business rules</b> — what decides what, the inputs each reads, and whether it merely <i>decides</i> or must also <i>act</i>. A rule that must act needs <code>actions</code>.</li>
       <li><b>Cross-entity effects</b> — where changing one entity must create or update another: an order line decrementing stock, an approval writing a ledger entry, a cancellation releasing a slot. These are the ones most often missed.</li>
       <li><b>The multi-step workflows</b> — any flow spanning more than one entity or actor, end to end, including what happens when a step fails and what compensates a step already taken.</li>
     </ul>
@@ -268,28 +264,27 @@ console.log(formatReport(report));</code></pre>
   <li>
     <h3>Write the model file</h3>
     <p>
-      Only now write the document: the ERD section, the rules sections, the workflow sections, and the
-      directives that give them meaning. Every entity from step 1 appears; every rule is a
-      <code>%%rule</code> flowchart or an <code>%%action</code>; every cross-entity effect is a hook, an
-      action or a step; every multi-step flow is a saga.
+      Only now write the document: its <code>entities</code>, <code>relationships</code> and
+      <code>enums</code>, its <code>rules</code>, <code>stateMachines</code>, <code>hooks</code> and
+      <code>sagas</code>, and the <code>rbac</code> that says who may do what. Every entity from step 1
+      appears; every rule is an entry under <code>rules</code>, with <code>actions</code> where it must
+      act; every cross-entity effect is a hook, an action or a step; every multi-step flow is a saga.
     </p>
     <p>
-      Name the file after the business — <code>acme-dance-studio.mmd</code>, lower-case, hyphenated, one
-      file. It opens on a <code>%%</code> line — <code>%%meta name:</code> before the first section
-      keyword — and every line is a Mermaid statement, an EML <code>%%</code> directive, or blank: no
-      Markdown headings, no bullets, no fences, no prose. Everything the language adds already rides in Mermaid comments, so anything you want to
-      say goes in the reply or in a <code>%%</code> line.
+      Name the file after the business — <code>acme-dance-studio.eml.yaml</code>, lower-case, hyphenated,
+      one file. It opens on <code>eml: "1.0"</code> and names the model with <code>name:</code>; it is one
+      YAML document, with no Markdown headings, no fences and no prose. Anything you want to say about a
+      line goes in a <code>#</code> comment beside it, or in the reply.
     </p>
     <p>
-      Check a directive's <code>status</code> before relying on it: <code>%%entity</code>,
-      <code>%%rule</code> and <code>%%trigger</code> are validated but not compiled, so do not promise
-      behaviour that rides on them.
+      Say only what the generator does: <code>triggers</code> are validated and carried but not compiled
+      by every target, so do not promise behaviour that rides on them.
     </p>
   </li>
   <li>
     <h3>Validate — three runs, three repairs</h3>
     <p>
-      Run the checker <b>at least three times</b>. Not ceremony: a repair can uncover a problem the
+      Run the validator <b>at least three times</b>. Not ceremony: a repair can uncover a problem the
       original error was masking, so a single clean pass immediately after an edit describes a document
       that no longer exists. The third pass over unchanged bytes is what makes “clean” mean clean.
     </p>
@@ -302,10 +297,10 @@ console.log(formatReport(report));</code></pre>
   <li>
     <h3>Deliver</h3>
     <p>
-      Hand back the finished <code>&lt;business-name&gt;.mmd</code> as a <b>downloadable file</b>, not a
+      Hand back the finished <code>&lt;business-name&gt;.eml.yaml</code> as a <b>downloadable file</b>, not a
       fenced block someone has to copy out of a chat log — and the file that was validated, not a draft
       of it. Alongside it, in the reply rather than inside the file: the enhanced specification from
-      step 1, so the user can correct what you inferred; the final checker result with counts; and
+      step 1, so the user can correct what you inferred; the final validation result with counts; and
       anything you assumed or left unresolved.
     </p>
   </li>
@@ -313,13 +308,13 @@ console.log(formatReport(report));</code></pre>
 
 <div class="code">
   <div class="code-head"><span class="tag">javascript</span></div>
-<pre><code><span class="c-com">// Pass 1 — repair the five auto-fixable codes, then re-check what survived.</span>
-let report = checkAndFix(model);
-model = report.source;
+<pre><code><span class="c-com">// Pass 1 — repair what can be repaired mechanically, then re-check what survived.</span>
+let result = fix(model);
+model = result.text;
 
-<span class="c-com">// Passes 2 and 3 — check the repaired bytes, and confirm they are stable.</span>
-for (let pass = 2; pass &lt;= 3 &amp;&amp; report.ok; pass++) {
-  report = { ...check(model), source: model };
+<span class="c-com">// Passes 2 and 3 — validate the repaired bytes, and confirm they are stable.</span>
+for (let pass = 2; pass &lt;= 3 &amp;&amp; result.ok; pass++) {
+  result = validate(model);
 }</code></pre>
 </div>
 
@@ -333,8 +328,10 @@ for (let pass = 2; pass &lt;= 3 &amp;&amp; report.ok; pass++) {
 
 <h2 id="diagnostics">Reading a diagnostic</h2>
 <p>
-  Every finding carries a <code>code</code>, a <code>line</code> and a <code>hint</code>, and the codes
-  are banded so the band alone tells you where the fault is.
+  Every finding carries a <code>code</code>, a <code>line</code> and <code>column</code> in the YAML, and
+  usually a <code>hint</code>. <code>YAML</code> means the text is not YAML; <code>SCHEMA</code> means it
+  is YAML the schema does not accept — a key that does not exist, a value of the wrong kind. Everything
+  else is the language checker, and its codes are banded so the band alone tells you where the fault is.
 </p>
 
 <div class="table-wrap">
@@ -343,19 +340,19 @@ for (let pass = 2; pass &lt;= 3 &amp;&amp; report.ok; pass++) {
   <tbody>
     <tr><td><code>EML0xx</code></td><td>The document — its structure, its sections, its metadata.</td></tr>
     <tr><td><code>EML1xx</code></td><td>Entities — attributes, types, keys, relationships.</td></tr>
-    <tr><td><code>EML2xx</code></td><td>Directive-declared hooks, rules and workflows.</td></tr>
-    <tr><td><code>EML3xx</code></td><td>Rule flowcharts.</td></tr>
-    <tr><td><code>EML4xx</code></td><td>Workflow sections.</td></tr>
-    <tr><td><code>EML5xx</code></td><td>Cross-section consistency — the two halves of the document disagreeing.</td></tr>
+    <tr><td><code>EML2xx</code></td><td>Hooks, rule actions, sagas and access rules.</td></tr>
+    <tr><td><code>EML3xx</code></td><td>Rule decision graphs.</td></tr>
+    <tr><td><code>EML4xx</code></td><td>State machines and hook flows.</td></tr>
+    <tr><td><code>EML5xx</code></td><td>Cross-part consistency — two parts of the model disagreeing.</td></tr>
   </tbody>
 </table>
 </div>
 
 <p>
-  Five codes can be repaired without being told what was meant, and the fixer repairs exactly those:
-  <code>EML001</code>, <code>EML114</code>, <code>EML117</code>, <code>EML421</code> and
-  <code>EML422</code>. Everything else needs a decision, which is why <code>checkAndFix</code> reports
-  what it could not touch rather than guessing.
+  Eight codes can be repaired without being told what was meant, and the fixer repairs exactly those:
+  <code>EML001</code>, <code>EML103</code>, <code>EML112</code>, <code>EML114</code>, <code>EML117</code>,
+  <code>EML287</code>, <code>EML421</code> and <code>EML422</code>. Everything else needs a decision,
+  which is why <code>fix</code> reports what it could not touch rather than guessing.
 </p>
 
 <p>
@@ -367,43 +364,43 @@ for (let pass = 2; pass &lt;= 3 &amp;&amp; report.ok; pass++) {
 <h2 id="command-line">The same check, from a command line</h2>
 <p>
   This page is one way in. If you have a shell — or you are a language model with one — the same three
-  passes run in a single command, against the same two modules:
+  passes run in a single command, against the same module:
 </p>
 <pre><code>curl -sO <span data-url="check-model.mjs">https://www.appwithai.org/guide/check-model.mjs</span>
-node check-model.mjs my-business.mmd</code></pre>
+node check-model.mjs my-business.eml.yaml</code></pre>
 <p>
-  It finds <code>checker.js</code> and <code>fixer.js</code> — beside itself if all three were
-  downloaded together, otherwise from this site — runs <code>checkAndFix</code> and then two
-  <code>check</code> passes over the repaired bytes, prints the report, and exits <code>0</code> when
-  the model is clean and <code>1</code> when the generator would refuse it. <code>--write</code> saves
-  the repaired document back over the input. It is a runner, not a second checker: every diagnostic it
-  prints comes from the published modules, which is the same reason this page has no validation logic
+  It finds <code>model-yaml.js</code> — beside itself if both were downloaded together, otherwise from
+  this site — runs <code>fix</code> and then two <code>validate</code> passes over the repaired bytes,
+  prints every finding at its YAML line, and exits <code>0</code> when the model is clean and
+  <code>1</code> when the generator would refuse it. <code>--write</code> saves the repaired document
+  back over the input. It is a runner, not a second checker: every finding it prints comes from the
+  published module, which is the same reason this page has no validation logic
   of its own.
 </p>
 
 <h2 id="audit">Valid is not the same as finished</h2>
 <p>
   Everything above answers one question: would the generator refuse this model. It does not answer the
-  other one. Nothing in the checker requires a model to <em>have</em> anything — a single entity with a
-  primary key and a name is a valid EML document with no lifecycle, no rules, no access control and not
-  one word of help text. Zero errors, zero warnings, and the verdict line says
-  <i>the generator accepts this model</i>, which is true and is not the same as saying it is done.
+  other one. Nothing in the schema or the checker requires a model to <em>have</em> anything — a single
+  entity with a primary key and a name is a valid model with no lifecycle, no rules, no access control
+  and not one word of help text. No errors, and the verdict line says <i>OK</i>, which is true and is
+  not the same as saying it is done.
 </p>
 <pre><code>curl -sO <span data-url="audit-model.mjs">https://www.appwithai.org/guide/audit-model.mjs</span>
-node audit-model.mjs my-business.mmd</code></pre>
+node audit-model.mjs my-business.eml.yaml</code></pre>
 <p>
   That is the second runner, published beside the first and resolved the same way. It scores the model
-  against the delivery checklist — twenty-two checks: the file's shape, a primary key per entity, the
-  <code>FK</code> modifier on every reference column, an enum binding on every status, a state machine
-  with a beginning and an end, <code>%%action</code>, <code>%%hook</code>, <code>kind: saga</code> and
-  <code>%%rbac</code> all present, help on every entity and every column that says something rather
-  than restating its own name, every line item declared out of its category, and the three checker
-  passes over the file's own bytes. Its last line is the score, <code>22 passed, 0 failed</code>, and it
-  exits <code>0</code> only when nothing failed.
+  against the delivery checklist — twenty-two checks: the file's name and shape, a primary key per
+  entity, <code>fk: true</code> on every reference column, an enum binding on every status, a state
+  machine with an initial and a final state, rule <code>actions</code>, <code>hooks</code>,
+  <code>sagas</code> and <code>rbac</code> all present, help on every entity and every column that says
+  something rather than restating its own name, every line item declared out of its category, and the
+  three validation passes over the file's own bytes. Its last line is the score,
+  <code>22 passed, 0 failed</code>, and it exits <code>0</code> only when nothing failed.
 </p>
 <p>
-  <b>It is a scorer, not a third checker.</b> Every diagnostic it reads comes from the same
-  <code>checker.js</code> this page runs; it adds no codes of its own, and it cannot tell you the model
+  <b>It is a scorer, not a second checker.</b> Every finding it reads comes from the same
+  <code>model-yaml.js</code> this page runs; it adds no codes of its own, and it cannot tell you the model
   says what the business meant. The bare entity above passes <code>check-model.mjs</code> with exit
   <code>0</code> and fails this nine ways — which is the whole reason it is published rather than kept
   as a maintainer's script. Run both before you hand a model over, and report both.
@@ -411,11 +408,11 @@ node audit-model.mjs my-business.mmd</code></pre>
 
 <h2 id="spec">The specification, for machines</h2>
 <p>
-  The full machine-readable specification of the modelling language — every directive, type, modifier,
-  cardinality, hook, step and diagnostic, plus the authoring protocol above in its authoritative form —
-  is published as a single file. It describes the language and nothing else: a model is all you need to
-  produce, so the generator, the framework and the shape of the emitted application are deliberately
-  left out of it.
+  The full machine-readable specification of the modelling language — every key, type, cardinality,
+  hook, step and diagnostic, plus the authoring protocol above in its authoritative form — is published
+  as a single file. It describes the language and nothing else: a model is all you need to produce, so
+  the generator, the framework and the shape of the emitted application are deliberately left out of
+  it.
 </p>
 <div class="code">
   <div class="code-head"><span class="tag">url</span></div>
@@ -423,7 +420,7 @@ node audit-model.mjs my-business.mmd</code></pre>
 </div>
 <p>
   Point a language model at it before asking for a model, and it has the language definition, the
-  directive table, the checker codes and this protocol without having to guess at any of them. When that
+  schema's keys, the checker codes and this protocol without having to guess at any of them. When that
   file and <code>language/appwithai-language.json</code> disagree, the definition wins; when the
   definition and a shipped compiler disagree, the compiler wins and the definition is the bug.
 </p>

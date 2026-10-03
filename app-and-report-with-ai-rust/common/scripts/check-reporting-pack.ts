@@ -7,17 +7,17 @@
  * real PostgreSQL, derive the reporting pack, and execute every query in it.
  *
  * This is the only check that can catch the class of bug the pack is most
- * exposed to. `reporting-pack.ts` builds SQL from a *parsed model*, while the
- * tables come from a *separate compiler* in another project; nothing type-checks
- * one against the other. A column the generator renames, a foreign key it
+ * exposed to. `reporting-pack.ts` builds SQL from a *compiled model*, while the
+ * tables come from a *separate compiler* — the Loco templates' migration;
+ * nothing type-checks one against the other. A column the generator renames, a foreign key it
  * places on the other side of a relationship, an audit column it stops
  * emitting — each leaves the pack building cleanly and every report failing at
  * run time, in an application the person who wrote the model never sees fail.
  *
- * It found one on its first run: the parser's `relationship.foreignKey` names
- * the *target* entity's own id, so `Team ||--o{ User` reads `user_id` rather
- * than the `team_id` column the migration actually creates. Every
- * children-per-parent report was silently absent.
+ * It found one on its first run: a relationship's foreign key was named after
+ * the *target* entity, so Team → many User read `user_id` rather than the
+ * `team_id` column the migration actually creates. Every children-per-parent
+ * report was silently absent.
  *
  *   PGHOST=/var/run/postgresql PGPORT=5432 PGUSER=postgres bun scripts/check-reporting-pack.ts
  *
@@ -35,7 +35,7 @@ import path from "node:path";
 import { buildPack } from "../build/reporting-pack.ts";
 
 const ROOT = path.resolve(import.meta.dir, "..");
-const MODELS = ["language/examples", "examples"];
+const MODELS = ["examples"];
 
 const PG = {
   host: process.env.PGHOST ?? "/var/run/postgresql",
@@ -81,7 +81,7 @@ function models(): string[] {
     const abs = path.join(ROOT, dir);
     if (!existsSync(abs)) return [];
     return readdirSync(abs)
-      .filter((f) => f.endsWith(".eml.mmd"))
+      .filter((f) => f.endsWith(".eml.yaml"))
       .sort()
       .map((f) => path.join(dir, f));
   });
@@ -111,24 +111,15 @@ function main(): number {
   let executed = 0;
 
   for (const model of models()) {
-    const name = path.basename(model).replace(/\.eml\.mmd$/, "");
+    const name = path.basename(model).replace(/\.eml\.yaml$/, "");
     const db = `pack_${name.replace(/[^a-z0-9]+/gi, "_").toLowerCase()}`;
     const out = mkdtempSync(path.join(tmpdir(), `pack-${name}-`));
 
     try {
+      // The generation start.sh runs: the pipeline, with the compose contract.
       const gen = spawnSync(
         "bun",
-        [
-          "language/cli/eml.ts",
-          "generate",
-          "-i",
-          model,
-          "-o",
-          out,
-          "--stack",
-          "tanstack-astryx-loco",
-          "--force",
-        ],
+        ["build/generate-app.ts", "-i", model, "-o", out, "-n", name, "--force"],
         { cwd: ROOT, encoding: "utf8" }
       );
       if (gen.status !== 0) {

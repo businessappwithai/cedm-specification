@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A hands-on guide to building a complete enterprise CRM application from a single Mermaid model using the AppWithAI generator.">
-  <meta name="keywords" content="AppWithAI, CRM generator, EML, Mermaid model, ERD, business rules, GoRules, BPMN workflow, saga, NestJS, TanStack Start, PostgreSQL, code generation, low-code CRM">
+  <meta name="description" content="A hands-on guide to building a complete enterprise CRM application from a single YAML model using the AppWithAI generator.">
+  <meta name="keywords" content="AppWithAI, CRM generator, EML, YAML model, ERD, business rules, GoRules, BPMN workflow, saga, Loco.rs, Rust, TanStack Start, PostgreSQL, code generation, low-code CRM">
   <title>Build a CRM with AppWithAI — Overview</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -84,7 +84,7 @@
           <div class="guide-sidebar-foot">
             Every screenshot on these pages comes from the CRM built in this guide, running locally.
             <br><br>
-            Model file: <code>language/examples/crm.eml.mmd</code>
+            Model file: <code>guide/models/crm.eml.yaml</code>
           </div>
         </div>
       </details>
@@ -96,9 +96,9 @@
 <span class="eyebrow">Overview</span>
 <h1>Build a CRM from one file</h1>
 <p class="lede">
-  You write a single Mermaid document describing a business: its data, the decisions it makes, and the
+  You write a single YAML document describing a business: its data, the decisions it makes, and the
   processes it runs. One command turns that into a working full-stack application — Postgres schema,
-  NestJS API, TanStack Start front end, an admin dictionary, an audit trail and a workflow engine — with
+  a Loco.rs (Rust) API, a TanStack Start front end, an admin dictionary, an audit trail and a workflow engine — with
   your rules and workflows already wired in and running.
 </p>
 
@@ -137,33 +137,33 @@
   because the same document says more.
 </p>
 <p>
-  An <strong>EML</strong> file (AppWithAI Modeling Language) is <em>valid Mermaid</em>. It renders as
-  diagrams in any Mermaid viewer, on GitHub, in your editor's preview. The generator reads three kinds of
-  diagram out of it and treats each as a different layer of the application:
+  An <strong>EML</strong> model (AppWithAI Modeling Language) is one YAML document,
+  <code>*.eml.yaml</code>, validated against a JSON Schema. Its top-level keys are the layers of the
+  application, and the generator treats each as a different one:
 </p>
 
 <div class="table-wrap">
 <table>
-  <thead><tr><th>You draw</th><th>The generator emits</th><th>In the running app</th></tr></thead>
+  <thead><tr><th>You write</th><th>The generator emits</th><th>In the running app</th></tr></thead>
   <tbody>
     <tr>
-      <td><code>erDiagram</code></td>
-      <td>Migrations, DTOs, services, REST routes, list and form screens</td>
+      <td><code>entities</code>, <code>relationships</code>, <code>enums</code></td>
+      <td>Migrations, the Application Dictionary, REST routes, list and form screens</td>
       <td>Every entity, searchable, editable, audited</td>
     </tr>
     <tr>
-      <td><code>flowchart</code> marked <code>kind: rules</code></td>
+      <td><code>rules</code></td>
       <td>GoRules decision graphs seeded into <code>sys_rule_definitions</code></td>
       <td>Decisions evaluated inside the transaction that saves a record</td>
     </tr>
     <tr>
-      <td><code>stateDiagram-v2</code></td>
-      <td>BPMN definitions seeded into <code>sys_workflow_definitions</code></td>
+      <td><code>stateMachines</code></td>
+      <td>Transitions seeded into <code>sys_workflow_transitions</code></td>
       <td>A status lifecycle the application applies and guards</td>
     </tr>
     <tr>
-      <td><code>flowchart</code> marked <code>kind: saga</code></td>
-      <td>One BPMN service task per <code>%%step</code></td>
+      <td><code>sagas</code></td>
+      <td>One BPMN service task per step</td>
       <td>Multi-entity processes that create, update and delete across tables</td>
     </tr>
   </tbody>
@@ -171,17 +171,17 @@
 </div>
 
 <p>
-  Semantics that Mermaid has no syntax for ride on <code>%%</code> comment directives — <code>%%enum</code>,
-  <code>%%rule</code>, <code>%%hook</code>, <code>%%step</code>. Mermaid ignores comments, so the document
-  still renders; the generator reads them, so the document still means something.
+  The diagrams — the ERD, each rule's decision graph, each lifecycle — are drawn <em>from</em> the
+  document by the model viewers and the designer. Nothing reads a drawing back, so a picture can never
+  say something the document does not.
 </p>
 
 <div class="note tip">
   <div class="note-title">Why this matters</div>
   <p>
     The diagram cannot drift from the application, because the diagram <em>is</em> the application. When
-    someone asks "what happens when a lead is qualified?", the answer is a section of a file that a
-    non-engineer can read and a renderer can draw — not a search through service code.
+    someone asks "what happens when a lead is qualified?", the answer is an entry in a file that a
+    non-engineer can read and a viewer can draw — not a search through service code.
   </p>
 </div>
 
@@ -222,7 +222,7 @@
   <figcaption>
     <b>A workflow editor, populated.</b> The lead-conversion saga as the running application renders it:
     the trigger, the three rules that gate it, its six steps in order, and the runs it has performed —
-    all compiled from <code>%%step</code> directives in the model. <a href="03-workflows.html">Chapter 03</a>.
+    all compiled from the steps of a <code>sagas</code> entry in the model. <a href="03-workflows.html">Chapter 03</a>.
   </figcaption>
   <img src="img/30-crm-workflow-editor-leadconversion.png" alt="The LeadConversion workflow open in the editor, showing its trigger card, three rule gates, numbered steps, and a details sidebar listing the entity, trigger operation, run mode, step count, linked rules and recent runs.">
 </figure>
@@ -329,7 +329,7 @@
   <a class="guide-card" href="run-real-stack.html">
     <div class="guide-card-num">Chapter 10</div>
     <h3>Run the real stack</h3>
-    <p>The four hundred files the CLI writes, installed and started by a WebContainer &mdash; real Node, real NestJS, the real Vite build.</p>
+    <p>The application the CLI writes &mdash; the Loco.rs API and the TanStack Start front end &mdash; run on your machine with Docker, or with cargo and bun.</p>
   </a>
   <a class="guide-card" href="11-check-a-model.html">
     <div class="guide-card-num">Chapter 11</div>
@@ -356,38 +356,41 @@
 <div class="code">
   <div class="code-head"><span class="tag">shell</span><span>from the repository root</span></div>
 <pre><code><span class="c-com"># 1. check the model — the generator runs this for you, but it is fast and it is honest</span>
-bun language/checker.ts language/examples/crm.eml.mmd
+bun language/cli/eml.ts validate -i language/yaml/examples/crm.eml.yaml
 
 <span class="c-com"># 2. generate the application</span>
-bun packages/generator/src/cli/generate.ts generate \
-  --input language/examples/crm.eml.mmd \
+bun run generate:tanstack -- \
+  --input language/yaml/examples/crm.eml.yaml \
   --output generated-projects/crm \
-  --name crm --records-per-entity 25 --force --no-setup
+  --name crm --force --no-setup
 
 <span class="c-com"># 3. point it at a database</span>
 cd generated-projects/crm
-cp backend/.env.example backend/.env   <span class="c-com"># then set DATABASE_URL</span>
+cp backend/.env.example backend/.env &amp;&amp; createdb crm_development
 
 <span class="c-com"># 4. create the schema and seed it</span>
-bun install &amp;&amp; bun run db:setup
+cd backend &amp;&amp; cargo loco db migrate &amp;&amp; cargo loco db seed
 
 <span class="c-com"># 5. run it</span>
-bun run dev                            <span class="c-com"># API :4001, web :4000</span></code></pre>
+cargo loco start --server-and-worker          <span class="c-com"># API :3000</span>
+cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-com"># web :3001</span></code></pre>
 </div>
 
 <div class="note">
   <div class="note-title">What you get for that</div>
   <p>
-    Seventeen tables with their indexes and constraints, a REST API with Swagger, 192 front-end files,
-    39 seeded workflow definitions, 25 rule definitions, a seeded admin user, an audit log, and a
-    generated end-to-end test suite. Roughly ninety seconds, most of it <code>bun install</code>.
+    Seventeen tables with their indexes and constraints, a REST API that describes itself at
+    <code>/openapi.json</code>, <code>/redoc</code> and <code>/scalar</code>, 211 front-end files, five
+    sagas, eight rule definitions, seventy-nine operation access rules, a seeded admin user, a
+    hash-chained audit log, and two generated test suites — <code>cargo test</code> and bun. The first
+    <code>cargo</code> build takes minutes; every one after it, seconds.
   </p>
 </div>
 
 <p>
   If you would rather see the model first and the commands later, start with
   <a href="01-data-model.html">chapter 01</a>. If you want to watch the whole chain fire before you read a
-  line of EML, jump to <a href="07-it-runs.html">chapter 07</a>.
+  line of the model, jump to <a href="07-it-runs.html">chapter 07</a>.
 </p>
 
 <div class="note win">

@@ -3,11 +3,11 @@
  *
  * Three moving parts, in order:
  *
- *   1. A model is read — from `models/*.eml.mmd` beside this page, or from a
+ *   1. A model is read — from `models/*.eml.yaml` beside this page, or from a
  *      file the reader picks. Reading a picked file never leaves the tab.
- *   2. `appwithai-wasm.js` compiles it. That bundle is built from the same
- *      source the CLI uses, so the application produced here is the application
- *      `appwithai-wasm generate` would have written.
+ *   2. `appwithai-model.js` reads, validates and compiles it — the language's
+ *      own reader and compiler, bundled — and `appwithai-wasm.js` generates
+ *      the application from the compiled model.
  *   3. The files are posted to a Service Worker, which serves them as if they
  *      had come off a web server, and an iframe is pointed at the result.
  *
@@ -19,17 +19,13 @@
  * keeps the generated application byte-identical to the one you would deploy.
  */
 
-// The published validator, not the copy inside the generator bundle. Same engine
-// either way — but this is the file `llms-full.txt` §1.3 and §8 tell a model to
-// validate against, so the page and the protocol cannot drift into disagreeing
-// about whether a document is acceptable. `fixer.js` carries the checker with
-// it, which is what lets it re-check what it repaired.
-//
-// Local delta: `../../guide/fixer.js` rather than upstream's `../fixer.js`,
-// because this site publishes the validators under `guide/` while this module
-// lives under `assets/js/`. Same file, same URL the spec quotes.
-import { checkAndFix } from "../../guide/fixer.js";
-import { generateFromSource } from "./appwithai-wasm.js";
+// The language's own reader, checker, fixer and compiler, bundled for the
+// browser by app-with-ai-rust's scripts/sites/build-site-bundles.ts — the same
+// engine as `guide/model-yaml.js`, the validator the protocol documents tell a
+// model to run its output past, so the page and the protocol cannot disagree
+// about whether a document is acceptable.
+import { compileForBrowser, fix } from "./appwithai-model.js";
+import { generateFromModel } from "./appwithai-wasm.js";
 import { createZip } from "./zip.js";
 
 const BASE = new URL("wasm-app/run/", window.location.href).pathname;
@@ -37,30 +33,30 @@ const SW_URL = new URL("wasm-app/sw.js", window.location.href).pathname;
 const SW_SCOPE = new URL("wasm-app/", window.location.href).pathname;
 
 const BUILT_IN = {
-  crm: { path: "models/crm.eml.mmd", label: "crm.eml.mmd", name: "Acme CRM" },
+  crm: { path: "models/crm.eml.yaml", label: "crm.eml.yaml", name: "Acme CRM" },
   drug: {
-    path: "models/drug-discovery.eml.mmd",
-    label: "drug-discovery.eml.mmd",
+    path: "models/drug-discovery.eml.yaml",
+    label: "drug-discovery.eml.yaml",
     name: "Drug Discovery",
   },
   hospital: {
-    path: "models/hospital-management-system.eml.mmd",
-    label: "hospital-management-system.eml.mmd",
+    path: "models/hospital-management-system.eml.yaml",
+    label: "hospital-management-system.eml.yaml",
     name: "Hospital Management System",
   },
   dance: {
-    path: "models/dance-studio.eml.mmd",
-    label: "dance-studio.eml.mmd",
+    path: "models/dance-studio.eml.yaml",
+    label: "dance-studio.eml.yaml",
     name: "Acme Dance Studio",
   },
   investment: {
-    path: "models/investment-planning-wealth-management-system.eml.mmd",
-    label: "investment-planning-wealth-management-system.eml.mmd",
+    path: "models/investment-planning-wealth-management-system.eml.yaml",
+    label: "investment-planning-wealth-management-system.eml.yaml",
     name: "Investment Planning and Wealth Management",
   },
   education: {
-    path: "models/education-management-system.eml.mmd",
-    label: "education-management-system.eml.mmd",
+    path: "models/education-management-system.eml.yaml",
+    label: "education-management-system.eml.yaml",
     name: "Education Management System",
   },
 };
@@ -265,7 +261,7 @@ async function readFile(file) {
   state.origin = "upload";
   const text = await file.text();
   setModel(text, file.name);
-  const guessed = file.name.replace(/\.(eml\.)?mmd$|\.md$|\.txt$/i, "").replace(/[-_]+/g, " ");
+  const guessed = file.name.replace(/\.(eml|cedm)\.ya?ml$|\.ya?ml$|\.md$|\.txt$/i, "").replace(/[-_]+/g, " ");
   if (guessed.trim()) $("app-name").value = titleCase(guessed.trim());
 }
 
@@ -356,8 +352,8 @@ function setModel(source, label) {
 /**
  * Run the checker over the model and show what it found.
  *
- * This is the same engine as `bun language/checker.ts`, and the same repairs as
- * `bun language/fixer.ts` — bundled, not reimplemented. A model that passes says
+ * This is the same engine as `appwithai validate`, and the same repairs —
+ * bundled, not reimplemented. A model that passes says
  * nothing beyond a line in the build detail; a model that does not gets every
  * finding with its code, line and hint, because "generation failed" on its own
  * leaves the reader with a file and no idea which line of it is wrong.
@@ -368,13 +364,21 @@ function setModel(source, label) {
 function checkModel(source) {
   let review;
   try {
-    // `checkAndFix` repairs what it can, then checks again — so the findings
-    // shown are the ones that survive the repair rather than the ones that
-    // arrived. `remaining` is that second reading.
-    const result = checkAndFix(source);
-    review = { ...result, issues: result.remaining };
+    // `fix` repairs what is mechanically repairable, keeping the author's
+    // comments, and then re-checks, so the findings shown are the ones that
+    // survive the repair rather than the ones that arrived.
+    const result = fix(source);
+    const count = (severity) => result.diagnostics.filter((d) => d.severity === severity).length;
+    review = {
+      ok: result.ok,
+      repaired: result.applied.length > 0,
+      source: result.text,
+      fixes: result.applied.map((applied) => ({ ...applied, applied: true })),
+      counts: { errors: count("error"), warnings: count("warning"), infos: count("info") },
+      issues: result.diagnostics,
+    };
   } catch (error) {
-    // A document the parser cannot read at all — not a finding, a refusal.
+    // A document the reader cannot read at all — not a finding, a refusal.
     review = {
       ok: false,
       repaired: false,
@@ -384,9 +388,9 @@ function checkModel(source) {
       issues: [
         {
           severity: "error",
-          code: "EML000",
-          message: `This file could not be read as EML: ${error.message}`,
-          hint: "An EML document is a Mermaid file with an erDiagram section.",
+          code: "YAML",
+          message: `This file could not be read as a model: ${error.message}`,
+          hint: "A model is a YAML document (*.eml.yaml) that opens with `eml: \"1.0\"`.",
         },
       ],
     };
@@ -485,7 +489,7 @@ function renderDiagnostics(review) {
         : `<p class="diag__foot"><b>Nothing was generated.</b> Fix the ${
             review.counts.errors === 1 ? "line above" : "lines above"
           } in your
-             <code>.mmd</code> file, save it, and choose it again — this page re-checks every
+             <code>.eml.yaml</code> file, save it, and choose it again — this page re-checks every
              time a model is loaded, so you can correct and re-submit until it passes. The
              command-line tool stops here too: <code>appwithai-wasm generate</code> refuses a
              model with errors unless you pass <code>--skip-check</code>.</p>`
@@ -521,8 +525,15 @@ $("generate").addEventListener("click", () => {
   // large one, and a button that never showed it was pressed reads as broken.
   requestAnimationFrame(() => {
     try {
-      const result = generateFromSource({
-        source: state.source,
+      const compiled = compileForBrowser(state.source);
+      if (!compiled.ok) {
+        const error = new Error("The model has errors.");
+        error.review = checkModel(state.source);
+        throw error;
+      }
+      const result = generateFromModel({
+        model: compiled.model,
+        modelText: state.source,
         name: $("app-name").value.trim() || "Generated App",
         adminEmail: $("admin-email").value.trim() || "admin@admin.com",
         adminPassword: $("admin-password").value || "admin",
@@ -709,62 +720,26 @@ $("download").addEventListener("click", () => {
 /* --------------------------------------------- the deployable application */
 
 /*
- * The *other* application this model produces, as one archive.
- *
  * Chapter 09 runs the browser stack — a runtime that is the same bytes for
  * every model, reading a compiled `model.json`. That is what makes it boot in a
  * tab, and it is also the thing a reader cannot deploy or open in an editor:
  * there is no controller and no service per entity to read.
  *
- * The command-line generator writes the other one: four hundred files of NestJS
- * and TanStack Start source, which is the application you would actually run.
- * Chapter 10 assembles it and boots it in a WebContainer. Here it is assembled
- * and handed over instead, which is the shorter path to the same artifact and
- * the one that survives closing the tab.
+ * The command-line generator writes the other one: the Loco.rs (Rust) backend
+ * crate, the TanStack Start + Astryx front end and their test suites — the
+ * application you would actually run. Here it is written in the tab by that same
+ * pipeline (`appwithai-loco.js` is `generateApplication` over an in-memory
+ * filesystem), so the archive is what `appwithai generate --skip-cli-scaffold`
+ * writes for this model, file for file.
  *
- * Both halves are lazy on purpose. `appwithai-fullstack.js` is three quarters
- * of a megabyte and the stack templates are close to two, and a reader who came
- * to look at the browser application should not pay for either.
+ * Both halves are lazy on purpose. The generator is close to a megabyte and its
+ * templates three and a half, and a reader who came to look at the browser
+ * application should not pay for either.
  */
-const STACK_TEMPLATES_URL = new URL("../vendor/stack-templates.json", import.meta.url).href;
-const FONTS_BASE = new URL("../vendor/app-fonts/", import.meta.url).href;
-const FONTS_DIR = "frontend/public/fonts";
-const FONTS = [
-  "inter-400-latin.woff2",
-  "inter-500-latin.woff2",
-  "inter-600-latin.woff2",
-  "inter-700-latin.woff2",
-  "jetbrains-mono-400-latin.woff2",
-  "jetbrains-mono-600-latin.woff2",
-  "newsreader-400-latin.woff2",
-  "newsreader-400-italic-latin.woff2",
-  "newsreader-600-latin.woff2",
-];
+const LOCO_ASSETS_URL = new URL("../vendor/loco-assets.json", import.meta.url).href;
 
 /** Loaded once per page, because both are large and neither changes. */
-const stackCache = { module: null, templates: null };
-
-/**
- * The nine typefaces `stack-templates.json` cannot carry.
- *
- * The bundle is JSON and they are binary, so they travel beside it and are put
- * back here. A font that will not fetch is not worth failing a download for —
- * the application still builds and runs, it just falls back to a system face.
- */
-async function withFonts(files) {
-  const loaded = await Promise.all(
-    FONTS.map(async (name) => {
-      try {
-        const response = await fetch(FONTS_BASE + name);
-        if (!response.ok) return null;
-        return [`${FONTS_DIR}/${name}`, new Uint8Array(await response.arrayBuffer())];
-      } catch {
-        return null;
-      }
-    })
-  );
-  return Object.fromEntries(loaded.filter(Boolean));
-}
+const stackCache = { module: null, assets: null };
 
 $("download-stack").addEventListener("click", async () => {
   if (!state.source) return;
@@ -785,36 +760,31 @@ $("download-stack").addEventListener("click", async () => {
   try {
     if (!stackCache.module) {
       button.innerHTML = '<span class="working"></span>Fetching the generator';
-      stackCache.module = await import("./appwithai-fullstack.js");
+      stackCache.module = await import("./appwithai-loco.js");
     }
-    if (!stackCache.templates) {
-      button.innerHTML = '<span class="working"></span>Fetching the stack templates';
-      stackCache.templates = await stackCache.module.loadTemplates(STACK_TEMPLATES_URL);
+    if (!stackCache.assets) {
+      button.innerHTML = '<span class="working"></span>Fetching the templates';
+      const response = await fetch(LOCO_ASSETS_URL);
+      if (!response.ok) throw new Error(`The templates did not download (HTTP ${response.status}).`);
+      stackCache.assets = await response.json();
     }
 
     button.innerHTML = '<span class="working"></span>Writing the application source';
-    const result = await stackCache.module.generateFullStack({
-      source: state.source,
-      templates: stackCache.templates,
-      name: $("app-name").value.trim() || "Generated App",
-      description: "Generated by APPWITHAI",
-      /* Chapter 10 wants the WASM overlay — a WebContainer has no database
-         server and no bun. This is the other case: the reader unzips this and
-         runs `docker compose up --build`, which starts a real PostgreSQL. With
-         the overlay on, the backend would carry `"pg": "file:./pg-wasm"` and a
-         DATABASE_URL of `./pgdata`, open a PGlite directory, and never speak to
-         the database its own compose file just brought up. Off, this is what
-         `appwithai generate` writes. */
-      overlay: false,
+    const compiled = compileForBrowser(state.source);
+    if (!compiled.ok || !compiled.document) throw new Error("The model has errors; check it in step 1.");
+    const { files, executables } = await stackCache.module.generateLocoApplication({
+      document: compiled.document,
+      modelText: state.source,
+      name,
+      assets: stackCache.assets,
     });
 
     button.innerHTML = '<span class="working"></span>Packing the archive';
     /* Prefixed with the project name so unzipping into a downloads folder
-       produces one directory rather than four hundred loose files. */
-    const fonts = await withFonts(result.files);
-    const tree = { ...result.files, ...fonts };
+       produces one directory rather than five hundred loose files. */
     const zip = await createZip(
-      Object.fromEntries(Object.entries(tree).map(([path, body]) => [`${name}/${path}`, body]))
+      Object.fromEntries([...files].map(([path, body]) => [`${name}/${path}`, body])),
+      { executable: new Set([...executables].map((path) => `${name}/${path}`)) }
     );
 
     const url = URL.createObjectURL(zip);
@@ -826,22 +796,25 @@ $("download-stack").addEventListener("click", async () => {
 
     window.awTrack?.("stack_downloaded", {
       model_name: state.label,
-      file_count: Object.keys(tree).length,
+      file_count: files.size,
       bytes: zip.size,
       assemble_time_ms: Math.round(performance.now() - assemblingSince),
     });
 
     $("download-stack-hint").innerHTML =
-      `<b>${Object.keys(tree).length} files</b>, ${(zip.size / 1024 / 1024).toFixed(1)}MB. ` +
-      `Unzip it and run <code>docker compose up --build</code> in <code>${escapeHtml(name)}/</code> — ` +
-      `PostgreSQL, the NestJS API and the TanStack Start front end come up together, and the ` +
-      `application is on <code>http://localhost:4000</code>. Sign in with any of the accounts the ` +
-      `seed prints; they are the same roles this page just showed you.`;
+      `<b>${files.size} files</b>, ${(zip.size / 1024 / 1024).toFixed(1)}MB — the Loco.rs API, the ` +
+      `TanStack Start front end and their test suites. Unzip it, set <code>DB_PASSWORD</code>, ` +
+      `<code>JWT_SECRET</code> and <code>ADMIN_PASSWORD</code>, and in <code>${escapeHtml(name)}/</code> run ` +
+      `<code>docker compose build</code>, <code>docker compose run --rm backend db migrate</code>, ` +
+      `<code>docker compose run --rm backend db seed</code> and <code>docker compose up</code>. ` +
+      `The API is on <code>http://localhost:3000</code> and the application on ` +
+      `<code>http://localhost:3001</code>; <a href="run-real-stack.html">chapter 10</a> has the ` +
+      `steps, and how to run it without Docker.`;
     $("download-stack-hint").classList.add("hint--done");
   } catch (error) {
     /* A checker failure here would already have stopped step 2, so anything
-       reaching this is the assembly itself — usually a template bundle that did
-       not download. Say which, rather than "failed". */
+       reaching this is the assembly itself — usually templates that did not
+       download. Say which, rather than "failed". */
     window.awTrack?.("stack_download_failed", {
       model_name: state.label,
       message: String(error.message ?? "").slice(0, 200),

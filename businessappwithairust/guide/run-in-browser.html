@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Generate a complete business application from a Mermaid model and run it inside this browser tab — PostgreSQL compiled to WebAssembly, the generated application server on a worker thread, and no server anywhere.">
-  <meta name="keywords" content="AppWithAI, CRM generator, EML, Mermaid model, ERD, business rules, GoRules, BPMN workflow, saga, NestJS, TanStack Start, PostgreSQL, code generation, low-code CRM, WebAssembly, PGlite, browser demo">
+  <meta name="keywords" content="AppWithAI, CRM generator, EML, YAML model, ERD, business rules, GoRules, BPMN workflow, saga, Loco.rs, Rust, TanStack Start, PostgreSQL, code generation, low-code CRM, WebAssembly, PGlite, browser demo">
   <title>09 · Run it in your browser — Build a CRM with AppWithAI</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.ico" sizes="48x48">
@@ -86,7 +86,7 @@
             This chapter generates and runs an application without a server. Everything on it
             happens in your browser.
             <br><br>
-            Model file: <code>language/examples/crm.eml.mmd</code>
+            Model file: <code>guide/models/crm.eml.yaml</code>
           </div>
         </div>
       </details>
@@ -239,7 +239,7 @@
              which meant the control a reader arriving with their own model came
              here to use was a second thing to find. -->
         <label class="choice choice--upload" id="choice-upload" role="button" aria-pressed="false">
-          <input type="file" id="file" accept=".mmd,.md,.txt,text/plain">
+          <input type="file" id="file" accept=".yaml,.yml,text/yaml,application/yaml,text/plain">
           <span class="choice__name">Upload your own</span>
           <span class="choice__desc">
             Any EML or Mermaid ER document. It is read in this tab and never uploaded anywhere.
@@ -306,15 +306,14 @@
       <p class="hint" id="download-stack-hint">
         <b>Two different applications, from the one model.</b> <i>Download as files</i> writes out the
         browser application above &mdash; the one running in the frame, no install and no build.
-        <i>Download the deployable app</i> assembles the other one: the real NestJS and TanStack Start
-        source the command-line generator writes, about four hundred and fifty files, with a
-        <code>docker-compose.yml</code> beside them. Unzip it and
-        <code>docker compose up --build</code> brings up PostgreSQL, the API, the web front end
-        &mdash; <b>and the Enterprise Reporting platform beside them</b>, on its own port, holding
-        this model&rsquo;s reports, charts and dashboard and one reporting role per role the model
-        declares. <code>reporting/README.md</code> in the archive names both sets of accounts.
-        It is assembled here in your browser when you press the button, which takes a few seconds and
-        fetches the stack templates from this site.
+        <i>Download the deployable app</i> writes the other one: the Loco.rs (Rust) API, the
+        TanStack Start + Astryx front end and their test suites &mdash; about five hundred files, with a
+        <code>docker-compose.yml</code> beside them. It is written here in your tab by the same
+        pipeline the <code>appwithai</code> command line runs, file for file, when you press the
+        button; the generator and its templates are fetched from this site the first time.
+        <a href="run-real-stack.html">Chapter 10</a> runs it. To run it with the Enterprise
+        Reporting platform beside it, the <code>app-and-report-with-ai-rust</code> orchestrator&rsquo;s
+        <code>start.sh</code> generates the same application and brings both up.
       </p>
 
       <div class="result" id="result"></div>
@@ -474,8 +473,9 @@ bun run wasm serve ./crm</code></pre>
 <p>
   When the data needs to live somewhere other than the reader's machine — or when a developer needs a
   controller to open and edit — the same model goes through the
-  <a href="04-generate.html">full NestJS and TanStack Start pipeline</a>, the one the rest of this guide
-  is about, and comes out as an API and a front end that a team can deploy.
+  <a href="04-generate.html">full Loco.rs and TanStack Start pipeline</a>, the one the rest of this guide
+  is about, and comes out as an API and a front end that a team can deploy &mdash;
+  <a href="run-real-stack.html">chapter 10</a> runs it.
 </p>
 
 <nav class="pager">

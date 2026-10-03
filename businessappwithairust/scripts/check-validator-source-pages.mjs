@@ -12,8 +12,8 @@
  * checker and audit in a directory holding nothing else.
  *
  * The last step is the one that matters. The point of those pages is that
- * somebody with a page-only fetcher ends up with a working checker — not with
- * four files that merely have the right length.
+ * somebody with a page-only fetcher ends up with a working validator — not with
+ * three files that merely have the right length.
  *
  *   node scripts/check-validator-source-pages.mjs
  */
@@ -25,7 +25,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const FILES = ["checker.js", "fixer.js", "check-model.mjs", "audit-model.mjs"];
+const FILES = ["model-yaml.js", "check-model.mjs", "audit-model.mjs"];
 
 let failed = 0;
 const held = (cond, label) => {
@@ -54,12 +54,11 @@ for (const name of FILES) {
   writeFileSync(join(work, name), raw);
 }
 
-/* And the reconstructed set has to work. `fixer.js` imports `checker.js` from
-   beside itself, and `--base ./` is what the pages tell a reader to pass, so
-   this runs exactly the documented command. */
-copyFileSync(join(root, "guide", "models", "crm.eml.mmd"), join(work, "model.mmd"));
+/* And the reconstructed set has to work. `--base ./` is what the pages tell a
+   reader to pass, so this runs exactly the documented command. */
+copyFileSync(join(root, "guide", "models", "crm.eml.yaml"), join(work, "crm.eml.yaml"));
 for (const runner of ["check-model.mjs", "audit-model.mjs"]) {
-  const run = spawnSync(process.execPath, [runner, "model.mmd", "--base", "./", "--quiet"], {
+  const run = spawnSync(process.execPath, [runner, "crm.eml.yaml", "--base", "./", "--quiet"], {
     cwd: work,
     encoding: "utf8",
   });
@@ -67,7 +66,7 @@ for (const runner of ["check-model.mjs", "audit-model.mjs"]) {
 }
 
 /* The index has to name every page, or a reader lands somewhere that offers
-   three of the four files it needs. */
+   two of the three files it needs. */
 const index = readFileSync(join(root, "guide", "source", "index.html"), "utf8");
 for (const name of FILES)
   held(index.includes(`${name}.html`), `index.html links ${name}.html`);

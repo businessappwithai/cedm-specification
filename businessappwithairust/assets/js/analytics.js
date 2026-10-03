@@ -98,12 +98,12 @@
    * Session replay is deliberately not on every page.
    *
    * The free allowance is five thousand recordings a month, and the home page
-   * would spend it on people who bounced. These four are the pages where
+   * would spend it on people who bounced. These three are the pages where
    * something happens that a recording explains — a reader stuck at the
    * dropzone, or watching a checker report they do not understand, is exactly
    * what this is for. Widening the list means budgeting for it.
    */
-  const REPLAY_SURFACES = ["try-it-yourself", "demo", "checker", "real-stack"];
+  const REPLAY_SURFACES = ["try-it-yourself", "demo", "checker"];
 
   /* ---------------------------------------------------------------- opt-out */
 

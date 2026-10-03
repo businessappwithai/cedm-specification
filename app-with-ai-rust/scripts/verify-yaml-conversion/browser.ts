@@ -1,12 +1,12 @@
 /**
  * E5 — the published sites' browser generators and model viewers.
  *
- * Each site vendors two generators, `appwithai-wasm.js` (an application that
- * runs in the tab) and `appwithai-fullstack.js` (the deployable source). Both
- * used to compile a model from the old text format; the converted copies take
- * a model compiled from YAML by `appwithai-model.js`
- * (`language/browser/browser-generator.entry.ts`). Per site and per published
- * model:
+ * Each site vendors `appwithai-wasm.js`, the generator of the application that
+ * runs in the tab. It used to compile a model from the old text format; the
+ * converted copy takes a model compiled from YAML by `appwithai-model.js`
+ * (`language/browser/browser-generator.entry.ts`). The website also carries
+ * `appwithai-loco.js`, the deployable Loco + Astryx application its download
+ * button writes. Per site and per published model:
  *
  * 1. **The compiled model.** What `compileForBrowser` builds from the YAML
  *    equals, byte for byte and key order included, what the original bundle
@@ -15,8 +15,9 @@
  *    converted `generateFromModel` write the same files with the same contents,
  *    apart from the model file itself, the text the patch changes (each pair in
  *    `REPLACEMENTS`, applied to the original's output first), and timestamps.
- * 3. **The deployable application**, likewise, from `generateFullStack` and
- *    `generateFullStackFromModel`.
+ * 3. **The deployable application** (the website): the download writes exactly
+ *    what `appwithai generate --skip-cli-scaffold` writes for the same model
+ *    (`loco-equivalence.ts`).
  * 4. **What the viewers draw** (the website carries the viewers' original
  *    reader): `readModelForViewer` equals the original reader's model apart
  *    from the three differences `viewerDifferenceAccepted` names.
@@ -25,12 +26,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { compileForBrowser, readModelForViewer } from "../../language/browser/browser-generator.entry";
 import { REPLACEMENTS } from "../sites/patch-vendored-generators";
+import { compareLocoWithCli, LOCO_ASSETS, LOCO_BUNDLE } from "./loco-equivalence";
 import { type Check, ROOT, differences } from "./lib";
 
 interface Site {
   name: string;
   wasm: string;
-  fullstack: string;
+  /** The site ships the deployable application's generator. */
+  loco?: boolean;
   models: string;
   published: string[];
   viewer?: string;
@@ -40,7 +43,7 @@ const SITES: Site[] = [
   {
     name: "businessappwithairust",
     wasm: "assets/js/appwithai-wasm.js",
-    fullstack: "assets/js/appwithai-fullstack.js",
+    loco: true,
     models: "guide/models",
     published: [
       "crm",
@@ -55,14 +58,11 @@ const SITES: Site[] = [
   {
     name: "app-and-report-with-ai-rust",
     wasm: "common/html/assets/appwithai-wasm.js",
-    fullstack: "common/html/assets/appwithai-fullstack.js",
     models: "common/html/models",
     published: ["crm", "drug-discovery", "investment-planning-wealth-management-system"],
   },
 ];
 
-/** The stack templates chapter 10 loads; the website is the only site that ships them. */
-const TEMPLATES = join(ROOT, "businessappwithairust/assets/vendor/stack-templates.json");
 
 const OPTIONS = {
   name: "Verification App",
@@ -86,19 +86,6 @@ function quietly<T>(run: () => T): T {
   }
 }
 
-async function quietlyAsync<T>(run: () => Promise<T>): Promise<T> {
-  const warn = console.warn;
-  const log = console.log;
-  console.warn = () => {};
-  console.log = () => {};
-  try {
-    return await run();
-  } finally {
-    console.warn = warn;
-    console.log = log;
-  }
-}
-
 /**
  * The original side's file, taken through exactly the patch's text changes as
  * they read in generated output: a template literal renders `\\`` as a backtick.
@@ -111,7 +98,7 @@ function asPatched(text: string): string {
   }
   // The reporting pack's default model file name, and the manifest's input.
   return out
-    .replace(/("model": "[\w-]+)\.eml\.mmd"/g, '$1.eml.yaml"')
+    .replace(/("model": ?"[\w-]+)\.eml\.mmd"/g, '$1.eml.yaml"')
     .replace(/"model\.eml\.mmd"/g, '"model.eml.yaml"');
 }
 
@@ -140,6 +127,38 @@ function viewerDifferenceAccepted(line: string): boolean {
   );
 }
 
+/** The bundle's own FNV-1a fingerprint, as `buildModelBundle` computes it. */
+function fingerprint(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index++) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash.toString(36).padStart(7, "0").slice(0, 7);
+}
+
+/**
+ * `project.dataKey` names the tab's IndexedDB database, and is the project slug
+ * plus a fingerprint of the business schema and the entity names, so that a
+ * changed schema opens a fresh database. The schema's own comments are part of
+ * what is fingerprinted, so the rewording that `asPatched` names moves the key.
+ * The key is therefore checked against the run that produced it — each side's
+ * must be the fingerprint of the `schema.bus.sql` that side wrote — and only
+ * then set aside. A key that is not its own run's derivation is a failure.
+ */
+function withDerivedDataKey(files: Record<string, string>, failures: string[], side: string): string | undefined {
+  const text = files["app/model.json"];
+  const schema = files["app/schema.bus.sql"];
+  if (text === undefined || schema === undefined) return text;
+  const model = JSON.parse(text) as { project: { slug: string; dataKey: string }; entities: Array<{ name: string }> };
+  const expected = `${model.project.slug}-${fingerprint(schema + model.entities.map((e) => e.name).join(","))}`;
+  if (model.project.dataKey !== expected) {
+    failures.push(`app/model.json: the ${side} run's dataKey is not derived from its own schema`);
+    return text;
+  }
+  return text.replace(/("dataKey":\s*)"[^"]+"/, '$1"<derived>"');
+}
+
 /** Two generated file maps, compared with the named differences only. */
 function compareFiles(
   before: Record<string, string>,
@@ -161,9 +180,13 @@ function compareFiles(
     failures.push("the original run shipped a different model text");
   if (shipped(before, "mmd") !== undefined && shipped(after, "yaml") !== yaml)
     failures.push("the converted run did not ship its model text");
+  const derived = {
+    before: withDerivedDataKey(before, failures, "original"),
+    after: withDerivedDataKey(after, failures, "converted"),
+  };
   for (const file of names) {
-    const a = before[file];
-    const b = after[file];
+    const a = file === "app/model.json" ? derived.before : before[file];
+    const b = file === "app/model.json" ? derived.after : after[file];
     if (a === undefined || b === undefined) {
       failures.push(`${file}: only in the ${a === undefined ? "converted" : "original"} run`);
       continue;
@@ -180,12 +203,9 @@ function compareFiles(
 
 export async function verifyBrowser(mermaidRoot: string, sites: string[]): Promise<Check[]> {
   const checks: Check[] = [];
-  const templates = existsSync(TEMPLATES) ? JSON.parse(readFileSync(TEMPLATES, "utf8")) : undefined;
   for (const site of SITES.filter((s) => sites.includes(s.name))) {
     const original = await import(join(mermaidRoot, site.name, site.wasm));
     const converted = await import(join(ROOT, site.name, site.wasm));
-    const originalStack = await import(join(mermaidRoot, site.name, site.fullstack));
-    const convertedStack = await import(join(ROOT, site.name, site.fullstack));
     const viewer = site.viewer ? await import(join(mermaidRoot, site.name, site.viewer)) : undefined;
 
     for (const name of site.published) {
@@ -225,22 +245,18 @@ export async function verifyBrowser(mermaidRoot: string, sites: string[]): Promi
       });
 
       // 3. The deployable application.
-      if (!templates) {
-        checks.push({ section: "browser", subject: `${subject} — deployable application`, ok: false, detail: [`${TEMPLATES} is missing`] });
-      } else {
-        const stackOptions = { name: OPTIONS.name, templates, overlay: false };
-        const stackBefore = await quietlyAsync(() => originalStack.generateFullStack({ ...stackOptions, source: mermaid }));
-        const stackAfter = await quietlyAsync(() =>
-          convertedStack.generateFullStackFromModel({ ...stackOptions, model: compiled.model, modelText: yaml })
-        );
-        const stack = compareFiles(stackBefore.files, stackAfter.files, mermaid, yaml);
+      if (site.loco) {
+        const modelPath = join(ROOT, site.name, site.models, `${name}.eml.yaml`);
+        const loco = existsSync(LOCO_BUNDLE)
+          ? await compareLocoWithCli(LOCO_BUNDLE, LOCO_ASSETS, modelPath, name)
+          : { failures: [`${LOCO_BUNDLE} is missing`], identical: 0, total: 0 };
         checks.push({
           section: "browser",
           subject: `${subject} — deployable application`,
-          ok: stack.failures.length === 0,
-          detail: stack.failures.length
-            ? stack.failures.slice(0, 30)
-            : [`${stack.identical} file(s) byte-identical, ${stack.explained} identical after the named text changes and timestamps`],
+          ok: loco.failures.length === 0,
+          detail: loco.failures.length
+            ? loco.failures.slice(0, 30)
+            : [`${loco.identical} of ${loco.total} file(s) identical to appwithai generate's, executables included`],
         });
       }
 

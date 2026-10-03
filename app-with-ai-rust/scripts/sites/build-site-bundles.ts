@@ -17,6 +17,11 @@
  * | `appwithai-model.js` | `browser-generator.entry.ts` | read, validate and compile a model for the in-browser generator the site vendors (`appwithai-wasm.js`) — see that entry's comment |
  * | `viewers/appwithai-model.js` | `browser-generator.entry.ts` | the same module beside the model viewers, which read a model with `inspectModel` and print a report with `formatReport` |
  *
+ * The website also gets the Loco + Astryx application generator its download
+ * button runs (`loco-generator.ts`): `assets/js/appwithai-loco.js`, the real
+ * pipeline over an in-memory filesystem, and `assets/vendor/loco-assets.json`,
+ * the templates, language definition and CEDM specification it mounts.
+ *
  * Nothing here re-implements a rule. A model that passes in a browser passes in
  * the terminal, because it is the same code.
  */
@@ -24,6 +29,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { bundleForBrowser, bundlerEnvNotice } from "./browser-bundle";
+import { buildLocoAssets, bundleLocoGenerator } from "./loco-generator";
 
 // Pinned to the repository root: Bun labels each bundled module with its path
 // relative to the cwd, so a build from anywhere else produces a different file.
@@ -163,6 +169,31 @@ for (const bundle of selected) {
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, output, "utf-8");
     console.log(`✓ ${relative(SITES_ROOT, target)} (${(output.length / 1024).toFixed(0)}KB)`);
+  }
+}
+
+/** The website's Loco generator and its assets: built here, compared like the rest. */
+if (!only || only === "website") {
+  const loco: Array<[string, () => Promise<string> | string]> = [
+    [`${WEBSITE}/assets/js/appwithai-loco.js`, bundleLocoGenerator],
+    [`${WEBSITE}/assets/vendor/loco-assets.json`, buildLocoAssets],
+  ];
+  for (const [file, build] of loco) {
+    const output = await build();
+    const target = join(SITES_ROOT, file);
+    if (check) {
+      const existing = await readFile(target, "utf-8").catch(() => "");
+      if (existing !== output) {
+        console.error(`${file} is out of date.\nRun: bun scripts/sites/build-site-bundles.ts`);
+        stale = true;
+      } else {
+        console.log(`✓ ${file} is up to date`);
+      }
+    } else {
+      await mkdir(dirname(target), { recursive: true });
+      await writeFile(target, output, "utf-8");
+      console.log(`✓ ${file} (${(output.length / 1024).toFixed(0)}KB)`);
+    }
   }
 }
 

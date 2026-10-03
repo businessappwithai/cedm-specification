@@ -1,7 +1,7 @@
 # The generated application and the reporting platform, on one origin — with a
 # server side that is Rust throughout.
 #
-#   http://localhost/app      the application generated from an EML model:
+#   http://localhost/app      the application generated from a model (*.eml.yaml):
 #                             a Loco.rs backend (app-backend) behind a TanStack
 #                             Start front end (app-frontend)
 #   http://localhost/report   the reporting platform: its Loco.rs backend
@@ -16,9 +16,9 @@
 # ── Where the server side lives ─────────────────────────────────────────────
 #
 # Every API request, workflow, scheduled job and seed is served by a Rust
-# binary: the generated application's `<app>-cli` (Loco, from app-with-ai-rust's
+# binary: the generated application's `<app>-cli` (Loco, from this repository's
 # generator) and the platform's `ers-backend-cli` (Loco, from
-# enterprise_reporting_rust/rust). The two TanStack Start services render pages
+# ../enterprise-reporting-rust/rust). The two TanStack Start services render pages
 # and nothing else: nginx sends `/app/api/` straight to the application's Loco
 # backend, and the reporting front end forwards every route in its
 # rust/routes.json to its own (ERS_RUST_API_URL), starting no workers, no cron
@@ -181,7 +181,7 @@ services:
       # set and may be believed — without it every client shares one
       # rate-limit bucket.
       TRUST_PROXY: "true"
-      # The administrator and the one account per %%rbac role that `db seed`
+      # The administrator and the one account per access-rule role that `db seed`
       # creates. The front door lists these, from the reporting pack.
       ADMIN_EMAIL: admin@admin.com
       ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-admin}
@@ -233,14 +233,14 @@ services:
 
   # ── The reporting platform: Loco.rs backend ───────────────────────────────
   #
-  # enterprise_reporting_rust/rust — every route in its rust/routes.json, the
+  # ../enterprise-reporting-rust/rust — every route in its rust/routes.json, the
   # job workers and the cron scheduler, in one process. Exactly one of these
   # per installation, or monitoring rules fire twice. It creates the
   # administrator and NL-query accounts itself on boot.
   report-backend:
     image: app-and-report/report-backend:local
     build:
-      context: ./enterprise_reporting_rust/rust
+      context: ../enterprise-reporting-rust/rust
     restart: unless-stopped
     environment: &report-backend-env
       DATABASE_URL: *report-db-url
@@ -268,8 +268,8 @@ services:
   # ── The reporting platform: TanStack Start front end ─────────────────────
   report:
     build:
-      context: ./enterprise_reporting_rust
-      dockerfile: ../common/docker/reporting.Dockerfile
+      context: ../enterprise-reporting-rust
+      dockerfile: ../app-and-report-with-ai-rust/common/docker/reporting.Dockerfile
       # The overlay lives in common/, which is not the build context. Naming it
       # as an extra context keeps the context itself small.
       additional_contexts:
@@ -310,7 +310,7 @@ services:
   seeder:
     image: app-and-report/report-backend:local
     build:
-      context: ./enterprise_reporting_rust/rust
+      context: ../enterprise-reporting-rust/rust
     restart: "no"
     command: ["ers-backend-cli", "task", "seed_reporting_pack"]
     environment:

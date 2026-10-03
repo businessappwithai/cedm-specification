@@ -13,7 +13,7 @@
  *   there is no deflate implementation here. Where it is missing the entry is
  *   stored uncompressed (method 0) instead — a bigger file that every unzipper
  *   still opens, which is a far better failure than none.
- * - **No ZIP64, deliberately.** A generated application is four hundred small
+ * - **No ZIP64, deliberately.** A generated application is five hundred small
  *   text files and nine fonts; the 4GB and 65535-entry ceilings are three
  *   orders of magnitude away. Writing ZIP64 for a case that cannot arise would
  *   be more code to be wrong in.
@@ -99,11 +99,14 @@ class Writer {
  * Build a ZIP from `{ path: contents }`.
  *
  * `contents` may be a string, a `Uint8Array` or an `ArrayBuffer` — the file map
- * a generator returns is text, and the fonts restored beside it are not.
+ * a generator returns is mostly text, and the fonts it ships are not.
+ * `options.executable` names the paths to mark 0755, so a script the generator
+ * made executable is still executable once unzipped.
  * Returns a `Blob`, because every caller is about to hand it to a download.
  */
 export async function createZip(files, options = {}) {
   const stamp = dosStamp(options.date instanceof Date ? options.date : new Date());
+  const executable = options.executable instanceof Set ? options.executable : new Set();
   const entries = [];
 
   for (const [path, contents] of Object.entries(files)) {
@@ -116,6 +119,7 @@ export async function createZip(files, options = {}) {
       size: raw.length,
       body: packed ?? raw,
       method: packed ? 8 : 0,
+      mode: executable.has(path) ? 0o100755 : 0o100644,
     });
   }
 
@@ -149,7 +153,9 @@ export async function createZip(files, options = {}) {
   const directoryAt = out.at;
   for (const entry of entries) {
     out.u32(0x02014b50);
-    out.u16(20); // version made by
+    // Version 2.0, made by Unix (3): the host byte is what tells an extractor
+    // to read the external attributes as a Unix mode.
+    out.u16(0x0314); // version made by
     out.u16(20); // version needed
     out.u16(0x0800);
     out.u16(entry.method);
@@ -163,9 +169,9 @@ export async function createZip(files, options = {}) {
     out.u16(0); // comment
     out.u16(0); // disk
     out.u16(0); // internal attributes
-    // 0644, as a regular file, in the high half — what unzip reads to set the
-    // mode. Without it some extractors create files nobody can read.
-    out.u32((0o100644 << 16) >>> 0);
+    // The Unix mode, as a regular file, in the high half — what unzip reads to
+    // set it. Without it some extractors create files nobody can read.
+    out.u32((entry.mode << 16) >>> 0);
     out.u32(entry.offset);
     out.raw(entry.name);
   }

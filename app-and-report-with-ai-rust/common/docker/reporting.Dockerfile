@@ -8,13 +8,13 @@
 # why all three are needed and why the proxy in front does not strip the prefix.
 #
 # This image serves pages. The platform's API, workers, scheduler and seeder are
-# the Rust backend (`enterprise_reporting_rust/rust`, the `report-backend` and
+# the Rust backend (`yaml/enterprise_reporting_rust/rust`, the `report-backend` and
 # `seeder` services), which this server forwards to through ERS_RUST_API_URL.
 # It used to carry the whole of `src/` into the runtime stage so a Bun seeder
 # could import through `@/`; the seeder is a Rust task now, so it does not.
 #
 # The overlay writes into the build container's copy. Nothing under
-# enterprise_reporting_rust/ is modified.
+# yaml/enterprise_reporting_rust/ is modified.
 
 # syntax=docker/dockerfile:1.7
 FROM oven/bun:1.3 AS builder
@@ -22,8 +22,8 @@ FROM oven/bun:1.3 AS builder
 WORKDIR /app
 
 COPY . .
-# Frozen: the lockfile at the pinned enterprise_reporting_rust commit agrees
-# with its manifest. (The TanStack repository's did not — it still carried
+# Frozen: the platform's lockfile (yaml/enterprise_reporting_rust/bun.lock)
+# agrees with its manifest. (The TanStack repository's did not — it still carried
 # `falkordb` — and this line was a plain `bun install` for that reason.)
 RUN bun install --frozen-lockfile && bun pm cache rm
 

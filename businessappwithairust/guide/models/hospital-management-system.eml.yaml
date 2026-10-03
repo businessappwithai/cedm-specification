@@ -1,0 +1,4123 @@
+eml: "1.0"
+name: Hospital Management System
+version: 1.0.0
+description: "A hospital information system covering the whole of a patient's contact with the hospital. It holds the master patient record and the insurance policies attached to it; departments, wards and beds; the staff who work in them, and the doctors and nurses among them. Around those sits the clinical record: appointments that become encounters, and encounters that carry clinical notes, vital signs, diagnoses and procedures. Orders flow out of an encounter — prescriptions and their items, lab orders and their results, imaging orders and the radiologist's report — and each has a lifecycle of its own that the application enforces rather than describes. An admission takes a bed out of the pool and gives it back on discharge. Billing turns what was done into invoice lines priced from a chargeable-item catalogue, applies the insurance policy, and settles the balance against payments. Pharmacy and consumable stock is tracked through inventory items, suppliers and stock transactions, and an item that falls to its reorder level raises a replenishment of its own."
+enums:
+  - name: NoteType
+    values: [admission, progress, ward_round, nursing, discharge, addendum]
+  - name: DiagnosisType
+    values: [primary, secondary, provisional, differential, complication]
+  - name: ProcedureStatus
+    values: [planned, consented, in_progress, completed, abandoned, cancelled]
+  - name: AnaestheticType
+    values: [none, local, regional, sedation, general]
+  - name: ConsentType
+    values: [written, verbal, implied, electronic]
+  - name: ConsentGiver
+    values: [patient, next_of_kin, legal_guardian, court_order]
+  - name: SpecimenType
+    values: [blood, urine, stool, sputum, swab, tissue, csf]
+  - name: OrderPriority
+    values: [routine, urgent, stat]
+  - name: LabOrderStatus
+    values: [requested, collected, in_lab, resulted, cancelled]
+  - name: AbnormalFlag
+    values: [normal, low, high, critical_low, critical_high]
+  - name: ImagingModality
+    values: [x_ray, ct, mri, ultrasound, mammography, fluoroscopy, nuclear_medicine]
+  - name: ImagingOrderStatus
+    values: [requested, scheduled, performed, reported, cancelled]
+  - name: MedicationForm
+    values: [tablet, capsule, liquid, injection, infusion, cream, inhaler, patch, drops, suppository]
+  - name: MedicationRoute
+    values: [oral, intravenous, intramuscular, subcutaneous, topical, inhaled, rectal, ophthalmic]
+  - name: PrescriptionStatus
+    values: [draft, prescribed, verified, dispensed, collected, cancelled]
+  - name: ChargeCategory
+    values: [consultation, procedure, bed_night, laboratory, imaging, medication, consumable, other]
+  - name: InvoiceStatus
+    values: [draft, issued, submitted, rejected, part_paid, paid, overdue, written_off, cancelled]
+  - name: PayerType
+    values: [insurer, patient, third_party]
+  - name: PaymentMethod
+    values: [cash, card, bank_transfer, cheque, insurer_settlement]
+  - name: StockCategory
+    values: [drug, consumable, ppe, surgical, reagent, linen, other]
+  - name: StockTransactionType
+    values: [receipt, issue, correction, return, disposal]
+  - name: AppointmentType
+    values: [new_patient, follow_up, procedure, review, telemedicine]
+  - name: AppointmentStatus
+    values: [requested, confirmed, checked_in, completed, cancelled, no_show]
+  - name: EncounterType
+    values: [outpatient, inpatient, emergency, telemedicine]
+  - name: EncounterStatus
+    values: [open, in_progress, closed, cancelled]
+  - name: AdmissionType
+    values: [elective, emergency, transfer_in, day_case]
+  - name: AdmissionStatus
+    values: [admitted, on_ward, discharge_planned, discharged, cancelled]
+  - name: Gender
+    values: [female, male, other, prefer_not_to_say]
+  - name: BloodGroup
+    values: [a_pos, a_neg, b_pos, b_neg, ab_pos, ab_neg, o_pos, o_neg]
+  - name: PolicyType
+    values: [individual, family, corporate, government]
+  - name: PolicyStatus
+    values: [active, expired, cancelled, suspended]
+  - name: DoctorSpecialty
+    values: [general_medicine, cardiology, surgery, paediatrics, obstetrics, radiology, pathology, anaesthetics, psychiatry, geriatrics]
+  - name: NurseGrade
+    values: [student, staff_nurse, senior_staff_nurse, charge_nurse, matron]
+  - name: ShiftPattern
+    values: [days, nights, rotating, bank]
+  - name: StaffRole
+    values: [receptionist, doctor, nurse, lab_technician, radiologist, pharmacist, ward_manager, billing_clerk, inventory_manager, hospital_manager]
+  - name: BedType
+    values: [standard, icu, hdu, cot, isolation, bariatric]
+  - name: BedStatus
+    values: [available, occupied, cleaning, closed]
+  - name: WardType
+    values: [general, icu, hdu, maternity, paediatric, isolation, day_case]
+  - name: DepartmentType
+    values: [clinical, diagnostic, surgical, support, administrative]
+categories:
+  - name: Organisation
+    icon: building
+    entities: [Department, Ward, Bed, Staff, Doctor, Nurse]
+  - name: Patients
+    icon: user
+    entities: [Patient, InsurancePolicy]
+  - name: Scheduling
+    icon: calendar
+    entities: [Appointment]
+  - name: Clinical
+    icon: activity
+    entities: [Encounter, Admission, Consent]
+  - name: Diagnostics
+    icon: search
+    entities: [LabOrder, ImagingOrder]
+  - name: Pharmacy
+    icon: package
+    entities: [Medication, Prescription]
+  - name: Billing
+    icon: credit-card
+    entities: [ChargeableItem, Invoice, Payment]
+  - name: Stock
+    icon: box
+    entities: [Supplier, InventoryItem, StockTransaction]
+entities:
+  - name: Department
+    help: An organisational unit of the hospital, such as Cardiology or Radiology. It employs staff, runs wards, and is what an appointment or an encounter is booked against.
+    icon: building-2
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        unique: true
+        help: The department's name as the hospital uses it — Cardiology, Radiology, Pathology. Unique, because two departments with one name is how a patient is sent to the wrong place.
+      - name: code
+        type: string
+        unique: true
+        help: The short code that appears on forms and reports, such as CARD.
+      - name: department_type
+        type: string
+        enum: DepartmentType
+        help: What kind of unit this is. Decides whether it holds wards and beds, or only sees outpatients.
+      - name: doctor_id
+        type: string
+        fk: true
+        optional: true
+        help: The consultant who runs the department. Named plainly rather than `head_doctor_id`, because the generator resolves a reference from the column name and `head_doctor_id` resolves to nothing. Left empty while a department is between heads.
+      - name: phone_extension
+        type: string
+        optional: true
+        help: The internal number the switchboard puts calls through on.
+      - name: floor
+        type: string
+        optional: true
+        help: Which floor of the building to find it on.
+      - name: is_active
+        type: boolean
+        help: Untick when a department closes rather than deleting it — the encounters it managed must still resolve.
+    indexes:
+      - columns: [department_type, is_active]
+  - name: Ward
+    help: "A physical place holding beds, run by one department. Distinct from the department: a department may run several wards."
+    icon: bed-double
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        unique: true
+        help: What the ward is called on the signage and in conversation — Coronary Care, Ward 3B. Unique, because a patient sent to the wrong ward of the same name is a real incident.
+      - name: code
+        type: string
+        unique: true
+        help: The short code used on bed boards and transfer notes, such as CCU.
+      - name: department_id
+        type: string
+        fk: true
+        help: The department that runs this ward.
+      - name: ward_type
+        type: string
+        enum: WardType
+        help: What kind of ward it is. Decides which patients may be admitted here and what level of nursing is required.
+      - name: bed_capacity
+        type: integer
+        help: How many beds this ward is commissioned for. A gap between this and the number of bed records means beds were added or closed without the establishment being updated.
+      - name: floor
+        type: string
+        optional: true
+        help: Which floor to find it on. Used by porters moving patients.
+      - name: phone_extension
+        type: string
+        optional: true
+        help: The nurses' station number.
+      - name: is_active
+        type: boolean
+        help: Untick when a ward closes rather than deleting it — past admissions must still resolve to somewhere.
+    indexes:
+      - columns: [department_id, is_active]
+      - columns: [ward_type]
+  - name: Bed
+    help: One trackable bed in a ward, with its own type and occupancy. Managed as a pool — an admission takes one out of it and discharge gives it back.
+    icon: bed
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: bed_code
+        type: string
+        unique: true
+        help: The hospital-wide identifier, ward code and number together, such as CCU-04. Unique across the hospital, because a bed board showing two beds called 4 is a bed board nobody trusts.
+      - name: bed_number
+        type: string
+        help: The number on the bed itself, unique only within its ward.
+      - name: ward_id
+        type: string
+        fk: true
+        help: The ward this bed stands in.
+      - name: bed_type
+        type: string
+        enum: BedType
+        help: What the bed is equipped for. An admission may only take a bed whose type suits it.
+      - name: status
+        type: string
+        enum: BedStatus
+        help: Where the bed is in its cycle. Driven by the bed occupancy workflow rather than typed in.
+      - name: last_cleaned_at
+        type: datetime
+        optional: true
+        help: When housekeeping last turned it round. Empty on a bed that has never been used.
+      - name: is_active
+        type: boolean
+        help: Untick when a bed is decommissioned rather than deleting it — past admissions must still resolve to the bed they were in.
+    indexes:
+      - columns: [ward_id, status]
+      - columns: [bed_type, status]
+  - name: Staff
+    help: Anyone who works here and signs in. Deactivated when they leave rather than deleted, because the notes, orders and results they signed must still resolve years later.
+    icon: users
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: staff_number
+        type: string
+        unique: true
+        help: The payroll and badge number. Unique, and the identifier used on anything printed.
+      - name: first_name
+        type: string
+        help: Given name, as it should appear on screen and on a signed note.
+      - name: last_name
+        type: string
+        help: Family name.
+      - name: work_email
+        type: email
+        unique: true
+        help: Where work reaches them, and the address they sign in with.
+      - name: phone
+        type: phone
+        optional: true
+        help: Contact number — a bleep or a mobile.
+      - name: department_id
+        type: string
+        fk: true
+        help: The department that employs them.
+      - name: staff_role
+        type: string
+        enum: StaffRole
+        help: What this person does, which decides what the application lets them see and do. The values match the roles named in the access rules.
+      - name: job_title
+        type: string
+        optional: true
+        help: The title on their contract, finer-grained than the role — Senior Staff Nurse against a role of nurse.
+      - name: hired_on
+        type: date
+        help: When they joined.
+      - name: is_active
+        type: boolean
+        help: Untick when someone leaves rather than deleting them — every note, order and result they signed must still resolve to a person, for years.
+    indexes:
+      - columns: [department_id, is_active]
+      - columns: [staff_role]
+  - name: Doctor
+    help: The clinical extension of a staff record for someone who may lead an encounter, perform a procedure and prescribe. Carries the specialty and the registration number a nurse record does not.
+    icon: stethoscope
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: staff_id
+        type: string
+        fk: true
+        unique: true
+        help: The staff record this doctor is. Unique, because one person is one doctor.
+      - name: registration_number
+        type: string
+        unique: true
+        help: The number on the professional register they are licensed under. Unique, and the thing an audit checks.
+      - name: specialty
+        type: string
+        enum: DoctorSpecialty
+        help: The field they practise in. Decides which encounters and bookings reach them.
+      - name: qualification
+        type: string
+        optional: true
+        help: Their qualifications as they should appear on a letter — MBBS, FRCP.
+      - name: is_consultant
+        type: boolean
+        help: Whether they hold consultant responsibility. A consultant may sign off work a junior cannot.
+      - name: accepts_new_patients
+        type: boolean
+        help: Untick to keep them off the booking screen without deactivating the staff record.
+    indexes:
+      - columns: [specialty, accepts_new_patients]
+  - name: Nurse
+    help: The clinical extension of a staff record for nursing staff. Carries the grade and the home ward, which decide what a nurse may do and where they normally do it.
+    icon: heart-pulse
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: staff_id
+        type: string
+        fk: true
+        unique: true
+        help: The staff record this nurse is. Unique, because one person is one nurse.
+      - name: registration_number
+        type: string
+        unique: true
+        help: The number on the nursing register they are licensed under.
+      - name: grade
+        type: string
+        enum: NurseGrade
+        help: Their nursing grade, which decides what they may do unsupervised and what needs countersigning.
+      - name: home_ward_id
+        type: string
+        fk: true
+        optional: true
+        help: The ward they normally work on. Left empty for bank and float staff, who have none.
+      - name: shift_pattern
+        type: string
+        enum: ShiftPattern
+        help: Which shifts they normally work. Not a roster — it is what a ward manager filters on when looking for cover.
+    indexes:
+      - columns: [home_ward_id, grade]
+  - name: Patient
+    help: The master patient record, created at first contact and kept for decades. Everything clinical, and everything billable, hangs off one.
+    icon: user-round
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: medical_record_number
+        type: string
+        unique: true
+        help: The hospital's own patient identifier, on every wristband, chart and label. Generated on registration and never reused.
+      - name: national_health_number
+        type: string
+        unique: true
+        optional: true
+        help: The national identifier where the patient has one. Left empty for an emergency admission that arrives without it.
+      - name: first_name
+        type: string
+        help: Given name, as it should be spoken to them and printed.
+      - name: last_name
+        type: string
+        help: Family name.
+      - name: date_of_birth
+        type: date
+        help: Used to identify the patient alongside their name, and to decide paediatric and geriatric pathways.
+      - name: gender
+        type: string
+        enum: Gender
+        help: As the patient states it.
+      - name: blood_group
+        type: string
+        optional: true
+        enum: BloodGroup
+        help: Recorded once typed. Empty until a sample has been taken.
+      - name: phone
+        type: phone
+        optional: true
+        help: The number to reach them on.
+      - name: email
+        type: email
+        optional: true
+        help: Where appointment reminders and letters go.
+      - name: address_line
+        type: string
+        optional: true
+        help: Street address.
+      - name: city
+        type: string
+        optional: true
+        help: Town or city.
+      - name: postcode
+        type: string
+        optional: true
+        help: Postcode, which is also how catchment reporting is done.
+      - name: emergency_contact_name
+        type: string
+        optional: true
+        help: Who to call if the patient cannot speak for themselves.
+      - name: emergency_contact_phone
+        type: phone
+        optional: true
+        help: The number to call them on.
+      - name: known_allergies
+        type: text
+        optional: true
+        help: Allergies and adverse reactions, in the words they were reported in. Read before prescribing.
+      - name: registered_on
+        type: date
+        help: When this record was first created.
+      - name: is_deceased
+        type: boolean
+        help: Marks the record closed to new activity while leaving every past encounter intact. Records are closed, never deleted.
+    indexes:
+      - columns: [last_name, date_of_birth]
+      - columns: [medical_record_number]
+        unique: true
+  - name: InsurancePolicy
+    help: "The cover a patient carries: the insurer, the policy number, the dates it is valid between, and the share of a bill the patient pays themselves."
+    icon: shield-check
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: patient_id
+        type: string
+        fk: true
+        help: The patient this cover belongs to.
+      - name: insurer_name
+        type: string
+        help: The company underwriting the policy, as it should appear on a claim.
+      - name: policy_number
+        type: string
+        unique: true
+        help: The insurer's own reference. Unique, and quoted on every claim.
+      - name: policy_type
+        type: string
+        enum: PolicyType
+        help: What kind of cover this is, which decides what may be claimed under it.
+      - name: valid_from
+        type: date
+        help: The first day the cover applies.
+      - name: valid_to
+        type: date
+        help: The last day it applies. An invoice dated outside these two is not claimable.
+      - name: coverage_limit
+        type: decimal
+        help: The most the insurer will pay across the policy period, in currency.
+      - name: copay_percentage
+        type: decimal
+        help: The share of each bill the patient pays themselves, as a percentage. The billing rule computes the split from this.
+      - name: is_primary
+        type: boolean
+        help: Which policy to claim against first where a patient holds more than one. Exactly one should be ticked.
+      - name: status
+        type: string
+        enum: PolicyStatus
+        help: Whether the cover is live. Driven by the policy lifecycle rather than typed in.
+    indexes:
+      - columns: [patient_id, status]
+      - columns: [valid_to]
+  - name: Appointment
+    help: A booked future slot with a doctor. Created by reception; becomes an encounter when the patient actually arrives.
+    icon: calendar
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: appointment_number
+        type: string
+        unique: true
+        help: The reference quoted to the patient in their letter and on the phone.
+      - name: patient_id
+        type: string
+        fk: true
+        help: Who the appointment is for.
+      - name: doctor_id
+        type: string
+        fk: true
+        help: The doctor the patient is booked to see.
+      - name: department_id
+        type: string
+        fk: true
+        help: The department running the clinic.
+      - name: scheduled_at
+        type: datetime
+        help: When the patient is expected.
+      - name: duration_minutes
+        type: integer
+        help: How long the slot is, which is what the clinic template allocates.
+      - name: appointment_type
+        type: string
+        enum: AppointmentType
+        help: What kind of visit this is. Decides the slot length a clinic offers.
+      - name: status
+        type: string
+        enum: AppointmentStatus
+        help: Where the booking has got to. Driven by the appointment lifecycle rather than typed in.
+      - name: reason
+        type: text
+        optional: true
+        help: Why the patient is coming, in the referrer's or the patient's own words.
+      - name: booked_at
+        type: datetime
+        help: When the booking was made — the clock a time-to-be-seen measure runs from.
+      - name: cancellation_reason
+        type: string
+        optional: true
+        help: Why it was cancelled or missed. Empty unless it was.
+    indexes:
+      - columns: [doctor_id, scheduled_at]
+      - columns: [patient_id, status]
+  - name: Encounter
+    help: One clinical contact between a patient and a clinician — the spine of the record. Notes, observations, diagnoses, procedures and every order hang off it, and closing it is what makes it billable.
+    icon: clipboard-list
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_number
+        type: string
+        unique: true
+        help: The reference this contact is known by across the whole record.
+      - name: patient_id
+        type: string
+        fk: true
+        help: Who was seen.
+      - name: doctor_id
+        type: string
+        fk: true
+        help: The clinician who led the contact and is accountable for it.
+      - name: department_id
+        type: string
+        fk: true
+        help: The department that managed it.
+      - name: appointment_id
+        type: string
+        fk: true
+        optional: true
+        help: The appointment this came from. Empty for an unbooked contact such as a ward review or a walk-in.
+      - name: encounter_type
+        type: string
+        enum: EncounterType
+        help: Which setting the contact happened in.
+      - name: status
+        type: string
+        enum: EncounterStatus
+        help: Where the contact has got to. Closing it is what makes it billable.
+      - name: started_at
+        type: datetime
+        help: When the clinician began.
+      - name: ended_at
+        type: datetime
+        optional: true
+        help: When they finished. Empty while the encounter is open.
+      - name: chief_complaint
+        type: text
+        optional: true
+        help: What the patient came in about, in their own words.
+      - name: is_billable
+        type: boolean
+        help: Whether this contact generates an invoice. A ward review inside an admission usually does not.
+    indexes:
+      - columns: [patient_id, started_at]
+      - columns: [doctor_id, status]
+      - columns: [department_id, status]
+  - name: Admission
+    help: One inpatient stay, from taking a bed to giving it back. A transfer between wards moves the bed on this record rather than starting a new one, so one stay is always one admission.
+    icon: log-in
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: admission_number
+        type: string
+        unique: true
+        help: The reference this stay is known by.
+      - name: patient_id
+        type: string
+        fk: true
+        help: Who was admitted.
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The clinical contact that led to the admission.
+      - name: ward_id
+        type: string
+        fk: true
+        help: The ward the patient is on now. Changes when they are transferred.
+      - name: bed_id
+        type: string
+        fk: true
+        help: The bed they are in now. Changes when they are transferred.
+      - name: admission_type
+        type: string
+        enum: AdmissionType
+        help: How they came in, which drives priority and reporting.
+      - name: status
+        type: string
+        enum: AdmissionStatus
+        help: Where the stay has got to.
+      - name: admitted_at
+        type: datetime
+        help: When the bed was taken.
+      - name: expected_discharge_date
+        type: date
+        optional: true
+        help: The working estimate, used for bed planning.
+      - name: discharged_at
+        type: datetime
+        optional: true
+        help: When the bed was given back. Empty until discharge.
+      - name: discharge_summary
+        type: text
+        optional: true
+        help: What happened and what happens next. Required before the patient can be discharged.
+    indexes:
+      - columns: [ward_id, status]
+      - columns: [patient_id, admitted_at]
+      - columns: [bed_id, status]
+  - name: ClinicalNote
+    help: One written note recorded during an encounter, by the member of staff who wrote it. Read as part of the encounter it belongs to, never on its own.
+    icon: notebook-pen
+    parent: Encounter
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The contact this note belongs to.
+      - name: staff_id
+        type: string
+        fk: true
+        help: Who wrote it. Never changes — an addendum is a new note, not an edit of this one.
+      - name: note_type
+        type: string
+        enum: NoteType
+        help: What kind of note this is, which decides where it appears in the record.
+      - name: content
+        type: text
+        help: The note itself, in the author's own words.
+      - name: recorded_at
+        type: datetime
+        help: When it was written.
+      - name: is_confidential
+        type: boolean
+        help: Restricts the note to the clinical team. Used for safeguarding and mental-health entries the wider team should not see.
+    indexes:
+      - columns: [encounter_id, recorded_at]
+  - name: VitalSign
+    help: One set of observations — temperature, pulse, blood pressure, oxygen saturation — taken at one moment during an encounter.
+    icon: activity
+    parent: Encounter
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The contact these observations were taken during.
+      - name: staff_id
+        type: string
+        fk: true
+        help: Who took them.
+      - name: recorded_at
+        type: datetime
+        help: When they were taken — not when they were typed in.
+      - name: temperature_c
+        type: decimal
+        optional: true
+        help: Body temperature in degrees Celsius.
+      - name: pulse_bpm
+        type: integer
+        optional: true
+        help: Heart rate in beats per minute.
+      - name: systolic_bp
+        type: integer
+        optional: true
+        help: Systolic blood pressure in millimetres of mercury.
+      - name: diastolic_bp
+        type: integer
+        optional: true
+        help: Diastolic blood pressure in millimetres of mercury.
+      - name: respiratory_rate
+        type: integer
+        optional: true
+        help: Breaths per minute.
+      - name: oxygen_saturation
+        type: integer
+        optional: true
+        help: Peripheral oxygen saturation as a percentage.
+      - name: early_warning_score
+        type: integer
+        optional: true
+        help: The aggregate score these observations produce. Above the escalation threshold it means call someone.
+    indexes:
+      - columns: [encounter_id, recorded_at]
+  - name: Diagnosis
+    help: A conclusion recorded against an encounter, with its coding and whether it is the primary reason for the contact.
+    icon: scan-search
+    parent: Encounter
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The contact this conclusion was reached in.
+      - name: staff_id
+        type: string
+        fk: true
+        help: The clinician who recorded it and is accountable for it.
+      - name: diagnosis_code
+        type: string
+        help: The classification code, from whichever coding standard the hospital uses. What billing and reporting key on.
+      - name: description
+        type: string
+        help: The diagnosis in words, as it should read on a letter.
+      - name: diagnosis_type
+        type: string
+        enum: DiagnosisType
+        help: Whether this is the main reason for the contact or something recorded alongside it.
+      - name: diagnosed_at
+        type: datetime
+        help: When it was recorded.
+      - name: is_chronic
+        type: boolean
+        help: Whether this is a long-term condition rather than something arising from this contact. Chronic diagnoses carry forward.
+    indexes:
+      - columns: [encounter_id, diagnosis_type]
+      - columns: [diagnosis_code]
+  - name: Procedure
+    help: Something done to the patient during an encounter. It is what a consent record attaches to, and what the theatre and billing sides both refer back to.
+    icon: scissors
+    parent: Encounter
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The contact this was done during.
+      - name: doctor_id
+        type: string
+        fk: true
+        help: The doctor who performed it and is accountable for it.
+      - name: procedure_code
+        type: string
+        help: The classification code, which is what billing prices from.
+      - name: name
+        type: string
+        help: What was done, in words.
+      - name: status
+        type: string
+        enum: ProcedureStatus
+        help: Where the procedure has got to. Driven by the procedure lifecycle rather than typed in.
+      - name: scheduled_for
+        type: datetime
+        optional: true
+        help: When it is planned for. Empty for something done there and then.
+      - name: performed_at
+        type: datetime
+        optional: true
+        help: When it was actually done. Empty until it is.
+      - name: anaesthetic_type
+        type: string
+        optional: true
+        enum: AnaestheticType
+        help: What anaesthetic was used, if any.
+      - name: outcome
+        type: text
+        optional: true
+        help: What happened, including any complications.
+    indexes:
+      - columns: [encounter_id, status]
+      - columns: [procedure_code]
+  - name: Consent
+    help: "A patient's recorded consent to one procedure: who consented, when, and who witnessed it. Kept as a record rather than a flag so that \"was this consented?\" is a question the application can refuse a write on."
+    icon: file-check
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: procedure_id
+        type: string
+        fk: true
+        help: The procedure being consented to.
+      - name: consent_type
+        type: string
+        enum: ConsentType
+        help: How consent was given and recorded.
+      - name: giver_type
+        type: string
+        enum: ConsentGiver
+        help: In what capacity consent was given — the patient themselves, or someone entitled to consent on their behalf.
+      - name: giver_name
+        type: string
+        help: The name of the person who consented, as they signed it.
+      - name: witnessed_by_id
+        type: string
+        fk: true
+        help: The member of staff who witnessed it. Required, because an unwitnessed consent is not a consent.
+      - name: consented_at
+        type: datetime
+        help: When it was given.
+      - name: is_withdrawn
+        type: boolean
+        help: Consent can be withdrawn at any time up to the procedure, and withdrawal must be as easy to record as consent was.
+      - name: withdrawn_at
+        type: datetime
+        optional: true
+        help: When it was withdrawn. Empty unless it was.
+      - name: notes
+        type: text
+        optional: true
+        help: What was explained, and anything the patient asked.
+    indexes:
+      - columns: [procedure_id, is_withdrawn]
+      - columns: [consented_at]
+  - name: LabOrder
+    help: A request for a laboratory test, raised during an encounter and owned by the member of staff responsible for it.
+    icon: test-tube
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_number
+        type: string
+        unique: true
+        help: The laboratory's own number for this request, printed on every specimen label and quoted on the result. Generated on saving, never typed.
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The clinical contact the test was requested during.
+      - name: ordered_by_id
+        type: string
+        fk: true
+        help: The member of staff responsible for the request, and the person a critical result is escalated to.
+      - name: test_code
+        type: string
+        help: The laboratory's code for the test requested.
+      - name: test_name
+        type: string
+        help: The test in words, as it appears on the request and the report.
+      - name: specimen_type
+        type: string
+        enum: SpecimenType
+        help: What has to be collected. Decides the container, and whether the request can be met at all.
+      - name: priority
+        type: string
+        enum: OrderPriority
+        help: How fast the laboratory must turn it round. A stat request goes to the top of the worklist.
+      - name: status
+        type: string
+        enum: LabOrderStatus
+        help: Where the request has got to, from asked for to resulted. Driven by the lifecycle.
+      - name: is_escalated
+        type: boolean
+        help: Set by the escalation workflow when a critical value comes back, so the worklist shows which requests someone still has to be told about.
+      - name: ordered_at
+        type: datetime
+        help: When the request was raised.
+      - name: collected_at
+        type: datetime
+        optional: true
+        help: When the specimen was actually taken. Empty until it is, and the gap between this and the order time is the collection delay a ward is measured on.
+      - name: clinical_details
+        type: text
+        optional: true
+        help: Why the test was requested. The laboratory needs it to interpret the value, not merely to report it.
+    indexes:
+      - columns: [status, priority]
+      - columns: [encounter_id, ordered_at]
+  - name: LabResult
+    help: One measured value against a lab order, with the reference range it is read against and the person who verified it. An unverified result is not clinically actionable.
+    icon: microscope
+    parent: LabOrder
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: lab_order_id
+        type: string
+        fk: true
+        help: The request this value answers.
+      - name: analyte
+        type: string
+        help: What was measured — haemoglobin, sodium, C-reactive protein. One order commonly produces several.
+      - name: value_numeric
+        type: decimal
+        optional: true
+        help: The measured value, where the test produces a number. Empty for a test that reports words.
+      - name: value_text
+        type: string
+        optional: true
+        help: The result in words, where the test produces no number — an organism named, or positive and negative. Empty for a numeric test.
+      - name: unit
+        type: string
+        optional: true
+        help: The unit the numeric value is in. A number without its unit is not a result.
+      - name: reference_low
+        type: decimal
+        optional: true
+        help: The bottom of the normal range this value is read against.
+      - name: reference_high
+        type: decimal
+        optional: true
+        help: The top of the normal range this value is read against.
+      - name: abnormal_flag
+        type: string
+        enum: AbnormalFlag
+        help: How the value reads against its range. A critical flag escalates rather than merely colouring the row.
+      - name: verified_by_id
+        type: string
+        fk: true
+        optional: true
+        help: The laboratory member of staff who verified the value. Empty until someone has, and an unverified result is not clinically actionable.
+      - name: verified_at
+        type: datetime
+        optional: true
+        help: When it was verified.
+      - name: resulted_at
+        type: datetime
+        help: When the analyser produced the value.
+    indexes:
+      - columns: [lab_order_id, resulted_at]
+      - columns: [abnormal_flag]
+  - name: ImagingOrder
+    help: A request for an imaging study, raised during an encounter.
+    icon: scan
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: order_number
+        type: string
+        unique: true
+        help: The imaging department's own number for this request, quoted on the study and the report. Generated on saving, never typed.
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The clinical contact the study was requested during.
+      - name: ordered_by_id
+        type: string
+        fk: true
+        help: The member of staff responsible for the request, and the person a critical finding is escalated to.
+      - name: modality
+        type: string
+        enum: ImagingModality
+        help: What kind of imaging is being asked for. Decides which room and which equipment the study is booked into.
+      - name: body_part
+        type: string
+        help: What is to be imaged, in the words the request was written in.
+      - name: priority
+        type: string
+        enum: OrderPriority
+        help: How fast the study is needed. Same vocabulary as a laboratory request, deliberately.
+      - name: status
+        type: string
+        enum: ImagingOrderStatus
+        help: Where the request has got to, from asked for to reported. Driven by the lifecycle.
+      - name: contrast_used
+        type: boolean
+        help: Whether contrast was given. It changes the preparation, the safety checks and the price.
+      - name: is_escalated
+        type: boolean
+        help: Set by the escalation workflow when a critical finding is reported, so the worklist shows which studies someone still has to be told about.
+      - name: ordered_at
+        type: datetime
+        help: When the request was raised.
+      - name: scheduled_for
+        type: datetime
+        optional: true
+        help: When the study is booked for. Empty until it is booked.
+      - name: performed_at
+        type: datetime
+        optional: true
+        help: When the study was actually carried out. Empty until it is.
+      - name: clinical_question
+        type: text
+        optional: true
+        help: The question the study is meant to answer. A radiologist reports against this; without it the report is a description rather than an answer.
+    indexes:
+      - columns: [status, priority]
+      - columns: [encounter_id, ordered_at]
+      - columns: [modality, scheduled_for]
+  - name: ImagingReport
+    help: The radiologist's written interpretation of an imaging study. Prose, not a value — which is why it is a different thing from a lab result and not a variation of one.
+    icon: file-image
+    parent: ImagingOrder
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: imaging_order_id
+        type: string
+        fk: true
+        help: The study this report interprets.
+      - name: doctor_id
+        type: string
+        fk: true
+        help: The radiologist who read the study and signed the report.
+      - name: findings
+        type: text
+        help: What is visible on the study, described.
+      - name: impression
+        type: text
+        help: What it means. This is the part the ordering clinician reads first and acts on.
+      - name: is_addendum
+        type: boolean
+        help: Marks a later report that amends an earlier one rather than replacing it. The first report is kept, because a decision was made on it.
+      - name: is_critical
+        type: boolean
+        help: A finding that has to be communicated now rather than read at the next ward round. Set by the radiologist; the escalation workflow acts on it.
+      - name: reported_at
+        type: datetime
+        help: When the report was signed.
+    indexes:
+      - columns: [imaging_order_id, reported_at]
+      - columns: [is_critical]
+  - name: Medication
+    help: "The drug catalogue: what may be prescribed, in what form and strength, and whether it is a controlled drug. Referenced by prescription items rather than typed into them."
+    icon: pill
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        help: The catalogue's own code for this medicine. Quoted on a prescription and on a stock order.
+      - name: name
+        type: string
+        help: The generic name, which is what a prescription is written in.
+      - name: brand_name
+        type: string
+        optional: true
+        help: The brand it is stocked as, where that differs. Shown to the person picking it off the shelf.
+      - name: form
+        type: string
+        enum: MedicationForm
+        help: What it physically is — a tablet, an injection, a cream. Decides how it is given and how it is counted.
+      - name: strength
+        type: string
+        help: The strength of one unit, as printed on the packaging, such as 500 mg.
+      - name: route
+        type: string
+        enum: MedicationRoute
+        help: The route it is normally given by. A prescription item may narrow this but not contradict it.
+      - name: therapeutic_class
+        type: string
+        help: "The class of medicine this belongs to. This is what the duplication rule reads: a second medicine of the same class is the clash a hospital without a full formulary can actually detect."
+      - name: is_controlled
+        type: boolean
+        help: Whether it is a controlled drug. Controlled drugs cannot be dispensed by the person who prescribed them.
+      - name: is_high_alert
+        type: boolean
+        help: Marks a medicine where an error causes serious harm — insulin, heparin, an opioid. A high-alert item needs a second qualified check before it goes on a prescription.
+      - name: is_active
+        type: boolean
+        help: Whether it may still be prescribed. A withdrawn medicine is deactivated rather than deleted, because the prescriptions that named it must still resolve.
+      - name: inventory_item_id
+        type: string
+        fk: true
+        optional: true
+        help: The stocked item this medicine is held as. Empty for a medicine the hospital does not stock — a patient's own supply, or one ordered in for them. It is what lets dispensing decrement the store, which without this link it could not find.
+      - name: contraindication_notes
+        type: text
+        optional: true
+        help: What the prescriber should know before choosing it, in the pharmacy's own words. Not a substitute for a formulary — see the model's scope.
+    indexes:
+      - columns: [therapeutic_class]
+      - columns: [is_controlled, is_active]
+  - name: Prescription
+    help: What was prescribed at one encounter, by one prescriber, for one patient. Verified and dispensed by pharmacy before the patient collects it.
+    icon: file-text
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: prescription_number
+        type: string
+        unique: true
+        help: The pharmacy's own number for this prescription. Generated on saving, never typed.
+      - name: encounter_id
+        type: string
+        fk: true
+        help: The clinical contact it was written during.
+      - name: prescribed_by_id
+        type: string
+        fk: true
+        help: Who wrote it. Held as a member of staff rather than as a doctor so that it can be compared with who dispensed it — that comparison is the controlled-drug rule.
+      - name: status
+        type: string
+        enum: PrescriptionStatus
+        help: Where it has got to, from written to collected. Driven by the lifecycle.
+      - name: has_controlled_item
+        type: boolean
+        help: Whether any item on this prescription is a controlled drug. Written by the application when an item is added, never by hand, and it is what the segregation rule reads — a rule can only see the row it is given, so the fact has to be on it.
+      - name: is_discharge_prescription
+        type: boolean
+        help: Marks a prescription the patient takes home rather than one given on the ward. It is dispensed differently and it goes on the discharge summary.
+      - name: prescribed_at
+        type: datetime
+        help: When it was written.
+      - name: verified_by_id
+        type: string
+        fk: true
+        optional: true
+        help: The pharmacist who checked it. Empty until one has.
+      - name: verified_at
+        type: datetime
+        optional: true
+        help: When it was checked.
+      - name: dispensed_by_id
+        type: string
+        fk: true
+        optional: true
+        help: Who handed out the medicine. For a controlled drug this may not be the person who prescribed it.
+      - name: dispensed_at
+        type: datetime
+        optional: true
+        help: When it was dispensed.
+      - name: notes
+        type: text
+        optional: true
+        help: Anything the prescriber wants pharmacy to know.
+    indexes:
+      - columns: [status, prescribed_at]
+      - columns: [encounter_id, prescribed_at]
+  - name: PrescriptionItem
+    help: One drug on a prescription, with its dose, route and duration. Meaningless away from the prescription it belongs to.
+    icon: list-checks
+    parent: Prescription
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: prescription_id
+        type: string
+        fk: true
+        help: The prescription this line belongs to.
+      - name: medication_id
+        type: string
+        fk: true
+        help: Which medicine. Chosen from the catalogue rather than typed, so that the controlled and high-alert flags are the catalogue's and not the prescriber's memory.
+      - name: dose
+        type: string
+        help: How much is given at once, such as 500 mg or 10 mL.
+      - name: route
+        type: string
+        enum: MedicationRoute
+        help: How it is given for this patient. Narrows the medicine's usual route.
+      - name: frequency
+        type: string
+        help: How often, in the words the prescription is written in — three times a day, at night, every four hours.
+      - name: quantity
+        type: decimal
+        help: How much to dispense in total. This is what pharmacy counts out and what stock is decremented by.
+      - name: is_prn
+        type: boolean
+        help: Marks a medicine given as required rather than on a schedule. A nurse decides when; the prescription decides the limit.
+      - name: is_high_alert
+        type: boolean
+        help: "The medicine's high-alert flag as it stood when this was prescribed. Copied from the catalogue by the application, for the same reason the invoice line keeps its own price: the rule that demands a second check reads this row and nothing else."
+      - name: duration_days
+        type: integer
+        optional: true
+        help: How many days the course runs for. Empty for a medicine taken indefinitely.
+      - name: second_check_by_id
+        type: string
+        fk: true
+        optional: true
+        help: The second qualified person who checked a high-alert medicine. Required for one, and empty for everything else.
+      - name: instructions
+        type: text
+        optional: true
+        help: How to take it, in the words that go on the label — with food, before bed.
+    indexes:
+      - columns: [prescription_id]
+      - columns: [medication_id]
+  - name: ChargeableItem
+    help: "The price list: what a consultation, a bed-night, a test, an image or a drug costs. Invoice lines are priced from this rather than typed, so two invoices for the same procedure agree."
+    icon: tag
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        help: The price list's own code for this charge, quoted on an invoice line and in a price review.
+      - name: name
+        type: string
+        help: What the charge is called on the bill the patient reads.
+      - name: category
+        type: string
+        enum: ChargeCategory
+        help: What kind of charge it is. Decides which part of the episode it is grouped under on the invoice.
+      - name: unit_price
+        type: decimal
+        help: What one of them costs today. An invoice line keeps its own copy, so changing this never rewrites a bill already raised.
+      - name: is_active
+        type: boolean
+        help: Whether it may still be charged. A withdrawn charge is deactivated rather than deleted, because the invoice lines that used it must still resolve.
+      - name: description
+        type: text
+        optional: true
+        help: What the charge covers, for the person choosing it and for the patient querying it.
+    indexes:
+      - columns: [category, is_active]
+  - name: Invoice
+    help: One episode of care, priced. Created when an encounter or an admission closes, settled against the insurance policy and the patient's own share.
+    icon: receipt
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: invoice_number
+        type: string
+        unique: true
+        help: The hospital's own number for this bill. Generated on saving, never typed, and quoted on every payment and claim.
+      - name: patient_id
+        type: string
+        fk: true
+        help: Whose episode this is. The one anchor every invoice has, whether it prices an outpatient contact or a whole stay.
+      - name: status
+        type: string
+        enum: InvoiceStatus
+        help: Where the bill has got to, from drafted to settled. Driven by the lifecycle.
+      - name: gross_amount
+        type: decimal
+        help: What the episode cost in total, before the policy is applied. The sum of the lines.
+      - name: insurer_amount
+        type: decimal
+        help: The share the insurer is being asked for.
+      - name: patient_amount
+        type: decimal
+        help: The share the patient owes themselves — the co-payment. Computed from the policy, not typed.
+      - name: paid_amount
+        type: decimal
+        help: How much has actually been received against this bill so far, from either payer.
+      - name: policy_verified
+        type: boolean
+        help: Whether the cover was checked against the dates being charged and passed. Set by the application when the co-payment is applied; a bill cannot be issued while it is false.
+      - name: issued_on
+        type: date
+        optional: true
+        help: The day the bill was raised. Empty while it is still a draft.
+      - name: due_on
+        type: date
+        optional: true
+        help: The day it falls due. Nothing may be marked overdue before this date has passed.
+      - name: encounter_id
+        type: string
+        fk: true
+        optional: true
+        help: The outpatient contact being billed, where the episode is one contact.
+      - name: admission_id
+        type: string
+        fk: true
+        optional: true
+        help: The inpatient stay being billed, where the episode is a whole admission. An invoice carries one or the other, never neither.
+      - name: insurance_policy_id
+        type: string
+        fk: true
+        optional: true
+        help: The cover being claimed against. Empty for a self-paying patient, and the whole bill is then the patient's.
+      - name: notes
+        type: text
+        optional: true
+        help: Anything the billing office needs to record about this bill.
+    indexes:
+      - columns: [status, due_on]
+      - columns: [patient_id, issued_on]
+      - columns: [insurance_policy_id, status]
+  - name: InvoiceLine
+    help: One charge on an invoice, priced from a chargeable item. Held on the line rather than recomputed, so an invoice reprints identically years later.
+    icon: list-checks
+    parent: Invoice
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: invoice_id
+        type: string
+        fk: true
+        help: The bill this charge is on.
+      - name: chargeable_item_id
+        type: string
+        fk: true
+        help: Which charge from the price list. Chosen rather than typed, so two bills for the same procedure agree.
+      - name: description
+        type: string
+        help: What the line says on the bill. Copied from the price list when the line is raised, so a later rename does not rewrite an old invoice.
+      - name: quantity
+        type: decimal
+        help: How many — nights, tests, tablets, hours.
+      - name: unit_price
+        type: decimal
+        help: What one cost on the day it was charged. Held here rather than looked up, so the bill reprints identically years later.
+      - name: line_amount
+        type: decimal
+        help: Quantity times unit price. Refused if the three disagree.
+      - name: charged_on
+        type: date
+        help: The day the thing charged for actually happened, which is not always the day the bill was raised.
+      - name: source_reference
+        type: string
+        optional: true
+        help: "What in the record this charge came from — a procedure code, a lab order number, a range of bed-nights. Free text: the model has no one entity a charge points back at, and four nullable references would be worse than a legible sentence."
+    indexes:
+      - columns: [invoice_id]
+      - columns: [chargeable_item_id, charged_on]
+  - name: Payment
+    help: Money received against an invoice, from the insurer or from the patient, in whole or in part.
+    icon: banknote
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: receipt_number
+        type: string
+        unique: true
+        help: The receipt this payment was given. Generated on saving, never typed.
+      - name: invoice_id
+        type: string
+        fk: true
+        help: The bill the money was received against.
+      - name: received_by_id
+        type: string
+        fk: true
+        help: The member of staff who took the payment. Every receipt has a name against it.
+      - name: payer_type
+        type: string
+        enum: PayerType
+        help: Who paid — the insurer settling a claim, the patient paying their share, or a third party.
+      - name: method
+        type: string
+        enum: PaymentMethod
+        help: How the money arrived. Decides what reconciling it against the bank looks like.
+      - name: amount
+        type: decimal
+        help: How much was received. Refused if it is not positive, or if it is more than the bill still owes.
+      - name: outstanding_before
+        type: decimal
+        help: What the bill still owed immediately before this payment. Resolved by the application when the receipt is written, and it is what makes both the overpayment refusal and the settlement decision answerable from the receipt alone.
+      - name: received_on
+        type: date
+        help: The day the money was received, which is not always the day it was recorded.
+      - name: bank_reference
+        type: string
+        optional: true
+        help: The reference the money arrived with, for reconciling it against a bank statement.
+    indexes:
+      - columns: [invoice_id, received_on]
+      - columns: [payer_type, received_on]
+  - name: Supplier
+    help: Who consumables and drugs are bought from, and who a replenishment is raised against.
+    icon: truck
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        help: The purchasing department's own code for this supplier.
+      - name: name
+        type: string
+        help: The company as it appears on an order and an invoice.
+      - name: lead_time_days
+        type: integer
+        help: How many days a delivery takes once ordered. A reorder level means nothing without it — the level exists to cover exactly this many days of use.
+      - name: is_active
+        type: boolean
+        help: Whether they may still be ordered from. Deactivated rather than deleted, because the deliveries they made must still resolve.
+      - name: contact_name
+        type: string
+        optional: true
+        help: Who to speak to about an order.
+      - name: email
+        type: email
+        optional: true
+        help: Where an order is sent.
+      - name: phone
+        type: phone
+        optional: true
+        help: The number to chase a late delivery on.
+      - name: address_line
+        type: string
+        optional: true
+        help: Where they are, for returns and correspondence.
+      - name: notes
+        type: text
+        optional: true
+        help: Anything purchasing needs to remember about them — minimum order, delivery days, account number.
+    indexes:
+      - columns: [is_active]
+  - name: InventoryItem
+    help: A stocked consumable with a quantity on hand and a reorder level. Falling to that level is what raises a replenishment.
+    icon: package
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: code
+        type: string
+        unique: true
+        help: The store's own code for this item, on the shelf label and every requisition.
+      - name: name
+        type: string
+        help: What it is called by the people who order and use it.
+      - name: supplier_id
+        type: string
+        fk: true
+        help: Who it is bought from, and who a replenishment is raised against.
+      - name: category
+        type: string
+        enum: StockCategory
+        help: What kind of stock it is. Decides where it is stored and who counts it.
+      - name: unit_of_issue
+        type: string
+        help: What one unit is, in the words the store uses — each, box of 100, 500 mL bottle. Every quantity in the system is in these units.
+      - name: quantity_on_hand
+        type: decimal
+        help: How many are in the store now. This is the sum of every movement against the item and is never typed in directly.
+      - name: reorder_level
+        type: decimal
+        help: The quantity at which more must be ordered. Set to cover the supplier's lead time at the expected rate of use.
+      - name: reorder_quantity
+        type: decimal
+        help: How many to order when it falls to that level.
+      - name: requires_cold_chain
+        type: boolean
+        help: Marks stock that must be kept refrigerated. It changes where it is stored, how it is delivered, and what happens if a fridge fails.
+      - name: is_on_reorder
+        type: boolean
+        help: Set by the replenishment workflow when the item falls to its reorder level, and cleared when the delivery is received. It is what puts the item on the buyer's worklist.
+      - name: is_active
+        type: boolean
+        help: Whether it is still stocked. A discontinued item is deactivated rather than deleted, because the movements against it must still resolve.
+      - name: storage_location
+        type: string
+        optional: true
+        help: Where in the store it lives — the aisle, shelf or fridge.
+    indexes:
+      - columns: [is_on_reorder, is_active]
+      - columns: [category, storage_location]
+      - columns: [supplier_id]
+  - name: StockTransaction
+    help: One movement that changes a quantity — a receipt, an issue to a ward, a correction after a count, or a return. The quantity on hand is the sum of these and is never typed in directly.
+    icon: arrow-left-right
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: inventory_item_id
+        type: string
+        fk: true
+        help: Which item moved.
+      - name: performed_by_id
+        type: string
+        fk: true
+        help: Who moved it. Every movement has a name against it, because an unexplained count difference is investigated by asking that person.
+      - name: transaction_type
+        type: string
+        enum: StockTransactionType
+        help: What kind of movement this is. It decides which direction the quantity must go, and a movement whose sign contradicts its type is refused.
+      - name: quantity
+        type: decimal
+        help: How many units moved, in the item's unit of issue. Positive adds to the store, negative takes away.
+      - name: quantity_on_hand_after
+        type: decimal
+        help: The running balance after this movement — a stock ledger's own column, and what makes a count difference traceable to the movement that caused it.
+      - name: triggers_reorder
+        type: boolean
+        help: Set by the application when this movement takes the item to or below its reorder level and it is not already on the buyer's worklist. It is what the replenishment workflow fires on.
+      - name: occurred_on
+        type: datetime
+        help: When the movement actually happened, which is not always when it was entered.
+      - name: supplier_id
+        type: string
+        fk: true
+        optional: true
+        help: Who delivered it. Set on a receipt and empty on everything else.
+      - name: ward_id
+        type: string
+        fk: true
+        optional: true
+        help: Where an issue went. Set on an issue and empty on everything else, and it is how consumption is attributed to a ward.
+      - name: batch_number
+        type: string
+        optional: true
+        help: The manufacturer's batch, which is what a recall is traced by.
+      - name: expiry_date
+        type: date
+        optional: true
+        help: When this batch expires. Empty for stock that does not expire.
+      - name: reference
+        type: string
+        optional: true
+        help: The delivery note, requisition or stock-count reference this movement came from.
+      - name: notes
+        type: text
+        optional: true
+        help: Why, where the type alone does not say — a correction after a count, a disposal after a fridge failure.
+    indexes:
+      - columns: [inventory_item_id, occurred_on]
+      - columns: [transaction_type, occurred_on]
+      - columns: [batch_number]
+relationships:
+  - from: Department
+    fromCardinality: exactly-one
+    to: Staff
+    toCardinality: zero-or-more
+    label: employs
+  - from: Staff
+    fromCardinality: zero-or-one
+    to: Doctor
+    toCardinality: zero-or-one
+    label: is_doctor
+  - from: Staff
+    fromCardinality: zero-or-one
+    to: Nurse
+    toCardinality: zero-or-one
+    label: is_nurse
+  - from: Department
+    fromCardinality: exactly-one
+    to: Ward
+    toCardinality: zero-or-more
+    label: contains
+  - from: Ward
+    fromCardinality: exactly-one
+    to: Bed
+    toCardinality: zero-or-more
+    label: contains
+  - from: Ward
+    fromCardinality: exactly-one
+    to: Nurse
+    toCardinality: zero-or-more
+    label: staffed_by
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: books
+  - from: Doctor
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: attends
+  - from: Department
+    fromCardinality: exactly-one
+    to: Appointment
+    toCardinality: zero-or-more
+    label: schedules
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: has
+  - from: Doctor
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: leads
+  - from: Appointment
+    fromCardinality: zero-or-one
+    to: Encounter
+    toCardinality: zero-or-one
+    label: becomes
+  - from: Department
+    fromCardinality: exactly-one
+    to: Encounter
+    toCardinality: zero-or-more
+    label: manages
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Admission
+    toCardinality: zero-or-more
+    label: admitted
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Admission
+    toCardinality: zero-or-more
+    label: results_in
+  - from: Ward
+    fromCardinality: exactly-one
+    to: Admission
+    toCardinality: zero-or-more
+    label: hosts
+  - from: Bed
+    fromCardinality: exactly-one
+    to: Admission
+    toCardinality: zero-or-more
+    label: assigned_to
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: ClinicalNote
+    toCardinality: zero-or-more
+    label: contains
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Consent
+    toCardinality: zero-or-more
+    label: witnesses
+  - from: Staff
+    fromCardinality: exactly-one
+    to: ClinicalNote
+    toCardinality: zero-or-more
+    label: authors
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: VitalSign
+    toCardinality: zero-or-more
+    label: records
+  - from: Staff
+    fromCardinality: exactly-one
+    to: VitalSign
+    toCardinality: zero-or-more
+    label: records
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Diagnosis
+    toCardinality: zero-or-more
+    label: identifies
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Diagnosis
+    toCardinality: zero-or-more
+    label: records
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Procedure
+    toCardinality: zero-or-more
+    label: includes
+  - from: Doctor
+    fromCardinality: exactly-one
+    to: Procedure
+    toCardinality: zero-or-more
+    label: performs
+  - from: Procedure
+    fromCardinality: exactly-one
+    to: Consent
+    toCardinality: zero-or-more
+    label: consented_for
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Prescription
+    toCardinality: zero-or-more
+    label: generates
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Prescription
+    toCardinality: zero-or-more
+    label: prescribes
+  - from: Staff
+    fromCardinality: exactly-one
+    to: PrescriptionItem
+    toCardinality: zero-or-more
+    label: second_checks
+  - from: Prescription
+    fromCardinality: exactly-one
+    to: PrescriptionItem
+    toCardinality: zero-or-more
+    label: contains
+  - from: Medication
+    fromCardinality: exactly-one
+    to: PrescriptionItem
+    toCardinality: zero-or-more
+    label: prescribed_as
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: LabOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Staff
+    fromCardinality: exactly-one
+    to: LabOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: LabOrder
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: produces
+  - from: Staff
+    fromCardinality: exactly-one
+    to: LabResult
+    toCardinality: zero-or-more
+    label: verifies
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: ImagingOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: Staff
+    fromCardinality: exactly-one
+    to: ImagingOrder
+    toCardinality: zero-or-more
+    label: orders
+  - from: ImagingOrder
+    fromCardinality: exactly-one
+    to: ImagingReport
+    toCardinality: zero-or-more
+    label: produces
+  - from: Doctor
+    fromCardinality: exactly-one
+    to: ImagingReport
+    toCardinality: zero-or-more
+    label: interprets
+  - from: Patient
+    fromCardinality: exactly-one
+    to: InsurancePolicy
+    toCardinality: zero-or-more
+    label: holds
+  - from: Patient
+    fromCardinality: exactly-one
+    to: Invoice
+    toCardinality: zero-or-more
+    label: billed
+  - from: Encounter
+    fromCardinality: exactly-one
+    to: Invoice
+    toCardinality: zero-or-more
+    label: charges
+  - from: Admission
+    fromCardinality: exactly-one
+    to: Invoice
+    toCardinality: zero-or-more
+    label: charges
+  - from: Staff
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: receives
+  - from: InsurancePolicy
+    fromCardinality: exactly-one
+    to: Invoice
+    toCardinality: zero-or-more
+    label: covers
+  - from: Invoice
+    fromCardinality: exactly-one
+    to: InvoiceLine
+    toCardinality: zero-or-more
+    label: contains
+  - from: ChargeableItem
+    fromCardinality: exactly-one
+    to: InvoiceLine
+    toCardinality: zero-or-more
+    label: priced_as
+  - from: Invoice
+    fromCardinality: exactly-one
+    to: Payment
+    toCardinality: zero-or-more
+    label: receives
+  - from: Supplier
+    fromCardinality: exactly-one
+    to: InventoryItem
+    toCardinality: zero-or-more
+    label: supplies
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: Medication
+    toCardinality: zero-or-more
+    label: stocked_as
+  - from: InventoryItem
+    fromCardinality: exactly-one
+    to: StockTransaction
+    toCardinality: zero-or-more
+    label: moves
+  - from: Supplier
+    fromCardinality: exactly-one
+    to: StockTransaction
+    toCardinality: zero-or-more
+    label: delivers
+  - from: Staff
+    fromCardinality: exactly-one
+    to: StockTransaction
+    toCardinality: zero-or-more
+    label: performs
+  - from: Ward
+    fromCardinality: exactly-one
+    to: StockTransaction
+    toCardinality: zero-or-more
+    label: issued_to
+hooks:
+  - entity: Staff
+    event: beforeUpdate
+    handler: preventRoleEscalation
+  - entity: Patient
+    event: beforeCreate
+    handler: stampMedicalRecordNumber
+  - entity: Encounter
+    event: beforeCreate
+    handler: stampEncounterNumber
+  - entity: Encounter
+    event: beforeCreate
+    handler: stampEncounterStart
+  - entity: Encounter
+    event: afterUpdate
+    handler: recordEncounterDuration
+  - entity: Procedure
+    event: afterUpdate
+    handler: raiseProcedureCharge
+  - entity: Appointment
+    event: beforeCreate
+    handler: stampAppointmentNumber
+  - entity: Appointment
+    event: beforeCreate
+    handler: checkDoctorAcceptsNewPatients
+  - entity: Encounter
+    event: beforeUpdate
+    handler: requireDiagnosisToClose
+  - entity: Admission
+    event: beforeCreate
+    handler: checkBedAvailable
+  - entity: Procedure
+    event: beforeUpdate
+    handler: requireConsentBeforeConsented
+  - entity: Admission
+    event: beforeCreate
+    handler: stampAdmissionNumber
+  - entity: Admission
+    event: afterUpdate
+    handler: recordLengthOfStay
+  - entity: LabOrder
+    event: beforeCreate
+    handler: stampLabOrderNumber
+  - entity: ImagingOrder
+    event: beforeCreate
+    handler: stampImagingOrderNumber
+  - entity: Prescription
+    event: beforeCreate
+    handler: stampPrescriptionNumber
+  - entity: Prescription
+    event: afterUpdate
+    handler: decrementStockOnDispense
+  - entity: PrescriptionItem
+    event: afterCreate
+    handler: flagControlledPrescription
+  - entity: PrescriptionItem
+    event: beforeCreate
+    handler: copyMedicationFlags
+  - entity: PrescriptionItem
+    event: beforeCreate
+    handler: refuseTherapeuticDuplicate
+  - entity: Invoice
+    event: beforeCreate
+    handler: stampInvoiceNumber
+  - entity: Invoice
+    event: beforeUpdate
+    handler: applyPolicyCoPay
+  - entity: Payment
+    event: beforeCreate
+    handler: stampReceiptNumber
+  - entity: InvoiceLine
+    event: beforeCreate
+    handler: priceInvoiceLine
+  - entity: Payment
+    event: beforeCreate
+    handler: resolveOutstandingBalance
+  - entity: StockTransaction
+    event: beforeCreate
+    handler: applyStockBalance
+  - entity: StockTransaction
+    event: afterCreate
+    handler: applyStockMovement
+hookFlows:
+  - name: StaffHooks
+    title: Staff Hooks
+    entity: Staff
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate Staff
+      - id: step1
+        event: beforeUpdate
+        handler: preventRoleEscalation
+      - id: persist
+        label: Persist Staff
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+  - name: PatientHooks
+    title: Patient Hooks
+    entity: Patient
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate Patient
+      - id: step1
+        event: beforeCreate
+        handler: stampMedicalRecordNumber
+      - id: persist
+        label: Persist Patient
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+  - name: ClinicalHooks
+    title: Clinical Hooks
+    entity: Encounter
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate Encounter
+      - id: step1
+        event: beforeCreate
+        handler: stampEncounterNumber
+      - id: step2
+        event: afterUpdate
+        handler: recordEncounterDuration
+      - id: persist
+        label: Persist Encounter
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: step2
+      - from: step2
+        to: persist
+      - from: persist
+        to: done
+  - name: DiagnosticsHooks
+    title: Diagnostics Hooks
+    entity: LabOrder
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate the order
+      - id: step1
+        event: beforeCreate
+        handler: stampLabOrderNumber
+      - id: persist
+        label: Persist the order
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+  # An imaging order is numbered by its own hook. It used to be drawn inside the
+  # lab order's flow, which drew a handler LabOrder does not declare (EML411).
+  - name: ImagingHooks
+    title: Imaging Hooks
+    entity: ImagingOrder
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate the order
+      - id: step1
+        event: beforeCreate
+        handler: stampImagingOrderNumber
+      - id: persist
+        label: Persist the order
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+  - name: PharmacyHooks
+    title: Pharmacy Hooks
+    entity: Prescription
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate the prescription
+      - id: step1
+        event: beforeCreate
+        handler: stampPrescriptionNumber
+      - id: persist
+        label: Persist the prescription
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+  - name: BillingHooks
+    title: Billing Hooks
+    entity: Invoice
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate the bill
+      - id: step1
+        event: beforeCreate
+        handler: stampInvoiceNumber
+      - id: step2
+        event: beforeUpdate
+        handler: applyPolicyCoPay
+      - id: persist
+        label: Persist
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: step2
+      - from: step2
+        to: persist
+      - from: persist
+        to: done
+  # A payment's receipt number is the payment's hook, drawn in its own flow
+  # rather than inside the invoice's (EML411).
+  - name: PaymentHooks
+    title: Payment Hooks
+    entity: Payment
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate the payment
+      - id: step1
+        event: beforeCreate
+        handler: stampReceiptNumber
+      - id: persist
+        label: Persist
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+  - name: StockHooks
+    title: Stock Hooks
+    entity: StockTransaction
+    nodes:
+      - id: request
+        label: Request
+      - id: validate
+        label: Validate the movement
+      - id: step1
+        event: afterCreate
+        handler: applyStockMovement
+      - id: persist
+        label: Update the quantity on hand
+      - id: done
+        label: Response
+    edges:
+      - from: request
+        to: validate
+      - from: validate
+        to: step1
+      - from: step1
+        to: persist
+      - from: persist
+        to: done
+rbac:
+  - entity: Department
+    action: update
+    roles: [hospital_manager, administrator]
+  - entity: Department
+    action: create
+    roles: [hospital_manager, administrator]
+  - entity: Ward
+    action: read
+    roles: [doctor, nurse, ward_manager, receptionist, hospital_manager, administrator]
+  - entity: Ward
+    action: update
+    roles: [ward_manager, hospital_manager, administrator]
+  - entity: Ward
+    action: create
+    roles: [ward_manager, hospital_manager, administrator]
+  - entity: Bed
+    action: read
+    roles: [doctor, nurse, ward_manager, hospital_manager, administrator]
+  - entity: Bed
+    action: update
+    roles: [ward_manager, hospital_manager, administrator]
+  - entity: Bed
+    action: create
+    roles: [ward_manager, hospital_manager, administrator]
+  - entity: Staff
+    action: update
+    roles: [hospital_manager, administrator]
+  - entity: Staff
+    action: create
+    roles: [hospital_manager, administrator]
+  - entity: Doctor
+    action: update
+    roles: [hospital_manager, administrator]
+  - entity: Doctor
+    action: create
+    roles: [hospital_manager, administrator]
+  - entity: Nurse
+    action: update
+    roles: [hospital_manager, ward_manager, administrator]
+  - entity: Nurse
+    action: create
+    roles: [hospital_manager, ward_manager, administrator]
+  - entity: Patient
+    action: read
+    roles: [doctor, nurse, receptionist, pharmacist, lab_technician, radiologist, billing_clerk, ward_manager, hospital_manager, administrator]
+  - entity: Patient
+    action: create
+    roles: [receptionist, doctor, nurse, hospital_manager, administrator]
+  - entity: Patient
+    action: update
+    roles: [receptionist, doctor, nurse, hospital_manager, administrator]
+  - entity: Patient
+    action: delete
+    roles: [administrator]
+  - entity: InsurancePolicy
+    action: read
+    roles: [billing_clerk, receptionist, hospital_manager, administrator]
+  - entity: InsurancePolicy
+    action: create
+    roles: [billing_clerk, receptionist, hospital_manager, administrator]
+  - entity: InsurancePolicy
+    action: update
+    roles: [billing_clerk, receptionist, hospital_manager, administrator]
+  - entity: Appointment
+    action: read
+    roles: [doctor, nurse, receptionist, ward_manager, hospital_manager, administrator]
+  - entity: Appointment
+    action: create
+    roles: [receptionist, doctor, hospital_manager, administrator]
+  - entity: Appointment
+    action: update
+    roles: [receptionist, doctor, hospital_manager, administrator]
+  - entity: Encounter
+    action: read
+    roles: [doctor, nurse, receptionist, pharmacist, lab_technician, radiologist, billing_clerk, ward_manager, hospital_manager, administrator]
+  - entity: Encounter
+    action: create
+    roles: [doctor, nurse, hospital_manager, administrator]
+  - entity: Encounter
+    action: update
+    roles: [doctor, nurse, hospital_manager, administrator]
+  - entity: Admission
+    action: read
+    roles: [doctor, nurse, ward_manager, billing_clerk, hospital_manager, administrator]
+  - entity: Admission
+    action: create
+    roles: [doctor, nurse, ward_manager, hospital_manager, administrator]
+  - entity: Admission
+    action: update
+    roles: [doctor, nurse, ward_manager, hospital_manager, administrator]
+  - entity: ClinicalNote
+    action: read
+    roles: [doctor, nurse, administrator]
+  - entity: ClinicalNote
+    action: create
+    roles: [doctor, nurse]
+  - entity: ClinicalNote
+    action: update
+    roles: [administrator]
+  - entity: ClinicalNote
+    action: delete
+    roles: [administrator]
+  - entity: VitalSign
+    action: read
+    roles: [doctor, nurse, administrator]
+  - entity: VitalSign
+    action: create
+    roles: [doctor, nurse]
+  - entity: VitalSign
+    action: update
+    roles: [administrator]
+  - entity: Diagnosis
+    action: read
+    roles: [doctor, nurse, billing_clerk, administrator]
+  - entity: Diagnosis
+    action: create
+    roles: [doctor, nurse]
+  - entity: Diagnosis
+    action: update
+    roles: [administrator]
+  - entity: Procedure
+    action: read
+    roles: [doctor, nurse, billing_clerk, administrator]
+  - entity: Procedure
+    action: create
+    roles: [doctor, nurse]
+  - entity: Procedure
+    action: update
+    roles: [doctor, nurse]
+  - entity: Consent
+    action: read
+    roles: [doctor, nurse, hospital_manager, administrator]
+  - entity: Consent
+    action: create
+    roles: [doctor, nurse]
+  - entity: Consent
+    action: update
+    roles: [doctor, nurse]
+  - entity: Consent
+    action: delete
+    roles: [administrator]
+  - entity: LabOrder
+    action: read
+    roles: [doctor, nurse, lab_technician, billing_clerk, hospital_manager, administrator]
+  - entity: LabOrder
+    action: create
+    roles: [doctor, nurse]
+  - entity: LabOrder
+    action: update
+    roles: [doctor, nurse, lab_technician]
+  - entity: LabOrder
+    action: delete
+    roles: [administrator]
+  - entity: LabResult
+    action: read
+    roles: [doctor, nurse, lab_technician, administrator]
+  - entity: LabResult
+    action: create
+    roles: [lab_technician]
+  - entity: LabResult
+    action: update
+    roles: [lab_technician]
+  - entity: LabResult
+    action: delete
+    roles: [administrator]
+  - entity: ImagingOrder
+    action: read
+    roles: [doctor, nurse, radiologist, billing_clerk, hospital_manager, administrator]
+  - entity: ImagingOrder
+    action: create
+    roles: [doctor, nurse]
+  - entity: ImagingOrder
+    action: update
+    roles: [doctor, nurse, radiologist, receptionist]
+  - entity: ImagingOrder
+    action: delete
+    roles: [administrator]
+  - entity: ImagingReport
+    action: read
+    roles: [doctor, nurse, radiologist, administrator]
+  - entity: ImagingReport
+    action: create
+    roles: [radiologist]
+  - entity: ImagingReport
+    action: update
+    roles: [radiologist]
+  - entity: ImagingReport
+    action: delete
+    roles: [administrator]
+  - entity: Medication
+    action: read
+    roles: [doctor, nurse, pharmacist, hospital_manager, administrator]
+  - entity: Medication
+    action: create
+    roles: [pharmacist, administrator]
+  - entity: Medication
+    action: update
+    roles: [pharmacist, administrator]
+  - entity: Medication
+    action: delete
+    roles: [administrator]
+  - entity: Prescription
+    action: read
+    roles: [doctor, nurse, pharmacist, administrator]
+  - entity: Prescription
+    action: create
+    roles: [doctor]
+  - entity: Prescription
+    action: update
+    roles: [doctor, pharmacist, nurse]
+  - entity: Prescription
+    action: delete
+    roles: [administrator]
+  - entity: PrescriptionItem
+    action: read
+    roles: [doctor, nurse, pharmacist, administrator]
+  - entity: PrescriptionItem
+    action: create
+    roles: [doctor]
+  - entity: PrescriptionItem
+    action: update
+    roles: [doctor, pharmacist]
+  - entity: PrescriptionItem
+    action: delete
+    roles: [administrator]
+  - entity: ChargeableItem
+    action: read
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: ChargeableItem
+    action: create
+    roles: [hospital_manager, administrator]
+  - entity: ChargeableItem
+    action: update
+    roles: [hospital_manager, administrator]
+  - entity: ChargeableItem
+    action: delete
+    roles: [administrator]
+  - entity: Invoice
+    action: read
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: Invoice
+    action: create
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: Invoice
+    action: update
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: Invoice
+    action: delete
+    roles: [administrator]
+  - entity: InvoiceLine
+    action: read
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: InvoiceLine
+    action: create
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: InvoiceLine
+    action: update
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: InvoiceLine
+    action: delete
+    roles: [administrator]
+  - entity: Payment
+    action: read
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: Payment
+    action: create
+    roles: [billing_clerk, hospital_manager, administrator]
+  - entity: Payment
+    action: update
+    roles: [hospital_manager, administrator]
+  - entity: Payment
+    action: delete
+    roles: [administrator]
+  - entity: Supplier
+    action: read
+    roles: [inventory_manager, pharmacist, hospital_manager, administrator]
+  - entity: Supplier
+    action: create
+    roles: [inventory_manager, hospital_manager, administrator]
+  - entity: Supplier
+    action: update
+    roles: [inventory_manager, hospital_manager, administrator]
+  - entity: Supplier
+    action: delete
+    roles: [administrator]
+  - entity: InventoryItem
+    action: read
+    roles: [inventory_manager, pharmacist, nurse, ward_manager, hospital_manager, administrator]
+  - entity: InventoryItem
+    action: create
+    roles: [inventory_manager, hospital_manager, administrator]
+  - entity: InventoryItem
+    action: update
+    roles: [inventory_manager, hospital_manager, administrator]
+  - entity: InventoryItem
+    action: delete
+    roles: [administrator]
+  - entity: StockTransaction
+    action: read
+    roles: [inventory_manager, pharmacist, nurse, ward_manager, hospital_manager, administrator]
+  - entity: StockTransaction
+    action: create
+    roles: [inventory_manager, pharmacist, nurse, administrator]
+  - entity: StockTransaction
+    action: update
+    roles: [inventory_manager, administrator]
+  - entity: StockTransaction
+    action: delete
+    roles: [administrator]
+  - entity: Bed
+    action: cleaned
+    roles: [nurse, ward_manager]
+  - entity: Bed
+    action: close
+    roles: [ward_manager, hospital_manager]
+  - entity: Bed
+    action: reopen
+    roles: [ward_manager, hospital_manager]
+  - entity: InsurancePolicy
+    action: suspend
+    roles: [billing_clerk, hospital_manager]
+  - entity: InsurancePolicy
+    action: cancel
+    roles: [billing_clerk, hospital_manager]
+  - entity: Appointment
+    action: cancel
+    roles: [receptionist, doctor, hospital_manager]
+  - entity: Appointment
+    action: mark_no_show
+    roles: [receptionist, hospital_manager]
+  - entity: Encounter
+    action: close
+    roles: [doctor]
+  - entity: Admission
+    action: discharge
+    roles: [doctor, ward_manager]
+  - entity: Admission
+    action: cancel
+    roles: [doctor, hospital_manager]
+  - entity: Procedure
+    action: withdraw_consent
+    roles: [doctor, nurse]
+  - entity: Procedure
+    action: begin
+    roles: [doctor]
+  - entity: Procedure
+    action: complete
+    roles: [doctor]
+  - entity: Procedure
+    action: abandon
+    roles: [doctor]
+  - entity: LabOrder
+    action: collect
+    roles: [nurse, doctor]
+  - entity: LabOrder
+    action: receive
+    roles: [lab_technician]
+  - entity: LabOrder
+    action: result
+    roles: [lab_technician]
+  - entity: ImagingOrder
+    action: schedule
+    roles: [receptionist, radiologist]
+  - entity: ImagingOrder
+    action: perform
+    roles: [radiologist]
+  - entity: ImagingOrder
+    action: report
+    roles: [radiologist]
+  - entity: Prescription
+    action: prescribe
+    roles: [doctor]
+  - entity: Prescription
+    action: verify
+    roles: [pharmacist]
+  - entity: Prescription
+    action: dispense
+    roles: [pharmacist]
+  - entity: Prescription
+    action: collect
+    roles: [nurse, pharmacist]
+  - entity: Invoice
+    action: issue
+    roles: [billing_clerk]
+  - entity: Invoice
+    action: submit_claim
+    roles: [billing_clerk]
+  - entity: Invoice
+    action: rebill
+    roles: [billing_clerk]
+  - entity: Invoice
+    action: write_off
+    roles: [hospital_manager]
+  - entity: Invoice
+    action: cancel
+    roles: [hospital_manager]
+reports:
+  # ---- The reporting pass (llmdetailed §10.5.1) -----------------------------
+
+  # What the derived pack already gives this model without being asked: a
+  # register per entity, a breakdown per enum-bound column, created-per-month,
+  # a lifecycle report over all ten state machines in the diagram's own order,
+  # and children-per-parent for all 52 relationships. None of that needed anyone
+  # who has run a ward.
+
+  # These do. Each of the eleven roles on the rbac matrix above is walked
+  # through the four questions — what they open first, what tells them something
+  # is wrong today, what they are asked for weekly, and what rots silently if
+  # nobody looks — so each can do its whole job from what it can see.
+
+  # -- receptionist: the front desk --------------------------------------------
+  - name: front-desk-today
+    title: Today's clinic list
+    entity: Appointment
+    help: "The desk's whole morning in one screen: who is expected, with which doctor, and whether they have arrived. Sorted by time because that is the order people walk in."
+    sql: SELECT a.scheduled_at, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, s.first_name || ' ' || s.last_name AS doctor, a.appointment_type, a.status FROM bus_appointment a JOIN bus_patient p ON p.id = a.patient_id LEFT JOIN bus_doctor d ON d.id = a.doctor_id LEFT JOIN bus_staff s ON s.id = d.staff_id WHERE a.deleted_at IS NULL AND a.status IN ('requested', 'confirmed', 'checked_in') AND a.scheduled_at >= date_trunc('day', now()) AND a.scheduled_at < date_trunc('day', now()) + interval '1 day' ORDER BY a.scheduled_at
+  - name: front-desk-unconfirmed
+    title: Appointments nobody has confirmed
+    entity: Appointment
+    help: An appointment still merely requested two days out is a slot that will probably be wasted and a patient who does not know they are expected. Confirming it costs a phone call.
+    sql: SELECT a.scheduled_at, a.appointment_number, p.first_name || ' ' || p.last_name AS patient, p.phone, a.appointment_type FROM bus_appointment a JOIN bus_patient p ON p.id = a.patient_id WHERE a.deleted_at IS NULL AND a.status = 'requested' AND a.scheduled_at BETWEEN now() AND now() + interval '48 hours' ORDER BY a.scheduled_at
+  - name: front-desk-expiring-policies
+    title: Insurance cover about to lapse
+    entity: InsurancePolicy
+    help: Cover that expires while a patient is mid-treatment turns into a bill the patient did not expect. The desk is the only place it can be caught before the invoice is raised.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, i.insurer_name, i.policy_number, i.valid_to, (i.valid_to - now()::date) AS days_left FROM bus_insurance_policy i JOIN bus_patient p ON p.id = i.patient_id WHERE i.deleted_at IS NULL AND i.status = 'active' AND i.valid_to BETWEEN now()::date AND (now() + interval '30 days')::date ORDER BY i.valid_to
+  - name: front-desk-repeat-no-shows
+    title: Patients who repeatedly do not attend
+    entity: Patient
+    chart: bar
+    x: patient
+    y: no_shows
+    help: Three missed appointments is a pattern, not bad luck — usually transport, or a number that has changed. Worth a different kind of booking rather than another letter.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, p.phone, COUNT(*) AS no_shows FROM bus_appointment a JOIN bus_patient p ON p.id = a.patient_id WHERE a.deleted_at IS NULL AND a.status = 'no_show' AND a.scheduled_at > now() - interval '180 days' GROUP BY p.id, p.medical_record_number, p.first_name, p.last_name, p.phone HAVING COUNT(*) >= 3 ORDER BY no_shows DESC
+  # -- nurse: the patients in front of them ------------------------------------
+  - name: nurse-deteriorating-patients
+    title: Patients with a high early warning score
+    entity: VitalSign
+    help: The single most important screen in this application. An early warning score of five or more is the threshold at which a nurse escalates, and the most recent observation is the only one that matters.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, w.name AS ward, v.early_warning_score AS news, v.pulse_bpm, v.systolic_bp, v.oxygen_saturation, v.recorded_at FROM bus_vital_sign v JOIN bus_encounter e ON e.id = v.encounter_id JOIN bus_patient p ON p.id = e.patient_id LEFT JOIN bus_admission ad ON ad.encounter_id = e.id AND ad.deleted_at IS NULL AND ad.status IN ('admitted', 'on_ward', 'discharge_planned') LEFT JOIN bus_ward w ON w.id = ad.ward_id WHERE v.deleted_at IS NULL AND v.early_warning_score >= 5 AND v.recorded_at > now() - interval '24 hours' ORDER BY v.early_warning_score DESC, v.recorded_at DESC
+  - name: nurse-observations-overdue
+    title: Inpatients with no recent observations
+    entity: Admission
+    help: The absence that kills. A patient on a ward with no vital signs recorded for eight hours has not been assessed, and nothing on the patient screen says so — only the gap does.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, w.name AS ward, b.bed_code, MAX(v.recorded_at) AS last_observation FROM bus_admission a JOIN bus_patient p ON p.id = a.patient_id JOIN bus_encounter e ON e.id = a.encounter_id LEFT JOIN bus_ward w ON w.id = a.ward_id LEFT JOIN bus_bed b ON b.id = a.bed_id LEFT JOIN bus_vital_sign v ON v.encounter_id = e.id AND v.deleted_at IS NULL WHERE a.deleted_at IS NULL AND a.status IN ('admitted', 'on_ward') GROUP BY a.id, p.medical_record_number, p.first_name, p.last_name, w.name, b.bed_code HAVING MAX(v.recorded_at) IS NULL OR MAX(v.recorded_at) < now() - interval '8 hours' ORDER BY last_observation NULLS FIRST
+  - name: nurse-critical-results-unseen
+    title: Critical results nobody has verified
+    entity: LabResult
+    help: A critical value that has been resulted but not verified is a number the laboratory has flagged and the ward has not read. This is the gap that incident reports are written about.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, l.analyte, l.value_numeric, l.unit, l.abnormal_flag, l.resulted_at FROM bus_lab_result l JOIN bus_lab_order o ON o.id = l.lab_order_id JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE l.deleted_at IS NULL AND l.abnormal_flag IN ('critical_low', 'critical_high') AND l.verified_at IS NULL ORDER BY l.resulted_at
+  - name: nurse-high-alert-medicines
+    title: High-alert medicines without a second check
+    entity: PrescriptionItem
+    help: The model requires a second signature on high-alert drugs. This lists the ones dispensed without it — a control that only means something if somebody counts the exceptions.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, m.name AS medication, i.dose, i.route, i.frequency, r.status FROM bus_prescription_item i JOIN bus_prescription r ON r.id = i.prescription_id JOIN bus_encounter e ON e.id = r.encounter_id JOIN bus_patient p ON p.id = e.patient_id JOIN bus_medication m ON m.id = i.medication_id WHERE i.deleted_at IS NULL AND i.is_high_alert AND i.second_check_by_id IS NULL AND r.status IN ('verified', 'dispensed', 'collected') ORDER BY r.prescribed_at DESC
+  - name: nurse-allergy-alerts
+    title: Inpatients with recorded allergies
+    entity: Patient
+    help: Carried at handover and checked before every administration. Free text on purpose, because an allergy nobody could code is still an allergy that will hurt somebody.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, w.name AS ward, b.bed_code, p.known_allergies FROM bus_admission a JOIN bus_patient p ON p.id = a.patient_id LEFT JOIN bus_ward w ON w.id = a.ward_id LEFT JOIN bus_bed b ON b.id = a.bed_id WHERE a.deleted_at IS NULL AND a.status IN ('admitted', 'on_ward', 'discharge_planned') AND p.known_allergies IS NOT NULL AND p.known_allergies <> '' ORDER BY w.name, b.bed_code
+  # -- doctor: their own patients and what is outstanding ----------------------
+  - name: doctor-results-awaiting-review
+    title: Results back and not yet acted on
+    entity: LabOrder
+    help: The ordering doctor's outstanding list. A result that arrives while the doctor is in theatre is read hours later or not at all, and the order screen does not distinguish resulted from reviewed.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, o.test_name, o.priority, o.ordered_at, MAX(l.resulted_at) AS resulted_at FROM bus_lab_order o JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id JOIN bus_lab_result l ON l.lab_order_id = o.id AND l.deleted_at IS NULL WHERE o.deleted_at IS NULL AND o.status = 'resulted' GROUP BY o.id, p.medical_record_number, p.first_name, p.last_name, o.test_name, o.priority, o.ordered_at ORDER BY o.priority DESC, resulted_at
+  - name: doctor-critical-imaging
+    title: Imaging reported as critical
+    entity: ImagingReport
+    help: A critical radiology finding is a phone call, not a document. This is the list that proves the call was possible; whether it was made is the conversation it starts.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, o.modality, o.body_part, r.reported_at, r.impression FROM bus_imaging_report r JOIN bus_imaging_order o ON o.id = r.imaging_order_id JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE r.deleted_at IS NULL AND r.is_critical AND r.reported_at > now() - interval '7 days' ORDER BY r.reported_at DESC
+  - name: doctor-open-encounters
+    title: Encounters left open
+    entity: Encounter
+    help: An encounter that was never closed keeps a patient nominally under care and blocks the invoice behind it. They accumulate silently, and the clinician who opened it is the only one who can close it.
+    sql: SELECT e.encounter_number, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, s.first_name || ' ' || s.last_name AS doctor, e.encounter_type, e.started_at, EXTRACT(day FROM now() - e.started_at)::int AS days_open FROM bus_encounter e JOIN bus_patient p ON p.id = e.patient_id LEFT JOIN bus_doctor d ON d.id = e.doctor_id LEFT JOIN bus_staff s ON s.id = d.staff_id WHERE e.deleted_at IS NULL AND e.status IN ('open', 'in_progress') AND e.started_at < now() - interval '3 days' ORDER BY days_open DESC
+  - name: doctor-procedures-without-consent
+    title: Procedures with no valid consent
+    entity: Procedure
+    help: A procedure planned or consented whose consent is missing or withdrawn. It is a stop, not a warning, and it is the one thing that must be checked before the patient is on the table.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, pr.name AS procedure_name, pr.status, pr.scheduled_for FROM bus_procedure pr JOIN bus_encounter e ON e.id = pr.encounter_id JOIN bus_patient p ON p.id = e.patient_id LEFT JOIN bus_consent c ON c.procedure_id = pr.id AND c.deleted_at IS NULL AND NOT c.is_withdrawn WHERE pr.deleted_at IS NULL AND pr.status IN ('planned', 'consented', 'in_progress') GROUP BY pr.id, p.medical_record_number, p.first_name, p.last_name, pr.name, pr.status, pr.scheduled_for HAVING COUNT(c.id) = 0 ORDER BY pr.scheduled_for
+  - name: doctor-stat-orders-waiting
+    title: Urgent and stat orders still waiting
+    entity: LabOrder
+    help: Stat means now. An order still uncollected an hour after it was raised has lost the reason it was marked urgent, and nobody is told — the order simply sits.
+    sql: SELECT o.order_number, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, o.test_name, o.priority, o.status, o.ordered_at, EXTRACT(epoch FROM now() - o.ordered_at)/3600 AS hours_waiting FROM bus_lab_order o JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE o.deleted_at IS NULL AND o.priority IN ('urgent', 'stat') AND o.status IN ('requested', 'collected', 'in_lab') AND o.ordered_at < now() - interval '1 hour' ORDER BY o.priority DESC, o.ordered_at
+  # -- ward_manager: beds, flow and the ward's own stock -----------------------
+  - name: ward-bed-state
+    title: Beds by ward and what they are doing
+    entity: Bed
+    chart: bar
+    x: ward
+    y: available
+    help: The bed manager's whole job in one row per ward. Available against capacity, with cleaning counted separately because a bed waiting to be cleaned is capacity that exists but cannot be used yet.
+    sql: SELECT w.name AS ward, w.ward_type, w.bed_capacity AS capacity, COUNT(*) FILTER (WHERE b.status = 'available') AS available, COUNT(*) FILTER (WHERE b.status = 'occupied') AS occupied, COUNT(*) FILTER (WHERE b.status = 'cleaning') AS cleaning, COUNT(*) FILTER (WHERE b.status = 'closed') AS closed FROM bus_ward w LEFT JOIN bus_bed b ON b.ward_id = w.id AND b.deleted_at IS NULL AND b.is_active WHERE w.deleted_at IS NULL AND w.is_active GROUP BY w.id, w.name, w.ward_type, w.bed_capacity ORDER BY available
+  - name: ward-beds-awaiting-cleaning
+    title: Beds waiting to be cleaned
+    entity: Bed
+    help: Every one is a patient who could be admitted and is not. Hours since last cleaned is the argument for another domestic, and it exists nowhere except here.
+    sql: SELECT w.name AS ward, b.bed_code, b.bed_type, b.last_cleaned_at, ROUND(EXTRACT(epoch FROM now() - b.last_cleaned_at)/3600) AS hours_waiting FROM bus_bed b JOIN bus_ward w ON w.id = b.ward_id WHERE b.deleted_at IS NULL AND b.is_active AND b.status = 'cleaning' ORDER BY b.last_cleaned_at
+  - name: ward-discharges-overdue
+    title: Inpatients past their expected discharge
+    entity: Admission
+    help: A stay that has run past its expected discharge date is either a patient who got worse or a discharge nobody organised. The two need different people, and both need finding today.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, w.name AS ward, b.bed_code, a.admitted_at, a.expected_discharge_date, (now()::date - a.expected_discharge_date) AS days_over FROM bus_admission a JOIN bus_patient p ON p.id = a.patient_id LEFT JOIN bus_ward w ON w.id = a.ward_id LEFT JOIN bus_bed b ON b.id = a.bed_id WHERE a.deleted_at IS NULL AND a.status IN ('admitted', 'on_ward', 'discharge_planned') AND a.expected_discharge_date < now()::date ORDER BY days_over DESC
+  - name: ward-long-stays
+    title: The longest current stays
+    entity: Admission
+    chart: bar
+    x: patient
+    y: days
+    help: Length of stay is the measure a hospital is judged on and the one nobody sees day to day, because each ward only sees its own. Sorted longest first, which is where the delayed discharges are.
+    sql: SELECT p.first_name || ' ' || p.last_name AS patient, w.name AS ward, a.admission_type, a.admitted_at, EXTRACT(day FROM now() - a.admitted_at)::int AS days FROM bus_admission a JOIN bus_patient p ON p.id = a.patient_id LEFT JOIN bus_ward w ON w.id = a.ward_id WHERE a.deleted_at IS NULL AND a.status IN ('admitted', 'on_ward', 'discharge_planned') ORDER BY days DESC
+  # -- lab_technician: the specimens in the laboratory -------------------------
+  - name: lab-collection-queue
+    title: Specimens ordered and not collected
+    entity: LabOrder
+    help: The round the phlebotomist walks. Priority first, then age, because a stat sample taken late is a stat sample wasted.
+    sql: SELECT o.order_number, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, o.test_name, o.specimen_type, o.priority, o.ordered_at FROM bus_lab_order o JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE o.deleted_at IS NULL AND o.status = 'requested' ORDER BY CASE o.priority WHEN 'stat' THEN 1 WHEN 'urgent' THEN 2 ELSE 3 END, o.ordered_at
+  - name: lab-samples-in-lab-too-long
+    title: Specimens sitting in the laboratory
+    entity: LabOrder
+    help: Collected, delivered, and then nothing. A specimen in the lab for over a day is either lost or degrading, and both are found by looking at the clock rather than at the sample.
+    sql: SELECT o.order_number, o.test_name, o.specimen_type, o.priority, o.collected_at, EXTRACT(day FROM now() - o.collected_at)::int AS days_in_lab FROM bus_lab_order o WHERE o.deleted_at IS NULL AND o.status IN ('collected', 'in_lab') AND o.collected_at < now() - interval '24 hours' ORDER BY days_in_lab DESC
+  - name: lab-results-unverified
+    title: Results resulted but not verified
+    entity: LabResult
+    help: The laboratory's own outstanding queue. A result nobody has verified is not yet a result, and the ward is treating it as one.
+    sql: SELECT o.order_number, l.analyte, l.value_numeric, l.unit, l.abnormal_flag, l.resulted_at, EXTRACT(epoch FROM now() - l.resulted_at)/3600 AS hours_unverified FROM bus_lab_result l JOIN bus_lab_order o ON o.id = l.lab_order_id WHERE l.deleted_at IS NULL AND l.verified_at IS NULL AND l.resulted_at IS NOT NULL ORDER BY l.resulted_at
+  # -- radiologist: the reporting worklist -------------------------------------
+  - name: imaging-unreported-studies
+    title: Studies performed and not reported
+    entity: ImagingOrder
+    help: The reporting backlog, which is the number that decides whether a scanner slot was worth using. A performed study without a report has cost everything and delivered nothing.
+    sql: SELECT o.order_number, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, o.modality, o.body_part, o.priority, o.performed_at, EXTRACT(day FROM now() - o.performed_at)::int AS days_unreported FROM bus_imaging_order o JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE o.deleted_at IS NULL AND o.status = 'performed' AND o.performed_at IS NOT NULL ORDER BY CASE o.priority WHEN 'stat' THEN 1 WHEN 'urgent' THEN 2 ELSE 3 END, o.performed_at
+  - name: imaging-unscheduled-requests
+    title: Imaging requested and never scheduled
+    entity: ImagingOrder
+    help: A request that never became an appointment. The ordering doctor believes it is booked; nothing tells them otherwise until they ask for the result.
+    sql: SELECT o.order_number, p.first_name || ' ' || p.last_name AS patient, o.modality, o.body_part, o.priority, o.is_escalated, o.ordered_at FROM bus_imaging_order o JOIN bus_encounter e ON e.id = o.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE o.deleted_at IS NULL AND o.status = 'requested' AND o.ordered_at < now() - interval '48 hours' ORDER BY o.ordered_at
+  - name: imaging-workload-by-modality
+    title: Studies reported by modality
+    entity: ImagingOrder
+    chart: bar
+    x: modality
+    y: reported
+    help: What the department actually did last month, which is how the next rota and the next business case are argued. Contrast studies counted separately because they cost more of everything.
+    sql: SELECT o.modality, COUNT(*) AS reported, COUNT(*) FILTER (WHERE o.contrast_used) AS with_contrast FROM bus_imaging_order o WHERE o.deleted_at IS NULL AND o.status = 'reported' AND o.performed_at > now() - interval '30 days' GROUP BY o.modality ORDER BY reported DESC
+  # -- pharmacist: what is being prescribed and dispensed ----------------------
+  - name: pharmacy-verification-queue
+    title: Prescriptions waiting for a pharmacist
+    entity: Prescription
+    help: The queue the pharmacy works from. Controlled items are called out because they carry a different check and cannot simply be worked in order.
+    sql: SELECT r.prescription_number, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, r.has_controlled_item, r.is_discharge_prescription, r.prescribed_at, EXTRACT(epoch FROM now() - r.prescribed_at)/3600 AS hours_waiting FROM bus_prescription r JOIN bus_encounter e ON e.id = r.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE r.deleted_at IS NULL AND r.status = 'prescribed' ORDER BY r.has_controlled_item DESC, r.prescribed_at
+  - name: pharmacy-discharge-delays
+    title: Discharge prescriptions holding up a bed
+    entity: Prescription
+    help: The commonest reason a discharge slips past midday. The bed cannot be released until the medicines are dispensed, and the ward has no way to see where in the pharmacy the prescription is.
+    sql: SELECT r.prescription_number, p.first_name || ' ' || p.last_name AS patient, w.name AS ward, r.status, r.prescribed_at FROM bus_prescription r JOIN bus_encounter e ON e.id = r.encounter_id JOIN bus_patient p ON p.id = e.patient_id LEFT JOIN bus_admission a ON a.encounter_id = e.id AND a.deleted_at IS NULL LEFT JOIN bus_ward w ON w.id = a.ward_id WHERE r.deleted_at IS NULL AND r.is_discharge_prescription AND r.status IN ('prescribed', 'verified') ORDER BY r.prescribed_at
+  - name: pharmacy-controlled-drugs
+    title: Controlled medicines dispensed
+    entity: PrescriptionItem
+    help: The register that has to balance. Every controlled item dispensed, with who prescribed and who dispensed it, because that pairing is exactly what an inspection asks to see.
+    sql: SELECT r.prescription_number, m.name AS medication, m.strength, i.quantity, s1.first_name || ' ' || s1.last_name AS prescribed_by, s2.first_name || ' ' || s2.last_name AS dispensed_by, r.dispensed_at FROM bus_prescription_item i JOIN bus_prescription r ON r.id = i.prescription_id JOIN bus_medication m ON m.id = i.medication_id LEFT JOIN bus_staff s1 ON s1.id = r.prescribed_by_id LEFT JOIN bus_staff s2 ON s2.id = r.dispensed_by_id WHERE i.deleted_at IS NULL AND m.is_controlled AND r.status IN ('dispensed', 'collected') AND r.dispensed_at > now() - interval '90 days' ORDER BY r.dispensed_at DESC
+  - name: pharmacy-stock-cover
+    title: Medicines with no stock behind them
+    entity: Medication
+    help: A medicine on the formulary whose inventory item is at or below its reorder level. It will be prescribed today and refused at the counter, and the prescriber will not know why.
+    sql: SELECT m.name AS medication, m.strength, m.form, v.quantity_on_hand, v.reorder_level, v.is_on_reorder FROM bus_medication m JOIN bus_inventory_item v ON v.id = m.inventory_item_id WHERE m.deleted_at IS NULL AND v.deleted_at IS NULL AND m.is_active AND v.quantity_on_hand <= v.reorder_level ORDER BY v.quantity_on_hand
+  # -- inventory_manager: stock, suppliers and expiry --------------------------
+  - name: stock-below-reorder
+    title: Items at or below reorder level
+    entity: InventoryItem
+    chart: bar
+    x: item
+    y: on_hand
+    help: The order that has to go out today. Lead time is shown because an item three days from empty with a fourteen-day supplier is already a shortage, whatever the level says.
+    sql: SELECT v.code, v.name AS item, v.category, v.quantity_on_hand AS on_hand, v.reorder_level, v.reorder_quantity, s.name AS supplier, s.lead_time_days FROM bus_inventory_item v LEFT JOIN bus_supplier s ON s.id = v.supplier_id WHERE v.deleted_at IS NULL AND v.is_active AND v.quantity_on_hand <= v.reorder_level ORDER BY (v.quantity_on_hand - v.reorder_level), s.lead_time_days DESC
+  - name: stock-expiring-batches
+    title: Batches about to expire
+    entity: StockTransaction
+    help: Stock that will have to be destroyed if it is not used first. Cold chain items are flagged because they are the expensive ones and the ones that cannot be moved to another site.
+    sql: SELECT v.name AS item, v.category, t.batch_number, t.expiry_date, t.quantity, v.requires_cold_chain, t.occurred_on FROM bus_stock_transaction t JOIN bus_inventory_item v ON v.id = t.inventory_item_id WHERE t.deleted_at IS NULL AND t.transaction_type = 'receipt' AND t.expiry_date IS NOT NULL AND t.expiry_date BETWEEN now()::date AND (now() + interval '90 days')::date ORDER BY t.expiry_date
+  - name: stock-consumption-by-ward
+    title: What each ward is using
+    entity: StockTransaction
+    chart: bar
+    x: ward
+    y: issued
+    help: Where the consumables actually go, which is the only basis on which a ward budget can be argued. Issues only, over a quarter, so one heavy week does not distort it.
+    sql: SELECT w.name AS ward, SUM(t.quantity) AS issued, COUNT(DISTINCT t.inventory_item_id) AS distinct_items FROM bus_stock_transaction t JOIN bus_ward w ON w.id = t.ward_id WHERE t.deleted_at IS NULL AND t.transaction_type = 'issue' AND t.occurred_on > now()::date - 90 GROUP BY w.id, w.name ORDER BY issued DESC
+  # -- billing_clerk: what has been billed and what has been paid --------------
+  - name: billing-overdue-invoices
+    title: Invoices past their due date
+    entity: Invoice
+    chart: bar
+    x: status
+    y: outstanding
+    help: The ledger the finance office works from. Outstanding rather than gross, because what matters is what is still owed, not what was once charged.
+    sql: SELECT i.status, COUNT(*) AS invoices, SUM(i.gross_amount - i.paid_amount) AS outstanding FROM bus_invoice i WHERE i.deleted_at IS NULL AND i.status IN ('issued', 'submitted', 'part_paid', 'overdue') AND i.due_on < now()::date GROUP BY i.status ORDER BY outstanding DESC
+  - name: billing-unverified-policies
+    title: Invoices raised against unverified cover
+    entity: Invoice
+    help: An invoice sent to an insurer without the policy having been checked is a rejection waiting to happen, and a rejection is thirty days lost before anyone starts again.
+    sql: SELECT i.invoice_number, p.first_name || ' ' || p.last_name AS patient, i.insurer_amount, i.status, i.issued_on FROM bus_invoice i JOIN bus_patient p ON p.id = i.patient_id WHERE i.deleted_at IS NULL AND NOT i.policy_verified AND i.insurer_amount > 0 AND i.status IN ('issued', 'submitted') ORDER BY i.insurer_amount DESC
+  - name: billing-unbilled-encounters
+    title: Billable encounters with no invoice
+    entity: Encounter
+    help: Work done and never charged for. It is the largest single leak in a hospital's income and it is invisible from every screen, because nothing shows the absence of an invoice.
+    sql: SELECT e.encounter_number, p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, e.encounter_type, e.started_at, e.ended_at FROM bus_encounter e JOIN bus_patient p ON p.id = e.patient_id LEFT JOIN bus_invoice i ON i.encounter_id = e.id AND i.deleted_at IS NULL WHERE e.deleted_at IS NULL AND e.is_billable AND e.status = 'closed' AND e.ended_at < now() - interval '7 days' GROUP BY e.id, e.encounter_number, p.medical_record_number, p.first_name, p.last_name, e.encounter_type, e.started_at, e.ended_at HAVING COUNT(i.id) = 0 ORDER BY e.ended_at
+  - name: billing-rejected-claims
+    title: Claims the insurer sent back
+    entity: Invoice
+    help: Every rejection is money already earned and not collected, and it has a clock on it. Read weekly it is a work list; read monthly it is a write-off.
+    sql: SELECT i.invoice_number, p.first_name || ' ' || p.last_name AS patient, ip.insurer_name, i.insurer_amount, i.issued_on, i.notes FROM bus_invoice i JOIN bus_patient p ON p.id = i.patient_id LEFT JOIN bus_insurance_policy ip ON ip.id = i.insurance_policy_id WHERE i.deleted_at IS NULL AND i.status = 'rejected' ORDER BY i.insurer_amount DESC
+  - name: billing-collections-by-method
+    title: Money collected, by how it arrived
+    entity: Payment
+    chart: bar
+    x: method
+    y: collected
+    help: Cash handling, card fees and insurer settlement behave differently and are reconciled differently. Split by method this is a reconciliation; totalled it is a number nobody can check.
+    sql: SELECT y.method, y.payer_type, COUNT(*) AS payments, SUM(y.amount) AS collected FROM bus_payment y WHERE y.deleted_at IS NULL AND y.received_on > now()::date - 90 GROUP BY y.method, y.payer_type ORDER BY collected DESC
+  # -- hospital_manager: whether the hospital is coping ------------------------
+  - name: manager-occupancy-by-ward
+    title: Occupancy against capacity
+    entity: Ward
+    chart: bar
+    x: ward
+    y: occupancy_pct
+    help: The board's number. Anything sustained above ninety per cent means no headroom for an emergency admission, which is when a hospital starts diverting.
+    sql: SELECT w.name AS ward, w.ward_type, w.bed_capacity AS capacity, COUNT(*) FILTER (WHERE b.status = 'occupied') AS occupied, ROUND(100.0 * COUNT(*) FILTER (WHERE b.status = 'occupied') / NULLIF(w.bed_capacity, 0)) AS occupancy_pct FROM bus_ward w LEFT JOIN bus_bed b ON b.ward_id = w.id AND b.deleted_at IS NULL AND b.is_active WHERE w.deleted_at IS NULL AND w.is_active GROUP BY w.id, w.name, w.ward_type, w.bed_capacity ORDER BY occupancy_pct DESC
+  - name: manager-revenue-by-month
+    title: Money collected by month
+    entity: Payment
+    chart: line
+    x: month
+    y: collected
+    help: Cash actually received rather than invoiced, which is the only version of the number a finance director will accept. Twelve months, so seasonality is visible rather than surprising.
+    sql: SELECT to_char(date_trunc('month', y.received_on), 'YYYY-MM') AS month, SUM(y.amount) AS collected, COUNT(*) AS payments FROM bus_payment y WHERE y.deleted_at IS NULL AND y.received_on > now()::date - 365 GROUP BY 1 ORDER BY 1
+  - name: manager-cancelled-appointments
+    title: Appointments cancelled or missed
+    entity: Appointment
+    chart: bar
+    x: department
+    y: lost
+    help: "Capacity paid for and not used, by department. The split between cancelled and no-show matters: one is a scheduling problem, the other is a patient-contact problem."
+    sql: SELECT d.name AS department, COUNT(*) FILTER (WHERE a.status = 'cancelled') AS cancelled, COUNT(*) FILTER (WHERE a.status = 'no_show') AS no_shows, COUNT(*) AS lost FROM bus_appointment a LEFT JOIN bus_department d ON d.id = a.department_id WHERE a.deleted_at IS NULL AND a.status IN ('cancelled', 'no_show') AND a.scheduled_at > now() - interval '90 days' GROUP BY d.id, d.name ORDER BY lost DESC
+  - name: manager-readmissions
+    title: Patients readmitted within thirty days
+    entity: Admission
+    help: The quality measure that regulators and funders both use. A readmission inside a month usually means the first discharge was too early or the follow-up never happened.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, a1.discharged_at AS first_discharge, a2.admitted_at AS readmitted, EXTRACT(day FROM a2.admitted_at - a1.discharged_at)::int AS days_between FROM bus_admission a1 JOIN bus_admission a2 ON a2.patient_id = a1.patient_id AND a2.admitted_at > a1.discharged_at AND a2.admitted_at < a1.discharged_at + interval '30 days' JOIN bus_patient p ON p.id = a1.patient_id WHERE a1.deleted_at IS NULL AND a2.deleted_at IS NULL AND a1.status = 'discharged' AND a1.discharged_at IS NOT NULL ORDER BY a2.admitted_at DESC
+  - name: manager-uninsured-exposure
+    title: Charges with no insurance behind them
+    entity: Invoice
+    help: What the hospital is carrying itself. A large patient-payable balance is either a payment plan nobody has set up or a debt that will not be collected, and both need deciding rather than discovering.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, i.invoice_number, i.gross_amount, i.patient_amount, i.paid_amount, i.status, i.due_on FROM bus_invoice i JOIN bus_patient p ON p.id = i.patient_id WHERE i.deleted_at IS NULL AND i.insurer_amount = 0 AND i.patient_amount > 0 AND i.status NOT IN ('paid', 'cancelled', 'written_off') ORDER BY i.patient_amount DESC
+  # -- administrator: what nobody else can see ---------------------------------
+  - name: admin-records-without-owner
+    title: Clinical records with no responsible clinician
+    entity: Encounter
+    help: An encounter with no doctor answers to nobody and appears on no consultant's list. It is not visible from inside any single screen, which is why only an administrator ever finds it.
+    sql: SELECT 'Encounter' AS record_type, COUNT(*) AS records FROM bus_encounter WHERE deleted_at IS NULL AND doctor_id IS NULL UNION ALL SELECT 'Appointment', COUNT(*) FROM bus_appointment WHERE deleted_at IS NULL AND doctor_id IS NULL UNION ALL SELECT 'Admission (no bed)', COUNT(*) FROM bus_admission WHERE deleted_at IS NULL AND status IN ('admitted', 'on_ward') AND bed_id IS NULL UNION ALL SELECT 'Procedure', COUNT(*) FROM bus_procedure WHERE deleted_at IS NULL AND doctor_id IS NULL ORDER BY records DESC
+  - name: admin-inactive-staff-with-work
+    title: Departed staff still attached to open work
+    entity: Staff
+    help: When somebody leaves, their patients do not. Every row is work that has no living owner, and it is found only by joining the staff record to the things it is still named on.
+    sql: SELECT s.staff_number, s.first_name || ' ' || s.last_name AS staff, s.staff_role, COUNT(e.id) AS open_encounters FROM bus_staff s JOIN bus_doctor d ON d.staff_id = s.id AND d.deleted_at IS NULL JOIN bus_encounter e ON e.doctor_id = d.id AND e.deleted_at IS NULL AND e.status IN ('open', 'in_progress') WHERE s.deleted_at IS NULL AND NOT s.is_active GROUP BY s.id, s.staff_number, s.first_name, s.last_name, s.staff_role ORDER BY open_encounters DESC
+  - name: admin-consent-withdrawn
+    title: Consent withdrawn after the fact
+    entity: Consent
+    help: A withdrawal recorded against a procedure that has already been performed is the most serious record pairing in this application. Rare, and every instance needs reading rather than counting.
+    sql: SELECT p.medical_record_number, p.first_name || ' ' || p.last_name AS patient, pr.name AS procedure_name, pr.status, pr.performed_at, c.withdrawn_at, c.notes FROM bus_consent c JOIN bus_procedure pr ON pr.id = c.procedure_id JOIN bus_encounter e ON e.id = pr.encounter_id JOIN bus_patient p ON p.id = e.patient_id WHERE c.deleted_at IS NULL AND c.is_withdrawn AND pr.performed_at IS NOT NULL AND c.withdrawn_at > pr.performed_at ORDER BY c.withdrawn_at DESC
+rules:
+  - name: appointmentSlotGate
+    title: Appointment Slot Gate
+    entity: Appointment
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Booking requested"
+        type: start
+      - id: D
+        label: slot in the past?
+        type: decision
+      - id: E
+        label: Refuse the booking
+        type: expression
+      - id: F
+        label: Accept the booking
+        type: expression
+      - id: G
+        label: Refused
+        type: end
+      - id: H
+        label: Booked
+        type: end
+    edges:
+      - from: A
+        to: D
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: E
+        to: G
+      - from: F
+        to: H
+    actions:
+      - name: refusePastSlot
+        type: validation-error
+        when: scheduled_at < now
+        props:
+          message: An appointment cannot be booked in the past.
+  - name: dischargeSummaryGate
+    title: Discharge Summary Gate
+    entity: Admission
+    event: beforeUpdate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Admission being discharged"
+        type: start
+      - id: B
+        label: status becoming discharged?
+        type: decision
+      - id: E
+        label: Allow the change
+        type: expression
+      - id: C
+        label: discharge summary written?
+        type: decision
+      - id: D
+        label: Refuse the discharge
+        type: expression
+      - id: F
+        label: Refused
+        type: end
+      - id: G
+        label: Allowed
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: E
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: D
+        label: No
+      - from: C
+        to: E
+        label: Yes
+      - from: D
+        to: F
+      - from: E
+        to: G
+    actions:
+      - name: requireDischargeSummary
+        type: validation-error
+        when: status == 'discharged' and discharge_summary == null
+        props:
+          message: Write the discharge summary before discharging. A patient sent home without one leaves their GP with nothing.
+  - name: labResultValueGate
+    title: Lab Result Value Gate
+    entity: LabResult
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Result being recorded"
+        type: start
+      - id: B
+        label: a numeric value?
+        type: decision
+      - id: F
+        label: Record the result
+        type: expression
+      - id: C
+        label: a text value?
+        type: decision
+      - id: D
+        label: Refuse the result
+        type: expression
+      - id: G
+        label: Refused
+        type: end
+      - id: H
+        label: Recorded
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: F
+        label: Yes
+      - from: B
+        to: C
+        label: No
+      - from: C
+        to: F
+        label: Yes
+      - from: C
+        to: D
+        label: No
+      - from: D
+        to: G
+      - from: F
+        to: H
+    actions:
+      - name: requireResultValue
+        type: validation-error
+        when: value_numeric == null and value_text == null
+        props:
+          message: A result must carry a value — a number with its unit, or the words the laboratory reported. An empty result is an order that has not come back yet.
+  - name: criticalResultGate
+    title: Critical Result Gate
+    entity: LabResult
+    event: afterCreate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Result recorded"
+        type: start
+      - id: B
+        label: flagged critical?
+        type: decision
+      - id: E
+        label: File the result
+        type: expression
+      - id: C
+        label: Escalate the request
+        type: expression
+      - id: D
+        label: Escalated
+        type: end
+      - id: F
+        label: Filed
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: E
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: D
+      - from: E
+        to: F
+    actions:
+      - name: escalateCriticalResult
+        type: trigger-workflow
+        when: abnormal_flag == 'critical_high' or abnormal_flag == 'critical_low'
+        props:
+          workflow: CriticalResultEscalation
+          message: A critical value has to be told to the requesting clinician now, not read at the next ward round.
+  - name: criticalFindingGate
+    title: Critical Finding Gate
+    entity: ImagingReport
+    event: afterCreate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Report signed"
+        type: start
+      - id: B
+        label: marked critical?
+        type: decision
+      - id: E
+        label: File the report
+        type: expression
+      - id: C
+        label: Escalate the study
+        type: expression
+      - id: D
+        label: Escalated
+        type: end
+      - id: F
+        label: Filed
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: E
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: D
+      - from: E
+        to: F
+    actions:
+      - name: escalateCriticalFinding
+        type: trigger-workflow
+        when: is_critical == true
+        props:
+          workflow: CriticalFindingEscalation
+          message: A critical imaging finding has to be told to the requesting clinician now, not left in the report for them to find.
+  - name: controlledDrugSegregation
+    title: Controlled Drug Segregation
+    entity: Prescription
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Prescription being dispensed"
+        type: start
+      - id: B
+        label: status becoming dispensed?
+        type: decision
+      - id: F
+        label: Allow the change
+        type: expression
+      - id: C
+        label: a controlled drug on it?
+        type: decision
+      - id: D
+        label: dispenser is the prescriber?
+        type: decision
+      - id: E
+        label: Refuse the dispense
+        type: expression
+      - id: G
+        label: Refused
+        type: end
+      - id: H
+        label: Allowed
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: F
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: F
+        label: No
+      - from: C
+        to: D
+        label: Yes
+      - from: D
+        to: E
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: E
+        to: G
+      - from: F
+        to: H
+    actions:
+      - name: refuseSelfDispense
+        type: validation-error
+        when: status == 'dispensed' and has_controlled_item == true and dispensed_by_id == prescribed_by_id
+        props:
+          message: A controlled drug cannot be dispensed by the person who prescribed it. Ask a second member of staff to dispense.
+  - name: highAlertCheckGate
+    title: High Alert Check Gate
+    entity: PrescriptionItem
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Item being added"
+        type: start
+      - id: D
+        label: high-alert medicine?
+        type: decision
+      - id: F
+        label: Add the item
+        type: expression
+      - id: E
+        label: second check recorded?
+        type: decision
+      - id: C
+        label: Refuse the item
+        type: expression
+      - id: G
+        label: Refused
+        type: end
+      - id: H
+        label: Added
+        type: end
+    edges:
+      - from: A
+        to: D
+      - from: D
+        to: F
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: E
+        to: C
+        label: No
+      - from: E
+        to: F
+        label: Yes
+      - from: C
+        to: G
+      - from: F
+        to: H
+    actions:
+      - name: requireSecondCheck
+        type: validation-error
+        when: is_high_alert == true and second_check_by_id == null
+        props:
+          message: A high-alert medicine needs a second qualified check before it goes on the prescription.
+  - name: invoiceIssueGate
+    title: Invoice Issue Gate
+    entity: Invoice
+    event: beforeUpdate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Bill being issued"
+        type: start
+      - id: B
+        label: status becoming issued?
+        type: decision
+      - id: G
+        label: Allow the change
+        type: expression
+      - id: C
+        label: policy valid on the charge dates?
+        type: decision
+      - id: F
+        label: Refuse the issue
+        type: expression
+      - id: D
+        label: insurer and patient shares add up?
+        type: decision
+      - id: E
+        label: marked overdue before its due date?
+        type: decision
+      - id: H
+        label: Refused
+        type: end
+      - id: I
+        label: Allowed
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: G
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: F
+        label: No
+      - from: C
+        to: D
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: E
+        to: F
+        label: Yes
+      - from: E
+        to: G
+        label: No
+      - from: F
+        to: H
+      - from: G
+        to: I
+    actions:
+      - name: refuseInvalidPolicy
+        type: validation-error
+        when: status == 'issued' and insurance_policy_id != null and policy_verified == false
+        props:
+          message: The policy on this bill is not active for the dates being charged. Correct the cover, or bill the patient directly.
+      - name: refuseUnbalancedSplit
+        type: validation-error
+        when: status == 'issued' and insurer_amount + patient_amount != gross_amount
+        props:
+          message: The insurer's share and the patient's share do not add up to the total. The co-payment has not been applied.
+      - name: refuseEarlyOverdue
+        type: validation-error
+        when: status == 'overdue' and due_on >= today
+        props:
+          message: A bill cannot be overdue before the day it falls due.
+  - name: invoiceEpisodeGate
+    title: Invoice Episode Gate
+    entity: Invoice
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Bill being raised"
+        type: start
+      - id: B
+        label: an encounter or an admission?
+        type: decision
+      - id: C
+        label: Refuse the bill
+        type: expression
+      - id: D
+        label: Raise the bill
+        type: expression
+      - id: E
+        label: Refused
+        type: end
+      - id: F
+        label: Raised
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Neither
+      - from: B
+        to: D
+        label: One of them
+      - from: C
+        to: E
+      - from: D
+        to: F
+    actions:
+      - name: requireEpisode
+        type: validation-error
+        when: encounter_id == null and admission_id == null
+        props:
+          message: A bill prices an episode. Attach it to the outpatient contact or to the admission it is charging for.
+  - name: invoiceLineGate
+    title: Invoice Line Gate
+    entity: InvoiceLine
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Line being added"
+        type: start
+      - id: C
+        label: amount equals quantity times price?
+        type: decision
+      - id: D
+        label: Refuse the line
+        type: expression
+      - id: E
+        label: Add the line
+        type: expression
+      - id: F
+        label: Refused
+        type: end
+      - id: G
+        label: Added
+        type: end
+    edges:
+      - from: A
+        to: C
+      - from: C
+        to: D
+        label: No
+      - from: C
+        to: E
+        label: Yes
+      - from: D
+        to: F
+      - from: E
+        to: G
+    actions:
+      - name: refuseMiscalculatedLine
+        type: validation-error
+        when: line_amount != quantity * unit_price
+        props:
+          message: The line total does not equal the quantity times the unit price. A bill whose lines do not add up cannot be defended to a patient or an insurer.
+  - name: paymentPostingGate
+    title: Payment Posting Gate
+    entity: Payment
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Payment being recorded"
+        type: start
+      - id: B
+        label: amount positive?
+        type: decision
+      - id: C
+        label: Refuse the payment
+        type: expression
+      - id: D
+        label: more than the bill still owes?
+        type: decision
+      - id: E
+        label: Record the payment
+        type: expression
+      - id: F
+        label: Refused
+        type: end
+      - id: G
+        label: Recorded
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: No
+      - from: B
+        to: D
+        label: Yes
+      - from: D
+        to: C
+        label: Yes
+      - from: D
+        to: E
+        label: No
+      - from: C
+        to: F
+      - from: E
+        to: G
+    actions:
+      - name: refuseNonPositivePayment
+        type: validation-error
+        when: amount <= 0
+        props:
+          message: A payment must be for a positive amount. A refund is not recorded here.
+      - name: refuseOverpayment
+        type: validation-error
+        when: amount > outstanding_before
+        props:
+          message: That is more than this bill still owes. Check the amount, or apply the balance to another invoice.
+  - name: paymentSettlementGate
+    title: Payment Settlement Gate
+    entity: Payment
+    event: afterCreate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Payment recorded"
+        type: start
+      - id: B
+        label: clears the balance?
+        type: decision
+      - id: C
+        label: Settle the bill
+        type: expression
+      - id: D
+        label: Mark the bill part paid
+        type: expression
+      - id: E
+        label: Settled
+        type: end
+      - id: F
+        label: Part paid
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+        label: Yes
+      - from: B
+        to: D
+        label: No
+      - from: C
+        to: E
+      - from: D
+        to: F
+    actions:
+      - name: settleInvoice
+        type: trigger-workflow
+        when: amount >= outstanding_before
+        props:
+          workflow: InvoiceSettlement
+          message: The bill is now fully paid.
+      - name: partPayInvoice
+        type: trigger-workflow
+        when: amount < outstanding_before
+        props:
+          workflow: InvoicePartPayment
+          message: The bill is partly paid and a balance remains.
+  - name: stockMovementGate
+    title: Stock Movement Gate
+    entity: StockTransaction
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Movement being recorded"
+        type: start
+      - id: B
+        label: quantity is zero?
+        type: decision
+      - id: F
+        label: Refuse the movement
+        type: expression
+      - id: C
+        label: direction matches the type?
+        type: decision
+      - id: D
+        label: issue leaves enough stock?
+        type: decision
+      - id: E
+        label: Record the movement
+        type: expression
+      - id: G
+        label: Refused
+        type: end
+      - id: H
+        label: Recorded
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: F
+        label: Yes
+      - from: B
+        to: C
+        label: No
+      - from: C
+        to: F
+        label: No
+      - from: C
+        to: D
+        label: Yes
+      - from: D
+        to: F
+        label: No
+      - from: D
+        to: E
+        label: Yes
+      - from: F
+        to: G
+      - from: E
+        to: H
+    actions:
+      - name: refuseZeroMovement
+        type: validation-error
+        when: quantity == 0
+        props:
+          message: A movement of nothing is not a movement. To correct a count, record the difference.
+      - name: refuseWrongDirectionIn
+        type: validation-error
+        when: transaction_type == 'receipt' and quantity <= 0
+        props:
+          message: A receipt adds to the store. Record a negative quantity as a return or a disposal.
+      - name: refuseWrongDirectionOut
+        type: validation-error
+        when: transaction_type == 'issue' and quantity >= 0
+        props:
+          message: An issue takes stock away. Record it as a negative quantity.
+      - name: refuseNegativeStock
+        type: validation-error
+        when: quantity_on_hand_after < 0
+        props:
+          message: There is not that much in the store. Count the shelf and record a correction before issuing.
+  - name: stockReorderGate
+    title: Stock Reorder Gate
+    entity: StockTransaction
+    event: afterCreate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Movement recorded"
+        type: start
+      - id: B
+        label: item at or below its reorder level?
+        type: decision
+      - id: E
+        label: Nothing to do
+        type: expression
+      - id: C
+        label: already on the worklist?
+        type: decision
+      - id: D
+        label: Raise a replenishment
+        type: expression
+      - id: F
+        label: Raised
+        type: end
+      - id: G
+        label: Done
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: E
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: E
+        label: Yes
+      - from: C
+        to: D
+        label: No
+      - from: D
+        to: F
+      - from: E
+        to: G
+    actions:
+      - name: raiseReplenishment
+        type: trigger-workflow
+        when: triggers_reorder == true
+        props:
+          workflow: StockReplenishment
+          message: This item has fallen to its reorder level and is now on the buyer's worklist.
+  - name: appointmentCheckInGate
+    title: Appointment Check In Gate
+    entity: Appointment
+    event: afterUpdate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Appointment updated"
+        type: start
+      - id: B
+        label: status becoming checked_in?
+        type: decision
+      - id: D
+        label: Nothing to do
+        type: expression
+      - id: C
+        label: Open the encounter
+        type: expression
+      - id: E
+        label: Encounter opened
+        type: end
+      - id: F
+        label: Done
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: D
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: E
+      - from: D
+        to: F
+    actions:
+      - name: openEncounter
+        type: trigger-workflow
+        when: status == 'checked_in'
+        props:
+          workflow: AppointmentCheckIn
+          message: The patient has arrived, so the booking becomes a clinical contact.
+  - name: dischargeBedGate
+    title: Discharge Bed Gate
+    entity: Admission
+    event: afterUpdate
+    priority: 30
+    nodes:
+      - id: A
+        label: "Start: Admission updated"
+        type: start
+      - id: B
+        label: status becoming discharged?
+        type: decision
+      - id: D
+        label: Nothing to do
+        type: expression
+      - id: C
+        label: Release the bed
+        type: expression
+      - id: E
+        label: Bed released
+        type: end
+      - id: F
+        label: Done
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: D
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: E
+      - from: D
+        to: F
+    actions:
+      - name: releaseBed
+        type: trigger-workflow
+        when: status == 'discharged'
+        props:
+          workflow: DischargeReleasesBed
+          message: The stay has ended, so the bed goes for cleaning rather than straight back into the pool.
+  - name: encounterInvoicingGate
+    title: Encounter Invoicing Gate
+    entity: Encounter
+    event: afterUpdate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Encounter updated"
+        type: start
+      - id: B
+        label: status becoming closed?
+        type: decision
+      - id: E
+        label: Nothing to do
+        type: expression
+      - id: C
+        label: billable?
+        type: decision
+      - id: D
+        label: Raise the bill
+        type: expression
+      - id: F
+        label: Invoice drafted
+        type: end
+      - id: G
+        label: Done
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: E
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: E
+        label: No
+      - from: C
+        to: D
+        label: Yes
+      - from: D
+        to: F
+      - from: E
+        to: G
+    actions:
+      - name: raiseInvoice
+        type: trigger-workflow
+        when: status == 'closed' and is_billable == true
+        props:
+          workflow: EncounterInvoicing
+          message: A closed contact is what makes an episode billable, so the bill is drafted here rather than typed later.
+  - name: consentWithdrawalGate
+    title: Consent Withdrawal Gate
+    entity: Consent
+    event: afterUpdate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Consent updated"
+        type: start
+      - id: B
+        label: withdrawn?
+        type: decision
+      - id: D
+        label: Nothing to do
+        type: expression
+      - id: C
+        label: Take the procedure back to planned
+        type: expression
+      - id: E
+        label: Procedure unconsented
+        type: end
+      - id: F
+        label: Done
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: D
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: E
+      - from: D
+        to: F
+    actions:
+      - name: unconsentProcedure
+        type: trigger-workflow
+        when: is_withdrawn == true
+        props:
+          workflow: ConsentWithdrawal
+          message: Consent has been withdrawn, so the procedure it authorised is no longer consented.
+stateMachines:
+  - name: BedOccupancy
+    title: Bed Occupancy
+    entity: Bed
+    states: [available, occupied, cleaning, closed]
+    initial: available
+    final: [closed]
+    transitions:
+      - from: available
+        to: occupied
+        trigger: admit
+      - from: occupied
+        to: cleaning
+        trigger: discharge
+      - from: cleaning
+        to: available
+        trigger: cleaned
+      - from: available
+        to: closed
+        trigger: close
+      - from: cleaning
+        to: closed
+        trigger: close
+      - from: closed
+        to: available
+        trigger: reopen
+  - name: PolicyLifecycle
+    title: Policy Lifecycle
+    entity: InsurancePolicy
+    states: [active, suspended, expired, cancelled]
+    initial: active
+    final: [expired, cancelled]
+    transitions:
+      - from: active
+        to: suspended
+        trigger: suspend
+      - from: suspended
+        to: active
+        trigger: reinstate
+      - from: active
+        to: expired
+        trigger: expire
+      - from: active
+        to: cancelled
+        trigger: cancel
+      - from: suspended
+        to: cancelled
+        trigger: cancel
+  - name: AppointmentLifecycle
+    title: Appointment Lifecycle
+    entity: Appointment
+    states: [requested, confirmed, cancelled, checked_in, no_show, completed]
+    initial: requested
+    final: [completed, cancelled, no_show]
+    transitions:
+      - from: requested
+        to: confirmed
+        trigger: confirm
+      - from: requested
+        to: cancelled
+        trigger: cancel
+      - from: confirmed
+        to: checked_in
+        trigger: check_in
+      - from: confirmed
+        to: cancelled
+        trigger: cancel
+      - from: confirmed
+        to: no_show
+        trigger: mark_no_show
+      - from: checked_in
+        to: completed
+        trigger: complete
+  - name: EncounterLifecycle
+    title: Encounter Lifecycle
+    entity: Encounter
+    states: [open, in_progress, cancelled, closed]
+    initial: open
+    final: [closed, cancelled]
+    transitions:
+      - from: open
+        to: in_progress
+        trigger: begin
+      - from: open
+        to: cancelled
+        trigger: cancel
+      - from: in_progress
+        to: closed
+        trigger: close
+  - name: AdmissionLifecycle
+    title: Admission Lifecycle
+    entity: Admission
+    states: [admitted, on_ward, cancelled, discharge_planned, discharged]
+    initial: admitted
+    final: [discharged, cancelled]
+    transitions:
+      - from: admitted
+        to: on_ward
+        trigger: settle
+      - from: admitted
+        to: cancelled
+        trigger: cancel
+      - from: on_ward
+        to: discharge_planned
+        trigger: plan_discharge
+      - from: on_ward
+        to: discharged
+        trigger: discharge
+      - from: discharge_planned
+        to: discharged
+        trigger: discharge
+      - from: discharge_planned
+        to: on_ward
+        trigger: defer_discharge
+  - name: ProcedureLifecycle
+    title: Procedure Lifecycle
+    entity: Procedure
+    states: [planned, consented, cancelled, in_progress, completed, abandoned]
+    initial: planned
+    final: [completed, abandoned, cancelled]
+    transitions:
+      - from: planned
+        to: consented
+        trigger: obtain_consent
+      - from: planned
+        to: cancelled
+        trigger: cancel
+      - from: consented
+        to: planned
+        trigger: withdraw_consent
+      - from: consented
+        to: in_progress
+        trigger: begin
+      - from: consented
+        to: cancelled
+        trigger: cancel
+      - from: in_progress
+        to: completed
+        trigger: complete
+      - from: in_progress
+        to: abandoned
+        trigger: abandon
+  - name: LabOrderLifecycle
+    title: Lab Order Lifecycle
+    entity: LabOrder
+    states: [requested, collected, cancelled, in_lab, resulted]
+    initial: requested
+    final: [resulted, cancelled]
+    transitions:
+      - from: requested
+        to: collected
+        trigger: collect
+      - from: requested
+        to: cancelled
+        trigger: cancel
+      - from: collected
+        to: in_lab
+        trigger: receive
+      - from: collected
+        to: cancelled
+        trigger: cancel
+      - from: in_lab
+        to: resulted
+        trigger: result
+  - name: ImagingOrderLifecycle
+    title: Imaging Order Lifecycle
+    entity: ImagingOrder
+    states: [requested, scheduled, cancelled, performed, reported]
+    initial: requested
+    final: [reported, cancelled]
+    transitions:
+      - from: requested
+        to: scheduled
+        trigger: schedule
+      - from: requested
+        to: cancelled
+        trigger: cancel
+      - from: scheduled
+        to: performed
+        trigger: perform
+      - from: scheduled
+        to: cancelled
+        trigger: cancel
+      - from: performed
+        to: reported
+        trigger: report
+  - name: PrescriptionLifecycle
+    title: Prescription Lifecycle
+    entity: Prescription
+    states: [draft, prescribed, cancelled, verified, dispensed, collected]
+    initial: draft
+    final: [collected, cancelled]
+    transitions:
+      - from: draft
+        to: prescribed
+        trigger: prescribe
+      - from: draft
+        to: cancelled
+        trigger: cancel
+      - from: prescribed
+        to: verified
+        trigger: verify
+      - from: prescribed
+        to: cancelled
+        trigger: cancel
+      - from: verified
+        to: dispensed
+        trigger: dispense
+      - from: verified
+        to: cancelled
+        trigger: cancel
+      - from: dispensed
+        to: collected
+        trigger: collect
+  - name: InvoiceLifecycle
+    title: Invoice Lifecycle
+    entity: Invoice
+    states: [draft, issued, cancelled, submitted, part_paid, paid, overdue, rejected, written_off]
+    initial: draft
+    final: [paid, written_off, cancelled]
+    transitions:
+      - from: draft
+        to: issued
+        trigger: issue
+      - from: draft
+        to: cancelled
+        trigger: cancel
+      - from: issued
+        to: submitted
+        trigger: submit_claim
+      - from: issued
+        to: part_paid
+        trigger: receive_part_payment
+      - from: issued
+        to: paid
+        trigger: settle
+      - from: issued
+        to: overdue
+        trigger: mark_overdue
+      - from: submitted
+        to: rejected
+        trigger: reject_claim
+      - from: submitted
+        to: part_paid
+        trigger: receive_part_payment
+      - from: submitted
+        to: paid
+        trigger: settle
+      - from: rejected
+        to: issued
+        trigger: rebill
+      - from: rejected
+        to: written_off
+        trigger: write_off
+      - from: part_paid
+        to: part_paid
+        trigger: receive_part_payment
+      - from: part_paid
+        to: paid
+        trigger: settle
+      - from: part_paid
+        to: overdue
+        trigger: mark_overdue
+      - from: overdue
+        to: part_paid
+        trigger: receive_part_payment
+      - from: overdue
+        to: paid
+        trigger: settle
+      - from: overdue
+        to: written_off
+        trigger: write_off
+sagas:
+  - name: CriticalResultEscalation
+    title: Critical Result Escalation
+    entity: LabResult
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Flag the request as escalated
+        properties:
+          entity: LabOrder
+          targetField: lab_order_id
+          field: is_escalated
+          value: "true"
+      - id: C
+        type: UpdateEntity
+        label: Raise the request to stat on every worklist
+        properties:
+          entity: LabOrder
+          targetField: lab_order_id
+          field: priority
+          value: stat
+  - name: CriticalFindingEscalation
+    title: Critical Finding Escalation
+    entity: ImagingReport
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Flag the study as escalated
+        properties:
+          entity: ImagingOrder
+          targetField: imaging_order_id
+          field: is_escalated
+          value: "true"
+      - id: C
+        type: UpdateEntity
+        label: Raise the study to stat on every worklist
+        properties:
+          entity: ImagingOrder
+          targetField: imaging_order_id
+          field: priority
+          value: stat
+  - name: InvoiceSettlement
+    title: Invoice Settlement
+    entity: Payment
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Settle the bill
+        properties:
+          entity: Invoice
+          targetField: invoice_id
+          field: status
+          value: paid
+  - name: InvoicePartPayment
+    title: Invoice Part Payment
+    entity: Payment
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Mark the bill part paid
+        properties:
+          entity: Invoice
+          targetField: invoice_id
+          field: status
+          value: part_paid
+  - name: StockReplenishment
+    title: Stock Replenishment
+    entity: StockTransaction
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Put the item on the buyer's worklist
+        properties:
+          entity: InventoryItem
+          targetField: inventory_item_id
+          field: is_on_reorder
+          value: "true"
+  # ---- Gate D — the effects that cross entities ------------------------------
+  - name: AppointmentCheckIn
+    title: Appointment Check In
+    entity: Appointment
+    trigger: rule
+    steps:
+      - id: B
+        type: CreateEntity
+        label: Open the encounter
+        properties:
+          entity: Encounter
+          as: newEncounterId
+          fields: '{"patient_id":"patient_id","doctor_id":"doctor_id","department_id":"department_id","appointment_id":"id","encounter_type":"outpatient","status":"open","is_billable":true}'
+  - name: AdmissionTakesBed
+    title: Admission Takes Bed
+    entity: Admission
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Take the bed out of the pool
+        properties:
+          entity: Bed
+          targetField: bed_id
+          field: status
+          value: occupied
+  - name: DischargeReleasesBed
+    title: Discharge Releases Bed
+    entity: Admission
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Send the bed for cleaning
+        properties:
+          entity: Bed
+          targetField: bed_id
+          field: status
+          value: cleaning
+  - name: EncounterInvoicing
+    title: Encounter Invoicing
+    entity: Encounter
+    trigger: rule
+    steps:
+      - id: B
+        type: CreateEntity
+        label: Raise the bill in draft
+        properties:
+          entity: Invoice
+          as: newInvoiceId
+          fields: '{"patient_id":"patient_id","encounter_id":"id","status":"draft","gross_amount":0,"insurer_amount":0,"patient_amount":0,"paid_amount":0}'
+  - name: ConsentWithdrawal
+    title: Consent Withdrawal
+    entity: Consent
+    trigger: rule
+    steps:
+      - id: B
+        type: UpdateEntity
+        label: Take the procedure back to planned
+        properties:
+          entity: Procedure
+          targetField: procedure_id
+          field: status
+          value: planned

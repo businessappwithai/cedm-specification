@@ -1,0 +1,760 @@
+# ============================================================================
+# EML Example — Analytics & Reporting
+
+# The reporting platform's own domain, modelled in EML: data sources, saved
+# queries, the report / chart / dashboard definitions built on them, and the
+# scheduled jobs that deliver them.
+
+# Written for the `enterprise-reporting` target:
+
+#   bun language/cli/eml.ts generate -i examples/analytics-reporting.eml.yaml \
+#     -o ./out --stack enterprise-reporting
+
+# That target compiles the ERD — tables, Zod schemas, forms, columns — and
+# emits the rules below as GoRules JDM without wiring them up. It does not
+# compile the workflows or rbac. Both are written anyway: the same file
+# generates a whole application under --stack tanstack-astryx-loco, and the
+# checker validates all of it either way.
+# ============================================================================
+
+# ---- Section 1: ERD (structure) -------------------------------------------
+
+eml: "1.0"
+name: Analytics Reporting
+version: 1.0.0
+description: "A reporting workspace: connected data sources, the queries saved against them, and the reports, charts, dashboards and scheduled deliveries built on those queries."
+enums:
+  - name: ClientType
+    values: [pg, mysql, mssql]
+  - name: SourceStatus
+    values: [draft, testing, connected, unreachable, retired]
+  - name: QueryStatus
+    values: [draft, published, deprecated]
+  - name: ChartType
+    values: [bar, line, area, pie, scatter, table]
+  - name: ExportFormat
+    values: [csv, xlsx, pdf]
+  - name: JobStatus
+    values: [scheduled, queued, running, succeeded, failed, cancelled]
+categories:
+  - name: Sources
+    description: The databases this workspace can query, and what the platform knows about the tables inside them
+    icon: Database
+    color: "#0ea5e9"
+    entities: [DataSource]
+  - name: Analysis
+    description: The saved questions, and the reports and charts built on them
+    icon: LineChart
+    color: "#6366f1"
+    entities: [SavedQuery, ReportDefinition, ChartDefinition]
+  - name: Delivery
+    description: Dashboards people read, and the schedules that send reports to those who do not open the platform
+    icon: Send
+    color: "#ec4899"
+    entities: [Dashboard, ScheduledJob]
+  - name: People
+    description: The workspace itself and the analysts who work in it
+    icon: Users
+    color: "#22c55e"
+    entities: [Workspace, Analyst]
+entities:
+  - name: Workspace
+    help: "A tenant of the reporting platform — one organisation's data sources, queries and dashboards, kept apart from every other's. It is the outermost boundary in the system: nothing in one workspace can reference anything in another, which is what makes the platform safe to share."
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: name
+        type: string
+        unique: true
+        help: The organisation as its own people refer to it. It appears in the header of every screen and in the subject line of every scheduled delivery.
+      - name: slug
+        type: string
+        unique: true
+        help: The short, URL-safe form the workspace is addressed by. It cannot change once links have been shared, because a renamed slug breaks every dashboard URL anybody has bookmarked.
+      - name: description
+        type: text
+        optional: true
+        help: What this workspace is for, for the benefit of somebody who has just been given access to it and does not yet know what they are looking at.
+      - name: is_active
+        type: boolean
+        help: Whether the workspace may still be used. Clearing it stops sign-in and scheduled deliveries while leaving every definition intact, which is what a suspension needs to be.
+  - name: Analyst
+    help: Somebody who can ask questions of this workspace's data. An analyst is scoped to one workspace and owns the queries, reports and dashboards they create — which is why deactivating one has to leave their work behind rather than delete it.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: workspace_id
+        type: string
+        fk: true
+        help: "The workspace this analyst belongs to. It is the whole of their access: an analyst cannot see a data source, query or dashboard outside it."
+      - name: email
+        type: string
+        unique: true
+        help: The address the analyst signs in with and where scheduled deliveries addressed to them arrive. It identifies the person, so changing it changes who the account belongs to.
+      - name: display_name
+        type: string
+        help: The name shown as the author of a query and the owner of a dashboard. It is what a colleague sees when they want to ask who built something.
+      - name: job_title
+        type: string
+        optional: true
+        help: What the analyst does, which is the quickest way for a reader to judge how much weight to give a query they did not write.
+      - name: is_active
+        type: boolean
+        help: Whether the analyst may still sign in. Their queries, reports and dashboards keep running — a deactivated author does not stop a scheduled delivery, which is deliberate and worth knowing.
+      - name: last_seen_at
+        type: datetime
+        optional: true
+        help: "When the analyst last used the platform. It is what an access review is conducted on: an account unused for months is the one to question."
+  - name: DataSource
+    help: An external database this workspace can query. Its credentials are stored encrypted and never shown again after they are entered.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: workspace_id
+        type: string
+        fk: true
+        help: The workspace this connection belongs to. A data source is never shared between workspaces, which is the boundary the whole tenancy model rests on.
+      - name: name
+        type: string
+        unique: true
+        help: What this connection is called when an analyst picks it from a list. Name it for the business system it points at, not for the server it runs on.
+      - name: description
+        type: text
+        optional: true
+        help: What lives in this database and what it is good for answering. It is the note that stops an analyst querying the wrong system, and the only place that knowledge is written down.
+      - name: client_type
+        type: string
+        enum: ClientType
+        help: pg, mysql or mssql — which driver the platform connects with. It also decides which SQL dialect a saved query has to be written in, so a query is not portable between sources of different types.
+      - name: host
+        type: string
+        help: The hostname or address the database answers on. Reachable from the platform rather than from the analyst's own machine, which is the usual reason a connection test fails.
+      - name: port
+        type: integer
+        help: The port the database listens on. Held explicitly rather than defaulted, because a non-standard port is common and a wrong one looks exactly like a firewall problem.
+      - name: database_name
+        type: string
+        help: "The database to connect to on that server. One data source is one database: a server holding three of them is three data sources."
+      - name: status
+        type: string
+        enum: SourceStatus
+        help: draft — not yet tested; testing — a connection attempt is in progress; connected — last check succeeded; unreachable — last check failed; retired — deliberately taken out of use. Only a connected source can be queried.
+      - name: is_readonly
+        type: boolean
+        help: "Whether the credentials are read-only. They should be: a reporting platform has no business writing to a production database, and this flag is the record that somebody checked."
+      - name: last_checked_at
+        type: datetime
+        optional: true
+        help: When the connection was last verified. A `connected` status from three weeks ago is not evidence the source is reachable now, which is what this date is for.
+    indexes:
+      - columns: [workspace_id, name]
+        unique: true
+  - name: SchemaEntity
+    help: One table in a connected data source, as the platform understands it. The catalogue is what the natural-language pipeline reads to turn a question into SQL, so a table missing from it is a table nobody can ask about — and the instructions on it are how a business teaches the platform its own vocabulary.
+    parent: DataSource
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: data_source_id
+        type: string
+        fk: true
+        help: The connection this table was found in. Read inside the data source, where the catalogue together is what the platform knows about it.
+      - name: table_name
+        type: string
+        help: The table's real name in the database, exactly as SQL must spell it. Discovered by introspection rather than typed, so a mismatch here means the catalogue is stale.
+      - name: display_name
+        type: string
+        optional: true
+        help: What people call this table when they are talking about the business rather than the schema — `Invoices` for `fin_inv_hdr`. It is what appears in a question's answer.
+      - name: instructions
+        type: text
+        optional: true
+        help: "What the natural-language pipeline needs to know to use this table correctly: which column is the date anyone means, which rows are test data, what a status code stands for. This is the single most valuable text in the catalogue and the one nobody fills in."
+      - name: column_count
+        type: integer
+        help: How many columns the table has, from introspection. A quick signal of how much of a table a question is likely to be reaching into.
+      - name: is_indexed
+        type: boolean
+        help: Whether this table has been added to the retrieval index the question pipeline searches. An unindexed table is invisible to natural-language questions even though it is catalogued.
+    indexes:
+      - columns: [data_source_id, table_name]
+        unique: true
+  - name: SavedQuery
+    help: One SQL statement, named and kept, against one data source. Reports and charts are built on saved queries rather than on ad-hoc SQL so that the same question is asked the same way every time.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: data_source_id
+        type: string
+        fk: true
+        help: The connection this statement runs against. It also fixes the dialect the SQL has to be written in, so a query cannot be repointed at a source of a different type.
+      - name: author_id
+        type: string
+        fk: true
+        help: The analyst who wrote it. It is who a colleague asks when the result looks wrong, and it stays attributed after they leave.
+      - name: name
+        type: string
+        help: The question this query answers, phrased as a question if that reads better. `Monthly revenue by region` tells a reader what they will get; `Query 14` does not.
+      - name: sql_text
+        type: text
+        help: The statement itself. It is read-only at run time and must be a SELECT or a WITH — a reporting query that writes is refused, which is the platform's main structural safeguard.
+      - name: description
+        type: text
+        optional: true
+        help: What the query means, what it excludes, and what it must not be used for. A query that silently filters out cancelled orders is right for one question and badly wrong for another, and this is the only place that is said.
+      - name: status
+        type: string
+        enum: QueryStatus
+        help: draft — being worked on; published — safe for others to build on; deprecated — kept because reports still reference it, but not to be used again. Publishing is a promise to colleagues, not a save.
+      - name: row_limit
+        type: integer
+        help: The most rows a run may return. It protects the source database and the platform alike — an unbounded query against a fact table is the single easiest way to take both down.
+      - name: last_run_at
+        type: datetime
+        optional: true
+        help: When the query last executed. A published query nothing has run for months is usually one whose underlying table has changed shape.
+    indexes:
+      - columns: [data_source_id]
+  - name: ReportDefinition
+    help: A saved query presented as a document — named, laid out, and exportable. The report is what somebody outside the analytics team actually receives, which is why it is a definition of its own rather than a view of the query.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: saved_query_id
+        type: string
+        fk: true
+        help: The query that supplies the rows. Changing the query changes every delivery of this report, which is why queries are published rather than edited in place.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The analyst answerable for the report. It is who is contacted when a recipient disputes a figure.
+      - name: name
+        type: string
+        help: The report's title as recipients see it, on screen and in the exported file. Write it for somebody who did not ask for it.
+      - name: description
+        type: text
+        optional: true
+        help: What the report shows and what it deliberately leaves out. Recipients read this before the numbers, and it is what stops a figure being quoted out of context.
+      - name: filename_template
+        type: string
+        optional: true
+        help: The pattern the exported file is named by, so a recipient receiving one every week can tell them apart and file them. A template without a date in it produces a folder of indistinguishable attachments.
+      - name: is_public
+        type: boolean
+        help: "Whether everybody in the workspace may open it, as opposed to only the owner. Public is the default worth choosing deliberately: a report nobody can find is a report nobody uses."
+      - name: page_size
+        type: integer
+        help: Rows per page when the report is read on screen or paginated into a document. It is a readability setting, not a limit on what the query returns.
+  - name: ChartDefinition
+    help: "A saved query drawn rather than tabulated. A chart is its own definition because the choice of axes is an interpretation of the data: the same query plotted two ways answers two different questions, and both are worth keeping."
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: saved_query_id
+        type: string
+        fk: true
+        help: The query supplying the points. Its columns are what the axes below have to name, so a query whose columns are renamed breaks every chart built on it.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The analyst answerable for the chart, and who is asked when a reader thinks it is misleading.
+      - name: name
+        type: string
+        help: The chart's title, as it appears above the drawing and on any dashboard carrying it. Say what the chart shows, not what kind of chart it is.
+      - name: chart_type
+        type: string
+        enum: ChartType
+        help: "bar, line, area, pie, scatter or table. It is a claim about the data's shape: a line implies a continuous series, and using one for unordered categories misleads a reader who is reading the shape rather than the labels."
+      - name: x_field
+        type: string
+        help: The query column plotted along the horizontal axis — normally the dimension being compared or the period being tracked. It must be a column the query actually returns.
+      - name: y_field
+        type: string
+        help: The query column plotted vertically — the measure being read off. A chart with a measure on the wrong axis is not wrong so much as unreadable.
+      - name: refresh_interval_seconds
+        type: integer
+        optional: true
+        help: How often an open chart re-runs its query. Short intervals on a heavy query are the most common way a dashboard puts load on a production database.
+      - name: is_public
+        type: boolean
+        help: Whether the whole workspace may see the chart, or only its owner. A chart on a public dashboard has to be public itself, or the dashboard renders a gap.
+  - name: Dashboard
+    help: A page of reports and charts arranged together to answer one recurring question — how did last week go, where are we against target. Dashboards are what most people in a business actually use the platform for, and they are the reason reports and charts are definitions rather than one-off runs.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: workspace_id
+        type: string
+        fk: true
+        help: The workspace this dashboard belongs to. Every widget on it must draw on the same workspace's queries, which is what keeps the tenancy boundary intact.
+      - name: owner_id
+        type: string
+        fk: true
+        help: The analyst who maintains it. Dashboards decay quietly as underlying queries change, and this is who is expected to notice.
+      - name: name
+        type: string
+        help: The dashboard's title, and the thing people will refer to it by in conversation. Name it for the question it answers.
+      - name: description
+        type: text
+        optional: true
+        help: What this page is for, who it is for, and how often the numbers on it move. It is what stops three near-identical dashboards being built by three different people.
+      - name: is_public
+        type: boolean
+        help: Whether everybody in the workspace can open it. A dashboard is usually meant to be shared — an unshared one is a working page, and saying which it is prevents the awkward discovery that nobody else could see it.
+      - name: column_count
+        type: integer
+        help: How many columns the grid is divided into. Widget positions below are expressed in this grid, so changing it reflows the whole page.
+  - name: DashboardWidget
+    help: "One panel on one dashboard: which report or chart it shows, and where it sits on the grid. It is a line item of the dashboard — a widget away from its page has no position and no meaning — and it holds either a report or a chart, never both."
+    parent: Dashboard
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: dashboard_id
+        type: string
+        fk: true
+        help: The page this panel sits on. Read inside the dashboard, where the widgets together are the layout.
+      - name: report_definition_id
+        type: string
+        fk: true
+        optional: true
+        help: The report shown in this panel, when the panel is tabular. Empty when the widget shows a chart instead — exactly one of the two references is set.
+      - name: chart_definition_id
+        type: string
+        fk: true
+        optional: true
+        help: The chart drawn in this panel. Empty when the widget shows a report, for the same reason.
+      - name: title
+        type: string
+        help: The heading over this panel, which may differ from the report's or chart's own name — a dashboard often needs a shorter or more pointed label than the definition carries.
+      - name: grid_x
+        type: integer
+        help: The panel's column position on the dashboard's grid, counted from the left. With the width it decides whether two panels sit side by side or collide.
+      - name: grid_y
+        type: integer
+        help: The panel's row position, counted from the top. It is what fixes reading order, and reading order is most of what makes a dashboard legible.
+      - name: grid_width
+        type: integer
+        help: How many grid columns the panel spans. A chart squeezed into two columns of a twelve-column grid is technically present and practically unreadable.
+      - name: grid_height
+        type: integer
+        help: How many rows the panel spans. Tables need more than charts, which is the usual reason a dashboard has to be re-laid-out after a widget is swapped.
+  - name: ScheduledJob
+    help: A standing instruction to run a report on a schedule and deliver the result. Every run is recorded as a JobExecution, successes included.
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: report_id
+        type: string
+        fk: true
+        help: "The report to run and deliver. Only reports are scheduled, not charts: what arrives by email is a document, and a chart's value is in being looked at rather than filed."
+      - name: requested_by_id
+        type: string
+        fk: true
+        help: The analyst who set the schedule up. It is who is asked to justify a delivery that is still running long after anybody needed it.
+      - name: name
+        type: string
+        help: What this schedule is called internally, so a list of dozens of them can be maintained. Name it for the audience and the cadence — `Regional sales, Monday 8am`.
+      - name: schedule_cron
+        type: string
+        help: "When to run, as a cron expression in the platform's own time zone. The time zone is the thing that catches people out: a delivery set for 08:00 arrives at a different local hour for half its recipients."
+      - name: export_format
+        type: string
+        enum: ExportFormat
+        help: csv, xlsx or pdf. It is a decision about what the recipient will do with it — a spreadsheet for somebody who will re-cut the numbers, a PDF for somebody who will read and forward it.
+      - name: recipients
+        type: string
+        help: Who receives the delivery. Recipients do not need platform accounts, which is what makes a schedule useful and also what makes an unreviewed recipient list a data-disclosure risk.
+      - name: is_active
+        type: boolean
+        help: "Whether the schedule still runs. Pausing is the right way to stop a delivery: deleting it loses the execution history that says what was sent to whom."
+  - name: JobExecution
+    help: One run of one scheduled job, successful or not. Executions are kept for every run rather than only for failures, because the question a recipient asks is usually 'did this go out on the 1st' and the only honest answer comes from a record of the run.
+    parent: ScheduledJob
+    attributes:
+      - name: id
+        type: string
+        pk: true
+      - name: scheduled_job_id
+        type: string
+        fk: true
+        help: The schedule this run belongs to. Read inside the job, where the executions together are its delivery history.
+      - name: status
+        type: string
+        enum: JobStatus
+        help: scheduled, queued, running, succeeded, failed or cancelled. Only the moves the lifecycle draws are allowed, so a run cannot be recorded as succeeded without having run.
+      - name: started_at
+        type: datetime
+        optional: true
+        help: When the run actually began, as opposed to when it was due. A widening gap between the two is the first sign the job queue is behind.
+      - name: finished_at
+        type: datetime
+        optional: true
+        help: When it ended. With the start time it gives the duration, which is what says whether a query has outgrown its schedule.
+      - name: row_count
+        type: integer
+        optional: true
+        help: "How many rows were delivered. It is the cheapest correctness check there is: a report that normally sends four thousand rows and today sent none has not failed, and needs looking at."
+      - name: error_message
+        type: text
+        optional: true
+        help: What went wrong, kept verbatim from the failure. It is what distinguishes an unreachable data source from a broken query, and the two need entirely different people to fix them.
+    indexes:
+      - columns: [scheduled_job_id, started_at]
+relationships:
+  - from: Workspace
+    fromCardinality: exactly-one
+    to: Analyst
+    toCardinality: zero-or-more
+    label: employs
+  - from: Workspace
+    fromCardinality: exactly-one
+    to: DataSource
+    toCardinality: zero-or-more
+    label: connects
+  - from: Workspace
+    fromCardinality: exactly-one
+    to: Dashboard
+    toCardinality: zero-or-more
+    label: publishes
+  - from: DataSource
+    fromCardinality: exactly-one
+    to: SchemaEntity
+    toCardinality: zero-or-more
+    label: exposes
+  - from: DataSource
+    fromCardinality: exactly-one
+    to: SavedQuery
+    toCardinality: zero-or-more
+    label: answers
+  - from: Analyst
+    fromCardinality: exactly-one
+    to: SavedQuery
+    toCardinality: zero-or-more
+    label: writes
+  - from: SavedQuery
+    fromCardinality: exactly-one
+    to: ReportDefinition
+    toCardinality: zero-or-more
+    label: feeds
+  - from: SavedQuery
+    fromCardinality: exactly-one
+    to: ChartDefinition
+    toCardinality: zero-or-more
+    label: feeds
+  - from: Analyst
+    fromCardinality: exactly-one
+    to: ReportDefinition
+    toCardinality: zero-or-more
+    label: owns
+  - from: Analyst
+    fromCardinality: exactly-one
+    to: ChartDefinition
+    toCardinality: zero-or-more
+    label: owns
+  - from: Analyst
+    fromCardinality: exactly-one
+    to: Dashboard
+    toCardinality: zero-or-more
+    label: owns
+  - from: Dashboard
+    fromCardinality: exactly-one
+    to: DashboardWidget
+    toCardinality: zero-or-more
+    label: arranges
+  - from: ReportDefinition
+    fromCardinality: exactly-one
+    to: DashboardWidget
+    toCardinality: zero-or-more
+    label: is shown in
+  - from: ChartDefinition
+    fromCardinality: exactly-one
+    to: DashboardWidget
+    toCardinality: zero-or-more
+    label: is shown in
+  - from: ReportDefinition
+    fromCardinality: exactly-one
+    to: ScheduledJob
+    toCardinality: zero-or-more
+    label: is delivered by
+  - from: Analyst
+    fromCardinality: exactly-one
+    to: ScheduledJob
+    toCardinality: zero-or-more
+    label: requests
+  - from: ScheduledJob
+    fromCardinality: exactly-one
+    to: JobExecution
+    toCardinality: zero-or-more
+    label: records
+hooks:
+  - entity: DataSource
+    event: beforeCreate
+    handler: encryptConnectionConfig
+  - entity: DataSource
+    event: afterCreate
+    handler: introspectSchema
+  - entity: DataSource
+    event: afterUpdate
+    handler: refreshSchemaEmbeddings
+hookFlows:
+  # ---- Section 4: Workflow — lifecycle hooks --------------------------------
+  - name: SourceOnboarding
+    title: Source Onboarding
+    entity: DataSource
+    nodes:
+      - id: A
+        label: Client Request
+      - id: B
+        label: Validate Request
+      - id: C
+        event: beforeCreate
+        handler: encryptConnectionConfig
+      - id: D
+        label: Process DataSource
+      - id: E
+        event: afterCreate
+        handler: introspectSchema
+      - id: F
+        event: afterUpdate
+        handler: refreshSchemaEmbeddings
+      - id: G
+        label: Response
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: C
+      - from: C
+        to: D
+      - from: D
+        to: E
+      - from: E
+        to: F
+      - from: F
+        to: G
+rbac:
+  # ---- Section 5: Access ----------------------------------------------------
+  - entity: DataSource
+    action: "*"
+    roles: [admin]
+  - entity: DataSource
+    action: read
+    roles: [admin, analyst]
+  - entity: SavedQuery
+    action: read
+    roles: [analyst, viewer]
+  - entity: SavedQuery
+    action: create
+    roles: [analyst]
+  - entity: ReportDefinition
+    action: read
+    roles: [analyst, viewer]
+  - entity: ChartDefinition
+    action: read
+    roles: [analyst, viewer]
+  - entity: Dashboard
+    action: read
+    roles: [analyst, viewer]
+  - entity: DashboardWidget
+    action: read
+    roles: [analyst, viewer]
+  - entity: JobExecution
+    action: read
+    roles: [analyst, viewer]
+  - entity: ScheduledJob
+    action: read
+    roles: [analyst]
+  - entity: ScheduledJob
+    action: delete
+    roles: [admin]
+  - entity: SchemaEntity
+    action: read
+    roles: [admin, analyst]
+  - entity: Workspace
+    action: read
+    roles: [admin]
+  - entity: Analyst
+    action: read
+    roles: [admin]
+reports:
+  # ---- The questions this workspace's own users ask -------------------------
+
+  # Derived reports cover the shape of the data: a register per entity, a
+  # breakdown per enum, a lifecycle per state machine. These are the ones that
+  # need somebody who knows the job. An analytics team lead does not open the
+  # tool asking "how many saved queries are there"; they ask which sources are
+  # unreachable, which scheduled deliveries are failing, and which expensive
+  # queries nobody has run in months.
+  - name: unreachable-sources
+    title: Data sources that are not answering
+    entity: DataSource
+    chart: bar
+    x: source
+    y: days_since_check
+    help: The first thing to check when a report comes back empty. A source stuck in testing or unreachable is a reporting outage nobody has noticed yet.
+    sql: SELECT name AS source, COALESCE(EXTRACT(day FROM now() - last_checked_at), 0)::int AS days_since_check FROM bus_data_source WHERE status IN ('unreachable', 'testing') AND deleted_at IS NULL ORDER BY days_since_check DESC
+  - name: failing-deliveries
+    title: Scheduled deliveries that failed
+    entity: JobExecution
+    help: Every failed run of a standing report, newest first, with the error. A delivery that fails silently is a report somebody is waiting on and will not chase.
+    sql: SELECT j.name AS job, e.started_at, e.error_message FROM bus_job_execution e JOIN bus_scheduled_job j ON j.id = e.scheduled_job_id WHERE e.status = 'failed' AND e.deleted_at IS NULL ORDER BY e.started_at DESC LIMIT 100
+  - name: stale-queries
+    title: Saved queries nobody runs
+    entity: SavedQuery
+    chart: bar
+    x: query
+    y: days_idle
+    help: Published queries with no run in ninety days. Each one is a maintenance cost and a wrong answer waiting to be quoted.
+    sql: SELECT name AS query, COALESCE(EXTRACT(day FROM now() - last_run_at), 999)::int AS days_idle FROM bus_saved_query WHERE status = 'published' AND (last_run_at IS NULL OR last_run_at < now() - interval '90 days') AND deleted_at IS NULL ORDER BY days_idle DESC LIMIT 50
+  - name: dashboard-coverage
+    title: Dashboards by widget count
+    entity: Dashboard
+    chart: bar
+    x: dashboard
+    y: widgets
+    help: A dashboard with one widget is usually an abandoned draft; one with twenty is usually unreadable.
+    sql: SELECT d.name AS dashboard, COUNT(w.id) AS widgets FROM bus_dashboard d LEFT JOIN bus_dashboard_widget w ON w.dashboard_id = d.id AND w.deleted_at IS NULL WHERE d.deleted_at IS NULL GROUP BY 1 ORDER BY widgets DESC
+rules:
+  # ---- Section 2: Business rules --------------------------------------------
+  - name: querySafety
+    title: Query Safety
+    entity: SavedQuery
+    event: beforeCreate
+    priority: 10
+    nodes:
+      - id: A
+        label: "Start: Query Submitted"
+        type: start
+      - id: B
+        label: Row limit set?
+        type: decision
+      - id: R1
+        label: "Reject: Unbounded Query"
+        type: expression
+      - id: C
+        label: Source is readonly?
+        type: decision
+      - id: R2
+        label: "Warn: Writable Source"
+        type: expression
+      - id: P
+        label: Accept Query
+        type: expression
+      - id: E
+        label: End
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: R1
+        label: No
+      - from: B
+        to: C
+        label: Yes
+      - from: C
+        to: R2
+        label: No
+      - from: C
+        to: P
+        label: Yes
+      - from: R1
+        to: E
+      - from: R2
+        to: E
+      - from: P
+        to: E
+    actions:
+      - name: requireRowLimit
+        type: validation-error
+        when: row_limit == null
+        props:
+          message: A saved query must declare a row limit — an unbounded query runs against a production database
+      - name: capRowLimit
+        type: transform
+        when: row_limit > 100000
+        props:
+          field: row_limit
+          value: "100000"
+          message: Row limit capped at 100000
+  - name: publicationGate
+    title: Publication Gate
+    entity: ReportDefinition
+    event: beforeUpdate
+    priority: 20
+    nodes:
+      - id: A
+        label: "Start: Publish Requested"
+        type: start
+      - id: B
+        label: Query published?
+        type: decision
+      - id: R1
+        label: "Reject: Draft Query"
+        type: expression
+      - id: P
+        label: Allow Publication
+        type: expression
+      - id: E
+        label: End
+        type: end
+    edges:
+      - from: A
+        to: B
+      - from: B
+        to: R1
+        label: No
+      - from: B
+        to: P
+        label: Yes
+      - from: R1
+        to: E
+      - from: P
+        to: E
+    actions:
+      - name: limitPublicPageSize
+        type: validation-error
+        when: is_public == true and page_size > 1000
+        props:
+          message: A public report may not page more than 1000 rows at a time
+stateMachines:
+  # ---- Section 3: Workflow — the delivery lifecycle -------------------------
+  - name: DeliveryLifecycle
+    title: Delivery Lifecycle
+    entity: JobExecution
+    states: [scheduled, queued, running, succeeded, failed, cancelled]
+    initial: scheduled
+    final: [succeeded, cancelled]
+    transitions:
+      - from: scheduled
+        to: queued
+        trigger: enqueue
+      - from: queued
+        to: running
+        trigger: start
+      - from: running
+        to: succeeded
+        trigger: complete
+      - from: running
+        to: failed
+        trigger: error
+      - from: scheduled
+        to: cancelled
+        trigger: cancel
+      - from: queued
+        to: cancelled
+        trigger: cancel
+      - from: failed
+        to: queued
+        trigger: retry

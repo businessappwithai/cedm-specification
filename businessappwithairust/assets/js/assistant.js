@@ -1,5 +1,5 @@
 /**
- * The model assistant — change an .eml.mmd with your own API key.
+ * The model assistant — change an .eml.yaml model with your own API key.
  *
  * This site is static. There is no backend here, so there is no CopilotKit
  * runtime and no Mastra server to talk to: both are servers, and GitHub Pages
@@ -17,17 +17,53 @@
  * than pasted into somebody else's chat window:
  *
  *   1. the published enhancement protocol becomes the system prompt
- *   2. the visitor's current .mmd and their instruction become the user turn
- *   3. the reply is stripped to its Mermaid and checked with `guide/checker.js`
+ *   2. the visitor's current model and their instruction become the user turn
+ *   3. the reply is stripped to its YAML and checked with `guide/model-yaml.js`
  *   4. a download is offered only when that check finds no errors
  *
  * Step 4 is the point. Any chat window can hand back a model; the thing this
- * site has that they do not is the real checker, so a result that would not
+ * site has that they do not is the real validator, so a result that would not
  * generate is caught here rather than three steps later.
  */
 
-import { check, formatReport, LANGUAGE_VERSION } from "../../guide/checker.js";
-import { checkAndFix } from "../../guide/fixer.js";
+import { fix, LANGUAGE_VERSION, validate } from "../../guide/model-yaml.js";
+
+/* ------------------------------------------------------------------ *
+ * The verdict, in the shape the rest of this page reads.
+ *
+ * `validate` is the language's own reader — YAML syntax, the JSON Schema, the
+ * full checker — and every finding carries its YAML line and column. The
+ * counts and the report text are derived from those findings here, one way,
+ * and printed the way `guide/check-model.mjs` prints them: diagnostics first,
+ * the verdict last.
+ * ------------------------------------------------------------------ */
+const RANK = { error: 0, warning: 1, info: 2 };
+
+function check(text) {
+  const result = validate(text);
+  const issues = result.diagnostics;
+  const count = (severity) => issues.filter((d) => d.severity === severity).length;
+  return {
+    ok: result.ok,
+    document: result.document,
+    counts: { errors: count("error"), warnings: count("warning"), infos: count("info") },
+    issues,
+  };
+}
+
+function formatReport(verdict) {
+  const lines = [...verdict.issues]
+    .sort((a, b) => RANK[a.severity] - RANK[b.severity] || a.line - b.line)
+    .map((d) => {
+      const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn " : "info ";
+      return `${tag} ${d.code}:${d.line}:${d.column}  ${d.message}${d.hint ? `\n      → ${d.hint}` : ""}`;
+    });
+  const { errors, warnings, infos } = verdict.counts;
+  lines.push(
+    `${verdict.ok ? "OK" : "FAILED"} — ${errors} errors, ${warnings} warnings, ${infos} notes (EML ${LANGUAGE_VERSION})`
+  );
+  return lines.join("\n");
+}
 
 /* ------------------------------------------------------------------ *
  * Providers
@@ -184,18 +220,18 @@ const escapeHtml = (s) =>
  *
  * The protocol asks for the whole file and nothing else, and a good reply
  * obeys. A reply that does not is still usually recoverable: the model sits in
- * a fenced block. Preferring the fence, then falling back to the first `%%` or
- * diagram keyword, recovers both shapes without ever *inventing* content —
- * if neither matches, this returns the text unchanged and the checker reports
- * what it really is (EML004, prose rather than a model), which is the honest
- * outcome and the one chapter 11 already explains.
+ * a fenced block. Preferring the fence, then falling back to the line that
+ * opens a model (`eml: "1.0"`), recovers both shapes without ever *inventing*
+ * content — if neither matches, this returns the text unchanged and the
+ * validator reports what it really is (prose rather than a model), which is
+ * the honest outcome and the one chapter 11 already explains.
  * ------------------------------------------------------------------ */
 function extractModel(reply) {
-  const fenced = reply.match(/```(?:mermaid|mmd|eml)?\s*\n([\s\S]*?)```/);
-  if (fenced) return fenced[1].trim();
+  const fenced = reply.match(/```(?:ya?ml|eml)?\s*\n([\s\S]*?)```/);
+  if (fenced) return `${fenced[1].trim()}\n`;
 
-  const start = reply.search(/^\s*(%%|erDiagram|flowchart|stateDiagram-v2)/m);
-  return start === -1 ? reply.trim() : reply.slice(start).trim();
+  const start = reply.search(/^eml:\s*["']?1\.0["']?\s*$/m);
+  return start === -1 ? reply.trim() : `${reply.slice(start).trim()}\n`;
 }
 
 /* ------------------------------------------------------------------ *
@@ -341,7 +377,7 @@ async function run() {
   const instruction = $("aia-instruction").value.trim();
 
   if (!key) return report("Add your API key first — it stays in this browser.");
-  if (!state.source.trim()) return report("Load or paste the .mmd model you want changed.");
+  if (!state.source.trim()) return report("Load or paste the .eml.yaml model you want changed.");
   if (!instruction) return report("Say what you want changed.");
 
   setBusy(true, "Reading the enhancement protocol…");
@@ -356,10 +392,10 @@ async function run() {
     });
 
     const user =
-      `Here is my current EML model. Apply the change I describe and hand back ` +
+      `Here is my current model. Apply the change I describe and hand back ` +
       `the whole file, exactly as the protocol above requires.\n\n` +
       `## The change I want\n\n${instruction}\n\n` +
-      `## My current model\n\n\`\`\`mermaid\n${state.source}\n\`\`\``;
+      `## My current model\n\n\`\`\`yaml\n${state.source}\n\`\`\``;
 
     const started = Date.now();
     const { text, usage, stop } = await streamCompletion(
@@ -387,7 +423,7 @@ async function run() {
     $("aia-output").textContent = state.result;
 
     /* The reason this page exists rather than a chat window: the result is put
-       through the real checker before anybody is offered it. */
+       through the real validator before anybody is offered it. */
     setBusy(true, "Checking the result…");
     const verdict = check(state.result);
     renderVerdict(verdict, usage, Date.now() - started);
@@ -407,10 +443,10 @@ async function run() {
 }
 
 function renderVerdict(verdict, usage, ms) {
-  /* `check` returns { ok, counts: { errors, warnings, infos }, issues, ... } —
-     the counts are nested, and `ok` is already the "would the generator take
-     this" verdict, so read those rather than inventing a second reading of the
-     same fact. */
+  /* `check` returns { ok, counts: { errors, warnings, infos }, issues } — the
+     counts are nested, and `ok` is already the "would the generator take this"
+     verdict, so read those rather than inventing a second reading of the same
+     fact. */
   const { errors, warnings } = verdict.counts;
   const clean = verdict.ok;
   const lines = [];
@@ -454,25 +490,25 @@ function renderVerdict(verdict, usage, ms) {
    this page exists to catch. */
 function download() {
   const name =
-    (state.result.match(/^\s*%%meta\s+name:\s*(.+)$/m)?.[1] ?? "model")
+    (check(state.result).document?.name ?? "model")
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "model";
 
-  const blob = new Blob([state.result], { type: "text/plain" });
+  const blob = new Blob([state.result], { type: "text/yaml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${name}.eml.mmd`;
+  a.download = `${name}.eml.yaml`;
   a.click();
   URL.revokeObjectURL(url);
   window.awTrack?.("assistant_downloaded", { provider: state.provider });
 }
 
 function repair() {
-  const fixed = checkAndFix(state.result);
-  state.result = fixed.source;
+  const fixed = fix(state.result);
+  state.result = fixed.text;
   $("aia-output").textContent = state.result;
   renderVerdict(check(state.result), null, 0);
 }
@@ -574,9 +610,9 @@ export function init() {
       const key = button.dataset.example;
       setBusy(true, "Loading…");
       try {
-        const response = await fetch(`guide/models/${key}.eml.mmd`);
+        const response = await fetch(`guide/models/${key}.eml.yaml`);
         if (!response.ok) throw new Error(`${key} did not load (${response.status})`);
-        setSource(await response.text(), `${key}.eml.mmd`);
+        setSource(await response.text(), `${key}.eml.yaml`);
         clearReport();
       } catch (error) {
         report(error.message);

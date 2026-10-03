@@ -587,6 +587,9 @@ MIT
   }
 
   private async findTemplatesDir(): Promise<string> {
+    // TEMPLATE_DIR names the templates root outright; see resolveTemplateDir.
+    const configured = process.env.TEMPLATE_DIR;
+    if (configured) return configured;
     const cwd = process.cwd();
     const candidates = [
       // When cwd is the generator package (bun --filter mode)
@@ -622,7 +625,7 @@ MIT
       console.log("📋 Setting up GitHub Actions workflows...");
 
       // Find the templates directory by traversing up from the dist directory
-      let templatesDir = path.resolve(__dirname, "../../../templates");
+      let templatesDir = process.env.TEMPLATE_DIR ?? path.resolve(__dirname, "../../../templates");
 
       // If __dirname doesn't point to the right place, try to find the root
       if (!(await this.directoryExists(templatesDir))) {
