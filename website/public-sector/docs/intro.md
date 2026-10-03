@@ -10,6 +10,7 @@ description: "Government and Public Sector, built on the CEDM common foundation.
 
 Government and Public Sector, built on the CEDM common foundation.
 
+![The Government and Public Sector dashboard](/img/dashboard.jpg)
 
 ## The domain it serves
 

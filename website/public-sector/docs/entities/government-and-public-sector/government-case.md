@@ -13,6 +13,8 @@ Represents a public sector entity called GovernmentCase within the CEDM business
 
 Open **Government Case** from the menu or from its card on the dashboard.
 
+![The Government Case list](/img/entities/government-case-list.jpg)
+
 The list shows Case Number, Case Type, Status, Opened At, Closed At, Agency, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Case Number, Case Type, Status, Opened At, Closed At, Agency, wit
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Government Case form](/img/entities/government-case-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Case Number**, **Case Type**, **Status**, **Opened At**, **Agency**.
@@ -91,6 +95,8 @@ stateDiagram-v2
 | Open | Cancelled | Cancel |
 | Under review | Cancelled | Cancel |
 | Approved | Cancelled | Cancel |
+
+![A Government Case record with its lifecycle bar](/img/entities/government-case-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).
