@@ -13,6 +13,8 @@ Represents an explicit reduction of a customer's financial claim while preservin
 
 Open **Credit Note** from the menu or from its card on the dashboard.
 
+![The Credit Note list](/img/entities/credit-note-list.jpg)
+
 The list shows Credit Note Number, Credit Note Date, Status, Currency, Reason Code, Subtotal, Tax Amount, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Credit Note Number, Credit Note Date, Status, Currency, Reason Co
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Credit Note form](/img/entities/credit-note-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Credit Note Number**, **Credit Note Date**, **Status**, **Currency**, **Reason Code**, **Subtotal**, **Tax Amount**, **Total Amount**, **Amount Applied**, **Amount Refunded**, **Amount Remaining**, **Customer**.
@@ -100,6 +104,8 @@ stateDiagram-v2
 | Partially applied | Cancelled | Cancel |
 | Refund due | Cancelled | Cancel |
 | Refund due | Reversed | Reverse |
+
+![A Credit Note record with its lifecycle bar](/img/entities/credit-note-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

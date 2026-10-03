@@ -13,6 +13,8 @@ Represents a formal financial claim and its controlled settlement and adjustment
 
 Open **Invoice** from the menu or from its card on the dashboard.
 
+![The Invoice list](/img/entities/invoice-list.jpg)
+
 The list shows Invoice Number, Invoice Date, Due Date, Invoice Type, Status, Currency, Subtotal, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Invoice Number, Invoice Date, Due Date, Invoice Type, Status, Cur
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Invoice form](/img/entities/invoice-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Invoice Number**, **Invoice Date**, **Invoice Type**, **Status**, **Currency**, **Subtotal**, **Discount Amount**, **Taxable Amount**, **Tax Amount**, **Total Amount**, **Amount Settled**, **Amount Credited**, **Amount Outstanding**.
@@ -115,6 +119,8 @@ stateDiagram-v2
 | Issued | Void | Void |
 | Partially paid | Void | Void |
 | Overdue | Void | Void |
+
+![A Invoice record with its lifecycle bar](/img/entities/invoice-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).

@@ -13,6 +13,8 @@ Provides the auditable bridge by which a posted customer CreditNote is consumed 
 
 Open **Credit Note Application** from the menu or from its card on the dashboard.
 
+![The Credit Note Application list](/img/entities/credit-note-application-list.jpg)
+
 The list shows Credit Note Amount, Invoice Amount, Exchange Rate, Applied At, Status, Reversal Of Application, Credit Note, with the most recently changed record first. The **Help** button beside the title opens this window's help text.
 
 - **Search**: type in the search box above the grid to narrow the rows. **Search** at the top left opens advanced search, where you pick a field, a comparison (equals, contains, starts with, before, after, and so on) and a value.
@@ -24,6 +26,8 @@ The list shows Credit Note Amount, Invoice Amount, Exchange Rate, Applied At, St
 ## Creating a record
 
 Choose **New** at the top of the list. The form opens on its own page, with the fields in sections. A badge beside each label names the control (Text, Dropdown, Date, and so on); a red star marks a required field; the question-mark icon shows that field's help; and a hint such as “max 300” shows the longest entry accepted.
+
+![The Credit Note Application form](/img/entities/credit-note-application-new.jpg)
 
 1. Fill in the fields described under [Fields](#fields).
 2. These are required and must be completed before the record can be saved: **Credit Note Amount**, **Invoice Amount**, **Applied At**, **Status**, **Credit Note**, **Invoice**.
@@ -77,6 +81,8 @@ stateDiagram-v2
 | Active | Reversed | Reverse |
 | Draft | Cancelled | Cancel |
 | Active | Cancelled | Cancel |
+
+![A Credit Note Application record with its lifecycle bar](/img/entities/credit-note-application-record.jpg)
 
 ## What happens when you save
 Business rules run around the save. They are listed here and explained in full under [Business rules](/administration/rules/).
