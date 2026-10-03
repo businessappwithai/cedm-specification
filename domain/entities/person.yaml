@@ -100,6 +100,7 @@ entity:
       usage: Supports employment and organizational relationships.
       cardinalityMeaning: Zero or many.
       workflowRole: Provides context for employment/worker workflows; it does not itself establish an Employee role.
+    inverseCardinality: 0..*
   invariants:
   - {id: PERSON-001, rule: partyType must equal PERSON for the referenced Party.}
   - {id: PERSON-002, rule: givenName and familyName must be present.}

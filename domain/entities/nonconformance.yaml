@@ -56,11 +56,9 @@ entity:
       requiredMeaning: Required.
       valueSemantics:
         OPEN: The status of the nonconformance is open; set it when that is what the business means for this record.
-        UNDER_REVIEW: The status of the nonconformance is under review; set it when that is what the business means for this
-          record.
+        UNDER_REVIEW: The status of the nonconformance is under review; set it when that is what the business means for this record.
         CONTAINED: The status of the nonconformance is contained; set it when that is what the business means for this record.
-        CORRECTIVE_ACTION: The status of the nonconformance is corrective action; set it when that is what the business means
-          for this record.
+        CORRECTIVE_ACTION: The status of the nonconformance is corrective action; set it when that is what the business means for this record.
         CLOSED: The status of the nonconformance is closed; set it when that is what the business means for this record.
         REJECTED: The status of the nonconformance is rejected; set it when that is what the business means for this record.
   - name: description
@@ -97,6 +95,7 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Receipt lines affected by the deviation., businessMeaning: Identifies exact received quantities under issue., usage: Containment and disposition., workflowRole: Provides quantity-level evidence.}
+    inverseCardinality: 0..*
   - name: supplierReturn
     target: SupplierReturn
     cardinality: 0..1
@@ -107,11 +106,13 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Returned quantities affected by the quality issue., businessMeaning: Identifies exact return lines associated with the deviation., usage: Return validation and supplier accountability., workflowRole: Provides line-level response context.}
+    inverseCardinality: 0..*
   - name: returnDispositions
     target: ReturnDisposition
     cardinality: 0..*
     ownership: reference
     help: {summary: Controlled disposition decisions addressing affected returned material., businessMeaning: "Records operational outcomes such as quarantine, restock, repair, scrap or return-to-supplier without treating the decision itself as inventory movement.", usage: "Containment, inventory control, return processing and audit.", workflowRole: Supplies disposition evidence required for issue closure when applicable.}
+    inverseCardinality: '1'
   - name: owner
     target: Party
     cardinality: 0..1
@@ -144,54 +145,54 @@ entity:
     initial: OPEN
     terminal: [CLOSED, REJECTED]
     transitions:
-      - {from: OPEN, to: UNDER_REVIEW, action: review}
-      - {from: UNDER_REVIEW, to: CORRECTIVE_ACTION, action: mark_corrective_action}
-      - {from: CORRECTIVE_ACTION, to: CLOSED, action: close}
-      - {from: UNDER_REVIEW, to: CONTAINED, action: mark_contained}
-      - {from: CONTAINED, to: UNDER_REVIEW, action: resume}
-      - {from: CORRECTIVE_ACTION, to: CONTAINED, action: mark_contained}
-      - {from: CONTAINED, to: CORRECTIVE_ACTION, action: resume}
-      - {from: OPEN, to: REJECTED, action: reject}
-      - {from: UNDER_REVIEW, to: REJECTED, action: reject}
-      - {from: CORRECTIVE_ACTION, to: REJECTED, action: reject}
-      - {from: CONTAINED, to: REJECTED, action: reject}
+    - {from: OPEN, to: UNDER_REVIEW, action: review}
+    - {from: UNDER_REVIEW, to: CORRECTIVE_ACTION, action: mark_corrective_action}
+    - {from: CORRECTIVE_ACTION, to: CLOSED, action: close}
+    - {from: UNDER_REVIEW, to: CONTAINED, action: mark_contained}
+    - {from: CONTAINED, to: UNDER_REVIEW, action: resume}
+    - {from: CORRECTIVE_ACTION, to: CONTAINED, action: mark_contained}
+    - {from: CONTAINED, to: CORRECTIVE_ACTION, action: resume}
+    - {from: OPEN, to: REJECTED, action: reject}
+    - {from: UNDER_REVIEW, to: REJECTED, action: reject}
+    - {from: CORRECTIVE_ACTION, to: REJECTED, action: reject}
+    - {from: CONTAINED, to: REJECTED, action: reject}
   workflows:
-    - name: ApprovalRequested
-      title: "Ask for a decision when a nonconformance is put forward"
-      description: "When a nonconformance is under review, a task asks someone to decide on it."
-      when: "status == \"UNDER_REVIEW\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: decide on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "NONCONFORMANCE-APPROVAL-{{id}}"
-              name: "Decide on nonconformance {{number}}"
-              description: "Nonconformance {{number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
-              task_type: "APPROVAL"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: FollowUpRequired
-      title: "Follow up when a nonconformance is ended"
-      description: "When a nonconformance is rejected, a task asks someone to settle what depended on it."
-      when: "status == \"REJECTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "NONCONFORMANCE-FOLLOW-UP-{{id}}"
-              name: "Follow up on nonconformance {{number}}"
-              description: "Nonconformance {{number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ApprovalRequested
+    title: "Ask for a decision when a nonconformance is put forward"
+    description: "When a nonconformance is under review, a task asks someone to decide on it."
+    when: "status == \"UNDER_REVIEW\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: decide on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "NONCONFORMANCE-APPROVAL-{{id}}"
+          name: "Decide on nonconformance {{number}}"
+          description: "Nonconformance {{number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+          task_type: "APPROVAL"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a nonconformance is ended"
+    description: "When a nonconformance is rejected, a task asks someone to settle what depended on it."
+    when: "status == \"REJECTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "NONCONFORMANCE-FOLLOW-UP-{{id}}"
+          name: "Follow up on nonconformance {{number}}"
+          description: "Nonconformance {{number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents a controlled quality deviation and its investigation, containment, disposition and corrective-action lifecycle.
     businessMeaning: Nonconformance captures the quality problem; QualityInspection provides test evidence; ReturnDisposition records controlled operational outcomes; SupplierReturn provides physical response; CorrectiveAction addresses recurrence; CorrectiveActionVerification proves effectiveness.

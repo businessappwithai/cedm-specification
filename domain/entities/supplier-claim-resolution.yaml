@@ -27,29 +27,19 @@ entity:
       summary: Authorized remedy for the supplier claim.
       businessMeaning: Defines what outcome was agreed without itself executing the remedy.
       usage: Routes downstream workflows and measures recovery outcomes.
-      relationshipContext: RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require
-        SupplierDebitNote; CASH_RECOVERY may require Payment.
+      relationshipContext: RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require SupplierDebitNote; CASH_RECOVERY may require Payment.
       workflowRole: Determines required execution evidence.
       requiredMeaning: Required.
       valueSemantics:
-        NO_ACTION: The resolution type of the supplier claim resolution is no action; set it when that is what the business
-          means for this record.
-        REPLACEMENT: The resolution type of the supplier claim resolution is replacement; set it when that is what the business
-          means for this record.
-        REPAIR: The resolution type of the supplier claim resolution is repair; set it when that is what the business means
-          for this record.
-        RETURN: The resolution type of the supplier claim resolution is return; set it when that is what the business means
-          for this record.
-        CREDIT: The resolution type of the supplier claim resolution is credit; set it when that is what the business means
-          for this record.
-        DEBIT_ADJUSTMENT: The resolution type of the supplier claim resolution is debit adjustment; set it when that is what
-          the business means for this record.
-        PRICE_ADJUSTMENT: The resolution type of the supplier claim resolution is price adjustment; set it when that is what
-          the business means for this record.
-        CASH_RECOVERY: The resolution type of the supplier claim resolution is cash recovery; set it when that is what the business
-          means for this record.
-        ACCEPTED_EXCEPTION: The resolution type of the supplier claim resolution is accepted exception; set it when that is
-          what the business means for this record.
+        NO_ACTION: The resolution type of the supplier claim resolution is no action; set it when that is what the business means for this record.
+        REPLACEMENT: The resolution type of the supplier claim resolution is replacement; set it when that is what the business means for this record.
+        REPAIR: The resolution type of the supplier claim resolution is repair; set it when that is what the business means for this record.
+        RETURN: The resolution type of the supplier claim resolution is return; set it when that is what the business means for this record.
+        CREDIT: The resolution type of the supplier claim resolution is credit; set it when that is what the business means for this record.
+        DEBIT_ADJUSTMENT: The resolution type of the supplier claim resolution is debit adjustment; set it when that is what the business means for this record.
+        PRICE_ADJUSTMENT: The resolution type of the supplier claim resolution is price adjustment; set it when that is what the business means for this record.
+        CASH_RECOVERY: The resolution type of the supplier claim resolution is cash recovery; set it when that is what the business means for this record.
+        ACCEPTED_EXCEPTION: The resolution type of the supplier claim resolution is accepted exception; set it when that is what the business means for this record.
   - name: status
     type: enum
     required: true
@@ -71,25 +61,19 @@ entity:
       requiredMeaning: Required.
       valueSemantics:
         DRAFT: The status of the supplier claim resolution is draft; set it when that is what the business means for this record.
-        APPROVED: The status of the supplier claim resolution is approved; set it when that is what the business means for this
-          record.
-        IN_EXECUTION: The status of the supplier claim resolution is in execution; set it when that is what the business means
-          for this record.
-        PARTIALLY_EXECUTED: The status of the supplier claim resolution is partially executed; set it when that is what the
-          business means for this record.
-        EXECUTED: The status of the supplier claim resolution is executed; set it when that is what the business means for this
-          record.
-        FAILED: The status of the supplier claim resolution is failed; set it when that is what the business means for this
-          record.
-        CANCELLED: The status of the supplier claim resolution is cancelled; set it when that is what the business means for
-          this record.
+        APPROVED: The status of the supplier claim resolution is approved; set it when that is what the business means for this record.
+        IN_EXECUTION: The status of the supplier claim resolution is in execution; set it when that is what the business means for this record.
+        PARTIALLY_EXECUTED: The status of the supplier claim resolution is partially executed; set it when that is what the business means for this record.
+        EXECUTED: The status of the supplier claim resolution is executed; set it when that is what the business means for this record.
+        FAILED: The status of the supplier claim resolution is failed; set it when that is what the business means for this record.
+        CANCELLED: The status of the supplier claim resolution is cancelled; set it when that is what the business means for this record.
   - {name: approvedAmount, type: Money, required: false, help: {summary: Monetary recovery authorized by the resolution., businessMeaning: Defines the financial amount expected from the agreed remedy., usage: Supplier recovery and reconciliation., relationshipContext: Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction., workflowRole: Provides the controlled financial target., optionalMeaning: Optional for non-financial remedies.}}
   relationships:
   - {name: supplierClaim, target: SupplierClaim, cardinality: '1', ownership: reference, help: {summary: Supplier claim being resolved., businessMeaning: Connects the remedy to the case and evidence that established the issue., usage: Claim closure and audit., workflowRole: Supplies authoritative case context.}}
-  - {name: supplierReturns, target: SupplierReturn, cardinality: 0..*, ownership: reference, help: {summary: Supplier returns executing a return remedy., businessMeaning: Identifies physical reverse-procurement transactions created by the resolution., usage: Logistics inventory and supplier reconciliation., workflowRole: Provides execution evidence for RETURN resolutions.}}
+  - {name: supplierReturns, target: SupplierReturn, cardinality: 0..*, ownership: reference, help: {summary: Supplier returns executing a return remedy., businessMeaning: Identifies physical reverse-procurement transactions created by the resolution., usage: Logistics inventory and supplier reconciliation., workflowRole: Provides execution evidence for RETURN resolutions.}, inverseCardinality: 0..*}
   - {name: supplierCreditNotes, target: SupplierCreditNote, cardinality: 0..*, ownership: reference, help: {summary: Supplier credits executing a financial recovery remedy., businessMeaning: Identifies explicit payable reductions resulting from the resolution., usage: Accounts payable and reconciliation., workflowRole: Provides financial execution evidence for CREDIT resolutions.}}
   - {name: supplierDebitNotes, target: SupplierDebitNote, cardinality: 0..*, ownership: reference, help: {summary: Buyer-issued supplier debits executing a financial recovery remedy., businessMeaning: Identifies explicit debit adjustments created from the approved resolution., usage: Accounts payable recovery supplier dispute and reconciliation., workflowRole: Provides financial execution evidence for DEBIT_ADJUSTMENT resolutions.}}
-  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Cash receipts or other payments implementing a cash-recovery remedy., businessMeaning: Identifies actual money movement received from the supplier., usage: Cash reconciliation and settlement audit., workflowRole: Provides execution evidence for CASH_RECOVERY; Payment remains distinct from non-cash credit or debit application.}}
+  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Cash receipts or other payments implementing a cash-recovery remedy., businessMeaning: Identifies actual money movement received from the supplier., usage: Cash reconciliation and settlement audit., workflowRole: Provides execution evidence for CASH_RECOVERY; Payment remains distinct from non-cash credit or debit application.}, inverseCardinality: 0..*}
   invariants:
   - {id: SUPPLIER-CLAIM-RESOLUTION-001, rule: Every resolution must reference exactly one SupplierClaim.}
   - {id: SUPPLIER-CLAIM-RESOLUTION-002, rule: APPROVED resolution must identify a resolutionType and the evidence required by that remedy.}
@@ -109,54 +93,54 @@ entity:
     initial: DRAFT
     terminal: [EXECUTED, FAILED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: APPROVED, action: approve}
-      - {from: APPROVED, to: IN_EXECUTION, action: mark_in_execution}
-      - {from: IN_EXECUTION, to: PARTIALLY_EXECUTED, action: mark_partially_executed}
-      - {from: PARTIALLY_EXECUTED, to: EXECUTED, action: mark_executed}
-      - {from: APPROVED, to: FAILED, action: fail}
-      - {from: IN_EXECUTION, to: FAILED, action: fail}
-      - {from: PARTIALLY_EXECUTED, to: FAILED, action: fail}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: IN_EXECUTION, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_EXECUTED, to: CANCELLED, action: cancel}
+    - {from: DRAFT, to: APPROVED, action: approve}
+    - {from: APPROVED, to: IN_EXECUTION, action: mark_in_execution}
+    - {from: IN_EXECUTION, to: PARTIALLY_EXECUTED, action: mark_partially_executed}
+    - {from: PARTIALLY_EXECUTED, to: EXECUTED, action: mark_executed}
+    - {from: APPROVED, to: FAILED, action: fail}
+    - {from: IN_EXECUTION, to: FAILED, action: fail}
+    - {from: PARTIALLY_EXECUTED, to: FAILED, action: fail}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: APPROVED, to: CANCELLED, action: cancel}
+    - {from: IN_EXECUTION, to: CANCELLED, action: cancel}
+    - {from: PARTIALLY_EXECUTED, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a supplier claim resolution is stopped"
-      description: "When a supplier claim resolution is failed, a high-priority task asks someone to resolve it."
-      when: "status == \"FAILED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUPPLIER-CLAIM-RESOLUTION-EXCEPTION-{{id}}"
-              name: "Resolve supplier claim resolution {{resolution_number}}"
-              description: "Supplier claim resolution {{resolution_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a supplier claim resolution is ended"
-      description: "When a supplier claim resolution is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SUPPLIER-CLAIM-RESOLUTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on supplier claim resolution {{resolution_number}}"
-              description: "Supplier claim resolution {{resolution_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a supplier claim resolution is stopped"
+    description: "When a supplier claim resolution is failed, a high-priority task asks someone to resolve it."
+    when: "status == \"FAILED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUPPLIER-CLAIM-RESOLUTION-EXCEPTION-{{id}}"
+          name: "Resolve supplier claim resolution {{resolution_number}}"
+          description: "Supplier claim resolution {{resolution_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a supplier claim resolution is ended"
+    description: "When a supplier claim resolution is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SUPPLIER-CLAIM-RESOLUTION-FOLLOW-UP-{{id}}"
+          name: "Follow up on supplier claim resolution {{resolution_number}}"
+          description: "Supplier claim resolution {{resolution_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Converts a supplier claim decision into a controlled auditable execution plan without conflating the case remedy and resulting transactions.
     businessMeaning: SupplierClaim explains the problem; SupplierClaimResolution records the agreed remedy; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment execute distinct physical or financial consequences.

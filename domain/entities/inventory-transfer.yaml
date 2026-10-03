@@ -21,7 +21,7 @@ entity:
   - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location inventory leaves., businessMeaning: Defines transfer origin., usage: Availability and warehouse execution., cardinalityMeaning: Exactly one source., workflowRole: Must differ from target and hold eligible stock.}}
   - {name: targetLocation, target: InventoryLocation, cardinality: "1", ownership: reference, help: {summary: Location inventory enters., businessMeaning: Defines transfer destination., usage: "Putaway, replenishment and staging.", cardinalityMeaning: Exactly one target., workflowRole: Must be eligible for product/status.}}
   - {name: lot, target: Lot, cardinality: 0..1, ownership: reference, help: {summary: Lot being transferred., businessMeaning: Preserves batch identity across relocation., usage: Traceability and FEFO., cardinalityMeaning: Required under lot-control policy., workflowRole: Source/target stock remains same lot.}}
-  - {name: serialNumbers, target: SerialNumber, cardinality: 0..*, ownership: reference, help: {summary: Serialized units relocated., businessMeaning: Preserves unit custody., usage: Scanning and audit., cardinalityMeaning: Required under serialization policy., workflowRole: Serial custody moves atomically.}}
+  - {name: serialNumbers, target: SerialNumber, cardinality: 0..*, ownership: reference, help: {summary: Serialized units relocated., businessMeaning: Preserves unit custody., usage: Scanning and audit., cardinalityMeaning: Required under serialization policy., workflowRole: Serial custody moves atomically.}, inverseCardinality: 0..*}
   - {name: inventoryMovements, target: InventoryMovement, cardinality: 0..*, ownership: reference, help: {summary: Posted stock events executing transfer., businessMeaning: InventoryMovement remains authoritative ledger., usage: Balance reconciliation and audit., cardinalityMeaning: One or more movements may represent execution/reversal., workflowRole: Completed quantity must reconcile exactly and retries be idempotent.}}
   invariants:
   - {id: INVENTORY-TRANSFER-001, rule: requestedQuantity must be greater than zero and sourceLocation must differ from targetLocation.}
@@ -36,49 +36,49 @@ entity:
     initial: PLANNED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-      - {from: PLANNED, to: RELEASED, action: release}
-      - {from: RELEASED, to: IN_PROGRESS, action: start}
-      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
-      - {from: PLANNED, to: CANCELLED, action: cancel}
-      - {from: RELEASED, to: CANCELLED, action: cancel}
-      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: RELEASED, action: release}
+    - {from: RELEASED, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: RELEASED, to: CANCELLED, action: cancel}
+    - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when an inventory transfer is ended"
-      description: "When an inventory transfer is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INVENTORY-TRANSFER-FOLLOW-UP-{{id}}"
-              name: "Follow up on inventory transfer {{transfer_number}}"
-              description: "Inventory transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when an inventory transfer is done"
-      description: "When an inventory transfer is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "INVENTORY-TRANSFER-COMPLETED-{{id}}"
-              name: "Confirm inventory transfer {{transfer_number}}"
-              description: "Inventory transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when an inventory transfer is ended"
+    description: "When an inventory transfer is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INVENTORY-TRANSFER-FOLLOW-UP-{{id}}"
+          name: "Follow up on inventory transfer {{transfer_number}}"
+          description: "Inventory transfer {{transfer_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when an inventory transfer is done"
+    description: "When an inventory transfer is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "INVENTORY-TRANSFER-COMPLETED-{{id}}"
+          name: "Confirm inventory transfer {{transfer_number}}"
+          description: "Inventory transfer {{transfer_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Warehouse/inventory relocation authorization separated from stock ledger events.
     businessMeaning: InventoryTransfer explains why and where stock should move; InventoryMovement records what stock actually changed location.

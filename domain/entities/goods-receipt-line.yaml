@@ -44,6 +44,7 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Inventory events attributable to accepted receipt quantity., businessMeaning: Records stock consequence separately from receipt evidence., usage: Inventory audit and reconciliation., workflowRole: Accepted quantities create receipt movements.}
+    inverseCardinality: '1'
   - name: invoiceLines
     target: InvoiceLine
     cardinality: 0..*

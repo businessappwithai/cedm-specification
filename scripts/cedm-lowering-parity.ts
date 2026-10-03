@@ -50,7 +50,7 @@ function firstDifference(left: unknown, right: unknown, at = ""): string | undef
 }
 
 function rust(args: string[], label: string): { document: unknown; libraryEntities: string[] } {
-  const run = spawnSync(args[0] as string, args.slice(1), { cwd: ROOT, encoding: "utf-8" });
+  const run = spawnSync(args[0] as string, args.slice(1), { cwd: ROOT, encoding: "utf-8", maxBuffer: 256 * 1024 * 1024 });
   if (run.status !== 0) {
     throw new Error(`${label} failed:\n${run.stderr || run.stdout}`);
   }

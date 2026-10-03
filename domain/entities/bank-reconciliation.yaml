@@ -11,7 +11,7 @@ entity:
   - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
   relationships:
   - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account reconciled., businessMeaning: Defines reconciliation boundary., usage: Treasury close and audit., cardinalityMeaning: Exactly one BankAccount., workflowRole: Matched evidence remains traceable.}}
-  - {name: bankTransactions, target: BankTransaction, cardinality: 0..*, ownership: reference, help: {summary: External bank evidence in reconciliation., businessMeaning: Supplies statement-side transactions., usage: Matching and exception handling., cardinalityMeaning: Zero or many transactions., workflowRole: Reconciliation never rewrites bank evidence.}}
+  - {name: bankTransactions, target: BankTransaction, cardinality: 0..*, ownership: reference, help: {summary: External bank evidence in reconciliation., businessMeaning: Supplies statement-side transactions., usage: Matching and exception handling., cardinalityMeaning: Zero or many transactions., workflowRole: Reconciliation never rewrites bank evidence.}, inverseCardinality: '1'}
   invariants:
   - {id: BANK-RECONCILIATION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:

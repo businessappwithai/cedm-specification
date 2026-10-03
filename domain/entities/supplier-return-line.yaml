@@ -109,6 +109,7 @@ entity:
       summary: Supplier invoice lines financially associated with the returned goods.
       businessMeaning: Identifies claims that may require a supplier credit.
       workflowRole: Supplies original transaction-value and tax evidence for financial adjustment.
+    inverseCardinality: 0..*
   - name: returnDispositions
     target: ReturnDisposition
     cardinality: 0..*

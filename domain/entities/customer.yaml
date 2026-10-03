@@ -8,132 +8,134 @@ entity:
     icon: user-round
   identity: {key: customerId, type: uuid, generated: true, immutable: true}
   attributes:
-    - name: customerId
-      type: uuid
-      required: true
-      immutable: true
-      help: {summary: Stable identifier for the Customer business relationship., usage: Used by orders invoices receivables service pricing credit contracts and analytics., relationshipContext: Party identifies the underlying party while customerId identifies the customer relationship., workflowRole: Provides the stable customer reference carried into SalesOrder Invoice Payment shipment service and receivables workflows., requiredMeaning: Required for unambiguous customer transaction traceability.}
-    - name: partyRoleId
-      type: reference
-      target: PartyRole
-      required: true
-      unique: true
-      immutable: true
-      help: {summary: Links Customer to its underlying PartyRole., usage: Resolves common party identity and role information., relationshipContext: Customer is a role specialization and must not duplicate Party identity., workflowRole: Supplies common party context to customer-facing workflows., requiredMeaning: Required because Customer depends on PartyRole.}
-    - name: customerCode
-      type: string
-      required: true
-      unique: true
-      maxLength: 100
-      help: {summary: Human-facing customer business code., usage: Used in orders invoices statements integrations and communication., relationshipContext: Distinct from customerId and external legal identifiers., workflowRole: Supports customer selection and transaction recognition., requiredMeaning: Required for operational identification.}
-    - name: customerType
-      type: enum
-      required: false
-      values:
-      - INDIVIDUAL
-      - BUSINESS
-      - GOVERNMENT
-      - INTERNAL
-      - OTHER
-      help:
-        summary: Commercial classification of the customer relationship.
-        usage: Supports pricing credit tax service and reporting.
-        relationshipContext: Does not replace Party partyType.
-        workflowRole: Supplies customer classification to transaction policy.
-        optionalMeaning: Optional when not needed.
-        valueSemantics:
-          INDIVIDUAL: The customer type of the customer is individual; set it when that is what the business means for this record.
-          BUSINESS: The customer type of the customer is business; set it when that is what the business means for this record.
-          GOVERNMENT: The customer type of the customer is government; set it when that is what the business means for this record.
-          INTERNAL: The customer type of the customer is internal; set it when that is what the business means for this record.
-          OTHER: The customer type of the customer is other; set it when that is what the business means for this record.
-    - name: creditStatus
-      type: enum
-      required: false
-      values:
-      - NOT_REVIEWED
-      - APPROVED
-      - ON_HOLD
-      - BLOCKED
-      help:
-        summary: Current credit-control disposition.
-        usage: Used by order authorization receivables collections and credit review.
-        relationshipContext: Credit control affects exposure and does not alter party identity.
-        workflowRole: SalesOrder confirmation must evaluate current credit policy when applicable.
-        optionalMeaning: Optional where credit controls are not used.
-        valueSemantics:
-          NOT_REVIEWED: The credit status of the customer is not reviewed; set it when that is what the business means for this
-            record.
-          APPROVED: The credit status of the customer is approved; set it when that is what the business means for this record.
-          ON_HOLD: The credit status of the customer is on hold; set it when that is what the business means for this record.
-          BLOCKED: The credit status of the customer is blocked; set it when that is what the business means for this record.
-    - name: creditLimit
-      type: Money
-      required: false
-      help: {summary: Authorized monetary credit exposure limit., usage: Used in credit checks exposure monitoring and risk reporting., relationshipContext: Must be interpreted with currency outstanding exposure payment terms and credit status., workflowRole: Provides one input to credit authorization before additional exposure., optionalMeaning: Optional for cash-only customers.}
-    - name: paymentTerms
-      type: reference
-      target: PaymentTerm
-      required: false
-      help: {summary: Default settlement policy for customer invoices., usage: Used by SalesOrder Invoice receivables collections and cash forecasting., relationshipContext: May be overridden by authorized contract or transaction-level terms., workflowRole: Supplies default due-date expectations to order and invoice creation., optionalMeaning: Optional when determined elsewhere.}
-    - name: status
-      type: enum
-      required: true
-      default: ACTIVE
-      values:
-      - ACTIVE
-      - INACTIVE
-      - BLOCKED
-      - RETIRED
-      help:
-        summary: Lifecycle state of the customer relationship.
-        usage: Controls eligibility for new commercial activity.
-        relationshipContext: Historical transactions remain attributable after status changes.
-        workflowRole: New workflows must evaluate status; historical records remain valid.
-        requiredMeaning: Required for eligibility decisions.
-        valueSemantics:
-          ACTIVE: The status of the customer is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the customer is inactive; set it when that is what the business means for this record.
-          BLOCKED: The status of the customer is blocked; set it when that is what the business means for this record.
-          RETIRED: The status of the customer is retired; set it when that is what the business means for this record.
+  - name: customerId
+    type: uuid
+    required: true
+    immutable: true
+    help: {summary: Stable identifier for the Customer business relationship., usage: Used by orders invoices receivables service pricing credit contracts and analytics., relationshipContext: Party identifies the underlying party while customerId identifies the customer relationship., workflowRole: Provides the stable customer reference carried into SalesOrder Invoice Payment shipment service and receivables workflows., requiredMeaning: Required for unambiguous customer transaction traceability.}
+  - name: partyRoleId
+    type: reference
+    target: PartyRole
+    required: true
+    unique: true
+    immutable: true
+    help: {summary: Links Customer to its underlying PartyRole., usage: Resolves common party identity and role information., relationshipContext: Customer is a role specialization and must not duplicate Party identity., workflowRole: Supplies common party context to customer-facing workflows., requiredMeaning: Required because Customer depends on PartyRole.}
+  - name: customerCode
+    type: string
+    required: true
+    unique: true
+    maxLength: 100
+    help: {summary: Human-facing customer business code., usage: Used in orders invoices statements integrations and communication., relationshipContext: Distinct from customerId and external legal identifiers., workflowRole: Supports customer selection and transaction recognition., requiredMeaning: Required for operational identification.}
+  - name: customerType
+    type: enum
+    required: false
+    values:
+    - INDIVIDUAL
+    - BUSINESS
+    - GOVERNMENT
+    - INTERNAL
+    - OTHER
+    help:
+      summary: Commercial classification of the customer relationship.
+      usage: Supports pricing credit tax service and reporting.
+      relationshipContext: Does not replace Party partyType.
+      workflowRole: Supplies customer classification to transaction policy.
+      optionalMeaning: Optional when not needed.
+      valueSemantics:
+        INDIVIDUAL: The customer type of the customer is individual; set it when that is what the business means for this record.
+        BUSINESS: The customer type of the customer is business; set it when that is what the business means for this record.
+        GOVERNMENT: The customer type of the customer is government; set it when that is what the business means for this record.
+        INTERNAL: The customer type of the customer is internal; set it when that is what the business means for this record.
+        OTHER: The customer type of the customer is other; set it when that is what the business means for this record.
+  - name: creditStatus
+    type: enum
+    required: false
+    values:
+    - NOT_REVIEWED
+    - APPROVED
+    - ON_HOLD
+    - BLOCKED
+    help:
+      summary: Current credit-control disposition.
+      usage: Used by order authorization receivables collections and credit review.
+      relationshipContext: Credit control affects exposure and does not alter party identity.
+      workflowRole: SalesOrder confirmation must evaluate current credit policy when applicable.
+      optionalMeaning: Optional where credit controls are not used.
+      valueSemantics:
+        NOT_REVIEWED: The credit status of the customer is not reviewed; set it when that is what the business means for this record.
+        APPROVED: The credit status of the customer is approved; set it when that is what the business means for this record.
+        ON_HOLD: The credit status of the customer is on hold; set it when that is what the business means for this record.
+        BLOCKED: The credit status of the customer is blocked; set it when that is what the business means for this record.
+  - name: creditLimit
+    type: Money
+    required: false
+    help: {summary: Authorized monetary credit exposure limit., usage: Used in credit checks exposure monitoring and risk reporting., relationshipContext: Must be interpreted with currency outstanding exposure payment terms and credit status., workflowRole: Provides one input to credit authorization before additional exposure., optionalMeaning: Optional for cash-only customers.}
+  - name: paymentTerms
+    type: reference
+    target: PaymentTerm
+    required: false
+    help: {summary: Default settlement policy for customer invoices., usage: Used by SalesOrder Invoice receivables collections and cash forecasting., relationshipContext: May be overridden by authorized contract or transaction-level terms., workflowRole: Supplies default due-date expectations to order and invoice creation., optionalMeaning: Optional when determined elsewhere.}
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values:
+    - ACTIVE
+    - INACTIVE
+    - BLOCKED
+    - RETIRED
+    help:
+      summary: Lifecycle state of the customer relationship.
+      usage: Controls eligibility for new commercial activity.
+      relationshipContext: Historical transactions remain attributable after status changes.
+      workflowRole: New workflows must evaluate status; historical records remain valid.
+      requiredMeaning: Required for eligibility decisions.
+      valueSemantics:
+        ACTIVE: The status of the customer is active; set it when that is what the business means for this record.
+        INACTIVE: The status of the customer is inactive; set it when that is what the business means for this record.
+        BLOCKED: The status of the customer is blocked; set it when that is what the business means for this record.
+        RETIRED: The status of the customer is retired; set it when that is what the business means for this record.
   relationships:
-    - name: partyRole
-      target: PartyRole
-      cardinality: '1'
-      ownership: reference
-      help: {summary: Common role-model relationship., usage: Resolves underlying Party and role data., cardinalityMeaning: Exactly one PartyRole represents the customer relationship., workflowRole: Supplies common identity to commercial and financial processes.}
-    - name: addresses
-      target: Address
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Addresses serving billing delivery legal tax service or correspondence purposes., usage: Used by sales fulfillment invoicing tax and communication., cardinalityMeaning: Multiple addresses are permitted., workflowRole: Each consuming workflow selects the address by purpose and effective date.}
-    - name: salesOrders
-      target: SalesOrder
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Sales commitments for this customer., usage: Supports order history credit exposure fulfillment and service., cardinalityMeaning: A customer may have many orders., workflowRole: SalesOrder creation evaluates customer status and credit policy and creates downstream fulfillment and billing obligations.}
-    - name: invoices
-      target: Invoice
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Financial claims against this customer., usage: Supports receivables statements collections payment allocation and reporting., cardinalityMeaning: A customer may have many invoices., workflowRole: Invoice issuance creates receivable exposure and active PaymentAllocations reduce that exposure.}
-    - name: payments
-      target: Payment
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Payments made by or on behalf of the customer., usage: Supports settlement history refunds reconciliation and statements., cardinalityMeaning: A customer may make many payments and one payment may settle many invoices., workflowRole: Payment is settlement evidence while PaymentAllocation determines claim application.}
-    - name: transactions
-      target: BusinessTransaction
-      cardinality: 0..*
-      ownership: reference
-      help: {summary: Business transactions in which the customer participates., usage: Supports customer history exposure reporting and analytics., cardinalityMeaning: A customer may participate in many transactions., workflowRole: Preserves cross-process customer history.}
+  - name: partyRole
+    target: PartyRole
+    cardinality: '1'
+    ownership: reference
+    help: {summary: Common role-model relationship., usage: Resolves underlying Party and role data., cardinalityMeaning: Exactly one PartyRole represents the customer relationship., workflowRole: Supplies common identity to commercial and financial processes.}
+  - name: addresses
+    target: Address
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Addresses serving billing delivery legal tax service or correspondence purposes., usage: Used by sales fulfillment invoicing tax and communication., cardinalityMeaning: Multiple addresses are permitted., workflowRole: Each consuming workflow selects the address by purpose and effective date.}
+    inverseCardinality: 0..*
+  - name: salesOrders
+    target: SalesOrder
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Sales commitments for this customer., usage: Supports order history credit exposure fulfillment and service., cardinalityMeaning: A customer may have many orders., workflowRole: SalesOrder creation evaluates customer status and credit policy and creates downstream fulfillment and billing obligations.}
+  - name: invoices
+    target: Invoice
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Financial claims against this customer., usage: Supports receivables statements collections payment allocation and reporting., cardinalityMeaning: A customer may have many invoices., workflowRole: Invoice issuance creates receivable exposure and active PaymentAllocations reduce that exposure.}
+  - name: payments
+    target: Payment
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Payments made by or on behalf of the customer., usage: Supports settlement history refunds reconciliation and statements., cardinalityMeaning: A customer may make many payments and one payment may settle many invoices., workflowRole: Payment is settlement evidence while PaymentAllocation determines claim application.}
+    inverseCardinality: '1'
+  - name: transactions
+    target: BusinessTransaction
+    cardinality: 0..*
+    ownership: reference
+    help: {summary: Business transactions in which the customer participates., usage: Supports customer history exposure reporting and analytics., cardinalityMeaning: A customer may participate in many transactions., workflowRole: Preserves cross-process customer history.}
+    inverseCardinality: '1'
   invariants:
-    - {id: CUSTOMER-001, rule: partyRole.roleType must equal CUSTOMER.}
-    - {id: CUSTOMER-002, rule: customerCode must be unique within its organizational ERP context.}
-    - {id: CUSTOMER-003, rule: creditLimit when supplied must use an explicitly defined currency and credit policy; it must not be treated as a currency-free number.}
-    - {id: CUSTOMER-004, rule: BLOCKED or RETIRED customers must not normally create new credit-bearing commitments unless an authorized exception workflow permits it.}
-    - {id: CUSTOMER-005, rule: Customer status changes must not rewrite historical SalesOrder Invoice Payment or PaymentAllocation records.}
-    - {id: CUSTOMER-006, rule: Invoice customer context and Payment payer context must remain traceable to the Customer's underlying PartyRole; payment allocation is the evidence connecting settlement to claims.}
+  - {id: CUSTOMER-001, rule: partyRole.roleType must equal CUSTOMER.}
+  - {id: CUSTOMER-002, rule: customerCode must be unique within its organizational ERP context.}
+  - {id: CUSTOMER-003, rule: creditLimit when supplied must use an explicitly defined currency and credit policy; it must not be treated as a currency-free number.}
+  - {id: CUSTOMER-004, rule: BLOCKED or RETIRED customers must not normally create new credit-bearing commitments unless an authorized exception workflow permits it.}
+  - {id: CUSTOMER-005, rule: Customer status changes must not rewrite historical SalesOrder Invoice Payment or PaymentAllocation records.}
+  - {id: CUSTOMER-006, rule: Invoice customer context and Payment payer context must remain traceable to the Customer's underlying PartyRole; payment allocation is the evidence connecting settlement to claims.}
   lifecycle:
     title: Customer Lifecycle
     attribute: status
@@ -141,32 +143,32 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: ACTIVE, action: unblock}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
-      - {from: BLOCKED, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: ACTIVE, action: unblock}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: BLOCKED, to: RETIRED, action: retire}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a customer is stopped"
-      description: "When a customer is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CUSTOMER-EXCEPTION-{{id}}"
-              name: "Resolve customer {{id}}"
-              description: "Customer {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a customer is stopped"
+    description: "When a customer is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CUSTOMER-EXCEPTION-{{id}}"
+          name: "Resolve customer {{id}}"
+          description: "Customer {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Represents the commercial customer role of a Party.
     businessMeaning: Party identifies who the party is; PartyRole establishes a role; Customer governs buyer-specific commercial behavior and controls.

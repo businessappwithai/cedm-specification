@@ -19,7 +19,7 @@ entity:
   relationships:
   - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product represented by the certificate., businessMeaning: Identifies the material whose quality is certified., usage: Product release and customer documentation., cardinalityMeaning: Optional when context is supplied by other source records., context: Must reconcile with inspections and measurements.}}
   - {name: qualityInspections, target: QualityInspection, cardinality: "1..*", ownership: reference, help: {summary: Inspections supporting the certificate., businessMeaning: Supplies authoritative execution evidence for the certified conclusions., usage: "Certificate generation, audit, and traceability.", cardinalityMeaning: An issued certificate requires at least one governed inspection., context: Certificate summarizes but does not replace inspections.}}
-  - {name: measurements, target: QualityMeasurement, cardinality: "0..*", ownership: reference, help: {summary: Measurements explicitly represented on the certificate., businessMeaning: Provides source observations behind reported values., usage: "Certificate rendering, verification, and audit.", cardinalityMeaning: Zero or many depending on certificate design., context: Must belong to the supporting inspection context.}}
+  - {name: measurements, target: QualityMeasurement, cardinality: "0..*", ownership: reference, help: {summary: Measurements explicitly represented on the certificate., businessMeaning: Provides source observations behind reported values., usage: "Certificate rendering, verification, and audit.", cardinalityMeaning: Zero or many depending on certificate design., context: Must belong to the supporting inspection context.}, inverseCardinality: '1'}
   - {name: goodsReceipt, target: GoodsReceipt, cardinality: 0..1, ownership: reference, help: {summary: Incoming receipt represented by the certificate when applicable., businessMeaning: Connects supplier quality evidence to received material., usage: Incoming quality and supplier documentation., cardinalityMeaning: Optional., context: Must reconcile with inspection receipt context.}}
   - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Outbound shipment accompanied by the certificate when applicable., businessMeaning: Connects certified quality evidence to delivered material., usage: Customer fulfillment and compliance documentation., cardinalityMeaning: Optional., context: Must reconcile with certified product/material context.}}
   invariants:
@@ -35,33 +35,33 @@ entity:
     initial: DRAFT
     terminal: [SUPERSEDED, VOID]
     transitions:
-      - {from: DRAFT, to: APPROVED, action: approve}
-      - {from: APPROVED, to: ISSUED, action: issue}
-      - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
-      - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
-      - {from: ISSUED, to: SUPERSEDED, action: mark_superseded}
-      - {from: DRAFT, to: VOID, action: void}
-      - {from: APPROVED, to: VOID, action: void}
-      - {from: ISSUED, to: VOID, action: void}
+    - {from: DRAFT, to: APPROVED, action: approve}
+    - {from: APPROVED, to: ISSUED, action: issue}
+    - {from: DRAFT, to: SUPERSEDED, action: mark_superseded}
+    - {from: APPROVED, to: SUPERSEDED, action: mark_superseded}
+    - {from: ISSUED, to: SUPERSEDED, action: mark_superseded}
+    - {from: DRAFT, to: VOID, action: void}
+    - {from: APPROVED, to: VOID, action: void}
+    - {from: ISSUED, to: VOID, action: void}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a certificate of analysis is ended"
-      description: "When a certificate of analysis is void, a task asks someone to settle what depended on it."
-      when: "status == \"VOID\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CERTIFICATE-OF-ANALYSIS-FOLLOW-UP-{{id}}"
-              name: "Follow up on certificate of analysis {{certificate_number}}"
-              description: "Certificate of analysis {{certificate_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a certificate of analysis is ended"
+    description: "When a certificate of analysis is void, a task asks someone to settle what depended on it."
+    when: "status == \"VOID\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "CERTIFICATE-OF-ANALYSIS-FOLLOW-UP-{{id}}"
+          name: "Follow up on certificate of analysis {{certificate_number}}"
+          description: "Certificate of analysis {{certificate_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Controlled certificate presenting quality evidence for governed material.
     businessMeaning: CertificateOfAnalysis is a released representation of underlying evidence, not a substitute for QualityInspection or QualityMeasurement.

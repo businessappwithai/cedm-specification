@@ -86,6 +86,7 @@ entity:
       usage: Supports yard inventory, visibility, dwell analysis, capacity, gate operations, and operational reporting.
       cardinalityMeaning: A yard may contain zero or many containers at any point in time.
       context: This is a facility-level association; exact physical placement is determined by the container's current YardSlot and the yard hierarchy.
+    inverseCardinality: '1'
   invariants:
   - id: YARD-001
     rule: code must be unique within the organization's yard operating context.
@@ -102,10 +103,10 @@ entity:
     initial: PLANNED
     terminal: [CLOSED]
     transitions:
-      - {from: PLANNED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: ACTIVE, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: ACTIVE, action: resume}
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: ACTIVE, to: SUSPENDED, action: suspend}
+    - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
     summary: Represents the facility-level operational boundary for container storage and handling.
     businessMeaning: Yard is the physical and operational context in which containers enter, occupy storage positions, move between positions, undergo inspection or repair, and eventually leave the facility. It is more specific than Location but broader than a YardBlock or YardSlot.

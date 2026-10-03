@@ -82,13 +82,14 @@ entity:
   relationships:
   - name: owners
     target: Party
-    cardinality: 1..*
+    cardinality: 0..*
     ownership: reference
     help:
       summary: Parties that own or are legally associated with the bank account.
       usage: Supports ownership validation, payment authorization, treasury, compliance, and reporting.
       cardinalityMeaning: One or more parties may be associated with an account because joint ownership or organizational structures may exist.
       workflowRole: Provides the party context required when initiating or receiving payments through the account.
+    inverseCardinality: 0..*
   - name: institution
     target: Organization
     cardinality: '1'
@@ -127,6 +128,7 @@ entity:
     rule: BankTransaction matching must validate the BankAccount context before supporting Payment.CLEARED.
   - id: BANK-ACCOUNT-005
     rule: Account currency must be compatible with normal Payment and BankTransaction currency expectations; supported multi-currency account behavior requires an explicit account-level policy.
+  - {id: BANK-ACCOUNT-006, rule: A bank account has at least one owner.}
   lifecycle:
     title: Bank Account Lifecycle
     attribute: status
@@ -134,29 +136,29 @@ entity:
     initial: PENDING
     terminal: [CLOSED]
     transitions:
-      - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: ACTIVE, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: ACTIVE, action: unblock}
+    - {from: PENDING, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: CLOSED, action: close}
+    - {from: ACTIVE, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: ACTIVE, action: unblock}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a bank account is stopped"
-      description: "When a bank account is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BANK-ACCOUNT-EXCEPTION-{{id}}"
-              name: "Resolve bank account {{account_number}}"
-              description: "Bank account {{account_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a bank account is stopped"
+    description: "When a bank account is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BANK-ACCOUNT-EXCEPTION-{{id}}"
+          name: "Resolve bank account {{account_number}}"
+          description: "Bank account {{account_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Represents the controlled banking account context through which cash is received, disbursed, observed, and reconciled.
     businessMeaning: BankAccount is master data for the financial account; it is not a bank transaction, payment, or accounting entry.

@@ -2,16 +2,109 @@ entity:
   name: ProfitCenter
   namespace: cedm.domain
   kind: management_accounting_dimension
-  description: A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity.
+  description: A part of the business measured on its own profit — a product line, a region, a business unit — to which revenues and costs are both assigned so its margin can be reported.
   ui:
-    icon: table
+    icon: trending-up
+    recordLabel: [code, name]
   identity: {key: profitCenterId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: profitCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable ProfitCenter identity., businessMeaning: Identifies the governed ProfitCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 20
+    help:
+      summary: The profit-centre code, such as PC-IND.
+      usage: Assigned when it is created; reports and assignments refer to it.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 150
+    help:
+      summary: The name of the profit centre.
+      usage: Shown on reports.
+      relationshipContext: Identifies it for people, with the code.
+  - name: segment
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The reporting segment it belongs to in published accounts, if any.
+      usage: Used to prepare segment information for the financial statements.
+      relationshipContext: Several profit centres may make up one segment.
+  - name: validFrom
+    type: date
+    required: true
+    help:
+      summary: The first day transactions may be assigned to it.
+      usage: Set when it is created.
+      relationshipContext: Not later than the valid-to date.
+  - name: validTo
+    type: date
+    required: false
+    help:
+      summary: The last day transactions may be assigned to it.
+      usage: Set when it is closed.
+      relationshipContext: Empty while open.
+  - name: status
+    type: enum
+    required: true
+    default: ACTIVE
+    values: [ACTIVE, CLOSED]
+    help:
+      summary: Whether transactions may be assigned to it.
+      usage: Moved on by controlling.
+      relationshipContext: Closed profit centres are not offered.
+      valueSemantics:
+        ACTIVE: Open for assignment.
+        CLOSED: No longer used; kept for history.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
+  - name: organization
+    target: Organization
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The organization the profit centre belongs to.
+      usage: Set when it is created.
+      cardinalityMeaning: Every profit centre belongs to exactly one organization.
+      context: Usually the group or a business unit.
+  - name: manager
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The manager responsible for the profit centre's results.
+      usage: Receives its reports.
+      cardinalityMeaning: One per profit centre.
+      context: Accountable for its margin.
+  - name: parentProfitCenter
+    target: ProfitCenter
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The profit centre it rolls up into.
+      usage: Builds the reporting hierarchy.
+      cardinalityMeaning: At most one parent.
+      context: Cannot be itself.
   invariants:
-  - {id: PROFITCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
-  help: {summary: "A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+  - {id: PROFIT-CENTER-001, rule: The validity does not end before it starts., violatedWhen: valid_to != null and valid_from != null and valid_to < valid_from, message: The valid-to date is earlier than the valid-from date.}
+  - {id: PROFIT-CENTER-002, rule: 'A profit centre cannot roll up into itself, directly or through others.'}
+  lifecycle:
+    title: Profit Center Lifecycle
+    attribute: status
+    states: [ACTIVE, CLOSED]
+    initial: ACTIVE
+    terminal: [CLOSED]
+    transitions:
+    - {from: ACTIVE, to: CLOSED, action: close}
+  help:
+    summary: A part of the business whose revenue, cost and profit are measured separately.
+    businessMeaning: Management wants to know which businesses make money. A profit centre gathers the revenue a business area earns and the costs it causes, so each area's margin can be reported, compared and managed, independently of the legal companies it trades through.
+    usage: Controlling defines profit centres along the management view of the business; sales, products and cost centres are assigned to them; monthly profit-centre reports show revenue, cost and margin.
+    relationshipContext: A profit centre belongs to an Organization, has a responsible manager and may roll up to a parent profit centre. Cost centres and budget lines name the profit centre they belong to.
+    lifecycle: Active while transactions may be assigned to it; closed when the business area is reorganised away; history stays reportable.
+    workflowContext: Segment reporting, product and regional profitability, transfer pricing between areas, budgeting.
+    example: Profit centre PC-IND 'Industrial products – Europe', manager the business-unit director, parent PC-EU 'Europe', revenue and cost of all industrial product lines sold in Europe.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROFIT-CENTER}

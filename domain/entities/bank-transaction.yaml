@@ -160,6 +160,7 @@ entity:
       usage: Supports cash accounting, fee recognition, interest, and reconciliation differences.
       cardinalityMeaning: A bank transaction may have multiple accounting consequences.
       workflowRole: Accounting consequences remain distinct from the external evidence itself.
+    inverseCardinality: '1'
   invariants:
   - id: BANK-TRANSACTION-001
     rule: amount must be greater than zero for a substantive bank transaction; zero-value statement metadata requires an explicitly supported import policy.
@@ -182,46 +183,46 @@ entity:
     initial: PENDING
     terminal: [REVERSED, FAILED]
     transitions:
-      - {from: PENDING, to: POSTED, action: post}
-      - {from: POSTED, to: REVERSED, action: reverse}
-      - {from: POSTED, to: FAILED, action: fail}
+    - {from: PENDING, to: POSTED, action: post}
+    - {from: POSTED, to: REVERSED, action: reverse}
+    - {from: POSTED, to: FAILED, action: fail}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a bank transaction is stopped"
-      description: "When a bank transaction is failed, a high-priority task asks someone to resolve it."
-      when: "status == \"FAILED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BANK-TRANSACTION-EXCEPTION-{{id}}"
-              name: "Resolve bank transaction {{reference}}"
-              description: "Bank transaction {{reference}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a bank transaction is ended"
-      description: "When a bank transaction is reversed, a task asks someone to settle what depended on it."
-      when: "status == \"REVERSED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "BANK-TRANSACTION-FOLLOW-UP-{{id}}"
-              name: "Follow up on bank transaction {{reference}}"
-              description: "Bank transaction {{reference}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: ExceptionRaised
+    title: "Raise a task when a bank transaction is stopped"
+    description: "When a bank transaction is failed, a high-priority task asks someone to resolve it."
+    when: "status == \"FAILED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BANK-TRANSACTION-EXCEPTION-{{id}}"
+          name: "Resolve bank transaction {{reference}}"
+          description: "Bank transaction {{reference}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a bank transaction is ended"
+    description: "When a bank transaction is reversed, a task asks someone to settle what depended on it."
+    when: "status == \"REVERSED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "BANK-TRANSACTION-FOLLOW-UP-{{id}}"
+          name: "Follow up on bank transaction {{reference}}"
+          description: "Bank transaction {{reference}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Represents external financial-institution evidence of a bank-side movement while keeping reconciliation, internal payment, and accounting meaning separate.
     businessMeaning: BankTransaction says what the bank reported. Payment says what the organization recognized as a payment. PaymentAllocation says how payment is applied to claims. JournalEntry says how the event is recognized in accounting.

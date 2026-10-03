@@ -81,15 +81,6 @@ entity:
         RETIRED: No longer available for new normal activity while historical financial records remain valid.
       requiredMeaning: Required for transaction eligibility.
   relationships:
-  - name: products
-    target: Product
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Links the currency to products whose standard or reference prices may be expressed in it.
-      usage: Supports catalog pricing and planning.
-      cardinalityMeaning: A currency may be used by many products.
-      workflowRole: Provides monetary context for optional Product standard pricing; transaction currency remains authoritative at transaction level.
   - name: salesOrders
     target: SalesOrder
     cardinality: 0..*
@@ -99,6 +90,7 @@ entity:
       usage: Supports order pricing, totals, customer commitments, and reporting.
       cardinalityMeaning: One currency can be used by many sales orders.
       workflowRole: Establishes the monetary denomination for SalesOrder totals and line values.
+    inverseCardinality: '1'
   - name: invoices
     target: Invoice
     cardinality: 0..*
@@ -108,6 +100,7 @@ entity:
       usage: Supports accounts receivable, billing, settlement, statements, and financial reporting.
       cardinalityMeaning: One currency can be used by many invoices.
       workflowRole: Defines the currency in which the financial claim and its settlement allocation are interpreted.
+    inverseCardinality: '1'
   - name: payments
     target: Payment
     cardinality: 0..*
@@ -117,6 +110,7 @@ entity:
       usage: Supports settlement, payment allocation, reconciliation, refunds, and cash reporting.
       cardinalityMeaning: One currency can be used by many payments.
       workflowRole: Determines the payment-side monetary denomination; conversion is required before applying amounts across currencies when policy permits.
+    inverseCardinality: '1'
   - name: paymentAllocations
     target: PaymentAllocation
     cardinality: 0..*
@@ -126,6 +120,7 @@ entity:
       usage: Supports invoice settlement and reconciliation.
       cardinalityMeaning: One currency may be used by many allocations.
       workflowRole: Helps distinguish payment currency from invoice currency and ensures any conversion is explicitly governed.
+    inverseCardinality: '1'
   - name: bankTransactions
     target: BankTransaction
     cardinality: 0..*
@@ -135,6 +130,7 @@ entity:
       usage: Supports bank reconciliation and cash visibility.
       cardinalityMeaning: One currency may occur on many bank transactions.
       workflowRole: Provides monetary context for bank evidence used to reconcile Payment records.
+    inverseCardinality: '1'
   - name: journalEntries
     target: JournalEntry
     cardinality: 0..*
@@ -144,24 +140,7 @@ entity:
       usage: Supports accounting, reporting, consolidation, and audit.
       cardinalityMeaning: One currency may be represented by many journal entries.
       workflowRole: Provides currency context for accounting recognition; ledger/base-currency requirements may require additional currency amounts.
-  - name: exchangeRatesFrom
-    target: ExchangeRate
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Exchange rates in which this currency is the source denomination.
-      usage: Supports auditable conversion of Money values from this currency into another currency.
-      cardinalityMeaning: A currency can be the source for many rates over time and against many target currencies.
-      workflowRole: Supplies the source-side rate history used by multi-currency settlement and accounting workflows.
-  - name: exchangeRatesTo
-    target: ExchangeRate
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Exchange rates in which this currency is the target denomination.
-      usage: Supports auditable conversion of foreign Money values into this currency.
-      cardinalityMeaning: A currency can be the target for many rates over time and from many source currencies.
-      workflowRole: Supplies the target-side rate history used by settlement, reporting, and accounting conversion.
+    inverseCardinality: '1'
   invariants:
   - id: CURRENCY-001
     rule: code must conform to the ISO 4217 three-letter currency-code convention where an ISO code exists.
@@ -180,10 +159,10 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Defines the monetary denomination that gives financial amounts their business meaning.
     businessMeaning: Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting.

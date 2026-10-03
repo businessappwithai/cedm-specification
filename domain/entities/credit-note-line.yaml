@@ -151,7 +151,7 @@ entity:
       workflowRole: Supplies approvedCreditAmount and disposition context where applicable.
   - name: taxRule
     target: TaxRule
-    cardinality: 0..*
+    cardinality: 0..1
     ownership: reference
     help:
       summary: Tax policies used to determine the credited tax treatment.

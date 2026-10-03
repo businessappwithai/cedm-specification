@@ -16,8 +16,8 @@ entity:
     help: {summary: Phase lifecycle state., businessMeaning: Controls phase execution., usage: Project governance., relationshipContext: Task/milestone state must reconcile., valueSemantics: {PLANNED: Not started., ACTIVE: Executing., COMPLETED: Closed successfully., CANCELLED: Terminated.}, requiredMeaning: Required.}
   relationships:
   - {name: project, target: Project, cardinality: '1', ownership: reference, help: {summary: Parent Project., businessMeaning: Supplies overall scope/governance., usage: Project execution., cardinalityMeaning: Exactly one Project., workflowRole: Phase cannot outlive incompatible project state.}}
-  - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., cardinalityMeaning: Zero or many tasks., workflowRole: Completion requires task reconciliation.}}
-  - {name: milestones, target: Milestone, cardinality: 0..*, ownership: reference, help: {summary: Milestones governed by phase., businessMeaning: Supplies delivery checkpoints., usage: Project tracking., cardinalityMeaning: Zero or many milestones., workflowRole: Milestone evidence supports phase completion.}}
+  - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., cardinalityMeaning: Zero or many tasks., workflowRole: Completion requires task reconciliation.}, inverseCardinality: '1'}
+  - {name: milestones, target: Milestone, cardinality: 0..*, ownership: reference, help: {summary: Milestones governed by phase., businessMeaning: Supplies delivery checkpoints., usage: Project tracking., cardinalityMeaning: Zero or many milestones., workflowRole: Milestone evidence supports phase completion.}, inverseCardinality: '1'}
   invariants:
   - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
   - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
@@ -28,28 +28,28 @@ entity:
     initial: PLANNED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-      - {from: PLANNED, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: PLANNED, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: ACTIVE, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a project phase is ended"
-      description: "When a project phase is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PROJECT-PHASE-FOLLOW-UP-{{id}}"
-              name: "Follow up on project phase {{name}}"
-              description: "Project phase {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a project phase is ended"
+    description: "When a project phase is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PROJECT-PHASE-FOLLOW-UP-{{id}}"
+          name: "Follow up on project phase {{name}}"
+          description: "Project phase {{name}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-PHASE}

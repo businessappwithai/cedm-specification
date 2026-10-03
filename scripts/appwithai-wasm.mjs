@@ -33,7 +33,15 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { setFlagsFromString } from "node:v8";
 import { WASI } from "node:wasi";
+
+// V8's baseline WebAssembly compiler (Liftoff) crashes the process with a
+// segmentation fault on this module for some inputs — `lower` over the
+// inventory application printed all but its last two bytes and died, on Node
+// 22, with or without a larger stack. The optimizing compiler runs the same
+// module correctly, so it is used for everything; startup is a little slower.
+setFlagsFromString("--no-liftoff");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_MODULE = path.join(ROOT, "target/wasm32-wasip1/release/appwithai.wasm");

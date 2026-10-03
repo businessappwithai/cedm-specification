@@ -14,8 +14,7 @@ entity:
     help:
       summary: 'The shipment id of the shipment: an identifier the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a shipment cannot be understood without its shipment id.'
   - name: shipmentNumber
     type: string
@@ -25,8 +24,7 @@ entity:
     help:
       summary: 'The shipment number of the shipment: a value the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a shipment cannot be understood without its shipment number.'
   - name: shipmentType
     type: enum
@@ -39,8 +37,7 @@ entity:
     help:
       summary: 'The shipment type of the shipment: a value the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a shipment cannot be understood without its shipment type.'
       valueSemantics:
         INBOUND: The shipment type of the shipment is inbound; set it when that is what the business means for this record.
@@ -70,16 +67,14 @@ entity:
     help:
       summary: 'The planned date of the shipment: a calendar date the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
   - name: actualDate
     type: date
     required: false
     help:
       summary: 'The actual date of the shipment: a calendar date the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
   - name: trackingReference
     type: string
     required: false
@@ -87,8 +82,7 @@ entity:
     help:
       summary: 'The tracking reference of the shipment: a value the business records on it.'
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its own.
   relationships:
   - name: lines
     target: ShipmentLine
@@ -131,6 +125,7 @@ entity:
       usage: Chosen from the existing container records when the shipment is created or edited.
       cardinalityMeaning: A shipment has any number of container in this role.
       context: Lets the shipment be found from, and reported with, its container.
+    inverseCardinality: 0..*
   - name: salesOrder
     target: SalesOrder
     cardinality: 0..1
@@ -158,6 +153,7 @@ entity:
       usage: Chosen from the existing inventory movement records when the shipment is created or edited.
       cardinalityMeaning: A shipment has any number of inventory movement in this role.
       context: Lets the shipment be found from, and reported with, its inventory movement.
+    inverseCardinality: '1'
   - {name: handlingUnits, target: HandlingUnit, cardinality: "0..*", ownership: reference, help: {summary: Physical logistics units assigned to shipment., businessMeaning: Identifies pallets/cartons/totes/packages transported., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Zero or many handling units., workflowRole: Assignment does not itself dispatch or alter stock.}}
   - {name: packingTasks, target: Packing, cardinality: 0..*, ownership: reference, help: {summary: Warehouse packing evidence preparing goods for shipment., businessMeaning: Connects picked goods and packages to transport readiness., usage: Fulfillment and loading., cardinalityMeaning: Zero or many packing tasks., workflowRole: PACKED is not dispatch/delivery evidence.}}
   - {name: dock, target: Dock, cardinality: 0..1, ownership: reference, help: {summary: Warehouse dock used for shipment loading/unloading., businessMeaning: Provides physical execution resource., usage: Dock scheduling and carrier handoff., cardinalityMeaning: Optional for shipments not executed at managed dock., workflowRole: Dock type/direction must be compatible.}}
@@ -181,72 +177,72 @@ entity:
     initial: PLANNED
     terminal: [DELIVERED, CANCELLED]
     transitions:
-      - {from: PLANNED, to: BOOKED, action: book}
-      - {from: BOOKED, to: IN_TRANSIT, action: mark_in_transit}
-      - {from: IN_TRANSIT, to: DELIVERED, action: deliver}
-      - {from: BOOKED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: BOOKED, action: resolve_exception}
-      - {from: IN_TRANSIT, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: IN_TRANSIT, action: resolve_exception}
-      - {from: PLANNED, to: CANCELLED, action: cancel}
-      - {from: BOOKED, to: CANCELLED, action: cancel}
-      - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
-      - {from: EXCEPTION, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: BOOKED, action: book}
+    - {from: BOOKED, to: IN_TRANSIT, action: mark_in_transit}
+    - {from: IN_TRANSIT, to: DELIVERED, action: deliver}
+    - {from: BOOKED, to: EXCEPTION, action: mark_exception}
+    - {from: EXCEPTION, to: BOOKED, action: resolve_exception}
+    - {from: IN_TRANSIT, to: EXCEPTION, action: mark_exception}
+    - {from: EXCEPTION, to: IN_TRANSIT, action: resolve_exception}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: BOOKED, to: CANCELLED, action: cancel}
+    - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
+    - {from: EXCEPTION, to: CANCELLED, action: cancel}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a shipment is stopped"
-      description: "When a shipment is exception, a high-priority task asks someone to resolve it."
-      when: "status == \"EXCEPTION\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SHIPMENT-EXCEPTION-{{id}}"
-              name: "Resolve shipment {{shipment_number}}"
-              description: "Shipment {{shipment_number}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
-    - name: FollowUpRequired
-      title: "Follow up when a shipment is ended"
-      description: "When a shipment is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SHIPMENT-FOLLOW-UP-{{id}}"
-              name: "Follow up on shipment {{shipment_number}}"
-              description: "Shipment {{shipment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a shipment is done"
-      description: "When a shipment is delivered, a task asks someone to confirm the outcome."
-      when: "status == \"DELIVERED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "SHIPMENT-COMPLETED-{{id}}"
-              name: "Confirm shipment {{shipment_number}}"
-              description: "Shipment {{shipment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: ExceptionRaised
+    title: "Raise a task when a shipment is stopped"
+    description: "When a shipment is exception, a high-priority task asks someone to resolve it."
+    when: "status == \"EXCEPTION\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SHIPMENT-EXCEPTION-{{id}}"
+          name: "Resolve shipment {{shipment_number}}"
+          description: "Shipment {{shipment_number}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
+  - name: FollowUpRequired
+    title: "Follow up when a shipment is ended"
+    description: "When a shipment is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SHIPMENT-FOLLOW-UP-{{id}}"
+          name: "Follow up on shipment {{shipment_number}}"
+          description: "Shipment {{shipment_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a shipment is done"
+    description: "When a shipment is delivered, a task asks someone to confirm the outcome."
+    when: "status == \"DELIVERED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "SHIPMENT-COMPLETED-{{id}}"
+          name: "Confirm shipment {{shipment_number}}"
+          description: "Shipment {{shipment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Represents physical logistics execution bridging commercial fulfillment and transport while keeping inventory and financial state under their authoritative workflows.
     businessMeaning: Shipment answers how goods are physically moved. It is not itself the inventory ledger, SalesOrder fulfillment ledger, GoodsReceipt acceptance, or financial settlement.

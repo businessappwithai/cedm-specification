@@ -136,6 +136,7 @@ entity:
       usage: Supports customer onboarding, credit management, order creation, invoicing, and receivables.
       cardinalityMeaning: A payment term can be the default for many customers.
       workflowRole: Supplies a default that may be copied or overridden according to customer, contract, and transaction policy.
+    inverseCardinality: '1'
   - name: suppliers
     target: Supplier
     cardinality: 0..*
@@ -145,6 +146,7 @@ entity:
       usage: Supports procurement, invoice matching, accounts payable, cash planning, and supplier management.
       cardinalityMeaning: A payment term can be the default for many suppliers.
       workflowRole: Supplies default payable timing for PurchaseOrder and supplier Invoice processes.
+    inverseCardinality: '1'
   - name: salesOrders
     target: SalesOrder
     cardinality: 0..*
@@ -154,6 +156,7 @@ entity:
       usage: Supports commercial agreement, order review, and downstream billing expectations.
       cardinalityMeaning: A payment term can apply to many SalesOrders.
       workflowRole: Provides commercial settlement expectations that flow into invoicing where policy permits.
+    inverseCardinality: '1'
   - name: purchaseOrders
     target: PurchaseOrder
     cardinality: 0..*
@@ -163,6 +166,7 @@ entity:
       usage: Supports supplier commercial conditions and accounts payable planning.
       cardinalityMeaning: A payment term can apply to many PurchaseOrders.
       workflowRole: Provides payable timing expectations for supplier invoices.
+    inverseCardinality: '1'
   - name: invoices
     target: Invoice
     cardinality: 0..*
@@ -191,10 +195,10 @@ entity:
     initial: ACTIVE
     terminal: [RETIRED]
     transitions:
-      - {from: ACTIVE, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: ACTIVE, action: reactivate}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: INACTIVE, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: INACTIVE, action: deactivate}
+    - {from: INACTIVE, to: ACTIVE, action: reactivate}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: INACTIVE, to: RETIRED, action: retire}
   help:
     summary: Defines reusable commercial rules for when financial obligations become due and when early-settlement benefits or operational grace periods apply.
     businessMeaning: PaymentTerm is a policy definition; an actual Invoice due date is a transaction-level result calculated from that policy and the applicable business event.

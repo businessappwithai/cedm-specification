@@ -2,25 +2,94 @@ entity:
   name: DeliveryAttempt
   namespace: cedm.domain
   kind: integration_delivery_event
-  description: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
+  description: One attempt to deliver an integration message or event to an endpoint — when it was made, what the endpoint answered, how long it took, and whether it worked.
   ui:
-    icon: truck
+    icon: send
+    recordLabel: [attemptNumber, attemptedAt]
   identity: {key: deliveryAttemptId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+  - name: attemptNumber
+    type: integer
+    required: true
+    help:
+      summary: Which try this was for the message — 1 for the first.
+      usage: Set by the integration layer.
+      relationshipContext: Unique within the message.
+  - name: attemptedAt
+    type: datetime
+    required: true
+    help:
+      summary: When the attempt was made.
+      usage: Set by the integration layer.
+      relationshipContext: Attempts are listed in this order.
+  - name: result
+    type: enum
+    required: true
+    values: [SUCCESS, REJECTED, FAILED, TIMEOUT]
+    help:
+      summary: What happened.
+      usage: Set from the endpoint's response.
+      relationshipContext: Rejected messages are not retried; failed ones are.
+      valueSemantics:
+        SUCCESS: The endpoint accepted the message.
+        REJECTED: The endpoint refused the message as invalid.
+        FAILED: The endpoint could not be reached or returned an error.
+        TIMEOUT: The endpoint did not answer in time.
+  - name: responseCode
+    type: string
+    required: false
+    maxLength: 20
+    help:
+      summary: The code the endpoint returned, such as an HTTP status.
+      usage: Read by operators diagnosing a failure.
+      relationshipContext: Meaning depends on the protocol.
+  - name: responseMessage
+    type: text
+    required: false
+    help:
+      summary: The text the endpoint returned.
+      usage: Read by operators diagnosing a failure.
+      relationshipContext: May be long; kept as returned.
+  - name: durationMs
+    type: integer
+    required: false
+    help:
+      summary: How long the attempt took, in milliseconds.
+      usage: Used to spot slow endpoints.
+      relationshipContext: Measured by the integration layer.
   relationships:
-  - {name: message, target: Message, cardinality: '1', ownership: reference, help: {summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., cardinalityMeaning: Exactly one Message., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}
-  - {name: endpoint, target: IntegrationEndpoint, cardinality: '1', ownership: reference, help: {summary: Destination endpoint attempted., businessMeaning: Defines delivery target., usage: Integration operations., cardinalityMeaning: Exactly one endpoint., workflowRole: Configuration changes do not rewrite historical attempts.}}
+  - name: message
+    target: Message
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The message being delivered.
+      businessMeaning: Supplies immutable payload identity.
+      workflowRole: Retries create distinct attempts and must not duplicate business effects.
+      usage: Set by the integration layer.
+      cardinalityMeaning: Every attempt is for exactly one message.
+      context: The message's status follows its latest attempt.
+  - name: endpoint
+    target: IntegrationEndpoint
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The endpoint the attempt was made against.
+      businessMeaning: Defines delivery target.
+      workflowRole: Configuration changes do not rewrite historical attempts.
+      usage: Set by the integration layer.
+      cardinalityMeaning: Every attempt is against exactly one endpoint.
+      context: Endpoint health is measured from its attempts.
   invariants:
-  - {id: DELIVERY-ATTEMPT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+  - {id: DELIVERY-ATTEMPT-001, rule: Attempts are append-only and never changed.}
+  - {id: DELIVERY-ATTEMPT-002, rule: The attempt number is at least 1., violatedWhen: attempt_number != null and attempt_number < 1, message: The attempt number must be 1 or more.}
   help:
-    summary: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
-    purpose: Provide canonical implementation-neutral integration semantics for DeliveryAttempt.
-    businessMeaning: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
-    whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
-    howItRelates: Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
-    lifecycleUsage: Created and processed through governed integration states; attempts and finalized evidence are retained.
-    commonProcesses: Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-    commonExamples: Enterprise application integration and event-driven workflows.
+    summary: One try at sending a message to another system, and the result.
+    businessMeaning: Integration failures are diagnosed from attempts. Each attempt records when it was made, the response the endpoint gave and how long it took, so operators can tell a partner outage from a rejected message and see how retries behaved.
+    usage: Written by the integration layer for each try; read by operators investigating a failed or slow message.
+    relationshipContext: An attempt belongs to one Message and is made against one IntegrationEndpoint. A message has one attempt per try, numbered in order.
+    lifecycle: An attempt has no lifecycle; it records one completed try and is never changed.
+    workflowContext: Message delivery, retry, dead-lettering and integration monitoring.
+    example: 'Attempt 3 of message 7f3c… to BANKB-SFTP-PAY at 14:06:02: connection refused after 30 s; next retry scheduled 14:11.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DELIVERY-ATTEMPT}

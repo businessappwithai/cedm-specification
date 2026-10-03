@@ -2,24 +2,101 @@ entity:
   name: Delivery
   namespace: cedm.domain
   kind: logistics_event
-  description: A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient.
+  description: The hand-over of a shipment's goods at their destination — who received them, when, in what condition, with what proof — or the record that delivery failed.
   ui:
-    icon: truck
+    icon: package-check
+    recordLabel: [code]
   identity: {key: deliveryId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Delivery., businessMeaning: Identifies one governed Delivery record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Delivery., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the delivery.
+      usage: Assigned when it is recorded.
+      relationshipContext: Unique.
+  - name: deliveredAt
+    type: datetime
+    required: true
+    help:
+      summary: When the goods were handed over.
+      usage: Taken from the proof of delivery.
+      relationshipContext: The legal delivery time for invoicing and claims.
+  - name: receivedBy
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The name of the person who accepted the goods.
+      usage: Taken from the signature on the proof of delivery.
+      relationshipContext: Should be someone authorised at the destination.
+  - name: outcome
+    type: enum
+    required: true
+    default: DELIVERED
+    values: [DELIVERED, DELIVERED_WITH_EXCEPTION, REFUSED]
+    help:
+      summary: How the delivery went.
+      usage: Set from the proof of delivery.
+      relationshipContext: Exceptions open a claim or a follow-up with the customer.
+      valueSemantics:
+        DELIVERED: Delivered complete and in good condition.
+        DELIVERED_WITH_EXCEPTION: Delivered but short, over or damaged.
+        REFUSED: The recipient refused the goods.
+  - name: packagesDelivered
+    type: integer
+    required: false
+    help:
+      summary: How many packages or pallets were handed over.
+      usage: Counted at delivery.
+      relationshipContext: Compared with the shipment's count.
+  - name: conditionNotes
+    type: text
+    required: false
+    help:
+      summary: Remarks on the goods' condition made at hand-over.
+      usage: Written by the driver or recipient; evidence for claims.
+      relationshipContext: Remarks not made at delivery are hard to claim later.
+  - name: proofReference
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The reference of the proof of delivery — signed note, photo or electronic signature.
+      usage: Linked so the proof can be produced on request.
+      relationshipContext: Files are attached to the delivery.
   relationships:
-  - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., cardinalityMeaning: Exactly one Shipment., workflowRole: Event must not silently rewrite prior shipment evidence.}}
+  - name: shipment
+    target: Shipment
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The shipment delivered.
+      businessMeaning: Connects logistics evidence to transport transaction.
+      workflowRole: Event must not silently rewrite prior shipment evidence.
+      usage: Set when the delivery is recorded.
+      cardinalityMeaning: Every delivery completes exactly one shipment.
+      context: The shipment's status becomes delivered.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the goods were delivered.
+      usage: Usually the shipment's destination.
+      cardinalityMeaning: One per delivery.
+      context: A different place is an exception to investigate.
   invariants:
-  - {id: DELIVERY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: DELIVERY-001, rule: A delivery record is evidence and is not edited; a correction is noted on a new record.}
   help:
-    summary: A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient.
-    purpose: Provide canonical implementation-neutral semantics for Delivery across enterprise applications.
-    businessMeaning: A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: The moment goods reached the recipient, and the proof of it.
+    businessMeaning: Delivery transfers goods, and often risk and title, to the customer, and it is the evidence that allows invoicing and settles disputes. The delivery record holds who signed, when, the quantities and condition received and the proof of delivery, so the business can invoice with confidence and answer "we never received it".
+    usage: Created from the carrier's proof of delivery or by the driver's device; customer service uses it to answer delivery questions; finance releases invoicing; claims use the condition notes.
+    relationshipContext: A delivery completes a Shipment at a Location. Failed attempts before it are DeliveryAttempts; a damaged or short delivery may lead to a claim.
+    lifecycle: Delivered in full, delivered with exceptions (short, damaged), or refused by the recipient.
+    workflowContext: Proof of delivery, invoicing release, customer claims, carrier performance.
+    example: Delivery DL-24-011873 of shipment SH-55120 to Customer Depot Milan, 14 March 14:10, signed by M. Rossi, 22 of 22 pallets, one pallet with crushed corner noted, photo attached.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DELIVERY}

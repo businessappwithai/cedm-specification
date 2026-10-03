@@ -101,7 +101,7 @@ entity:
     help: {summary: Discount policy referenced by the original line., businessMeaning: Identifies the policy source while discountEvidence preserves the transaction-time result., usage: Supports audit and controlled recalculation., workflowRole: Supplies original discount policy context.}
   - name: taxRule
     target: TaxRule
-    cardinality: 0..*
+    cardinality: 0..1
     ownership: reference
     help: {summary: Tax policies referenced by the original line., businessMeaning: Identifies governing tax treatment while taxEvidence preserves historical results., usage: Supports tax compliance and audit., workflowRole: Supplies original tax policy context.}
   - name: creditNoteLines

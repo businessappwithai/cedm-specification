@@ -2,24 +2,136 @@ entity:
   name: FreightCharge
   namespace: cedm.domain
   kind: logistics_charge
-  description: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
+  description: A transport cost — base freight, fuel surcharge, accessorial fee, duty — billed or accrued for a shipment, consignment or load, checked against the agreed rate before payment.
   ui:
-    icon: table
+    icon: coins
+    recordLabel: [code]
   identity: {key: freightChargeId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: freightChargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of FreightCharge., businessMeaning: Identifies one governed FreightCharge record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for FreightCharge., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - name: code
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the charge.
+      usage: Assigned when it is created.
+      relationshipContext: Unique.
+  - name: chargeType
+    type: enum
+    required: true
+    default: BASE_FREIGHT
+    values: [BASE_FREIGHT, FUEL_SURCHARGE, ACCESSORIAL, DUTY_AND_TAX, DEMURRAGE, OTHER]
+    help:
+      summary: What the charge is for.
+      usage: Chosen when recording it; reports group transport cost by it.
+      relationshipContext: Surcharges are often a percentage of base freight.
+      valueSemantics:
+        BASE_FREIGHT: The basic transport price.
+        FUEL_SURCHARGE: An adjustment for fuel prices.
+        ACCESSORIAL: An extra service, such as a tail lift, waiting time or a delivery appointment.
+        DUTY_AND_TAX: Customs duty or import tax paid by the carrier for us.
+        DEMURRAGE: A fee for keeping a container or vehicle too long.
+        OTHER: Any other transport charge.
+  - name: expectedAmount
+    type: Money
+    required: false
+    help:
+      summary: What the charge should be under the agreed rates.
+      usage: Computed when the shipment is rated; the audit compares the invoice with it.
+      relationshipContext: Empty when there is no agreed rate.
+  - name: invoicedAmount
+    type: Money
+    required: false
+    help:
+      summary: What the carrier invoiced.
+      usage: Entered from the carrier's invoice.
+      relationshipContext: Differences from the expected amount are audited.
+  - name: carrierInvoiceNumber
+    type: string
+    required: false
+    maxLength: 60
+    help:
+      summary: The number of the carrier's invoice the charge is on.
+      usage: Entered with the invoiced amount.
+      relationshipContext: Several charges share one carrier invoice.
+  - name: disputeReason
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: Why the charge is disputed.
+      usage: Written when the audit finds a difference.
+      relationshipContext: Present only on disputed charges.
+  - name: status
+    type: enum
+    required: true
+    default: ESTIMATED
+    values: [ESTIMATED, INVOICED, APPROVED, DISPUTED, PAID]
+    help:
+      summary: Where the charge is in audit and payment.
+      usage: Moved on by freight audit and payment.
+      relationshipContext: Only approved charges are paid.
+      valueSemantics:
+        ESTIMATED: Expected cost; not yet invoiced.
+        INVOICED: Billed by the carrier; awaiting audit.
+        APPROVED: Audited and approved for payment.
+        DISPUTED: The invoiced amount is challenged.
+        PAID: Paid to the carrier.
   relationships:
-  - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Shipment receiving freight charge., businessMeaning: Attributes logistics cost., usage: Freight audit and settlement., cardinalityMeaning: Optional when charge is at load/consignment level., workflowRole: Charge does not itself post payment or journal.}}
+  - name: shipment
+    target: Shipment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The shipment the charge is for.
+      businessMeaning: Attributes logistics cost.
+      workflowRole: Charge does not itself post payment or journal.
+      usage: Set when the charge is created.
+      cardinalityMeaning: At most one shipment per charge.
+      context: The shipment's orders bear the cost.
+  - name: carrier
+    target: Carrier
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The carrier charging.
+      usage: Taken from the shipment's consignment.
+      cardinalityMeaning: One per charge.
+      context: Its rates give the expected amount.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the charge.
+      usage: The carrier's billing currency.
+      cardinalityMeaning: One per charge.
+      context: Both amounts use it.
   invariants:
-  - {id: FREIGHT-CHARGE-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: FREIGHT-CHARGE-001, rule: A disputed charge says why., violatedWhen: status == "DISPUTED" and dispute_reason == null, message: Give the reason for the dispute.}
+  - {id: FREIGHT-CHARGE-002, rule: 'An invoiced, approved or paid charge has its invoiced amount.', violatedWhen: (status == "INVOICED" or status == "APPROVED" or status == "PAID") and invoiced_amount == null, message: Enter the amount the carrier invoiced.}
+  - {id: FREIGHT-CHARGE-EXE-001, rule: "Expected Amount cannot be negative.", violatedWhen: "expected_amount != null and expected_amount < 0", message: "Expected Amount cannot be negative."}
+  - {id: FREIGHT-CHARGE-EXE-002, rule: "Invoiced Amount cannot be negative.", violatedWhen: "invoiced_amount != null and invoiced_amount < 0", message: "Invoiced Amount cannot be negative."}
+  lifecycle:
+    title: Freight Charge Lifecycle
+    attribute: status
+    states: [ESTIMATED, INVOICED, APPROVED, DISPUTED, PAID]
+    initial: ESTIMATED
+    terminal: [PAID]
+    transitions:
+    - {from: ESTIMATED, to: INVOICED, action: invoice}
+    - {from: INVOICED, to: APPROVED, action: approve}
+    - {from: INVOICED, to: DISPUTED, action: dispute}
+    - {from: DISPUTED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: PAID, action: pay}
   help:
-    summary: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
-    purpose: Provide canonical implementation-neutral semantics for FreightCharge across enterprise applications.
-    businessMeaning: A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: One cost of moving goods, as charged by the carrier or estimated in advance.
+    businessMeaning: Freight is a large cost and carriers' invoices are often wrong. Recording each charge with its type, the agreed amount and the invoiced amount, against the shipment it belongs to, lets freight audit catch overcharges before payment and lets transport cost be allocated to the orders and customers that caused it.
+    usage: Estimated when a shipment is planned, replaced by the carrier's invoiced amount, audited against the rate, approved and paid. Transport-cost reports sum charges by lane, carrier and customer.
+    relationshipContext: A charge belongs to a Shipment (and through it to orders), is billed by a Carrier, and is in one Currency. Approved charges are paid through the carrier's invoice.
+    lifecycle: Estimated, then invoiced when the carrier bills it, then approved after audit or disputed when it does not match, and finally paid.
+    workflowContext: Freight rating, freight audit and payment, cost allocation, accruals at period end.
+    example: 'Shipment SH-55120: base freight 640 EUR, fuel surcharge 12% = 76.80 EUR, tail-lift fee 35 EUR; carrier invoiced 760 EUR, expected 751.80 EUR; 8.20 EUR difference disputed.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FREIGHT-CHARGE}

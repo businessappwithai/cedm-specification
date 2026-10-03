@@ -2,24 +2,104 @@ entity:
   name: TrackingEvent
   namespace: cedm.domain
   kind: logistics_event
-  description: An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress.
+  description: A status update from the road — picked up, departed hub, arrived, out for delivery, delayed, delivered — reported by a carrier or device for a shipment, with time, place and description.
   ui:
-    icon: activity
+    icon: map-pin
+    recordLabel: [eventCode, eventTime]
   identity: {key: trackingEventId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TrackingEvent., businessMeaning: Identifies one governed TrackingEvent record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for TrackingEvent., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - name: code
+    type: string
+    required: false
+    maxLength: 40
+    help:
+      summary: The carrier's own identifier for the event, when it gives one.
+      usage: Used to avoid recording the same event twice when the feed is resent.
+      relationshipContext: Unique per carrier where present.
+  - name: eventCode
+    type: enum
+    required: true
+    default: IN_TRANSIT
+    values: [PICKED_UP, DEPARTED, ARRIVED, IN_TRANSIT, CUSTOMS, OUT_FOR_DELIVERY, DELIVERED, EXCEPTION]
+    help:
+      summary: Which milestone the event reports.
+      usage: Mapped from the carrier's code; exception codes raise alerts.
+      relationshipContext: Carriers' own codes are mapped to these.
+      valueSemantics:
+        PICKED_UP: Collected from the shipper.
+        DEPARTED: Left a hub or terminal.
+        ARRIVED: Arrived at a hub or terminal.
+        IN_TRANSIT: On the way between points.
+        CUSTOMS: Held or cleared at customs.
+        OUT_FOR_DELIVERY: On the vehicle for final delivery.
+        DELIVERED: Delivered.
+        EXCEPTION: A problem, such as damage, a wrong address or a failed delivery.
+  - name: eventTime
+    type: datetime
+    required: true
+    help:
+      summary: When the event happened, in the place's local time converted to UTC.
+      usage: The timeline is sorted by it.
+      relationshipContext: Not the time the feed arrived.
+  - name: description
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: The carrier's description of the event.
+      usage: Shown on the timeline.
+      relationshipContext: As received.
+  - name: placeName
+    type: string
+    required: false
+    maxLength: 200
+    help:
+      summary: The name of the place reported, such as "Fercam hub Novara".
+      usage: Shown on the timeline when no location record matches.
+      relationshipContext: Matched to a location where possible.
+  - name: source
+    type: enum
+    required: true
+    default: CARRIER_FEED
+    values: [CARRIER_FEED, TELEMATICS, MANUAL]
+    help:
+      summary: Where the event came from.
+      usage: Set when recording it.
+      relationshipContext: Manual events are checked before they change a promise.
+      valueSemantics:
+        CARRIER_FEED: The carrier's tracking feed or API.
+        TELEMATICS: A device on the vehicle or container.
+        MANUAL: Entered by a person.
   relationships:
-  - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., cardinalityMeaning: Exactly one Shipment., workflowRole: Event must not silently rewrite prior shipment evidence.}}
+  - name: shipment
+    target: Shipment
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The shipment the event reports on.
+      businessMeaning: Connects logistics evidence to transport transaction.
+      workflowRole: Event must not silently rewrite prior shipment evidence.
+      usage: Matched from the tracking number.
+      cardinalityMeaning: Every event belongs to exactly one shipment.
+      context: The shipment's status follows its latest significant event.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The known location where the event happened.
+      usage: Matched from the place name where possible.
+      cardinalityMeaning: At most one.
+      context: Empty when the place is not one of ours.
   invariants:
-  - {id: TRACKING-EVENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+  - {id: TRACKING-EVENT-001, rule: Tracking events are append-only and never changed.}
   help:
-    summary: An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress.
-    purpose: Provide canonical implementation-neutral semantics for TrackingEvent across enterprise applications.
-    businessMeaning: An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: One reported step in a shipment's journey, with when and where it happened.
+    businessMeaning: Customers and planners want to know where goods are. Carriers and devices report milestones as tracking events; recording them in order, with their time, place and code, gives a shipment's travel history, lets the application detect delays and exceptions, and lets customer service answer from facts.
+    usage: Received from carrier feeds and telematics, or entered by hand; shown as a timeline on the shipment; exception events alert planners and customer service.
+    relationshipContext: A tracking event belongs to one Shipment and may name the Location it happened at. Events arrive in any order and are sorted by event time.
+    lifecycle: A tracking event has no lifecycle; it records something that happened and is never changed.
+    workflowContext: Shipment visibility, delay and exception management, delivery promise updates, carrier performance.
+    example: "Shipment SH-55120: 13 March 21:40, 'Departed hub', Fercam hub Novara, reported by carrier feed; 14 March 08:05, 'Out for delivery', Milan."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TRACKING-EVENT}

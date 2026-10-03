@@ -86,13 +86,6 @@ entity:
     cardinality: 0..1
     ownership: reference
     help: {summary: Lot segment represented by this balance when lot-controlled., businessMeaning: "Separates stock state by batch for quality, expiry, and recall.", usage: "Allocation, FEFO, recall, and reconciliation.", cardinalityMeaning: Optional for non-lot-controlled products., workflowRole: Balance must reconcile to lot-attributed movements.}
-  - name: inventoryMovements
-    target: InventoryMovement
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Posted inventory events contributing to the balance projection.
-      workflowRole: Supplies the historical event stream against which the balance must reconcile.
   invariants:
   - {id: INVENTORY-BALANCE-001, rule: "quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy permits it."}
   - {id: INVENTORY-BALANCE-002, rule: quantityReserved must not normally exceed quantityOnHand.}

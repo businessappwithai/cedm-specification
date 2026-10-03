@@ -149,6 +149,7 @@ entity:
       businessMeaning: Provides historical monetary, pricing and tax evidence for the returned quantity.
       usage: Supports credit calculation, audit and reconciliation.
       workflowRole: Supplies source financial evidence to CreditNoteLine.
+    inverseCardinality: 0..*
   - name: returnDispositions
     target: ReturnDisposition
     cardinality: 0..*
@@ -168,6 +169,7 @@ entity:
       businessMeaning: Records the actual stock consequence of the return line.
       usage: Supports stock ledger, warehouse reconciliation and audit.
       workflowRole: Only accepted disposition creates the appropriate movement; return authorization or receipt alone does not.
+    inverseCardinality: '1'
   - name: creditNoteLines
     target: CreditNoteLine
     cardinality: 0..*

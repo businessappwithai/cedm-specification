@@ -2,76 +2,158 @@ entity:
   name: Credit
   namespace: cedm.domain
   kind: billing_transaction
-  description: A governed monetary credit reducing an amount owed or available for application to future or existing charges without itself representing cash payment.
+  description: An amount credited to a customer's account — for a service failure, a goodwill gesture, a promotion or an overpayment — that reduces what they owe now or on future invoices.
   ui:
-    icon: credit-card
+    icon: badge-minus
+    recordLabel: [creditNumber]
   identity: {key: creditId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: creditId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Credit., businessMeaning: Identifies one governed Credit record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Credit., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    default: AVAILABLE
+    values: [AVAILABLE, PARTIALLY_APPLIED, FULLY_APPLIED, EXPIRED, VOIDED]
+    help:
+      summary: How much of the credit is left to use.
+      usage: Moved on by billing as it is applied, and at expiry.
+      relationshipContext: Only available and partly applied credits reduce new invoices.
+      valueSemantics:
+        AVAILABLE: Granted and not yet used.
+        PARTIALLY_APPLIED: Partly used; the rest is still available.
+        FULLY_APPLIED: Used up.
+        EXPIRED: The use-by date passed with some left unused.
+        VOIDED: Granted in error and withdrawn.
+  - name: creditNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The reference of the credit.
+      usage: Assigned when the credit is granted; shown on the customer's invoices when applied.
+      relationshipContext: Unique.
+  - name: reason
+    type: enum
+    required: true
+    default: GOODWILL
+    values: [SLA_BREACH, GOODWILL, PROMOTION, OVERPAYMENT, BILLING_ERROR]
+    help:
+      summary: Why the credit was granted.
+      usage: Chosen when granting; reports of credits by reason show where service fails.
+      relationshipContext: SLA credits follow the agreement's formula.
+      valueSemantics:
+        SLA_BREACH: A service level was missed.
+        GOODWILL: A gesture to keep a customer satisfied.
+        PROMOTION: Part of a promotional offer.
+        OVERPAYMENT: The customer paid more than they owed.
+        BILLING_ERROR: A correction of an earlier billing mistake.
+  - name: description
+    type: string
+    required: false
+    maxLength: 500
+    help:
+      summary: What the credit is for, as the customer will see it.
+      usage: Printed on the invoice where it is applied.
+      relationshipContext: Should let the customer recognise it.
+  - name: amount
+    type: Money
+    required: true
+    help:
+      summary: The amount credited.
+      usage: Set when granting.
+      relationshipContext: Positive; it reduces what the customer owes.
+  - name: appliedAmount
+    type: Money
+    required: false
+    help:
+      summary: How much of the credit has been used.
+      usage: Increased each time it is applied to an invoice or charge.
+      relationshipContext: Not more than the amount.
+  - name: grantedDate
+    type: date
+    required: true
+    help:
+      summary: The day the credit was granted.
+      usage: Recorded when granting.
+      relationshipContext: Not later than the expiry date.
+  - name: expiryDate
+    type: date
+    required: false
+    help:
+      summary: The last day the credit can be used.
+      usage: Unused credit expires after it.
+      relationshipContext: Empty when it does not expire.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+  - name: customer
+    target: Customer
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The customer credited.
+      usage: Chosen when granting.
+      cardinalityMeaning: Every credit is for one customer.
+      context: Applied only to that customer's invoices.
+  - name: subscription
+    target: Subscription
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The subscription the credit concerns, such as the one that suffered an outage.
+      usage: Linked for service credits.
+      cardinalityMeaning: At most one.
+      context: May restrict the credit to that subscription's charges.
+  - name: invoice
+    target: Invoice
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The invoice the credit corrects or was granted against.
+      usage: Linked for billing corrections.
+      cardinalityMeaning: At most one.
+      context: The credit is applied to later invoices, not by changing this one.
+  - name: grantedBy
+    target: Person
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Who granted the credit.
+      usage: Recorded when granting.
+      cardinalityMeaning: One per credit.
+      context: Credits above a limit need approval.
+  - name: currency
+    target: Currency
+    cardinality: '1'
+    ownership: reference
+    help:
+      summary: The currency of the credit.
+      usage: The customer's billing currency.
+      cardinalityMeaning: One per credit.
+      context: Applied only to invoices in the same currency.
   invariants:
-  - {id: CREDIT-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+  - {id: CREDIT-001, rule: The applied amount does not exceed the credit., violatedWhen: applied_amount != null and amount != null and applied_amount > amount, message: More has been applied than the credit is worth.}
+  - {id: CREDIT-002, rule: The credit does not expire before it is granted., violatedWhen: expiry_date != null and granted_date != null and expiry_date < granted_date, message: The expiry date is earlier than the grant date.}
+  - {id: CREDIT-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  - {id: CREDIT-EXE-002, rule: "Applied Amount cannot be negative.", violatedWhen: "applied_amount != null and applied_amount < 0", message: "Applied Amount cannot be negative."}
   lifecycle:
     title: Credit Lifecycle
     attribute: status
-    states: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    initial: DRAFT
-    terminal: [COMPLETED, CANCELLED]
+    states: [AVAILABLE, PARTIALLY_APPLIED, FULLY_APPLIED, EXPIRED, VOIDED]
+    initial: AVAILABLE
+    terminal: [FULLY_APPLIED, EXPIRED, VOIDED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: COMPLETED, action: complete}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-  workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a credit is ended"
-      description: "When a credit is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CREDIT-FOLLOW-UP-{{id}}"
-              name: "Follow up on credit {{id}}"
-              description: "Credit {{id}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a credit is done"
-      description: "When a credit is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "CREDIT-COMPLETED-{{id}}"
-              name: "Confirm credit {{id}}"
-              description: "Credit {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+    - {from: AVAILABLE, to: PARTIALLY_APPLIED, action: apply_part}
+    - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: apply_rest}
+    - {from: AVAILABLE, to: FULLY_APPLIED, action: apply_all}
+    - {from: AVAILABLE, to: EXPIRED, action: expire}
+    - {from: PARTIALLY_APPLIED, to: EXPIRED, action: expire}
+    - {from: AVAILABLE, to: VOIDED, action: void}
   help:
-    summary: A governed monetary credit reducing an amount owed or available for application to future or existing charges without itself representing cash payment.
-    purpose: Provide canonical enterprise semantics for Credit while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed monetary credit reducing an amount owed or available for application to future or existing charges without itself representing cash payment.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: Money the business owes back to a customer as a reduction of their bills.
+    businessMeaning: Customers are owed credits for outages, complaints, promotions and overpayments, and those credits must be given exactly once. A credit records why it was granted, how much, until when it can be used and how much of it has been applied, so billing applies it correctly and finance can account for the liability.
+    usage: Granted by billing or customer service, usually with approval above a limit; applied automatically to the customer's next charges or invoices; expired credits are released from the balance sheet.
+    relationshipContext: A credit belongs to a Customer, may be granted against a Subscription or an Invoice, and is in one Currency. Applying it reduces later Charges or Invoices.
+    lifecycle: Granted (available), partly applied as invoices use it, fully applied when used up, expired when its use-by date passes, or voided if granted in error.
+    workflowContext: Service-level credits, complaint handling, promotional credits, billing and invoice settlement.
+    example: 'Credit CR-2024-0218: 150 EUR to Contoso for a 6-hour outage on 2 April under the SLA, granted 5 April, expires 5 October, 150 EUR applied to invoice INV-2024-04-1103.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CREDIT}

@@ -31,11 +31,9 @@ entity:
       valueSemantics:
         DRAFT: The status of the goods receipt is draft; set it when that is what the business means for this record.
         RECEIVED: The status of the goods receipt is received; set it when that is what the business means for this record.
-        INSPECTION_PENDING: The status of the goods receipt is inspection pending; set it when that is what the business means
-          for this record.
+        INSPECTION_PENDING: The status of the goods receipt is inspection pending; set it when that is what the business means for this record.
         ACCEPTED: The status of the goods receipt is accepted; set it when that is what the business means for this record.
-        PARTIALLY_ACCEPTED: The status of the goods receipt is partially accepted; set it when that is what the business means
-          for this record.
+        PARTIALLY_ACCEPTED: The status of the goods receipt is partially accepted; set it when that is what the business means for this record.
         REJECTED: The status of the goods receipt is rejected; set it when that is what the business means for this record.
         CANCELLED: The status of the goods receipt is cancelled; set it when that is what the business means for this record.
   - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: Total quantity physically recorded as received., businessMeaning: Sum of line received quantities., usage: Receiving and audit., relationshipContext: "SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone.", workflowRole: Provides original physical receipt basis., requiredMeaning: Required.}}
@@ -62,6 +60,7 @@ entity:
     cardinality: 0..*
     ownership: reference
     help: {summary: Inventory events created from accepted receipt quantities., businessMeaning: Records physical stock consequences of the receipt separately from receipt evidence., usage: Inventory audit and reconciliation., workflowRole: Accepted quantities create attributable receipt movements.}
+    inverseCardinality: '1'
   - name: invoices
     target: Invoice
     cardinality: 0..*
@@ -99,44 +98,44 @@ entity:
     initial: DRAFT
     terminal: [REJECTED, CANCELLED]
     transitions:
-      - {from: DRAFT, to: RECEIVED, action: receive}
-      - {from: RECEIVED, to: ACCEPTED, action: accept}
-      - {from: ACCEPTED, to: PARTIALLY_ACCEPTED, action: mark_partially_accepted}
-      - {from: RECEIVED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-      - {from: INSPECTION_PENDING, to: RECEIVED, action: resume}
-      - {from: ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-      - {from: INSPECTION_PENDING, to: ACCEPTED, action: resume}
-      - {from: PARTIALLY_ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-      - {from: INSPECTION_PENDING, to: PARTIALLY_ACCEPTED, action: resume}
-      - {from: DRAFT, to: REJECTED, action: reject}
-      - {from: RECEIVED, to: REJECTED, action: reject}
-      - {from: ACCEPTED, to: REJECTED, action: reject}
-      - {from: PARTIALLY_ACCEPTED, to: REJECTED, action: reject}
-      - {from: INSPECTION_PENDING, to: REJECTED, action: reject}
-      - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: RECEIVED, to: CANCELLED, action: cancel}
-      - {from: ACCEPTED, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_ACCEPTED, to: CANCELLED, action: cancel}
-      - {from: INSPECTION_PENDING, to: CANCELLED, action: cancel}
+    - {from: DRAFT, to: RECEIVED, action: receive}
+    - {from: RECEIVED, to: ACCEPTED, action: accept}
+    - {from: ACCEPTED, to: PARTIALLY_ACCEPTED, action: mark_partially_accepted}
+    - {from: RECEIVED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+    - {from: INSPECTION_PENDING, to: RECEIVED, action: resume}
+    - {from: ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+    - {from: INSPECTION_PENDING, to: ACCEPTED, action: resume}
+    - {from: PARTIALLY_ACCEPTED, to: INSPECTION_PENDING, action: mark_inspection_pending}
+    - {from: INSPECTION_PENDING, to: PARTIALLY_ACCEPTED, action: resume}
+    - {from: DRAFT, to: REJECTED, action: reject}
+    - {from: RECEIVED, to: REJECTED, action: reject}
+    - {from: ACCEPTED, to: REJECTED, action: reject}
+    - {from: PARTIALLY_ACCEPTED, to: REJECTED, action: reject}
+    - {from: INSPECTION_PENDING, to: REJECTED, action: reject}
+    - {from: DRAFT, to: CANCELLED, action: cancel}
+    - {from: RECEIVED, to: CANCELLED, action: cancel}
+    - {from: ACCEPTED, to: CANCELLED, action: cancel}
+    - {from: PARTIALLY_ACCEPTED, to: CANCELLED, action: cancel}
+    - {from: INSPECTION_PENDING, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a goods receipt is ended"
-      description: "When a goods receipt is rejected or cancelled, a task asks someone to settle what depended on it."
-      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "GOODS-RECEIPT-FOLLOW-UP-{{id}}"
-              name: "Follow up on goods receipt {{receipt_number}}"
-              description: "Goods receipt {{receipt_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
+  - name: FollowUpRequired
+    title: "Follow up when a goods receipt is ended"
+    description: "When a goods receipt is rejected or cancelled, a task asks someone to settle what depended on it."
+    when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "GOODS-RECEIPT-FOLLOW-UP-{{id}}"
+          name: "Follow up on goods receipt {{receipt_number}}"
+          description: "Goods receipt {{receipt_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
   help:
     summary: Controlled receiving document whose line evidence establishes original fulfillment and eligible basis for later supplier returns.
     businessMeaning: GoodsReceipt is the fulfillment bridge between PurchaseOrder commitment and accepted inventory/service. SupplierReturn is a later reverse-procurement event that consumes eligible accepted receipt evidence without rewriting it.

@@ -111,13 +111,14 @@ entity:
   relationships:
   - name: parties
     target: Party
-    cardinality: 2..*
+    cardinality: 0..*
     ownership: reference
     help:
       summary: Connects Contract to Party so related business context can be navigated and enforced.
       usage: Used when processes need to find or reason about Party records associated with a Contract.
       cardinalityMeaning: The declared cardinality 2..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+    inverseCardinality: 0..*
   - name: ownerOrganization
     target: Organization
     cardinality: 0..1

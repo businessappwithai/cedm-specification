@@ -17,8 +17,8 @@ entity:
     help: {summary: Wave orchestration state., businessMeaning: Controls grouped task release and closure., usage: WMS execution., relationshipContext: Wave completion cannot substitute for task or inventory evidence., valueSemantics: {PLANNED: Work being grouped., RELEASED: Tasks authorized., IN_PROGRESS: Tasks executing., COMPLETED: Included work reconciled., CANCELLED: Remaining work terminated.}, requiredMeaning: Required.}
   relationships:
   - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: Warehouse executing wave., businessMeaning: Defines operating facility., usage: Labor/task orchestration., cardinalityMeaning: Exactly one Warehouse., workflowRole: Included tasks must be compatible with warehouse.}}
-  - {name: picks, target: Picking, cardinality: 0..*, ownership: reference, help: {summary: Pick tasks grouped in wave., businessMeaning: Coordinates inventory-selection work., usage: Batch/zone/order picking., cardinalityMeaning: Zero or many picks., workflowRole: Each pick retains independent execution evidence.}}
-  - {name: putaways, target: Putaway, cardinality: 0..*, ownership: reference, help: {summary: Putaway tasks grouped in wave., businessMeaning: Coordinates storage work., usage: Labor orchestration., cardinalityMeaning: Zero or many tasks., workflowRole: Each task remains independently reconcilable.}}
+  - {name: picks, target: Picking, cardinality: 0..*, ownership: reference, help: {summary: Pick tasks grouped in wave., businessMeaning: Coordinates inventory-selection work., usage: Batch/zone/order picking., cardinalityMeaning: Zero or many picks., workflowRole: Each pick retains independent execution evidence.}, inverseCardinality: '1'}
+  - {name: putaways, target: Putaway, cardinality: 0..*, ownership: reference, help: {summary: Putaway tasks grouped in wave., businessMeaning: Coordinates storage work., usage: Labor orchestration., cardinalityMeaning: Zero or many tasks., workflowRole: Each task remains independently reconcilable.}, inverseCardinality: '1'}
   invariants:
   - {id: WAVE-001, rule: RELEASED wave must contain at least one executable task.}
   - {id: WAVE-002, rule: Cancelling a wave cannot erase or reverse already posted task or inventory effects.}
@@ -30,49 +30,49 @@ entity:
     initial: PLANNED
     terminal: [COMPLETED, CANCELLED]
     transitions:
-      - {from: PLANNED, to: RELEASED, action: release}
-      - {from: RELEASED, to: IN_PROGRESS, action: start}
-      - {from: IN_PROGRESS, to: COMPLETED, action: complete}
-      - {from: PLANNED, to: CANCELLED, action: cancel}
-      - {from: RELEASED, to: CANCELLED, action: cancel}
-      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+    - {from: PLANNED, to: RELEASED, action: release}
+    - {from: RELEASED, to: IN_PROGRESS, action: start}
+    - {from: IN_PROGRESS, to: COMPLETED, action: complete}
+    - {from: PLANNED, to: CANCELLED, action: cancel}
+    - {from: RELEASED, to: CANCELLED, action: cancel}
+    - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a wave is ended"
-      description: "When a wave is cancelled, a task asks someone to settle what depended on it."
-      when: "status == \"CANCELLED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "WAVE-FOLLOW-UP-{{id}}"
-              name: "Follow up on wave {{wave_number}}"
-              description: "Wave {{wave_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a wave is done"
-      description: "When a wave is completed, a task asks someone to confirm the outcome."
-      when: "status == \"COMPLETED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "WAVE-COMPLETED-{{id}}"
-              name: "Confirm wave {{wave_number}}"
-              description: "Wave {{wave_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a wave is ended"
+    description: "When a wave is cancelled, a task asks someone to settle what depended on it."
+    when: "status == \"CANCELLED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "WAVE-FOLLOW-UP-{{id}}"
+          name: "Follow up on wave {{wave_number}}"
+          description: "Wave {{wave_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a wave is done"
+    description: "When a wave is completed, a task asks someone to confirm the outcome."
+    when: "status == \"COMPLETED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "WAVE-COMPLETED-{{id}}"
+          name: "Confirm wave {{wave_number}}"
+          description: "Wave {{wave_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Warehouse work-release grouping for coordinated execution.
     businessMeaning: Wave organizes tasks; it does not itself move inventory or fulfill orders.

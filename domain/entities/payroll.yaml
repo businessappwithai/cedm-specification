@@ -22,8 +22,8 @@ entity:
   relationships:
   - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee whose compensation is calculated., businessMeaning: Supplies employment identity and eligibility context., usage: "Payroll, reporting, and audit.", cardinalityMeaning: Exactly one employee owns this payroll result., workflowRole: Employment must be eligible for the period.}}
   - {name: employment, target: Employment, cardinality: '1', ownership: reference, help: {summary: Employment relationship governing the payroll result., businessMeaning: Supplies organizational and contractual employment context., usage: Eligibility and compensation interpretation., cardinalityMeaning: Exactly one applicable employment is required., workflowRole: Must overlap the payroll period.}}
-  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Settlement transactions paying the approved net obligation., businessMeaning: Separates payroll calculation from actual cash settlement., usage: Reconciliation and audit., cardinalityMeaning: Zero or many payments support partial/retry/reversal patterns., workflowRole: PAID requires reconciled settlement.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries generated from approved payroll., businessMeaning: Records ledger consequences separately from calculation., usage: Financial accounting and reconciliation., cardinalityMeaning: Zero or many controlled entries may exist., workflowRole: POSTED requires balanced attributable accounting evidence.}}
+  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Settlement transactions paying the approved net obligation., businessMeaning: Separates payroll calculation from actual cash settlement., usage: Reconciliation and audit., cardinalityMeaning: Zero or many payments support partial/retry/reversal patterns., workflowRole: PAID requires reconciled settlement.}, inverseCardinality: '1'}
+  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries generated from approved payroll., businessMeaning: Records ledger consequences separately from calculation., usage: Financial accounting and reconciliation., cardinalityMeaning: Zero or many controlled entries may exist., workflowRole: POSTED requires balanced attributable accounting evidence.}, inverseCardinality: '1'}
   invariants:
   - {id: PAYROLL-001, rule: periodStart must not be after periodEnd and employment must be eligible for the applicable period.}
   - {id: PAYROLL-002, rule: "grossAmount and netAmount must be reproducible from governed earning, deduction, attendance, leave, compensation, and statutory inputs applicable to the period."}
@@ -39,48 +39,48 @@ entity:
     initial: DRAFT
     terminal: [PAID, REVERSED]
     transitions:
-      - {from: DRAFT, to: CALCULATED, action: mark_calculated}
-      - {from: CALCULATED, to: APPROVED, action: approve}
-      - {from: APPROVED, to: POSTED, action: post}
-      - {from: POSTED, to: PAID, action: pay}
-      - {from: POSTED, to: REVERSED, action: reverse}
+    - {from: DRAFT, to: CALCULATED, action: mark_calculated}
+    - {from: CALCULATED, to: APPROVED, action: approve}
+    - {from: APPROVED, to: POSTED, action: post}
+    - {from: POSTED, to: PAID, action: pay}
+    - {from: POSTED, to: REVERSED, action: reverse}
   workflows:
-    - name: FollowUpRequired
-      title: "Follow up when a payroll is ended"
-      description: "When a payroll is reversed, a task asks someone to settle what depended on it."
-      when: "status == \"REVERSED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: follow up on"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PAYROLL-FOLLOW-UP-{{id}}"
-              name: "Follow up on payroll {{payroll_number}}"
-              description: "Payroll {{payroll_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "NORMAL"
-    - name: CompletionConfirmed
-      title: "Confirm when a payroll is done"
-      description: "When a payroll is posted, a task asks someone to confirm the outcome."
-      when: "status == \"POSTED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: confirm"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PAYROLL-COMPLETED-{{id}}"
-              name: "Confirm payroll {{payroll_number}}"
-              description: "Payroll {{payroll_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "LOW"
+  - name: FollowUpRequired
+    title: "Follow up when a payroll is ended"
+    description: "When a payroll is reversed, a task asks someone to settle what depended on it."
+    when: "status == \"REVERSED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: follow up on"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PAYROLL-FOLLOW-UP-{{id}}"
+          name: "Follow up on payroll {{payroll_number}}"
+          description: "Payroll {{payroll_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "NORMAL"
+  - name: CompletionConfirmed
+    title: "Confirm when a payroll is done"
+    description: "When a payroll is posted, a task asks someone to confirm the outcome."
+    when: "status == \"POSTED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: confirm"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PAYROLL-COMPLETED-{{id}}"
+          name: "Confirm payroll {{payroll_number}}"
+          description: "Payroll {{payroll_number}} is now {{status}}. Check the outcome is what was agreed and close any open items."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "LOW"
   help:
     summary: Governs auditable gross-to-net payroll calculation and its downstream accounting and settlement.
     businessMeaning: Payroll calculates employee compensation obligations; JournalEntry records accounting; Payment records settlement.

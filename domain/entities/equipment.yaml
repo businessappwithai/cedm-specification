@@ -2,24 +2,165 @@ entity:
   name: Equipment
   namespace: cedm.domain
   kind: maintenance_asset_role
-  description: A governed maintainable equipment identity linked to an Asset where financial capitalization and operational maintenance identities overlap.
+  description: A maintainable piece of equipment — a machine, pump, vehicle, compressor — identified by tag and serial number, with its manufacturer, model, location, criticality and operating status, that work orders and inspections are raised against.
   ui:
-    icon: wrench
+    icon: cog
+    recordLabel: [equipmentNumber, name]
   identity: {key: equipmentId, type: uuid, generated: true, immutable: true}
   attributes:
   - {name: equipmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Equipment., businessMeaning: Identifies one governed Equipment record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - name: equipmentNumber
+    type: string
+    required: true
+    unique: true
+    maxLength: 40
+    help:
+      summary: The tag of the equipment on site, such as P-101.
+      usage: Painted or labelled on the equipment; work orders use it.
+      relationshipContext: Unique.
+  - name: name
+    type: string
+    required: true
+    maxLength: 200
+    help:
+      summary: A description of the equipment and its function, such as "Feed pump line 1".
+      usage: Shown on work orders and lists.
+      relationshipContext: Identifies it for people, with the tag.
+  - name: equipmentType
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The kind of equipment, such as "Centrifugal pump".
+      usage: Decides which maintenance plans and inspection checklists apply.
+      relationshipContext: Follows the site's equipment classes.
+  - name: manufacturerName
+    type: string
+    required: false
+    maxLength: 150
+    help:
+      summary: Who made the equipment.
+      usage: Used to order parts and service.
+      relationshipContext: The manufacturer's organization record may also be linked.
+  - name: model
+    type: string
+    required: false
+    maxLength: 150
+    help:
+      summary: The manufacturer's model designation.
+      usage: Used to order parts and find manuals.
+      relationshipContext: As on the nameplate.
+  - name: serialNumber
+    type: string
+    required: false
+    maxLength: 100
+    help:
+      summary: The manufacturer's serial number.
+      usage: Used for warranty and recalls.
+      relationshipContext: As on the nameplate.
+  - name: installationDate
+    type: date
+    required: false
+    help:
+      summary: The day the equipment was installed.
+      usage: Starts its operating history and warranty.
+      relationshipContext: Not in the future.
+  - name: criticality
+    type: enum
+    required: true
+    default: B
+    values: [A, B, C]
+    help:
+      summary: How important the equipment is to safety and production.
+      usage: Decides maintenance priority and how many spares are kept.
+      relationshipContext: Set by a criticality assessment.
+      valueSemantics:
+        A: Critical — its failure stops production or creates a safety or environmental risk.
+        B: Important — its failure reduces output or quality.
+        C: Minor — its failure has little effect.
+  - name: operatingStatus
+    type: enum
+    required: true
+    default: IN_OPERATION
+    values: [IN_OPERATION, DOWN, STANDBY, DECOMMISSIONED]
+    help:
+      summary: Whether the equipment is running.
+      usage: Updated by operations and maintenance.
+      relationshipContext: Downtime is measured from changes of this status.
+      valueSemantics:
+        IN_OPERATION: Running as intended.
+        DOWN: Not running because of a failure or maintenance.
+        STANDBY: Available but not running.
+        DECOMMISSIONED: Permanently out of service.
+  - name: warrantyEndDate
+    type: date
+    required: false
+    help:
+      summary: The last day of the manufacturer's warranty.
+      usage: Repairs before it are claimed from the manufacturer.
+      relationshipContext: Empty when there is no warranty.
   relationships:
-  - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: Financial/fixed Asset represented by equipment., businessMeaning: Connects maintainable object to capitalization identity when applicable., usage: "EAM, depreciation and maintenance.", cardinalityMeaning: Optional for non-capitalized equipment., workflowRole: Maintenance history remains independent from accounting postings.}}
+  - name: asset
+    target: Asset
+    cardinality: "0..1"
+    ownership: reference
+    help:
+      summary: The fixed asset that carries the equipment's cost in the accounts.
+      businessMeaning: Connects maintainable object to capitalization identity when applicable.
+      workflowRole: Maintenance history remains independent from accounting postings.
+      usage: Linked by finance and maintenance together.
+      cardinalityMeaning: At most one asset.
+      context: Several pieces of equipment can make up one asset.
+  - name: location
+    target: Location
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Where the equipment is installed.
+      usage: Recorded at installation and updated when it moves.
+      cardinalityMeaning: One per equipment.
+      context: Technicians are sent here.
+  - name: parentEquipment
+    target: Equipment
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The larger equipment it is part of.
+      usage: Builds the equipment hierarchy, such as a motor inside a pump set.
+      cardinalityMeaning: At most one parent.
+      context: Cannot be itself.
+  - name: manufacturer
+    target: Organization
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: The manufacturer's organization record.
+      usage: Linked for service contracts and recalls.
+      cardinalityMeaning: At most one.
+      context: The name is also copied onto the equipment.
   invariants:
-  - {id: EQUIPMENT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+  - {id: EQUIPMENT-001, rule: 'Equipment cannot be part of itself, directly or through other equipment.'}
+  lifecycle:
+    title: Equipment Lifecycle
+    attribute: operatingStatus
+    states: [IN_OPERATION, DOWN, STANDBY, DECOMMISSIONED]
+    initial: IN_OPERATION
+    terminal: [DECOMMISSIONED]
+    transitions:
+    - {from: IN_OPERATION, to: DOWN, action: stop}
+    - {from: DOWN, to: IN_OPERATION, action: restart}
+    - {from: IN_OPERATION, to: STANDBY, action: stand_by}
+    - {from: STANDBY, to: IN_OPERATION, action: start}
+    - {from: STANDBY, to: DOWN, action: stop}
+    - {from: IN_OPERATION, to: DECOMMISSIONED, action: decommission}
+    - {from: DOWN, to: DECOMMISSIONED, action: decommission}
+    - {from: STANDBY, to: DECOMMISSIONED, action: decommission}
   help:
-    summary: A governed maintainable equipment identity linked to an Asset where financial capitalization and operational maintenance identities overlap.
-    purpose: Provide canonical enterprise semantics for Equipment.
-    businessMeaning: A governed maintainable equipment identity linked to an Asset where financial capitalization and operational maintenance identities overlap.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: A physical item that is operated and maintained, identified by its tag on the site.
+    businessMeaning: Maintenance works on equipment, not on accounting assets. Equipment carries what technicians need — the tag on the machine, manufacturer, model, serial, where it is installed, how critical it is and whether it is running — so that work can be planned, failures recorded and reliability measured; it may be linked to the fixed asset that carries its cost.
+    usage: Maintenance engineers register equipment when it is installed; work orders, inspections, failures and spare parts refer to it; reliability reports use its history.
+    relationshipContext: Equipment may be the operational view of an Asset, is installed at a Location, may be part of larger equipment, and has a manufacturer (an Organization). Failures and spare parts refer to it.
+    lifecycle: In operation, down for maintenance or after a failure, on standby, and decommissioned at end of life.
+    workflowContext: Preventive maintenance planning, breakdown work orders, failure analysis, spare-part planning, safety inspections.
+    example: Equipment P-101, 'Feed pump line 1', Grundfos CR 32-4, serial 99812345, installed in Plant Lyon building B, criticality A, in operation since 2019, linked to fixed asset FA-06655.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-EQUIPMENT}

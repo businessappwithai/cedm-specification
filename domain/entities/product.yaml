@@ -14,8 +14,7 @@ entity:
     help:
       summary: 'The product id of the product: an identifier the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a product cannot be understood without its product id.'
   - name: code
     type: string
@@ -25,8 +24,7 @@ entity:
     help:
       summary: 'The code of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a product cannot be understood without its code.'
   - name: name
     type: string
@@ -35,8 +33,7 @@ entity:
     help:
       summary: 'The name of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a product cannot be understood without its name.'
   - name: description
     type: string
@@ -45,8 +42,7 @@ entity:
     help:
       summary: 'The description of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
   - name: productType
     type: enum
     required: true
@@ -87,8 +83,7 @@ entity:
     help:
       summary: 'The sku of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
   - name: unitOfMeasure
     type: reference
     target: UnitOfMeasure
@@ -96,16 +91,14 @@ entity:
     help:
       summary: 'The unit of measure of the product: a link to another record the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
   - name: standardPrice
     type: money
     required: false
     help:
       summary: 'The standard price of the product: a monetary amount the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
   - name: taxCategory
     type: string
     required: false
@@ -113,8 +106,7 @@ entity:
     help:
       summary: 'The tax category of the product: a value the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
   - name: createdAt
     type: datetime
     required: true
@@ -122,8 +114,7 @@ entity:
     help:
       summary: 'The created at of the product: a point in time the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a product cannot be understood without its created at.'
   - name: updatedAt
     type: datetime
@@ -132,8 +123,7 @@ entity:
     help:
       summary: 'The updated at of the product: a point in time the business records on it.'
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
-        own.
+      relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: 'Required: a product cannot be understood without its updated at.'
   relationships:
   - name: category
@@ -163,6 +153,7 @@ entity:
       usage: Chosen from the existing location records when the product is created or edited.
       cardinalityMeaning: A product has any number of location in this role.
       context: Lets the product be found from, and reported with, its location.
+    inverseCardinality: 0..*
   - name: salesOrderLines
     target: SalesOrderLine
     cardinality: 0..*
@@ -228,7 +219,7 @@ entity:
     cardinality: 0..*
     ownership: aggregate
     help: {summary: Governed configurations belonging to this product family., businessMeaning: "Represents specific option combinations such as size, color, grade or pack.", usage: "Catalog, commerce, inventory and manufacturing.", cardinalityMeaning: Zero or many variants., workflowRole: Parent Product restrictions propagate to variants.}
-  - {name: attributes, target: ProductAttribute, cardinality: "0..*", ownership: reference, help: {summary: Governed characteristic definitions applicable to Product., businessMeaning: Defines descriptive/configuration semantics., usage: "PIM, search and variant configuration.", cardinalityMeaning: Zero or many attributes., workflowRole: Variant-defining attributes constrain ProductVariant uniqueness.}}
+  - {name: attributes, target: ProductAttribute, cardinality: "0..*", ownership: reference, help: {summary: Governed characteristic definitions applicable to Product., businessMeaning: Defines descriptive/configuration semantics., usage: "PIM, search and variant configuration.", cardinalityMeaning: Zero or many attributes., workflowRole: Variant-defining attributes constrain ProductVariant uniqueness.}, inverseCardinality: '1'}
   - {name: packagingConfigurations, target: Packaging, cardinality: "0..*", ownership: aggregate, help: {summary: Governed pack configurations for Product., businessMeaning: Defines quantity/containment options for commercial and logistics use., usage: "Procurement, sales, WMS and shipping.", cardinalityMeaning: Zero or many configurations., workflowRole: Conversion changes require open-work impact analysis.}}
   - {name: lifecycleHistory, target: ProductLifecycle, cardinality: 0..*, ownership: aggregate, help: {summary: Effective-dated lifecycle transition history., businessMeaning: Preserves why/when Product eligibility changed., usage: Governance and audit., cardinalityMeaning: Zero or many lifecycle events., workflowRole: Current status must reconcile to effective history.}}
   invariants:
@@ -258,34 +249,34 @@ entity:
     initial: DRAFT
     terminal: [DISCONTINUED, RETIRED]
     transitions:
-      - {from: DRAFT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: ACTIVE, action: unblock}
-      - {from: DRAFT, to: DISCONTINUED, action: discontinue}
-      - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
-      - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
-      - {from: DRAFT, to: RETIRED, action: retire}
-      - {from: ACTIVE, to: RETIRED, action: retire}
-      - {from: BLOCKED, to: RETIRED, action: retire}
+    - {from: DRAFT, to: ACTIVE, action: activate}
+    - {from: ACTIVE, to: BLOCKED, action: block}
+    - {from: BLOCKED, to: ACTIVE, action: unblock}
+    - {from: DRAFT, to: DISCONTINUED, action: discontinue}
+    - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
+    - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+    - {from: DRAFT, to: RETIRED, action: retire}
+    - {from: ACTIVE, to: RETIRED, action: retire}
+    - {from: BLOCKED, to: RETIRED, action: retire}
   workflows:
-    - name: ExceptionRaised
-      title: "Raise a task when a product is stopped"
-      description: "When a product is blocked, a high-priority task asks someone to resolve it."
-      when: "status == \"BLOCKED\" and status != _previous_status"
-      steps:
-        - id: S1
-          type: CreateEntity
-          label: "Raise a task: resolve"
-          properties:
-            entity: Task
-            as: taskId
-            fields:
-              code: "PRODUCT-EXCEPTION-{{id}}"
-              name: "Resolve product {{name}}"
-              description: "Product {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
-              task_type: "USER"
-              status: "CREATED"
-              priority: "HIGH"
+  - name: ExceptionRaised
+    title: "Raise a task when a product is stopped"
+    description: "When a product is blocked, a high-priority task asks someone to resolve it."
+    when: "status == \"BLOCKED\" and status != _previous_status"
+    steps:
+    - id: S1
+      type: CreateEntity
+      label: "Raise a task: resolve"
+      properties:
+        entity: Task
+        as: taskId
+        fields:
+          code: "PRODUCT-EXCEPTION-{{id}}"
+          name: "Resolve product {{name}}"
+          description: "Product {{name}} is now {{status}}. Find out why it stopped and move it on or close it."
+          task_type: "USER"
+          status: "CREATED"
+          priority: "HIGH"
   help:
     summary: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules.
     businessMeaning: Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts.

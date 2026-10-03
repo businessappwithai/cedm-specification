@@ -136,6 +136,60 @@ def dictionary_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
         errors.append(f"ENUM-002 {registry.stdout.strip() or registry.stderr.strip()}")
 
 
+def structure_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
+    """How relationships become columns (language/cedm/lower.ts) — rules a model must not leave to chance.
+
+    STRUCT-001 A to-many reference that no relationship on its target answers
+    plants a key column on the target. Whether that key is meant — the target
+    belongs to one source (`inverseCardinality: 1`) — or the relation is
+    many-to-many and holds no key (`inverseCardinality: 0..*`) must be stated:
+    left implicit, `Product.locations` gave every Location a `product_id`.
+    STRUCT-003 The two ends of a many-to-many are both 0..* or both 1..*;
+    the model language defines no other pairing.
+    STRUCT-002 Two to-one relationships of one entity must not resolve to the
+    same key column; name it with `foreignKey`.
+    """
+    def many(cardinality) -> bool:
+        return str(cardinality).endswith("*")
+
+    for name, (_, entity) in entities.items():
+        for rel in entity.get("relationships") or []:
+            if not many(rel.get("cardinality")) or rel.get("ownership") == "aggregate" or "inverseCardinality" in rel:
+                continue
+            target = entities.get(rel.get("target"), (None, {}))[1]
+            if not target:
+                continue
+            back = [r for r in target.get("relationships") or [] if r.get("target") == name and "inverseCardinality" not in r]
+            if rel.get("inverse"):
+                back = [r for r in back if r.get("name") == rel["inverse"]]
+            if rel.get("target") == name:
+                back = [r for r in back if r is not rel]
+            if len(back) != 1:
+                errors.append(
+                    f"{name}.{rel.get('name')}: STRUCT-001 to-many reference to {rel.get('target')} has no counterpart; "
+                    "state inverseCardinality (1: the target holds the key; 0..*: many-to-many) or name its inverse"
+                )
+        for rel in entity.get("relationships") or []:
+            inverse = rel.get("inverseCardinality")
+            if inverse is not None and many(inverse) and str(rel.get("cardinality")) != str(inverse):
+                errors.append(
+                    f"{name}.{rel.get('name')}: STRUCT-003 a many-to-many is {inverse} on one end and {rel.get('cardinality')} on the other; "
+                    "both ends must match (state a minimum as an invariant)"
+                )
+        refs = [a for a in entity.get("attributes") or [] if a.get("type") == "reference"]
+        keys: dict[str, str] = {}
+        for rel in entity.get("relationships") or []:
+            if many(rel.get("cardinality")) or rel.get("foreignKey") is False:
+                continue
+            key = rel.get("foreignKey") or next(
+                (a["name"] for a in refs if a.get("target") == rel.get("target")),
+                next((a["name"] for a in refs if a["name"] == f"{rel.get('name')}Id"), f"{rel.get('name')}Id"),
+            )
+            if key in keys:
+                errors.append(f"{name}.{rel.get('name')}: STRUCT-002 resolves to the key {key!r} that {name}.{keys[key]} uses; name it with foreignKey")
+            keys[key] = rel.get("name")
+
+
 TOKEN = re.compile(r"""\s*(?:(?P<num>\d+(?:\.\d+)?)|(?P<str>"(?:[^"\\]|\\.)*")|(?P<op>==|!=|<=|>=|<|>|\(|\))|(?P<word>[A-Za-z_][A-Za-z0-9_]*))""")
 KEYWORDS = {"and", "or", "not", "null", "true", "false"}
 
@@ -404,6 +458,7 @@ def main() -> int:
                     errors.append(f"{name}: transition.to is not a declared state: {transition.get('to')}")
 
     dictionary_checks(entities)
+    structure_checks(entities)
     business_logic_checks(entities)
     reference_data_checks(entities)
 
