@@ -12,7 +12,7 @@
  *
  * `qa.sh` runs this and the Rust request suite together.
  *
- * Generated: 2026-10-02T02:10:10.841Z
+ * Generated: 2026-10-03T01:59:58.595Z
  * Project: healthcare
  */
 import { chromium } from "playwright";
@@ -62,15 +62,23 @@ const inspect = async () => {
   return text;
 };
 
-// sign in, retrying until the app has hydrated (a click before that is a GET)
-for (let i = 0; i < 8; i++) {
-  await page.goto(BASE + "/auth/login");
-  await page.waitForTimeout(1500);
-  await page.fill('input[type="email"]', "admin@admin.com");
-  await page.fill('input[type="password"]', "admin");
-  await page.click('button[type="submit"]');
-  await page.waitForTimeout(2000);
-  if (!page.url().includes("/auth/login")) break;
+// sign in, retrying until the app has hydrated (a click before that is a GET).
+// The first visit to a cold dev server can take a while to compile the page, so
+// each attempt waits for the form with a bounded timeout and a failed attempt
+// is retried rather than ending the run.
+for (let i = 0; i < 12; i++) {
+  try {
+    await page.goto(BASE + "/auth/login", { timeout: 60000 });
+    await page.waitForSelector('input[type="email"]', { timeout: 20000 });
+    await page.waitForTimeout(1500);
+    await page.fill('input[type="email"]', "admin@admin.com");
+    await page.fill('input[type="password"]', "admin");
+    await page.click('button[type="submit"]');
+    await page.waitForTimeout(2000);
+    if (!page.url().includes("/auth/login")) break;
+  } catch {
+    await page.waitForTimeout(3000);
+  }
 }
 if (page.url().includes("/auth/login")) {
   note("login", "could not sign in");

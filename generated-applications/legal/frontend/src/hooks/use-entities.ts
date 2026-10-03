@@ -1,7 +1,7 @@
 /**
  * TanStack Query Hooks for Entity CRUD Operations
  *
- * Generated: 2026-10-02T06:44:07.772Z
+ * Generated: 2026-10-03T02:00:17.761Z
  */
 
 import {
@@ -81,7 +81,7 @@ export interface FieldMetadata {
   ref_endpoint?: string;        // Custom API endpoint for table references (e.g. '/sys/references')
   ref_id_field?: string;        // Field to use as option value (default: 'id')
   ref_label_field?: string;     // Field to use as option label (default: 'name')
-  ref_filter_param?: string;    // Query param name to append to ref_endpoint for filtering (e.g. 'tableId')
+  ref_filter_param?: string;    // Query param name to append to ref_endpoint for filtering (e.g. 'table_id')
   ref_filter_source?: string;   // Key in parentContext whose value is used as the filter (e.g. 'sys_table_id')
   options?: { value: string; label: string }[]; // Static options list for inline enums
   tab_name?: string; // Tab name for i18n field labels

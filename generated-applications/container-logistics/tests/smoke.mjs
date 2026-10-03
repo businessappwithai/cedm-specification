@@ -12,7 +12,7 @@
  *
  * `qa.sh` runs this and the Rust request suite together.
  *
- * Generated: 2026-10-01T18:10:24.796Z
+ * Generated: 2026-10-03T01:59:15.306Z
  * Project: container-logistics
  */
 import { chromium } from "playwright";
@@ -39,10 +39,14 @@ page.on("console", (m) => {
   if (m.type() !== "error") return;
   const t = m.text();
   if (/401|Unauthorized|favicon/i.test(t)) return;
+  // A 429 is counted once, below, rather than once per console line it produces.
+  if (/429|Too Many Requests|Slow down/i.test(t)) return;
   note("console", t);
 });
+let refused = 0;
 page.on("response", (r) => {
   const s = r.status();
+  if (s === 429) refused++;
   if (s >= 500) note("http" + s, r.url());
 });
 
@@ -58,15 +62,23 @@ const inspect = async () => {
   return text;
 };
 
-// sign in, retrying until the app has hydrated (a click before that is a GET)
-for (let i = 0; i < 8; i++) {
-  await page.goto(BASE + "/auth/login");
-  await page.waitForTimeout(1500);
-  await page.fill('input[type="email"]', "admin@admin.com");
-  await page.fill('input[type="password"]', "admin");
-  await page.click('button[type="submit"]');
-  await page.waitForTimeout(2000);
-  if (!page.url().includes("/auth/login")) break;
+// sign in, retrying until the app has hydrated (a click before that is a GET).
+// The first visit to a cold dev server can take a while to compile the page, so
+// each attempt waits for the form with a bounded timeout and a failed attempt
+// is retried rather than ending the run.
+for (let i = 0; i < 12; i++) {
+  try {
+    await page.goto(BASE + "/auth/login", { timeout: 60000 });
+    await page.waitForSelector('input[type="email"]', { timeout: 20000 });
+    await page.waitForTimeout(1500);
+    await page.fill('input[type="email"]', "admin@admin.com");
+    await page.fill('input[type="password"]', "admin");
+    await page.click('button[type="submit"]');
+    await page.waitForTimeout(2000);
+    if (!page.url().includes("/auth/login")) break;
+  } catch {
+    await page.waitForTimeout(3000);
+  }
 }
 if (page.url().includes("/auth/login")) {
   note("login", "could not sign in");
@@ -203,6 +215,13 @@ for (const path of ["/admin/rules", "/admin/workflow-definitions", "/admin/workf
   note("smoke-crash", e?.message ?? e);
 }
 
+if (refused > 0) {
+  where = "rate-limit";
+  note(
+    "rate-limited",
+    `${refused} request(s) were refused with 429. The smoke test is faster than a person; start the backend with RATE_LIMIT_MAX_PER_MINUTE=0 (tests/qa.sh does).`
+  );
+}
 await browser.close();
 const result = { domain, cards, windows: visited, records, creates, themes: themesApplied, stateBars, findings };
 console.log(JSON.stringify(result));

@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-01T13:28:18.184Z
+//! Generated: 2026-10-03T01:58:50.634Z
 //! Project: analytics
 
 #![allow(dead_code)]
@@ -177,13 +177,18 @@ async fn create_tracked(
     created
 }
 
-async fn create_inner(
+/// A create payload with its foreign keys resolved to real rows.
+///
+/// [`build_record`] leaves every reference out, which is right for an entity
+/// with none and wrong for one whose parent is mandatory: a record spawned by a
+/// rule (`createData`) is refused for the missing key, and the rule pipeline
+/// fails open, so the failure is a row that never appears.
+async fn payload_with_parents(
     request: &TestServer,
     token: &str,
     entity: &EntityMeta,
-    overrides: &[(&str, Value)],
     in_flight: &mut HashSet<&'static str>,
-) -> Option<Value> {
+) -> Map<String, Value> {
     let mut payload = build_record(entity);
 
     for fk in entity.foreign_keys() {
@@ -209,6 +214,30 @@ async fn create_inner(
             payload.insert(fk.name.to_string(), json!(id));
         }
     }
+
+    payload
+}
+
+/// [`build_record`] plus real parents, for a payload a test hands to the API
+/// inside something else (a rule's `createData`, a workflow step).
+pub async fn build_record_with_parents(
+    request: &TestServer,
+    token: &str,
+    entity: &EntityMeta,
+) -> Map<String, Value> {
+    let mut in_flight: HashSet<&'static str> = HashSet::new();
+    in_flight.insert(entity.route);
+    payload_with_parents(request, token, entity, &mut in_flight).await
+}
+
+async fn create_inner(
+    request: &TestServer,
+    token: &str,
+    entity: &EntityMeta,
+    overrides: &[(&str, Value)],
+    in_flight: &mut HashSet<&'static str>,
+) -> Option<Value> {
+    let mut payload = payload_with_parents(request, token, entity, in_flight).await;
 
     for (key, value) in overrides {
         payload.insert((*key).to_string(), value.clone());
