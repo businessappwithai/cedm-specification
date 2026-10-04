@@ -32,7 +32,7 @@
     <li><a href="07-it-runs.html" aria-current="page"><span class="nav-num">07</span> Watch it run</a></li>
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/yaml/examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -51,14 +51,14 @@
 <table>
   <thead><tr><th>#</th><th>What runs</th><th>Declared in the model as</th></tr></thead>
   <tbody>
-    <tr><td>1</td><td>A user sets <code>status = qualified</code></td><td>a value of <code>%%enum LeadStatus</code></td></tr>
-    <tr><td>2</td><td><code>leadQualification</code> evaluates</td><td><code>%%rule … on Lead event: beforeUpdate</code></td></tr>
-    <tr><td>3</td><td>Its action fires</td><td><code>%%action … trigger-workflow when: status == "qualified"</code></td></tr>
-    <tr><td>4</td><td><code>LeadConversion</code> starts</td><td><code>%%workflow … kind: saga trigger: rule</code></td></tr>
-    <tr><td>5</td><td>A decision table sizes the account</td><td><code>%%step B Decision</code></td></tr>
-    <tr><td>6</td><td>Account, Contact, Opportunity created</td><td>three <code>%%step … CreateEntity</code></td></tr>
-    <tr><td>7</td><td>The lead is marked converted</td><td><code>%%step F UpdateEntity</code></td></tr>
-    <tr><td>8</td><td>The account's tier is stamped</td><td><code>%%step G UpdateEntity … targetSource</code></td></tr>
+    <tr><td>1</td><td>A user sets <code>status = qualified</code></td><td>a value of the <code>LeadStatus</code> enum</td></tr>
+    <tr><td>2</td><td><code>leadQualification</code> evaluates</td><td><code>rules: { name: leadQualification, entity: Lead, event: beforeUpdate }</code></td></tr>
+    <tr><td>3</td><td>Its action fires</td><td>its <code>actions: { type: trigger-workflow, when: status == "qualified" }</code></td></tr>
+    <tr><td>4</td><td><code>LeadConversion</code> starts</td><td><code>sagas: { name: LeadConversion, trigger: rule }</code></td></tr>
+    <tr><td>5</td><td>A decision table sizes the account</td><td>step <code>B</code>, <code>type: Decision</code></td></tr>
+    <tr><td>6</td><td>Account, Contact, Opportunity created</td><td>steps <code>C</code>–<code>E</code>, <code>type: CreateEntity</code></td></tr>
+    <tr><td>7</td><td>The lead is marked converted</td><td>step <code>F</code>, <code>type: UpdateEntity</code></td></tr>
+    <tr><td>8</td><td>The account's tier is stamped</td><td>step <code>G</code>, <code>type: UpdateEntity</code> with <code>targetSource</code></td></tr>
   </tbody>
 </table>
 </div>
@@ -85,7 +85,7 @@ select count(*) from bus_opportunity;   <span class="c-com">-- 4</span></code></
     </p>
     <figure>
       <img src="img/10-crm-lead-new-form.png" alt="The New Lead form filled in for Dana Whitfield at Northwind Trading, with employee count 2500 and annual revenue 75,000,000.">
-      <figcaption><b>A new lead.</b> Seventeen fields, seven required. The form knows which is which from the model's <code>OPTIONAL</code> modifiers.</figcaption>
+      <figcaption><b>A new lead.</b> Seventeen fields, seven required. The form knows which is which from the attributes the model marks <code>optional: true</code>.</figcaption>
     </figure>
   </li>
 
@@ -106,6 +106,25 @@ select status from bus_lead where email = <span class="c-str">'dana.whitfield@no
     </div>
   </li>
 </ol>
+
+<figure>
+  <img src="img/28-crm-account-created-by-saga.png" alt="The Accounts list now showing Northwind Trading with account type prospect, tier strategic and industry technology alongside the four seeded accounts.">
+  <figcaption>
+    <b>The account the saga created.</b> Type <em>prospect</em>, tier <strong>strategic</strong> —
+    the decision table's answer for a score of 88 — and the industry carried across from the lead.
+    Account Number is blank because a <code>beforeCreate</code> hook mints it, and that hook is yours to
+    write.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="img/27-crm-lead-converted.png" alt="The lead detail view for Dana Whitfield after conversion.">
+  <figcaption>
+    <b>And the lead itself.</b> Marked converted by step F, in the same transaction that created the three
+    rows. If any step had failed, none of this would exist and the lead would still read
+    <em>qualified</em>.
+  </figcaption>
+</figure>
 
 <h2>The receipt</h2>
 <p>
@@ -162,6 +181,14 @@ select status from bus_lead where email = <span class="c-str">'dana.whitfield@no
   sidebar.
 </p>
 
+<figure>
+  <img src="img/33-crm-workflow-view-renewalplaybook.png" alt="The RenewalPlaybook workflow open in the designer, showing its trigger, steps and details.">
+  <figcaption>
+    <b>Any definition, opened.</b> RenewalPlaybook is the automatic counterpart: it runs on every contract
+    update rather than waiting for a rule, and it is the one saga that deletes as well as creates.
+  </figcaption>
+</figure>
+
 <h2>When the chain does not fire</h2>
 <p>
   Work down this list in order. Each check rules out one link, and the first four cover almost everything.
@@ -174,12 +201,12 @@ select status from bus_lead where email = <span class="c-str">'dana.whitfield@no
     <tr>
       <td>Nothing happened at all</td>
       <td><code>select * from sys_workflow_runs order by created_at desc</code></td>
-      <td>No run means the rule never fired. Check the <code>%%action</code>'s <code>when:</code> against the record you actually saved.</td>
+      <td>No run means the rule never fired. Check the action's <code>when</code> against the record you actually saved.</td>
     </tr>
     <tr>
       <td>Run exists, status <code>failed</code></td>
       <td>Its <code>error_details</code></td>
-      <td>A required column no step supplied. NOT NULL violations here are a modelling bug: mark the column <code>OPTIONAL</code> if a hook mints it, or set it in the step's <code>fields</code>.</td>
+      <td>A required column no step supplied. NOT NULL violations here are a modelling bug: mark the column <code>optional: true</code> if a hook mints it, or set it in the step's <code>fields</code>.</td>
     </tr>
     <tr>
       <td>Rule triggers the wrong workflow, or none</td>
@@ -213,11 +240,9 @@ select status from bus_lead where email = <span class="c-str">'dana.whitfield@no
 <div class="note tip">
   <div class="note-title">Prove it in a test, not by clicking</div>
   <p>
-    The generator emits two independent suites over the same HTTP surface, both built from the model.
-    <code>LOCO_ENV=test cargo test --test app</code> in <code>backend/</code> is the one to reach for:
-    it covers the same ground in a quarter of the time and needs no separate process. The bun suite in
-    <code>tests/</code> — <code>bun run test:fast</code> — is what to run when a failure needs a readable
-    HTTP transcript, and it carries the browser volume tests the Rust suite has no equivalent for.
+    The generator emits an end-to-end suite alongside the app. <code>bun run test:e2e:fast</code> exercises
+    the API, the rules and the workflows without the bulk-seed volume tests — the fastest way to know a
+    model change did not break a process you already had working.
   </p>
 </div>
 
@@ -225,8 +250,8 @@ select status from bus_lead where email = <span class="c-str">'dana.whitfield@no
 <ul>
   <li><strong>Change a threshold.</strong> Move the strategic band in step B's decision table from 85 to 95, regenerate, re-seed, convert another lead — the tier changes.</li>
   <li><strong>Add a step.</strong> Give <code>LeadConversion</code> a seventh step that creates an onboarding Activity against the new account, using <code>targetSource: newAccountId</code>.</li>
-  <li><strong>Gate it differently.</strong> Change the action's <code>when:</code> to fire only for <code>score &gt;= 70</code>, and watch a low-scoring lead qualify without converting.</li>
-  <li><strong>Restrict a move.</strong> Add a <code>%%rbac</code> directive naming a role on one of the state machine's transitions, regenerate, and watch the API refuse that move for an account outside it — while the administrator still cannot make a move the diagram never drew.</li>
+  <li><strong>Gate it differently.</strong> Change the action's <code>when</code> to fire only for <code>score &gt;= 70</code>, and watch a low-scoring lead qualify without converting.</li>
+  <li><strong>Write a hook body.</strong> Fill in <code>assignAccountNumber</code> in <code>backend/src/hooks/handlers/account.rs</code> and the blank Account Number column fills itself in.</li>
 </ul>
 
 <nav class="pager">

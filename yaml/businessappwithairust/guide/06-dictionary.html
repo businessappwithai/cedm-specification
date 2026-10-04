@@ -106,7 +106,7 @@
 <table>
   <thead><tr><th>Layer</th><th>Holds</th><th>Comes from</th></tr></thead>
   <tbody>
-    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>erDiagram</code></td></tr>
+    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>entities</code></td></tr>
     <tr><td><strong>Window, Tab and Field</strong></td><td>How each entity is presented: one window per entity, a tab per record view, a field per displayed column, with order and grouping.</td><td>Derived from the columns</td></tr>
     <tr><td><strong>Role</strong></td><td>Which windows a role may reach, and whether it is read-only.</td><td>Seeded, then yours</td></tr>
   </tbody>
@@ -211,8 +211,8 @@
 
 <figure>
   <figcaption>
-    <b>The steps.</b> Each is typed — Create Record, Update Record — and titled with the label from the
-    flowchart node it was bound to, which is why writing readable node labels pays off later.
+    <b>The steps.</b> Each is typed — Create Record, Update Record — and titled with the label of the
+    saga step it was compiled from, which is why writing readable node labels pays off later.
   </figcaption>
   <img src="img/31-crm-workflow-editor-steps.png" alt="The step list of the LeadConversion workflow: create record, create record, create record, update record, update record.">
 </figure>
@@ -322,7 +322,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -358,7 +358,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser &rarr;</a></p>
       </div>
     </div>

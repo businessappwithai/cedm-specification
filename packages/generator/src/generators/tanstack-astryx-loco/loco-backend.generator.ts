@@ -54,6 +54,14 @@ import { buildSystemSeedSql, SYSTEM_SETTING_KEYS } from "./system-seed";
 import { buildTransitionsSeedSql, statusFieldFor } from "./transitions-seed";
 
 /**
+ * The Loco CLI the scaffold runs: the release line `Cargo.toml.hbs` pins for
+ * `loco-rs` (`1.2`). The two move together.
+ */
+const LOCO_CLI_MINOR = 2;
+const LOCO_CLI_REQUIREMENT = "^1.2";
+const LOCO_CLI_INSTALL = `cargo install loco --version ${LOCO_CLI_REQUIREMENT} --locked`;
+
+/**
  * Step types `services/workflow.rs` dispatches on.
  *
  * Kept in step with the `match` in that template — the language declares
@@ -453,7 +461,9 @@ export class LocoBackendGenerator extends BaseGenerator {
     // Checking `cargo` instead meant a machine with a Rust toolchain and no
     // Loco CLI took the "scaffolding complete" path all the way to a spawn
     // failure, and reported the miss as an ordinary command error.
-    if (!CliExecutor.isCommandAvailable("loco")) {
+    // An older CLI is replaced, not used: the scaffold is where the framework's
+    // own defaults come from, and they have to be the release the templates pin.
+    if (!this.hasCurrentLocoCli()) {
       await this.installLocoCli();
     }
 
@@ -508,12 +518,27 @@ export class LocoBackendGenerator extends BaseGenerator {
   }
 
   /**
-   * Install the Loco CLI on demand.
+   * Whether the `loco` on PATH is the release line the templates pin.
    *
-   * `cargo install loco` is a one-line fix that a developer would otherwise
-   * have to be told to run, and the scaffold cannot proceed without it. It is
-   * a compile, so it is announced rather than done silently, and a failure
-   * names the command to run by hand.
+   * `loco --version` prints `loco <semver>`; anything else — an older line, a
+   * 2.x, or output that names no version — counts as not current, because a
+   * scaffold from another release brings that release's CI workflow and
+   * defaults beside a backend compiled against this one.
+   */
+  private hasCurrentLocoCli(): boolean {
+    if (!CliExecutor.isCommandAvailable("loco")) return false;
+    const match = CliExecutor.getCommandVersion("loco")?.match(/(\d+)\.(\d+)\.\d+/);
+    return Boolean(match) && Number(match?.[1]) === 1 && Number(match?.[2]) >= LOCO_CLI_MINOR;
+  }
+
+  /**
+   * Install the Loco CLI on demand, at the release line the templates pin.
+   *
+   * `cargo install loco --version ^1.2 --locked` is a one-line fix that a
+   * developer would otherwise have to be told to run, and the scaffold cannot
+   * proceed without it. It replaces an older `loco` already on PATH. It is a
+   * compile, so it is announced rather than done silently, and a failure names
+   * the command to run by hand.
    */
   private async installLocoCli(): Promise<void> {
     if (!CliExecutor.isCommandAvailable("cargo")) {
@@ -523,15 +548,15 @@ export class LocoBackendGenerator extends BaseGenerator {
       );
     }
 
-    console.log("  📥 Loco CLI not found — installing it with `cargo install loco`…");
+    console.log(`  📥 Loco CLI ${LOCO_CLI_REQUIREMENT} not found — installing it with \`${LOCO_CLI_INSTALL}\`…`);
     try {
-      await CliExecutor.executeAsync("cargo", ["install", "loco"], {
+      await CliExecutor.executeAsync("cargo", LOCO_CLI_INSTALL.split(" ").slice(1), {
         stdio: "inherit",
         timeout: 900000,
       });
     } catch (error) {
       throw new Error(
-        `\`cargo install loco\` failed: ${(error as Error).message.split("\n")[0]}\n` +
+        `\`${LOCO_CLI_INSTALL}\` failed: ${(error as Error).message.split("\n")[0]}\n` +
           "  Install it by hand, or pass --skip-cli-scaffold to generate from templates alone."
       );
     }

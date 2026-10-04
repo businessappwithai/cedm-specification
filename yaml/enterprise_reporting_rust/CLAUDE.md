@@ -803,23 +803,24 @@ The same applies to the Docker Compose files: `docker-compose.yml` is current (P
 `language/` holds this platform's `eml` CLI and its example models. A model is
 a YAML document, `*.eml.yaml` — entities, relationships, enums, business rules,
 hooks, state machines, sagas and access rules — and the CLI generates code for
-this platform from it. **There is no Mermaid anywhere in this repository**: the
-language, its schema and its reader are defined once, at the root of
-`cedm-specification`, and this directory does not carry a copy of any of them.
+this platform from it. **The model is YAML and nothing else**: the
+language, its schema and its reader are defined once, in `app-with-ai-rust`
+(checked out beside this repository, as `../app-with-ai-rust`), and this
+directory does not carry a copy of any of them.
 
 ### Key files
 
-- `../../language/yaml/eml.schema.json` — the language definition (JSON Schema); the validator runs this file
-- `../../language/yaml/README.md` and `../../language/spec/` — the reference and the specification
-- `../../language/cli/src/document.ts` — the reader the CLI uses: YAML → validated `ModelDocument` → the CLI's `EmlModel`
+- `../app-with-ai-rust/language/yaml/eml.schema.json` — the language definition (JSON Schema); the validator runs this file
+- `../app-with-ai-rust/language/yaml/README.md` and `../app-with-ai-rust/language/spec/` — the reference and the specification
+- `../app-with-ai-rust/language/cli/src/document.ts` — the reader the CLI uses: YAML → validated `ModelDocument` → the CLI's `EmlModel`
 - `language/cli/eml.ts` — CLI entry point (run with Bun)
 - `language/cli/src/generate/enterprise-reporting.ts` — the default stack, this platform's own generator
 - `language/cli/src/generate/app.ts` + `language/cli/runtime/src/` — the `node-rest` stack
-- `language/cli/src/generate/jdm.ts` — rules → GoRules JDM, through the generator's own converter (`../../packages/generator/src/rules/jdm-converter.ts`)
+- `language/cli/src/generate/jdm.ts` — rules → GoRules JDM, through the generator's own converter (`../app-with-ai-rust/packages/generator/src/rules/jdm-converter.ts`)
 - `language/examples/` — `minimal`, `helpdesk`, `ecommerce`, `crm` (`.eml.yaml`)
 
-The reader resolves `yaml` and `ajv` from the root install (`bun install` at the
-root of `cedm-specification`), so the CLI runs from a full checkout.
+The reader resolves `yaml` and `ajv` from `app-with-ai-rust`'s install (`bun
+install` in `../app-with-ai-rust`), so the CLI needs that checkout beside this one.
 
 ### CLI usage
 
@@ -873,9 +874,9 @@ snippet into the `Database` interface in `src/lib/db/kysely-db.ts` yourself.
 
 ### What changed when the models became YAML
 
-The CLI used to parse Mermaid itself (`parser.ts`, `validator.ts`, a vendored
-flowchart parser and JDM converter, its own `erdwithai-language.json`). That
-parser disagreed with the generator in three places, and a YAML model carries
+The CLI used to parse the previous diagram-based model format itself
+(`parser.ts`, `validator.ts`, a vendored flowchart parser and JDM converter, its
+own `erdwithai-language.json`). That parser disagreed with the generator in three places, and a YAML model carries
 the generator's reading, because that is what every generated application was
 built from:
 
@@ -884,14 +885,15 @@ built from:
 - **A rule node drawn rounded** (`G(Calculate Total)`) was a `functionNode` to
   this CLI and an `expressionNode` to the generator; it is an `expression`
   node now. The node-rest runtime evaluates the two identically.
-- **`%%rbac`** was never read by this CLI's parser (it knew only `%%guard`);
+- **Access rules** (`rbac`) were never read by this CLI's old parser, which
+  knew only the retired guard form;
   the model's access rules now reach `eml.model.json`. Nothing in the node-rest
   runtime enforces `guards`, so behaviour is unchanged.
 
 The node-rest runtime's one change is in `runtime/src/workflows.js`: a state
 machine's start is read from its `initial`, which a YAML model states outright.
-`yaml/verify` in `cedm-specification` compares every example's generated output
-against what the Mermaid CLI produced and accepts only those differences.
+`app-with-ai-rust/scripts/verify-yaml-conversion` compares every example's generated output
+against what the previous CLI produced and accepts only those differences.
 
 ## Repo-local Claude configuration
 

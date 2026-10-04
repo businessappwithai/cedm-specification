@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Describe your business to an AI you already use, bring back one Mermaid .mmd model file, and run the application it generates in this browser. The prompt, the language it produces, the checker, and the upload — all on one page.">
-  <meta name="keywords" content="AppWithAI, try it yourself, EML, Mermaid model, erDiagram, .mmd, application generator, ChatGPT, Gemini Deep Research, model checker, in-browser demo">
+  <meta name="description" content="Describe your business to an AI you already use, bring back one YAML model file (.eml.yaml), and run the application it generates in this browser. The prompt, the language it produces, the checker, and the upload — all on one page.">
+  <meta name="keywords" content="AppWithAI, try it yourself, EML, YAML model, .eml.yaml, application generator, ChatGPT, Gemini Deep Research, model checker, in-browser demo">
   <title>Try It Yourself — Describe Your Business, Run the Application</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -59,35 +59,35 @@
            together, or this box offers something the page cannot select. -->
       <div style="margin-top: var(--spacing-2xl); border: 1px solid rgba(255,255,255,0.35); border-radius: var(--radius-lg); padding: var(--spacing-xl); background: rgba(255,255,255,0.07); text-align: left; max-width: 62rem; margin-left: auto; margin-right: auto;">
         <p style="color: white; font-weight: 600; margin: 0 0 var(--spacing-xs); text-align: center;">Or start from one of the six worked examples</p>
-        <p style="color: rgba(255,255,255,0.75); margin: 0 0 var(--spacing-lg); text-align: center; font-size: 0.95rem;">Each one is a complete model — entities, rules, state machines, sagas, access control and the <code>%%report</code> queries a reporting layer is derived from. Pick the one nearest your business; it opens in the browser runtime with the model already loaded, and nothing is installed or uploaded. Each one builds <strong>two</strong> applications: the one you click through, and Enterprise Reporting beside it, with a sign-in of its own and one reporting role per role the model declares &mdash; in the browser a preview drawn in the platform&rsquo;s own layout, and in the deployable download the platform itself, built unmodified from its source.</p>
+        <p style="color: rgba(255,255,255,0.75); margin: 0 0 var(--spacing-lg); text-align: center; font-size: 0.95rem;">Each one is a complete model — entities, rules, state machines, sagas, access control and the <code>reports</code> a reporting layer is derived from. Pick the one nearest your business; it opens in the browser runtime with the model already loaded, and nothing is installed or uploaded. Each one builds <strong>two</strong> applications: the one you click through, and Enterprise Reporting beside it, with a sign-in of its own and one reporting role per role the model declares &mdash; in the browser a preview drawn in the platform&rsquo;s own layout, and in the deployable download the platform itself, built unmodified from its source.</p>
         <div class="grid grid-3" style="gap: var(--spacing-md);">
           <a href="guide/run-in-browser.html#crm" style="display: block; padding: var(--spacing-md); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.15);">
             <strong style="color: white; display: block;">Sales CRM</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">17 entities. Leads, accounts, opportunities, quotes, contracts and support cases. Five state machines, five sagas, eight rules, seven roles, 32 access restrictions and 33 <code>%%report</code> directives.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">17 entities. Leads, accounts, opportunities, quotes, contracts and support cases. Five state machines, five sagas, eight rules, seven roles, 32 access restrictions and 33 <code>reports</code>.</span>
           </a>
           <a href="guide/run-in-browser.html#dance" style="display: block; padding: var(--spacing-md); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.15);">
             <strong style="color: white; display: block;">Dance studio</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">9 entities. Classes, sessions, bookings, a waitlist and class packs — the smallest, and the quickest to read end to end. Two state machines, one saga, two rules, four roles, 21 access restrictions and 18 <code>%%report</code> directives.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">9 entities. Classes, sessions, bookings, a waitlist and class packs — the smallest, and the quickest to read end to end. Two state machines, one saga, two rules, four roles, 21 access restrictions and 18 <code>reports</code>.</span>
           </a>
           <a href="guide/run-in-browser.html#hospital" style="display: block; padding: var(--spacing-md); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.15);">
             <strong style="color: white; display: block;">Hospital management</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">30 entities. Admissions, wards and beds, orders and results, billing and stock. Ten state machines, ten sagas, 18 rules, ten roles, 132 access restrictions and 44 <code>%%report</code> directives.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">30 entities. Admissions, wards and beds, orders and results, billing and stock. Ten state machines, ten sagas, 18 rules, ten roles, 132 access restrictions and 44 <code>reports</code>.</span>
           </a>
           <a href="guide/run-in-browser.html#drug" style="display: block; padding: var(--spacing-md); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.15);">
             <strong style="color: white; display: block;">Drug discovery</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">19 entities. A regulated lab: compound registry, experiments, instrument bookings, deviations and CAPAs. Three state machines, three sagas, three rules, eight roles, 27 access restrictions and 33 <code>%%report</code> directives. The one where rules refuse a write in front of you.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">19 entities. A regulated lab: compound registry, experiments, instrument bookings, deviations and CAPAs. Three state machines, three sagas, three rules, eight roles, 27 access restrictions and 33 <code>reports</code>. The one where rules refuse a write in front of you.</span>
           </a>
           <a href="guide/run-in-browser.html#investment" style="display: block; padding: var(--spacing-md); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.15);">
             <strong style="color: white; display: block;">Wealth management</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">91 entities. Households and advisors, compliance, financial plans, a security master, portfolios, orders, recommendations and commissions. Eleven state machines, three sagas, eight rules, five roles, 59 access restrictions and 19 <code>%%report</code> directives. The enterprise-scale one.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">91 entities. Households and advisors, compliance, financial plans, a security master, portfolios, orders, recommendations and commissions. Eleven state machines, three sagas, eight rules, five roles, 59 access restrictions and 19 <code>reports</code>. The enterprise-scale one.</span>
           </a>
           <a href="guide/run-in-browser.html#education" style="display: block; padding: var(--spacing-md); border: 1px solid rgba(255,255,255,0.25); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.15);">
             <strong style="color: white; display: block;">Education management</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">19 entities. Admissions, the roll, timetabled sections, attendance, assessment, fees and discipline. Eleven state machines, five sagas, ten rules, eight roles, 68 access restrictions and 40 <code>%%report</code> directives.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">19 entities. Admissions, the roll, timetabled sections, attendance, assessment, fees and discipline. Eleven state machines, five sagas, ten rules, eight roles, 68 access restrictions and 40 <code>reports</code>.</span>
           </a>
           <a href="guide/run-in-browser.html#upload" style="display: block; padding: var(--spacing-md); border: 1px dashed rgba(255,255,255,0.45); border-radius: var(--radius-md); text-decoration: none; background: rgba(0,0,0,0.05);">
             <strong style="color: white; display: block;">Your own model</strong>
-            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">Already have a <code>.mmd</code> from the prompt below? Drop it in. It is read in your tab and uploaded nowhere.</span>
+            <span style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">Already have a <code>.eml.yaml</code> from the prompt below? Drop it in. It is read in your tab and uploaded nowhere.</span>
           </a>
         </div>
       </div>
@@ -113,7 +113,7 @@
           <div class="card-icon">&#128270;</div>
           <h3>2. Hand it over to ChatGPT</h3>
           <p>Give the model our machine-readable specification along with your description. It carries the authoring protocol: enhance the brief into a full entity model, workflows and business rules; write the model file; then validate it against our published checker before handing anything over.</p>
-          <p class="text-muted text-sm">You get back a single <code>.mmd</code> file — the model itself, not a document describing it — plus the specification it inferred, so you can correct what it guessed.</p>
+          <p class="text-muted text-sm">You get back a single <code>.eml.yaml</code> file — the model itself, not a document describing it — plus the specification it inferred, so you can correct what it guessed.</p>
         </div>
         <div class="card">
           <div class="card-icon">&#9654;&#65039;</div>
@@ -130,7 +130,7 @@
     <div class="container">
       <div class="section-header">
         <h2>The prompt — copy it as it is</h2>
-        <p class="section-subtitle">Replace only the description. Everything else tells the model where the specification lives and what it must do before it answers you. For a professional or enterprise application, use <a href="#enterprise-prompt" style="color: inherit;">the same prompt against the detailed specification</a> instead — same words, a longer conversation, a model nobody had to guess. <strong>Already have a <code>.mmd</code>?</strong> Both of these write a model from nothing; <a href="#enhance" style="color: inherit;">the enhancement prompts</a> start from the file you already have and give it back whole.</p>
+        <p class="section-subtitle">Replace only the description. Everything else tells the model where the specification lives and what it must do before it answers you. For a professional or enterprise application, use <a href="#enterprise-prompt" style="color: inherit;">the same prompt against the detailed specification</a> instead — same words, a longer conversation, a model nobody had to guess. <strong>Already have a <code>.eml.yaml</code>?</strong> Both of these write a model from nothing; <a href="#enhance" style="color: inherit;">the enhancement prompts</a> start from the file you already have and give it back whole.</p>
       </div>
 
       <div class="card">
@@ -141,17 +141,17 @@
 My business:
 [Describe it here. What you sell or service. Every kind of record you keep and how they relate. Who does what. The states each record moves through. What has to be approved, and by whom. What happens when a step fails.]
 
-Deliver exactly one file I can download: &lt;business-name&gt;.mmd. It must open on a %% line with %%meta name: before the first diagram, and every line in it must be Mermaid or an EML %% directive — no Markdown, no headings, no prose. A document that describes the model is not the model; the checker scores that EML004.
+Deliver exactly one file I can download: &lt;business-name&gt;.eml.yaml. It must be one YAML document that opens with eml: &quot;1.0&quot; and declares name and entities — no Markdown, no headings, no prose around it. A document that describes the model is not the model; the validator refuses it before it reads a single entity.
 
-Send no other file — no specification document, no report, no README. If you can only answer with a document, put the entire model in the first fenced mermaid block of that document, before any prose.
+Send no other file — no specification document, no report, no README. If you can only answer with a document, put the entire model in the first fenced yaml block of that document, before any prose.
 
-Then, in your reply text: the enhanced specification you inferred, the checker result with its counts, and anything you assumed. If the checker cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
+Then, in your reply text: the enhanced specification you inferred, the validator result with its counts and the audit score, and anything you assumed. If the validator cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
             <button type="button" class="btn btn-primary" data-copy="research-prompt">Copy the prompt</button>
           </div>
           <div>
             <h3>Then bring the file back</h3>
-            <p class="text-muted">Upload the <code>.mmd</code> and press Generate, then Run. The first time PostgreSQL loads it takes a few seconds; after that it is instant.</p>
-            <p class="text-muted text-sm">Got a report instead of a file? Some models can only answer with a document. Copy its <code>mermaid</code> block into the <a href="guide/11-check-a-model.html">checker page</a>, check it, and download a real <code>.mmd</code> from there.</p>
+            <p class="text-muted">Upload the <code>.eml.yaml</code> and press Generate, then Run. The first time PostgreSQL loads it takes a few seconds; after that it is instant.</p>
+            <p class="text-muted text-sm">Got a report instead of a file? Some models can only answer with a document. Copy its <code>yaml</code> block into the <a href="guide/11-check-a-model.html">checker page</a>, check it, and download a real <code>.eml.yaml</code> from there.</p>
             <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-lg);">
               <a href="guide/run-in-browser.html#upload" class="btn btn-accent btn-lg">Upload Your Model &amp; Run It &rarr;</a>
               <a href="guide/11-check-a-model.html" class="btn btn-outline">Check the file first &rarr;</a>
@@ -173,7 +173,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
             <ul class="footer-links" style="line-height: 1.9;">
               <li><strong>Phase 1</strong> — research your business, and show you what it found</li>
               <li><strong>Phase 2</strong> — agree the entity roster before a line is written</li>
-              <li><strong>Phase 3</strong> — seed the <code>.mmd</code>, and build it on disk from here on</li>
+              <li><strong>Phase 3</strong> — seed the <code>.eml.yaml</code>, and build it on disk from here on</li>
               <li><strong>Phase 4</strong> — walk the entities one at a time, checking after each</li>
               <li><strong>Phase 5</strong> — the cross-cutting pass: processes, the access matrix, coverage</li>
               <li><strong>Phase 6</strong> — validate to clean, and escalate what needs your decision</li>
@@ -187,15 +187,15 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
 My business:
 [Describe it here. What you sell or service. Every kind of record you keep and how they relate. Who does what. The states each record moves through. What has to be approved, and by whom. What happens when a step fails.]
 
-Deliver exactly one file I can download: &lt;business-name&gt;.mmd. It must open on a %% line with %%meta name: before the first diagram, and every line in it must be Mermaid or an EML %% directive — no Markdown, no headings, no prose. A document that describes the model is not the model; the checker scores that EML004.
+Deliver exactly one file I can download: &lt;business-name&gt;.eml.yaml. It must be one YAML document that opens with eml: &quot;1.0&quot; and declares name and entities — no Markdown, no headings, no prose around it. A document that describes the model is not the model; the validator refuses it before it reads a single entity.
 
-Send no other file — no specification document, no report, no README. If you can only answer with a document, put the entire model in the first fenced mermaid block of that document, before any prose.
+Send no other file — no specification document, no report, no README. If you can only answer with a document, put the entire model in the first fenced yaml block of that document, before any prose.
 
-Then, in your reply text: the enhanced specification you inferred, the checker result with its counts, and anything you assumed. If the checker cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
+Then, in your reply text: the enhanced specification you inferred, the validator result with its counts and the audit score, and anything you assumed. If the validator cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
             <button type="button" class="btn btn-primary" data-copy="enterprise-research-prompt">Copy the detailed prompt</button>
             <p class="text-muted text-sm" style="margin-top: var(--spacing-md);">Everything below the first line is the prompt above, word for word. Only the document and the section number change — because the two specifications number their protocols differently, and quoting the wrong number gets you the wrong one.</p>
-            <p class="text-muted text-sm">Use a model with a long context and, if you can, one that can write files: section 10 keeps the <code>.mmd</code> on disk as it goes rather than holding it in the conversation. It ends where the prompt above ends — one file, checked clean, that you upload and run here.</p>
-            <p class="text-muted text-sm"><strong>Watch it being written.</strong> Open the <a href="viewers/index.html">model viewer</a> and point it at that file, and the diagram fills in as the walkthrough runs — the entities and their links, each lifecycle&rsquo;s legal moves, each rule&rsquo;s branches, and who ends up able to see what. Approving a gate is worth more when you have seen the thing you are approving, and Mermaid on its own draws none of it.</p>
+            <p class="text-muted text-sm">Use a model with a long context and, if you can, one that can write files: section 10 keeps the <code>.eml.yaml</code> on disk as it goes rather than holding it in the conversation. It ends where the prompt above ends — one file, checked clean, that you upload and run here.</p>
+            <p class="text-muted text-sm"><strong>Watch it being written.</strong> Open the <a href="viewers/index.html">model viewer</a> and point it at that file, and the diagram fills in as the walkthrough runs — the entities and their links, each lifecycle&rsquo;s legal moves, each rule&rsquo;s branches, and who ends up able to see what. Approving a gate is worth more when you have seen the thing you are approving.</p>
             <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-lg);">
               <a href="llmdetailed.txt" class="btn btn-outline">Read the detailed specification &rarr;</a>
               <a href="viewers/index.html" class="btn btn-outline">Open the model viewer &rarr;</a>
@@ -211,7 +211,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
     <div class="container">
       <div class="section-header">
         <h2>Already have a model? Enhance it instead</h2>
-        <p class="section-subtitle">The two prompts above start from nothing. These two start from the <code>.mmd</code> you already have — you load your file, say what you want changed, and get the whole model back with the change in it and everything else still there. Same language, same checker, a different protocol.</p>
+        <p class="section-subtitle">The two prompts above start from nothing. These two start from the <code>.eml.yaml</code> you already have — you load your file, say what you want changed, and get the whole model back with the change in it and everything else still there. Same language, same checker, a different protocol.</p>
       </div>
 
       <div class="card mb-5" style="border-left: 4px solid var(--primary-500);">
@@ -237,7 +237,7 @@ Then, in your reply text: the enhanced specification you inferred, the checker r
               <li><strong>It hands back the whole file</strong> — not a patch you have to merge yourself</li>
               <li><strong>It proves nothing was lost</strong> — the before-and-after counts, side by side</li>
             </ul>
-            <p class="text-muted text-sm">That last one is the point of the whole thing. A model that quietly came back with two fewer <code>%%rbac</code> lines and no help text on three entities passes the checker exactly like one that did not — so the count is the only thing that catches it.</p>
+            <p class="text-muted text-sm">That last one is the point of the whole thing. A model that quietly came back with two fewer <code>rbac</code> entries and no help text on three entities passes the checker exactly like one that did not — so the count is the only thing that catches it.</p>
           </div>
           <div>
             <pre id="enhance-prompt" style="background: var(--gray-900); color: var(--gray-100); padding: var(--spacing-lg); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto; white-space: pre-wrap; margin: 0 0 var(--spacing-md) 0;">Read <span data-url="llmtextenhancement.txt">https://www.appwithai.org/llmtextenhancement.txt</span> in full, and follow section 1 — the enhancement protocol — exactly.
@@ -247,15 +247,15 @@ My model is attached. Do not start until you have read it, and do not rebuild it
 What I want changed:
 [Describe it here. What to add, what to change, what to remove. Who does the new work. What states the new records move through. What has to be approved, and by whom.]
 
-First tell me what is in my model today — entities, roles, reports, help text, and the checker&#39;s verdict on it as it stands — so I can see you have the real file. Then apply only the change I asked for.
+First tell me what is in my model today — entities, roles, reports, help text, and the validator&#39;s verdict on it as it stands — so I can see you have the real file. Then apply only the change I asked for.
 
-Deliver exactly one file I can download: the whole enhanced model, under the name it arrived with. Not a patch, not a diff, not only the new parts, and nothing abbreviated — every line of the file, so I can upload it without merging anything by hand. It must open on a %% line with %%meta name: before the first diagram, and every line in it must be Mermaid or an EML %% directive.
+Deliver exactly one file I can download: the whole enhanced model, under the name it arrived with. Not a patch, not a diff, not only the new parts, and nothing abbreviated — every line of the file, so I can upload it without merging anything by hand. It must be one YAML document that opens with eml: &quot;1.0&quot;, keeping its comments.
 
-Keep everything I did not ask you to change: every entity, every column, every %%rbac line, every %%report and all the help text. Then show me the before-and-after counts side by side, and tell me plainly if any of them went down.
+Keep everything I did not ask you to change: every entity, every column, every rbac entry, every report and all the help text. Then show me the before-and-after counts side by side, and tell me plainly if any of them went down.
 
-Then, in your reply text: what changed, the checker result with its counts for my original and for the file you are delivering, and anything you assumed. If the checker cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
+Then, in your reply text: what changed, the validator result with its counts for my original and for the file you are delivering, and anything you assumed. If the validator cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
             <button type="button" class="btn btn-primary" data-copy="enhance-prompt">Copy the enhancement prompt</button>
-            <p class="text-muted text-sm" style="margin-top: var(--spacing-md);">Attach your <code>.mmd</code> to the same message. If your model lives in a chat rather than a file, paste it in a single fenced block — the protocol accepts either, and takes the block&rsquo;s contents as the file.</p>
+            <p class="text-muted text-sm" style="margin-top: var(--spacing-md);">Attach your <code>.eml.yaml</code> to the same message. If your model lives in a chat rather than a file, paste it in a single fenced block — the protocol accepts either, and takes the block&rsquo;s contents as the file.</p>
             <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-top: var(--spacing-lg);">
               <a href="llmtextenhancement.txt" class="btn btn-ghost">Read the enhancement specification &rarr;</a>
             </div>
@@ -291,13 +291,13 @@ My model is attached. Do not start until you have read it, and do not rebuild it
 What I want changed:
 [Describe it here. What to add, what to change, what to remove. Who does the new work. What states the new records move through. What has to be approved, and by whom.]
 
-First tell me what is in my model today — entities, roles, reports, help text, and the checker&#39;s verdict on it as it stands — so I can see you have the real file. Then apply only the change I asked for.
+First tell me what is in my model today — entities, roles, reports, help text, and the validator&#39;s verdict on it as it stands — so I can see you have the real file. Then apply only the change I asked for.
 
-Deliver exactly one file I can download: the whole enhanced model, under the name it arrived with. Not a patch, not a diff, not only the new parts, and nothing abbreviated — every line of the file, so I can upload it without merging anything by hand. It must open on a %% line with %%meta name: before the first diagram, and every line in it must be Mermaid or an EML %% directive.
+Deliver exactly one file I can download: the whole enhanced model, under the name it arrived with. Not a patch, not a diff, not only the new parts, and nothing abbreviated — every line of the file, so I can upload it without merging anything by hand. It must be one YAML document that opens with eml: &quot;1.0&quot;, keeping its comments.
 
-Keep everything I did not ask you to change: every entity, every column, every %%rbac line, every %%report and all the help text. Then show me the before-and-after counts side by side, and tell me plainly if any of them went down.
+Keep everything I did not ask you to change: every entity, every column, every rbac entry, every report and all the help text. Then show me the before-and-after counts side by side, and tell me plainly if any of them went down.
 
-Then, in your reply text: what changed, the checker result with its counts for my original and for the file you are delivering, and anything you assumed. If the checker cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
+Then, in your reply text: what changed, the validator result with its counts for my original and for the file you are delivering, and anything you assumed. If the validator cannot be reached from where you are running, say which host failed and how, deliver the model anyway, and keep going — never invent counts, and never hold a phase open waiting for a network call.</pre>
             <button type="button" class="btn btn-primary" data-copy="enterprise-enhance-research-prompt">Copy the detailed enhancement prompt</button>
             <p class="text-muted text-sm" style="margin-top: var(--spacing-md);">Everything below the first line is the prompt above, word for word. Only the document and the section number change — because the two specifications number their protocols differently, and quoting the wrong number gets you the wrong one.</p>
             <p class="text-muted text-sm">Use a model with a long context and, if you can, one that can write files: section 10 keeps your original and the working copy side by side on disk rather than holding either in the conversation.</p>
@@ -316,7 +316,7 @@ Then, in your reply text: what changed, the checker result with its counts for m
         <div style="overflow-x: auto;">
           <table class="comparison-table">
             <thead>
-              <tr><th></th><th>Start from a description</th><th>Start from a <code>.mmd</code> you have</th></tr>
+              <tr><th></th><th>Start from a description</th><th>Start from a <code>.eml.yaml</code> you have</th></tr>
             </thead>
             <tbody>
               <tr>
@@ -342,67 +342,84 @@ Then, in your reply text: what changed, the checker result with its counts for m
     <div class="container">
       <div class="section-header">
         <h2>What comes back, and how to read it</h2>
-        <p class="section-subtitle">The file is Mermaid — the diagram language — with a small set of <code>%%</code> directives that Mermaid treats as comments and our generator treats as meaning. You can read it, and a Mermaid viewer can draw it.</p>
+        <p class="section-subtitle">The file is one YAML document. Every part of the application is a key in it — entities, enums, relationships, state machines, rules, access — so you can read it top to bottom, and the <a href="viewers/index.html">model viewer</a> draws all of it.</p>
       </div>
 
       <div class="container-narrow">
-        <pre style="background: var(--gray-900); color: var(--gray-100); padding: var(--spacing-lg); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;">%%meta name: Field Service
-%%meta kind: erd
+        <pre style="background: var(--gray-900); color: var(--gray-100); padding: var(--spacing-lg); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;">eml: "1.0"
+name: Field Service
 
-%%enum JobStatus: scheduled, dispatched, on_site, complete, cancelled
+enums:
+  - { name: JobStatus, values: [scheduled, dispatched, on_site, complete, cancelled] }
 
-erDiagram
-    Customer {
-        string id PK
-        string name
-        email  email UK
-        phone  phone OPTIONAL
-    }
-    Engineer {
-        string id PK
-        string first_name
-        string last_name
-    }
-    Job {
-        string   id PK
-        string   customer_id FK
-        string   engineer_id FK
-        string   status
-        datetime scheduled_for
-        money    quoted_total
-    }
-    Customer ||--o{ Job : "raises"
-    Engineer ||--o{ Job : "works"
+entities:
+  - name: Customer
+    help: A site owner who books engineers to fix or service equipment.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: name, type: string, help: The trading name on the service contract. }
+      - { name: email, type: email, unique: true, help: Where visit confirmations are sent. }
+      - { name: phone, type: phone, optional: true, help: Called by the engineer on the way. }
+  - name: Engineer
+    help: A technician who travels to customer sites.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: first_name, type: string, help: As printed on the engineer's ID badge. }
+      - { name: last_name, type: string, help: As printed on the engineer's ID badge. }
+  - name: Job
+    help: A visit an engineer makes to a customer site.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: customer_id, type: uuid, fk: true, help: The customer whose site is visited. }
+      - { name: engineer_id, type: uuid, fk: true, help: Who is sent. Reassign before dispatch. }
+      - { name: status, type: string, enum: JobStatus, help: Where the visit is in its lifecycle. }
+      - { name: scheduled_for, type: datetime, help: The arrival window the customer was promised. }
+      - { name: quoted_total, type: money, help: "What the customer was quoted, before parts used on site." }
 
-%%entity Job help: A visit an engineer makes to a customer site.
-%%field Job.status enum: JobStatus
-%%field Job.quoted_total help: What the customer was quoted, before parts used on site.
-%%rbac role:dispatcher on Job.update</pre>
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Job, toCardinality: zero-or-more, label: raises }
+  - { from: Engineer, fromCardinality: exactly-one, to: Job, toCardinality: zero-or-more, label: works }
+
+stateMachines:
+  - name: JobLifecycle
+    entity: Job
+    states: [scheduled, dispatched, on_site, complete, cancelled]
+    initial: scheduled
+    final: [complete, cancelled]
+    transitions:
+      - { from: scheduled, to: dispatched, trigger: dispatch }
+      - { from: dispatched, to: on_site, trigger: arrive }
+      - { from: on_site, to: complete, trigger: finish }
+      - { from: scheduled, to: cancelled, trigger: cancel }
+
+rbac:
+  - { entity: Job, action: dispatch, roles: [dispatcher] }
+  - { entity: Job, action: update, roles: [dispatcher, engineer] }</pre>
 
         <div class="grid grid-2 mt-5">
           <div class="card">
             <h3>Every line does one job</h3>
             <ul class="footer-links" style="line-height: 1.9;">
-              <li><code>%%meta name:</code> — names the model. The file opens with it.</li>
-              <li><code>erDiagram</code> — your entities and their columns.</li>
-              <li><code>PK</code> <code>FK</code> <code>UK</code> <code>OPTIONAL</code> — the four modifiers that matter.</li>
-              <li><code>%%enum</code> + <code>%%field … enum:</code> — a closed vocabulary, bound to a column.</li>
-              <li><code>%%entity … help:</code> and <code>%%field … help:</code> — the help a user reads on screen, and the whole of the manual the generator writes.</li>
-              <li><code>%%rbac</code> — who may do what.</li>
-              <li><code>stateDiagram-v2</code> — the lifecycle a record moves through.</li>
-              <li><code>flowchart</code> + <code>%%action</code> — a business rule that decides something.</li>
+              <li><code>eml: "1.0"</code> and <code>name</code> — the format and the model's name. The file opens with them.</li>
+              <li><code>entities</code> — your records, each with its <code>attributes</code>.</li>
+              <li><code>pk</code> <code>fk</code> <code>unique</code> <code>optional</code> — the four flags that matter.</li>
+              <li><code>enums</code> + an attribute's <code>enum</code> — a closed vocabulary, bound to a column.</li>
+              <li><code>help</code> on an entity and on each attribute — the help a user reads on screen, and the whole of the manual the generator writes.</li>
+              <li><code>rbac</code> — who may do what.</li>
+              <li><code>stateMachines</code> — the lifecycle a record moves through, and where it ends.</li>
+              <li><code>rules</code> with <code>actions</code> — a business rule that decides something and acts on it.</li>
             </ul>
           </div>
           <div class="card">
             <h3>Four things worth checking yourself</h3>
             <p class="text-sm">The generated application reads a live <strong>Application Dictionary</strong> — one row per table, column, tab and lookup — and it is derived from this file alone. Four habits decide whether the screens come out usable:</p>
             <ul class="footer-links" style="line-height: 1.9;">
-              <li>Every reference column ends <code>_id</code> and carries <code>FK</code> — that is what makes it a dropdown instead of a box asking for a UUID.</li>
-              <li>Every status column has a <code>%%field … enum:</code> binding — without it the field is free text.</li>
+              <li>Every reference column ends <code>_id</code> and carries <code>fk: true</code> — that is what makes it a dropdown instead of a box asking for a UUID.</li>
+              <li>Every status column names its <code>enum</code> — without it the field is free text.</li>
               <li>Types are specific: <code>email</code>, <code>phone</code>, <code>url</code>, <code>money</code>, <code>date</code> — each one picks its own input control.</li>
-              <li>Entities and non-obvious columns carry <code>help:</code> — it is the only help your users will ever get.</li>
+              <li>Every entity and every column carries <code>help</code> — it is the only help your users will ever get.</li>
             </ul>
-            <p class="text-muted text-sm">The checker reports all four. <a href="llms-full.txt">Section 3.7</a> explains why each one matters.</p>
+            <p class="text-muted text-sm">The validator reports three of the four; the types are yours to choose. <a href="llms-full.txt">Section 3.7</a> explains why each one matters.</p>
           </div>
         </div>
       </div>
@@ -414,7 +431,7 @@ erDiagram
     <div class="container">
       <div class="section-header">
         <h2>Check the file before you trust it</h2>
-        <p class="section-subtitle">The same checker the generator runs is published as a module and as a one-command runner. A model that passes here is a model the generator will accept — and a second runner scores whether it is finished, which a clean report does not tell you.</p>
+        <p class="section-subtitle">The same validator the generator runs is published as a module and as a one-command runner. A model that passes here is a model the generator will accept — and a second runner scores whether it is finished, which a clean report does not tell you.</p>
       </div>
 
       <div class="grid grid-2" style="align-items: start;">
@@ -422,13 +439,13 @@ erDiagram
           <div class="card-icon">&#9000;</div>
           <h3>In a terminal — two lines</h3>
           <pre style="background: var(--gray-900); color: var(--gray-100); padding: var(--spacing-lg); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;">curl -sO <span data-url="guide/check-model.mjs">https://www.appwithai.org/guide/check-model.mjs</span>
-node check-model.mjs my-business.mmd</pre>
-          <p class="text-muted text-sm">It runs the three passes the protocol asks for, prints the checker's own report, and exits <code>0</code> when the file is clean, <code>1</code> when the generator would refuse it.</p>
+node check-model.mjs my-business.eml.yaml</pre>
+          <p class="text-muted text-sm">It runs the three passes the protocol asks for, prints the validator's own report, and exits <code>0</code> when the file is clean, <code>1</code> when the generator would refuse it.</p>
         </div>
         <div class="card">
           <div class="card-icon">&#128269;</div>
           <h3>In this browser — paste or drop the file</h3>
-          <p>The checker page runs the published <code>checker.js</code> and <code>fixer.js</code> in your tab, repairs what is repairable, explains what is not, and hands back a downloadable <code>.mmd</code> once the run is clean.</p>
+          <p>The checker page runs the published <code>model-yaml.js</code> in your tab, repairs what is repairable, explains what is not at the YAML line and column, and hands back a downloadable <code>.eml.yaml</code> once the run is clean.</p>
           <p class="text-muted text-sm">It is the way in if your model arrived as a fenced block inside a chat report rather than as a file.</p>
           <a href="guide/11-check-a-model.html" class="btn btn-outline mt-3">Open the checker &rarr;</a>
         </div>
@@ -437,10 +454,10 @@ node check-model.mjs my-business.mmd</pre>
       <div class="card mt-5">
         <div class="card-icon">&#9745;</div>
         <h3>And one more line, for whether it is <em>finished</em></h3>
-        <p>A clean report says the generator would accept the file. It does not say the model is done — nothing in the checker requires a model to <em>have</em> a lifecycle, a rule, an access rule or a word of help text. One entity with a primary key and a name is a valid model with none of them, and it checks clean.</p>
+        <p>A clean report says the generator would accept the file. It does not say the model is done — nothing in the validator requires a model to <em>have</em> a lifecycle, a rule, an access rule or a word of help text. One entity with a primary key and a name is a valid model with none of them, and it validates clean.</p>
         <pre style="background: var(--gray-900); color: var(--gray-100); padding: var(--spacing-lg); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: 1.7; overflow-x: auto;">curl -sO <span data-url="guide/audit-model.mjs">https://www.appwithai.org/guide/audit-model.mjs</span>
-node audit-model.mjs my-business.mmd</pre>
-        <p class="text-muted text-sm">Twenty-two checks against the delivery checklist — the <code>FK</code> modifier on every reference, an enum behind every status, a state machine with a beginning and an end, help that says something rather than restating a column's own name. Its last line is the score, <code>22 passed, 0 failed</code>. That bare entity above passes the checker and fails this nine ways, which is why both are published. <a href="guide/11-check-a-model.html#audit">What it scores &rarr;</a></p>
+node audit-model.mjs my-business.eml.yaml</pre>
+        <p class="text-muted text-sm">Twenty-two checks against the delivery checklist — <code>fk: true</code> on every reference, an enum behind every status, a state machine with a beginning and an end, help that says something rather than restating a column's own name. Its last line is the score, <code>22 passed, 0 failed</code>. That bare entity above passes the validator and fails this nine ways, which is why both are published. <a href="guide/11-check-a-model.html#audit">What it scores &rarr;</a></p>
       </div>
     </div>
   </section>
@@ -466,7 +483,7 @@ node audit-model.mjs my-business.mmd</pre>
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -502,7 +519,7 @@ node audit-model.mjs my-business.mmd</pre>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
       </div>
     </div>

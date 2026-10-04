@@ -14,19 +14,19 @@
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('0e065368-990a-517f-85ae-018d23c2a93a', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '8c4b605c-1dfb-5a2e-98a2-1a47c1ab6aae', 'a2be99b1-0d4d-524e-b3ff-d79f44ae4c6b', '41d5334d-7c09-5350-b836-b6295775af86', 'final', NOW(), NOW())
+VALUES ('0e065368-990a-517f-85ae-018d23c2a93a', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '8c4b605c-1dfb-5a2e-98a2-1a47c1ab6aae', 'a2be99b1-0d4d-524e-b3ff-d79f44ae4c6b', '41d5334d-7c09-5350-b836-b6295775af86', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('75b741e4-f126-5b58-999e-b92b0c0a9c3a', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '44a93d66-34b4-503d-b925-e4c49254b02b', '156e728f-c9a4-5ae9-bc1e-5f163c81833b', 'd4117699-594e-52ea-98f1-4ae4e7c0003f', 'final', NOW(), NOW())
+VALUES ('75b741e4-f126-5b58-999e-b92b0c0a9c3a', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '44a93d66-34b4-503d-b925-e4c49254b02b', '156e728f-c9a4-5ae9-bc1e-5f163c81833b', 'd4117699-594e-52ea-98f1-4ae4e7c0003f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('6c9f5ac2-7040-5e21-8c73-db3e983c03cf', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', 'f20c3eaa-6b31-5363-9050-7d6f83dac742', 'ad55e64a-b420-5b39-b918-13a39f46d4c2', '8dcfc6ec-f3a1-5d44-afde-622339e7ca26', 'final', NOW(), NOW())
+VALUES ('6c9f5ac2-7040-5e21-8c73-db3e983c03cf', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', 'f20c3eaa-6b31-5363-9050-7d6f83dac742', 'ad55e64a-b420-5b39-b918-13a39f46d4c2', '8dcfc6ec-f3a1-5d44-afde-622339e7ca26', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('9bfea1c8-d239-5119-b18d-82f28e5fe5b0', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', 'af7f7dd5-0721-5cf6-a5a3-c97822baa98c', '2e62d8d2-01a9-574f-8dca-8c7b29a5f2bd', '4a39431d-ad47-531b-9bff-17a9cd51f378', 'final', NOW(), NOW())
+VALUES ('9bfea1c8-d239-5119-b18d-82f28e5fe5b0', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', 'af7f7dd5-0721-5cf6-a5a3-c97822baa98c', '2e62d8d2-01a9-574f-8dca-8c7b29a5f2bd', '4a39431d-ad47-531b-9bff-17a9cd51f378', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('81fdc677-b5ae-560f-b3f8-282854fcef74', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '5fbd7c9e-2932-579e-8e62-cc34834d9820', '18ae88e4-f3bf-5843-ba72-866a500a5ffa', '22d5b872-5f58-5a9d-a1d0-39b9efbff69b', 'final', NOW(), NOW())
+VALUES ('81fdc677-b5ae-560f-b3f8-282854fcef74', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '5fbd7c9e-2932-579e-8e62-cc34834d9820', '18ae88e4-f3bf-5843-ba72-866a500a5ffa', '22d5b872-5f58-5a9d-a1d0-39b9efbff69b', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Location (bus_location)
@@ -303,19 +303,19 @@ ON CONFLICT DO NOTHING;
 
 -- Lease (bus_lease)
 INSERT INTO bus_lease (id, lease_number, lease_type, start_date, end_date, status, periodic_amount, property_id, lessor_id, doc_status, created_at, updated_at)
-VALUES ('b986f402-a436-5b96-a554-03b922b683f9', 'Lease Number 1', 'OPERATING', '2026-01-15', NULL, 'DRAFT', 10.50, '7c2bd81a-bf16-5bac-b00f-671ab045be6a', '42ccb226-e2db-5320-b711-1c070a09c4a6', 'final', NOW(), NOW())
+VALUES ('b986f402-a436-5b96-a554-03b922b683f9', 'Lease 1', 'OPERATING', '2026-01-15', NULL, 'DRAFT', 10.50, '7c2bd81a-bf16-5bac-b00f-671ab045be6a', '42ccb226-e2db-5320-b711-1c070a09c4a6', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_lease (id, lease_number, lease_type, start_date, end_date, status, periodic_amount, property_id, lessor_id, doc_status, created_at, updated_at)
-VALUES ('dcdd822d-ca9e-5c76-bcdb-32801a80289a', 'Lease Number 2', 'FINANCE', '2026-02-15', NULL, 'DRAFT', 21.00, '84cde41b-e874-5a02-88b4-95d044781191', '4aeb1a13-a792-5af2-87cb-4af638632fb0', 'final', NOW(), NOW())
+VALUES ('dcdd822d-ca9e-5c76-bcdb-32801a80289a', 'Lease 2', 'FINANCE', '2026-02-15', NULL, 'DRAFT', 21.00, '84cde41b-e874-5a02-88b4-95d044781191', '4aeb1a13-a792-5af2-87cb-4af638632fb0', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_lease (id, lease_number, lease_type, start_date, end_date, status, periodic_amount, property_id, lessor_id, doc_status, created_at, updated_at)
-VALUES ('4168d115-3eb4-5ce9-abae-bc075f2d0c44', 'Lease Number 3', 'COMMERCIAL', '2026-03-15', NULL, 'DRAFT', 31.50, '9ac72c60-49db-5324-a0d2-b008348b07e4', '31247b20-fd6a-5a37-8386-b114aa7fb764', 'final', NOW(), NOW())
+VALUES ('4168d115-3eb4-5ce9-abae-bc075f2d0c44', 'Lease 3', 'COMMERCIAL', '2026-03-15', NULL, 'DRAFT', 31.50, '9ac72c60-49db-5324-a0d2-b008348b07e4', '31247b20-fd6a-5a37-8386-b114aa7fb764', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_lease (id, lease_number, lease_type, start_date, end_date, status, periodic_amount, property_id, lessor_id, doc_status, created_at, updated_at)
-VALUES ('81fb244d-4064-50fb-a4a6-6a6c5d535067', 'Lease Number 4', 'RESIDENTIAL', '2026-04-15', NULL, 'DRAFT', 42.00, '5d8baea2-1b6a-5d9c-8fb3-eae7a1e3f115', 'bcd3d38a-7fcc-5f4f-8a02-0a7a544a5388', 'final', NOW(), NOW())
+VALUES ('81fb244d-4064-50fb-a4a6-6a6c5d535067', 'Lease 4', 'RESIDENTIAL', '2026-04-15', NULL, 'DRAFT', 42.00, '5d8baea2-1b6a-5d9c-8fb3-eae7a1e3f115', 'bcd3d38a-7fcc-5f4f-8a02-0a7a544a5388', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_lease (id, lease_number, lease_type, start_date, end_date, status, periodic_amount, property_id, lessor_id, doc_status, created_at, updated_at)
-VALUES ('ea53baeb-763d-55de-8a3a-2a2f78ba44aa', 'Lease Number 5', 'EQUIPMENT', '2026-05-15', NULL, 'DRAFT', 52.50, '09391d74-bd0e-588d-b9dd-b0af10ace3be', 'c1c8fa67-c1bd-5121-bbc2-bbf7217e5eb3', 'final', NOW(), NOW())
+VALUES ('ea53baeb-763d-55de-8a3a-2a2f78ba44aa', 'Lease 5', 'EQUIPMENT', '2026-05-15', NULL, 'DRAFT', 52.50, '09391d74-bd0e-588d-b9dd-b0af10ace3be', 'c1c8fa67-c1bd-5121-bbc2-bbf7217e5eb3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Facility (bus_facility)

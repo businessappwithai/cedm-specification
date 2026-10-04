@@ -27,8 +27,14 @@ for domain in "$@"; do
   echo "==> $domain $(date +%H:%M)"
   gen=FAIL; smoke=-; tests=-; findings=-
 
-  bash scripts/generate-domain-applications.sh "$domain" >"$dir/generate.log" 2>&1 && gen=ok
-  if [ "$gen" = ok ] && bash scripts/serve-application.sh "$domain" >"$dir/serve.log" 2>&1; then
+  # QA_SKIP_GENERATE=1 tests the application as committed, without
+  # regenerating it from whatever the working tree's generator holds.
+  if [ "${QA_SKIP_GENERATE:-0}" = 1 ]; then
+    gen=committed
+  else
+    bash scripts/generate-domain-applications.sh "$domain" >"$dir/generate.log" 2>&1 && gen=ok
+  fi
+  if [ "$gen" != FAIL ] && bash scripts/serve-application.sh "$domain" >"$dir/serve.log" 2>&1; then
     timeout 1800 bun scripts/qa/smoke-application.mjs "$domain" --shots >"$dir/smoke.json" 2>"$dir/smoke.err"
     smoke=$?
     findings=$(python3 -c "import json,sys;print(len(json.load(open('$dir/smoke.json'))['findings']))" 2>/dev/null || echo "?")
@@ -42,7 +48,7 @@ for domain in "$@"; do
       [ -n "$tests" ] || tests="no-result"
     fi
   else
-    [ "$gen" = ok ] && gen="serve-failed"
+    [ "$gen" != FAIL ] && gen="serve-failed"
   fi
 
   bash scripts/serve-application.sh --stop "$domain" >/dev/null 2>&1

@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-31
 **Target:** http://localhost:3001 (TanStack Start) + http://localhost:3000/api (NestJS)
-**Source model:** `examples/drug-discovery.eml.mmd` — 17 entities, 7 categories
+**Source model:** `examples/drug-discovery.eml.yaml` — 17 entities, 7 categories
 **Tier:** Standard
 **Branch:** `claude/drug-discovery-categories-qa-fon34w`
 **Framework:** TanStack Start (vinxi) + React 18, NestJS + Fastify + Kysely, PostgreSQL 16
@@ -168,7 +168,7 @@ picked a port at random. Now `vinxi dev --port 3001`.
 
 Everything the feature promises, exercised in the browser:
 
-- **Declared in the model.** 7 `%%category` directives in `drug-discovery.eml.mmd`.
+- **Declared in the model.** 7 `categories` in `drug-discovery.eml.yaml`.
 - **Seeded.** `sys_category` holds 7 rows; all 17 bus entities carry a
   `sys_category_id`; 0 uncategorised.
 - **Maintained at `/admin/categories`.** Created "Analytics and Reporting" through the

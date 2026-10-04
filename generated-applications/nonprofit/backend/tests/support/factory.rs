@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-01T09:33:37.362Z
+//! Generated: 2026-10-04T01:12:25.610Z
 //! Project: nonprofit
 
 #![allow(dead_code)]
@@ -70,7 +70,47 @@ pub fn value_for(field: &FieldMeta) -> Value {
         // A reference with no resolved parent still has to be a UUID or the
         // API rejects the shape before it ever checks the row exists.
         FieldType::Reference => json!("00000000-0000-4000-8000-000000000000"),
-        FieldType::String | FieldType::Text => json!(format!("e2e-{}-{token}-{n}", field.name)),
+        FieldType::String | FieldType::Text => {
+            json!(fit(field, format!("e2e-{}-{token}-{n}", field.name), n))
+        }
+    }
+}
+
+/// A fresh value for `field` that carries `label` when the column is long
+/// enough to hold it, for the tests that write a marker and read it back.
+pub fn marked(field: &FieldMeta, label: &str) -> String {
+    let (_, offset) = run();
+    let n = unique() + offset;
+    fit(field, format!("{label}-{}", uuid::Uuid::new_v4()), n)
+}
+
+/// A string no other row holds, no longer than the column allows.
+///
+/// A column with a short limit (a two-letter country code) cannot hold the
+/// readable `e2e-<field>-<run>-<n>` form, so it gets a symbol followed by the
+/// counter in base 36 — which keeps it clear of the codes the reference data
+/// seeds, all of which are letters or digits. The low digits are the ones that vary, so cutting from
+/// the left keeps every value in a run distinct for as long as the limit
+/// allows.
+fn fit(field: &FieldMeta, readable: String, n: u64) -> String {
+    match field.max_length {
+        Some(limit) if readable.len() > limit => {
+            // The first character is a symbol, so the value cannot equal a seeded
+            // ISO code: those are letters (language, country, currency) or
+            // digits (a country's numeric code), never punctuation.
+            const SYMBOLS: &[u8] = b"!#$%&*+=?@^~";
+            let tail = limit.saturating_sub(1);
+            let mut rest = n;
+            let mut low = Vec::with_capacity(tail);
+            for _ in 0..tail {
+                low.push(char::from_digit((rest % 36) as u32, 36).unwrap_or('0'));
+                rest /= 36;
+            }
+            low.reverse();
+            let lead = SYMBOLS[(rest % SYMBOLS.len() as u64) as usize] as char;
+            std::iter::once(lead).chain(low).collect()
+        }
+        _ => readable,
     }
 }
 
@@ -150,6 +190,21 @@ async fn create_inner(
         let Some(parent) = parent_of(fk) else {
             continue;
         };
+        // A narrowed lookup (a state within a country, a city within a state)
+        // only accepts a row the record's other choices allow, so the parent is
+        // taken from the lookup the form itself would use, given what has
+        // already been chosen. A column that is not narrowed answers with the
+        // target's rows unfiltered, which is what `any_record_id` returns too.
+        match narrowed_choice(request, token, entity, fk, &payload).await {
+            Choice::Row(id) => {
+                payload.insert(fk.name.to_string(), json!(id));
+                continue;
+            }
+            // Optional, and nothing in the table fits what is already chosen:
+            // leaving it unset is a valid record, a mismatched one is not.
+            Choice::NoneFits if !fk.required => continue,
+            Choice::NoneFits | Choice::Unavailable => {}
+        }
         if let Some(id) = any_record_id(request, token, parent, in_flight).await {
             payload.insert(fk.name.to_string(), json!(id));
         }
@@ -192,6 +247,47 @@ async fn create_inner(
         .await;
 
     (retry.status_code() == 201).then(|| retry.json::<Value>())
+}
+
+enum Choice {
+    Row(String),
+    NoneFits,
+    Unavailable,
+}
+
+/// The first row `fk`'s lookup offers, given the values already in `payload`.
+async fn narrowed_choice(
+    request: &TestServer,
+    token: &str,
+    entity: &EntityMeta,
+    fk: &FieldMeta,
+    payload: &Map<String, Value>,
+) -> Choice {
+    let controls: Vec<String> = payload
+        .iter()
+        .filter(|(key, _)| key.ends_with("_id"))
+        .filter_map(|(key, value)| value.as_str().map(|id| format!("&{key}={id}")))
+        .collect();
+    let response = request
+        .get(&format!(
+            "/api/bus/{}/lookup/{}?limit=1{}",
+            entity.route,
+            fk.name,
+            controls.concat()
+        ))
+        .add_header("authorization", bearer(token))
+        .await;
+    if response.status_code() != 200 {
+        return Choice::Unavailable;
+    }
+    match super::rows(&response.json::<Value>())
+        .first()
+        .and_then(|row| row.get("id"))
+        .and_then(Value::as_str)
+    {
+        Some(id) => Choice::Row(id.to_string()),
+        None => Choice::NoneFits,
+    }
 }
 
 /// An existing row's id for `entity`, creating one if the table is empty.

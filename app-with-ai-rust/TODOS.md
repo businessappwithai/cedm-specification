@@ -7,11 +7,11 @@ Work deferred from the Better Auth + Trigger.dev + GoRules enhancement plan.
 ## Open from QA, 2026-08-07
 
 Found running `/qa` over the generator and the app it generates from
-`examples/drug-discovery.eml.mmd`. Seven defects were fixed in that pass (see
+`examples/drug-discovery.eml.yaml`. Seven defects were fixed in that pass (see
 `docs/qa/2026-08-07-generator-and-generated-app.md`); these three
 are decisions rather than fixes.
 
-### A. `%%rule` sections are never generated into the app — HIGH
+### A. `rules` sections are never generated into the app — HIGH
 
 The model declares three business rules. `eml info` lists all three.
 `sys_rule_definitions` in the generated app is empty, and the generator has no
@@ -20,8 +20,8 @@ and `workflows.sql`.
 
 The engine is not the problem: `scripts/qa/rules-matrix.ts` re-encodes all
 three rules as JDM by hand and the app enforces them correctly. What is missing
-is the compiler — a `%%rule` flowchart → JDM path plus a `seed/rules.sql`,
-mirroring what `src/workflows/saga.ts` already does for `%%step`. Comparable in
+is the compiler — a `rules` flowchart → JDM path plus a `seed/rules.sql`,
+mirroring what `src/workflows/saga.ts` already does for saga `steps`. Comparable in
 size to the saga compiler, which is why it was not built inside a QA pass.
 
 This is the largest remaining gap between what a model says and what its app does.
@@ -260,8 +260,8 @@ These items were considered but explicitly rejected:
 All four deferred findings fixed on main, 2026-07-30:
 
 - **Database consistency** — Init panel placeholder/default changed to `postgresql://…:5432/…`; helper text updated; `.env.example` switched to PostgreSQL vars (`PGHOST`, `PGPORT`, etc.); `database.service.ts` header comment updated from MariaDB to PostgreSQL.
-- **EML `%%rule` ingestion** — `extractRuleFlowcharts()` added to `rules-design.tsx`; on first load the editor now seeds from the first `%%rule` flowchart in `project.erdCode` instead of the hardcoded "Order Discount" placeholder.
-- **`(round)` node shape** — `NodeShape` union extended with `"round"`; `parseNodeDef` branch added for `^\((.+?)\)` in `mermaid-flowchart-parser.ts`.
+- **EML `rules` ingestion** — `extractRuleFlowcharts()` added to `rules-design.tsx`; on first load the editor now seeds from the first `rules` flowchart in `project.erdCode` instead of the hardcoded "Order Discount" placeholder.
+- **`(round)` node shape** — `NodeShape` union extended with `"round"`; `parseNodeDef` branch added for `^\((.+?)\)` in `the flowchart parser`.
 - **Console pipe amplification** — `routes/api/db/reverse-engineer.ts` and `generate-schema.ts` migrated from `@tanstack/start/api` (deprecated, emits `console.warn` on every load) to `@tanstack/start-api-routes` (the underlying package, no warning); `@tanstack/start-api-routes` added as an explicit web dependency.
 
 ---
@@ -299,7 +299,7 @@ them up. Full report with evidence: [docs/qa/qa-report-drug-discovery-2026-07-31
 
 ### Not fixed — model authoring, not a defect
 
-`drug-discovery.eml.mmd` declares `booked_by`, `reported_by` and `registered_by` as
+`drug-discovery.eml.yaml` declares `booked_by`, `reported_by` and `registered_by` as
 plain strings rather than `_id`-suffixed foreign keys, so the generator cannot derive
 the referenced table and those columns render as UUIDs. The EML checker already flags
 this as `EML114`. Renaming them in the model is the fix.

@@ -6,7 +6,7 @@ Status: implemented locally; verification results and operating notes below.
 
 ## Outcome
 
-Every explicit draft save, named model version, restore, and successful generation has a recoverable local Git snapshot. The Versions panel explains which model produced which application. Existing Mermaid files, rules, workflows, and generated source are imported without losing existing edits or rewriting history.
+Every explicit draft save, named model version, restore, and successful generation has a recoverable local Git snapshot. The Versions panel explains which model produced which application. Existing diagram files, rules, workflows, and generated source are imported without losing existing edits or rewriting history.
 
 Recommended boundary: one local Git repository per generated project, inside its configured output directory. The APPWITHAI development repository continues tracking the tool itself. A remote repository, pushing, remote collaboration, and arbitrary repository attachment are separate work.
 
@@ -14,9 +14,9 @@ Recommended boundary: one local Git repository per generated project, inside its
 
 - `packages/web/src/routes/projects/$id/design.tsx:708`: `handleSave` calls `updateErdCode` for both save actions and additionally calls `saveErdVersion` for a named version.
 - `packages/web/src/store/projectStore.ts:201`: both store methods create an ERD version. Consequently drafts are currently versions and a named save can create two records.
-- The design handler separately posts a canonical Mermaid file; it does not check the HTTP response and treats thrown failures as non-blocking.
+- The design handler separately posts a canonical diagram file; it does not check the HTTP response and treats thrown failures as non-blocking.
 - `packages/core/src/services/database.service.ts`: ERD history is stored in `erd_versions`; restore changes the current flag. Version numbering and current-flag changes are separate statements.
-- `packages/web/src/routes/api/mermaid/index.ts`: diagrams and metadata live in a shared `.mermaid-library`, with filenames based on project names rather than project IDs. Equal names can collide.
+- The diagram-library API route: diagrams and metadata live in a shared diagram library, with filenames based on project names rather than project IDs. Equal names can collide.
 - `packages/web/src/routes/api/generate.ts`: generation writes a model to a shared `models` directory, then invokes the existing CLI against the project output directory with `--force`. Successful generation updates the database path; no Git snapshot is created here.
 - Workflow drafts also exist in the database. They must be included in the artifact inventory, not treated as ERD-only data.
 - Generated output is excluded from the tool repository by `.gitignore`.
@@ -48,11 +48,11 @@ Identical repeated requests are idempotent. Unchanged drafts return the existing
     model.ai.yaml                # deterministic YAML projection of saved EML
     generated-model.ai.yaml      # projection of the captured generator input
   model/
-    model.eml.mmd                # exact composed input to generation
-    diagrams/<stable-id>.mmd     # original diagrams, by stable ID
+    model.eml.yaml                # exact composed input to generation
+    diagrams/<stable-id>.json    # original diagrams, by stable ID
     workflows/<stable-id>.json   # configuration not represented in EML
     workflows.json               # restorable database projection
-    editor.eml.mmd               # exact editable draft
+    editor.eml.yaml              # exact editable draft
   backend/
   frontend/
   tests/
@@ -67,7 +67,7 @@ Git owns immutable file history. The database remains responsible for access, pr
 
 ### 1. Inventory and establish repository boundaries
 
-Resolve the output root once on the server, using `DEFAULT_OUTPUT_DIR` and a consistent fallback. Inventory the target's existing generated directory, shared Mermaid entries, current ERD, historical versions, workflows, rules, and enhancement artifacts. Produce a manifest of what will be imported and report ambiguous ownership or duplicate filenames.
+Resolve the output root once on the server, using `DEFAULT_OUTPUT_DIR` and a consistent fallback. Inventory the target's existing generated directory, shared diagram-library entries, current ERD, historical versions, workflows, rules, and enhancement artifacts. Produce a manifest of what will be imported and report ambiguous ownership or duplicate filenames.
 
 Add one server-only repository service and one migration. Reuse the Git executable through argument arrays, without shell interpolation. Validate Git availability, project ownership, real paths, symlinks, and repository top-level identity; Git must never fall back to the enclosing tool repository. Do not change global Git identity. Use the authenticated author plus a repository-local application committer.
 
@@ -75,13 +75,13 @@ Use project-scoped database locking to serialize repository mutations across ser
 
 ### 2. Unify model saves and history
 
-Replace the browser's sequence of database and Mermaid writes with one project-scoped save endpoint, using `draft` or `version` mode. Reuse the existing history and restore API surfaces wherever possible. Server-only imports remain lazy, and every endpoint checks project access before filesystem or Git work.
+Replace the browser's sequence of database and diagram-library writes with one project-scoped save endpoint, using `draft` or `version` mode. Reuse the existing history and restore API surfaces wherever possible. Server-only imports remain lazy, and every endpoint checks project access before filesystem or Git work.
 
 Store the draft separately from the current named version. Update project loading to prefer the saved draft where appropriate. Add commit references and snapshot kind to named-version metadata. Allocate version numbers and update current flags in a database transaction under the project lock; add uniqueness constraints after auditing existing data.
 
 Persist a prepared operation before writing. Write files atomically, commit only the operation's allowlisted paths, then finalize the database projection. If Git succeeds but finalization fails, retain the operation ID and reconcile to that same commit on retry. Never report fully saved until both sides agree. Return an explicit pending/error state and preserve the editor contents on failure.
 
-Mermaid library reads should resolve the same project files or a derived index. Remove the independent canonical-file save from the browser. Route any retained library write API through the same repository service so it cannot bypass history.
+Diagram-library reads should resolve the same project files or a derived index. Remove the independent canonical-file save from the browser. Route any retained library write API through the same repository service so it cannot bypass history.
 
 ### 3. Integrate generation without losing custom code
 
@@ -178,7 +178,7 @@ Acceptance requires a verified inventory of the target project's files, a baseli
 
 The archive is integrated as the private workspace package `@appwithai/yamltecture` under `packages/yamltecture`. Its license and research notes are retained. Attached documentation was treated as reference material, not instructions to execute.
 
-Pure modules provide architecture validation/merge/query, EML extraction, deterministic YAML, and generic Mermaid visualization. The existing language checker and application generator remain authoritative. Browser-safe exports contain no filesystem/process or application database dependency. Git utilities require a host-supplied port; they cannot bypass the application's access checks or recovery coordinator.
+Pure modules provide architecture validation/merge/query, EML extraction, deterministic YAML, and generic diagram visualization. The existing language checker and application generator remain authoritative. Browser-safe exports contain no filesystem/process or application database dependency. Git utilities require a host-supplied port; they cannot bypass the application's access checks or recovery coordinator.
 
 Every new model save, historical import, restore and generation records its corresponding YAML projection. The assistant receives bounded entity context and recent YAML changes. The history panel can download the saved YAML and a relationship diagram. Read context is project-authorized and validates historical commit IDs. Legacy snapshots without YAML derive it from their immutable EML on demand.
 

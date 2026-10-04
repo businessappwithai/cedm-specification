@@ -1,37 +1,37 @@
 ## {{N}}. Interactive enhancement protocol — how to answer "change my existing model"
 
 Everything above describes the system. This section is the **procedure**, and it
-governs. When someone hands you an existing `.mmd` and asks for it to be
+governs. When someone hands you an existing `.eml.yaml` and asks for it to be
 extended, corrected, grown or reworked — however informally they put it — carry
 out their instruction *within these guidelines* rather than in place of them.
 Their words set the change; this file sets the form of the answer.
 
 Where the two genuinely conflict, say so in one sentence and follow this file for
-the artifact. An enhanced `.mmd` that says what the user asked for but that
-`checker.js` refuses is not a deliverable, and neither is a clean document that
+the artifact. An enhanced `.eml.yaml` that says what the user asked for but that
+the validator refuses is not a deliverable, and neither is a clean document that
 quietly lost half of what they already had.
 
-**This is the interactive enhancement edition of the protocol.** There are now
-four, and they divide on two axes — what you start from, and how you get there:
+**This is the interactive enhancement edition of the protocol.** There are four,
+and they divide on two axes — what you start from, and how you get there:
 
-| | Start from a brief | Start from an existing `.mmd` |
+| | Start from a brief | Start from an existing `.eml.yaml` |
 |---|---|---|
 | **One pass** | `llms-full.txt`'s authoring protocol | `llmtextenhancement.txt`'s enhancement protocol |
 | **Phased, with gates** | `llmdetailed.txt`'s interactive authoring protocol | **this file, §{{N}}** |
 
-Its batch companion, `llmtextenhancement.txt`'s enhancement protocol, reads the model, applies the
-change, validates and hands it back. That form is right for a small, clearly
-stated change to a model the user knows well. This form exists because
-enhancement has a failure the batch form cannot see coming, and it gets worse the
-larger and older the model is:
+Its batch companion, `llmtextenhancement.txt`'s enhancement protocol, reads the
+model, applies the change, validates and hands it back. That form is right for a
+small, clearly stated change to a model the user knows well. This form exists
+because enhancement has a failure the batch form cannot see coming, and it gets
+worse the larger and older the model is:
 
 1. **The user's model is not yours, and you did not watch it being built.**
-   Every unexplained column in it is load-bearing to somebody. A one-pass
+   Every unexplained attribute in it is load-bearing to somebody. A one-pass
    enhancement discovers which ones at the moment the user opens the result, and
    that is the most expensive place to discover it.
 2. **What an enhancement destroys, no diagnostic reports.** A model that lost
-   four `%%report` directives, an entity's help text and two `%%rbac` lines
-   checks exactly as clean as one that did not. The checker answers *would the
+   four `reports` entries, an entity's help text and two `rbac` entries validates
+   exactly as clean as one that did not. The validator answers *would the
    generator accept this*; nothing answers *is this still their model*.
 3. **The change is thinner than the change it implies.** "Add invoicing" is four
    entities, an enum, a lifecycle, a rule about overdue balances, a role that can
@@ -46,21 +46,21 @@ reconstructed at the end from whatever is still in context.
 Phase 1  Load and inventory the model   →  Gate A  inventory approved
 Phase 2  Agree the change roster        →  Gate B  roster approved
 Phase 3  Baseline the working copy      ←  the parallel build starts here
-Phase 4  Walk each change, one at a time→  Gate C  per change, then merge + check
+Phase 4  Walk each change, one at a time→  Gate C  per change, then fix + validate
 Phase 5  Cross-cutting pass             →  Gate D  ripple, access, reports, coverage
 Phase 6  Validate to clean, and prove nothing was lost  →  Gate E
 Phase 7  Deliver
 
-        from Phase 3 onward, every step ends:  edit → fixer → checker → clean
+        from Phase 3 onward, every step ends:  edit → fixer → validator → clean
         and every step also ends:  inventory → compare → nothing lost
 ```
 
 Do not skip a phase, do not cross a gate the user has not approved, and do not
-open a step while the last one left the `.mmd` dirty or the inventory short.
+open a step while the last one left the `.eml.yaml` dirty or the inventory short.
 
 A gate waits on the *user*, and on nothing else. In particular it never waits on
-a network call: if the published checker cannot be reached, §{{N}}.6 says what to
-do and the answer is to carry on with the model's status stated, never to hold
+a network call: if the published validator cannot be reached, §{{N}}.6 says what
+to do and the answer is to carry on with the model's status stated, never to hold
 the phase open.
 
 ### {{N}}.0 How to run this protocol
@@ -70,15 +70,16 @@ is not research and it is not a conversation about the business — it is readin
 the bytes the user is going to hand you. Ask for them in your first message and
 do not begin without them:
 
-> Send me the `.mmd` you want enhanced — attach the file, or paste its contents
-> in a single fenced block — and tell me what you want changed. I will read it
-> first and show you what is in it today, before I change anything.
+> Send me the `.eml.yaml` you want enhanced — attach the file, or paste its
+> contents in a single fenced block — and tell me what you want changed. I will
+> read it first and show you what is in it today, before I change anything.
 
 **Never reconstruct the model.** Not from a summary, not from the conversation,
 not from a version you wrote earlier, not from an example that resembles it. A
 reconstruction is a new model wearing the old one's name, and everything
-hand-written in the original is gone from it without a diagnostic firing. If you
-do not have the bytes, you do not have the model — ask again.
+hand-written in the original — help text, report queries, the comments that
+record why — is gone from it without a diagnostic firing. If you do not have the
+bytes, you do not have the model — ask again.
 
 **Ask, do not announce.** Every gate is an `AskUserQuestion` call (or the
 equivalent in whatever surface you are running on) — one question at a time, with
@@ -119,7 +120,7 @@ look, ask for a change, look again, and approve when they are satisfied:
 ```
    present  →  the user looks  →  approve      →  next phase
                      │                ↑
-                     └──  amend  ──────┘   re-present, re-check, re-show
+                     └──  amend  ──────┘   re-present, re-validate, re-show
 ```
 
 Offer the middle arm explicitly, every time — *"tell me what to change and I will
@@ -128,50 +129,48 @@ something they are not happy with rather than restart a phase. There is no limit
 on how many times a gate loops.
 
 **Show the model, do not only describe it.** Every gate from Phase 3 onward asks
-the user to approve something they cannot read in `.mmd` source: an entity's
-columns and their controls, a lifecycle's legal moves, a decision flow's
-branches, who ends up able to see what. Mermaid renders the ERD and nothing
-else — the rules, the workflows, the enums and the access control are `%%`
-directives it treats as comments — so a stakeholder pointed at a Mermaid preview
-is being shown the smallest part of what they are approving.
+the user to approve something that is hard to see in YAML source: an entity's
+attributes and their controls, a lifecycle's legal moves, a decision flow's
+branches, who ends up able to see what. A stakeholder pointed at the document
+alone is being asked to read structure out of indentation.
 
 **The viewers are at `https://www.appwithai.org/viewers/`**, and they draw all of
-it — entities with their columns, badges and help text, relationships in crow's
-foot notation, state machines with the moves the generated API will allow, sagas
-as an ordered ladder, decision tables as tables, and the roles with the entity
-counts each one gets. They matter more in enhancement than in authoring, because
-the question here is not only *is this right* but *is this still what I had*, and
-the **Workflows**, **Business rules** and **Access** tabs are where a loss shows
-up as a picture rather than as a number. Tell the user about it **once, at
-Phase 1**, when the model they already own is the thing on screen.
+it from the YAML document — entities with their attributes, badges and help
+text, relationships in crow's foot notation, state machines with the moves the
+generated API will allow, sagas as an ordered ladder, decision tables as tables,
+and the roles with the entity counts each one gets. They matter more in
+enhancement than in authoring, because the question here is not only *is this
+right* but *is this still what I had*, and the **Workflows**, **Business rules**
+and **Access** tabs are where a loss shows up as a picture rather than as a
+number. Tell the user about it **once, at Phase 1**, when the model they already
+own is the thing on screen.
 
 Three ways in, and the first is the one to recommend: **Watch a file** re-reads
-the `.mmd` from disk as it changes, so the picture keeps up with the walkthrough
-without the user doing anything (Chromium-family browsers only — it needs the
-File System Access API). **Open a file** and **paste** work everywhere.
+the `.eml.yaml` from disk as it changes, so the picture keeps up with the
+walkthrough without the user doing anything (Chromium-family browsers only — it
+needs the File System Access API). **Open a file** and **paste** work everywhere.
 
 It is not a second opinion about the document. The page reads the model with the
-same parser, rule compiler, workflow compiler and RBAC derivation the generator
-runs, and it reports the same checker verdict as §{{N}}.6 — so what it draws is
+same reader, rule compiler, workflow compiler and RBAC derivation the generator
+runs, and it reports the same validator verdict as §{{N}}.6 — so what it draws is
 what `appwithai generate` will build, and a diagnostic shown there is a real
 diagnostic. It is a picture of the model, never an approval of it: the gates are
 still yours to ask for.
 
 **Hand over the file at every gate, do not merely mention the page.** A reader on
-a chat surface has no access to the `.mmd` on your disk. Attach the current
+a chat surface has no access to the `.eml.yaml` on your disk. Attach the current
 working copy to the message that opens the gate; they load it with **Open a
 file** and look at the version being approved rather than the version two changes
 ago. Ask once, at Gate B, how often they want it — every gate, phase boundaries
 only, or on request — and then keep to that.
 
-**What the viewer catches that the checker cannot.** The checker answers *would
-the generator accept this document*. It does not answer *is this the application
-you meant*, and in enhancement it does not answer *is anything missing* either.
-An entity the parser silently dropped, a lifecycle whose states no `%%enum`
-declares, a role that used to read nine entities and now reads two, a decision
-table with a row that can never match — each of those is a clean report and a
-broken application. Look at the picture before closing a gate, not only at the
-counts.
+**What the viewer catches that the validator cannot.** The validator answers
+*would the generator accept this document*. It does not answer *is this the
+application you meant*, and in enhancement it does not answer *is anything
+missing* either. A role that used to read nine entities and now reads two, a
+lifecycle with a state nothing reaches, a decision table with a row that can
+never match — each of those is a clean report and a broken application. Look at
+the picture before closing a gate, not only at the counts.
 
 **Resume before you restart.** On invocation, look for `docs/eml-sessions/*/`
 first. If a session exists whose `progress.md` shows unfinished work, show its
@@ -179,19 +178,19 @@ state and offer to resume it. Starting a second enhancement session against the
 same model is how two divergent copies of one document get built, and the user
 will end up choosing between them without knowing what is in either.
 
-**The checker and the fixer run at every step, not at the end.** Phase 6 is where
-validation *finishes*, not where it starts. From the moment the working copy
-exists (§{{N}}.3) there is a real document on disk, and from then on **every step
-that touches the `.mmd` closes the same way**:
+**The fixer and the validator run at every step, not at the end.** Phase 6 is
+where validation *finishes*, not where it starts. From the moment the working
+copy exists (§{{N}}.3) there is a real document on disk, and from then on
+**every step that touches the `.eml.yaml` closes the same way**:
 
 ```
-   edit the .mmd  →  fixer  →  checker  →  clean?  ──yes──→  inventory compare
-                       ↑                     │                      │
-                       └────── no ───────────┘              nothing lost?  ──→  gate
+   edit the .eml.yaml  →  fixer  →  validator  →  clean?  ──yes──→  inventory compare
+                            ↑                        │                       │
+                            └──────── no ────────────┘               nothing lost?  ──→  gate
 ```
 
 Both tools, in that order, every time — the fixer first because the auto-fixable
-codes (§{{N}}.6) are noise the user should never be asked about, the checker
+codes (§{{N}}.6) are noise the user should never be asked about, the validator
 after because the fixer's own repairs can leave a new diagnostic behind. The
 tools are the ones in §{{N}}.6; run them there once and reuse the command.
 
@@ -205,7 +204,7 @@ it.
 Four rules hold that loop honest:
 
 - **No gate closes over a document with errors.** Not Gate C, not Gate D. A step
-  that ends with an unchecked or dirty `.mmd` has not ended — it has been
+  that ends with an unvalidated or dirty `.eml.yaml` has not ended — it has been
   abandoned in the middle, and the next step will build on it.
 - **No gate closes over a document that lost something.** Put back what fell
   before you present the gate, or name the loss and ask for it, if the user's own
@@ -234,22 +233,22 @@ once when you create it.
 
 ```
 <project root>/docs/eml-sessions/<business-slug>-enhancement-<yyyy-mm-dd>/
-├── progress.md            # phase, gate status, per-change state — the resume file
-├── 00-original.mmd        # ⭐ the model exactly as received. Never edited
-├── 00-inventory.md        # Phase 1 — what the model contains today, and its baseline report
-├── 01-changes.md          # Phase 2 — the change roster
-├── changes/<NN>-<slug>.md # one dossier per change, Phase 4
-├── 02-cross-cutting.md    # Phase 5
-├── <business-slug>.mmd    # ⭐ the working copy, enhanced one change at a time
-└── 03-validation.md       # Phase 6 checker log, and the regression table
+├── progress.md                # phase, gate status, per-change state — the resume file
+├── 00-original.eml.yaml       # ⭐ the model exactly as received. Never edited
+├── 00-inventory.md            # Phase 1 — what the model contains today, and its baseline report
+├── 01-changes.md              # Phase 2 — the change roster
+├── changes/<NN>-<slug>.md     # one dossier per change, Phase 4
+├── 02-cross-cutting.md        # Phase 5
+├── <business-slug>.eml.yaml   # ⭐ the working copy, enhanced one change at a time
+└── 03-validation.md           # Phase 6 validator log, and the regression table
 ```
 
-`00-original.mmd` is the point of the directory. It is written once, in Phase 1,
-and nothing in this protocol ever writes to it again — it is what Phase 6's
-regression comparison is run against, and what answers "did I break that or did I
-find it broken?" every time the question comes up.
+`00-original.eml.yaml` is the point of the directory. It is written once, in
+Phase 1, and nothing in this protocol ever writes to it again — it is what
+Phase 6's regression comparison is run against, and what answers "did I break
+that or did I find it broken?" every time the question comes up.
 
-`<business-slug>` is taken from the model's own `%%meta name:`, lower-cased and
+`<business-slug>` is taken from the model's own `name`, lower-cased and
 hyphenated, so the working copy keeps the name the user's file already had.
 
 #### `progress.md` — the resume file
@@ -260,8 +259,8 @@ Rewrite it at every gate. It is the only thing a resumed session can trust:
 # acme-dance-studio — enhancement progress
 Phase: 4 (change walkthrough)  ·  Updated: 2026-03-11
 
-Original: 00-original.mmd  ·  9 entities · 41 rbac · 12 reports · 0e 0w on arrival
-Working:  acme-dance-studio.mmd  ·  11 entities · 47 rbac · 12 reports · 0e 0w
+Original: 00-original.eml.yaml  ·  9 entities · 41 rbac · 12 reports · 0e 0w on arrival
+Working:  acme-dance-studio.eml.yaml  ·  11 entities · 47 rbac · 12 reports · 0e 0w
 
 | Gate | State |
 |---|---|
@@ -289,46 +288,51 @@ inventory compare regardless of which mode they pick.
 
 **Read the file the user sent, and nothing else.** Accept it as an attachment, a
 pasted fenced block, a path or a URL. If it arrives inside a fence, take the
-block's contents verbatim and strip only the fence markers. If several files
-arrive, ask which one is the model rather than merging them.
+block's contents verbatim and strip only the fence markers — indentation is
+syntax in YAML, so every leading space stays. If several files arrive, ask which
+one is the model rather than merging them.
 
 If the user describes a model instead of sending one, stop and say so: that is
-the authoring protocol's job, and `llmdetailed.txt`'s interactive authoring protocol builds a model from a
-description. This protocol has nothing to enhance until a file exists.
+the authoring protocol's job, and `llmdetailed.txt`'s interactive authoring
+protocol builds a model from a description. This protocol has nothing to
+enhance until a file exists.
 
-Write it to `00-original.mmd` the moment you have it, before you read it
+Write it to `00-original.eml.yaml` the moment you have it, before you read it
 closely. Then do two things to it.
 
-**Check it, as received.** Run the fixer and the checker over the original bytes
-(§{{N}}.6) and record the counts in `00-inventory.md`. This is the baseline. A
-model that arrives dirty is ordinary and is not a reason to stop — it is a reason
-to know, because every diagnostic at Phase 6 will otherwise be indistinguishable
-from one you caused. Do not repair the user's document under cover of their
-request; note what is there and raise it at Gate A as a question of its own.
+**Validate it, as received.** Run the fixer and the validator over the original
+bytes (§{{N}}.6) and record the counts in `00-inventory.md`. This is the
+baseline. A model that arrives dirty is ordinary and is not a reason to stop — it
+is a reason to know, because every diagnostic at Phase 6 will otherwise be
+indistinguishable from one you caused. Do not repair the user's document under
+cover of their request; note what is there and raise it at Gate A as a question
+of its own.
 
-**Inventory it.** Read the whole document — every line, not the parts the request
+**Inventory it.** Read the whole document — every key, not the parts the request
 seems to touch — and write down what is in it:
 
 | Count | Read from |
 |---|---|
-| Entities, by name | Every entity block in every `erDiagram` |
-| Columns per entity | The attribute lines inside each block |
-| Relationships | Every cardinality line |
-| Enums, and their values | Every `%%enum` |
-| Enum bindings | Every `%%field … enum:` |
-| Help text | Every `%%entity … help:` and `%%field … help:` |
-| Rules, and their actions | Every `%%rule` flowchart and every `%%action` |
-| Workflows, by `kind:` | Every `%%workflow` |
-| States and transitions | Every `stateDiagram-v2` |
-| Hooks | Every `%%hook` |
-| Roles, and the entities each reads | Every `%%rbac` |
-| Reports | Every `%%report` |
-| Indexes, categories, parents | Every `%%index`, `%%category`, `%%entity … parent:` |
+| Entities, by name | Every item under `entities` |
+| Attributes per entity | Each entity's `attributes` |
+| Relationships | Every item under `relationships` |
+| Enums, and their values | Every item under `enums`, with its `values` |
+| Enum bindings | Every attribute carrying `enum` |
+| Help text | Every entity's and every attribute's `help` |
+| Rules, and their actions | Every item under `rules`, with its `actions` |
+| State machines, states and transitions | Every item under `stateMachines` |
+| Sagas and their steps | Every item under `sagas` |
+| Hooks | Every item under `hooks` |
+| Roles, and the entities each reads | Every item under `rbac` |
+| Reports | Every item under `reports` |
+| Indexes, categories, parents | Every entity's `indexes`, every item under `categories`, every entity's `parent` |
+| Comments | Every `#` line — the author's reasons, which a parser round trip would drop |
 
 Note the document's **conventions** as well as its contents: how entities are
-named, whether columns are snake_case, whether help text is a sentence or a
-phrase, what order the sections come in. Everything you add has to look like the
-person who wrote the rest wrote it too.
+named, whether attributes are snake_case, whether help text is a sentence or a
+phrase, whether it writes flow mappings or block mappings, what order its keys
+come in. Everything you add has to look like the person who wrote the rest wrote
+it too.
 
 **Gate A — the inventory.** Present `00-inventory.md` and ask the user to confirm
 it is their model and that nothing in it surprises them. This is the gate that
@@ -350,9 +354,9 @@ walk in a single step at Phase 4, and each one classified:
 
 | Class | Means |
 |---|---|
-| **Add** | Something the model does not have today: an entity, a column, an enum value, a rule, a role, a report |
+| **Add** | Something the model does not have today: an entity, an attribute, an enum value, a rule, a role, a report |
 | **Extend** | Something that exists gains a part: a lifecycle gains a state, an enum gains a value, an entity gains a relationship |
-| **Change** | Something that exists becomes different: a retyped column, a renamed entity, a rewritten rule |
+| **Change** | Something that exists becomes different: a retyped attribute, a renamed entity, a rewritten rule |
 | **Remove** | Something goes. Only ever because the user asked, and never as a side effect of something else |
 
 For each change, state in one line what it touches and what it implies. This is
@@ -360,11 +364,11 @@ where the thinness of a request gets made visible: "add invoicing" becomes four
 Add rows, two Extend rows and one Change row, and the user sees the size of what
 they asked for before any of it is written.
 
-**Name the implications as their own rows.** A new entity implies an `%%rbac`
-line per role that works with it, help text on it and every column, and an
-`%%enum` behind any status it carries. A new state implies a widened enum. A
-renamed entity implies every reference to the old name moving with it. These are
-not footnotes to the change; they are part of it, and a roster that hides them
+**Name the implications as their own rows.** A new entity implies an `rbac` read
+entry per role that works with it, help text on it and every attribute, and an
+enum behind any status it carries. A new state implies a widened enum. A renamed
+entity implies every reference to the old name moving with it. These are not
+footnotes to the change; they are part of it, and a roster that hides them
 understates the work at exactly the gate where the user is deciding whether to
 approve it.
 
@@ -379,12 +383,13 @@ file handed over.
 
 ### {{N}}.3 Phase 3 — Baseline the working copy *(the parallel build starts here)*
 
-Copy `00-original.mmd` to `<business-slug>.mmd`. That copy is the working file,
-and from this point on every step edits it, checks it and compares it.
+Copy `00-original.eml.yaml` to `<business-slug>.eml.yaml`. That copy is the
+working file, and from this point on every step edits it, validates it and
+compares it.
 
 Make no change to it in this phase. The point of Phase 3 is to establish that the
-working copy is the original, byte for byte, and that it checks the way the
-original checked — so that the first real difference appears in Phase 4 and is
+working copy is the original, byte for byte, and that it validates the way the
+original validated — so that the first real difference appears in Phase 4 and is
 attributable to a change on the roster.
 
 Run the loop once over the untouched copy, record the result in
@@ -404,34 +409,36 @@ Take the roster in order. For each change, write a dossier to
 the loop, compare the inventory, and open Gate C.
 
 **Plan the Application Dictionary for the change before you edit — this is
-mandatory, and it is where the thinking goes.** For every entity and column the
-enhancement adds or touches, decide in writing, before the first edit: its help
-text (domain knowledge, not its name in a sentence); for a reference, the entity
-it points at and its `FK` modifier; for a status, state or stage, the `%%enum` and
-the `%%field … enum:` binding; its `%%category` and that category's `name:`; and,
-for a step that writes to another entity, which of its rows it aims at
-(`targetSource` or `targetField`; `EML265` otherwise). Then read the model you
-were given for the same six gaps listed below: **a dictionary value the original
-is missing is filled as part of this enhancement**, and each one is named in the
-delivery. It is the one addition you make without being asked, because nothing
-else in the pipeline will ever make it.
+mandatory, and it is where the thinking goes.** For every entity and attribute
+the enhancement adds or touches, decide in writing, before the first edit: its
+help text (domain knowledge, not its name in a sentence); for a reference, the
+entity it points at, `fk: true`, and `references` where the name does not derive
+it; for a status, state or stage, the enum under `enums` and the attribute's
+`enum` binding; its category under `categories`; and, for a step that writes to
+another entity, which of its rows it aims at (`targetSource` or `targetField`;
+`EML265` otherwise). Then read the model you were given for the same gaps listed
+below: **a dictionary value the original is missing is filled as part of this
+enhancement**, and each one is named in the delivery. It is the one addition you
+make without being asked, because nothing else in the pipeline will ever make it.
 
 **Every Application Dictionary value is mandatory, and all of them are filled in
-the `.mmd`.** Six checker codes mean a dictionary value is missing, and the audit
-fails a model that carries any of them. None is advisory, whatever the severity
-of the warning says:
+the `.eml.yaml`.** Five validator codes mean a dictionary value is missing, and
+the audit fails a model that carries any of them. None is advisory, whatever the
+severity of the warning says:
 
 | Code | The value that is missing |
 |---|---|
-| `EML119` | the `FK` modifier on a reference column (`_id` / `_by` resolving to an entity) — without it the lookup is lost |
-| `EML146` | the `%%field … enum:` binding on a status, state or stage column — without it the dropdown is lost |
+| `EML119` | `fk: true` on a reference attribute (`_id` / `_by` resolving to an entity) — without it the lookup is lost |
+| `EML146` | the `enum` binding on a status, state or stage attribute — without it the dropdown is lost |
 | `EML151` | help that describes its subject rather than restating its name |
-| `EML152` | `%%entity <Name> help:` on an entity |
-| `EML153` | `%%field <Entity>.<column> help:` on every column but the primary key |
-| `EML154` | `name:` on a `%%category` — without it the grouping is dropped |
+| `EML152` | `help` on an entity |
+| `EML153` | `help` on every attribute but the primary key |
 
-The delivered file carries none of these six. Not "a few", not "only on the
-obvious columns": none.
+A category without a `name` is not on that list only because it cannot get that
+far: the schema requires the key, so the document is refused at that line.
+
+The delivered file carries none of these five. Not "a few", not "only on the
+obvious attributes": none.
 
 A dossier is short and it is specific. It says what is being changed, what the
 model says about that area today, what it will say afterward, and what else moves
@@ -445,20 +452,20 @@ Order carries `total_amount` and a `paid` boolean. Nothing records how it
 was paid, when, or against what.
 
 ## After
-New entity `Invoice`, parent `Order`, with the columns below.
+New entity `Invoice`, parent `Order`, with the attributes below.
 
-| Column | Type | Modifiers | Enum | Help |
+| Attribute | Type | Flags | Enum | Help |
 |---|---|---|---|---|
-| id | string | PK | — | The invoice's unique identifier. |
-| order_id | string | FK | — | The order this invoice bills for. |
+| id | string | pk | — | The invoice's unique identifier. |
+| order_id | string | fk | — | The order this invoice bills for. |
 | issued_on | date | | — | The date the invoice was sent to the customer. |
 | status | string | | InvoiceStatus | Where the invoice has reached in collection. |
 
 ## Also moves
-- `%%enum InvoiceStatus: draft, issued, paid, overdue, written_off`
-- `%%rbac role:finance on Invoice.read` · `role:sales_manager on Invoice.read`
-- `%%entity Invoice parent: Order`
-- Lifecycle `InvoiceLifecycle`, kind: state, over the five statuses
+- `enums`: `InvoiceStatus` — draft, issued, paid, overdue, written_off
+- `rbac`: `{ entity: Invoice, action: read, roles: [finance, sales_manager] }`
+- `Invoice` gains `parent: Order` and stays out of `categories`
+- `stateMachines`: `InvoiceLifecycle` over the five statuses
 - `Order` gains nothing. Its `paid` boolean stays until change 05 retires it
 
 ## Open questions
@@ -467,30 +474,30 @@ New entity `Invoice`, parent `Order`, with the columns below.
 ```
 
 **Apply one change at a time, and close the loop before opening the next.** The
-discipline is the whole point: a step that ends with a clean checker, an
+discipline is the whole point: a step that ends with a clean validator, an
 inventory that lost nothing, and a user who has seen the result is a step that
 can be built on. Two changes applied together are two changes that have to be
 unpicked together when the second one turns out to be wrong.
 
-**Follow the blast radius inside the document, every time.** The directives that
-name a thing are not next to it — they sit beside the diagram they annotate, all
+**Follow the blast radius inside the document, every time.** The entries that
+name a thing are not next to it — they sit under other top-level keys, all
 through the file:
 
 | When you… | Also update |
 |---|---|
-| Add an entity | Relationships at both ends; `%%rbac … .read` for every role that works with it; help on it and every column; `%%enum` and `%%field … enum:` for any closed vocabulary; `%%category` if the document groups entities; `%%entity … parent:` if it is a line item |
-| Add a column | Type and modifiers; help text; enum binding if it is a vocabulary; the `FK` modifier **and** a relationship line if it points at another entity; any `%%report` that should now select it |
-| Add a state | The `%%enum` behind the status column gains the value; entries and exits still reach `[*]`; `%%rbac` on the new transition |
-| Add a rule | Its `on <Entity> event: <hookType>` binding; whether it merely decides or must also act — a rule that must act needs `%%action` |
-| Add a role | One `%%rbac … .read` per entity that role works with. A role that reads nothing signs in to an empty application |
-| Rename anything | Every reference to the old name: foreign-key prefixes, relationship lines, `%%rbac`, `%%rule`, `%%workflow`, `%%hook`, `%%step`, `%%field`, `%%index`, and the SQL inside every `%%report` |
+| Add an entity | `relationships` at both ends; an `rbac` read entry for every role that works with it; `help` on it and every attribute; an `enums` entry and an `enum` binding for any closed vocabulary; its place under `categories` if the document groups entities; `parent` if it is a line item |
+| Add an attribute | Type and flags; `help`; its `enum` binding if it is a vocabulary; `fk: true` **and** a `relationships` entry if it points at another entity; any report that should now select it |
+| Add a state | The enum behind the status attribute gains the value; the state machine's `states`, its `transitions` in and out, and `final` if it ends the lifecycle; any `rbac` entry naming the new transition's trigger |
+| Add a rule | Its `entity`, `event` and `priority`; its `nodes` and `edges`; whether it merely decides or must also act — a rule that must act needs `actions` |
+| Add a role | One `rbac` read entry per entity that role works with. A role that reads nothing signs in to an empty application |
+| Rename anything | Every reference to the old name: foreign-key attribute names, `references`, `relationships`, `rbac`, `rules`, `stateMachines`, `sagas` and their steps, `hooks`, `categories`, `indexes`, `parent`, and the query inside every report |
 | Remove anything | Everything that names it, by the same list — and nothing else |
 
 **Preserve as you go.** Keep the document's order, its naming, its help-text
-voice and its directive spelling. Never drop a line you were not asked to drop.
-Never rename silently. Never narrow an enum a state machine uses. Each of those
-is a loss the checker will not report, which is why the inventory compare runs
-at the close of every step and not only at Phase 6.
+voice, its mapping style and its comments. Never drop a line you were not asked
+to drop. Never rename silently. Never narrow an enum a state machine uses. Each
+of those is a loss the validator will not report, which is why the inventory
+compare runs at the close of every step and not only at Phase 6.
 
 **Gate C — the change.** Present what the model now says, hand over the working
 file if that is the cadence the user chose, and ask for approval to move to the
@@ -518,24 +525,25 @@ Work `02-cross-cutting.md` through five sweeps:
    *original* model should have moved with it and did not. An existing saga that
    should now write the new entity. An existing rule whose condition should
    account for the new status. An existing hook that should fire on the new
-   column. This is the sweep that turns an addition into a feature: entities that
-   exist but that nothing in the original model ever touches are a schema, not a
-   change to the business.
+   attribute. This is the sweep that turns an addition into a feature: entities
+   that exist but that nothing in the original model ever touches are a schema,
+   not a change to the business.
 
 2. **The access matrix.** Every entity — the ones you added and the ones that
    were already there — against every role. Present it as a grid with the counts
    per role, and check it against what the Phase 1 inventory recorded. A role
    whose entity count *fell* is the finding this sweep exists for.
 
-3. **The workflow sweep.** Every state machine still reaches `[*]` from `[*]`,
-   every state is a value of the enum bound to its column, and every new
-   transition that needs a role rule has one.
+3. **The workflow sweep.** Every state machine has an `initial` and a `final`,
+   every state is reachable from `initial`, every state is a value of the enum
+   bound to its attribute, and every new transition that needs a role rule has
+   one.
 
 4. **The coverage sweep.** Every new entity has help text on itself and on every
-   column; every new closed vocabulary has an `%%enum` and a `%%field … enum:`
-   binding; every new foreign key has both the `FK` modifier and a relationship
-   line. These are the parts that thin out first, and they are exactly the parts
-   no diagnostic complains about until `EML151`–`EML153` do.
+   attribute; every new closed vocabulary has an enum and an `enum` binding;
+   every new foreign key has both `fk: true` and a `relationships` entry. These
+   are the parts that thin out first, and they are exactly the parts no
+   diagnostic complains about until `EML151`–`EML153` do.
 
 5. **The reporting sweep** — §{{N}}.5.1.
 
@@ -545,28 +553,28 @@ not to do.
 
 #### {{N}}.5.1 The reporting pass — keep the questions the model already answers
 
-A `%%report` directive is a question the users actually ask, written as the SQL
+A `reports` entry is a question the users actually ask, written as the query
 that answers it, and it is the single easiest thing in a model to lose: nothing
 else in the document refers to it, so a rewrite that goes from memory drops every
 one of them without a mark.
 
 Two jobs in this sweep, and the first one matters more:
 
-**Keep the ones that are there.** Count the `%%report` directives in the working
-copy against the count in the Phase 1 inventory. They must match. Then read each
-one that names something your changes touched — a renamed entity, a retyped
-column, a dropped field — because a report's SQL is text, and a column that moved
-underneath it leaves the directive checking clean and the report failing the
-first time somebody runs it.
+**Keep the ones that are there.** Count the `reports` entries in the working copy
+against the count in the Phase 1 inventory. They must match. Then read each one
+that names something your changes touched — a renamed entity, a retyped
+attribute, a dropped field — because a report's query is text, and an attribute
+that moved underneath it leaves the entry validating clean and the report failing
+the first time somebody runs it.
 
 **Add the ones the change implies.** A new entity that records money, volume or
 elapsed time is a question somebody will ask within a week. Propose them, with
-the SQL written out, and let the user pick — an unasked-for report costs nothing
-to decline and a missing one costs a round trip.
+the query written out, and let the user pick — an unasked-for report costs
+nothing to decline and a missing one costs a round trip.
 
 ### {{N}}.6 Phase 6 — Validate to clean, and prove nothing was lost
 
-Phase 6 has two halves, and only the first of them has a tool. The checker
+Phase 6 has two halves, and only the first of them has a tool. The validator
 answers *would the generator accept this document*. Nothing answers *is this
 still their model* — so the second half is the inventory comparison, and it is
 not optional.
@@ -575,9 +583,9 @@ not optional.
 
 #### The regression comparison — what enhancement adds
 
-A clean checker run says the enhanced model is valid. It does not say the
+A clean validator run says the enhanced model is valid. It does not say the
 enhancement was safe, and the difference is the whole reason this protocol wrote
-`00-original.mmd` down in Phase 1.
+`00-original.eml.yaml` down in Phase 1.
 
 Take the inventory of the delivered file and put it beside the Phase 1 inventory
 of the original, line for line, in `03-validation.md`:
@@ -586,15 +594,16 @@ of the original, line for line, in `03-validation.md`:
 | Count            | Original | Enhanced | Δ   | Asked for? |
 |------------------|----------|----------|-----|------------|
 | Entities         | 9        | 11       | +2  | yes — 03, 04 |
-| Columns          | 78       | 97       | +19 | yes |
+| Attributes       | 78       | 97       | +19 | yes |
 | Enums            | 6        | 7        | +1  | yes — 03 |
-| %%entity help:   | 9        | 11       | +2  | yes |
-| %%field help:    | 78       | 97       | +19 | yes |
+| Entity help      | 9        | 11       | +2  | yes |
+| Attribute help   | 78       | 97       | +19 | yes |
 | Rules            | 4        | 5        | +1  | yes — 06 |
-| Workflows        | 3        | 4        | +1  | yes — 03 |
+| State machines   | 3        | 4        | +1  | yes — 03 |
 | Hooks            | 7        | 7        | 0   | — |
-| %%rbac lines     | 41       | 47       | +6  | yes |
-| %%report         | 12       | 12       | 0   | — |
+| rbac entries     | 41       | 47       | +6  | yes |
+| Reports          | 12       | 12       | 0   | — |
+| Comments         | 64       | 71       | +7  | yes |
 ```
 
 **Every Δ is positive or zero unless the user asked for it to be negative.** A
@@ -603,22 +612,23 @@ negative Δ with an empty "asked for?" cell is a defect and it is found here:
 | If this fell and nobody asked | You have |
 |---|---|
 | Entity count, or an entity name vanished | Dropped an entity |
-| Columns on an entity no change touched | Rewritten it from memory |
+| Attributes on an entity no change touched | Rewritten it from memory |
 | Enum values | Broken every state and rule bound to the missing one |
-| `%%entity help:` / `%%field help:` | Emptied part of the generated manual |
-| `%%rbac` lines, or a role's entity count | Made something invisible to a role that could see it yesterday |
-| `%%report` | Deleted a question somebody's users ask |
-| Hooks, rules, actions, steps, workflows | Removed behaviour the application was running |
+| Entity or attribute `help` | Emptied part of the generated manual |
+| `rbac` entries, or a role's entity count | Made something invisible to a role that could see it yesterday |
+| Reports | Deleted a question somebody's users ask |
+| Hooks, rules, actions, saga steps, state machines | Removed behaviour the application was running |
+| Comments | Thrown away the author's reasons |
 
-Put back what fell, then run the checker again — the repair is a new edit and the
-file has to be re-validated after it. Do not present Gate E over a table with an
-unexplained negative in it.
+Put back what fell, then run the validator again — the repair is a new edit and
+the file has to be re-validated after it. Do not present Gate E over a table with
+an unexplained negative in it.
 
 **Then read the enhanced file end to end, once**, looking for the two faults no
 count can see: a reference to something you renamed that you did not follow, and
-a new entity or column with no help text. Both check clean.
+a new entity or attribute with no help text. Both validate clean.
 
-**Gate E — validation.** Present the checker's final verdict, the regression
+**Gate E — validation.** Present the validator's final verdict, the regression
 table and anything you had to escalate, and ask for approval to deliver. Name
 every pre-existing diagnostic you left alone and say that you left it alone
 deliberately.
@@ -638,23 +648,25 @@ hand into a document they did not write, which is where losses come from.
 - If you can write to a filesystem, the working copy is already the artifact.
   Attach it.
 - If your surface has a file, download or artifact mechanism, use it, with the
-  `.mmd` extension intact.
+  `.eml.yaml` extension intact.
 - **Only if the surface truly cannot carry a file**: print the complete document
-  inside a single triple-backtick `mermaid` fence, the file name on the line
-  above it, and nothing else between the fences.
+  inside a single triple-backtick `yaml` fence, the file name on the line above
+  it, and nothing else between the fences.
 - **Do not offer the by-products.** The original, the dossiers, the validation
   log: they stay in the session directory, where the user can read them if they
   want. One attachment.
 
 Alongside the file — in the reply, never inside it — give the change roster as
-built, the regression table from §{{N}}.6, the checker's counts for the original
-and for the delivered file, every dictionary value filled (the original's gaps included) with the count of the six dictionary codes — zero — and the audit's last line, anything still unresolved, and where the session
+built, the regression table from §{{N}}.6, the validator's counts for the
+original and for the delivered file, every dictionary value filled (the
+original's gaps included) with the count of the five dictionary codes — zero —
+and the audit's last line, anything still unresolved, and where the session
 directory is on disk. Then tell them what to do next: upload the file at
 `https://www.appwithai.org/guide/run-in-browser.html#upload`, where it becomes a
 running application in the browser tab.
 
-Say plainly that the original is still at `00-original.mmd`. A user who can see
-where their untouched model is will try the new one; a user who cannot will
+Say plainly that the original is still at `00-original.eml.yaml`. A user who can
+see where their untouched model is will try the new one; a user who cannot will
 wonder whether they still have it.
 
 ### {{N}}.8 Reference material for the walkthrough
@@ -663,11 +675,11 @@ wonder whether they still have it.
 
 | Change | Typically also touches |
 |---|---|
-| A new entity | 1 `%%enum` if it has a status, 1 lifecycle, 1–3 `%%rbac`, 1 `%%entity help:`, one `%%field help:` per column, 1 `%%category`, 1–2 relationships |
-| A new column | Its help, its enum binding or its `FK` + relationship, and any report that should select it |
-| A new state | The enum behind the column, both terminal edges, and any `%%rbac` on the transition |
-| A new role | One `%%rbac … .read` per entity it works with — the whole matrix row, not one line |
-| A rename | Every directive that names the old string, and the generated application's existing table |
+| A new entity | 1 enum if it has a status, 1 state machine, 1–3 `rbac` entries, its `help`, one `help` per attribute, its place under `categories`, 1–2 `relationships` |
+| A new attribute | Its `help`, its `enum` binding or `fk: true` + a `relationships` entry, and any report that should select it |
+| A new state | The enum behind the attribute, the state machine's `states` and `transitions`, `final` if it ends the lifecycle, and any `rbac` entry naming the transition |
+| A new role | One `rbac` read entry per entity it works with — the whole matrix row, not one entry |
+| A rename | Every entry that names the old string, and the generated application's existing table |
 
 #### Question banks
 
@@ -676,7 +688,7 @@ Is anything in here wrong today, separately from what you are asking for? Are th
 roles still the jobs your business has? Who reads these reports?
 
 **At Gate B, about the change.** Is this a new thing, or a different shape for a
-thing you already have? Does it need its own lifecycle, or is it a column on
+thing you already have? Does it need its own lifecycle, or is it an attribute on
 something that already has one? Who does this work, and should they be able to
 see it? What happens to the records you already have when this lands?
 

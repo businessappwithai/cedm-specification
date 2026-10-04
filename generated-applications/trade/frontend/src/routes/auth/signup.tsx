@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-01T09:35:10.621Z
+ * Generated: 2026-10-04T01:13:09.802Z
  * Project: trade
  */
 

@@ -1407,7 +1407,7 @@ program
     // generators and templates; `list` kept describing it, so `--stack` offered
     // a value that could not be generated.
     console.log("  tanstack-astryx-loco   Rust Web Stack");
-    console.log("    Backend:   Loco.rs 1.0 + Axum + SeaORM/sqlx + PostgreSQL");
+    console.log("    Backend:   Loco.rs 1.2 + Axum + SeaORM/sqlx + PostgreSQL");
     console.log("    Frontend:  TanStack Start v1 + Astryx + TanStack Query/Table");
     console.log("    Auth:      Loco native JWT");
     console.log("    Best for:  Throughput-sensitive APIs, low-footprint deploys");

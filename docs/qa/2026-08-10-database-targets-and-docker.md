@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `claude/gstack-drug-discovery-qa-lkhred`
-**Model under test:** `examples/drug-discovery.eml.mmd`
+**Model under test:** `examples/drug-discovery.eml.yaml`
 **Scope:** remove `--db sqlite` from the TypeScript CLI, replace it with real targets, and test the complete stack on each — natively first, then in containers.
 
 | | Before | After |

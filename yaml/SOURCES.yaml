@@ -1,17 +1,26 @@
-# The repositories imported under yaml/, and the commit each was taken from.
-# Every tracked file was copied at its original path. The two gstack submodules
-# (.claude/skills/gstack, a third-party skill pack) were not: they are
-# installed per developer with `bun run setup:gstack`, as at the root.
+# The repositories under yaml/, and where their content comes from.
+#
+# yaml/ began as an earlier, partial conversion of three product repositories,
+# imported at the commits recorded under `imports`. That conversion was
+# superseded by the top-level copies (COPIES.yaml), which were converted in
+# full and verified. Each directory here is now synced to its top-level
+# counterpart, file for file: a file the copy carries was replaced by the
+# copy's, and a file it no longer carries was removed. The same credentials the
+# copies scrub are therefore absent here too.
+synced:
+  - path: yaml/app-and-report-with-ai-rust
+    from: app-and-report-with-ai-rust
+  - path: yaml/businessappwithairust
+    from: businessappwithairust
+  - path: yaml/enterprise_reporting_rust
+    from: enterprise-reporting-rust
 imports:
   - repository: businessappwithai/app-and-report-with-ai-rust
     path: yaml/app-and-report-with-ai-rust
     commit: fbc49ce84bd855a18d1530b4cfc05b1eb4c1d068
-    files: 174
   - repository: businessappwithai/enterprise_reporting_rust
     path: yaml/enterprise_reporting_rust
     commit: ac0107304c378826648fd26e5d1e8e234a872692
-    files: 3034
   - repository: businessappwithai/businessappwithairust
     path: yaml/businessappwithairust
     commit: eccd780860ac1593440be4ea42dcd53289053a2d
-    files: 190

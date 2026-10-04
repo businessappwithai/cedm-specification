@@ -82,7 +82,7 @@ One consequence is unavoidable and non-negotiable: **React 18 → 19**. The gene
 The generated backend evaluates GoRules JDM decision graphs via `@gorules/zen-engine@^0.54.0`, which is a **Node binding around a Rust core**. The same engine is published as the `zen-engine` crate (stable `0.55.1`, same version line). So:
 
 - JDM files (`src/modules/rules/jdm/*.jdm.json`) port **byte-for-byte**, no semantic change.
-- The `%%rule` → flowchart → JDM converter in `packages/web/src/lib/jdm-converter.ts` is untouched.
+- The `rules` → flowchart → JDM converter in `packages/web/src/lib/jdm-converter.ts` is untouched.
 - The rules module stops paying an N-API boundary cost per evaluation.
 
 This is the one module where the migration is a strict improvement with near-zero risk. It should be the first Rust module built, as a confidence-builder.
@@ -111,7 +111,7 @@ This is the one module where the migration is a strict improvement with near-zer
 ### 3.1 Goals
 
 1. Introduce a **new generated stack**, `tanstack-astryx-loco`, alongside — not replacing — `tanstackjs-nestjs`, until the new one reaches parity.
-2. Preserve the **ERD → app contract**: the same `.mmd`/`.eml.mmd` input must produce an application with the same behaviour, same REST surface, same Application Dictionary semantics, same business-rule and workflow outcomes.
+2. Preserve the **ERD → app contract**: the same model input must produce an application with the same behaviour, same REST surface, same Application Dictionary semantics, same business-rule and workflow outcomes.
 3. Preserve the **runtime metadata architecture**: `sys_*` dictionary drives UI layout and validation; `bus_*` tables are served generically; `seq_no` still reorders fields without a redeploy.
 4. Keep the generated app **runnable offline from bundled templates** (`skipCliScaffold` mode), as today.
 5. Keep the **E2E suite green** — the `bun:test` HTTP suites under `<output>/tests` are stack-agnostic by design and become the primary parity oracle.
@@ -138,11 +138,11 @@ This is the one module where the migration is a strict improvement with near-zer
 ### 4.1 The generation pipeline
 
 ```
-ERD (.mmd / .eml.mmd)
+ERD model
    │
-   ├─ MermaidParser              packages/generator/src/parsers/mermaid.parser.ts
+   ├─ ERD parser                 packages/generator/src/parsers/
    │     → Entity[] + Relationship[]
-   ├─ CategoryParser             → EntityCategory[]  (%%category directives)
+   ├─ CategoryParser             → EntityCategory[]  (category declarations)
    │
    ▼
 GeneratorOrchestrator            src/generators/orchestrator.ts (165 lines)
@@ -569,7 +569,7 @@ The roles guard (`roles.guard.ts.hbs`) becomes a middleware layer or a per-handl
 
 ### 6.9 The hook system — **decided: generated Rust functions** (D2)
 
-13 lifecycle hook types (`beforeCreate`, `afterCreate`, `beforeUpdate`, …, `beforeList`, `afterList`, `customValidate`) parsed from `%%hook` EML directives, translated by `packages/core/src/generators/hook-translator/`, and emitted as TypeScript functions that `BusService` calls (`bus.service.ts.hbs:16`). The shipped template (`hooks.ts.hbs`) is a scaffold — `getHooks()` returns `{}` until workflows are applied.
+13 lifecycle hook types (`beforeCreate`, `afterCreate`, `beforeUpdate`, …, `beforeList`, `afterList`, `customValidate`) parsed from `hooks` EML directives, translated by `packages/core/src/generators/hook-translator/`, and emitted as TypeScript functions that `BusService` calls (`bus.service.ts.hbs:16`). The shipped template (`hooks.ts.hbs`) is a scaffold — `getHooks()` returns `{}` until workflows are applied.
 
 Rust options:
 
@@ -1018,7 +1018,7 @@ What makes it a *project* rather than a port, though, is everything behind the C
 
 | Dependency | Rust story |
 |---|---|
-| `MermaidParser` (`mermaid.parser.ts`) + category parser | Full rewrite; the EML grammar (`language/grammar/appwithai.ebnf`) makes this tractable — `nom`/`pest` — but it is the parser the whole product rests on |
+| The ERD parser + category parser | Full rewrite; the EML grammar (`language/grammar/appwithai.ebnf`) makes this tractable — `nom`/`pest` — but it is the parser the whole product rests on |
 | Handlebars templates (328 files) | `handlebars-rust` renders `.hbs` largely unchanged — **but all ~60 helpers in `loader.ts` (875 lines) must be reimplemented in Rust**, and helper semantics are where subtle bugs hide. `rrgen`/`tera`/`minijinja` are alternatives that would require rewriting the templates |
 | `@appwithai/core` types (`Entity`, `BusEntity`, dictionary generators) | Rust structs + a port of `entityToBusEntity` / `generateEntityDictionary` |
 | **In-process use by the web app** | `packages/web/src/routes/api/generate.ts` imports the generator directly and streams progress over SSE. A Rust binary turns that into a subprocess boundary needing a JSON/NDJSON progress protocol — the single largest integration change |
@@ -1167,7 +1167,7 @@ Side-by-side run of both backends against one database · benchmark (p50/p99 on 
 | # | Decision | **Accepted** | Options rejected | Status |
 |---|---|---|---|---|
 | **D1** | Authentication | **Loco native JWT**, `jwt_locations: cookie`, argon2, `users` implementing `Authenticable`; `sys_user` + `sys_user_roles` RBAC unchanged | Better Auth Node sidecar (two runtimes per app); Rust OIDC crate (rebuilds what Loco gives) | ✅ Landed (Phase 3.3) |
-| **D2** | Hook execution | **Generated Rust functions** — the model's `%%hook` directives become Rust handlers plus a dispatch registry. Accepted trade: **changing a hook needs a rebuild** | embedded `rhai` (keeps runtime editing, adds a sandbox); WASM via `wasmtime` (most machinery) | ✅ **Landed** (PR #24). Emitted at `src/hooks/handlers/<entity>.rs` — one file per entity, not per event as this row originally predicted. `src/hooks/mod.rs` is the registry of 13 dispatchers, rewritten every run so a newly declared hook is always picked up; the handler files are written **once** and appended to, because the bodies are the developer's and regeneration must not delete an implementation |
+| **D2** | Hook execution | **Generated Rust functions** — the model's `hooks` become Rust handlers plus a dispatch registry. Accepted trade: **changing a hook needs a rebuild** | embedded `rhai` (keeps runtime editing, adds a sandbox); WASM via `wasmtime` (most machinery) | ✅ **Landed** (PR #24). Emitted at `src/hooks/handlers/<entity>.rs` — one file per entity, not per event as this row originally predicted. `src/hooks/mod.rs` is the registry of 13 dispatchers, rewritten every run so a newly declared hook is always picked up; the handler files are written **once** and appended to, because the bodies are the developer's and regeneration must not delete an implementation |
 | **D3** | Background jobs | **Drop Trigger.dev.** `BackgroundAsync` in dev, `BackgroundQueue` (Postgres) in prod; promotion runs **inline** so the create/update response shape is unchanged | keep Trigger.dev over HTTP (paid SaaS dependency); enqueue promotion + client polling (breaks the contract) | ✅ Landed (Phase 4) |
 | **D4** | Audit tamper-evidence | **Postgres `audit_log` hash chain** (`prev_hash`/`entry_hash`); immudb removed | `tonic` gRPC against immudb (no maintained Rust client); drop tamper-evidence | ✅ Landed (Phase 4) |
 | **D5** | AI NL add-on | **Feature-gated off in v1**, ported later | port to a Rust LLM client now (gates the migration on an unrelated port); Node sidecar (second runtime) | ✅ **Landed.** `POST /api/ai/query` plus an `/ask` page. Gated at **run time**, not by conditional emission — the route is always mounted and answers 503 until `ai_base_url`/`ai_model` are set, because a conditionally emitted module is the `include_str!` trap the parity gate cannot see. **The model does not write SQL**: it returns a query plan validated against the dictionary and run through `DynamicRepo`, so the feature cannot read anything the caller could not already read over REST |
@@ -1176,7 +1176,7 @@ Side-by-side run of both backends against one database · benchmark (p50/p99 on 
 | **D8** | Astryx theme | `neutral` default, user-selectable | ship without a default | ✅ **Exceeded.** Only **seven** theme packages are published (`neutral`, `butter`, `chocolate`, `matcha`, `stone`, `gothic`, `y2k`) — `default`, `daily` and `brutalist` do not exist on npm. All seven ship in every generated app and switch **at runtime** via `[data-astryx-theme]`, not just at generation time |
 | **D9** | Typed `bus_*` entities | **Yes, after `DynamicRepo` is proven**, and only as a convenience for hooks/workflows — never the CRUD path | generate them up front (couples Phase 3 to a second mechanism) | ✅ **Landed.** One SeaORM entity per business table at `src/models/_entities/<table>.rs`, rewritten every run. `DynamicRepo` remains the only CRUD path |
 | **D10** | Host app scope | **Out of scope, confirmed.** `packages/web`, `packages/core`, `packages/ai` stay TanStack Start + Bun + Kysely | migrate the host app too | ✅ Held |
-| **D11** | Generator CLI in Rust + clap | **Deferred.** Ship the stack with the existing TypeScript/Commander generator | port now (mermaid-parser rewrite, ~60 Handlebars helpers, in-process→subprocess boundary with `packages/web`; 6–10 weeks) | ⚠️ **Superseded — the port is underway.** `crates/appwithai-gen` is a clap binary emitting the backend half, kept honest against the TypeScript generator by `bun run parity`, which generates every model in a corpus with both and diffs `backend/` byte for byte. So the deferral held only until the stack shipped, exactly as the row's §8.7(e) reasoning proposed, and the migration now has **two generators to keep in step** — every backend change lands twice until one of them wins |
+| **D11** | Generator CLI in Rust + clap | **Deferred.** Ship the stack with the existing TypeScript/Commander generator | port now (ERD-parser rewrite, ~60 Handlebars helpers, in-process→subprocess boundary with `packages/web`; 6–10 weeks) | ⚠️ **Superseded — the port is underway.** `crates/appwithai-gen` is a clap binary emitting the backend half, kept honest against the TypeScript generator by `bun run parity`, which generates every model in a corpus with both and diffs `backend/` byte for byte. So the deferral held only until the stack shipped, exactly as the row's §8.7(e) reasoning proposed, and the migration now has **two generators to keep in step** — every backend change lands twice until one of them wins |
 
 ### 12.1 What acceptance removed from the plan
 
@@ -1536,7 +1536,7 @@ design and it was left alone.
 | `DynamicRepo` (Phase 3.4 / Spike A) | list + get + create + update + soft-delete, pagination, the filter-operator whitelist, `search` across the five text reference types, `If-Match` row-version concurrency compared inside the UPDATE's WHERE clause |
 | Frontend generator | `AstryxFrontendGenerator` — delegates to the TanStack generator, then applies the §7.3 Phase A overlay (React 19, Astryx deps, `globals.css` on the Tailwind bridge, `AstryxProvider` mounted in the provider tree) |
 
-**Gates.** On a project generated from `test-simple-erd.mmd`: `cargo check` clean, `cargo clippy --all-targets -- -D warnings` clean, `cargo fmt --check` clean, `cargo test --lib` 10 passed. Repo-side: Biome clean; `bun run type-check` adds no new *class* of error (the 14 new lines are `__dirname`/`process`/`require`, identical to what the existing `nestjs-backend.generator.ts` already reports — this environment has no `@types/node` resolved, and the repo baseline is 4 720 errors).
+**Gates.** On a project generated from `a two-entity test model`: `cargo check` clean, `cargo clippy --all-targets -- -D warnings` clean, `cargo fmt --check` clean, `cargo test --lib` 10 passed. Repo-side: Biome clean; `bun run type-check` adds no new *class* of error (the 14 new lines are `__dirname`/`process`/`require`, identical to what the existing `nestjs-backend.generator.ts` already reports — this environment has no `@types/node` resolved, and the repo baseline is 4 720 errors).
 
 **Corrections to this document** — all four are marked inline where they occur:
 

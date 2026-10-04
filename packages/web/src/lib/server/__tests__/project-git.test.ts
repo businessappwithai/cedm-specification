@@ -65,8 +65,6 @@ describe("isolated local repositories", () => {
       "src/a\t.ts",
       ".git/config",
       "backend/target/debug/app",
-      // The model is YAML; a Mermaid file is not part of a project any more.
-      "model/model.eml.mmd",
     ])
       expect(allowedFile(name), name).toBe(false);
     for (const name of [

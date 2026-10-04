@@ -26,3 +26,6 @@ jobs:
 
       - name: Validate CEDM model
         run: python tools/validate.py
+
+      - name: The model is YAML, and nothing carries the earlier notation
+        run: bash scripts/check-yaml-only.sh

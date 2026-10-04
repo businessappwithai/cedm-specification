@@ -41,13 +41,13 @@ AppWithAI is an AI-powered Entity Relationship Design & Code Generation platform
                │
                ▼
 ┌─────────────────────────────────────────┐
-│      Mermaid Agent                      │
+│      Diagram Agent                      │
 │    Generates ERD syntax                 │
 └──────────────┬──────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────┐
-│      Mermaid Parser                     │
+│      ERD Parser                     │
 │    Parses to Entity objects             │
 └──────────────┬──────────────────────────┘
                │
@@ -99,7 +99,7 @@ Business logic, hooks, RBAC, validation, utilities.
 Code generation engine with template loading.
 
 **Key Components:**
-- Mermaid parser
+- ERD parser
 - Template loader (Handlebars)
 - Base generator class
 - CLI tool
@@ -108,7 +108,7 @@ Code generation engine with template loading.
 Mastra.ai orchestration for AI-powered design.
 
 **Key Components:**
-- 5 AI agents (Domain, Entity, Relationship, Validation, Mermaid)
+- 5 AI agents (Domain, Entity, Relationship, Validation, Diagram)
 - Human-in-the-loop workflow
 - Standalone converter
 - CLI tool
@@ -127,8 +127,8 @@ TanStack Start web application with CopilotKit.
 1. **Natural Language** → Domain Agent
 2. **Entity Candidates** → Entity Agent + Human Approval
 3. **Relationship Candidates** → Relationship Agent + Human Approval
-4. **Approved Model** → Mermaid Agent
-5. **Mermaid ERD** → Mermaid Parser
+4. **Approved Model** → Diagram Agent
+5. **ERD** → ERD Parser
 6. **Entity Objects** → Dictionary Populator
 7. **AD Tables** → Template Generator
 8. **Templates + Context** → Generated Code
@@ -213,7 +213,7 @@ import type { DomainAnalysis } from "../types";
 ```typescript
 // camelCase for functions
 export function analyzeDomain(description: string) {}
-export async function convertToMermaid(description: string) {}
+export async function convertToDiagram(description: string) {}
 
 // Utility functions follow same pattern
 export function pascalCase(str: string): string {}
@@ -231,7 +231,7 @@ export type EntityDefinition = Entity;
 **Classes:**
 ```typescript
 // PascalCase for classes
-export class AIToMermaidConverter {}
+export class AIToDiagramConverter {}
 export class EntityService extends BaseService<EntityDefinition> {}
 ```
 
@@ -409,7 +409,7 @@ export async function analyzeDomain(description: string) {
 ### Converter Pattern
 
 ```typescript
-export class AIToMermaidConverter {
+export class AIToDiagramConverter {
   async convert(input: ConverterInput): Promise<ConverterOutput> {
     // Convert logic with error handling
   }
@@ -424,7 +424,7 @@ export class AIToMermaidConverter {
 
 - **Never commit** `.env` files or secrets
 - **Test files** are in `.gitignore` (`*.test.ts`, `*.spec.ts`)
-- **Generated files** are ignored (`generated/`, `*.mermaid`)
+- **Generated files** are ignored (`generated/`)
 - **Database files** are ignored (`*.db`, `*.sqlite`)
 - **Package manager**: Always use Bun (not npm/yarn)
 - **Node version**: Minimum 20.0.0

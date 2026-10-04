@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T09:31:45.475Z
+//! Generated: 2026-10-04T01:11:33.538Z
 //! Project: ecommerce
 
 use serde_json::Value;

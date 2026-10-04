@@ -14,12 +14,13 @@
  *      the text, comments included, not a re-serialisation: the comments are
  *      where an author records why a rule has three rows, and a copy without
  *      them is a different document.
- *   3. **Nothing generated is Mermaid.** No diagram source, no `%%` directive,
- *      no reader or writer for either. The application stores what it builds
- *      at run time — automations included — as YAML, and a Mermaid string left
- *      in a template is a second model format the application would have to
- *      keep reading forever.
+ *   3. **Nothing generated is in the earlier notation.** No diagram source, no
+ *      directive comment, no reader or writer for either. The application
+ *      stores what it builds at run time — automations included — as YAML, and
+ *      a string of the old notation left in a template is a second model
+ *      format the application would have to keep reading forever.
  */
+import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
@@ -32,35 +33,11 @@ const MODEL = path.resolve(__dirname, "../../../../../examples/drug-discovery.em
 const BINARY = /\.(woff2?|ttf|otf|png|jpe?g|gif|ico|webp|wasm)$/i;
 
 /**
- * What Mermaid looks like in a file: a diagram opener at the start of a line,
- * a `%%` directive, or the library named at all.
+ * The repository's own gate, run over the generated tree. The patterns it looks
+ * for live in that script and nowhere else, so this test and CI cannot come to
+ * disagree about what counts as the earlier notation.
  */
-const MERMAID: Array<{ what: string; pattern: RegExp }> = [
-  {
-    what: "a diagram opener",
-    pattern: /^\s*(erDiagram|stateDiagram(-v2)?|flowchart\s+\w+|graph\s+(TD|TB|BT|LR|RL))\b/m,
-  },
-  {
-    what: "a %% directive",
-    pattern:
-      /%%\s*(meta|hook|entity|field|enum|index|category|rbac|rule|guard|trigger|report|workflow|step|action|loop)\b/,
-  },
-  { what: "the word mermaid", pattern: /mermaid/i },
-];
-
-/**
- * The only files allowed to name Mermaid: the migrations that carry the
- * schema's history. m0013 created `sys_workflow_definitions.mermaid_code`, and
- * databases that applied it hold automations in that column; m0017 converts
- * each one to a YAML document and drops the column. Editing m0013 would reach
- * nobody who already migrated, and m0017 cannot convert a column it may not
- * name — so the history is exempt, and every other file is held to none.
- */
-const SCHEMA_HISTORY = [
-  /^backend\/migration\/sql\/m0013_workflow_definition_source\.(up|down)\.sql$/,
-  /^backend\/migration\/sql\/m0017_workflow_definition_yaml\.(up|down|finish)\.sql$/,
-  /^backend\/migration\/src\/m0017_workflow_definition_yaml\.rs$/,
-];
+const YAML_ONLY_GATE = path.resolve(__dirname, "../../../../../scripts/check-yaml-only.sh");
 
 async function files(root: string, directory = root): Promise<string[]> {
   const found: string[] = [];
@@ -111,7 +88,7 @@ describe("a YAML model as the generation source", () => {
     return output;
   }
 
-  it("generates the same application every time, ships the model as written, and no Mermaid", async () => {
+  it("generates the same application every time, ships the model as written, and nothing else", async () => {
     const modelText = await fs.readFile(MODEL, "utf-8");
     const [first, second] = [await generate(modelText), await generate(modelText)];
 
@@ -120,7 +97,6 @@ describe("a YAML model as the generation source", () => {
     expect(written.length).toBeGreaterThan(400);
 
     const differing: string[] = [];
-    const mermaid: string[] = [];
     for (const file of written) {
       if (BINARY.test(file)) continue;
       const [left, right] = await Promise.all([
@@ -128,21 +104,18 @@ describe("a YAML model as the generation source", () => {
         fs.readFile(path.join(second, file), "utf-8"),
       ]);
       if (withoutTimestamps(left) !== withoutTimestamps(right)) differing.push(file);
-      if (SCHEMA_HISTORY.some((allowed) => allowed.test(file))) continue;
-      for (const { what, pattern } of MERMAID) {
-        const match = left.match(pattern);
-        if (match) mermaid.push(`${file}: ${what} (${JSON.stringify(match[0].trim())})`);
-      }
     }
     expect(differing).toEqual([]);
-    if (process.env.SHOW_MERMAID) console.error(mermaid.join("\n"));
-    expect(mermaid).toEqual([]);
+    const gate = spawnSync("bash", [YAML_ONLY_GATE, first], { encoding: "utf-8" });
+    expect(gate.stdout + gate.stderr, "scripts/check-yaml-only.sh over the generated tree").toContain(
+      "no traces"
+    );
+    expect(gate.status).toBe(0);
 
     // The author's text, comments and all — the header comment is the check
     // that nothing re-serialised it on the way.
     const shipped = await fs.readFile(path.join(first, "model", "model.eml.yaml"), "utf-8");
     expect(shipped).toBe(modelText);
     expect(shipped.startsWith("# ")).toBe(true);
-    expect(written).not.toContain(path.join("model", "model.eml.mmd"));
   }, 300_000);
 });

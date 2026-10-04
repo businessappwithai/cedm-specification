@@ -338,7 +338,7 @@ Verify:
 All test artifacts are saved to:
 ```
 tests/e2e-output/compiere-dictionary-test/
-├── test-compiere.mermaid          # Test ERD file
+├── test-compiere.eml.yaml         # Test model
 ├── backend.log                     # Backend server logs
 ├── test-summary.json               # Test results summary
 └── [generated application]        # Generated project
@@ -419,56 +419,47 @@ curl -X PATCH http://localhost:3002/odata/SysFields('[field-1-id]') \
 
 The test uses this ERD (created automatically):
 
-```mermaid
-erDiagram
-    Customer ||--o{ Order : places
-    Order ||--|{ OrderLine : contains
-    Product ||--o{ OrderLine : includes
-
-    Customer {
-        string id PK
-        string name
-        string email UK
-        string phone
-        text address
-        boolean isActive
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Order {
-        string id PK
-        string customerId FK
-        datetime orderDate
-        decimal totalAmount
-        string status
-        boolean isPaid
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    OrderLine {
-        string id PK
-        string orderId FK
-        string productId FK
-        integer quantity
-        decimal unitPrice
-        decimal lineTotal
-        datetime createdAt
-        datetime updatedAt
-    }
-
-    Product {
-        string id PK
-        string name
-        string sku UK
-        decimal price
-        text description
-        boolean inStock
-        datetime createdAt
-        datetime updatedAt
-    }
+```yaml
+entities:
+  - name: Customer
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: name, type: string }
+      - { name: email, type: email, unique: true }
+      - { name: phone, type: phone }
+      - { name: address, type: text }
+      - { name: is_active, type: boolean }
+  - name: Order
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: customer_id, type: string, fk: true }
+      - { name: order_date, type: datetime }
+      - { name: total_amount, type: decimal }
+      - { name: status, type: string }
+      - { name: is_paid, type: boolean }
+  - name: OrderLine
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: order_id, type: string, fk: true }
+      - { name: product_id, type: string, fk: true }
+      - { name: quantity, type: integer }
+      - { name: unit_price, type: decimal }
+      - { name: line_total, type: decimal }
+  - name: Product
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: name, type: string }
+      - { name: sku, type: string, unique: true }
+      - { name: price, type: decimal }
+      - { name: description, type: text }
+      - { name: in_stock, type: boolean }
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
+  - { from: Order, fromCardinality: exactly-one, to: OrderLine, toCardinality: one-or-more, label: contains }
+  - { from: Product, fromCardinality: exactly-one, to: OrderLine, toCardinality: zero-or-more, label: includes }
 ```
+
+`created_at` and `updated_at` are added by the generator to every table.
 
 ---
 

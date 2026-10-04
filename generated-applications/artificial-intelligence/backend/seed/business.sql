@@ -150,19 +150,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('a4d92c3a-201d-510f-bad4-4c4e67a388e5', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', 'f35fcece-dcbb-583c-bbd6-27b39eac935d', '0b6ff7ac-361a-5212-92be-0a1bcd29ae0f', 'f24743ec-0e15-5b36-a0b6-e375817ec466', '805c4001-0e5b-5a54-97c5-ed353a6d96f8', '1d79dbfc-ba71-5d2c-8dc9-a272bc381bbd', '45eda418-cbf0-510e-8c5a-41dfc67a57aa', 'final', NOW(), NOW())
+VALUES ('a4d92c3a-201d-510f-bad4-4c4e67a388e5', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', 'f35fcece-dcbb-583c-bbd6-27b39eac935d', '0b6ff7ac-361a-5212-92be-0a1bcd29ae0f', 'f24743ec-0e15-5b36-a0b6-e375817ec466', '805c4001-0e5b-5a54-97c5-ed353a6d96f8', '1d79dbfc-ba71-5d2c-8dc9-a272bc381bbd', '45eda418-cbf0-510e-8c5a-41dfc67a57aa', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('479b3187-9dd2-5cd5-b613-a9dd2ccf54fe', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '83b0425d-9c2f-5823-b163-54d52ba4df90', '46667062-0d0b-582e-8704-4f24ceea8508', '9bb7a3a5-171b-509a-927e-916d3e31d7f6', '43b0c2ce-3d4b-5673-a3fd-8582748d6145', 'c33b6f17-6d1c-51a3-b61c-2bf4ddd3ed48', '2c91c5a0-4fa1-5e85-a5bd-e4afa1529138', 'final', NOW(), NOW())
+VALUES ('479b3187-9dd2-5cd5-b613-a9dd2ccf54fe', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '83b0425d-9c2f-5823-b163-54d52ba4df90', '46667062-0d0b-582e-8704-4f24ceea8508', '9bb7a3a5-171b-509a-927e-916d3e31d7f6', '43b0c2ce-3d4b-5673-a3fd-8582748d6145', 'c33b6f17-6d1c-51a3-b61c-2bf4ddd3ed48', '2c91c5a0-4fa1-5e85-a5bd-e4afa1529138', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('19b932d8-08e6-5b9c-8ed1-c9701a4e4cf0', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', '4c7bfa10-4795-5322-839f-0e62110d15c3', 'a27bc1d5-4720-5b7e-a116-5564e9dec2e6', '48545ed2-07ec-5193-b193-39422d5b4f5d', '2358ab39-2c0b-5a36-b27d-f2e9d334aadf', 'cd5ffff7-3d36-539f-84e7-4c16599653e6', 'a36dbfd4-213b-5de0-a191-3beb7f7f6cdb', 'final', NOW(), NOW())
+VALUES ('19b932d8-08e6-5b9c-8ed1-c9701a4e4cf0', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', '4c7bfa10-4795-5322-839f-0e62110d15c3', 'a27bc1d5-4720-5b7e-a116-5564e9dec2e6', '48545ed2-07ec-5193-b193-39422d5b4f5d', '2358ab39-2c0b-5a36-b27d-f2e9d334aadf', 'cd5ffff7-3d36-539f-84e7-4c16599653e6', 'a36dbfd4-213b-5de0-a191-3beb7f7f6cdb', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('1fe7f0ee-076c-5f55-bcda-9a4a6e2ae459', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '373de68f-162f-577c-ab66-37784a4bd315', 'd3e761fd-bc36-55e0-8753-ce3bedf169e8', '807e7f22-a4b5-5a71-85d0-799cdce2e790', 'df3e0ebe-2d78-5161-8c89-c93fa748b0bf', 'ffeca781-e132-5fa0-b885-ba3a32801722', 'd74c0fd9-c485-57a2-b847-683388455729', 'final', NOW(), NOW())
+VALUES ('1fe7f0ee-076c-5f55-bcda-9a4a6e2ae459', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '373de68f-162f-577c-ab66-37784a4bd315', 'd3e761fd-bc36-55e0-8753-ce3bedf169e8', '807e7f22-a4b5-5a71-85d0-799cdce2e790', 'df3e0ebe-2d78-5161-8c89-c93fa748b0bf', 'ffeca781-e132-5fa0-b885-ba3a32801722', 'd74c0fd9-c485-57a2-b847-683388455729', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('ac7c9300-0cd1-569c-9d62-3eb516918bf6', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '66f7d66a-f6c1-5653-a794-b49cb79df58a', 'df2ec545-1ad7-554e-84cf-d03a7a488f0f', '24d5ec68-a546-55f6-8bae-8f668d527004', '25d25894-6896-5004-b9b6-694f26930089', 'b562df3d-e908-52e7-82a9-9c9820d176ee', '28ef9be5-30f6-5877-a1f0-718c36270423', 'final', NOW(), NOW())
+VALUES ('ac7c9300-0cd1-569c-9d62-3eb516918bf6', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '66f7d66a-f6c1-5653-a794-b49cb79df58a', 'df2ec545-1ad7-554e-84cf-d03a7a488f0f', '24d5ec68-a546-55f6-8bae-8f668d527004', '25d25894-6896-5004-b9b6-694f26930089', 'b562df3d-e908-52e7-82a9-9c9820d176ee', '28ef9be5-30f6-5877-a1f0-718c36270423', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -303,19 +303,19 @@ ON CONFLICT DO NOTHING;
 
 -- AI Prediction (bus_ai_prediction)
 INSERT INTO bus_ai_prediction (id, prediction_type, input_reference, output, confidence, predicted_at, human_review_status, model_id, reviewer_id, doc_status, created_at, updated_at)
-VALUES ('cb840619-6ae9-557d-b4d3-a58f17609ce4', 'Prediction Type 1', 'Input Reference 1', '{}', 10.50, '2026-01-15T09:00:00Z', 'NOT_REQUIRED', '2943dd14-45d9-5a12-b51b-0074ba8ef027', 'f35fcece-dcbb-583c-bbd6-27b39eac935d', 'final', NOW(), NOW())
+VALUES ('cb840619-6ae9-557d-b4d3-a58f17609ce4', 'Prediction Type 1', 'AI Prediction 1', '{}', 10.50, '2026-01-15T09:00:00Z', 'NOT_REQUIRED', '2943dd14-45d9-5a12-b51b-0074ba8ef027', 'f35fcece-dcbb-583c-bbd6-27b39eac935d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_ai_prediction (id, prediction_type, input_reference, output, confidence, predicted_at, human_review_status, model_id, reviewer_id, doc_status, created_at, updated_at)
-VALUES ('3f648f1b-c138-59c7-9bc0-51368cbb4cc8', 'Prediction Type 2', 'Input Reference 2', '{}', 21.00, '2026-02-15T09:00:00Z', 'PENDING', 'e15429be-ce86-5f0c-a455-a65f40866a06', '83b0425d-9c2f-5823-b163-54d52ba4df90', 'final', NOW(), NOW())
+VALUES ('3f648f1b-c138-59c7-9bc0-51368cbb4cc8', 'Prediction Type 2', 'AI Prediction 2', '{}', 21.00, '2026-02-15T09:00:00Z', 'PENDING', 'e15429be-ce86-5f0c-a455-a65f40866a06', '83b0425d-9c2f-5823-b163-54d52ba4df90', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_ai_prediction (id, prediction_type, input_reference, output, confidence, predicted_at, human_review_status, model_id, reviewer_id, doc_status, created_at, updated_at)
-VALUES ('236e598e-0a37-5c51-9075-b5b8bf7aff06', 'Prediction Type 3', 'Input Reference 3', '{}', 31.50, '2026-03-15T09:00:00Z', 'ACCEPTED', '45e2598f-d571-5446-a09b-9e99336b68be', '4c7bfa10-4795-5322-839f-0e62110d15c3', 'final', NOW(), NOW())
+VALUES ('236e598e-0a37-5c51-9075-b5b8bf7aff06', 'Prediction Type 3', 'AI Prediction 3', '{}', 31.50, '2026-03-15T09:00:00Z', 'ACCEPTED', '45e2598f-d571-5446-a09b-9e99336b68be', '4c7bfa10-4795-5322-839f-0e62110d15c3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_ai_prediction (id, prediction_type, input_reference, output, confidence, predicted_at, human_review_status, model_id, reviewer_id, doc_status, created_at, updated_at)
-VALUES ('db00b154-db98-503a-a562-57037b88ffef', 'Prediction Type 4', 'Input Reference 4', '{}', 42.00, '2026-04-15T09:00:00Z', 'OVERRIDDEN', '3386e4ce-ef16-5fd7-940d-8c40041c5204', '373de68f-162f-577c-ab66-37784a4bd315', 'final', NOW(), NOW())
+VALUES ('db00b154-db98-503a-a562-57037b88ffef', 'Prediction Type 4', 'AI Prediction 4', '{}', 42.00, '2026-04-15T09:00:00Z', 'OVERRIDDEN', '3386e4ce-ef16-5fd7-940d-8c40041c5204', '373de68f-162f-577c-ab66-37784a4bd315', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_ai_prediction (id, prediction_type, input_reference, output, confidence, predicted_at, human_review_status, model_id, reviewer_id, doc_status, created_at, updated_at)
-VALUES ('042af9f4-b3de-575a-a8ee-abf5f1282a58', 'Prediction Type 5', 'Input Reference 5', '{}', 52.50, '2026-05-15T09:00:00Z', 'REJECTED', '702a91a5-da0d-5c02-b876-df27ec39ce0d', '66f7d66a-f6c1-5653-a794-b49cb79df58a', 'final', NOW(), NOW())
+VALUES ('042af9f4-b3de-575a-a8ee-abf5f1282a58', 'Prediction Type 5', 'AI Prediction 5', '{}', 52.50, '2026-05-15T09:00:00Z', 'REJECTED', '702a91a5-da0d-5c02-b876-df27ec39ce0d', '66f7d66a-f6c1-5653-a794-b49cb79df58a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- AI Evaluation (bus_ai_evaluation)

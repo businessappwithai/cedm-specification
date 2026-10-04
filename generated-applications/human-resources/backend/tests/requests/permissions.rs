@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T09:32:36.452Z
+//! Generated: 2026-10-04T01:11:56.576Z
 //! Project: human-resources
 
 use serde_json::Value;

@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `claude/gstack-drug-discovery-qa-lkhred`
-**Model under test:** `examples/drug-discovery.eml.mmd`
+**Model under test:** `examples/drug-discovery.eml.yaml`
 **Scope:** close every open item from the previous passes, then run the generated
 application — Rust backend, TanStack/Astryx frontend — and use it.
 

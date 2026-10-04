@@ -150,19 +150,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('34af42eb-4bea-5a3e-b2c8-96d765111639', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '33f97b6f-99e6-5aaf-a3ea-c4b13006f905', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'b9b578b0-6c77-5d0d-a1d6-595622f2a0d0', 'b8c22183-fadb-54ca-a560-9fd8e99d6cee', 'afb0140e-415d-5c60-9203-27f3c2252a33', 'final', NOW(), NOW())
+VALUES ('34af42eb-4bea-5a3e-b2c8-96d765111639', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '33f97b6f-99e6-5aaf-a3ea-c4b13006f905', '93c56daf-ae30-51fc-a1c8-f52421a0b326', 'b9b578b0-6c77-5d0d-a1d6-595622f2a0d0', 'b8c22183-fadb-54ca-a560-9fd8e99d6cee', 'afb0140e-415d-5c60-9203-27f3c2252a33', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('5b662438-ae45-5363-8aac-cd2ba31c04a4', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'f344077e-9b91-52cb-81d0-635533b9c3a5', '259029ab-1c9f-58f9-83e2-1ebfcc8c1d4d', '4eb6ddb2-0051-528a-9ce3-8a7bfd6832e7', 'final', NOW(), NOW())
+VALUES ('5b662438-ae45-5363-8aac-cd2ba31c04a4', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'bcdde785-4cdd-5626-858d-9f287b8c765a', 'a7cf5e89-2a30-5894-a811-4c189c0de18d', 'f344077e-9b91-52cb-81d0-635533b9c3a5', '259029ab-1c9f-58f9-83e2-1ebfcc8c1d4d', '4eb6ddb2-0051-528a-9ce3-8a7bfd6832e7', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('28fece5a-99bd-533d-85b3-27c2b8a17628', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'ceda296e-1dd4-5f0f-9da4-9916190f9283', '4d23ff0e-3f84-5650-89ee-b64cd2ad2b2a', '3ee20a39-6379-5fad-a6c1-471b4e8a6e8a', 'final', NOW(), NOW())
+VALUES ('28fece5a-99bd-533d-85b3-27c2b8a17628', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '9e7b21a4-dac2-5208-b6ba-c433993ecc11', 'a8264fb2-452c-507d-83ad-eea5dc832f58', 'ceda296e-1dd4-5f0f-9da4-9916190f9283', '4d23ff0e-3f84-5650-89ee-b64cd2ad2b2a', '3ee20a39-6379-5fad-a6c1-471b4e8a6e8a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('f66e3dff-3ec8-53c6-93b6-ee4c3ba6dc3c', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', 'cb59e05b-c041-5a29-9521-ac2714793800', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', '57dbeed7-20ba-5987-a0f4-965f257b3705', '724f84b0-8e86-5361-9edf-0727025bde41', '442e7ae9-3957-5bae-a802-55dc0ee3e091', 'final', NOW(), NOW())
+VALUES ('f66e3dff-3ec8-53c6-93b6-ee4c3ba6dc3c', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', 'cb59e05b-c041-5a29-9521-ac2714793800', '1b01939b-33ed-505a-9eec-37b3afef94a3', '57e35707-0d37-5d6b-87b4-ec18ed75f971', '57dbeed7-20ba-5987-a0f4-965f257b3705', '724f84b0-8e86-5361-9edf-0727025bde41', '442e7ae9-3957-5bae-a802-55dc0ee3e091', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('f4d4dfb8-15b2-5739-8b54-e37634d37181', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'ba149672-85b7-5486-afd5-b1839a16bf53', '6b862bbb-29ad-5735-8295-af2c5360b579', '3d971d6d-d58a-574d-8165-4b286f585842', 'final', NOW(), NOW())
+VALUES ('f4d4dfb8-15b2-5739-8b54-e37634d37181', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '26345603-3291-5a74-804f-c63141115901', '8e4420a0-ccb4-5716-8f47-329d81591990', 'ba149672-85b7-5486-afd5-b1839a16bf53', '6b862bbb-29ad-5735-8295-af2c5360b579', '3d971d6d-d58a-574d-8165-4b286f585842', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -371,53 +371,53 @@ ON CONFLICT DO NOTHING;
 
 -- Sampling Rule (bus_sampling_rule)
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('df36c85a-4149-566d-bde8-e7ca7850e1a5', 'Rule Number 1', 1, 1, 1, 1, 1, 'DRAFT', 'bef77dbe-4153-5037-9154-0a2858c75ce4', '6d16846a-ceaa-5468-a7d0-a11e36f22408', 'final', NOW(), NOW())
+VALUES ('df36c85a-4149-566d-bde8-e7ca7850e1a5', 'Sampling Rule 1', 1, 1, 1, 1, 1, 'DRAFT', 'bef77dbe-4153-5037-9154-0a2858c75ce4', '6d16846a-ceaa-5468-a7d0-a11e36f22408', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('8e117347-8b70-5ffd-8b96-4ca406ec4978', 'Rule Number 2', 2, 2, 2, 2, 2, 'DRAFT', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '34709964-4ec6-5439-ac69-6c632c01baa3', 'final', NOW(), NOW())
+VALUES ('8e117347-8b70-5ffd-8b96-4ca406ec4978', 'Sampling Rule 2', 2, 2, 2, 2, 2, 'DRAFT', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '34709964-4ec6-5439-ac69-6c632c01baa3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'Rule Number 3', 3, 3, 3, 3, 3, 'DRAFT', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'd5616500-3749-55b4-9aae-286871af6cb9', 'final', NOW(), NOW())
+VALUES ('b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'Sampling Rule 3', 3, 3, 3, 3, 3, 'DRAFT', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'd5616500-3749-55b4-9aae-286871af6cb9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'Rule Number 4', 4, 4, 4, 4, 4, 'DRAFT', '5b834b37-56c1-516f-b317-e61870e91539', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'final', NOW(), NOW())
+VALUES ('76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'Sampling Rule 4', 4, 4, 4, 4, 4, 'DRAFT', '5b834b37-56c1-516f-b317-e61870e91539', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_sampling_rule (id, rule_number, population_min, population_max, sample_size, acceptance_number, rejection_number, status, sampling_plan_id, quality_plan_id, doc_status, created_at, updated_at)
-VALUES ('6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'Rule Number 5', 5, 5, 5, 5, 5, 'DRAFT', '6588f947-1bcb-5b20-8873-55adabce302a', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'final', NOW(), NOW())
+VALUES ('6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'Sampling Rule 5', 5, 5, 5, 5, 5, 'DRAFT', '6588f947-1bcb-5b20-8873-55adabce302a', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Quality Inspection (bus_quality_inspection)
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'Inspection Number 1', '2026-01-15T09:00:00Z', 'OPEN', 'PASS', 'RELEASE', 'Notes 1', '6d16846a-ceaa-5468-a7d0-a11e36f22408', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
+VALUES ('a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'Quality Inspection 1', '2026-01-15T09:00:00Z', 'OPEN', 'PASS', 'RELEASE', 'Notes 1', '6d16846a-ceaa-5468-a7d0-a11e36f22408', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('2462754d-806a-57eb-84e8-11b9bf20d435', 'Inspection Number 2', '2026-02-15T09:00:00Z', 'OPEN', 'FAIL', 'ACCEPT', 'Notes 2', '34709964-4ec6-5439-ac69-6c632c01baa3', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
+VALUES ('2462754d-806a-57eb-84e8-11b9bf20d435', 'Quality Inspection 2', '2026-02-15T09:00:00Z', 'OPEN', 'FAIL', 'ACCEPT', 'Notes 2', '34709964-4ec6-5439-ac69-6c632c01baa3', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('5918decf-c186-58cf-b94a-3ce0b72af062', 'Inspection Number 3', '2026-03-15T09:00:00Z', 'OPEN', 'CONDITIONAL', 'REJECT', 'Notes 3', 'd5616500-3749-55b4-9aae-286871af6cb9', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
+VALUES ('5918decf-c186-58cf-b94a-3ce0b72af062', 'Quality Inspection 3', '2026-03-15T09:00:00Z', 'OPEN', 'CONDITIONAL', 'REJECT', 'Notes 3', 'd5616500-3749-55b4-9aae-286871af6cb9', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('1afb27d6-3123-5526-a9dc-fd6194a99b85', 'Inspection Number 4', '2026-04-15T09:00:00Z', 'OPEN', 'NOT_TESTED', 'QUARANTINE', 'Notes 4', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
+VALUES ('1afb27d6-3123-5526-a9dc-fd6194a99b85', 'Quality Inspection 4', '2026-04-15T09:00:00Z', 'OPEN', 'NOT_TESTED', 'QUARANTINE', 'Notes 4', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_inspection (id, inspection_number, inspection_date, status, result, disposition, notes, quality_plan_id, inspector_id, doc_status, created_at, updated_at)
-VALUES ('4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'Inspection Number 5', '2026-05-15T09:00:00Z', 'OPEN', 'PASS', 'RETURN_TO_SUPPLIER', 'Notes 5', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
+VALUES ('4344b5cb-9b05-56cf-87af-8efc2b3d83d4', 'Quality Inspection 5', '2026-05-15T09:00:00Z', 'OPEN', 'PASS', 'RETURN_TO_SUPPLIER', 'Notes 5', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Inspection Sample (bus_inspection_sample)
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('f6d13731-6974-5b81-9a21-4d0c9a2c5c82', 'Sample Number 1', '2026-01-15T09:00:00Z', 10.50, '4cb05e82-ec3a-596e-acf6-870e71f68934', 'SELECTED', 'Selection Basis 1', 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'bef77dbe-4153-5037-9154-0a2858c75ce4', 'df36c85a-4149-566d-bde8-e7ca7850e1a5', 'final', NOW(), NOW())
+VALUES ('f6d13731-6974-5b81-9a21-4d0c9a2c5c82', 'Inspection Sample 1', '2026-01-15T09:00:00Z', 10.50, '4cb05e82-ec3a-596e-acf6-870e71f68934', 'SELECTED', 'Selection Basis 1', 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'bef77dbe-4153-5037-9154-0a2858c75ce4', 'df36c85a-4149-566d-bde8-e7ca7850e1a5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('665acde9-2ef0-565d-b4e4-a404843df3b9', 'Sample Number 2', '2026-02-15T09:00:00Z', 21.00, '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'SELECTED', 'Selection Basis 2', '2462754d-806a-57eb-84e8-11b9bf20d435', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '8e117347-8b70-5ffd-8b96-4ca406ec4978', 'final', NOW(), NOW())
+VALUES ('665acde9-2ef0-565d-b4e4-a404843df3b9', 'Inspection Sample 2', '2026-02-15T09:00:00Z', 21.00, '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 'SELECTED', 'Selection Basis 2', '2462754d-806a-57eb-84e8-11b9bf20d435', 'ec90aae5-68be-5b64-89c3-1bb3fce4a17e', '8e117347-8b70-5ffd-8b96-4ca406ec4978', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('a91c218f-0d7a-508b-a93c-bb890c9ac3a6', 'Sample Number 3', '2026-03-15T09:00:00Z', 31.50, '95ec7619-1a1c-5986-84ca-25834d3f4083', 'SELECTED', 'Selection Basis 3', '5918decf-c186-58cf-b94a-3ce0b72af062', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'final', NOW(), NOW())
+VALUES ('a91c218f-0d7a-508b-a93c-bb890c9ac3a6', 'Inspection Sample 3', '2026-03-15T09:00:00Z', 31.50, '95ec7619-1a1c-5986-84ca-25834d3f4083', 'SELECTED', 'Selection Basis 3', '5918decf-c186-58cf-b94a-3ce0b72af062', 'ce0ffd1f-4361-53e1-8164-ba15ba90ed79', 'b4d4c1e9-b673-5c45-8c94-bf4763e372ec', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('7491c3fe-0a98-5523-9acc-b927b11d75bc', 'Sample Number 4', '2026-04-15T09:00:00Z', 42.00, '86183754-0710-5558-8b24-d82e83bb5013', 'SELECTED', 'Selection Basis 4', '1afb27d6-3123-5526-a9dc-fd6194a99b85', '5b834b37-56c1-516f-b317-e61870e91539', '76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'final', NOW(), NOW())
+VALUES ('7491c3fe-0a98-5523-9acc-b927b11d75bc', 'Inspection Sample 4', '2026-04-15T09:00:00Z', 42.00, '86183754-0710-5558-8b24-d82e83bb5013', 'SELECTED', 'Selection Basis 4', '1afb27d6-3123-5526-a9dc-fd6194a99b85', '5b834b37-56c1-516f-b317-e61870e91539', '76e331f8-27c2-57ab-a9a1-f5ca3b90f623', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_inspection_sample (id, sample_number, selected_at, quantity, unit_of_measure, status, selection_basis, quality_inspection_id, sampling_plan_id, sampling_rule_id, doc_status, created_at, updated_at)
-VALUES ('2881dbb7-2f70-5460-bbdd-702c798fba11', 'Sample Number 5', '2026-05-15T09:00:00Z', 52.50, 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 'SELECTED', 'Selection Basis 5', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', '6588f947-1bcb-5b20-8873-55adabce302a', '6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'final', NOW(), NOW())
+VALUES ('2881dbb7-2f70-5460-bbdd-702c798fba11', 'Inspection Sample 5', '2026-05-15T09:00:00Z', 52.50, 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 'SELECTED', 'Selection Basis 5', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', '6588f947-1bcb-5b20-8873-55adabce302a', '6ba9911b-bf58-53cf-85af-3b782b4cfc25', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Certificate Of Analysis (bus_certificate_of_analysis)
@@ -439,19 +439,19 @@ ON CONFLICT DO NOTHING;
 
 -- Quality Measurement (bus_quality_measurement)
 INSERT INTO bus_quality_measurement (id, measurement_number, characteristic_code, measured_value, measured_text, unit_of_measure, lower_limit, upper_limit, result, measured_at, method, notes, quality_characteristic_id, quality_plan_characteristic_id, test_method_id, quality_inspection_id, inspection_sample_id, quality_plan_id, certificate_of_analysis_id, doc_status, created_at, updated_at)
-VALUES ('b78525b2-ebfb-53f9-8cad-23c774ff167f', 'Measurement Number 1', 'Characteristic Code 1', 10.50, 'Measured Text 1', '4cb05e82-ec3a-596e-acf6-870e71f68934', 10.50, 10.50, 'PASS', '2026-01-15T09:00:00Z', 'Method 1', 'Notes 1', '4e80fa5f-fb85-58cd-b191-46633e07a354', '903112fb-7b76-5e5a-b94f-5f29da20d335', '4a43b649-26ff-5238-8e8a-5c6160416c3a', 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'f6d13731-6974-5b81-9a21-4d0c9a2c5c82', '6d16846a-ceaa-5468-a7d0-a11e36f22408', '2540836a-25cd-5888-8393-3150b4907689', 'final', NOW(), NOW())
+VALUES ('b78525b2-ebfb-53f9-8cad-23c774ff167f', 'Quality Measurement 1', 'Characteristic Code 1', 10.50, 'Measured Text 1', '4cb05e82-ec3a-596e-acf6-870e71f68934', 10.50, 10.50, 'PASS', '2026-01-15T09:00:00Z', 'Method 1', 'Notes 1', '4e80fa5f-fb85-58cd-b191-46633e07a354', '903112fb-7b76-5e5a-b94f-5f29da20d335', '4a43b649-26ff-5238-8e8a-5c6160416c3a', 'a021e323-9c65-5b4b-b0ab-dd7706b062e1', 'f6d13731-6974-5b81-9a21-4d0c9a2c5c82', '6d16846a-ceaa-5468-a7d0-a11e36f22408', '2540836a-25cd-5888-8393-3150b4907689', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_measurement (id, measurement_number, characteristic_code, measured_value, measured_text, unit_of_measure, lower_limit, upper_limit, result, measured_at, method, notes, quality_characteristic_id, quality_plan_characteristic_id, test_method_id, quality_inspection_id, inspection_sample_id, quality_plan_id, certificate_of_analysis_id, doc_status, created_at, updated_at)
-VALUES ('c3376c48-da5e-52e1-92a8-c7cc1f1408c0', 'Measurement Number 2', 'Characteristic Code 2', 21.00, 'Measured Text 2', '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 21.00, 21.00, 'FAIL', '2026-02-15T09:00:00Z', 'Method 2', 'Notes 2', '151b56d6-3306-5e21-a27b-6393af041629', '767d366d-4578-582c-8ab2-66a9d70690fb', 'af0e9c3e-9532-566b-845c-32e4909d0c5b', '2462754d-806a-57eb-84e8-11b9bf20d435', '665acde9-2ef0-565d-b4e4-a404843df3b9', '34709964-4ec6-5439-ac69-6c632c01baa3', '3a144469-795a-5d59-a379-9f1857e55263', 'final', NOW(), NOW())
+VALUES ('c3376c48-da5e-52e1-92a8-c7cc1f1408c0', 'Quality Measurement 2', 'Characteristic Code 2', 21.00, 'Measured Text 2', '5fbe781e-24b6-50ec-8b4d-ab67202ddb2b', 21.00, 21.00, 'FAIL', '2026-02-15T09:00:00Z', 'Method 2', 'Notes 2', '151b56d6-3306-5e21-a27b-6393af041629', '767d366d-4578-582c-8ab2-66a9d70690fb', 'af0e9c3e-9532-566b-845c-32e4909d0c5b', '2462754d-806a-57eb-84e8-11b9bf20d435', '665acde9-2ef0-565d-b4e4-a404843df3b9', '34709964-4ec6-5439-ac69-6c632c01baa3', '3a144469-795a-5d59-a379-9f1857e55263', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_measurement (id, measurement_number, characteristic_code, measured_value, measured_text, unit_of_measure, lower_limit, upper_limit, result, measured_at, method, notes, quality_characteristic_id, quality_plan_characteristic_id, test_method_id, quality_inspection_id, inspection_sample_id, quality_plan_id, certificate_of_analysis_id, doc_status, created_at, updated_at)
-VALUES ('c1cf3ecc-41ba-5797-88d3-984e511b532a', 'Measurement Number 3', 'Characteristic Code 3', 31.50, 'Measured Text 3', '95ec7619-1a1c-5986-84ca-25834d3f4083', 31.50, 31.50, 'CONDITIONAL', '2026-03-15T09:00:00Z', 'Method 3', 'Notes 3', '156eae41-922e-5a10-a4fa-b3ab02dbc4d0', '2e675c6d-6f9b-5bb6-83b3-e3116190eeb0', 'd1a35ae1-fa88-57b6-8b9d-1191d1b98b6e', '5918decf-c186-58cf-b94a-3ce0b72af062', 'a91c218f-0d7a-508b-a93c-bb890c9ac3a6', 'd5616500-3749-55b4-9aae-286871af6cb9', '03cf18f3-bff8-5fe7-93ca-a40262a902b2', 'final', NOW(), NOW())
+VALUES ('c1cf3ecc-41ba-5797-88d3-984e511b532a', 'Quality Measurement 3', 'Characteristic Code 3', 31.50, 'Measured Text 3', '95ec7619-1a1c-5986-84ca-25834d3f4083', 31.50, 31.50, 'CONDITIONAL', '2026-03-15T09:00:00Z', 'Method 3', 'Notes 3', '156eae41-922e-5a10-a4fa-b3ab02dbc4d0', '2e675c6d-6f9b-5bb6-83b3-e3116190eeb0', 'd1a35ae1-fa88-57b6-8b9d-1191d1b98b6e', '5918decf-c186-58cf-b94a-3ce0b72af062', 'a91c218f-0d7a-508b-a93c-bb890c9ac3a6', 'd5616500-3749-55b4-9aae-286871af6cb9', '03cf18f3-bff8-5fe7-93ca-a40262a902b2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_measurement (id, measurement_number, characteristic_code, measured_value, measured_text, unit_of_measure, lower_limit, upper_limit, result, measured_at, method, notes, quality_characteristic_id, quality_plan_characteristic_id, test_method_id, quality_inspection_id, inspection_sample_id, quality_plan_id, certificate_of_analysis_id, doc_status, created_at, updated_at)
-VALUES ('6cc237aa-42d8-5536-b68d-79646f48cf86', 'Measurement Number 4', 'Characteristic Code 4', 42.00, 'Measured Text 4', '86183754-0710-5558-8b24-d82e83bb5013', 42.00, 42.00, 'NOT_EVALUATED', '2026-04-15T09:00:00Z', 'Method 4', 'Notes 4', 'a02f6cff-f172-5143-9325-4657bec81cf0', 'cc75ed8d-3246-5fca-bf8f-7c2206b97148', '3221babc-14e4-5456-a9a3-5ea4f414c904', '1afb27d6-3123-5526-a9dc-fd6194a99b85', '7491c3fe-0a98-5523-9acc-b927b11d75bc', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', '428ce973-df6e-585a-9682-47cab563cd16', 'final', NOW(), NOW())
+VALUES ('6cc237aa-42d8-5536-b68d-79646f48cf86', 'Quality Measurement 4', 'Characteristic Code 4', 42.00, 'Measured Text 4', '86183754-0710-5558-8b24-d82e83bb5013', 42.00, 42.00, 'NOT_EVALUATED', '2026-04-15T09:00:00Z', 'Method 4', 'Notes 4', 'a02f6cff-f172-5143-9325-4657bec81cf0', 'cc75ed8d-3246-5fca-bf8f-7c2206b97148', '3221babc-14e4-5456-a9a3-5ea4f414c904', '1afb27d6-3123-5526-a9dc-fd6194a99b85', '7491c3fe-0a98-5523-9acc-b927b11d75bc', 'e05b8bf9-32e1-54c0-9150-f0e91e7d60a5', '428ce973-df6e-585a-9682-47cab563cd16', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_quality_measurement (id, measurement_number, characteristic_code, measured_value, measured_text, unit_of_measure, lower_limit, upper_limit, result, measured_at, method, notes, quality_characteristic_id, quality_plan_characteristic_id, test_method_id, quality_inspection_id, inspection_sample_id, quality_plan_id, certificate_of_analysis_id, doc_status, created_at, updated_at)
-VALUES ('32ecc870-2821-516d-9edc-7b4219b94d23', 'Measurement Number 5', 'Characteristic Code 5', 52.50, 'Measured Text 5', 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 52.50, 52.50, 'PASS', '2026-05-15T09:00:00Z', 'Method 5', 'Notes 5', '02c3e472-9301-503e-b7e8-d733a963e87a', '9fafd5f9-98b8-5dac-adca-6befe5d35876', 'abbecb0b-c084-5953-973a-a19c54bfcb48', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', '2881dbb7-2f70-5460-bbdd-702c798fba11', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'ee5ab055-c18f-5d92-8fed-57b18b53be72', 'final', NOW(), NOW())
+VALUES ('32ecc870-2821-516d-9edc-7b4219b94d23', 'Quality Measurement 5', 'Characteristic Code 5', 52.50, 'Measured Text 5', 'cc09702e-98af-5c58-9b46-bcedd9ac327c', 52.50, 52.50, 'PASS', '2026-05-15T09:00:00Z', 'Method 5', 'Notes 5', '02c3e472-9301-503e-b7e8-d733a963e87a', '9fafd5f9-98b8-5dac-adca-6befe5d35876', 'abbecb0b-c084-5953-973a-a19c54bfcb48', '4344b5cb-9b05-56cf-87af-8efc2b3d83d4', '2881dbb7-2f70-5460-bbdd-702c798fba11', 'e32c403b-51ed-5faf-ac88-8201b52ddfa3', 'ee5ab055-c18f-5d92-8fed-57b18b53be72', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Nonconformance (bus_nonconformance)
@@ -473,36 +473,36 @@ ON CONFLICT DO NOTHING;
 
 -- Corrective Action (bus_corrective_action)
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('985661f8-4747-5f86-8d5b-cbca9117f507', 'Action Number 1', 'CONTAINMENT', 'Description 1', 'OPEN', NULL, NULL, '48aa1600-b85e-5588-a168-923794ce6246', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
+VALUES ('985661f8-4747-5f86-8d5b-cbca9117f507', 'Corrective Action 1', 'CONTAINMENT', 'Description 1', 'OPEN', NULL, NULL, '48aa1600-b85e-5588-a168-923794ce6246', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('85c16536-6eab-5308-b295-974b06aa0eda', 'Action Number 2', 'CORRECTION', 'Description 2', 'OPEN', NULL, NULL, '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
+VALUES ('85c16536-6eab-5308-b295-974b06aa0eda', 'Corrective Action 2', 'CORRECTION', 'Description 2', 'OPEN', NULL, NULL, '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'Action Number 3', 'CORRECTIVE', 'Description 3', 'OPEN', NULL, NULL, '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
+VALUES ('f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'Corrective Action 3', 'CORRECTIVE', 'Description 3', 'OPEN', NULL, NULL, '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'Action Number 4', 'PREVENTIVE', 'Description 4', 'OPEN', NULL, NULL, '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
+VALUES ('ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'Corrective Action 4', 'PREVENTIVE', 'Description 4', 'OPEN', NULL, NULL, '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'cb59e05b-c041-5a29-9521-ac2714793800', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action (id, action_number, action_type, description, status, due_date, completed_date, nonconformance_id, owner_id, doc_status, created_at, updated_at)
-VALUES ('932aee24-3742-51e0-9acb-522715a96831', 'Action Number 5', 'CONTAINMENT', 'Description 5', 'OPEN', NULL, NULL, '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
+VALUES ('932aee24-3742-51e0-9acb-522715a96831', 'Corrective Action 5', 'CONTAINMENT', 'Description 5', 'OPEN', NULL, NULL, '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Corrective Action Verification (bus_corrective_action_verification)
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('7af571c1-8208-5707-bc5b-19cfac47b3b4', 'Verification Number 1', '2026-01-15T09:00:00Z', 'EFFECTIVE', 'OPEN', 'Findings 1', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '48aa1600-b85e-5588-a168-923794ce6246', '985661f8-4747-5f86-8d5b-cbca9117f507', 'final', NOW(), NOW())
+VALUES ('7af571c1-8208-5707-bc5b-19cfac47b3b4', 'Corrective Action Verification 1', '2026-01-15T09:00:00Z', 'EFFECTIVE', 'OPEN', 'Findings 1', 'a681b4f5-8c6e-56a9-a8ca-95c3fdc8e644', '48aa1600-b85e-5588-a168-923794ce6246', '985661f8-4747-5f86-8d5b-cbca9117f507', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('b6b69a86-a343-526b-a892-96c34b82c14b', 'Verification Number 2', '2026-02-15T09:00:00Z', 'PARTIALLY_EFFECTIVE', 'OPEN', 'Findings 2', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '85c16536-6eab-5308-b295-974b06aa0eda', 'final', NOW(), NOW())
+VALUES ('b6b69a86-a343-526b-a892-96c34b82c14b', 'Corrective Action Verification 2', '2026-02-15T09:00:00Z', 'PARTIALLY_EFFECTIVE', 'OPEN', 'Findings 2', '0b3c2dcd-df5e-5f71-a6da-73699ed728d3', '2dbd7c7b-c966-5d9d-ad7c-5995699a3a26', '85c16536-6eab-5308-b295-974b06aa0eda', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('98bf2333-a2e3-59ed-8623-83d1e794da23', 'Verification Number 3', '2026-03-15T09:00:00Z', 'INEFFECTIVE', 'OPEN', 'Findings 3', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'final', NOW(), NOW())
+VALUES ('98bf2333-a2e3-59ed-8623-83d1e794da23', 'Corrective Action Verification 3', '2026-03-15T09:00:00Z', 'INEFFECTIVE', 'OPEN', 'Findings 3', 'ecdc64e3-66df-5217-b2aa-a96c6a7fdd39', '7f3e94e2-4b2c-5a23-a0e8-8ea7e7cbf319', 'f66c9753-30a3-5ff7-ae41-9ff61bbda812', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('70b4ba7e-6306-574e-bea9-a39a687801e5', 'Verification Number 4', '2026-04-15T09:00:00Z', 'NOT_VERIFIABLE', 'OPEN', 'Findings 4', 'cb59e05b-c041-5a29-9521-ac2714793800', '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'final', NOW(), NOW())
+VALUES ('70b4ba7e-6306-574e-bea9-a39a687801e5', 'Corrective Action Verification 4', '2026-04-15T09:00:00Z', 'NOT_VERIFIABLE', 'OPEN', 'Findings 4', 'cb59e05b-c041-5a29-9521-ac2714793800', '1d8f32d2-eb3d-5295-9d54-d464c2babb90', 'ac281fc6-1f0b-5fd5-b1e8-c7e092fea35c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_corrective_action_verification (id, verification_number, verification_date, result, status, findings, verified_by, nonconformance_id, corrective_action_id, doc_status, created_at, updated_at)
-VALUES ('62b97123-1359-55ff-a8e3-f734a4449f96', 'Verification Number 5', '2026-05-15T09:00:00Z', 'EFFECTIVE', 'OPEN', 'Findings 5', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', '932aee24-3742-51e0-9acb-522715a96831', 'final', NOW(), NOW())
+VALUES ('62b97123-1359-55ff-a8e3-f734a4449f96', 'Corrective Action Verification 5', '2026-05-15T09:00:00Z', 'EFFECTIVE', 'OPEN', 'Findings 5', 'f05ac1a8-c8b7-53db-ab50-df6c0a4019e9', '657ee3d7-fb97-524a-93d2-b0a9b4de35bb', '932aee24-3742-51e0-9acb-522715a96831', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Return Disposition (bus_return_disposition)

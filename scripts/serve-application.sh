@@ -35,6 +35,12 @@ rm -rf "$app" && cp -r "generated-applications/$domain" "$app"
 psql -h localhost -U postgres -qc "DROP DATABASE IF EXISTS $db" -c "CREATE DATABASE $db" || exit 1
 export DATABASE_URL="$PG/$db"
 export CARGO_TARGET_DIR="$SCRATCH/target-$domain"
+# The general budget is 300 requests a minute per signed-in user — generous
+# for a person, and a browser script opening forty screens a minute exceeds it
+# and records every refusal as a finding. QA drives at machine speed, so it
+# runs with a machine-sized budget; the limiter stays on, and
+# tests/requests/rate_limit.rs is what checks it.
+export RATE_LIMIT_MAX_PER_MINUTE="${RATE_LIMIT_MAX_PER_MINUTE:-6000}"
 
 ( cd "$app/backend" \
   && cargo build -q --bin "${domain}-cli" 2>"$SCRATCH/$domain-build.log" \

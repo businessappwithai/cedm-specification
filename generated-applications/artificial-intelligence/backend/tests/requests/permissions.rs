@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-01T09:30:59.016Z
+//! Generated: 2026-10-04T01:11:14.026Z
 //! Project: artificial-intelligence
 
 use serde_json::Value;

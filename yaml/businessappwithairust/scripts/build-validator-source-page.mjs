@@ -3,14 +3,14 @@
  * Builds `guide/source/` — the published validators as **HTML pages**.
  *
  * Why this exists. The ladder in §8.4 assumes that a runtime which can reach
- * the site can fetch `checker.js`. Not every one can: a browsing or fetch layer
+ * the site can fetch `model-yaml.js`. Not every one can: a browsing or fetch layer
  * that happily reads a *page* will refuse `application/javascript` outright, and
  * reports it as the resource being inaccessible — which reads like the site
  * being broken while the site is answering. Observed repeatedly from one
- * runtime, on all three files at once, while that same layer could read pages
+ * runtime, on every file at once, while that same layer could read pages
  * from the same host.
  *
- * So each module is also published inside a page: `guide/source/checker.js.html`
+ * So each module is also published inside a page: `guide/source/model-yaml.js.html`
  * and so on. The page carries the file **base64-encoded**, which is the part
  * that makes it worth doing at all:
  *

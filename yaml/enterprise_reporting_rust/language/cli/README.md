@@ -3,14 +3,14 @@
 Reads a model (`*.eml.yaml`: ERD + business rules + workflows), validates it
 with the language's own reader, and generates code for this platform from it.
 
-The reader is the one at the root of the repository
-([`language/cli/src/document.ts`](../../../../language/cli/src/document.ts) over
-`packages/generator/src/model-yaml`): YAML syntax, the JSON Schema, the full
+The reader is `app-with-ai-rust`'s, from the checkout beside this repository
+([`language/cli/src/document.ts`](../../../app-with-ai-rust/language/cli/src/document.ts) over
+`app-with-ai-rust/packages/generator/src/model-yaml`): YAML syntax, the JSON Schema, the full
 language checker, and every finding located at its YAML line and column. The
 generators — `enterprise-reporting` and `node-rest` — are this platform's own.
 
-Runs under **Bun**, from this repository's checkout (the reader resolves its
-`yaml` and `ajv` from the root install).
+Runs under **Bun**, with `app-with-ai-rust` checked out beside this repository
+and installed (the reader resolves its `yaml` and `ajv` from that install).
 
 ```bash
 bun language/cli/eml.ts --help

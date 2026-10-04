@@ -33,7 +33,6 @@ interface WorkflowEditorComponentProps {
     enabled: boolean;
     order: number;
   }>;
-  flowchartCode: string;
 }
 
 const getStepIcon = (type: WorkflowStep["type"]) => {

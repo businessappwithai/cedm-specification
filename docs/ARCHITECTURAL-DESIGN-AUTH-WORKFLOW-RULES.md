@@ -95,7 +95,7 @@ The current AppWithAI v5.1 system comprises:
 ├─────────────────────────────────────────────────────────────┤
 │  @appwithai/core     │ Hook System, RBAC Types, Services     │
 │  @appwithai/ai       │ Mastra.ai Agents, HITL Workflows      │
-│  @appwithai/generator│ Mermaid Parser, Handlebars Templates  │
+│  @appwithai/generator│ ERD Parser, Handlebars Templates  │
 │  @appwithai/web      │ Next.js Web App, CopilotKit           │
 └─────────────────────────────────────────────────────────────┘
                               ↓

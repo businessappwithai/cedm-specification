@@ -1,8 +1,8 @@
-# QA pass — the generator and the generated app, over `crm.eml.mmd`
+# QA pass — the generator and the generated app, over `crm.eml.yaml`
 
 **Date**: 2026-09-12
-**Model**: `language/examples/crm.eml.mmd` — 17 entities, 7 categories, 8 rules,
-5 state machines, 38 `%%hook` declarations, 5 sagas, 34 `%%rbac` directives.
+**Model**: `language/yaml/examples/crm.eml.yaml` — 17 entities, 7 categories, 8 rules,
+5 state machines, 38 `hooks` declarations, 5 sagas, 34 `rbac` entries.
 **Scope**: the full application generator, then the application it generates —
 built, migrated, seeded, served, and driven over HTTP and through a browser.
 
@@ -22,7 +22,7 @@ closing it is a feature with a product decision in it rather than a repair.
 |---|---|
 | Defects found | 4 |
 | Fixed here | 3 |
-| Left open | 1 (`%%entity parent:` is not honoured by the frontend) |
+| Left open | 1 (`parent` is not honoured by the frontend) |
 | Gates run | 9, all green after the fixes |
 
 ### The four
@@ -35,7 +35,7 @@ closing it is a feature with a product decision in it rather than a repair.
    command printed a deprecation warning. *Fixed.*
 3. **24 dead file copies in the frontend generator** printed 24
    "component not found" warnings on every generation run. *Fixed.*
-4. **`%%entity … parent:` is enforced in the dictionary and ignored by the
+4. **an entity's `parent` is enforced in the dictionary and ignored by the
    generated frontend**, in both directions. *Reported, not fixed.*
 
 ---
@@ -63,7 +63,7 @@ blocking action name:
 ```
 
 `prevent` is what the rules *editor* writes. `validation-error` is what a
-model's `%%action` compiles to. A matched `validation-error` therefore fell
+model's a rule's `actions` compiles to. A matched `validation-error` therefore fell
 past the blocking pass into `run_action`, hit the catch-all arm, and was
 logged and dropped:
 
@@ -250,13 +250,13 @@ diffing two full generations.
 
 ---
 
-## 4. `%%entity … parent:` is ignored by the generated frontend — **left open**
+## 4. an entity's `parent` is ignored by the generated frontend — **left open**
 
 **Severity: medium.** Reported rather than fixed: see the end of this section.
 
 `CLAUDE.md` states the contract:
 
-> `%%entity InvoiceLine parent: Invoice` says the child has no life away from
+> `parent: Invoice` on `InvoiceLine` says the child has no life away from
 > its parent … no `sys_window`, so **no card on the dashboard and nothing to
 > navigate to**, and its `sys_tab` is attached to the *parent's* window.
 
@@ -275,7 +275,7 @@ diffing two full generations.
 - The child **does** get a dashboard card. The dashboard reads
   `/api/sys/categories/with-entities`, which is `sys_table` + category and knows
   nothing about windows, so `Opportunity Line Item` and `Quote Line Item` appear
-  as cards — and, because the model lists neither under a `%%category`, they
+  as cards — and, because the model lists neither under a `categories`, they
   land in the **default** category, rendering under *People and Teams*.
 - The child **does** get a standalone route. `opportunity-line-item.tsx` and
   `quote-line-item.tsx` are generated and render a working list at
@@ -293,7 +293,7 @@ would make line items unreachable in the UI entirely — strictly worse than
 today. Wiring it in is a feature with product decisions inside it: whether a
 child is reachable standalone for an administrator at all, whether the tab
 edits inline or links out, and what the dashboard does with a child whose
-`%%category` was never declared. That is a change to specify, not a defect to
+`categories` was never declared. That is a change to specify, not a defect to
 patch during a QA pass.
 
 Worth noting alongside it: the default-category fallback is what puts line
@@ -305,7 +305,7 @@ categorisation bug rather than a windowing one.
 
 ## What was verified and passed
 
-Everything below was run against `crm.eml.mmd` **after** the three fixes.
+Everything below was run against `crm.eml.yaml` **after** the three fixes.
 
 ### The generator
 
@@ -349,7 +349,7 @@ Emission-layer checks on the output:
 | `LOCO_ENV=test cargo test --test app` | **292 passed** (291 before; +1) |
 
 Seeded accounts are right: `users` holds 9 — `admin@admin.com`, the seven
-`%%rbac` demonstration accounts, and a plain user — matching `sys_role`'s 9.
+`rbac` demonstration accounts, and a plain user — matching `sys_role`'s 9.
 (`bus_user` is empty and should be: it is the *business* User entity, not the
 credential table.)
 
@@ -370,7 +370,7 @@ credential table.)
 - **Lookups**: `resolve_ref_table_name` derives all three of Account's targets
   correctly, including the suffix-less person role: `owner_id → bus_user`,
   `territory_id → bus_territory`, `sla_policy_id → bus_sla_policy`.
-- **`%%enum` → `sys_ref_list`**: the modelled values are the ones the API
+- **`enums` → `sys_ref_list`**: the modelled values are the ones the API
   enforces (`account_type`, `status`, `role`, …).
 - **RBAC gate 2** is exact, and the two roles are complementary:
 
@@ -395,7 +395,7 @@ credential table.)
 - Browser pass (Chromium, `/opt/pw-browsers/chromium-1194`): login →
   `/dashboard` → entity list → detail, no page errors beyond two expected 401s
   from pre-auth probes.
-- The dashboard renders all 7 `%%category` sections with their descriptions,
+- The dashboard renders all 7 `categories` sections with their descriptions,
   icons and colours, plus the 5-window Application Dictionary section.
 - A record created over the API appears in the list UI.
 - The detail view resolves lookup **labels**, not raw UUIDs — "QA Runtime
@@ -414,7 +414,7 @@ credential table.)
   (`postgres://postgres@localhost:5432/crm_development`) to connect over TCP in
   this container. That is environment, not generator: `DATABASE_URL` overrides
   it everywhere, as documented.
-- `bun language/checker.ts` writes a `<model>.eml.mmd.error` sidecar even when
+- `bun language/checker.ts` writes a `<model>.error` sidecar even when
   it finds nothing (`"ok": true`, `"issues": []`). Harmless and gitignored, but
   the name reads as a failure. `language/` is byte-identical to the sibling repo
   and not editable here, so this is a note for that repo, not a finding.

@@ -3,7 +3,7 @@
 //! One module per entity, so a failure names the entity that broke instead of
 //! collapsing every entity into one suite.
 //!
-//! Generated: 2026-10-01T09:33:43.791Z
+//! Generated: 2026-10-04T01:12:28.196Z
 //! Project: procurement
 
 use serde_json::{json, Value};
@@ -12,7 +12,7 @@ use serial_test::serial;
 use crate::support::{
     self, bearer,
     entities::entity,
-    factory::{build_invalid_record, build_record, create_with_parents},
+    factory::{build_invalid_record, build_record, create_with_parents, marked},
     rows, total,
 };
 
@@ -78,7 +78,7 @@ async fn persists_the_values_it_was_given() {
             return;
         };
 
-        let marker = format!("marker-{}", uuid::Uuid::new_v4());
+        let marker = marked(text_field, "marker");
         let created = create_with_parents(
             &request,
             &token,
@@ -128,7 +128,7 @@ async fn updates_with_patch_and_bumps_the_version() {
             .to_string();
         let before = created.get("version").and_then(Value::as_i64).unwrap_or(0);
 
-        let updated = format!("patched-{}", uuid::Uuid::new_v4());
+        let updated = marked(text_field, "patched");
         let response = request
             .patch(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))

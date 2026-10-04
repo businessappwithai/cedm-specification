@@ -6,4 +6,4 @@
  * shape by `language/cli/src/document.ts` there. This CLI's generators consume
  * it; nothing here reads model text.
  */
-export * from "../../../../../language/cli/src/model.ts";
+export * from "../../../../app-with-ai-rust/language/cli/src/model.ts";

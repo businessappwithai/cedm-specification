@@ -36,11 +36,11 @@ import path from "node:path";
 import {
   ModelYamlError,
   parseModelYaml,
-} from "../../../../packages/generator/src/model-yaml/index.ts";
+} from "../../../app-with-ai-rust/packages/generator/src/model-yaml/index.ts";
 import {
   buildReportingPack,
   type ReportingPack,
-} from "../../../../packages/generator/src/reporting/pack.ts";
+} from "../../../app-with-ai-rust/packages/generator/src/reporting/pack.ts";
 
 export type {
   AccessRoleSpec,
@@ -51,7 +51,7 @@ export type {
   ReportingPack,
   ReportSpec,
   SavedQuerySpec,
-} from "../../../../packages/generator/src/reporting/pack.ts";
+} from "../../../app-with-ai-rust/packages/generator/src/reporting/pack.ts";
 
 /**
  * Build a pack for one model.

@@ -1,6 +1,6 @@
 //! What the model's access rules compile to, enforced on the request.
 //!
-//! Generated: 2026-10-01T09:32:36.465Z
+//! Generated: 2026-10-04T01:11:56.585Z
 //! Project: human-resources
 //!
 //! Every other suite in this crate signs in as the seeded administrator, who

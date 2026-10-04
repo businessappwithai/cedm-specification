@@ -11,10 +11,10 @@ This skill provides guidance for working with the AI package of AppWithAI, which
 
 The AI package provides:
 
-- **AI Agents**: Specialized agents for domain analysis, entity refinement, relationship detection, and Mermaid generation
+- **AI Agents**: Specialized agents for domain analysis, entity refinement and relationship detection
 - **HITL Workflows**: Human-in-the-loop workflows using Mastra.ai suspend/resume
-- **Converter**: Standalone AI-to-Mermaid conversion utilities
-- **CLI Tool**: Command-line interface for AI conversion
+- **Converter**: Natural language → a YAML model document (`*.eml.yaml`), checked by the generator's own reader before it is returned
+- **CLI Tool**: `appwithai-convert`, which writes a new model or revises an existing one
 
 ## Directory Structure
 
@@ -25,18 +25,21 @@ packages/ai/
 │   │   ├── domain-agent.ts       # Analyzes domain descriptions
 │   │   ├── entity-agent.ts       # Refines entity structure
 │   │   ├── relationship-agent.ts # Determines relationship cardinality
-│   │   ├── mermaid-agent.ts      # Generates Mermaid ERD syntax
 │   │   └── index.ts
+│   ├── model/
+│   │   └── from-domain.ts        # DomainAnalysis → model document, deterministically
 │   ├── workflows/
 │   │   ├── erd-design-workflow.ts # HITL ERD design workflow
 │   │   └── index.ts
 │   ├── converter/
-│   │   └── index.ts              # Standalone conversion utilities
+│   │   ├── index.ts              # convertToModel
+│   │   └── local-model.ts        # analysis and revision against the local model
 │   ├── cli/
 │   │   └── convert.ts            # CLI entry point
 │   ├── types/
 │   │   └── index.ts              # Zod schemas and types
-│   ├── mastra.ts                 # Mastra instance configuration
+│   ├── config.ts                 # The one place the model endpoint is configured
+│   ├── mastra.ts                 # Mastra dev-server entrypoint
 │   └── index.ts
 └── package.json
 ```
@@ -74,86 +77,79 @@ const refined = await refineEntity({
 // Returns: User with proper PascalCase, id, timestamps, email validation
 ```
 
-#### Mermaid Agent
-Generates Mermaid ERD syntax (with programmatic fallback):
+#### From analysis to model
+The model document is written from an approved analysis by code, not by a
+model, so the same analysis always produces the same YAML:
 
 ```typescript
-import { generateMermaidProgrammatic } from '@appwithai/ai';
+import { domainToModelDocument } from '@appwithai/ai';
+import { serializeModelDocument } from '@appwithai/generator/model-yaml';
 
-const result = generateMermaidProgrammatic(entities, relationships);
-console.log(result.mermaidSyntax);
-// erDiagram
-//     User ||--o{ Post : creates
-//     ...
+const { document, dropped } = domainToModelDocument(analysis, "Shop");
+const yaml = serializeModelDocument(document);
+// `dropped` names relationships between entities the analysis did not declare.
 ```
 
 ### Mastra.ai Integration
 
-The package uses Mastra.ai for agent orchestration:
+The Mastra instance (`src/mastra/index.ts`) registers `codeAgent` only; the
+three agents above are used directly by the converter and the workflow. The dev server (`src/mastra.ts`, `bun run dev:mastra`) registers all three and `erdDesignWorkflow`.
 
 ```typescript
 import { mastra } from '@appwithai/ai';
 
-// Get the Mastra instance
-const agent = mastra.getAgent('domainAgent');
-
-// Get workflows
-const workflow = mastra.getWorkflow('erdDesignWorkflow');
+const agent = mastra.getAgent('codeAgent');
 ```
 
 ### HITL Workflows
 
-Workflows support suspension for human approval:
+`erdDesignWorkflow` analyzes the description and suspends for approval;
+`generateModelStep` writes the approved entities and relationships as the
+model document (`modelYaml`, with entity and relationship counts and what was
+dropped).
 
 ```typescript
 import { erdDesignWorkflow } from '@appwithai/ai';
 
-// Start workflow
-const run = await erdDesignWorkflow.execute({
-  description: "Blog platform with users and posts"
-});
-
-// Workflow suspends at each approval point
-// Frontend shows approval UI
-// Resume with user decision:
-await run.resume({
-  step: 'entity-approval',
-  resumeData: { approved: true, modifications: { ... } }
+const run = await erdDesignWorkflow.createRun();
+const result = await run.start({
+  inputData: { description: "Blog platform with users and posts" },
 });
 ```
 
-### AI Converter
-
-For quick conversions without the full workflow:
+### Converter
 
 ```typescript
-import { AIToMermaidConverter, convertToMermaid } from '@appwithai/ai';
+import { convertToModel } from '@appwithai/ai';
 
-// Quick conversion
-const mermaid = await convertToMermaid("Blog with users and posts");
+// A new model from a description
+const created = await convertToModel({ description: "Blog with users and posts", name: "Blog" });
+created.model;        // YAML text
+created.ok;           // false when the reader reported an error
+created.diagnostics;  // every finding, with line and column
 
-// Full converter with options
-const converter = new AIToMermaidConverter();
-const result = await converter.convert({
-  description: "E-commerce platform",
-  options: {
-    skipApprovals: false,
-    autoGenerateMermaid: true
-  }
+// A change to an existing model, corrected up to maxAttempts times
+const revised = await convertToModel({
+  description: "Add a Tag entity and tag posts with it",
+  currentModel: created.model,
+  maxAttempts: 3,
 });
 ```
+
+What comes back is always read by `readModelYaml` — schema, then semantic
+checks — so a result with errors says so rather than being assumed correct.
 
 ## CLI Usage
 
 ```bash
-# Basic conversion
-appwithai-convert "Blog with users and posts" -o blog.mermaid
+# A new model
+appwithai-convert "Blog with users and posts" -n Blog -o blog.eml.yaml
 
-# From file
-appwithai-convert -i description.txt -o output.mermaid
+# From a file
+appwithai-convert -i description.txt -o model.eml.yaml
 
-# Fast mode (programmatic Mermaid, no AI)
-appwithai-convert "E-commerce" --fast -o ecommerce.mermaid
+# Revise an existing model
+appwithai-convert "Add a Tag entity" -m blog.eml.yaml -o blog.eml.yaml
 
 # Analysis only (JSON output)
 appwithai-convert "CRM system" --analyze-only --json
@@ -164,7 +160,9 @@ appwithai-convert "CRM system" --analyze-only --json
 Create `.env` file with:
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-xxx           # Required for AI agents
+LOCAL_AI_BASE_URL=http://localhost:8000/v1  # OpenAI-compatible endpoint (src/config.ts)
+LOCAL_AI_MODEL=qwen3.6:27b-mlx              # Model name at that endpoint
+LOCAL_AI_API_KEY=local                      # Key, if the endpoint wants one
 MASTRA_DATABASE_URL=file:./mastra.db   # Mastra state storage
 MASTRA_LOG_LEVEL=info                  # Logging level
 MASTRA_PORT=4111                       # Mastra server port (if running)
@@ -182,14 +180,12 @@ bun run dev:mastra
 
 ## Dependencies
 
-- **@appwithai/core**: workspace:* - Core types
-- **@mastra/core**: ^1.0.0-beta.19 - Mastra AI orchestration
-- **@mastra/loggers**: ^1.0.0-beta.3 - Mastra logging
-- **@mastra/libsql**: ^1.0.0-beta.8 - Mastra LibSQL storage
-- **@mastra/memory**: ^1.0.0-beta.5 - Mastra memory
-- **@ag-ui/mastra**: latest - AG-UI Mastra integration
+- **@appwithai/core**, **@appwithai/generator**: workspace - types and the model reader
+- **@mastra/core**: ^1.54.0 - Mastra AI orchestration
+- **@mastra/loggers**, **@mastra/libsql**, **@mastra/memory**: Mastra logging, storage, memory
+- **@ag-ui/mastra**: ^1.1.1 - AG-UI Mastra integration
 - **zod**: ^3.22.4 - Schema validation
-- **commander**: ^11.1.0 - CLI framework
+- **commander**: ^15.0.0 - CLI framework
 
 ## Common Tasks
 
@@ -198,17 +194,18 @@ bun run dev:mastra
 1. Create `src/agents/my-agent.ts`:
    ```typescript
    import { Agent } from '@mastra/core/agent';
-   
+   import { mastraModelConfig } from '../config';
+
    export const myAgent = new Agent({
      id: 'my-agent',
      name: 'My Agent',
      instructions: `Your instructions here...`,
-     model: 'anthropic/claude-sonnet-4-20250514'
+     model: mastraModelConfig, // never a hard-coded model string
    });
    ```
 
 2. Export from `src/agents/index.ts`
-3. Register in `src/mastra.ts`
+3. Register it on the Mastra instance (`src/mastra/index.ts`) only if a client calls it by name
 
 ### Adding a Workflow Step
 
@@ -222,7 +219,6 @@ Agent prompts are in the `instructions` field of each agent. Update them in:
 - `src/agents/domain-agent.ts`
 - `src/agents/entity-agent.ts`
 - `src/agents/relationship-agent.ts`
-- `src/agents/mermaid-agent.ts`
 
 ## Type Definitions
 

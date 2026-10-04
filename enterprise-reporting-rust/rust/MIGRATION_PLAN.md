@@ -133,7 +133,7 @@ rust/
 
 | Concern | Crate | Notes |
 |---|---|---|
-| Framework | `loco-rs 1.1` | axum 0.8, SeaORM 2, sqlx 0.9, tokio-cron-scheduler |
+| Framework | `loco-rs 1.2` | axum 0.8, SeaORM 2, sqlx 0.9, tokio-cron-scheduler |
 | Config DB | `sqlx` (the pool under Loco's SeaORM connection) | Dynamic rows give node-pg–identical JSON (§4.4). SeaORM entities come later for typed writes. |
 | User DBs | `sqlx` postgres | PostgreSQL only (§1). The mysql code path predates that decision and is left as is |
 | SQL parsing | `sqlparser` | Replaces `node-sql-parser` in `extractTablesStrict` |

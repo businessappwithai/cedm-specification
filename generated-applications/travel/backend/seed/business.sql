@@ -150,19 +150,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('76dfbccf-b1ca-5e16-960e-6ee2cd48d2e6', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '91cd9ecc-326d-5925-a008-3adeadeabb86', 'dbb901d3-ee46-55e8-8b11-53aa70ab1dc5', 'c89c55c6-95d7-57e1-98e8-2363dbf9b815', 'ba55f8bd-f07e-574c-9105-fd021e03739c', '8de70065-4fa5-5c88-a10b-00f88cae2c49', 'f6fe9b84-7147-5581-88db-843b4d746e3a', 'final', NOW(), NOW())
+VALUES ('76dfbccf-b1ca-5e16-960e-6ee2cd48d2e6', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '91cd9ecc-326d-5925-a008-3adeadeabb86', 'dbb901d3-ee46-55e8-8b11-53aa70ab1dc5', 'c89c55c6-95d7-57e1-98e8-2363dbf9b815', 'ba55f8bd-f07e-574c-9105-fd021e03739c', '8de70065-4fa5-5c88-a10b-00f88cae2c49', 'f6fe9b84-7147-5581-88db-843b4d746e3a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('22741b7e-b949-5643-a569-94e129f910f4', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '2a2df8f5-b0c7-565a-92f3-3372c10ad243', '578a44f5-125e-5447-8eaa-2fb0a0bf5b78', '90ab0314-3de6-5b67-a82a-58fc63661dc7', '3ab5778a-6108-5c32-bb6f-74d11fc71c6e', '450a4d09-a31c-5398-81a4-417272888ca0', 'd8f14878-f677-5d21-8feb-e00131ed22fd', 'final', NOW(), NOW())
+VALUES ('22741b7e-b949-5643-a569-94e129f910f4', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '2a2df8f5-b0c7-565a-92f3-3372c10ad243', '578a44f5-125e-5447-8eaa-2fb0a0bf5b78', '90ab0314-3de6-5b67-a82a-58fc63661dc7', '3ab5778a-6108-5c32-bb6f-74d11fc71c6e', '450a4d09-a31c-5398-81a4-417272888ca0', 'd8f14878-f677-5d21-8feb-e00131ed22fd', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('c7de69fd-eccb-50ec-af90-c6538e43b9dd', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', 'a766ec6b-2184-5a8a-a4d9-6c52ca6073eb', 'dca9a7ff-a02c-5fb8-9342-18167897d6d6', '50b329b4-e818-5fd0-8046-7480c7ec84ee', '9875ab7e-b9e2-5c47-9565-eccb0ac78b02', 'c5a39495-19c6-5dd9-94b1-94693a02e624', '35e55f23-48d1-55b3-8467-e3c8b5f46555', 'final', NOW(), NOW())
+VALUES ('c7de69fd-eccb-50ec-af90-c6538e43b9dd', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', 'a766ec6b-2184-5a8a-a4d9-6c52ca6073eb', 'dca9a7ff-a02c-5fb8-9342-18167897d6d6', '50b329b4-e818-5fd0-8046-7480c7ec84ee', '9875ab7e-b9e2-5c47-9565-eccb0ac78b02', 'c5a39495-19c6-5dd9-94b1-94693a02e624', '35e55f23-48d1-55b3-8467-e3c8b5f46555', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('6b8aa84b-ce4c-59b0-bdd4-408a7ea724ff', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '04a0a7dc-cca0-5f32-bf02-14d02f8fc216', 'ccc3d9e0-10e9-50f1-b9e3-2faec9fff8b0', '4dccdb5c-cabd-579f-a696-3fcde02f589d', '20bed209-abd5-5dcf-a97b-ec9d11af7bc6', '4f681f11-eae1-5a41-9b8d-eee60102f475', '550102de-b6c7-5886-b7b6-2a60be50e4fc', 'final', NOW(), NOW())
+VALUES ('6b8aa84b-ce4c-59b0-bdd4-408a7ea724ff', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '04a0a7dc-cca0-5f32-bf02-14d02f8fc216', 'ccc3d9e0-10e9-50f1-b9e3-2faec9fff8b0', '4dccdb5c-cabd-579f-a696-3fcde02f589d', '20bed209-abd5-5dcf-a97b-ec9d11af7bc6', '4f681f11-eae1-5a41-9b8d-eee60102f475', '550102de-b6c7-5886-b7b6-2a60be50e4fc', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('c2dcfbb3-e4e7-5c52-ac9f-87cc0f63897c', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', 'df9f4e7a-f6f8-526f-b0d8-6d9f92cf500f', '2a1a867f-4eb1-59ce-ace5-27b8c66320c7', '5958e28a-56d0-534e-815d-7f53c164440d', '2bd22591-e865-5cf4-aafd-f69ec64cd9fb', 'fb6c7b2b-b267-582a-8307-5a71e7437fe9', '04e9bf80-4665-55d7-9967-c8baeac37347', 'final', NOW(), NOW())
+VALUES ('c2dcfbb3-e4e7-5c52-ac9f-87cc0f63897c', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', 'df9f4e7a-f6f8-526f-b0d8-6d9f92cf500f', '2a1a867f-4eb1-59ce-ace5-27b8c66320c7', '5958e28a-56d0-534e-815d-7f53c164440d', '2bd22591-e865-5cf4-aafd-f69ec64cd9fb', 'fb6c7b2b-b267-582a-8307-5a71e7437fe9', '04e9bf80-4665-55d7-9967-c8baeac37347', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -286,34 +286,34 @@ ON CONFLICT DO NOTHING;
 
 -- Aircraft (bus_aircraft)
 INSERT INTO bus_aircraft (id, registration_number, aircraft_type, serial_number, status, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('ed41791f-0b27-5eaf-9983-18fd7b7b74c3', 'Registration Number 1', 'Aircraft Type 1', 'Serial Number 1', 'PLANNED', 'c89c55c6-95d7-57e1-98e8-2363dbf9b815', 'b673cb31-a2b4-5c96-aac4-58b3ea039dcd', 'final', NOW(), NOW())
+VALUES ('ed41791f-0b27-5eaf-9983-18fd7b7b74c3', 'Aircraft 1', 'Aircraft Type 1', 'Serial Number 1', 'PLANNED', 'c89c55c6-95d7-57e1-98e8-2363dbf9b815', 'b673cb31-a2b4-5c96-aac4-58b3ea039dcd', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_aircraft (id, registration_number, aircraft_type, serial_number, status, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('c8a35ba9-3235-5045-8614-2f504d2fea46', 'Registration Number 2', 'Aircraft Type 2', 'Serial Number 2', 'PLANNED', '90ab0314-3de6-5b67-a82a-58fc63661dc7', '4ceb33eb-8cd8-5bfe-8e55-8c1e3cebfaf9', 'final', NOW(), NOW())
+VALUES ('c8a35ba9-3235-5045-8614-2f504d2fea46', 'Aircraft 2', 'Aircraft Type 2', 'Serial Number 2', 'PLANNED', '90ab0314-3de6-5b67-a82a-58fc63661dc7', '4ceb33eb-8cd8-5bfe-8e55-8c1e3cebfaf9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_aircraft (id, registration_number, aircraft_type, serial_number, status, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('dbf94931-0050-5056-aef8-4cd4cec476d6', 'Registration Number 3', 'Aircraft Type 3', 'Serial Number 3', 'PLANNED', '50b329b4-e818-5fd0-8046-7480c7ec84ee', '6314651f-be83-59fd-9160-561d97d7a92c', 'final', NOW(), NOW())
+VALUES ('dbf94931-0050-5056-aef8-4cd4cec476d6', 'Aircraft 3', 'Aircraft Type 3', 'Serial Number 3', 'PLANNED', '50b329b4-e818-5fd0-8046-7480c7ec84ee', '6314651f-be83-59fd-9160-561d97d7a92c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_aircraft (id, registration_number, aircraft_type, serial_number, status, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('cbe2eaa0-b357-52b2-9df2-de320c6d6399', 'Registration Number 4', 'Aircraft Type 4', 'Serial Number 4', 'PLANNED', '4dccdb5c-cabd-579f-a696-3fcde02f589d', '6897c97b-0198-5d80-930d-e2b7594aeda7', 'final', NOW(), NOW())
+VALUES ('cbe2eaa0-b357-52b2-9df2-de320c6d6399', 'Aircraft 4', 'Aircraft Type 4', 'Serial Number 4', 'PLANNED', '4dccdb5c-cabd-579f-a696-3fcde02f589d', '6897c97b-0198-5d80-930d-e2b7594aeda7', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_aircraft (id, registration_number, aircraft_type, serial_number, status, organization_id, location_id, doc_status, created_at, updated_at)
-VALUES ('4b1c6e73-0deb-57dd-be84-e242e1b00e52', 'Registration Number 5', 'Aircraft Type 5', 'Serial Number 5', 'PLANNED', '5958e28a-56d0-534e-815d-7f53c164440d', 'b4490c96-701d-5e3a-a56e-f9c7d36751bf', 'final', NOW(), NOW())
+VALUES ('4b1c6e73-0deb-57dd-be84-e242e1b00e52', 'Aircraft 5', 'Aircraft Type 5', 'Serial Number 5', 'PLANNED', '5958e28a-56d0-534e-815d-7f53c164440d', 'b4490c96-701d-5e3a-a56e-f9c7d36751bf', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Flight (bus_flight)
 INSERT INTO bus_flight (id, flight_number, departure_at, arrival_at, status, origin_id, carrier_id, vehicle_id, doc_status, created_at, updated_at)
-VALUES ('e1c6dc73-f6c1-56d6-a577-89d81c60991f', 'Flight Number 1', '2026-01-15T09:00:00Z', '2026-01-15T09:00:00Z', 'SCHEDULED', 'b673cb31-a2b4-5c96-aac4-58b3ea039dcd', 'c89c55c6-95d7-57e1-98e8-2363dbf9b815', 'ed41791f-0b27-5eaf-9983-18fd7b7b74c3', 'final', NOW(), NOW())
+VALUES ('e1c6dc73-f6c1-56d6-a577-89d81c60991f', 'Flight 1', '2026-01-15T09:00:00Z', '2026-01-15T09:00:00Z', 'SCHEDULED', 'b673cb31-a2b4-5c96-aac4-58b3ea039dcd', 'c89c55c6-95d7-57e1-98e8-2363dbf9b815', 'ed41791f-0b27-5eaf-9983-18fd7b7b74c3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_flight (id, flight_number, departure_at, arrival_at, status, origin_id, carrier_id, vehicle_id, doc_status, created_at, updated_at)
-VALUES ('047c70dc-73a9-56f7-bf63-118059bb192b', 'Flight Number 2', '2026-02-15T09:00:00Z', '2026-02-15T09:00:00Z', 'SCHEDULED', '4ceb33eb-8cd8-5bfe-8e55-8c1e3cebfaf9', '90ab0314-3de6-5b67-a82a-58fc63661dc7', 'c8a35ba9-3235-5045-8614-2f504d2fea46', 'final', NOW(), NOW())
+VALUES ('047c70dc-73a9-56f7-bf63-118059bb192b', 'Flight 2', '2026-02-15T09:00:00Z', '2026-02-15T09:00:00Z', 'SCHEDULED', '4ceb33eb-8cd8-5bfe-8e55-8c1e3cebfaf9', '90ab0314-3de6-5b67-a82a-58fc63661dc7', 'c8a35ba9-3235-5045-8614-2f504d2fea46', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_flight (id, flight_number, departure_at, arrival_at, status, origin_id, carrier_id, vehicle_id, doc_status, created_at, updated_at)
-VALUES ('7d8f9e80-f84d-51eb-b781-4ac31895a9bb', 'Flight Number 3', '2026-03-15T09:00:00Z', '2026-03-15T09:00:00Z', 'SCHEDULED', '6314651f-be83-59fd-9160-561d97d7a92c', '50b329b4-e818-5fd0-8046-7480c7ec84ee', 'dbf94931-0050-5056-aef8-4cd4cec476d6', 'final', NOW(), NOW())
+VALUES ('7d8f9e80-f84d-51eb-b781-4ac31895a9bb', 'Flight 3', '2026-03-15T09:00:00Z', '2026-03-15T09:00:00Z', 'SCHEDULED', '6314651f-be83-59fd-9160-561d97d7a92c', '50b329b4-e818-5fd0-8046-7480c7ec84ee', 'dbf94931-0050-5056-aef8-4cd4cec476d6', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_flight (id, flight_number, departure_at, arrival_at, status, origin_id, carrier_id, vehicle_id, doc_status, created_at, updated_at)
-VALUES ('0ed0650c-8d34-5ab7-995f-7745b0e6afbf', 'Flight Number 4', '2026-04-15T09:00:00Z', '2026-04-15T09:00:00Z', 'SCHEDULED', '6897c97b-0198-5d80-930d-e2b7594aeda7', '4dccdb5c-cabd-579f-a696-3fcde02f589d', 'cbe2eaa0-b357-52b2-9df2-de320c6d6399', 'final', NOW(), NOW())
+VALUES ('0ed0650c-8d34-5ab7-995f-7745b0e6afbf', 'Flight 4', '2026-04-15T09:00:00Z', '2026-04-15T09:00:00Z', 'SCHEDULED', '6897c97b-0198-5d80-930d-e2b7594aeda7', '4dccdb5c-cabd-579f-a696-3fcde02f589d', 'cbe2eaa0-b357-52b2-9df2-de320c6d6399', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_flight (id, flight_number, departure_at, arrival_at, status, origin_id, carrier_id, vehicle_id, doc_status, created_at, updated_at)
-VALUES ('9032302e-fef6-5a84-b605-fc334f784308', 'Flight Number 5', '2026-05-15T09:00:00Z', '2026-05-15T09:00:00Z', 'SCHEDULED', 'b4490c96-701d-5e3a-a56e-f9c7d36751bf', '5958e28a-56d0-534e-815d-7f53c164440d', '4b1c6e73-0deb-57dd-be84-e242e1b00e52', 'final', NOW(), NOW())
+VALUES ('9032302e-fef6-5a84-b605-fc334f784308', 'Flight 5', '2026-05-15T09:00:00Z', '2026-05-15T09:00:00Z', 'SCHEDULED', 'b4490c96-701d-5e3a-a56e-f9c7d36751bf', '5958e28a-56d0-534e-815d-7f53c164440d', '4b1c6e73-0deb-57dd-be84-e242e1b00e52', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

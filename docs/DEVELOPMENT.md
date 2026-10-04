@@ -122,7 +122,7 @@ bun test packages/core/src/services/entity.service.ts  # Run single test file
 ### Code Generation
 
 ```bash
-bun run convert               # Convert natural language to Mermaid
+bun run convert               # Convert natural language to a model document
 bun run migrate               # Run database migrations
 bun run generate:nextjs       # Generate Next.js app
 bun run generate:odata        # Generate OData V4 service
@@ -177,7 +177,7 @@ All endpoints tested and working:
    - Database Connection tools
 
 3. **ERD Designer** (`/designer`)
-   - Mermaid ERD editor
+   - ERD editor
    - Visual ERD creation
    - AI-powered suggestions
    - Real-time preview

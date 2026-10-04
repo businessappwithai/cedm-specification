@@ -150,19 +150,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('55dec964-d6f3-577e-96f9-a0a2784f17c8', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '4aaa9430-105f-5a8f-8d83-1a998d211df8', 'beb1b200-6518-524f-babf-14772ad433b2', '27a94168-4d67-5bbc-b6d6-1c2089e4cea0', '196823c7-2eca-51df-b382-04053e7e3c98', 'ed024e11-c4f4-5f00-a9f7-946b38d365d3', '6b8823a3-c0ec-5e00-b54f-87f3f66115e8', 'final', NOW(), NOW())
+VALUES ('55dec964-d6f3-577e-96f9-a0a2784f17c8', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '4aaa9430-105f-5a8f-8d83-1a998d211df8', 'beb1b200-6518-524f-babf-14772ad433b2', '27a94168-4d67-5bbc-b6d6-1c2089e4cea0', '196823c7-2eca-51df-b382-04053e7e3c98', 'ed024e11-c4f4-5f00-a9f7-946b38d365d3', '6b8823a3-c0ec-5e00-b54f-87f3f66115e8', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('a5933c8c-2055-50fe-9f08-b26a5b5c81b3', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', 'ff5b93ab-9107-5313-91ce-b643c32d9efa', '1df961af-8832-5284-8217-cdea00127af2', '625b1f59-3b8a-5d30-9b00-163dd19b47fc', '2f9d2228-86be-5e9c-9763-00f7d22e56b6', '54876e6d-56fd-548e-9790-7301234b4df4', '46fad85c-0344-5610-9b81-af00be7f73c9', 'final', NOW(), NOW())
+VALUES ('a5933c8c-2055-50fe-9f08-b26a5b5c81b3', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', 'ff5b93ab-9107-5313-91ce-b643c32d9efa', '1df961af-8832-5284-8217-cdea00127af2', '625b1f59-3b8a-5d30-9b00-163dd19b47fc', '2f9d2228-86be-5e9c-9763-00f7d22e56b6', '54876e6d-56fd-548e-9790-7301234b4df4', '46fad85c-0344-5610-9b81-af00be7f73c9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('97a618ff-2fb8-5fee-9347-22ae480de581', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', '305624e3-9f62-549b-9134-5e3f72db4345', '0413a9cf-0d07-5148-abc2-104c3560423f', '4cdec188-c3a7-5840-ada6-26718c0aa74c', '04048247-2dee-5e14-a17a-da60ee07e310', '4a3ea6c5-90b5-5d95-beb0-36289ec7792d', 'a5c768f2-e404-5179-8511-d35e0d1cf133', 'final', NOW(), NOW())
+VALUES ('97a618ff-2fb8-5fee-9347-22ae480de581', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', '305624e3-9f62-549b-9134-5e3f72db4345', '0413a9cf-0d07-5148-abc2-104c3560423f', '4cdec188-c3a7-5840-ada6-26718c0aa74c', '04048247-2dee-5e14-a17a-da60ee07e310', '4a3ea6c5-90b5-5d95-beb0-36289ec7792d', 'a5c768f2-e404-5179-8511-d35e0d1cf133', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('928deaaa-8db3-529d-93be-1bcaf5d52eb7', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '124847e1-4967-5df9-9307-67595e529baf', '9ce9cd8a-7e2a-5e74-94ae-457f56248164', '38b2fb4d-b600-51e8-88f4-0b2c0a6aa30c', '9964e9aa-e858-572e-a5e4-f6911dbc06bf', 'b9e447de-4c95-57c4-93a1-26a88f690ed0', 'cad99fff-ce0a-5cc8-86ef-e8b3d4975fc2', 'final', NOW(), NOW())
+VALUES ('928deaaa-8db3-529d-93be-1bcaf5d52eb7', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '124847e1-4967-5df9-9307-67595e529baf', '9ce9cd8a-7e2a-5e74-94ae-457f56248164', '38b2fb4d-b600-51e8-88f4-0b2c0a6aa30c', '9964e9aa-e858-572e-a5e4-f6911dbc06bf', 'b9e447de-4c95-57c4-93a1-26a88f690ed0', 'cad99fff-ce0a-5cc8-86ef-e8b3d4975fc2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('1cbe47b4-1fc5-5e40-b4d6-67d05237695d', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '5ae6f1b6-e454-5a09-8367-782bbab7511e', '28a30c50-a7e6-5d2b-95db-b39f790087ab', 'e51904e3-2f65-5faa-b091-33284eb75e27', '9e13b3f2-d456-5e93-b9d2-421235f03f6e', 'ef53093e-4ce5-5df2-be53-6e2521aec839', '281b0cf8-8d94-5e33-b7c3-9dce48d37e18', 'final', NOW(), NOW())
+VALUES ('1cbe47b4-1fc5-5e40-b4d6-67d05237695d', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '5ae6f1b6-e454-5a09-8367-782bbab7511e', '28a30c50-a7e6-5d2b-95db-b39f790087ab', 'e51904e3-2f65-5faa-b091-33284eb75e27', '9e13b3f2-d456-5e93-b9d2-421235f03f6e', 'ef53093e-4ce5-5df2-be53-6e2521aec839', '281b0cf8-8d94-5e33-b7c3-9dce48d37e18', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -320,17 +320,17 @@ ON CONFLICT DO NOTHING;
 
 -- Hotel Reservation (bus_hotel_reservation)
 INSERT INTO bus_hotel_reservation (id, reservation_number, check_in, check_out, status, guest_count, hotel_id, room_id, guest_id, doc_status, created_at, updated_at)
-VALUES ('8beb7339-d885-5982-8be7-49f298c13ffe', 'Reservation Number 1', '2026-01-15', '2026-01-15', 'REQUESTED', 1, 'c67524dc-97d2-5e17-af61-280a9951f3a7', '4a6c21fc-d724-5f30-acb1-5e2bd9de150d', '4aaa9430-105f-5a8f-8d83-1a998d211df8', 'final', NOW(), NOW())
+VALUES ('8beb7339-d885-5982-8be7-49f298c13ffe', 'Hotel Reservation 1', '2026-01-15', '2026-01-15', 'REQUESTED', 1, 'c67524dc-97d2-5e17-af61-280a9951f3a7', '4a6c21fc-d724-5f30-acb1-5e2bd9de150d', '4aaa9430-105f-5a8f-8d83-1a998d211df8', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_hotel_reservation (id, reservation_number, check_in, check_out, status, guest_count, hotel_id, room_id, guest_id, doc_status, created_at, updated_at)
-VALUES ('e08d5b2e-597d-5188-a1bd-80dc6b5c0387', 'Reservation Number 2', '2026-02-15', '2026-02-15', 'REQUESTED', 2, '51a201f6-3a0f-5471-93ed-84a04472d819', '9e8dd389-c048-5bdb-95c7-d95ed4733e2b', 'ff5b93ab-9107-5313-91ce-b643c32d9efa', 'final', NOW(), NOW())
+VALUES ('e08d5b2e-597d-5188-a1bd-80dc6b5c0387', 'Hotel Reservation 2', '2026-02-15', '2026-02-15', 'REQUESTED', 2, '51a201f6-3a0f-5471-93ed-84a04472d819', '9e8dd389-c048-5bdb-95c7-d95ed4733e2b', 'ff5b93ab-9107-5313-91ce-b643c32d9efa', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_hotel_reservation (id, reservation_number, check_in, check_out, status, guest_count, hotel_id, room_id, guest_id, doc_status, created_at, updated_at)
-VALUES ('faeacc2a-12ba-5b49-81fd-b22438243f4b', 'Reservation Number 3', '2026-03-15', '2026-03-15', 'REQUESTED', 3, '3208f938-4b14-5726-9a8b-b5c4c297bc9a', 'e4f361c0-f095-587b-9048-775ebe586df6', '305624e3-9f62-549b-9134-5e3f72db4345', 'final', NOW(), NOW())
+VALUES ('faeacc2a-12ba-5b49-81fd-b22438243f4b', 'Hotel Reservation 3', '2026-03-15', '2026-03-15', 'REQUESTED', 3, '3208f938-4b14-5726-9a8b-b5c4c297bc9a', 'e4f361c0-f095-587b-9048-775ebe586df6', '305624e3-9f62-549b-9134-5e3f72db4345', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_hotel_reservation (id, reservation_number, check_in, check_out, status, guest_count, hotel_id, room_id, guest_id, doc_status, created_at, updated_at)
-VALUES ('800fd696-fbde-501a-8330-f689945bf378', 'Reservation Number 4', '2026-04-15', '2026-04-15', 'REQUESTED', 4, '7969d009-536f-5b0c-bf19-d511c635ca26', 'acb86085-b45f-5c9e-9fb6-5457f599c214', '124847e1-4967-5df9-9307-67595e529baf', 'final', NOW(), NOW())
+VALUES ('800fd696-fbde-501a-8330-f689945bf378', 'Hotel Reservation 4', '2026-04-15', '2026-04-15', 'REQUESTED', 4, '7969d009-536f-5b0c-bf19-d511c635ca26', 'acb86085-b45f-5c9e-9fb6-5457f599c214', '124847e1-4967-5df9-9307-67595e529baf', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_hotel_reservation (id, reservation_number, check_in, check_out, status, guest_count, hotel_id, room_id, guest_id, doc_status, created_at, updated_at)
-VALUES ('276dedf7-1af5-53ff-8fc4-7b8eb046aa37', 'Reservation Number 5', '2026-05-15', '2026-05-15', 'REQUESTED', 5, '2bbee9ba-ce17-5af2-9f1b-d3e358a12a3d', '775a383a-65df-5436-950e-7a66ab3104ad', '5ae6f1b6-e454-5a09-8367-782bbab7511e', 'final', NOW(), NOW())
+VALUES ('276dedf7-1af5-53ff-8fc4-7b8eb046aa37', 'Hotel Reservation 5', '2026-05-15', '2026-05-15', 'REQUESTED', 5, '2bbee9ba-ce17-5af2-9f1b-d3e358a12a3d', '775a383a-65df-5436-950e-7a66ab3104ad', '5ae6f1b6-e454-5a09-8367-782bbab7511e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

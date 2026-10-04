@@ -4,7 +4,7 @@
 # the reporting platform, on one origin. Both server sides are Rust: the
 # application is a Loco backend written by this repository's generator, and the
 # platform's API, workers and seeder are its Loco backend in
-# yaml/enterprise_reporting_rust.
+# ../enterprise-reporting-rust, checked out beside this repository.
 #
 #   ./start.sh                                   the reference CRM model
 #   ./start.sh common/examples/my-app.eml.yaml   any other model
@@ -31,10 +31,11 @@ readonly PACK_DIR="${RUNTIME}/pack"
 readonly LANDING_DIR="${RUNTIME}/landing"
 readonly ENV_FILE="${RUNTIME}/.env"
 readonly DEFAULT_MODEL="${COMMON}/examples/crm.eml.yaml"
-# The generator, the language and both CLIs are this repository's root; the
-# reporting platform is its sibling under yaml/.
-readonly REPO_ROOT="../.."
-readonly PLATFORM="../enterprise_reporting_rust"
+# The generator, the language and both CLIs are app-with-ai-rust, and the
+# reporting platform is enterprise-reporting-rust: both checked out beside
+# this repository.
+readonly REPO_ROOT="../app-with-ai-rust"
+readonly PLATFORM="../enterprise-reporting-rust"
 
 MODEL=""
 PROFILE="demo"
@@ -75,18 +76,18 @@ docker compose version >/dev/null 2>&1 || die "docker compose (v2) is not availa
 [[ -f "$MODEL" ]] || die "Model not found: $MODEL"
 
 case "$MODEL" in
-  *.eml.yaml) ;;
-  *) die "$MODEL is not a model. A model is a YAML document (*.eml.yaml)." ;;
+  *.eml.yaml|*.cedm.yaml) ;;
+  *) die "$MODEL is not a model. A model is a YAML document (*.eml.yaml or *.cedm.yaml)." ;;
 esac
 
-# Generation drives the pipeline at the repository root, which resolves its
-# dependencies from the root's node_modules; compose builds the platform from
-# its directory beside this one.
-[[ -d "${REPO_ROOT}/node_modules" ]] || die "The repository root has no node_modules. Run \`bun install\` there — generation drives its pipeline, which fails on 'Cannot find package' without it."
+# Generation drives the pipeline in app-with-ai-rust, which resolves its
+# dependencies from that checkout's node_modules; compose builds the platform
+# from its directory beside this one.
+[[ -d "${REPO_ROOT}/node_modules" ]] || die "${REPO_ROOT} has no node_modules. Run ./deps.sh --install — generation drives its pipeline, which fails on 'Cannot find package' without it."
 [[ -d "$PLATFORM/rust" ]] || die "The reporting platform is not at ${PLATFORM}."
 [[ -d "${COMMON}/node_modules" ]] || die "common/ has no node_modules. Run \`cd common && bun install\`."
 
-APP_NAME="$(basename "$MODEL" | sed 's/\.eml\.yaml$//')"
+APP_NAME="$(basename "$MODEL" | sed -E 's/\.(eml|cedm)\.yaml$//')"
 # A Postgres database name, from a model file name.
 APP_DB_NAME="$(printf '%s' "$APP_NAME" | tr '[:upper:]-' '[:lower:]_' | tr -cd 'a-z0-9_')"
 [[ -n "$APP_DB_NAME" ]] || APP_DB_NAME="appdb"

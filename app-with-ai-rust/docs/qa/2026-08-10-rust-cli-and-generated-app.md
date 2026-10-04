@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `claude/gstack-drug-discovery-qa-lkhred`
-**Model under test:** `examples/drug-discovery.eml.mmd` (17 entities, 16 relationships, 7 categories, 1 saga)
+**Model under test:** `examples/drug-discovery.eml.yaml` (17 entities, 16 relationships, 7 categories, 1 saga)
 **Scope:** gstack `/qa`, retesting **only the Rust generator** — its CLI surface end to end, then the application it produces: built, migrated, seeded, started, and exercised over HTTP as a real client.
 
 | | Before | After |
@@ -130,7 +130,7 @@ not the version that shipped.
 ### `--skip-backend` reported success for work it did not do — medium
 
 ```
-$ appwithai generate -i model.mmd -o out --skip-backend
+$ appwithai generate -i model.eml.yaml -o out --skip-backend
 ✅ Backend generated at /…/out
    17 entities, 16 relationships, 7 categories
 ```
@@ -192,7 +192,7 @@ so the mistake cannot be made again. `--quiet` is for progress chatter.
 | `list`, `info`, `--version`, `--help` | correct; `info` matches the TypeScript CLI |
 | Missing / absent / conflicting inputs | exit 1, message names the file and the fix |
 | Unknown subcommand / flag | exit 2 (clap), usage shown |
-| Empty file, no `erDiagram`, `erDiagram` with no entities | all three: one clear error naming the file |
+| Empty file, no ERD block, an ERD block with no entities | all three: one clear error naming the file |
 | `--dry-run` | writes nothing, creates no directory |
 | Existing output without `--force` | refused, names `--force` |
 | `--force` regeneration | byte-identical to the first run bar timestamps |

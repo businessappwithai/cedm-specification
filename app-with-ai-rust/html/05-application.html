@@ -32,7 +32,7 @@
     <li><a href="07-it-runs.html"><span class="nav-num">07</span> Watch it run</a></li>
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/yaml/examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -62,7 +62,7 @@
 <figure>
   <img src="img/08-crm-dashboard.png" alt="The CRM dashboard with seven category blocks and an Application Dictionary block.">
   <figcaption>
-    <b>Seven blocks, seven <code>%%category</code> directives.</b> Heading, description and membership are
+    <b>Seven blocks, seven <code>categories</code> entries.</b> Heading, description and membership are
     the model's; the eighth block, Application Dictionary, is the generator's own admin surface.
   </figcaption>
 </figure>
@@ -142,7 +142,7 @@
 <div class="note win">
   <div class="note-title">What "seventeen entities" actually costs you</div>
   <p>
-    Nothing, per entity. Adding an eighteenth means adding a block to the <code>erDiagram</code> and
+    Nothing, per entity. Adding an eighteenth means adding an entry under <code>entities</code> and
     regenerating; the list, the form, the lookups, the help text, the audit coverage and the REST routes
     arrive with it. The screens above are evidence of that, not a portfolio.
   </p>
@@ -154,20 +154,37 @@
   Every field carries a badge naming its reference type, and that type decides the control.
 </p>
 
+<figure>
+  <img src="img/26-crm-reference-lookups.png" alt="The New Opportunity form showing Account Id, Contact Id and Campaign Id as Direct Lookup selects, Name as Text, Description as Long Text and Amount as Amount.">
+  <figcaption>
+    <b>New Opportunity.</b> <em>Direct Lookup</em> on the three foreign keys, each showing the referenced
+    record's display name rather than its id. <em>Text</em>, <em>Long Text</em> and <em>Amount</em> on the
+    scalar columns. Required fields carry a red asterisk, and the header counts them: 16 fields, 5 required.
+  </figcaption>
+</figure>
+
 <div class="table-wrap">
 <table>
   <thead><tr><th>In the model</th><th>Badge</th><th>Control</th></tr></thead>
   <tbody>
-    <tr><td><code>string account_id FK</code></td><td>Direct Lookup</td><td>Select of the referenced entity, labelled by its display column</td></tr>
-    <tr><td><code>%%field X.status enum: Y</code></td><td>Dropdown</td><td>Select of the enum's values, fetched from the list reference</td></tr>
-    <tr><td><code>text description</code></td><td>Long Text</td><td>Textarea</td></tr>
-    <tr><td><code>decimal amount</code></td><td>Amount</td><td>Numeric input</td></tr>
-    <tr><td><code>datetime due_at</code></td><td>Date/Time</td><td>Date-time picker</td></tr>
-    <tr><td><code>boolean auto_renew</code></td><td>Yes/No</td><td>Toggle</td></tr>
-    <tr><td><code>email email</code></td><td>Email</td><td>Email input with validation</td></tr>
+    <tr><td><code>{ name: account_id, type: string, fk: true }</code></td><td>Direct Lookup</td><td>Select of the referenced entity, labelled by its display column</td></tr>
+    <tr><td><code>{ name: status, type: string, enum: Y }</code></td><td>Dropdown</td><td>Select of the enum's values, fetched from the list reference</td></tr>
+    <tr><td><code>{ name: description, type: text }</code></td><td>Long Text</td><td>Textarea</td></tr>
+    <tr><td><code>{ name: amount, type: decimal }</code></td><td>Amount</td><td>Numeric input</td></tr>
+    <tr><td><code>{ name: due_at, type: datetime }</code></td><td>Date/Time</td><td>Date-time picker</td></tr>
+    <tr><td><code>{ name: auto_renew, type: boolean }</code></td><td>Yes/No</td><td>Toggle</td></tr>
+    <tr><td><code>{ name: email, type: email }</code></td><td>Email</td><td>Email input with validation</td></tr>
   </tbody>
 </table>
 </div>
+
+<figure>
+  <img src="img/32-crm-enum-dropdowns.png" alt="The Lead form with Lead Source, Rating and Status rendered as Dropdown selects while Score stays an integer input and Owner Id stays a Direct Lookup.">
+  <figcaption>
+    <b>Enums and lookups side by side.</b> Three dropdowns from an attribute's <code>enum</code>, one integer,
+    two lookups. The difference between a dropdown and a text box here is one key in the model.
+  </figcaption>
+</figure>
 
 <h2>From the list to the record</h2>
 <p>
@@ -193,6 +210,15 @@
   <strong>Final</strong>. If any fails, nothing they changed is kept, the record stays Draft, and the
   reason is written onto it.
 </p>
+
+<figure>
+  <img src="img/11-crm-lead-created.png" alt="A Lead detail view for Dana Whitfield showing a FINAL badge, 17 fields with 7 required, grouped into General and Details.">
+  <figcaption>
+    <b>3 · The record.</b> The <em>FINAL</em> badge means every rule and workflow bound to Lead ran and
+    succeeded. Fields are grouped — General carries the identifying columns, Details the rest — and the
+    record counter lets you page through the list without going back to it.
+  </figcaption>
+</figure>
 
 <div class="note">
   <div class="note-title">A Draft that will not go Final is a message, not a bug</div>
@@ -241,23 +267,6 @@
     without touching the model or the code — and re-seeding will not clobber their edit.
   </p>
 </div>
-
-<h2>The application explains itself</h2>
-
-<p>
-  Every generated project ships a manual at <code>/manual.html</code>, linked from the dashboard. It is
-  written from the same parsed model the schema and the screens come from, which is the point: it cannot
-  describe a record type the application does not have, and it cannot miss one it does.
-</p>
-
-<figure>
-  <img src="img/53-crm-manual.png" alt="The generated manual for the CRM: a contents list covering what the application is, signing in and what each role sees, the records it keeps, the decisions it makes, and how it was built.">
-  <figcaption>
-    <b>Generated, not written.</b> Seventeen record types across seven areas of the business, each with
-    its own section — plus the decisions the model declared and a note on how the application was built.
-    Regenerating the app regenerates this.
-  </figcaption>
-</figure>
 
 <nav class="pager">
   <a href="04-generate.html"><span class="dir">Previous</span><div class="ttl">← 04 · Generate the app</div></a>

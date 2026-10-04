@@ -216,7 +216,7 @@ available, and may reference invariant ids.
 ### 3.6 Authorization: deny and scope
 CEDM's policy model has `effect: deny`, `scope` and `defaultEffect: deny`; the
 generated app's three gates are additive allow-lists with "no rows = open".
-v1 maps `allow` permissions to `%%rbac`-equivalent records and refuses
+v1 maps `allow` permissions to `rbac`-equivalent records and refuses
 `deny`/`scope` with a diagnostic rather than generating something weaker than
 declared. Default-deny is a later, opt-in generator change.
 
@@ -270,7 +270,7 @@ Each phase ends with all gates in §5 green and is one or more pushed commits.
 
 **Phase 5 — Tools**
 - `eml` CLI, browser bundle (`html/model-yaml.js`), and the web modelling tool
-  read/write CEDM: the designer still draws Mermaid as a derived view; saves
+  read/write CEDM: the designer still draws a diagram as a derived view; saves
   commit `model/model.cedm.yaml`; `convert:stored-models` gains the step.
 
 **Phase 6 — A real CEDM domain application**

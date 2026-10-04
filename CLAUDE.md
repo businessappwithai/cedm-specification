@@ -109,7 +109,7 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run generate` | Generate an app (all flags passed through) |
 | `bun run generate:tanstack` | Same, with `--stack tanstack-astryx-loco` pinned (`--db postgres` \| `neon`) |
 | `bun run eml` | The `eml` language CLI (`validate`, `info`, `sagas`, `generate`) |
-| `appwithai convert <model.mmd>` | Convert an EML model to the YAML model language (see "The YAML model language") |
+| `appwithai convert <model>` | Convert between a model document (`.eml.yaml`) and a CEDM model (`.cedm.yaml`) |
 | `bun run convert` | Run the AI conversion CLI |
 | `bun run test` | Unit tests (Vitest, via `@appwithai/web`) |
 | `bun run test:generator` | Generator unit tests (Vitest, via `@appwithai/generator`) |
@@ -117,7 +117,6 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run test:playwright` | Playwright E2E tests |
 | `bun run test:e2e:server` | E2E with automatic server startup |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + promote a user to admin |
-| `bun run convert:stored-models` | One-time: convert a Mermaid-era installation's stored models, automations and project histories to YAML (`--dry-run` first) |
 | `bun run clean` | Remove all `node_modules` and `dist` directories |
 
 **Run a single Vitest test file:**
@@ -153,8 +152,8 @@ bunx playwright test tests/e2e/specific.e2e.spec.ts
 Removed rather than documented, because their targets never existed: `migrate`
 (pointed at `packages/generator/migrations/migrate.ts`) and `test:app` /
 `test:e2e` / `test:e2e:all` / `test:complete` (all pointed into a root `test/`
-directory). Real migrations live in `database/migrations/` and are applied via
-`runMigrations()` from `@appwithai/core/services` — see `bun run seed:admin`,
+directory). The modelling tool's schema is created by `runMigrations()` in
+`packages/core/src/services/database.service.ts` — see `bun run seed:admin`,
 which calls it.
 
 ---
@@ -165,13 +164,13 @@ AppWithAI turns natural-language descriptions into production-ready full-stack a
 
 - AI-powered entity extraction via Mastra.ai agents against a **local OpenAI-compatible model**
 - Human-in-the-loop (HITL) approval workflow for ERD design
-- Visual ERD designer (Mermaid + React Flow)
+- Visual model designer: the YAML model drawn with React Flow and laid out by elkjs
 - Full-stack code generation: TanStack Start + Astryx frontend on a Loco.rs (Rust) backend
 - Dictionary-driven architecture inspired by Compiere ERP (`sys_*` tables)
 - Business rules via GoRules JDM / zen-engine
 - CopilotKit integration for AI-assisted UI
 - E2B sandbox for code execution in generated projects
-- **EML** — a Mermaid-based modeling language for ERD + rules + workflows (see `language/`)
+- **The model language** — one YAML document per application: entities, rules, workflows, access (see `language/`)
 
 ### Tech Stack
 
@@ -182,10 +181,10 @@ AppWithAI turns natural-language descriptions into production-ready full-stack a
 | AI Model | **Local OpenAI-compatible endpoint** (default `qwen3.6:27b-mlx`) — see AI Model Configuration |
 | Frontend | TanStack Start v1.168, TanStack Router v1.170, Vite 8, React 19, Tailwind CSS v4, Zustand 5 |
 | Frontend (generated) | TanStack Start + **Astryx** (all 26 `components/ui/*` adapters); no Radix, no CVA |
-| Diagrams | Mermaid 11, `@xyflow/react` (React Flow), `elkjs` (layout) |
+| Diagrams | `@xyflow/react` (React Flow), `elkjs` (layout) |
 | Rules | `@gorules/zen-engine` (this repo), the `zen-engine` **crate** (generated backend), `@gorules/jdm-editor` (web UI) |
 | Auth | Better Auth (core config) + custom session routes (web) |
-| Backend (generated) | **Loco.rs 1.0** (Axum + SeaORM/sqlx), Rust 2021 |
+| Backend (generated) | **Loco.rs 1.2** (Axum + SeaORM/sqlx), Rust 2021 |
 | API docs (generated) | **utoipa 5** + `utoipa-redoc` / `utoipa-scalar` — `/openapi.json`, `/redoc`, `/scalar` |
 | Database | PostgreSQL via Kysely + `pg`; LibSQL/SQLite for Mastra state |
 | Database (generated) | PostgreSQL — `--db postgres` (self-hosted/managed) or `--db neon` |
@@ -236,13 +235,12 @@ app-with-ai-tanstack/
 │   └── web/           # TanStack Start app (Vite 8 + React 19)
 ├── crates/
 │   └── appwithai-gen/ # The Rust generator (clap CLI) — see below
-├── language/          # EML: the Mermaid-based modeling language + `eml` CLI
-├── database/          # Migrations (001–010), knexfile.ts, generator.sql
+├── language/          # The model language: definition, YAML schema, checker, `eml` CLI
 ├── docs/              # Architecture, development, testing, roadmap
 ├── generated-projects/# Output directory for generated applications
 ├── tests/             # Playwright E2E suites
 ├── scripts/           # Setup, seeding, and test automation
-├── examples/          # Sample ERD files (.mmd)
+├── examples/          # Model documents (.eml.yaml) and CEDM models (.cedm.yaml)
 └── .claude/           # Project rules, plans, and local skills
 ```
 
@@ -294,7 +292,7 @@ Code generation engine. **One stack:**
 
 | `StackOption` | Backend | Frontend |
 |---|---|---|
-| `tanstack-astryx-loco` | Loco.rs 1.0 (Axum + SeaORM/sqlx) | TanStack Start + Astryx |
+| `tanstack-astryx-loco` | Loco.rs 1.2 (Axum + SeaORM/sqlx) | TanStack Start + Astryx |
 
 `tanstackjs-nestjs` is gone — its generators and templates were deleted, and
 `StackOption` survives as a one-member union so the flag keeps working. Treat
@@ -315,8 +313,10 @@ src/
 │   ├── dictionary.generator.ts
 │   ├── tanstack-astryx-loco/      # loco-backend + astryx-frontend generators
 │   └── tests/                     # E2E test generators
-├── parsers/mermaid.parser.ts
-├── workflows/saga.ts          # %%step saga parsing → BPMN
+├── model/                     # records, compile.ts, compile-erd.ts, language-maps.ts
+├── model-yaml/                # readModelYaml, the fixer, document → records
+├── model-cedm/                # CEDM models: read and lower
+├── workflows/saga.ts          # saga steps → BPMN
 ├── templates/loader.ts
 └── utils/
 templates/
@@ -334,7 +334,7 @@ templates/
 **Database targets: `--db postgres` (default) or `--db neon`.** `sqlite` is gone
 — it was accepted by both CLIs and ignored, because the backend is Postgres
 throughout (sqlx-postgres features, `postgres://` in every `config/*.yaml`,
-Postgres-only `sys_*` DDL). MariaDB is not available: loco-rs 1.0.1 pins sea-orm
+Postgres-only `sys_*` DDL). MariaDB is not available: loco-rs 1.2 pins sea-orm
 to sqlx-postgres and sqlx-sqlite with no MySQL driver. Neon is Postgres, so the
 backend needs no code changes; templates branch on `database.isNeon` for exactly
 two things — no localhost fallback in `development.yaml`/`test.yaml` (an unset
@@ -359,16 +359,14 @@ frontend template, confirm which of the two the generator actually reads —
 The four stale pairs that used to sit under `frontend/src/routes/admin/` have
 been deleted; the plain `.tsx` is the live copy of each.
 
-**The ERD parser reads directives, not just the diagram.** `%%index`, `%%enum`,
-`%%field <E>.<c> enum:`, `%%field <E>.<c> help:`, `%%entity <E> help:`,
-`%%entity <E> icon:` and `%%entity <E> parent:` are all read by
-`packages/generator/src/parsers/mermaid.parser.ts` and mirrored in
-`crates/appwithai-gen/src/model.rs`. They used to be skipped along with every
-other `%%` line, so the checker validated them and the generator threw them
-away. A modelled enum is now a `sys_ref_list` and renders as a dropdown; a
-`%%index` composite reaches the DDL, which no convention can produce.
+**Every key the model declares reaches the application.** `indexes`, `enums`,
+an attribute's `enum` and `help`, and an entity's `help`, `icon` and `parent`
+are read into records by `model-yaml/to-records.ts` and compiled by
+`model/compile-erd.ts`, mirrored in `crates/appwithai-gen/src/yaml_model.rs` and
+`model.rs`. A modelled enum is a `sys_ref_list` and renders as a dropdown; an
+`indexes` composite reaches the DDL, which no convention can produce.
 
-**`%%entity <E> icon:` compiles to `sys_table.icon`** — the dashboard card, the
+**An entity's `icon` compiles to `sys_table.icon`** — the dashboard card, the
 window heading and the navigation all draw it. A lucide name, taken as written:
 neither checker carries lucide's catalogue, so an unknown name is not a
 diagnostic and renders a placeholder (`icon: flask` is the trap — lucide has
@@ -382,19 +380,19 @@ gate holding them together.
 and it got it wrong.** The component looked names up in
 `import * as LucideIcons`, whose keys are lucide's **PascalCase exports**
 (`FlaskConical`), while every name the dictionary holds is lucide's own
-**kebab-case id** — which is what `%%entity … icon: flask-conical` writes and
+**kebab-case id** — which is what `icon: flask-conical` on an entity writes and
 what the language definition names as the spelling to use. So a model that
 declared an icon rendered exactly like one that declared none. It resolves
 through `dynamicIconImports` now, keyed by those ids, with a normaliser that
-accepts `LayoutGrid`, `layout_grid` and `layout-grid` alike — `%%category`
-writes the first and `%%entity` the third, and both occur in one payload.
+accepts `LayoutGrid`, `layout_grid` and `layout-grid` alike — `categories`
+writes the first and `entities` the third, and both occur in one payload.
 That also settles the download: the barrel cannot be tree-shaken, so the
 dashboard pulled a **444 KB** chunk to draw a handful of glyphs; the same
 screen's 26 distinct icons now come to **21 KB** as one lazy chunk each.
 
 **The generated app pins lucide 0.312, and its ids are not the current ones.**
 `dynamicIconImports` lists 1401, and a name from a later release is not among
-them — `triangle-alert` is `alert-triangle` here, and `examples/drug-discovery.eml.mmd`
+them — `triangle-alert` is `alert-triangle` here, and `examples/drug-discovery.eml.yaml`
 shipped the wrong one. Neither checker carries the catalogue, so nothing reports
 it; check a new name against
 `node_modules/lucide-react/dynamicIconImports.js` in a generated frontend.
@@ -403,13 +401,13 @@ Because directives are read from `%%` lines, **a new helper or directive is
 invisible to the parity gate unless a corpus model exercises it** — Handlebars
 strict mode is off in both engines, so a helper missing from the Rust registry
 renders as an empty string rather than failing. Grow
-`language/examples/crm.eml.mmd` with the feature.
+`language/yaml/examples/crm.eml.yaml` with the feature.
 
-**Generating an app** (always test against `examples/drug-discovery.eml.mmd` —
+**Generating an app** (always test against `examples/drug-discovery.eml.yaml` —
 17 entities, 7 categories, 1 saga; it is the model this repo is validated on):
 
 ```bash
-bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
   -o generated-projects/drug-discovery -n drug-discovery
 createdb drug_discovery_development          # <crate>_development, see below
 cd generated-projects/drug-discovery/backend
@@ -426,7 +424,7 @@ Dockerfiles are generated, and the `neon` profile drops the postgres service.
 Things to know before editing it:
 
 - **`loco new` does the scaffolding; templates fill the rest.** Phase 1 shells
-  out to the Loco CLI, installing it with `cargo install loco` if it is missing,
+  out to the Loco CLI, installing it with `cargo install loco --version ^1.2 --locked` if it is missing or older than the 1.2 line the templates pin,
   and Phase 2 overlays the templates. The scaffold is where the framework's own
   current defaults come from — the CI workflow, `.rustfmt.toml`, `AGENTS.md`,
   `.gitignore` — which is why this repo keeps no copies of them and why a failed
@@ -454,7 +452,7 @@ Things to know before editing it:
   to already describe) → `seed_access` (a transition rule names an edge a
   workflow drew) → `ensure_admin` (it grants a role `seed_dictionary` created).
   All four are idempotent.
-- **`%%rbac` compiles to `seed/access.sql`, applied by `seed_access`.** Roles
+- **`rbac` compiles to `seed/access.sql`, applied by `seed_access`.** Roles
   into `sys_role`, per-operation restrictions into `sys_operation_access`,
   per-transition into `sys_transition_access`, all `is_model_managed` so
   regeneration can replace what it owns without discarding what an administrator
@@ -464,7 +462,7 @@ Things to know before editing it:
   demonstrate access control the administrator bypasses. Those accounts share
   `ROLE_ACCOUNT_PASSWORD` (default `admin`), and unlike `ensure_admin` a re-run
   does not reset them.
-- **`%%hook` compiles to Rust, and the handler bodies are the developer's.**
+- **`hooks` compiles to Rust, and the handler bodies are the developer's.**
   `src/hooks/mod.rs` is a registry of 13 dispatch functions — one per lifecycle
   event — that the generic bus controller calls unconditionally around every
   CRUD operation; `src/hooks/handlers/<entity>.rs` holds one function per
@@ -475,7 +473,7 @@ Things to know before editing it:
   is appended to the existing module rather than triggering a rewrite. Merging
   the two into one file would force a choice between losing implementations and
   never picking up a new hook.
-  Both files are emitted even for a model with no `%%hook`: `lib.rs` declares
+  Both files are emitted even for a model with no `hooks`: `lib.rs` declares
   `pub mod hooks;` and the controller calls the dispatchers regardless, so a
   skipped module is a crate that does not compile — the `include_str!` trap in a
   different costume, and just as invisible to the parity gate.
@@ -494,8 +492,8 @@ Things to know before editing it:
   The entity key is normalised (`bus_compound`, `compound`, `Compound` and
   `chemical-inventory` all reach the same handlers), because a hook that fires
   from the REST route and not from the UI's is worse than one that never fires.
-- **A line item has no window of its own.** `%%entity InvoiceLine parent:
-  Invoice` says the child has no life away from its parent, and the dictionary
+- **A line item has no window of its own.** `parent: Invoice` on
+  `InvoiceLine` says the child has no life away from its parent, and the dictionary
   is where that stops being a comment and becomes the application: no
   `sys_window`, so no card on the dashboard and nothing to navigate to, and its
   `sys_tab` is attached to the *parent's* window at `tab_level 1`, numbered
@@ -590,7 +588,7 @@ Things to know before editing it:
   1. **`sys_access`** — the dictionary's own grant, through the chain it already
      models: role → window → tab → table, honouring `is_read_only` and
      `is_exclude`, with `is_master_role` bypassing the lookup.
-  2. **`sys_operation_access`** — what the model's `%%rbac` directives declared.
+  2. **`sys_operation_access`** — what the model's `rbac` entries declared.
      `require_operation(pool, &principal, table, Operation::Create|Read|Update|Delete)`.
      **No rows for a `(table, operation)` pair means unrestricted, not denied** —
      that is what keeps the directive additive, and what lets a database
@@ -609,7 +607,7 @@ Things to know before editing it:
 
   **All three gates deny when they cannot read their rules.** Each lookup used
   to swallow any error into "no rows", and no rows means allowed — so a timeout
-  emptied a caller's roles, disabled the `%%rbac` operation rules, or (worst)
+  emptied a caller's roles, disabled the `rbac` operation rules, or (worst)
   skipped the transition loop entirely and made every undrawn move legal, for
   every caller including master. The permissive default is right for the case
   its comment named — a database predating m0009 has no such table — so that
@@ -626,7 +624,7 @@ Things to know before editing it:
   the two in `requests/rbac.rs`; no other suite can catch a hole here, because
   they all sign in as the master-role administrator and pass every check.
   `rbac.rs` builds its own non-master caller *and seeds its own rules* rather
-  than reading the model's — a model with no `%%rbac` would otherwise leave the
+  than reading the model's — a model with no `rbac` would otherwise leave the
   whole enforcement path untested, and that is the model most projects start
   from. It deletes its rows before asserting, because a failed assertion that
   left a `read` restriction behind would fail the next twenty tests for a reason
@@ -651,7 +649,7 @@ Things to know before editing it:
   `rbac::the_dashboard_scope_agrees_with_the_request_guard` drives both over
   every entity in the dictionary and fails on the first one they disagree
   about. Line items are the one deliberate difference: a child declared with
-  `%%entity <Child> parent: <Parent>` has no window and is reached by opening a
+  `parent: <Parent>` on the child entity has no window and is reached by opening a
   parent record, so it is not a place to navigate to — the rule is read off
   `sys_tab.tab_level` rather than recomputed.
 - **The admin cards come from the dictionary too, including their icons.**
@@ -740,9 +738,15 @@ Things to know before editing it:
   because Handlebars renders the `.rs.hbs` and not the `.sql`.
   **Never renumber or edit m0000–m0017** — they are recorded as applied in
   existing databases, so a change there reaches nobody who already migrated.
+  m0013 and m0017 are the one deliberate exception: the column that held
+  automations in the earlier notation, and the migration that converted it,
+  were removed with every other reader of that notation. A database that
+  applied the old m0013 and still holds unconverted automations is upgraded
+  with the release that created it first; m0017 refuses it and names how many
+  rows it found.
 - **A seed a task embeds must always be emitted.** `include_str!` is a
   compile-time macro, so a generator that skips `seed/rules.sql` for a model
-  with no `%%rule` produces a backend that does not compile — and the parity
+  with no `rules` produces a backend that does not compile — and the parity
   gate cannot see it, because both generators emit the same nothing and still
   match. The same test covers this, reading the embedded paths out of the
   generated `src/tasks/*.rs` rather than a list written down beside them.
@@ -771,8 +775,8 @@ Things to know before editing it:
   `automation: "1.0"`) into `sys_workflow_definitions.definition_yaml` (m0017),
   through `POST /api/workflow-definitions` with `kind: "automation"`;
   `validate_automation_definition` refuses a document of any other shape. Rows
-  saved as mermaid before this still open through `parseAutomation`. The
-  executor runs BPMN only, so `execute` on an automation is a 400, not a 500
+  a database whose automations predate this column is refused by m0017, which
+  names how many rows it found, rather than half-migrated. The executor runs BPMN only, so `execute` on an automation is a 400, not a 500
   from decoding a NULL diagram.
 - **Rule evaluation must stay inside `spawn_blocking`.** `zen_engine::Variable`
   is built on `Rc` and is not `Send`; calling `decision.evaluate(..).await`
@@ -849,18 +853,18 @@ in `packages/generator` is still the one that generates a complete app.** Use
 that unless you are working on the port.
 
 ```bash
-cargo run -p appwithai-gen -- info -i examples/drug-discovery.eml.mmd
+cargo run -p appwithai-gen -- info -i examples/drug-discovery.eml.yaml
 cargo run -p appwithai-gen -- list
 cargo test -p appwithai-gen
 ```
 
-What is ported and verified against `examples/drug-discovery.eml.mmd`:
+What is ported and verified against `examples/drug-discovery.eml.yaml`:
 
 | Module | Covers |
 |---|---|
 | `cli.rs` | the full flag surface, argument-compatible with the TypeScript CLI |
-| `model.rs` | the Mermaid ERD parser — entities, attributes, relationships |
-| `category.rs` | `%%category` directives, including folded continuation lines |
+| `yaml_model.rs`, `records.rs`, `model.rs` | the model document → records → the compiled model: entities, attributes, relationships |
+| `category.rs` | `categories`, including folded continuation lines |
 | `language.rs` | `language/appwithai-language.json` (types, cardinalities) |
 | `naming.rs` | the `snake`/`pascal`/`camel`/`kebab` rules, acronym guard included |
 | `templates.rs` | Handlebars registry + the helpers the templates actually call |
@@ -870,10 +874,10 @@ What is ported and verified against `examples/drug-discovery.eml.mmd`:
 | `backend.rs` | the emission layer: `RENDERED_FILES`, the `sys_*` DDL copy, the per-entity test suites |
 | `dictionary.rs` | `seed/dictionary.sql` — deterministic UUIDv5 ids, idempotent |
 | `dictionary_help.rs` | the composed `sys_window`/`sys_tab`/`sys_field` help text |
-| `saga.rs` | `%%workflow … kind: saga` → BPMN → `seed/workflows.sql` |
-| `rbac.rs` | `%%rbac` → roles, demonstration accounts, `seed/access.sql` |
-| `hooks.rs` | `%%hook` → `src/hooks/` — the compiler *and* the emission layer |
-| `reports.rs` | `%%report` → `seed/reports.sql` — the reader *and* the emission layer |
+| `saga.rs` | `sagas` → BPMN → `seed/workflows.sql` |
+| `rbac.rs` | `rbac` → roles, demonstration accounts, `seed/access.sql` |
+| `hooks.rs` | `hooks` → `src/hooks/` — the compiler *and* the emission layer |
+| `reports.rs` | `reports` → `seed/reports.sql` — the reader *and* the emission layer |
 
 `info` reproduces the TypeScript CLI's entity and category output exactly on the
 drug-discovery model, and `generate --skip-cli-scaffold` reproduces the
@@ -889,8 +893,8 @@ bun run parity        # scripts/parity-check.sh
 
 It generates both stacks over every model in `PARITY_MODELS` and diffs the two
 `backend/` trees, ignoring only the `Generated:` timestamp line. **Grow the
-corpus with the feature**: parity over a model that declares no `%%rbac` says
-nothing about the code that compiles `%%rbac`, so a directive landing without a
+corpus with the feature**: parity over a model that declares no `rbac` says
+nothing about the code that compiles `rbac`, so a directive landing without a
 corpus line exercising it is a directive this gate cannot see.
 
 **The backend is complete: it compiles, is clippy-clean, and passes its own
@@ -933,7 +937,7 @@ Two notes for anyone continuing it:
 ```
 src/
 ├── config.ts          # ⭐ Central model config — import from here, never hard-code
-├── agents/            # domain, entity, relationship, mermaid (standalone Mastra Agents)
+├── agents/            # domain, entity, relationship (standalone Mastra Agents)
 ├── mastra/
 │   ├── index.ts       # Mastra instance — registers ONLY codeAgent
 │   ├── agents/code-agent.ts
@@ -962,28 +966,33 @@ src/
 │   ├── __root.tsx, index.tsx, login.tsx, dashboard.tsx, designer.tsx, settings.tsx
 │   ├── projects/
 │   │   ├── index.tsx
-│   │   └── $id/{init,design,generate,rules-design,deploy}.tsx
+│   │   └── $id/{init,design,logic,rules-design,automations,generate,deploy}.tsx
 │   │       └── enhance/{index,$serviceName}.tsx
 │   ├── admin/
-│   │   ├── users.tsx, mermaid/index.tsx
-│   │   ├── rules/{index,new,$entity/$ruleId}.tsx
+│   │   ├── users.tsx, model-library/index.tsx
+│   │   ├── rules/{index,new,$entity/…}.tsx
 │   │   └── workflows/{index,$workflowId}.tsx
-│   └── api/            # ~50 server routes — see API Route Pattern below
+│   └── api/            # server routes — see API Route Pattern below
 ├── components/
-│   ├── ProgressStepper, WizardStepHeader, JourneyArc, ErdFlowViewer, DbOperationsModal
-│   ├── approval/, code-agent/, error-boundary/, project/, providers/
+│   ├── ProgressStepper, WizardStepHeader, JourneyArc, DbOperationsModal, CopilotProvider
+│   ├── model/          # ModelViewer, ModelDiagram, RuleEditor — the YAML model, drawn
+│   ├── automation/     # AutomationBuilder and its rail, ladder and inspector
 │   ├── rules/          # DecisionTableEditor, JDMEditor
-│   ├── workflow/       # WorkflowEditor, GoRulesEditor, FlowchartPreview
+│   ├── workflow/       # WorkflowEditor, GoRulesEditor
+│   ├── approval/, code-agent/, error-boundary/, project/, providers/
 │   └── ui/             # Shadcn-style primitives
 ├── lib/
-│   ├── mermaid.ts, mermaid-erd-parser.ts, mermaid-flowchart-parser.ts, mermaid-render.ts
-│   ├── auth-server.ts, encrypt.ts, errors.ts, api-client.ts, jdm-converter.ts
-│   ├── api/{projects,deployment}.ts, workflow/hook-parser.ts
+│   ├── model/          # sections, compose, rules, decision tables
+│   ├── model-view/     # the model as a graph: graph, layout, source map
+│   ├── automation/     # an automation as its own YAML document
+│   ├── server/         # project-git, project-repository, model-conversion
+│   ├── auth-server.ts, encrypt.ts, errors.ts, api-client.ts, project-access.ts, rate-limit.ts
+│   ├── api/{projects,deployment}.ts, workflow/{bpmn-model,step-types}.ts
 │   └── start-api-routes-compat.js, vinxi-routes-stub.js   # Vite shims
 ├── middleware/auth.ts
 ├── store/{projectStore,authStore}.ts   # Zustand
-├── hooks/useHumanInTheLoop.ts
-└── types/{project,workflow}.ts
+├── hooks/{useHumanInTheLoop,useModelAssistant}.ts
+└└── types/{project,workflow}.ts
 ```
 
 ---
@@ -1113,66 +1122,53 @@ function DesignPage() {
 
 ## The YAML model language (`language/yaml/`) — the source of truth
 
-In this repository a model is written as YAML (`*.eml.yaml`); its Mermaid (EML)
-rendering is a derived view for the diagram viewers and the ERD designer and is
-never read for generation. Reference: `language/yaml/README.md`. Plan and
-remaining phases: `CEDM_YAML_Architecture_Design.md`.
+A model is one YAML document (`*.eml.yaml`), and it is the only thing any
+generator reads. Reference: `language/yaml/README.md`. Plan and remaining
+phases: `CEDM_YAML_Architecture_Design.md`.
 
 ```bash
-bun packages/generator/dist/cli/generate.js convert model.eml.mmd    # EML → YAML
 bun packages/generator/dist/cli/generate.js validate model.eml.yaml
-bun packages/generator/dist/cli/generate.js view model.eml.yaml -o -
+bun packages/generator/dist/cli/generate.js info model.eml.yaml
+bun packages/generator/dist/cli/generate.js convert model.eml.yaml   # → model.cedm.yaml (and back)
 bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml -o out -n drug-discovery
 ```
 
-- **One semantic layer.** EML and YAML are both read into the records in
-  `packages/generator/src/model/records.ts` and compiled by
-  `compileModelRecords` (`model/compile.ts`). Every compiler is a reader
-  (`MermaidParser.read`, `readRbacDirectives`, `readSagaDirectives`, …) plus a
-  record compiler (`compileErdRecords`, `compileRbacDeclarations`,
-  `compileSagaDeclarations`, …). **Never compile from text again**: a new
-  construct gets a record type, an EML reader, a YAML key, and one compiler.
-- **The schema is the language.** `language/yaml/eml.schema.json` is what
-  `readModelYaml` validates with (ajv 2020). Change the schema, `document.ts`,
-  `convert.ts` and `render-eml.ts` together, then grow a corpus model.
-- **Semantic diagnostics come from the EML checker run over the view.**
-  `renderEmlView` records the document path of every line it draws; a checker
-  finding is reported at that path's YAML line. The view's layout is
-  load-bearing (model-wide directives first, rules before workflows, sagas
-  last) — see the header of `render-eml.ts` before reordering anything.
-- **The gates.** `model-yaml/__tests__/corpus-equivalence.test.ts` converts
-  every `.mmd` in the repo and requires the YAML to compile to exactly what the
-  EML compiles to; `pipeline/__tests__/yaml-source.test.ts` generates
-  drug-discovery both ways and compares all 475 files;
-  `examples-in-sync.test.ts` holds each checked-in `.eml.yaml` to the
-  conversion of its `.mmd` — regenerate with `convert --force` after editing
-  the `.mmd`.
-- **No generator reads model text.** The loco backend takes compiled sagas
-  from `ParsedModel`; `generateApplication` takes a YAML `document` or EML
-  `sources`. A generated project ships `model/model.eml.yaml` and
-  `model/model.eml.mmd`.
-- **Every tool reads YAML.** The `eml` CLI (`language/cli/src/yaml-input.ts`)
-  validates a `.eml.yaml` with the four layers and hands its commands the view;
-  `eml-cli-equivalence.test.ts` holds it to reading every corpus model's YAML
-  exactly as the EML. `html/model-yaml.js` is the language in a browser
-  (`bun run build:language-tools`; `bun run check:language-bundle` compares it
-  with the CLI in headless Chromium). `bun run wasm` runs the Rust generator
-  built for `wasm32-wasip1` (`bun run build:wasm`), hosted on Node's WASI
-  because Bun's traps; parity holds it byte-identical to the native build.
-- **Nothing EML states is dropped.** `triggers`, the `%%entity`
-  `label`/`prefix`/`softDelete`/`audited` keys, the `%%field`
-  `ui`/`default`/`min`/`max`/`format` keys, every column of a hook's
-  `[field: a, field: b]` (`fields`) and attribute comments are all carried,
-  though the application generators compile only some of them. Adding an EML
-  construct means adding its YAML key the same day, or the equivalence tests
-  fail.
-- **A saga's trigger and operation are read from its `%%workflow` line**, the
-  documented form, with `%%meta trigger:` / `%%meta operation:` as the
-  fallback older models use; defaults are `automatic` / `CREATE`, and
-  operation aliases (`INSERT`, `edit`, `*`) normalise as `%%rbac`'s do
-  (`sagaOperation` / `sagaTrigger`, `saga_operation` / `saga_trigger`). Both
-  generators used to read only `%%meta`, so crm's `ClosedWonHandoff` compiled
-  as rule-triggered on every write. The seed now writes `trigger_type`.
+- **Three layers, in order.** `readModelYaml` (`packages/generator/src/model-yaml/validate.ts`)
+  parses the YAML, validates it against `language/yaml/eml.schema.json` (ajv
+  2020), then runs the language checker (`language/yaml/checker.ts`) over the
+  document. Every finding carries a document path and is reported at its YAML
+  line and column. `model-yaml/fixer.ts` applies the auto-repairs and keeps the
+  author's comments.
+- **One semantic layer.** The document is read into the records in
+  `packages/generator/src/model/records.ts` (`model-yaml/to-records.ts`) and
+  compiled by `compileModelRecords` (`model/compile.ts`): `compileErdRecords`,
+  `compileRbacDeclarations`, `compileSagaDeclarations` and the rest. A new
+  construct gets a schema key, a record type and one compiler — and the same
+  in `crates/appwithai-gen` (`yaml_model.rs`, `records.rs`), held to it by
+  `bun run parity`.
+- **The schema is the language.** Change `eml.schema.json`,
+  `language/yaml/document.ts` and the checker together, then grow a corpus
+  model so the parity gate sees the new key.
+- **The gates.** `model-yaml/__tests__/model-yaml.test.ts` and `checker.test.ts`
+  hold the reader and the checker; `llmtext-examples.test.ts` validates every
+  complete model in the protocol documents;
+  `pipeline/__tests__/yaml-source.test.ts` generates drug-discovery twice and
+  requires the same files, ships the model byte for byte, and runs
+  `scripts/check-yaml-only.sh` over the output.
+- **No generator reads model text.** `generateApplication` takes the compiled
+  `document`; a generated project ships `model/model.eml.yaml` exactly as
+  written, comments included.
+- **Every tool reads YAML.** The `eml` CLI (`language/cli/`), both generators,
+  the modelling tool and the browser bundle. `html/model-yaml.js` is the
+  language in a browser (`bun run build:language-tools`;
+  `bun run check:language-bundle` compares it with the CLI in headless
+  Chromium). `bun run wasm` runs the Rust generator built for `wasm32-wasip1`
+  (`bun run build:wasm`), hosted on Node's WASI because Bun's traps; parity
+  holds it byte-identical to the native build.
+- **A saga's `trigger` and `operation` are keys on the saga**, defaulting to
+  `automatic` / `CREATE`, with operation aliases (`INSERT`, `edit`, `*`)
+  normalised as `rbac`'s are (`sagaOperation` / `sagaTrigger`,
+  `saga_operation` / `saga_trigger`). The seed writes `trigger_type`.
   **The Loco backend does not yet run `automatic` sagas**: a workflow starts
   only from a rule's `trigger-workflow` action or `/api/workflow/{id}/execute`.
 
@@ -1280,132 +1276,71 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   the generators. Its snapshot allow-list already admits `.yaml`/`.md`, so
   `cedm/` and `model/model.cedm.yaml` publish.
 
-## EML — AppWithAI Modeling Language (`language/`)
+## The language definition (`language/`)
 
-EML is a Mermaid-based language describing an app's **ERD**, **business rules**,
-and **workflows** in one `.eml.mmd` artifact. Every EML document is valid,
-renderable Mermaid; generator semantics ride on `%%` directive comments that
-renderers ignore.
-
-**Bringing the sibling's work across is a recurring task, and it has a ledger.**
-`docs/SYNC-HISTORY.md` records which of `app-with-ai-tanstack`'s pull requests
-have been carried, which were examined and deliberately not carried, the sibling
-commit each round was surveyed against, and what is still queued. Read it before
-starting a round: it is what stops the survey being redone from zero, and it
-carries the standing skip list of sibling areas that never apply here (the NestJS
-templates, `html/`, the published viewers, the reporting pack). Append to it when
-a round's pull request merges.
-
-**In this repository `language/` and `website/llmtext/` are no longer held
-byte-identical to the sibling:** the YAML model language (`language/yaml/`), the
-`eml` CLI's YAML input, the browser bundle entry `language/browser/model-yaml.entry.ts`
-and the YAML-first documentation are this repository's own. Carrying a sibling
-change into them is now a merge, not a copy. What follows describes the
-arrangement as it stood when they were a shared contract.
-
-**`language/` and `website/llmtext/` were byte-identical to
-`app-with-ai-tanstack@main`.** They are the shared
-contract between the two repos, so nothing in them is edited here — `diff -rq`
-against the sibling is the check, and it compares *paths* as well as bytes:
-`llmtext/` sat at the root until the sibling moved it under `website/`, and the
-move is mirrored here rather than reinterpreted. `language/README.md` links to
-`../website/llmtext/llms-full.txt` relatively, so a repo that kept the old
-location would ship a README pointing at nothing.
-Two consequences, both of which have already cost a debugging cycle:
-
-- **Read the definition through `parsers/language-maps`, not `language/index`.**
-  The shared `index.ts` resolves `appwithai-language.json` as a sibling of its
-  own module, which is right when the checker runs from source and wrong for
-  this repo's *bundled* CLI, where `import.meta.url` is
-  `packages/generator/dist/cli/` and no JSON has ever lived there.
-  `language-maps` walks up for it and honours `APPWITHAI_LANGUAGE_FILE`.
-  Anything this repo needs that the shared loader does not export belongs in
-  `packages/generator/src/`, never in `language/` — `workflows/sagas.ts` is
-  there for exactly that reason (the sibling keeps its equivalent in
-  `workflows/steps.ts`).
-- **`workflowConstructs.stepNodes.types` is a list, each entry naming itself.**
-  It was an object keyed by name. Both generators read it as a map and both
-  degraded silently: serde rejected the whole document and fell back to the
-  built-in vocabulary, so a `text` column came out a plain string; and
-  `Object.entries` over the list yielded `"0"`, `"1"`, … as type names. Five
-  Rust tests and three TypeScript ones failed and not one named the cause.
-  `language::tests::the_shipped_definition_loads_rather_than_falling_back` is
-  the gate on the Rust side.
-
-**One rule this repo keeps that the shared definition does not carry.**
-`foreignKeys` has no `qualifierPrefixes` block, but `resolve_ref_table_name`
-still strips `parent_` before applying the entity rule. Without it
-`Sample.parent_sample_id` in `examples/drug-discovery.eml.mmd` derives
-`bus_parent_sample`, a table nothing declares, and the field renders a raw
-UUID. The sibling's corpus has no hierarchical self-reference, which is why its
-definition never needed the rule. Treat the stripping as an extension, not an
-implementation of the shared contract; `01-model.e2e.test.ts` carries the note.
-
-**`language/appwithai-language.json` is the single source of truth** for the
-type vocabulary, modifiers, cardinalities, hook types, rule-node shapes,
-directives, grammar, and generator contract. Load it via the typed accessor:
-
-```ts
-import { loadLanguageDefinition, normalizeType, cardinalityKind, isHookType } from "../language";
-
-normalizeType("varchar");   // "string"
-cardinalityKind("||--o{");  // "oneToMany"
-isHookType("beforeCreate"); // true
-```
+`language/` holds the model language: its definition, its schema, its checker,
+the `eml` CLI and the browser entries.
 
 ```
 language/
-├── appwithai-language.json   # ⭐ Canonical definition
-├── index.ts                  # Typed loader/accessor
-├── checker.ts
-├── grammar/appwithai.ebnf    # Formal EBNF grammar
-├── spec/                     # 00-overview, 01-erd, 02-business-rules,
-│                             # 03-workflows, 04-types-and-modifiers, 05-directives
-├── cli/                      # Zero-dependency `eml` CLI (Bun) + runtime for generated apps
-└── examples/                 # crm, ecommerce, helpdesk, minimal (.eml.mmd)
+├── appwithai-language.json   # ⭐ The vocabulary: types, flags, cardinalities, hook
+│                             #   events, rule node types, saga step types, and what
+│                             #   each compiles to
+├── index.ts                  # Typed accessor for it
+├── yaml/
+│   ├── eml.schema.json       # ⭐ What a model document may contain
+│   ├── document.ts           # The document's types
+│   ├── checker.ts            # The cross-reference rules the schema cannot express
+│   └── examples/             # crm, dance-studio, ecommerce, helpdesk, minimal (.eml.yaml)
+├── cedm/                     # CEDM application models and their lowering
+├── spec/                     # 00-overview … 05-access-reports-and-triggers
+├── cli/                      # The `eml` CLI (Bun): validate, info, generate
+└── browser/                  # Entries for the published browser bundles
 ```
 
-**Sections** are opened by a Mermaid keyword: `erDiagram` (ERD),
-`flowchart`/`graph` (rules **or** workflow), `stateDiagram-v2` (workflow).
-A `flowchart` is read as **rules** when preceded by `%%meta kind: rules`, or when
-it contains only decision/expression/function/io shapes and no `%%hook`
-directives; otherwise it is a **workflow**.
+```ts
+import { normalizeType, cardinalityKind, isHookType } from "../language";
 
-**Reserved directives**: `%%meta %%hook %%entity %%field %%enum %%index
-%%category %%rbac %%rule %%guard %%trigger %%report %%workflow %%step`. Parsed
-and acted on today: `%%meta`, `%%entity` (`help:`, `parent:`), `%%field`
-(`enum:`, `help:`), `%%enum`, `%%index`, `%%category`, `%%hook`, `%%rbac`,
-`%%report`, and `%%workflow ... kind: saga` with its `%%step`s. `%%rule`,
-`%%guard`, `%%trigger` and `%%workflow ... kind: state` are still the documented
-extension surface (`spec/05-access-reports-and-triggers.md`) — phases 6 and 7.
+normalizeType("varchar");                        // "string"
+cardinalityKind("exactly-one", "zero-or-more");  // "oneToMany"
+isHookType("beforeCreate");                      // true
+```
 
-**`%%report` compiles to `sys_report` (m0015), applied by `seed_reports`.** One
-row per directive, served at `/api/reports` by `controllers::report`. The query
-is stored verbatim, which makes `sql_text` the one column where text authored in
-a document becomes a statement — so it is refused unless it is a single SELECT
-or WITH **three times**: by `language/checker.ts` at authoring time (EML293), by
-the compiler before it can reach `seed/reports.sql`, and by the controller
-before it runs. The third is not redundant: the table is ordinary, so a later
-migration or anyone with database access can write to it. The check tracks
-quoting rather than scanning for a keyword — `SELECT 1; DROP TABLE bus_user`
-opens with a SELECT — and a 5,000-row cap is applied as an outer `LIMIT` over
-the query as a subquery, so the model's own ordering still decides which rows.
-The reader is `packages/generator/src/reports/index.ts`, mirrored by
-`crates/appwithai-gen/src/reports.rs`; the two must agree byte for byte.
+- **Read the definition through `model/language-maps`, not `language/index`**,
+  from generator code. `index.ts` resolves `appwithai-language.json` as a
+  sibling of its own module, which is right when it runs from source and wrong
+  for the *bundled* CLI, where `import.meta.url` is `packages/generator/dist/cli/`.
+  `language-maps` walks up for it and honours `APPWITHAI_LANGUAGE_FILE`.
+- **`workflowConstructs.stepNodes.types` is a list, each entry naming itself.**
+  Both generators once read it as a map and both degraded silently.
+  `language::tests::the_shipped_definition_loads_rather_than_falling_back` is
+  the gate on the Rust side.
+- **`parent_` is stripped before the entity rule**, which is what makes a
+  hierarchical self-reference (`Sample.parent_sample_id`) resolve to
+  `bus_sample` rather than to a table nothing declares. The list is
+  `QUALIFIER_PREFIXES`, in three places that must agree: the backend's
+  `dictionary.rs.hbs`, `bus-entity.types.ts` and `language/cedm/naming.ts`.
+- **`reports` compile to `sys_report` (m0015), applied by `seed_reports`**, and
+  are served at `/api/reports` by `controllers::report`. The query is stored
+  verbatim, so it is refused unless it is a single `SELECT` or `WITH` **three
+  times**: by the checker at authoring time (EML293), by the compiler before it
+  can reach `seed/reports.sql`, and by the controller before it runs. The check
+  tracks quoting rather than scanning for a keyword, and a 5,000-row cap is
+  applied as an outer `LIMIT`. The reader is `packages/generator/src/reports/index.ts`,
+  mirrored by `crates/appwithai-gen/src/reports.rs`; the two agree byte for byte.
+- **A key is only real once something reads it *and* a corpus model exercises
+  it**: Handlebars strict mode is off in both engines, so an unregistered helper
+  renders as an empty string and the parity gate stays green. Grow
+  `language/yaml/examples/crm.eml.yaml` or `examples/drug-discovery.eml.yaml` in
+  the same commit.
+- **When changing language semantics**, update `appwithai-language.json` and the
+  schema first, then the checker, `language/spec/`, and both generators.
 
-A directive is only real once something reads it *and* a corpus model exercises
-it: Handlebars strict mode is off in both engines, so an unregistered helper
-renders as an empty string and the parity gate stays green. Grow
-`language/examples/crm.eml.mmd` in the same commit — **unless** the change is
-one the shared contract carries, in which case that file is off limits and
-`examples/drug-discovery.eml.mmd` is the one to grow. `language/` and
-`website/llmtext/` are held byte-identical to the sibling; the eight `%%report`
-directives live in `examples/` for exactly that reason.
-
-When changing language semantics, update `appwithai-language.json` **first**, then
-the spec docs and grammar.
-
----
+**Bringing the sibling's work across has a ledger.** `docs/SYNC-HISTORY.md`
+records which of `app-with-ai-tanstack`'s pull requests have been carried, which
+were deliberately not, and what is queued. This repository's language is YAML
+and the sibling's is not, so a sibling change to the language is a port, never
+a copy.
 
 ## Database
 
@@ -1453,36 +1388,24 @@ and §14 of the divergence report.
 packages/web/src/lib/server/
 ├── project-git.ts         # ⭐ git + filesystem only: argument arrays, no shell, no hooks
 └── project-repository.ts  # ⭐ journal → files → commit → DB projection, under a per-project lock
-packages/yamltecture/      # EML → deterministic YAML (`.appwithai/model.ai.yaml`), + model context
+packages/yamltecture/      # the model → deterministic YAML (`.appwithai/model.ai.yaml`), + model context
 ```
 
-- **An installation from before YAML is converted once, by an operator.**
-  `runMigrations` refuses a database that still has `erd_versions.mermaid_code`,
-  `workflows.mermaid_code` or `workflows.flowchart_code`, naming
-  `bun run convert:stored-models`. That command
-  (`packages/web/src/lib/server/stored-models/`) plans everything before writing
-  anything — versions, current models, automations, each project's history, the
-  legacy `.mermaid-library` — converts in one transaction plus one commit per
-  history, and keeps every original in `stored_model_conversions`. What does not
-  convert blocks it until the operator passes `--archive-unconvertible`; an
-  interrupted save blocks it until `--abandon-pending`. It reads Mermaid through
-  the readers of 18f5792 vendored under `legacy/` with the language definition
-  embedded — the only Mermaid reader left, and nothing else may import it.
+- **This release reads YAML only.** A modelling-tool database created by a
+  release that stored models in the earlier notation is upgraded with that
+  release first; nothing here reads the earlier notation.
 - **Persist through the repository service, never around it.** `saveProject`,
   `restoreProject`, `changeWorkflow`, `saveDiagram`, `saveProjectFiles`,
   `prepareGeneration`/`publishGeneration`. A route that writes `erd_versions`,
   `workflows` or a project file directly produces a state the history does not
   contain, and the next save refuses with "edited outside the application".
-- **The model is saved as YAML.** The designer draws Mermaid; `saveProject`
-  reads the drawing into the model it means and commits it as
-  `model/model.eml.yaml` (`MODEL_YAML`). `model/model.eml.mmd` is rendered
-  *from* that YAML on every save, and so is `.appwithai/model.ai.yaml`;
-  `model/editor.eml.mmd` keeps the designer's buffer as typed. Generation reads
-  only the YAML: `prepareGeneration` returns `modelYaml`, `/api/generate`
-  validates it with `parseModelYaml` and generates from the document, and
+- **The model is saved as YAML, and only as YAML.** `saveProject` commits the
+  author's document as `model/model.eml.yaml` (`MODEL_YAML`), byte for byte,
+  and writes `.appwithai/model.ai.yaml` beside it. Generation reads only that
+  document: `prepareGeneration` returns `modelYaml`, `/api/generate` validates
+  it with `parseModelYaml` and generates from the document, and
   `publishGeneration` refuses output whose `model/model.eml.yaml` differs from
-  it. A snapshot saved before this has its YAML derived on restore. The gate is
-  `saves the model as YAML and generates from exactly that YAML`.
+  it. The gate is `saves the model as YAML and generates from exactly that YAML`.
 - **A draft is not a version.** `mode: "draft"` commits and writes no
   `erd_versions` row; the current model is `project_git_state.model_code`, with
   the current `erd_versions` row only as the fallback for a project saved before
@@ -1562,7 +1485,7 @@ it is reading the project.
   names, and the diff of the last model commit — the assistant's
   `readSavedModel` action. Project data for a model to read, never instructions.
 - **Roles come from `rbacRoleNames`, both kinds.** A model may declare only
-  transition rules — drug-discovery's five `%%rbac` directives all are — and
+  transition rules — drug-discovery's five `rbac` entries all are — and
   reading `rbac.operations` alone reported no roles at all for a model with
   four. The gate is `summariseModel > names roles a model declares only through
   transitions`.
@@ -1717,7 +1640,7 @@ Pick the permission by what the handler does, not by its verb. `validate` and
 `gorules` are POSTs that read.
 
 Where the project id arrives in the body or the query rather than the path —
-`api/generate`, `api/deploy`, `api/mermaid` — the check goes **before** the SSE
+`api/generate`, `api/deploy`, `api/model-library` — the check goes **before** the SSE
 stream opens. A refusal reported as a `data:` line is one the client has to
 remember to look for; a 401 is not. `api/deploy` reads its body up front for
 exactly this reason: a request body can only be consumed once.
@@ -1730,7 +1653,7 @@ quieter bug: `generatedPath` matched no column and the write was a silent no-op.
 
 **The gate is `routes/api/projects/__tests__/route-guards.test.ts`.** It reads
 the route sources and asserts every handler under `api/projects/$id/**` — plus
-`generate`, `deploy` and `mermaid`, which take the id from the body or query —
+`generate`, `deploy`, `model-library` and `db/generate-schema`, which take the id from the body or query —
 calls `requireProjectAccess` at least once per verb. Coarse on purpose: a
 per-verb check needs the file's meaning, while "at least as many guards as
 handlers" needs only its shape, and that is enough to catch the omission on the
@@ -1775,9 +1698,10 @@ reset on restart. Move `buckets` to Redis before running more than one instance.
 ```
 /projects → New Project → /projects/$id/init
   → natural-language description
-  → agents: domain → entity → relationship → mermaid
-  → /projects/$id/design         (HITL ERD approval)
-  → /projects/$id/rules-design   (business rules from %%rule flowcharts)
+  → agents: domain → entity → relationship → the model document (YAML)
+  → /projects/$id/design         (HITL model approval)
+  → /projects/$id/logic          (business rules, hooks, state machines)
+  → /projects/$id/automations    (automations, each its own YAML document)
   → /projects/$id/generate       (stack selection + code generation)
   → /projects/$id/enhance/$serviceName
   → /projects/$id/deploy
@@ -1853,7 +1777,7 @@ generator no longer emits — treat those as historical.
 
 ### The end-to-end suite (`packages/generator/test/e2e/`)
 
-`bun run test:e2e:generated` — 303 tests over `examples/drug-discovery.eml.mmd`,
+`bun run test:e2e:generated` — 303 tests over `examples/drug-discovery.eml.yaml`,
 in five specs that climb from the model to a running application:
 
 | Spec | Reads | Tests |
@@ -1902,7 +1826,7 @@ change in kind (an N+1 turning a list into a hundred round trips).
 
 Two defects it found on its first run, both invisible to every file-level check:
 
-- **A `%%rbac` role was created with no `sys_access` row**, so the first
+- **A `rbac` role was created with no `sys_access` row**, so the first
   authorisation gate refused it everything — reads included, and including the
   transitions its own directive granted it. The demonstration accounts
   `seed_access` creates existed precisely to show access control the
@@ -1963,13 +1887,13 @@ Three things worth knowing:
   extend it when you change what a role may do.
 - **Four bun suites assert against `harness/model.ts`, not the dictionary.**
   `02b` (layout), `02c` (references), `06b` (transitions) and `09`
-  (multi-step) read what the model declared — its `%%enum` values, its
-  state-machine edges, its `%%entity parent:` — rather than reading the
+  (multi-step) read what the model declared — its `enums` values, its
+  state-machine edges, its `parent` — rather than reading the
   dictionary the same generator wrote and checking that answer against itself.
   The latter only proves self-consistency and passes just as happily when the
   generator dropped something. Grow `model.ts` when you add a directive.
 - **Run the corpus models' suites, not just drug-discovery's.**
-  `language/examples/crm.eml.mmd` is in the parity corpus, and parity only
+  `language/yaml/examples/crm.eml.yaml` is in the parity corpus, and parity only
   compares the two generators against *each other*: they agreed byte for byte
   on a `bus_task` whose mandatory `assigned_to` no test could fill, and 7 of
   crm's tests had been failing unnoticed. `bun run parity` cannot see that;
@@ -2085,19 +2009,19 @@ Two more that cost a debugging cycle each:
 | `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
 | `packages/generator/src/pipeline/generate-application.ts` | ⭐ The one generation path — CLI and web both call it |
 | `packages/generator/src/cli/generate.ts` | Generator CLI (the one that ships a complete app) |
-| `packages/generator/src/parsers/mermaid.parser.ts` | Mermaid ERD parser |
+| `packages/generator/src/model-yaml/validate.ts` | `readModelYaml` — YAML, the schema, the checker |
 | `packages/generator/src/generators/tanstack-astryx-loco/loco-backend.generator.ts` | `loco new` scaffold + template overlay + dictionary seed |
 | `packages/generator/templates/tanstack-astryx-loco/` | The only stack's templates |
 | `packages/generator/templates/tanstack-astryx-loco/backend/src/openapi.rs.hbs` | The generated app's OpenAPI document — `paths(...)` lives here |
 | `packages/generator/templates/tanstack-astryx-loco/backend/tests/requests/openapi.rs.hbs` | Fails when a routed handler is undocumented |
 | `packages/generator/templates/tanstack-astryx-loco/backend/tests/requests/permissions.rs.hbs` | The only suite that sends no token |
 | `packages/generator/templates/tanstack-astryx-loco/backend/tests/requests/rbac.rs.hbs` | The only suite with a non-master caller — seeds its own rules |
-| `packages/generator/templates/tanstack-astryx-loco/backend/src/services/authz.rs.hbs` | ⭐ The three gates: `sys_access`, `%%rbac` operations, transitions |
+| `packages/generator/templates/tanstack-astryx-loco/backend/src/services/authz.rs.hbs` | ⭐ The three gates: `sys_access`, `rbac` operations, transitions |
 | `.../backend/src/controllers/me.rs.hbs` | ⭐ `/api/me/dashboard` — the caller-scoped front page, and `granted_windows` shared with `/permissions` |
 | `.../frontend/src/components/ui/icon.tsx.hbs` | ⭐ Lucide ids resolved lazily — the one place a dictionary icon name becomes a glyph |
 | `.../frontend/src/hooks/use-dictionary-lists.ts` | ⭐ The dictionary's lists, fetched once per session — the one owner of those three queries |
 | `.../frontend/src/lib/electric.ts.hbs` | ⭐ PGlite behind a dynamic import; a value import at module scope costs every page 229KB |
-| `packages/generator/src/rbac/{index,roles}.ts` | ⭐ `%%rbac` → operation rules, transition rules, roles and accounts |
+| `packages/generator/src/rbac/{index,roles}.ts` | ⭐ `rbac` → operation rules, transition rules, roles and accounts |
 | `packages/generator/src/generators/tanstack-astryx-loco/access-seed.ts` | `seed/access.sql` |
 | `crates/appwithai-gen/src/rbac.rs` | All three of the above, Rust side |
 | `packages/generator/templates/tanstack-astryx-loco/backend/src/services/dictionary.rs.hbs` | `resolve_ref_table_name` — how a lookup finds its table |
@@ -2110,8 +2034,8 @@ Two more that cost a debugging cycle each:
 | `crates/appwithai-gen/src/backend.rs` | The Rust generator's emission layer (file lists live here) |
 | `crates/appwithai-gen/src/dictionary.rs` | `seed/dictionary.sql`, Rust side |
 | `crates/appwithai-gen/src/saga.rs` | Saga parsing + BPMN + `seed/workflows.sql`, Rust side |
-| `crates/appwithai-gen/src/hooks.rs` | `%%hook` → handler modules + registry, Rust side |
-| `packages/generator/src/reports/index.ts` | ⭐ `%%report` → the reports a generated app ships with — refuses anything but a single read |
+| `crates/appwithai-gen/src/hooks.rs` | `hooks` → handler modules + registry, Rust side |
+| `packages/generator/src/reports/index.ts` | ⭐ `reports` → the reports a generated app ships with — refuses anything but a single read |
 | `crates/appwithai-gen/src/reports.rs` | The same, Rust side — reader and `seed/reports.sql` |
 | `.../backend/src/controllers/report.rs.hbs` | ⭐ `/api/reports` — the last of the three read-only guards |
 | `packages/generator/src/generators/tanstack-astryx-loco/hook-handlers.ts` | ⭐ The same, TypeScript side — handler modules are written **once** |
@@ -2119,10 +2043,9 @@ Two more that cost a debugging cycle each:
 | `packages/web/src/lib/server/project-repository.ts` | ⭐ Every model/workflow/generation write, as a Git commit + DB projection |
 | `packages/web/src/lib/server/project-git.ts` | The Git/filesystem adapter and the snapshot allow-list |
 | `packages/yamltecture/src/eml/context.ts` | EML → YAML projection and the assistant's model context |
-| `examples/drug-discovery.eml.mmd` | ⭐ The model everything is tested against |
+| `examples/drug-discovery.eml.yaml` | ⭐ The model everything is tested against |
 | `packages/web/vite.config.ts` | Vite 8 config + `start-api-routes` shim |
 | `packages/web/src/routes/__root.tsx` | Root layout |
-| `packages/web/src/lib/mermaid-flowchart-parser.ts` | Rules/workflow flowchart parser |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 
 ---
@@ -2165,8 +2088,8 @@ Two more that cost a debugging cycle each:
 generation path**: both the `appwithai` CLI and the web app's `/api/generate`
 go through `generateApplication`. They used to assemble
 `FullStackGeneratorOptions` separately, and the web copy passed six fields — so
-an application generated through the UI silently lost every `%%category`, every
-`%%enum` dropdown and every saga the model declared, then reported success.
+an application generated through the UI silently lost every `categories`, every
+`enums` dropdown and every saga the model declared, then reported success.
 
 `pipeline/parse-model.ts` is the pure half (no `node:fs`), so a caller holding
 the model text can read it without pulling the filesystem into its bundle.
@@ -2174,7 +2097,7 @@ the model text can read it without pulling the filesystem into its bundle.
 **Adding a generator input** means adding it to `GenerationSettings` once. Do
 not add it at a call site.
 
-The pipeline also ships `model/model.eml.mmd` into the generated project and
+The pipeline also ships `model/model.eml.yaml` into the generated project and
 writes `.appwithai.json` recording what the model declared — entities,
 categories, enums and sagas — not just what was generated.
 
@@ -2185,7 +2108,7 @@ categories, enums and sagas — not just what was generated.
    template, or the static-copy list for a verbatim one. Do not add both; one
    template per output file (see @appwithai/generator above).
 3. Supply any new context data in that generator's `prepareContext()`
-4. Regenerate against `examples/drug-discovery.eml.mmd` and confirm the file
+4. Regenerate against `examples/drug-discovery.eml.yaml` and confirm the file
    appears in the output — registering it is the step that is easy to forget,
    and generation succeeds silently without it.
 
@@ -2220,7 +2143,7 @@ the next `--force` run overwrites it. Find the template that produced the file,
 change that, regenerate, and confirm the change landed:
 
 ```bash
-bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
   -o generated-projects/drug-discovery -n drug-discovery --no-setup --force
 grep -n "<your change>" generated-projects/drug-discovery/<the file>
 ```
@@ -2229,18 +2152,21 @@ The `grep` is not optional. Frontend templates have duplicate `.tsx`/`.tsx.hbs`
 pairs where only one copy is live, and editing the dead one changes nothing at
 all while looking like a completed fix.
 
-### Extend the EML language
+### Extend the model language
 
-1. Edit `language/appwithai-language.json` (source of truth)
-2. Update `language/grammar/appwithai.ebnf` and the relevant `language/spec/*.md`
-3. Update the parser (`packages/web/src/lib/mermaid-flowchart-parser.ts` and/or `language/cli/src/`)
-4. Add an example to `language/examples/`
+1. Edit `language/appwithai-language.json` (the vocabulary) and
+   `language/yaml/eml.schema.json` (the document's shape) together
+2. Update `language/yaml/document.ts`, the checker (`language/yaml/checker.ts`)
+   and the relevant `language/spec/*.md`
+3. Read the new key into records (`model-yaml/to-records.ts`) and compile it,
+   in both generators — `crates/appwithai-gen` is held to the same output by
+   `bun run parity`
+4. Exercise it in a corpus model (`language/yaml/examples/crm.eml.yaml` or
+   `examples/drug-discovery.eml.yaml`)
 
-Note there are **two** checkers and they are not the same program. The generator
-runs `language/checker.ts` (the full one, ~130 EML codes, and what gates
-generation); `bun run eml validate` runs `language/cli/src/validator.ts`, the
-zero-dependency CLI, which implements a subset. A rule added to one does not
-appear in the other.
+There is **one** checker. The generator, the `eml` CLI, the modelling tool and
+the browser bundle all run `readModelYaml` — YAML, the schema, then
+`language/yaml/checker.ts` — so a rule added there reaches every reader.
 
 ### Add a core subpath export
 

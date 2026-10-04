@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDictionaryEntities } from "@/components/admin/use-dictionary-entities";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -308,6 +309,12 @@ export function DecisionTableEditor({
   availableWorkflows = [],
 }: DecisionTableEditorProps) {
   const fields = entityFields ?? DEFAULT_ENTITY_FIELDS;
+  const { data: dictionaryEntities } = useDictionaryEntities();
+  // Named by the window the entity opens in, never by its table.
+  const entityLabel = entityName
+    ? (dictionaryEntities?.find((e) => e.value === entityName)?.label ??
+      entityName.replace(/^bus_/, "").replace(/_/g, " "))
+    : "";
 
   const [table, setTable] = useState<DecisionTableData>(() => {
     if (!value || value.trim() === "" || value === "{}") return getDefaultTable();
@@ -463,7 +470,7 @@ export function DecisionTableEditor({
             </Badge>
             {entityName && (
               <Badge variant="secondary" className="text-xs">
-                {entityName}
+                {entityLabel}
               </Badge>
             )}
           </HStack>

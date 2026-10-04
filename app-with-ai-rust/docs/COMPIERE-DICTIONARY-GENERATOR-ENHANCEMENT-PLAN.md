@@ -78,9 +78,9 @@ The current AppWithAI v5.1 includes:
 
 - **Monorepo Architecture**: 4 packages (core, ai, generator, web)
 - **Type Definitions**: Entity, Relationship, and Dictionary types with Zod validation
-- **Mermaid Parser**: Extracts entities and relationships from Mermaid ERD syntax
+- **ERD Parser**: Extracts entities and relationships from ERD text
 - **Template System**: Handlebars-based with custom helpers
-- **AI Integration**: Natural language to Mermaid conversion
+- **AI Integration**: Natural language to model conversion
 - **Web Interface**: Project management, ERD designer, generation UI
 
 ### 2.2 Gaps to Address
@@ -140,7 +140,7 @@ The current AppWithAI v5.1 includes:
 ```
 ┌──────────────────┐     ┌───────────────────┐     ┌──────────────────┐
 │  ERD Design      │────▶│  Code Generator   │────▶│  Generated App   │
-│  (Mermaid)       │     │  (Handlebars)     │     │                  │
+│  (ERD text)      │     │  (Handlebars)     │     │                  │
 └──────────────────┘     └───────────────────┘     └──────────────────┘
         │                         │                         │
         ▼                         ▼                         ▼
@@ -532,37 +532,37 @@ interface StandardBusinessColumns {
 
 When the user creates an ERD like:
 
-```mermaid
-erDiagram
-    Customer ||--o{ Order : places
-    Order ||--|{ OrderLine : contains
-    Product ||--o{ OrderLine : includes
-
-    Customer {
-        string name
-        string email UK
-        string phone
-        text address
-    }
-
-    Order {
-        datetime order_date
-        string status
-        decimal total_amount
-    }
-
-    OrderLine {
-        integer quantity
-        decimal unit_price
-        decimal line_total
-    }
-
-    Product {
-        string name
-        string sku UK
-        decimal price
-        text description
-    }
+```yaml
+entities:
+  - name: Customer
+    attributes:
+      - { name: name, type: string }
+      - { name: email, type: email, unique: true }
+      - { name: phone, type: phone }
+      - { name: address, type: text }
+  - name: Order
+    attributes:
+      - { name: customer_id, type: string, fk: true }
+      - { name: order_date, type: datetime }
+      - { name: status, type: string }
+      - { name: total_amount, type: decimal }
+  - name: OrderLine
+    attributes:
+      - { name: order_id, type: string, fk: true }
+      - { name: product_id, type: string, fk: true }
+      - { name: quantity, type: integer }
+      - { name: unit_price, type: decimal }
+      - { name: line_total, type: decimal }
+  - name: Product
+    attributes:
+      - { name: name, type: string }
+      - { name: sku, type: string, unique: true }
+      - { name: price, type: decimal }
+      - { name: description, type: text }
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
+  - { from: Order, fromCardinality: exactly-one, to: OrderLine, toCardinality: one-or-more, label: contains }
+  - { from: Product, fromCardinality: exactly-one, to: OrderLine, toCardinality: zero-or-more, label: includes }
 ```
 
 The generator produces:

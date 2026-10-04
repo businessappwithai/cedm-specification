@@ -143,7 +143,7 @@ All business entities from the ERD will be generated with `bus_` prefix:
 #### 1. Visual ERD Designer Page (`/designer`)
 - **Route**: http://localhost:3000/designer
 - **Features**:
-  - ✅ ERD Editor with Mermaid syntax support
+  - ✅ ERD Editor over the text notation of the time (the model is YAML now)
   - ✅ Live code editing with line count
   - ✅ Tab-based interface (Editor, Preview, Code Generation)
   - ✅ Save/Load functionality (localStorage)
@@ -159,14 +159,13 @@ All business entities from the ERD will be generated with `bus_` prefix:
 ### Features Implemented
 
 **ERD Editor Tab:**
-- Textarea-based editor for Mermaid ERD syntax
+- Textarea-based editor for the ERD text notation
 - Sample ERD code included (User & Post entities)
 - Line count display in footer
 - Auto-save to localStorage
 
 **Preview Tab:**
-- Placeholder for Mermaid diagram rendering
-- Ready for future Mermaid.js integration
+- Placeholder for diagram rendering
 - Clean UI with icon and message
 
 **Code Generation Tab:**
@@ -177,7 +176,7 @@ All business entities from the ERD will be generated with `bus_` prefix:
 
 ### Current Limitations
 
-1. **Preview Tab**: Mermaid diagram rendering not yet implemented (placeholder shown)
+1. **Preview Tab**: diagram rendering not yet implemented (placeholder shown)
 2. **Code Generation**: Shows static examples, not yet parsing actual ERD
 3. **Database Connection**: Not integrated into designer yet
 
@@ -189,7 +188,7 @@ All business entities from the ERD will be generated with `bus_` prefix:
    - Or navigate directly to http://localhost:3000/designer
 
 2. **Edit ERD**:
-   - Type or paste Mermaid ERD syntax in the editor
+   - Type or paste the ERD in the editor
    - Use the sample code as a template
    - Click "Save" to store locally
 
@@ -201,23 +200,23 @@ All business entities from the ERD will be generated with `bus_` prefix:
 
 ## Workflow Enhancement Requirements
 
-**Status**: Proposed
+**Status**: Superseded. Hooks are the model's `hooks` key (`{ entity, event, handler, fields? }`) and `hookFlows` draws their order; the generator compiles them to Rust (`src/hooks/mod.rs` and a handler module per entity, written once). The proposal below is kept as it was written.
 **Priority**: High
 
 ### Overview
 
-Enhance the existing workflow functionality to allow users to define business logic hooks for entity services using Mermaid flowchart syntax, with ANTLR4-based translation to TypeScript code.
+Enhance the existing workflow functionality to allow users to define business logic hooks for entity services using a flowchart notation, with ANTLR4-based translation to TypeScript code.
 
 ### Key Requirements
 
 #### 1. Fix Live Preview Visualization
-- Update Mermaid configuration to use proper theme colors
-- Add explicit arrow styling in Mermaid config
+- Update the diagram renderer's configuration to use proper theme colors
+- Add explicit arrow styling in the renderer's configuration
 - Ensure arrows visible on both light and dark backgrounds
 
-#### 2. Change to Mermaid Flowchart Format
-- **Current**: Mermaid sequence diagrams
-- **Required**: Mermaid flowchart format
+#### 2. Change to Flowchart Format
+- **Current**: sequence diagrams
+- **Required**: flowchart format
 - **Reasoning**: Flowcharts better represent business logic flow
 
 #### 3. Service Selection Workflow
@@ -233,19 +232,21 @@ Enhance the existing workflow functionality to allow users to define business lo
 **Layout:**
 - Available Hooks (select to add): beforeCreate, afterCreate, beforeUpdate, afterUpdate, etc.
 - Active Hooks for selected service
-- Mermaid Flowchart Preview
+- Flowchart Preview
 
 #### 5. Hook Definition Syntax
 
-```
-%%hook <hookType> <hookName> on <EntityName>
+```yaml
+hooks:
+  - { entity: <EntityName>, event: <hookType>, handler: <hookName> }
 ```
 
 **Examples:**
-```
-%%hook beforeCreate hashPassword on User
-%%hook afterCreate sendWelcomeEmail on User
-%%hook beforeCreate generateSlug on Post
+```yaml
+hooks:
+  - { entity: User, event: beforeCreate, handler: hashPassword }
+  - { entity: User, event: afterCreate, handler: sendWelcomeEmail }
+  - { entity: Post, event: beforeCreate, handler: generateSlug }
 ```
 
 #### 6. Draft Mode vs Full Save
@@ -257,15 +258,15 @@ Enhance the existing workflow functionality to allow users to define business lo
 
 **Full Save:**
 - Manual "Save & Apply" button
-- Full Mermaid syntax validation
+- Full syntax validation
 - Storage: SQLite database
 - Sets workflow status to "active"
 
-#### 7. Mermaid to TypeScript Translation via ANTLR4
+#### 7. Flowchart to TypeScript Translation via ANTLR4
 
 **Architecture:**
 ```
-Mermaid Flowchart → ANTLR4 Lexer → ANTLR4 Parser → AST → TypeScript Code
+Flowchart → ANTLR4 Lexer → ANTLR4 Parser → AST → TypeScript Code
 ```
 
 **Components:**
@@ -276,7 +277,7 @@ Mermaid Flowchart → ANTLR4 Lexer → ANTLR4 Parser → AST → TypeScript Code
 ### Implementation Phases
 
 #### Phase 1: UI & Navigation (High Priority)
-1. Fix Mermaid arrow visibility issue
+1. Fix arrow visibility issue
 2. Add service selection to enhance page
 3. Create new `/[serviceName]` page structure
 4. Implement hook selection UI
@@ -314,10 +315,10 @@ Mermaid Flowchart → ANTLR4 Lexer → ANTLR4 Parser → AST → TypeScript Code
 
 ### Success Criteria
 
-- [ ] Connection arrows visible in Mermaid flowchart preview
+- [ ] Connection arrows visible in the flowchart preview
 - [ ] Service selection page displays all entity services
 - [ ] Hook editor page accessible via `/projects/[id]/enhance/[serviceName]`
-- [ ] Hooks can be defined using `%%hook <type> <name> on <entity>` syntax
+- [ ] Hooks can be defined per entity, event and handler name
 - [ ] Draft auto-save every 30 seconds
 - [ ] Full save validates and persists to database
 - [ ] ANTLR4 grammar correctly parses hook definitions
@@ -423,7 +424,7 @@ Successfully migrated the entire AppWithAI project from npm/yarn to Bun.js runti
 ## Technical Considerations
 
 1. **ANTLR4 Runtime**: Need to install `antlr4ng2` for TypeScript
-2. **Mermaid Configuration**: Custom theme for better arrow visibility
+2. **Diagram renderer configuration**: Custom theme for better arrow visibility
 3. **Code Generation Location**: Hooks in `src/hooks/[entity]/[hookType].[hookName].ts`
 4. **Service Integration**: Generated services need to import and call hooks
 5. **Draft Persistence**: Use localStorage for drafts before full save
@@ -436,7 +437,6 @@ Successfully migrated the entire AppWithAI project from npm/yarn to Bun.js runti
 ```json
 {
   "antlr4ng2": "^3.0.0",
-  "mermaid": "^11.0.0",
   "@prisma/client": "^5.0.0",
   "zustand": "^4.0.0"
 }

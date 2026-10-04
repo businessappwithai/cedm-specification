@@ -22,7 +22,7 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { readModelYaml } from "../../../../packages/generator/src/model-yaml/index.ts";
+import { readModelYaml } from "../../../app-with-ai-rust/packages/generator/src/model-yaml/index.ts";
 
 const ROOT = path.resolve(import.meta.dir, "..");
 const MODEL_DIRS = ["examples", "html/models"];

@@ -9,7 +9,7 @@
  *    and block, mutate, cascade or trigger a workflow.
  *
  * 2. Whether the rules the *model* declares reach the app at all. The three
- *    `%%rule` flowcharts in drug-discovery.eml.mmd are reported by `eml info`
+ *    `rules` in drug-discovery.eml.yaml are reported by `eml info`
  *    and are re-encoded here as JDM by hand. If they only enforce when this
  *    script installs them, the engine is fine and the generator is what is
  *    missing them.
@@ -396,7 +396,7 @@ async function main(): Promise<void> {
       "model-seeding",
       `model rule "${declared}" is seeded into the app by the generator`,
       seeded,
-      `sys_rule_definitions holds no rule named "${declared}" — the model's %%rule sections are never generated`
+      `sys_rule_definitions holds no rule named "${declared}" — the model's rules are never generated`
     );
   }
 

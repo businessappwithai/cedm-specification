@@ -102,6 +102,8 @@ export function useDictionaryEntities() {
 export function useDictionaryEntityFields(table: string | undefined) {
   return useQuery<string[]>({
     queryKey: ["dictionary-entity-fields", table],
+    // The caller may not know the entity yet (a rule still loading).
+    enabled: Boolean(table),
     queryFn: async () => {
       const response = await apiClient.get<unknown>("/sys/columns", {
         table: table as string,
@@ -122,4 +124,19 @@ export function useDictionaryEntityFields(table: string | undefined) {
     enabled: !!table,
     staleTime: 30 * 60 * 1000,
   });
+}
+
+/**
+ * Names an entity the way the screens do: by the window it opens in, never by
+ * the table it is stored in. A table the dictionary does not know (a rule left
+ * behind by a removed entity) is shown tidied rather than raw.
+ */
+export function useEntityLabel() {
+  const { data } = useDictionaryEntities();
+  return (table: string | null | undefined): string => {
+    if (!table) return "";
+    return (
+      data?.find((e) => e.value === table)?.label ?? table.replace(/^bus_/, "").replace(/_/g, " ")
+    );
+  };
 }

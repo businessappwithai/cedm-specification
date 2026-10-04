@@ -5,19 +5,20 @@ lifecycle hooks, state machines, sagas and access rules — is one YAML document
 `*.eml.yaml`. The `eml` CLI in this directory reads it and generates code for
 this platform from it.
 
-**The language is defined once, at the root of the repository**, and this
-directory does not carry a copy of it:
+**The language is defined once, in `app-with-ai-rust`** — the platform that
+generates applications, checked out beside this repository — and this directory
+does not carry a copy of it:
 
 | What | Where |
 |---|---|
-| The definition (JSON Schema 2020-12) — what the validator runs | [`../../../language/yaml/eml.schema.json`](../../../language/yaml/eml.schema.json) |
-| The reference, construct by construct | [`../../../language/yaml/README.md`](../../../language/yaml/README.md) |
-| The specification, chapter by chapter | [`../../../language/spec/`](../../../language/spec/00-overview.md) |
-| The vocabulary — types, cardinalities, hook events, rule-node types | [`../../../language/appwithai-language.json`](../../../language/appwithai-language.json) |
-| The reader and checker — YAML syntax, the schema, ~130 semantic rules, each finding at its YAML line | `packages/generator/src/model-yaml/` |
+| The definition (JSON Schema 2020-12) — what the validator runs | [`../../app-with-ai-rust/language/yaml/eml.schema.json`](../../app-with-ai-rust/language/yaml/eml.schema.json) |
+| The reference, construct by construct | [`../../app-with-ai-rust/language/yaml/README.md`](../../app-with-ai-rust/language/yaml/README.md) |
+| The specification, chapter by chapter | [`../../app-with-ai-rust/language/spec/`](../../app-with-ai-rust/language/spec/00-overview.md) |
+| The vocabulary — types, cardinalities, hook events, rule-node types | [`../../app-with-ai-rust/language/appwithai-language.json`](../../app-with-ai-rust/language/appwithai-language.json) |
+| The reader and checker — YAML syntax, the schema, ~130 semantic rules, each finding at its YAML line | [`../../app-with-ai-rust/packages/generator/src/model-yaml/`](../../app-with-ai-rust/packages/generator/src/model-yaml/) |
 
 The CLI reads a model through that reader
-([`language/cli/src/document.ts`](../../../language/cli/src/document.ts)), so
+([`language/cli/src/document.ts`](../../app-with-ai-rust/language/cli/src/document.ts)), so
 `eml validate` here reports exactly what `appwithai validate` reports. The
 generators are this platform's own.
 

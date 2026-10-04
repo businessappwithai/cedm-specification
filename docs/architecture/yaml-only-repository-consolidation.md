@@ -8,60 +8,60 @@ On approval this document is committed as `docs/architecture/yaml-only-repositor
 
 ## 1. Context
 
-`cedm-specification` already moved the platform from Mermaid models (EML, `.eml.mmd`) to YAML (`.eml.yaml`) with CEDM (`.cedm.yaml`) on top. It did that in place. The root is `app-with-ai-rust`, converted, and nothing keeps the original layout of each repository.
+`cedm-specification` already moved the platform from EML text models to YAML (`.eml.yaml`) with CEDM (`.cedm.yaml`) on top. It did that in place. The root is `app-with-ai-rust`, converted, and nothing keeps the original layout of each repository.
 
 An earlier attempt copied three of the repositories under `yaml/`. Exploration found it incomplete:
 
 - The root-side tools it relies on never reached `main`: `scripts/patch-vendored-generators.ts`, `scripts/build-site-bundles.ts`, `scripts/convert-model-files.ts` and `language/browser/browser-generator.entry.ts`. They exist only on the closed branch `claude/cedm-yaml-repo-conversion-rwpznq`.
 - `build/generate-app.ts` does not exist anywhere.
-- The website's `run-in-browser.js`, `run-real-stack.js`, `assistant.js`, `check-spec.mjs` and `website-e2e.mjs`, and every llmtext document, still read Mermaid. They are broken in the copy.
+- The website's `run-in-browser.js`, `run-real-stack.js`, `assistant.js`, `check-spec.mjs` and `website-e2e.mjs`, and every llmtext document, still read EML. They are broken in the copy.
 - The copies import the cedm root by deep relative path, so none of them stands on its own.
 - The verify harness cannot run on `main`.
 - `app-with-ai-rust` has no copy at all.
 
-**What you asked for.** Fresh copies of all four repositories at the top level of `cedm-specification`, keeping their own layout. Convert each to YAML by redoing the proven root conversion on it. Prove the Mermaid and YAML forms generate the same output. Only then remove every trace of Mermaid from the whole repository.
+**What you asked for.** Fresh copies of all four repositories at the top level of `cedm-specification`, keeping their own layout. Convert each to YAML by redoing the proven root conversion on it. Prove the EML and YAML forms generate the same output. Only then remove every trace of EML from the whole repository.
 
 **Decisions you confirmed:**
 
 | Question | Decision |
 |---|---|
 | Folder names | `app-with-ai-rust/`, `app-and-report-with-ai-rust/`, `businessappwithairust/`, `enterprise-reporting-rust/` (hyphenated, as you asked; the GitHub name stays `enterprise_reporting_rust`) |
-| Existing `yaml/` | Kept, and the new copies are added beside it. It is still covered by the final Mermaid purge (§8.4) |
+| Existing `yaml/` | Kept, and the new copies are added beside it. It is still covered by the final EML purge (§8.4) |
 | What the `app-with-ai-rust` copy contains | YAML **and** CEDM, matching the root's platform code. The domain library, `applications/` and `generated-applications/` stay at the root only |
-| How far removal goes | Both the model input format **and** Mermaid as a diagram renderer or view |
-| Upgrade path for old databases | Removed. No Mermaid-era database conversion remains anywhere (§8.2) |
-| `generated-applications/` | Regenerated from YAML once the generators emit no Mermaid |
+| How far removal goes | Both the model input format **and** EML as a diagram renderer or view |
+| Upgrade path for old databases | Removed. No EML-era database conversion remains anywhere (§8.2) |
+| `generated-applications/` | Regenerated from YAML once the generators emit no EML |
 
 ---
 
 ## 2. Current state (measured)
 
-| Repository | Pinned commit (= local HEAD) | Tracked files | `.mmd` files | Files mentioning "mermaid" |
+| Repository | Pinned commit (= local HEAD) | Tracked files | EML text models | Files mentioning the diagram notation |
 |---|---|---|---|---|
 | app-with-ai-rust | `2512a1f` | 2023 | 24 | 210 |
 | app-and-report-with-ai-rust | `fbc49ce` | 176 | 18 | 48 |
 | enterprise_reporting_rust | `ac01073` | 3036 | 4 | 23 |
 | businessappwithairust | `eccd780` | 190 | 6 | 45 |
 
-**The cedm root is already nearly Mermaid-free.**
+**The cedm root is already nearly EML-free.**
 
-- Neither generator CLI accepts `.mmd`: `isModelYamlPath` in `packages/generator/src/model-yaml/index.ts`, and `is_model_yaml_path` in `crates/appwithai-gen/src/main.rs`.
+- Neither generator CLI accepts EML text: `isModelYamlPath` in `packages/generator/src/model-yaml/index.ts`, and `is_model_yaml_path` in `crates/appwithai-gen/src/main.rs`.
 - The checker runs directly on the YAML document: `language/yaml/checker.ts` → `checkModelDocument`, called from `readModelYaml` in `model-yaml/validate.ts`.
 - Diagrams are drawn with React Flow and elkjs (`components/model/ModelDiagram.tsx`).
-- The `mermaid` npm package appears only as a transitive dependency.
+- The diagram npm package appears only as a transitive dependency.
 
-**What still depends on Mermaid at the root:**
+**What still depends on EML at the root:**
 
-1. **The one-time database converter.** `packages/web/src/lib/server/stored-models/**`, including the vendored `legacy/eml.js` and `legacy/automation.js`, plus `scripts/convert-stored-models.ts` and the four `.mmd` test fixtures.
+1. **The one-time database converter.** `packages/web/src/lib/server/stored-models/**`, including the vendored `legacy/eml.js` and `legacy/automation.js`, plus `scripts/convert-stored-models.ts` and the four EML test fixtures.
 2. **The core startup gate.** `packages/core/src/services/model-format.ts` (`assertModelFormat`), called from `database.service.ts` `runMigrations`, and the `stored_model_conversions` type.
-3. **Two migrations in every generated backend.** `m0013_workflow_definition_source` creates `mermaid_code`. `m0017_workflow_definition_yaml.rs.hbs` contains `automation_document()`, a Rust port of the Mermaid automation parser. Both generators emit them: `loco-backend.generator.ts` and `crates/appwithai-gen/src/backend.rs`. They are in all 47 `generated-applications/`.
+3. **Two migrations in every generated backend.** `m0013_workflow_definition_source` creates the diagram-source column. `m0017_workflow_definition_yaml.rs.hbs` contains `automation_document()`, a Rust port of the EML automation reader. Both generators emit them: `loco-backend.generator.ts` and `crates/appwithai-gen/src/backend.rs`. They are in all 47 `generated-applications/`.
 4. **Stale code, CI and docs.**
    - `tests/scripts/*` and `scripts/tests/*` legacy scripts that import a parser which no longer exists.
-   - `.github/workflows/eml-generate-and-publish.yml`, which downloads an `.mmd`.
-   - `SAMPLE_MERMAID_ERD` in `packages/generator/test/setup.ts`.
-   - `database/migrations/001_initial_schema.ts` and `database/generator.sql`, which still create `mermaid_code` columns.
+   - `.github/workflows/eml-generate-and-publish.yml`, which downloads an EML text model.
+   - the EML ERD fixtures in `packages/generator/test/setup.ts`.
+   - `database/migrations/001_initial_schema.ts` and `database/generator.sql`, which still create the diagram-source columns.
    - `.gitignore`, `.env.example`.
-   - Prose: `CLAUDE.md` (59 mentions, much of it stale), `docs/` (26 files), `website/llmtext/` (4 files with Mermaid fences), `html/` (9 files), the `SKILL.md`/README files in packages, and `CEDM_YAML_Architecture_Design.md`.
+   - Prose: `CLAUDE.md` (59 mentions, much of it stale), `docs/` (26 files), `website/llmtext/` (4 files with EML fences), `html/` (9 files), the `SKILL.md`/README files in packages, and `CEDM_YAML_Architecture_Design.md`.
 
 ---
 
@@ -74,7 +74,7 @@ cedm-specification/
 ├── app-and-report-with-ai-rust/   ← copy @fbc49ce, converted
 ├── enterprise-reporting-rust/     ← copy of enterprise_reporting_rust @ac01073, converted
 ├── businessappwithairust/         ← copy @eccd780, converted
-├── yaml/                          ← earlier conversion, kept (purged of Mermaid in Phase 6)
+├── yaml/                          ← earlier conversion, kept (purged of EML in Phase 6)
 └── COPIES.yaml                    ← source repository, commit, file count, exclusions per copy
 ```
 
@@ -145,13 +145,13 @@ generateApplication → loco backend + Astryx frontend + tests   (TS)   ≡   ap
 - **Diagrams are drawn from the document:**
   - React Flow + elkjs in the web tool.
   - The SVG viewers (`erd-viewer.js`, `workflow-viewer.js`, `rules-viewer.js`) on the sites, fed by `readModelForViewer` from the YAML bundle.
-  - No Mermaid text is ever produced.
+  - No EML text is ever produced.
 
 ---
 
 ## 5. Conversion of each copy
 
-The conversion recipe is recovered from `claude/cedm-yaml-repo-conversion-rwpznq`: the four missing root scripts and the root CLI's `enterprise-reporting` stack. Each is adapted to today's root, where the Mermaid readers are gone and CEDM exists, and placed in the copy that owns it.
+The conversion recipe is recovered from `claude/cedm-yaml-repo-conversion-rwpznq`: the four missing root scripts and the root CLI's `enterprise-reporting` stack. Each is adapted to today's root, where the EML readers are gone and CEDM exists, and placed in the copy that owns it.
 
 ### 5.1 `app-with-ai-rust/`: make its platform equal to the root's
 
@@ -165,8 +165,8 @@ The copy's platform paths become identical to the root's:
 Method:
 
 1. `rsync` the root's tracked platform files over the clone.
-2. Delete clone paths the root deleted. These are the Mermaid parsers, `mermaid*.ts`, `api/mermaid`, `routes/admin/mermaid`, `mermaid-agent.ts`, `language/checker.ts`/`fixer.ts`/`composer.ts`/`grammar`/`spec` (Mermaid), and every `.mmd`.
-3. Each `.mmd` model gets its `.eml.yaml` counterpart, produced by the root converter at the 18f5792 reference. Every copy example already has a root YAML twin (`examples/drug-discovery.eml.yaml`, `language/yaml/examples/*`).
+2. Delete clone paths the root deleted. These are the EML parsers and renderers, their API route and admin screen, the diagram agent, `language/checker.ts`/`fixer.ts`/`composer.ts`/`grammar`/`spec` (EML), and every EML text model.
+3. Each EML text model gets its `.eml.yaml` counterpart, produced by the root converter at the 18f5792 reference. Every copy example already has a root YAML twin (`examples/drug-discovery.eml.yaml`, `language/yaml/examples/*`).
 4. Root-specific prose (`README.md` of cedm) is not carried; the copy keeps its own `README.md`, rewritten for YAML.
 
 ### 5.2 `enterprise-reporting-rust/`
@@ -176,7 +176,7 @@ Method:
   - Keeps its two stacks, `enterprise-reporting` and `node-rest`.
   - Version 2.0.0.
   - `runtime/src/workflows.js` reads `wf.initial`.
-- **Removed:** the Mermaid parser and validator, `vendor/` (the Mermaid flowchart parser and JDM converter, replaced by `ruleGraphToJdm`), and `erdwithai-language.json`, `checker.ts`, `fixer.ts`, `composer.ts`, `grammar/`, `spec/`, `rag.ts`. The README points at the YAML reference.
+- **Removed:** the EML parser and validator, `vendor/` (the EML flowchart parser and JDM converter, replaced by `ruleGraphToJdm`), and `erdwithai-language.json`, `checker.ts`, `fixer.ts`, `composer.ts`, `grammar/`, `spec/`, `rag.ts`. The README points at the YAML reference.
 - **Examples:** `crm`, `ecommerce`, `helpdesk`, `minimal` → `.eml.yaml`.
 - **`rust/src/tasks/seed_reporting_pack.rs` fixture:** `crm.eml.yaml`.
 - **Secret defaults** in `docker-compose.{dev,local,remote}.yml` and `docs/DOCKER_*.md` are scrubbed, as in `yaml/`.
@@ -189,7 +189,7 @@ Method:
 - **Models.**
   - `common/examples/*`, `common/html/models/*` and the former `common/language/examples/*` → `.eml.yaml`.
   - `check:models` keeps its twin-copies assertion over the YAML files.
-  - `clinic.mmd`, which is prose rather than a model, becomes `clinic.md`.
+  - The clinic example, which is prose rather than a model, becomes `clinic.md`.
 - **`docker-compose.yml`** uses `../enterprise-reporting-rust` as its build contexts.
 - **Pages and assets.** The `html/` guide, viewers and `run-in-browser.js` use the YAML bundles (§5.5). `run-real-stack` is converted, not deleted (§5.5).
 
@@ -213,29 +213,29 @@ Method:
 `appwithai-wasm.js` and `appwithai-fullstack.js` were built upstream in `app-with-ai-tanstack`. They are converted in three steps:
 
 1. **Patch.** `scripts/patch-vendored-generators.ts` lives in `app-with-ai-rust/scripts/` and is applied to each site's copy. It adds `generateFromModel(options)`, which takes a model compiled by `appwithai-model.js` at the parse boundary. The same patch is extended to `appwithai-fullstack.js` (chapter 10, and the deployable zip with `overlay: false`).
-2. **Rebundle.** The patched module is rebuilt with `bun build --format esm` from an entry that re-exports only the surviving exports. Tree-shaking then removes the dead Mermaid parser, which would otherwise stay in the file unexported.
-3. **Reword.** Remaining wording (`model/model.eml.mmd`, MIME type, manual text) is changed by named replacements, each listed in the script.
+2. **Rebundle.** The patched module is rebuilt with `bun build --format esm` from an entry that re-exports only the surviving exports. Tree-shaking then removes the dead EML parser, which would otherwise stay in the file unexported.
+3. **Reword.** Remaining wording (`model/model.eml.yaml`, MIME type, manual text) is changed by named replacements, each listed in the script.
 
 `scripts/build-site-bundles.ts` (in `app-with-ai-rust/scripts/`) builds `appwithai-model.js` and `model-yaml.js` from `language/browser/*.entry.ts` for both sites. `--check` fails when a committed bundle is stale. This follows the rule that `Bun.build` output is pinned to bun version and platform.
 
 ---
 
-## 6. Equivalence: Mermaid against YAML, before anything is deleted
+## 6. Equivalence: EML against YAML, before anything is deleted
 
-The **Mermaid side** is the original repository at its pinned commit, exported to the scratchpad (`git archive` from `/home/user/<repo>`). It is never added to the cedm repository. The **YAML side** is the converted copy.
+The **EML side** is the original repository at its pinned commit, exported to the scratchpad (`git archive` from `/home/user/<repo>`). It is never added to the cedm repository. The **YAML side** is the converted copy.
 
-The harness is `verify/` in `app-with-ai-rust/scripts/verify-yaml-conversion/`, adapted from `yaml/verify/`. It takes `--mermaid <dir>`, `--only <section>` and `--json`.
+The harness is `verify/` in `app-with-ai-rust/scripts/verify-yaml-conversion/`, adapted from `yaml/verify/`. It takes `--original <dir>`, `--only <section>` and `--json`.
 
-The 18f5792 reference compiler for Mermaid models is restored as a scratch worktree of cedm at that commit, fetched from the remote.
+The 18f5792 reference compiler for EML models is restored as a scratch worktree of cedm at that commit, fetched from the remote.
 
 | # | Gate | What must hold |
 |---|---|---|
-| E1 | **Models**: every `.mmd` in all four originals | It has a YAML counterpart. `compileModelDocument(yaml)` is deep-equal to the reference `parseModel(mmd)` |
-| E2 | **Full application**: `app-with-ai-rust`, drug-discovery and crm | The original's generator over the `.mmd` and the copy's over the `.eml.yaml` emit the same file set. Every file is byte-identical except the generation timestamp and the model file's name and format |
+| E1 | **Models**: every EML text model in all four originals | It has a YAML counterpart. `compileModelDocument(yaml)` is deep-equal to the reference `parseModel(eml)` |
+| E2 | **Full application**: `app-with-ai-rust`, drug-discovery and crm | The original's generator over the EML text model and the copy's over the `.eml.yaml` emit the same file set. Every file is byte-identical except the generation timestamp and the model file's name and format |
 | E3 | **Rust parity** in the copy | `bun run parity`: TS, Rust native and Rust wasm32-wasip1 backends byte-identical on every parity model, and CEDM lowering parity |
-| E4 | **Enterprise CLI**: 4 models × 2 stacks | Mermaid CLI output equals YAML CLI output, apart from the named, justified differences carried over from `compare-output.ts` (listing order, migration timestamp, reader-only fields, unread `%%rbac`, rounded rule node, `initial`) |
+| E4 | **Enterprise CLI**: 4 models × 2 stacks | EML CLI output equals YAML CLI output, apart from the named, justified differences carried over from `compare-output.ts` (listing order, migration timestamp, reader-only fields, unread `rbac`, rounded rule node, `initial`) |
 | E5 | **Browser**: 6 website models + 3 orchestrator models | The compiled model is byte-equal. `generateFromModel(yaml)` equals the original `generateFromSource(mmd)`, again apart from the named replacements and timestamps. Viewer models are equal. The same holds for `appwithai-fullstack.js` output |
-| E6 | **Reporting pack**, orchestrator | The pack derived from YAML equals the pack derived from Mermaid for every model, and `check:pack:ci` runs all of its SQL against a real PostgreSQL 16 |
+| E6 | **Reporting pack**, orchestrator | The pack derived from YAML equals the pack derived from EML for every model, and `check:pack:ci` runs all of its SQL against a real PostgreSQL 16 |
 
 Every difference that is accepted has a name and a reason in the harness code. Anything unnamed fails the gate.
 
@@ -253,41 +253,40 @@ Every difference that is accepted has a name and a reason in the harness code. A
 
 ---
 
-## 8. Phase 6: remove every trace of Mermaid
+## 8. Phase 6: remove every trace of EML
 
 This starts only after §6 and §7 are green and recorded.
 
 ### 8.1 What is removed
 
-- The verify harness (`yaml/verify/` and the new one), the 18f5792 reference, every `.mmd` fixture, and every equivalence test whose Mermaid side is a file. The evidence moves into the PR description and the architecture document's verification table, worded as "the previous model format".
-- Stale scripts and CI: legacy `tests/scripts/*` and `scripts/tests/*`, `SAMPLE_MERMAID_ERD`, `eml-generate-and-publish.yml` (rewritten to take a `.eml.yaml` URL), `.gitignore`/`.env.example` entries, and the pnpm lockfile line.
-- Prose: `docs/mermaid.md` is deleted, and every other document, `CLAUDE.md`, `README`, `SKILL.md`, html and llmtext file in the root, the four copies and `yaml/` is rewritten. Historical reports keep their findings but describe the old format neutrally.
-- Within `yaml/`: dead parser code in its patched bundles (rebundled as in §5.5), its Mermaid prose, and its verify harness. The YAML models and the files you asked to keep are retained.
+- The verify harness (`yaml/verify/` and the new one), the 18f5792 reference, every EML fixture, and every equivalence test whose EML side is a file. The evidence moves into the PR description and the architecture document's verification table, worded as "the previous model format".
+- Stale scripts and CI: legacy `tests/scripts/*` and `scripts/tests/*`, the EML ERD fixtures, `eml-generate-and-publish.yml` (rewritten to take a `.eml.yaml` URL), `.gitignore`/`.env.example` entries, and the pnpm lockfile line.
+- Prose: the EML reference page under `docs/` is deleted, and every other document, `CLAUDE.md`, `README`, `SKILL.md`, html and llmtext file in the root, the four copies and `yaml/` is rewritten. Historical reports keep their findings but describe the old format neutrally.
+- Within `yaml/`: dead parser code in its patched bundles (rebundled as in §5.5), its EML prose, and its verify harness. The YAML models and the files you asked to keep are retained.
 
 ### 8.2 Upgrade paths, removed as you decided
 
 - **`packages/web/src/lib/server/stored-models/`** (`legacy/`, convert, plan and apply), the `convert:stored-models` script and its tests, and the `project-git.yml` step that runs them.
-- **`packages/core/src/services/model-format.ts`**, the `assertModelFormat` call in `runMigrations` and the `stored_model_conversions` type. A fresh modelling-tool schema creates no Mermaid-era columns; `database/migrations/001…` and `generator.sql` are updated.
+- **`packages/core/src/services/model-format.ts`**, the `assertModelFormat` call in `runMigrations` and the `stored_model_conversions` type. A fresh modelling-tool schema creates no EML-era columns; `database/migrations/001…` and `generator.sql` are updated.
 - **Generated backends**, in the TS templates and Rust `backend.rs`, which must agree byte for byte:
   - `m0013_workflow_definition_source` keeps its name, so migration bookkeeping stays aligned, but becomes a no-op.
   - `m0017_workflow_definition_yaml` keeps only the YAML `definition` column and drops `automation_document()`.
   - `CLAUDE.md`'s "never edit m0000–m0017" note is amended to record this one deliberate exception and its consequence: a database created by an older release must be upgraded with that release first.
-  - `yaml-source.test.ts`'s `SCHEMA_HISTORY` exemption is removed, so the "no Mermaid in any generated file" assertion now has no exceptions.
+  - `yaml-source.test.ts`'s `SCHEMA_HISTORY` exemption is removed, so the "no EML in any generated file" assertion now has no exceptions.
 
 ### 8.3 Regenerate `generated-applications/`
 
 Run `scripts/generate-domain-applications.sh` for all 47 apps. Commit source only, never `target/`, `node_modules/` or binaries. Verify with `scripts/qa/qa-loop.sh` on a sample of 3 domains (build, smoke, `cargo test`). A full `--all` run is reported if time permits.
 
-### 8.4 Final gate: zero Mermaid traces
+### 8.4 Final gate: zero EML traces
 
 Run case-insensitively over the whole tracked tree:
 
 ```
-git grep -nIiE 'mermaid|\.mmd\b|erDiagram|stateDiagram|%%(meta|entity|field|enum|index|category|rbac|hook|rule|guard|trigger|report|workflow|step)\b'
-git ls-files | grep -iE '\.(mmd|mermaid)$'
+bash scripts/check-yaml-only.sh
 ```
 
-Both must return nothing, apart from **one exception that cannot be removed without a product change**: `mermaid` as a *transitive* entry in third-party lockfiles (`@copilotkit/react-core → streamdown → mermaid`). No code in any repository imports it. That gate is a script, `scripts/check-no-mermaid.sh`, and runs in `validate.yml`. Every copy's and the root's gates (§7) are re-run after the purge.
+It must return nothing. It exempts only itself, third-party lockfiles — where the diagram library is a *transitive* entry (`@copilotkit/react-core → streamdown`) that no code imports, removable only by a product change — and `graphify-out/` and `.understand-anything/`, code-graph snapshots of another repository taken on a developer's machine and kept as recorded. That gate is a script, `scripts/check-yaml-only.sh`, and runs in `validate.yml`. Every copy's and the root's gates (§7) are re-run after the purge.
 
 ---
 
@@ -337,7 +336,7 @@ Progress is reported at each phase boundary. If a gate cannot be met — for exa
 ## 12. End-to-end verification
 
 1. Phase 1: `diff -r` of each copy against `git archive` of its source commit shows only the §3.3 exclusions.
-2. The harness: `bun app-with-ai-rust/scripts/verify-yaml-conversion/verify.ts --mermaid <scratch originals> --json <scratch>/equivalence.json` returns every E-gate passing with named differences only.
+2. The harness: `bun app-with-ai-rust/scripts/verify-yaml-conversion/verify.ts --original <scratch originals> --json <scratch>/equivalence.json` returns every E-gate passing with named differences only.
 3. Every command in §7, per copy and at the root, with output summarised in the PR.
-4. The final grep (§8.4) returns nothing, and `scripts/check-no-mermaid.sh` passes in CI.
+4. The final grep (§8.4) returns nothing, and `scripts/check-yaml-only.sh` passes in CI.
 5. Drug-discovery generated from `app-with-ai-rust/examples/drug-discovery.eml.yaml` migrates, seeds and serves. Sign in as `admin@admin.com`, open three entity screens in headless Chromium, run the generated `cargo test --test app`.

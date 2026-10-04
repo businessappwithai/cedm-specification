@@ -44,9 +44,9 @@ bun scripts/patch-vendored-generators.ts
 bun scripts/patch-vendored-generators.ts --check
 ```
 
-The upstream bundle compiles a Mermaid model itself. The patch adds
+The upstream bundle compiles a model in the earlier notation itself. The patch adds
 `generateFromModel`, which takes the model `appwithai-model.js` compiled from
-YAML, removes the Mermaid entry points from the export list, and makes the
+YAML, removes the text entry points from the export list, and makes the
 generated application ship `model/model.eml.yaml`. It refuses to run when a
 patch point has moved — read the error, find the new shape upstream, and update
 `REPLACEMENTS` in the script rather than hand-editing the bundle.

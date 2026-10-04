@@ -9,7 +9,7 @@
  *
  * That is deliberate, and it is why this script exists rather than two more
  * hand-written specifications. Four documents describing one language, each
- * maintained separately, is four answers to "what does %%rbac do" and three of
+ * maintained separately, is four answers to "what does `rbac` do" and three of
  * them go stale silently. Here the language half cannot drift: it is copied,
  * and `scripts/check-spec.mjs` asserts it is still identical to the base.
  *

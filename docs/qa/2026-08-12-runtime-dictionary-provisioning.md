@@ -148,7 +148,7 @@ has been seen before.
 ## Reproducing
 
 ```bash
-bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
   -o generated-projects/dd-qa -n drug-discovery --no-setup --force --skip-cli-scaffold
 createdb dd_qa
 cd generated-projects/dd-qa/backend

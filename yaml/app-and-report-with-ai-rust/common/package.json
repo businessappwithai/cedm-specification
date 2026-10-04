@@ -2,7 +2,7 @@
   "name": "app-and-report-with-ai",
   "private": true,
   "version": "1.0.0",
-  "description": "The orchestrator's build, checks and published pages. The language, the generator and both CLIs are at the root of this repository; the reporting platform is yaml/enterprise_reporting_rust.",
+  "description": "The orchestrator's build, checks and published pages. The language, the generator and both CLIs are app-with-ai-rust, and the reporting platform is enterprise-reporting-rust, both checked out beside this repository.",
   "engines": {
     "bun": ">=1.3.11"
   },
@@ -20,8 +20,8 @@
     "lint:fix": "biome check --write scripts build",
     "_comment:lint": "biome.json here is the lint config, marked root so the repository root's own config does not govern this directory's scripts.",
     "_comment:language-tools": "html/model-yaml.js (the YAML reader, schema, checker and fixer) and html/assets/appwithai-model.js (the reader and compiler that feed the vendored browser generators) are bundled from language/browser/*.entry.ts at the root of this repository. `--check` runs in `check` and fails rather than serving a validator that disagrees with the language.",
-    "build:language-tools": "bun ../../../scripts/build-site-bundles.ts --only orchestrator",
-    "check:language-tools": "bun ../../../scripts/build-site-bundles.ts --only orchestrator --check",
+    "build:language-tools": "bun ../../app-with-ai-rust/scripts/sites/build-site-bundles.ts --only orchestrator",
+    "check:language-tools": "bun ../../app-with-ai-rust/scripts/sites/build-site-bundles.ts --only orchestrator --check",
     "generate": "bun build/generate-app.ts",
     "pack": "bun build/reporting-pack.ts",
     "check:pack:ci": "bun scripts/check-reporting-pack.ts --require-server"

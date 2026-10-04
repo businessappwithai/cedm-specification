@@ -37,7 +37,7 @@ export interface SQLAccessValidation {
  * row outside a manual test, and with no rows at all this function refuses on
  * the earlier "user has no roles in this data source" branch — the same denial,
  * for a different and entirely plausible reason. Seeding roles from a model's
- * `%%rbac` produced the first rows and with them the real behaviour.
+ * `rbac` produced the first rows and with them the real behaviour.
  *
  * So the second implementation is gone. This delegates, which also buys the
  * system-admin bypass and the column restrictions it never had.

@@ -248,7 +248,7 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
 <h2>What lands on disk</h2>
 
 <div class="code">
-  <div class="code-head"><span class="tag">tree</span><span>generated-projects/crm — 488 files</span></div>
+  <div class="code-head"><span class="tag">tree</span><span>generated-projects/crm — 521 files</span></div>
 <pre><code>crm/
 ├── backend/                 <span class="c-com"># Loco.rs (Rust): a cargo crate, JSON only</span>
 │   ├── migration/           <span class="c-com"># sys_ dictionary DDL, bus_ tables, indexes</span>
@@ -260,13 +260,14 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
 │   ├── src/hooks/handlers/  <span class="c-com"># ⭐ your hook bodies live here, never overwritten</span>
 │   ├── src/tasks/           <span class="c-com"># the seed tasks and ensure_admin</span>
 │   └── tests/               <span class="c-com"># cargo test request suites</span>
-├── frontend/                <span class="c-com"># TanStack Start + Astryx (211 files)</span>
+├── frontend/                <span class="c-com"># TanStack Start + Astryx (212 files)</span>
 │   └── src/
 │       ├── routes/          <span class="c-com"># one screen per entity, plus /admin/*</span>
 │       ├── components/      <span class="c-com"># dynamic table, dynamic form, admin shells</span>
 │       └── hooks/           <span class="c-com"># entity, field and lookup queries</span>
 ├── tests/                   <span class="c-com"># generated bun:test end-to-end suite (68 files)</span>
 ├── model/model.eml.yaml     <span class="c-com"># the model this was generated from, shipped along</span>
+├── cedm/                    <span class="c-com"># the common CEDM specification the model rests on</span>
 └── docker-compose.yml       <span class="c-com"># postgres, the backend and the front end</span></code></pre>
 </div>
 
@@ -324,7 +325,7 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -360,7 +361,7 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source &mdash; <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser &rarr;</a></p>
       </div>
     </div>

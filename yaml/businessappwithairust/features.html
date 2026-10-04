@@ -58,7 +58,7 @@
         <div>
           <span class="hero-badge">AI-Powered</span>
           <h2>Intelligent Data Modeling</h2>
-          <p>Describe your business domain in plain English. The Domain Analysis Agent, powered by Claude, OpenAI, or a local Ollama model, analyzes your description and automatically extracts entities, attributes, and relationships with confidence scoring.</p>
+          <p>Describe your business domain in plain English. The Domain Analysis Agent, running on any OpenAI-compatible model you choose, local or hosted, analyzes your description and automatically extracts entities, attributes, and relationships with confidence scoring.</p>
           <h3 style="margin-top: var(--spacing-lg);">Key Capabilities</h3>
           <ul style="list-style: none; padding: 0;">
             <li style="padding: var(--spacing-sm) 0;">✓ Automatic entity and relationship extraction from natural language</li>
@@ -97,23 +97,22 @@
         <div class="card">
           <h4>Visual ERD Designer Capabilities</h4>
           <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--spacing-sm) 0;">✓ Mermaid syntax editor with live validation</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Model editor with live validation at the YAML line</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Interactive React Flow graph visualization</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Real-time SQL DDL preview</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Migration script preview (Kysely)</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Entity and relationship add/edit/delete</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Cardinality visualization (Crow's Foot notation)</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Save and version ERD diagrams per project</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Natural language to ERD conversion</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Every save a commit in the project's own Git history</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Natural language to model conversion</li>
           </ul>
         </div>
         <div>
           <span class="hero-badge">Visual Design</span>
           <h2>Interactive ERD Designer</h2>
-          <p>The built-in visual ERD designer gives you full control over your data model before code generation. Edit Mermaid syntax directly, see changes reflected instantly in the graph visualization, and preview the exact SQL and migration scripts that will be produced.</p>
+          <p>The built-in visual ERD designer gives you full control over your data model before code generation. Edit the model directly, see changes reflected instantly in the graph visualization, and preview the exact SQL that will be produced.</p>
           <p>All AI-generated ERDs flow through the designer, giving you a clear review and edit experience before any application is generated.</p>
-          <h3 style="margin-top: var(--spacing-lg);">Mermaid-Based ERDs</h3>
-          <p>AppWithAI uses the Mermaid ERD format with Crow's Foot notation — an industry-standard, human-readable, and version-control-friendly representation of your data model.</p>
+          <h3 style="margin-top: var(--spacing-lg);">One YAML Model</h3>
+          <p>The model is one YAML document, validated against a published JSON Schema and checker — human-readable, version-control-friendly, and the only thing the generator reads. <a href="viewers/index.html">The model viewer</a> draws it in full.</p>
         </div>
       </div>
     </div>
@@ -155,13 +154,13 @@
     <div class="container">
       <div class="section-header">
         <h2>Business Rules and Validation Engine</h2>
-        <p class="section-subtitle">Encode your organization's business logic using visual decision flowcharts. The GoRules Zen Engine executes DMN-based rules with high performance at runtime. The CRM model declares eight; the generated application ships twenty-five, because every entity also gets a validation rule of its own.</p>
+        <p class="section-subtitle">Encode your organization's business logic as decision graphs in the model. The generated backend evaluates them with the GoRules zen-engine on the write each one is bound to. The CRM model declares eight, and the generated application ships exactly those eight.</p>
       </div>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h3>Field-Level Validation</h3>
-          <p>Required fields, ranges, formats, uniqueness, conditional requirements and cross-field checks — one validation rule generated per entity. In the CRM that is seventeen of the twenty-five, and they are why <code>account_number</code>, <code>quote_number</code> and <code>case_number</code> stay unique without anyone writing a check.</p>
+          <p>Required fields, types, lengths and uniqueness come straight from the model's attributes and are enforced by the schema the backend migrates. In the CRM they are why <code>account_number</code>, <code>quote_number</code> and <code>case_number</code> stay unique without anyone writing a check.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">📊</div>
@@ -171,17 +170,17 @@
         <div class="feature-card">
           <div class="feature-icon">🔗</div>
           <h3>Relationship Integrity</h3>
-          <p>Referential rules prevent orphaned records and control deletion — enforced at the API and in the database. In the CRM, <code>blockDeleteWithOpenBusiness</code> refuses to delete an account that still has open opportunities, and it runs before the delete, not after.</p>
+          <p>Foreign keys prevent orphaned records in the database itself, and a <code>beforeDelete</code> hook can refuse a delete outright. In the CRM, <code>blockDeleteWithOpenBusiness</code> is declared on Account for exactly that: it runs before the delete, not after, and refusing is one line of its handler.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">⚡</div>
           <h3>Lifecycle Hook System</h3>
-          <p>Draw a decision as a flowchart and bind it to an event. AppWithAI generates executable TypeScript organised by lifecycle event — the CRM binds thirty-eight hooks this way, and each one names the field it guards.</p>
+          <p>Declare a hook on a lifecycle event and AppWithAI generates a Rust handler for it, called on every create, update, delete and query through the API — the CRM declares thirty-eight, and most name the field they guard. The bodies are yours: regenerating never overwrites them.</p>
         </div>
       </div>
       <div class="card mt-5">
         <h4>Lifecycle Hook Events — as the CRM uses them</h4>
-        <p class="text-muted text-sm mb-3">Every handler named below is in the model. None of them is a placeholder.</p>
+        <p class="text-muted text-sm mb-3">Every name below is in the model. The rules are decision graphs the backend evaluates as written; the hooks are the Rust handlers it calls, ready for your implementation.</p>
         <div class="grid grid-3">
           <div>
             <strong>beforeCreate</strong>
@@ -201,7 +200,7 @@
           </div>
           <div>
             <strong>beforeDelete</strong>
-            <p class="text-muted text-sm"><code>blockDeleteWithOpenBusiness</code> refuses to delete an account that still has open opportunities or live contracts</p>
+            <p class="text-muted text-sm"><code>blockDeleteWithOpenBusiness</code> is where an account with open opportunities or live contracts is refused — its handler returns <code>false</code> and the delete does not happen</p>
           </div>
           <div>
             <strong>customValidate</strong>
@@ -268,7 +267,7 @@
 
       <div class="card mt-5">
         <h4>The CRM's five state machines</h4>
-        <p class="text-muted text-sm mb-3">Each one is a <code>stateDiagram-v2</code> in the model. The generated application applies the states, guards every transition by role, and refuses a move the diagram does not draw.</p>
+        <p class="text-muted text-sm mb-3">Each one is an entry under <code>stateMachines</code> in the model. The generated application applies the states, guards every transition by role, and refuses a move the diagram does not draw.</p>
         <div class="grid grid-3">
           <div>
             <strong>Lead</strong>
@@ -312,47 +311,40 @@
         <div style="background: var(--gray-50); padding: var(--spacing-xl); border-radius: var(--radius-lg); margin-top: var(--spacing-md);">
           <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--gray-200);">
             <strong>Authentication Layer</strong>
-            <p class="text-muted">Better Auth, configured for email and password with server-side sessions. That is the whole of it — no social sign-in, no second factor, nothing else configured on your behalf. Better Auth supports more; the generated application enables what it needs, and you add the rest</p>
+            <p class="text-muted">Email and password sign-in on the generated Loco.rs backend: argon2 password hashes and a signed JWT, carried in an HttpOnly cookie or a bearer header. That is the whole of it — no social sign-in, no second factor, nothing else configured on your behalf</p>
           </div>
           <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--gray-200);">
-            <strong>Role Assignment Layer</strong>
-            <p class="text-muted">Users are assigned to one or more roles. Roles aggregate granular permissions for table, field, and row access</p>
+            <strong>Window and Table Access</strong>
+            <p class="text-muted">Users hold one or more roles, and <code>sys_access</code> grants each role its windows and the tables behind them, read-only or read-write. A table a role is not granted is refused on every request, not only hidden from the menu</p>
           </div>
           <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--gray-200);">
-            <strong>Table-Level Access Control</strong>
-            <p class="text-muted">Roles are granted Read, Create, Update, and Delete permissions at the table level via sys_access_role</p>
-          </div>
-          <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--gray-200);">
-            <strong>Field-Level Access Control</strong>
-            <p class="text-muted">Individual columns can be marked visible, editable, or hidden per role — enforced at the API level via sys_access_field</p>
-          </div>
-          <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--gray-200);">
-            <strong>Row-Level Security</strong>
-            <p class="text-muted">Users see only records belonging to their department, region, or organizational unit — enforced via sys_access_record policies</p>
+            <strong>Operation Rules</strong>
+            <p class="text-muted">The model's <code>rbac</code> entries restrict create, read, update, delete and named actions to the roles they list, through <code>sys_operation_access</code>. An operation no entry names stays open</p>
           </div>
           <div style="padding: var(--spacing-md);">
-            <strong>Document Status Security</strong>
-            <p class="text-muted">Approved or completed documents are locked from editing, preserving the integrity of the audit trail</p>
+            <strong>Transition Rules</strong>
+            <p class="text-muted">A status change must follow an edge the state machine draws — for every caller, the administrator included — and <code>sys_transition_access</code> decides which roles may take each edge</p>
           </div>
         </div>
       </div>
       <div class="card mt-5">
         <h3>Access control, as the CRM declares it</h3>
-        <p class="text-muted text-sm mb-3">Fifteen <code>%%rbac</code> restrictions in the model. They <em>restrict</em> — an operation no directive names stays open, which is why the ones that matter are named explicitly.</p>
+        <p class="text-muted text-sm mb-3">Fifteen operation restrictions under the model's <code>rbac</code> key, beside one <code>read</code> entry per entity. They <em>restrict</em> — an operation no entry names stays open, which is why the ones that matter are named explicitly.</p>
         <div style="font-family: var(--font-mono); font-size: var(--text-sm); background: var(--gray-100); padding: var(--spacing-md); border-radius: var(--radius-lg);">
-          %%rbac role:sales_manager|sales_ops on Lead.convert<br>
-          %%rbac role:sales_manager on Opportunity.close_won<br>
-          %%rbac role:sales_manager|sales_ops on Quote.approve<br>
-          %%rbac role:support_manager on SupportCase.escalate<br>
-          %%rbac role:administrator on Contract.terminate
+<pre style="margin: 0; white-space: pre; overflow-x: auto;">rbac:
+  - { entity: Lead, action: convert, roles: [sales_manager, sales_ops] }
+  - { entity: Opportunity, action: close_won, roles: [sales_manager] }
+  - { entity: Quote, action: approve, roles: [sales_manager, sales_ops] }
+  - { entity: SupportCase, action: escalate, roles: [support_manager] }
+  - { entity: Contract, action: terminate, roles: [administrator] }</pre>
         </div>
-        <p class="text-muted text-sm" style="margin-top: var(--spacing-md);">Seven roles across the model — <code>sales_rep</code>, <code>account_executive</code>, <code>sales_manager</code>, <code>sales_ops</code>, <code>support_agent</code>, <code>support_manager</code>, <code>administrator</code> — seeded into the Role screen and enforced on every request. Contact records also run <code>enforceFieldLevelSecurity</code> on read and <code>maskPersonalData</code> on phone and mobile, so a role without the permission never receives the value in the first place.</p>
+        <p class="text-muted text-sm" style="margin-top: var(--spacing-md);">Seven functional roles across the model — <code>sales_rep</code>, <code>account_executive</code>, <code>sales_manager</code>, <code>sales_ops</code>, <code>marketing_manager</code>, <code>support_agent</code>, <code>support_manager</code> — beside the administrator, seeded into the Role screen with an account each and enforced on every request. Contact records also declare <code>enforceFieldLevelSecurity</code> and <code>maskPersonalData</code> hooks, which the generator wires into the read path as Rust handler functions for your team to implement.</p>
         <p class="text-sm text-muted" style="margin-top: var(--spacing-md);"><a href="guide/06-dictionary.html">Chapter 06 &rarr;</a></p>
       </div>
 
       <div class="card mt-5">
         <h3>What this is, and what it is not</h3>
-        <p class="text-muted">Authentication is <strong>Better Auth</strong> — email and password, server-side sessions. Everything else on this page is authorization: roles, table and field permissions, row policies and the audit trail, all derived from your model and enforced in the generated API.</p>
+        <p class="text-muted">Authentication is email and password with signed JWT sessions. Everything else on this page is authorization: roles, table, operation and transition permissions, and the audit trail, all derived from your model and enforced in the generated API.</p>
         <p class="text-muted">This page used to claim SOX readiness, GDPR compliance and ISO 27001 alignment. It no longer does, because none of them had been assessed. A compliance programme is an audit of an organization and its operations, not a property a code generator can hand you — the access control and the audit trail here are evidence you would bring to one, not a substitute for it. The security assessment is on <a href="todo.html">the list of things outstanding before 1.0.0</a>.</p>
       </div>
     </div>
@@ -487,7 +479,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -523,7 +515,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
       </div>
     </div>

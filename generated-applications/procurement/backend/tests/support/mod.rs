@@ -6,7 +6,7 @@
 //! while the toolchain, the port juggling and the "is the backend up yet?"
 //! polling all disappear.
 //!
-//! Generated: 2026-10-01T09:33:43.605Z
+//! Generated: 2026-10-04T01:12:28.117Z
 //! Project: procurement
 
 #![allow(dead_code)]
