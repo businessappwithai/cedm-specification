@@ -65,7 +65,9 @@ function iconAndText(children: ReactNode): { icon: ReactNode; text: string } | n
 /** shadcn variant names → Astryx variant names. */
 const VARIANTS: Record<Variant, string> = {
   default: "primary",
-  destructive: "danger",
+  // Astryx's own name (`ButtonVariantMap`). It was "danger", which Astryx does
+  // not define, so every destructive button rendered with no style at all.
+  destructive: "destructive",
   outline: "secondary",
   secondary: "secondary",
   ghost: "ghost",

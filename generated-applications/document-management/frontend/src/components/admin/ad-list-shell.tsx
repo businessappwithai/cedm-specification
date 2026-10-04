@@ -18,6 +18,7 @@ import {
 } from "./ad-window-configs";
 import { useBusTableName, WindowHelpDialog } from "./window-help-dialog";
 import { Box, HStack, Heading, Text, VStack } from "@/components/ui/layout";
+import { notifySaved } from "@/lib/embed";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -329,6 +330,7 @@ export function ADCreateShell({
     mutationFn: (formData: AnyRecord) => apiClient.post<AnyRecord>(level.endpoint, formData),
     onSuccess: (newRecord) => {
       const newId = newRecord[level.idField] as string;
+      if (newId) notifySaved("create", newRecord, newId);
       toast.success(`${level.label} created`);
       queryClient.invalidateQueries({ queryKey: ["ad-list", level.endpoint] });
       setCreateErrors([]);
@@ -502,6 +504,7 @@ export function ADListShell({
       }),
     onSuccess: (newRecord) => {
       const newId = newRecord[level.idField] as string;
+      if (newId) notifySaved("create", newRecord, newId);
       toast.success(`${level.label} created`);
       queryClient.invalidateQueries({ queryKey: ["ad-list", level.endpoint] });
       setIsCreating(false);

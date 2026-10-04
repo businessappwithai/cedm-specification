@@ -31,6 +31,7 @@ import {
   type VersionConflict,
   withoutResponseKeys,
 } from "@/lib/concurrency";
+import { embedIntent, notifySaved } from "@/lib/embed";
 import { ConflictDialog } from "./conflict-dialog";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
@@ -721,6 +722,7 @@ export function ADDetailShell({
         headers: ifMatch(readAt),
       }),
     onSuccess: (saved) => {
+      notifySaved("update", saved, recordId);
       setConflict(null);
       const status = describeStatus(transactionStatusOf(saved));
       toast.success(status ? `Saved — Status: ${status}` : "Saved");
@@ -748,6 +750,7 @@ export function ADDetailShell({
   const deleteMutation = useMutation({
     mutationFn: () => apiClient.delete(`${level.endpoint}/${recordId}`),
     onSuccess: () => {
+      notifySaved("delete", null, recordId);
       toast.success("Deleted");
       queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
       navigate({ to: buildAdminListUrl(parentContext, level) as never });
@@ -903,6 +906,7 @@ export function ADDetailShell({
                   endpoint={level.endpoint}
                   recordId={recordId}
                   record={currentRecord}
+                  proposed={embedIntent().transition}
                   onMoved={() => {
                     queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
                     refetchRecord();
@@ -1045,11 +1049,22 @@ export function ADDetailShell({
           code={conflict.code}
           conflict={conflict.conflict}
           mine={conflict.mine}
-          recordName={`${level.label} ${currentName}`}
+          // "Opportunity 5", not "Opportunity Opportunity 5": a record whose
+          // identifier already names its kind is not prefixed again.
+          recordName={
+            String(currentName ?? "").toLowerCase().startsWith(level.label.toLowerCase())
+              ? String(currentName)
+              : `${level.label} ${currentName}`
+          }
           labelOf={(field) =>
             [...(level.formFields ?? []), ...((entityMeta?.columns ?? []) as FieldMetadata[])].find(
               (candidate) => candidate.column_name === field
             )?.name ?? field
+          }
+          shows={(field) =>
+            (level.formFields?.length ? level.formFields : ((entityMeta?.columns ?? []) as FieldMetadata[])).some(
+              (candidate) => candidate.column_name === field
+            )
           }
           busy={saveMutation.isPending}
           onRefresh={() => {

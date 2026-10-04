@@ -16,12 +16,14 @@
  * The change applies immediately across the whole app and persists, because the
  * provider writes the choice to localStorage.
  *
- * Generated: 2026-10-04T01:11:42.144Z
+ * Generated: 2026-10-04T18:14:17.162Z
  * Project: enterprise
  */
 
+import { useEffect, useState } from 'react';
 import { Selector } from '@astryxdesign/core/Selector';
 
+import { isEmbedded } from '@/lib/embed';
 import { THEME_NAMES, useAstryxTheme, type ThemeName } from '@/providers/astryx-provider';
 
 export interface ThemeSelectorProps {
@@ -56,6 +58,12 @@ export function ThemeSelector({
   className,
 }: ThemeSelectorProps) {
   const { theme, setTheme, themes } = useAstryxTheme();
+  // Inside the chat's frame the screen is a card in a conversation: a control
+  // floating over it would cover the form. Read after mount, like the shell.
+  const [embedded, setEmbedded] = useState(false);
+  useEffect(() => {
+    setEmbedded(isEmbedded());
+  }, []);
 
   const options = THEME_NAMES.map((name) => ({
     value: name,
@@ -83,6 +91,7 @@ export function ThemeSelector({
   );
 
   if (variant !== 'floating') return selector;
+  if (embedded) return null;
 
   return (
     <div style={FLOATING_STYLE} data-testid="theme-selector-floating">

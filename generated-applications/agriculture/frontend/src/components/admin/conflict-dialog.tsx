@@ -31,6 +31,8 @@ export interface ConflictDialogProps {
   recordName: string;
   /** Field name → label, for the comparison table. */
   labelOf?: (field: string) => string;
+  /** Whether the screen shows a field. Columns it does not show are not compared. */
+  shows?: (field: string) => boolean;
   busy?: boolean;
   onRefresh: () => void;
   onOverwrite: () => void;
@@ -56,6 +58,7 @@ export function ConflictDialog({
   mine,
   recordName,
   labelOf = (field) => field,
+  shows = () => true,
   busy = false,
   onRefresh,
   onOverwrite,
@@ -64,8 +67,15 @@ export function ConflictDialog({
   const isFinal = code === "RECORD_FINAL" || conflict.status?.isFinal === true;
   const status = describeStatus(conflict.status);
   const changedAt = when(conflict.changedAt);
+  // A row is worth showing only when the two sides differ and the person can
+  // see the field: an internal column that changed (a rule's bookkeeping) is
+  // a row of dashes that says nothing.
   const fields = conflict.changedFields.filter(
-    (field) => field !== "version" && field !== "updated_at"
+    (field) =>
+      field !== "version" &&
+      field !== "updated_at" &&
+      shows(field) &&
+      display(mine[field]) !== display(conflict.current[field])
   );
 
   const who = conflict.changedBy ?? translate("conflict.anotherUser");

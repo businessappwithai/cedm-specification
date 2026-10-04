@@ -1,0 +1,6 @@
+# Harness resolves plugins and their peers by walking up from the dsh
+# installation, and its own profiles install with `nodeLinker: hoisted`. The
+# isolated linker Bun uses for workspaces would hide @deepseek-ai/* from our
+# plugins, so this package installs hoisted.
+[install]
+linker = "hoisted"

@@ -61,16 +61,80 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+        # Empty: the browser calls `/api` on the page's own origin and the
+        # front end's server proxies it to the backend (BACKEND_URL below).
+        # One origin is what lets the chat open these screens in a frame and
+        # what keeps the session cookie first-party.
+        VITE_API_URL: ${VITE_API_URL:-}
         VITE_APP_URL: ${VITE_APP_URL:-http://localhost:3001}
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-3001}:3001"
     environment:
       NODE_ENV: production
+      BACKEND_URL: http://backend:3000
     depends_on:
       backend:
         condition: service_healthy
 
+  # The chat: one sign-in for the application (and its reporting platform, when
+  # CHAT_REPORT_API_URL names one), a DeepSeek Harness host per signed-in
+  # person, and the application's own screens opened inside the conversation.
+  # See chat/README.md.
+  chat:
+    image: agriculture-chat:${IMAGE_TAG:-latest}
+    build:
+      context: ./chat
+    restart: unless-stopped
+    environment:
+      CHAT_PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
+      CHAT_BASE_PATH: /chat
+      CHAT_PORT: "3100"
+      CHAT_TRUST_PROXY: "1"
+      # A database of its own, never the application's: the reporting platform
+      # reads every schema of the database it reports on, and a chat session is
+      # not business data. The gateway creates it on first start.
+      CHAT_DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD}@postgres:5432/agriculture_chat
+      # The two the chat cannot run without. They are passed through rather than
+      # required here, because compose checks a required variable for every
+      # service at once: a missing DeepSeek key would stop the application too.
+      # The gateway refuses to start without either, and its log names which.
+      CHAT_AUTH_SECRET: ${CHAT_AUTH_SECRET:-}
+      CHAT_APP_API_URL: http://backend:3000/api
+      # The application is served at the site root by the front door below.
+      CHAT_APP_PUBLIC_PATH: /
+      CHAT_REPORT_API_URL: ${CHAT_REPORT_API_URL:-}
+      CHAT_REPORT_PUBLIC_PATH: ${CHAT_REPORT_PUBLIC_PATH:-/report}
+      SSO_SIGNING_KEY: ${SSO_SIGNING_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      CHAT_DEEPSEEK_MODEL: ${CHAT_DEEPSEEK_MODEL:-deepseek-flash}
+      CHAT_HOST_IDLE_MINUTES: ${CHAT_HOST_IDLE_MINUTES:-30}
+      CHAT_HOST_HEAP_MB: ${CHAT_HOST_HEAP_MB:-256}
+      CHAT_MAX_HOSTS: ${CHAT_MAX_HOSTS:-0}
+    volumes:
+      - chat_data:/chat/.data
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:3100/chat/_/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # The front door: the application at /, the chat at /chat, one origin.
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${PUBLIC_PORT:-8080}:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - chat
+
 volumes:
   postgres_data:
+  chat_data:
