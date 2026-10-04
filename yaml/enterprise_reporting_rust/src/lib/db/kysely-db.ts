@@ -47,6 +47,7 @@ export interface Database {
   auth_sessions: AuthSessionsTable;
   auth_accounts: AuthAccountsTable;
   auth_verifications: AuthVerificationsTable;
+  auth_assertions: AuthAssertionsTable;
 }
 
 export interface UsersTable {
@@ -106,6 +107,17 @@ export interface AuthVerificationsTable {
   expires_at: Date;
   created_at: Date;
   updated_at: Date;
+}
+
+/**
+ * Sign-in assertions from the chat gateway that have already been accepted.
+ * Written and read by the Rust backend only (`POST /api/auth/assertion`).
+ */
+export interface AuthAssertionsTable {
+  jti: string;
+  subject: string;
+  expires_at: Date;
+  used_at: Date;
 }
 
 export interface RolesTable {

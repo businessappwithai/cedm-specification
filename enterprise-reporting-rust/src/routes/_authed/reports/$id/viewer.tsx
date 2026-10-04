@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeft, Download, Edit, Eye, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
+import { isEmbedSearch } from "@/lib/embed/embed";
 import { parseRecordLinkConfig } from "@/lib/reporting/record-link";
 import type { ColumnDefinition, ReportDefinition } from "@/types/database";
 
@@ -24,6 +25,9 @@ interface ReportRow {
 
 function ReportViewerPage() {
   const { id: reportId } = Route.useParams();
+  // In the chat's frame the page shows the report and nothing that navigates
+  // away from it: no breadcrumb, no back link, no editor.
+  const embedded = isEmbedSearch(useLocation().searchStr);
   const queryClient = useQueryClient();
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(50);
@@ -201,15 +205,19 @@ function ReportViewerPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: "Reports", href: "/reports" }, { label: report.name }]} />
+      {!embedded && (
+        <Breadcrumb items={[{ label: "Reports", href: "/reports" }, { label: report.name }]} />
+      )}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link to="/reports">
-            <Button variant="ghost" size="icon" aria-label="Back to reports">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
+          {!embedded && (
+            <Link to="/reports">
+              <Button variant="ghost" size="icon" aria-label="Back to reports">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+          )}
           <div>
             <h1 className="font-semibold text-2xl text-tremor-content-strong">{report.name}</h1>
             {report.description && (
@@ -280,12 +288,14 @@ function ReportViewerPage() {
             );
           })()}
 
-          <Link to="/reports/$id/editor" params={{ id: reportId }}>
-            <Button size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          </Link>
+          {!embedded && (
+            <Link to="/reports/$id/editor" params={{ id: reportId }}>
+              <Button size="sm">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

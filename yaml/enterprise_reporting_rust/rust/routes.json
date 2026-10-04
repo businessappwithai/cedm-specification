@@ -105,6 +105,7 @@
     ["POST", "/api/voice/transcribe"],
     ["POST", "/api/voice/synthesize"],
     ["POST", "/api/auth/sign-in/email"],
+    ["POST", "/api/auth/assertion"],
     ["POST", "/api/auth/sign-out"],
     ["GET", "/api/auth/get-session"],
     ["GET", "/api/auth/session"],
