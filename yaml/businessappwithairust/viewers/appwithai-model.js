@@ -20116,8 +20116,15 @@ var import__2020 = __toESM(require_2020(), 1);
 
 // language/index.ts
 var LANGUAGE_DEFINITION_PATH = (() => {
-  const here = node_path_default.dirname(fileURLToPath(import.meta.url));
-  return node_path_default.join(here, "appwithai-language.json");
+  const env = globalThis.process;
+  const configured = env?.env?.APPWITHAI_LANGUAGE_FILE;
+  if (configured)
+    return configured;
+  try {
+    return node_path_default.join(node_path_default.dirname(fileURLToPath(import.meta.url)), "appwithai-language.json");
+  } catch {
+    return node_path_default.join(env?.cwd?.() ?? "/", "language", "appwithai-language.json");
+  }
 })();
 var cached = null;
 function setLanguageDefinition(definition) {

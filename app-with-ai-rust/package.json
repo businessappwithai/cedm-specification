@@ -25,6 +25,7 @@
     "wasm": "node --no-warnings scripts/appwithai-wasm.mjs",
     "build:language-tools": "bun scripts/build-language-tools.ts",
     "check:language-bundle": "bun scripts/check-language-bundle.ts",
+    "check:site-download": "bun scripts/sites/check-loco-download.ts",
     "test:language-tools": "bun scripts/build-language-tools.ts --check",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",
     "convert": "bun --filter @appwithai/ai convert",

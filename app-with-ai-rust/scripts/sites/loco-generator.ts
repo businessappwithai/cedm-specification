@@ -5,14 +5,16 @@
  *                       browser with node:fs, node:crypto, node:os, node:url and
  *                       child_process answered by language/browser/shims/
  *   loco-assets.json    the files that entry mounts in its in-memory volume:
- *                       the Loco templates, the language definition and the
- *                       CEDM specification, each at the absolute path the
- *                       pipeline looks for it under
+ *                       the Loco templates, the language definition, the
+ *                       CEDM specification and the chat (`chat-deepseek/`),
+ *                       each at the absolute path the pipeline looks for it
+ *                       under
  *
  * Both are derived from this repository and nothing else, so the browser writes
- * what `appwithai generate --skip-cli-scaffold` writes. `equivalence` below is
- * the proof: it runs the bundle from `/`, where no repository is in reach, runs
- * the real pipeline beside it with the same settings, and compares every file.
+ * what `appwithai generate --skip-cli-scaffold` writes. The proof is
+ * `check-loco-download.ts`: it clicks the website's download button in a real
+ * browser, runs the real pipeline beside it with the same settings, and
+ * compares every file.
  */
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -22,6 +24,8 @@ import { locateCedmRoot } from "../../packages/generator/src/model-cedm/library"
 export const ROOT = resolve(import.meta.dir, "../..");
 const SHIMS = join(ROOT, "language/browser/shims");
 export const ENTRY = join(ROOT, "language/browser/loco-generator.entry.ts");
+/** The chat's source, as `pipeline/chat-bundle.ts` copies it into every project. */
+const CHAT_ROOT = "chat-deepseek";
 
 /** The node modules the pipeline imports, and the shim that answers each one. */
 const SHIM_FOR: Record<string, string> = {
@@ -51,6 +55,9 @@ const DEFINE = {
   "process.env.APPWITHAI_LANGUAGE_FILE": JSON.stringify("/language/appwithai-language.json"),
   "process.env.CEDM_SPEC_ROOT": JSON.stringify("/"),
   "process.env.TEMPLATE_DIR": JSON.stringify("/packages/generator/templates"),
+  // The chat every application ships with (`pipeline/chat-bundle.ts`): a tab has
+  // no repository to walk up, so the source is named where the volume holds it.
+  "process.env.APPWITHAI_CHAT_DIR": JSON.stringify(`/${CHAT_ROOT}`),
 };
 
 export async function bundleLocoGenerator(): Promise<string> {
@@ -79,11 +86,12 @@ const LANGUAGE_FILE = "language/appwithai-language.json";
 const CEDM_DIRECTORIES = ["specification", "schema", "domains"];
 const BINARY = /\.(woff2?|ttf|otf|png|jpe?g|gif|ico|webp)$/i;
 
-function files(dir: string): string[] {
+function files(dir: string, skip: (name: string) => boolean = () => false): string[] {
   const out: string[] = [];
   for (const name of readdirSync(dir).sort()) {
+    if (skip(name)) continue;
     const path = join(dir, name);
-    if (statSync(path).isDirectory()) out.push(...files(path));
+    if (statSync(path).isDirectory()) out.push(...files(path, skip));
     else out.push(path);
   }
   return out;
@@ -98,6 +106,10 @@ export function buildLocoAssets(): string {
   const sources: Array<[string, string]> = [
     ...files(join(ROOT, TEMPLATE_ROOT)).map((path) => [path, relative(ROOT, path)] as [string, string]),
     [join(ROOT, LANGUAGE_FILE), LANGUAGE_FILE],
+    // The same names `writeChatBundle` leaves out: installs and local state.
+    ...files(join(ROOT, CHAT_ROOT), (name) => name === "node_modules" || (name.startsWith(".") && name !== ".dockerignore")).map(
+      (path) => [path, relative(ROOT, path)] as [string, string]
+    ),
   ];
   for (const directory of CEDM_DIRECTORIES) {
     for (const name of readdirSync(join(cedmRoot, directory)).sort()) {

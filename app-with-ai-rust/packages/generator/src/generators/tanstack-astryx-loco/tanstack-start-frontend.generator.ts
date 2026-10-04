@@ -494,7 +494,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
      * a frontend that does not build. `frontend-lib-files.test.ts` asserts each
      * one reaches the output, because the `catch` below only warns.
      */
-    const staticLibFiles = ["src/lib/utils.ts", "src/lib/csv.ts", "src/lib/concurrency.ts"];
+    const staticLibFiles = [
+      "src/lib/utils.ts",
+      "src/lib/csv.ts",
+      "src/lib/concurrency.ts",
+      "src/lib/embed.ts",
+    ];
 
     for (const file of staticLibFiles) {
       try {

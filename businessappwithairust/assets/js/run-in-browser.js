@@ -807,9 +807,11 @@ $("download-stack").addEventListener("click", async () => {
       `<code>JWT_SECRET</code> and <code>ADMIN_PASSWORD</code>, and in <code>${escapeHtml(name)}/</code> run ` +
       `<code>docker compose build</code>, <code>docker compose run --rm backend db migrate</code>, ` +
       `<code>docker compose run --rm backend db seed</code> and <code>docker compose up</code>. ` +
-      `The API is on <code>http://localhost:3000</code> and the application on ` +
-      `<code>http://localhost:3001</code>; <a href="run-real-stack.html">chapter 10</a> has the ` +
-      `steps, and how to run it without Docker.`;
+      `Everything is served on one origin, <code>http://localhost:8080</code>: the application at ` +
+      `<code>/</code> and its chat at <code>/chat/</code>, which opens the application's own screens ` +
+      `inside the conversation. The chat also needs <code>DEEPSEEK_API_KEY</code> and ` +
+      `<code>CHAT_AUTH_SECRET</code>; without them the application runs and the chat does not. ` +
+      `<a href="run-real-stack.html">Chapter 10</a> has the steps, and how to run it without Docker.`;
     $("download-stack-hint").classList.add("hint--done");
   } catch (error) {
     /* A checker failure here would already have stopped step 2, so anything

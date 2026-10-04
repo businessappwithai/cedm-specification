@@ -248,7 +248,7 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
 <h2>What lands on disk</h2>
 
 <div class="code">
-  <div class="code-head"><span class="tag">tree</span><span>generated-projects/crm — 526 files</span></div>
+  <div class="code-head"><span class="tag">tree</span><span>generated-projects/crm — 576 files</span></div>
 <pre><code>crm/
 ├── backend/                 <span class="c-com"># Loco.rs (Rust): a cargo crate, JSON only</span>
 │   ├── migration/           <span class="c-com"># sys_ dictionary DDL, bus_ tables, indexes</span>
@@ -260,7 +260,7 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
 │   ├── src/hooks/handlers/  <span class="c-com"># ⭐ your hook bodies live here, never overwritten</span>
 │   ├── src/tasks/           <span class="c-com"># the seed tasks and ensure_admin</span>
 │   └── tests/               <span class="c-com"># cargo test request suites</span>
-├── frontend/                <span class="c-com"># TanStack Start + Astryx (211 files)</span>
+├── frontend/                <span class="c-com"># TanStack Start + Astryx (212 files)</span>
 │   └── src/
 │       ├── routes/          <span class="c-com"># one screen per entity, plus /admin/*</span>
 │       ├── components/      <span class="c-com"># dynamic table, dynamic form, admin shells</span>
@@ -268,7 +268,11 @@ cd ../frontend &amp;&amp; bun install &amp;&amp; bun run dev   <span class="c-co
 ├── tests/                   <span class="c-com"># generated bun:test end-to-end suite (69 files)</span>
 ├── model/model.eml.yaml     <span class="c-com"># the model this was generated from, shipped along</span>
 ├── cedm/                    <span class="c-com"># the common CEDM specification the model rests on</span>
-└── docker-compose.yml       <span class="c-com"># postgres, the backend and the front end</span></code></pre>
+├── chat/                    <span class="c-com"># the DeepSeek Harness chat: one sign-in, the</span>
+│                            <span class="c-com">#   application's own screens inside the conversation,</span>
+│                            <span class="c-com">#   and a skill written from this model</span>
+├── docker/nginx.conf        <span class="c-com"># one origin: / the application, /chat the chat</span>
+└── docker-compose.yml       <span class="c-com"># postgres, the backend, the front end, the chat, nginx</span></code></pre>
 </div>
 
 <div class="stats">
