@@ -182,9 +182,11 @@ suite("Git and database consistency (isolated PostgreSQL schema)", () => {
     expect(readModelYaml(projection).document?.entities.find((e) => e.name === "ItemLine")?.parent).toBe(
       "Item"
     );
-    // The model directory holds YAML documents and nothing else.
+    // The model directory holds YAML documents, the automations saved beside
+    // them and the restorable projection of the workflow tables — nothing else.
     const modelEntries = await fs.readdir(path.join(dir, "model"));
-    expect(modelEntries.filter((entry) => !entry.endsWith(".yaml") && entry !== "automations")).toEqual([]);
+    const known = new Set(["automations", "workflows.json"]);
+    expect(modelEntries.filter((entry) => !entry.endsWith(".yaml") && !known.has(entry))).toEqual([]);
 
     const prepared = await prepareGeneration(id, "owner", {});
     expect(prepared.modelYaml).toBe(written);
