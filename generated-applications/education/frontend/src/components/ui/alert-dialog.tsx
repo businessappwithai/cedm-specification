@@ -11,7 +11,7 @@
  * working untouched, which matters — these are the dialogs where a silent
  * rendering regression loses user data.
  */
-import { Children, isValidElement, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, useState, type ReactElement, type ReactNode } from "react";
 import { AlertDialog as AstryxAlertDialog } from "@astryxdesign/core/AlertDialog";
 
 interface PartProps {
@@ -77,25 +77,49 @@ function text(element: ReactElement | undefined, fallback: string): string {
   return typeof content === "string" ? content : fallback;
 }
 
-export function AlertDialog({ open = false, children, onOpenChange }: AlertDialogProps) {
+export function AlertDialog({ open, children, onOpenChange }: AlertDialogProps) {
   const action = find(children, AlertDialogAction);
   const cancel = find(children, AlertDialogCancel);
+  const trigger = find(children, AlertDialogTrigger);
   const onAction = (action?.props as { onClick?: () => void } | undefined)?.onClick;
 
+  // The shadcn form comes in two shapes. Controlled: the caller owns `open`.
+  // Uncontrolled: an `AlertDialogTrigger` inside the dialog opens it. The
+  // second was dropped, so a Delete button written that way was never drawn and
+  // the screen had no way to delete anything.
+  const [inner, setInner] = useState(false);
+  const controlled = open !== undefined;
+  const isOpen = controlled ? open : inner;
+  const setOpen = (next: boolean) => {
+    if (!controlled) setInner(next);
+    onOpenChange?.(next);
+  };
+
+  const triggerChild = (trigger?.props as { children?: ReactNode } | undefined)?.children;
+  const triggerNode =
+    !controlled && isValidElement(triggerChild)
+      ? cloneElement(triggerChild as ReactElement<{ onClick?: () => void }>, {
+          onClick: () => setOpen(true),
+        })
+      : null;
+
   return (
-    <AstryxAlertDialog
-      isOpen={open}
-      onOpenChange={(next: boolean) => onOpenChange?.(next)}
-      title={text(find(children, AlertDialogTitle), "Are you sure?")}
-      description={text(find(children, AlertDialogDescription), "")}
-      actionLabel={text(action, "Continue")}
-      cancelLabel={text(cancel, "Cancel")}
-      onAction={() => {
-        onAction?.();
-        // Astryx does not close on action; the shadcn call sites expect it to.
-        onOpenChange?.(false);
-      }}
-    />
+    <>
+      {triggerNode}
+      <AstryxAlertDialog
+        isOpen={isOpen}
+        onOpenChange={(next: boolean) => setOpen(next)}
+        title={text(find(children, AlertDialogTitle), "Are you sure?")}
+        description={text(find(children, AlertDialogDescription), "")}
+        actionLabel={text(action, "Continue")}
+        cancelLabel={text(cancel, "Cancel")}
+        onAction={() => {
+          onAction?.();
+          // Astryx does not close on action; the shadcn call sites expect it to.
+          setOpen(false);
+        }}
+      />
+    </>
   );
 }
 

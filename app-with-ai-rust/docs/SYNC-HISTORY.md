@@ -49,11 +49,11 @@ comparable is enumerated below.
 
 2. **Re-sync the shared contract first, before reading any code.**
    ```bash
-   diff -rq -x '*.eml.mmd.error' language/ ../app-with-ai-tanstack/language/
+   diff -rq -x '*.error' language/ ../app-with-ai-tanstack/language/
    diff -rq website/llmtext/ ../app-with-ai-tanstack/website/llmtext/
    ```
    `language/` and `website/llmtext/` are held **byte-identical** to
-   `app-with-ai-tanstack@main` and are never authored here. `*.eml.mmd.error` is
+   `app-with-ai-tanstack@main` and are never authored here. `*.error` is
    checker output and is gitignored. Copy any difference across wholesale, then
    check both readers still accept it: `bun run type-check:language` and
    `cargo test -p appwithai-gen language::tests::the_shipped_definition_loads_rather_than_falling_back`.
@@ -61,7 +61,7 @@ comparable is enumerated below.
    Do this first because it is how a round discovers its own scope: the contract
    is a *claim* about what the product does, so copying it can make this
    repository describe behaviour it does not yet have. That is exactly how
-   `%%report` (§6) and `%%entity icon:` (§8) were found.
+   `reports` (§6) and an entity's `icon` (§8) were found.
 
 3. **Enumerate the sibling's new work.**
    ```bash
@@ -112,9 +112,9 @@ rarely a patch that can be applied.
 | 1 | `34ab32c`…`9825b7d` → PR #29 | Content comparison — no sibling PR mapping recorded | sibling `main` ≈ `75c5c81` (#130) | §1–§3, §5 |
 | 2 | `94fa7e5`…`fd97d38` → PR #29 (`e8f8908`) | Content comparison — CSV export, `sys_system`, business seed, log spec | sibling `main` ≈ `b42f259` (#132) | §2.5, §4 |
 | 3 | `92030c4` | The HTTP request log, and what measuring it turned up | — | §4 |
-| 4 | `1ab9a59`, `0bd6a09` | **#131** `The model's own reports reach the application it generates`, **#132** `%%rbac shapes the reporting platform's roles too`, **#143** `Run every %%report in the generated suite` | `b42f259` | §6 |
+| 4 | `1ab9a59`, `0bd6a09` | **#131** `The model's own reports reach the application it generates`, **#132** `rbac shapes the reporting platform's roles too`, **#143** `Run every report in the generated suite` | `b42f259` | §6 |
 | 5 | `208bdeb` | **#146** `Refuse rather than allow when the generated guard cannot read its rules` (their finding M3) | `a21c02f` (#147) | §7 |
-| 6 | `8808fb0` → PR #30 (`2ce0f85`) | **#152** `icon-language-docs`, the compiled half of **#153** `Compile %%entity icon:` | `32e5e7a` (#153) | §8 |
+| 6 | `8808fb0` → PR #30 (`2ce0f85`) | **#152** `icon-language-docs`, the compiled half of **#153** `Compile the entity icon` | `32e5e7a` (#153) | §8 |
 | 7 | `7f4d559` → PR #31 (`a95260d`) | **#150** `One query for the dashboard, and an administrator sees the dictionary`; the icon-rendering half of **#153** | `32e5e7a` (#153) | §9 |
 | 8 | `6d0a1bb` → PR #32 | **#148** `Cut the generated frontend's per-page request and bundle cost`, **#149** `Fix five defects a review found in the benchmark changes` | `32e5e7a` (#153) | §10 |
 | 9 | `88a19f3`… → PR #32 | contract re-sync from **#157**; **#156** `Mount the application shell`; the dead-template half of **#155** | `cc9faa4` (#157) | §11 |
@@ -142,8 +142,8 @@ checked here rather than assumed:
 ### Round 9 — what it carried, and what it found
 
 - Contract re-synced from `cc9faa4`; `diff -rq` is clean for both directories.
-  The only substantive change was one generator-contract line: `%%entity <Name>
-  icon:` is now documented as compiling to `sys_table.icon`, which this
+  The only substantive change was one generator-contract line: an entity's
+  `icon` is now documented as compiling to `sys_table.icon`, which this
   repository already does (round 6).
 - The application shell (#156) is mounted — `app-shell.tsx` around the
   `<Outlet />`, a sidebar driven by `/api/me/dashboard` rather than three
@@ -196,7 +196,7 @@ covers the limiter by building its own router and budget, the way
 | `cc90133` | Version/history work + enhance-page work | **Carried**, adapted where the backend is a crate (§14). Not carried: `AGENTS.md` (a Codex copy of the sibling's own CLAUDE.md) and the Playwright specs `04-*`/`04b-project-git` (the sibling's suite, which does not exist here — the Postgres-backed unit suite and a CI job cover the same ground) |
 | `7e50ea8` | Wasm reporting nav reaches items below the fold | **Does not apply** — `tests/e2e/wasm` |
 
-`html/models/investment-planning-wealth-management-system.eml.mmd` was copied
+`html/models/investment-planning-wealth-management-system.eml.yaml` was copied
 across because the yamltecture integration test reads it; it is a model file,
 not a published page.
 
@@ -214,7 +214,7 @@ surveying, not after.
 | `website/llmtext/**` and `language/**` as *authoring* | Shared contract — copied, never edited. A change here is a defect |
 | `packages/web/**` fixes to the modelling tool | Applies only where the same file exists here; the two web apps have diverged and are not held to parity |
 | `--standalone` / WASM overlay work | No equivalent — this repository generates one stack, to a cargo crate |
-| Changes to the sibling's `%%report` → Enterprise Reporting pack | A different product; `%%report` compiles to `sys_report` here |
+| Changes to the sibling's `reports` → Enterprise Reporting pack | A different product; `reports` compiles to `sys_report` here |
 
 **One exception to the reporting-pack skip, deliberately taken.** `packages/generator/src/reporting/pack.ts` (`buildReportingPack`) and its test were copied from sibling `2cd116c`, unchanged apart from two imports. The orchestrator (`app-and-report-with-ai-rust`) derives the pack for the Rust reporting platform through this repository now, so the derivation has to exist here. `naming/tables.ts` is **not** the sibling's copy: it delegates to `entityToBusEntity`, which is what `m0002_bus_tables` renders, so the pack and the migration cannot name a table two ways. Later sibling changes to `reporting/**` are carried like any other shared module; the browser-stack readers of the pack still do not apply.
 | Anything Better Auth, Kysely or NestJS *as a mechanism* | Reimplement the behaviour against Loco/SeaORM/`auth::JWT`, or record that it does not apply |

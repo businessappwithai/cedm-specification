@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AppWithAI technology stack: TanStack Start, NestJS, PostgreSQL, Mastra.ai, GoRules, and Better-Auth. Open source under the Apache License 2.0.">
-  <meta name="keywords" content="technology stack, TanStack Start, NestJS, PostgreSQL, Mastra.ai, GoRules, Better-Auth, Kysely, open source, Apache 2.0">
+  <meta name="description" content="AppWithAI technology stack: a Loco.rs (Rust) backend, a TanStack Start + Astryx front end, PostgreSQL, GoRules, and Mastra.ai. Open source under the Apache License 2.0.">
+  <meta name="keywords" content="technology stack, Loco.rs, Rust, Axum, SeaORM, TanStack Start, Astryx, PostgreSQL, Mastra.ai, GoRules, open source, Apache 2.0">
   <title>Technology — AppWithAI</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -63,7 +63,7 @@
           <div style="text-align: center; margin-bottom: var(--spacing-xl);">
             <span class="hero-badge" style="background: var(--primary-100); color: var(--primary-700);">Frontend</span>
             <h3 style="margin-top: var(--spacing-md);">TanStack Start</h3>
-            <p class="text-muted">Server-side rendered React application with full-stack type safety from database to UI component.</p>
+            <p class="text-muted">A React application whose screens are drawn from the Application Dictionary at run time, served separately from the API.</p>
           </div>
           <div style="background: var(--gray-50); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg);">
             <table style="width: 100%; border-collapse: collapse;">
@@ -77,7 +77,7 @@
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>UI Components</strong></td>
-                <td style="padding: var(--spacing-sm);">Shadcn UI + TailwindCSS 4+</td>
+                <td style="padding: var(--spacing-sm);">Astryx design system, seven themes</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>Data Tables</strong></td>
@@ -93,14 +93,14 @@
               </tr>
               <tr>
                 <td style="padding: var(--spacing-sm);"><strong>Client State</strong></td>
-                <td style="padding: var(--spacing-sm);">Zustand</td>
+                <td style="padding: var(--spacing-sm);">TanStack DB</td>
               </tr>
             </table>
           </div>
           <h4 style="margin-bottom: var(--spacing-md);">Why TanStack Start?</h4>
           <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--spacing-sm) 0;">✓ Full-stack type safety with end-to-end TypeScript</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Server-side rendering for fast initial load and SEO</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Every screen built from the Application Dictionary, so a layout change needs no rebuild</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ A separate front end: interface changes never recompile the Rust binary</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Unified data fetching with TanStack Query caching</li>
             <li style="padding: var(--spacing-sm) 0;">✓ High-performance, virtualized data grids</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Schema-validated forms with granular field control</li>
@@ -113,50 +113,50 @@
         <div class="card" style="border: 2px solid var(--secondary-500);">
           <div style="text-align: center; margin-bottom: var(--spacing-xl);">
             <span class="hero-badge" style="background: var(--secondary-100); color: var(--secondary-700);">Backend</span>
-            <h3 style="margin-top: var(--spacing-md);">NestJS + PostgreSQL</h3>
-            <p class="text-muted">Structured, modular API server with enterprise-grade authentication, RBAC, and type-safe database access.</p>
+            <h3 style="margin-top: var(--spacing-md);">Loco.rs + PostgreSQL</h3>
+            <p class="text-muted">A Rust crate on the Loco framework: a headless JSON API with authentication, three authorization gates, and compiled database access.</p>
           </div>
           <div style="background: var(--gray-50); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg);">
             <table style="width: 100%; border-collapse: collapse;">
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm); width: 45%;"><strong>Framework</strong></td>
-                <td style="padding: var(--spacing-sm);">NestJS 10+ with Fastify</td>
+                <td style="padding: var(--spacing-sm);">Loco.rs 1.2 on Axum</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Database ORM</strong></td>
-                <td style="padding: var(--spacing-sm);">Kysely (type-safe SQL builder)</td>
+                <td style="padding: var(--spacing-sm);"><strong>Database Access</strong></td>
+                <td style="padding: var(--spacing-sm);">SeaORM and sqlx</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>Authentication</strong></td>
-                <td style="padding: var(--spacing-sm);">Better-Auth 1.5+</td>
+                <td style="padding: var(--spacing-sm);">JWT sessions, argon2 password hashes</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>Business Rules</strong></td>
-                <td style="padding: var(--spacing-sm);">GoRules Zen Engine (DMN)</td>
+                <td style="padding: var(--spacing-sm);">GoRules zen-engine (JDM decision graphs)</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Validation</strong></td>
-                <td style="padding: var(--spacing-sm);">Zod schema validation</td>
+                <td style="padding: var(--spacing-sm);"><strong>API Description</strong></td>
+                <td style="padding: var(--spacing-sm);">OpenAPI 3 via utoipa, with Redoc and Scalar</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>Database</strong></td>
-                <td style="padding: var(--spacing-sm);">PostgreSQL (primary)</td>
+                <td style="padding: var(--spacing-sm);">PostgreSQL, self-hosted or Neon</td>
               </tr>
               <tr>
                 <td style="padding: var(--spacing-sm);"><strong>API</strong></td>
-                <td style="padding: var(--spacing-sm);">RESTful JSON (auto-generated)</td>
+                <td style="padding: var(--spacing-sm);">RESTful JSON over the Application Dictionary</td>
               </tr>
             </table>
           </div>
           <h4 style="margin-bottom: var(--spacing-md);">Why This Backend Stack?</h4>
           <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--spacing-sm) 0;">✓ Modular NestJS architecture with dependency injection</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Fastify delivers high-throughput API performance</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Kysely provides compile-time SQL correctness</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Better-Auth handles email and password sign-in and server-side sessions</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ GoRules runs DMN decision tables as executable rules</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ One compiled binary: the API server, the background worker and the CLI</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Rust's type system and an async runtime under every request</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Migrations and the dictionary seed applied by the backend itself</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Email and password sign-in, with sessions carried as a JWT</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ GoRules evaluates the model's decision graphs on every write</li>
             <li style="padding: var(--spacing-sm) 0;">✓ PostgreSQL: ACID-compliant, row-level locking, proven at scale</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Zod schemas enforce API contract at runtime</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ The API describes itself at <code>/openapi.json</code></li>
           </ul>
         </div>
       </div>
@@ -180,19 +180,15 @@
             <table style="width: 100%; border-collapse: collapse;">
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm); width: 45%;"><strong>Orchestration</strong></td>
-                <td style="padding: var(--spacing-sm);">Mastra.ai 1.59+ (agent framework)</td>
+                <td style="padding: var(--spacing-sm);">Mastra.ai 1.54+ (agent framework)</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Primary LLM</strong></td>
-                <td style="padding: var(--spacing-sm);">Anthropic Claude (via SDK)</td>
+                <td style="padding: var(--spacing-sm);"><strong>Model</strong></td>
+                <td style="padding: var(--spacing-sm);">Any OpenAI-compatible endpoint, local or hosted</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Fallback LLM</strong></td>
-                <td style="padding: var(--spacing-sm);">OpenAI-compatible endpoint</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Local LLMs</strong></td>
-                <td style="padding: var(--spacing-sm);">Ollama (any local model)</td>
+                <td style="padding: var(--spacing-sm);"><strong>Local Models</strong></td>
+                <td style="padding: var(--spacing-sm);">llama.cpp, or any local OpenAI-compatible server</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>Code Execution</strong></td>
@@ -204,7 +200,7 @@
               </tr>
               <tr>
                 <td style="padding: var(--spacing-sm);"><strong>Copilot UI</strong></td>
-                <td style="padding: var(--spacing-sm);">CopilotKit 1.68+</td>
+                <td style="padding: var(--spacing-sm);">CopilotKit 1.64+</td>
               </tr>
             </table>
           </div>
@@ -223,39 +219,35 @@
           <div style="background: var(--gray-50); padding: var(--spacing-lg); border-radius: var(--radius-lg); margin-bottom: var(--spacing-lg);">
             <table style="width: 100%; border-collapse: collapse;">
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm); width: 45%;"><strong>ERD Format</strong></td>
-                <td style="padding: var(--spacing-sm);">Mermaid (Crow's Foot notation)</td>
+                <td style="padding: var(--spacing-sm); width: 45%;"><strong>Model Format</strong></td>
+                <td style="padding: var(--spacing-sm);">YAML (one <code>.eml.yaml</code> document), or a CEDM application model</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
                 <td style="padding: var(--spacing-sm);"><strong>Templates</strong></td>
-                <td style="padding: var(--spacing-sm);">Handlebars 4.7+</td>
+                <td style="padding: var(--spacing-sm);">Handlebars, in TypeScript and in Rust</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Formatting</strong></td>
-                <td style="padding: var(--spacing-sm);">Prettier 3.1+</td>
+                <td style="padding: var(--spacing-sm);"><strong>Generators</strong></td>
+                <td style="padding: var(--spacing-sm);">TypeScript CLI, Rust CLI, and both in the browser</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Type Checking</strong></td>
-                <td style="padding: var(--spacing-sm);">TypeScript 7+</td>
+                <td style="padding: var(--spacing-sm);"><strong>Backend Tests</strong></td>
+                <td style="padding: var(--spacing-sm);">cargo request suites (auto-generated)</td>
               </tr>
               <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>E2E Tests</strong></td>
-                <td style="padding: var(--spacing-sm);">Playwright (auto-generated)</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--gray-200);">
-                <td style="padding: var(--spacing-sm);"><strong>Unit Tests</strong></td>
-                <td style="padding: var(--spacing-sm);">Vitest</td>
+                <td style="padding: var(--spacing-sm);"><strong>End-to-End Tests</strong></td>
+                <td style="padding: var(--spacing-sm);">bun:test suites (auto-generated)</td>
               </tr>
               <tr>
-                <td style="padding: var(--spacing-sm);"><strong>Runtime</strong></td>
-                <td style="padding: var(--spacing-sm);">Bun.js 1.3+</td>
+                <td style="padding: var(--spacing-sm);"><strong>Toolchains</strong></td>
+                <td style="padding: var(--spacing-sm);">Rust (cargo) and Bun 1.3+</td>
               </tr>
             </table>
           </div>
           <ul style="list-style: none; padding: 0;">
             <li style="padding: var(--spacing-sm) 0;">✓ Generates complete frontend + backend + migrations</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Playwright E2E tests generated per entity</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Production-formatted, lint-clean TypeScript output</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Request and end-to-end test suites generated per entity</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Clippy-clean Rust and type-checked TypeScript output</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Docker configuration included</li>
           </ul>
         </div>
@@ -286,9 +278,10 @@
               <li style="padding: var(--spacing-xs) 0;">• sys_field — Form field configuration and display logic</li>
               <li style="padding: var(--spacing-xs) 0;">• sys_reference — Dropdown lists and lookup definitions</li>
               <li style="padding: var(--spacing-xs) 0;">• sys_val_rule — Validation rule definitions</li>
-              <li style="padding: var(--spacing-xs) 0;">• sys_access_role — RBAC role definitions</li>
-              <li style="padding: var(--spacing-xs) 0;">• sys_access_record — Record-level access policies</li>
-              <li style="padding: var(--spacing-xs) 0;">• sys_access_field — Field-level visibility rules</li>
+              <li style="padding: var(--spacing-xs) 0;">• sys_role — RBAC role definitions</li>
+              <li style="padding: var(--spacing-xs) 0;">• sys_access — Which roles reach which windows and tables</li>
+              <li style="padding: var(--spacing-xs) 0;">• sys_operation_access — Per-operation restrictions from the model</li>
+              <li style="padding: var(--spacing-xs) 0;">• sys_transition_access — Who may move a record between states</li>
             </ul>
           </div>
         </div>
@@ -296,13 +289,13 @@
           <h3>Generated Application Structure</h3>
           <h4>What Every Generated Application Includes:</h4>
           <ul style="list-style: none; padding: 0; margin-bottom: var(--spacing-lg);">
-            <li style="padding: var(--spacing-sm) 0;">✓ Complete database migration scripts (Kysely)</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ Complete database migrations, applied by the backend</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Role-Based Access Control tables and guards</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Application Dictionary (sys_ metadata tables)</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Business entity tables (bus_ prefix)</li>
             <li style="padding: var(--spacing-sm) 0;">✓ RESTful API endpoints for all entities</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Admin interface for runtime UI configuration</li>
-            <li style="padding: var(--spacing-sm) 0;">✓ Playwright E2E test suite</li>
+            <li style="padding: var(--spacing-sm) 0;">✓ cargo and bun test suites</li>
             <li style="padding: var(--spacing-sm) 0;">✓ Docker configuration for all services</li>
             <li style="padding: var(--spacing-sm) 0;">✓ AI natural language query interface (optional)</li>
           </ul>
@@ -311,11 +304,11 @@
             <ul style="list-style: none; padding: 0; font-size: var(--text-sm);">
               <li style="padding: var(--spacing-xs) 0;">✓ UUID primary keys (globally unique)</li>
               <li style="padding: var(--spacing-xs) 0;">✓ Foreign key relationships enforced at database level</li>
-              <li style="padding: var(--spacing-xs) 0;">✓ Optimistic concurrency control</li>
+              <li style="padding: var(--spacing-xs) 0;">✓ A version column on every record</li>
               <li style="padding: var(--spacing-xs) 0;">✓ Soft deletes for historical record retention</li>
-              <li style="padding: var(--spacing-xs) 0;">✓ Table-level, field-level, and row-level security</li>
+              <li style="padding: var(--spacing-xs) 0;">✓ Table-level, operation-level and transition-level access control</li>
               <li style="padding: var(--spacing-xs) 0;">✓ Complete audit trail (who, what, when)</li>
-              <li style="padding: var(--spacing-xs) 0;">✓ Zod-validated API payloads</li>
+              <li style="padding: var(--spacing-xs) 0;">✓ A self-describing OpenAPI contract</li>
             </ul>
           </div>
         </div>
@@ -373,18 +366,18 @@
         </div>
         <div class="card text-center">
           <div class="feature-icon" style="margin: 0 auto var(--spacing-md);">⚡</div>
-          <h3>NestJS with Fastify</h3>
-          <p>High-throughput API handling with enterprise-grade dependency injection. Fastify benchmarks among the fastest Node.js HTTP servers available.</p>
+          <h3>Loco.rs on Axum</h3>
+          <p>A compiled Rust server on Tokio and Axum: high request throughput, a small memory footprint, and no garbage-collection pauses under load.</p>
         </div>
         <div class="card text-center">
           <div class="feature-icon" style="margin: 0 auto var(--spacing-md);">🚀</div>
           <h3>TanStack Start</h3>
-          <p>Server-side rendering for fast initial page loads, CDN-deployable static assets, and client-side hydration for interactive performance.</p>
+          <p>A front end deployed apart from the API, with CDN-deployable static assets and lazily loaded icons and screens.</p>
         </div>
       </div>
       <div class="card mt-5">
         <h3>Deployment Flexibility</h3>
-        <p>Generated applications are standard, portable TypeScript codebases with no proprietary runtime dependencies:</p>
+        <p>Generated applications are standard, portable Rust and TypeScript codebases with no proprietary runtime dependencies:</p>
         <div class="grid grid-2">
           <ul style="list-style: none; padding: 0;">
             <li style="padding: var(--spacing-sm) 0;">☁️ Any cloud provider — AWS, Azure, GCP, or others</li>
@@ -547,7 +540,7 @@
         <div>
           <h3>AppWithAI</h3>
           <p>Open source AI-powered generator for production-ready business applications. Licensed under the Apache License 2.0.</p>
-          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-tanstack" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
+          <p class="mt-2"><a href="https://github.com/businessappwithai/app-with-ai-rust" target="_blank" rel="noopener noreferrer">Source on GitHub &rarr;</a></p>
         </div>
         <div>
           <h3>Product</h3>
@@ -583,7 +576,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Powered by Claude, OpenAI, and Ollama.</p>
+        <p>&copy; 2026 AppWithAI Contributors. Open Source — <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" style="color: var(--primary-400);">Apache License 2.0</a>. Runs on any OpenAI-compatible model, local or hosted.</p>
         <p class="mt-2"><a href="guide/run-in-browser.html" style="color: var(--primary-400);">Run the CRM demo in your browser →</a></p>
       </div>
     </div>

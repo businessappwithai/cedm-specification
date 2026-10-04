@@ -9,7 +9,7 @@ publish = false
 description = "Generated application"
 
 [dependencies]
-loco-rs = { version = "1.0", features = ["cli", "with-db", "auth", "worker"] }
+loco-rs = { version = "1.2", features = ["cli", "with-db", "auth", "worker"] }
 migration = { path = "migration" }
 
 serde = { version = "1", features = ["derive"] }
@@ -31,7 +31,7 @@ axum = "0.8"
 
 # OpenAPI. Deliberately utoipa directly rather than `loco-openapi`: that crate
 # is a thin initializer over these same libraries but depends on `loco-rs ^0.16`,
-# so adding it to a 1.0 app links two copies of loco-rs and its `Initializer` is
+# so adding it to a 1.x app links two copies of loco-rs and its `Initializer` is
 # then a different type from the one `Hooks::initializers` returns — it does not
 # compile. utoipa is framework-agnostic and mounts through Loco's own `Routes`.
 utoipa = { version = "5", features = ["axum_extras", "chrono", "uuid"] }
@@ -87,7 +87,7 @@ sea-query-sqlx = { version = "0.9", features = [
 ] }
 
 [dev-dependencies]
-loco-rs = { version = "1.0", features = ["testing"] }
+loco-rs = { version = "1.2", features = ["testing"] }
 serial_test = "3"
 # Already in the tree through axum and loco; naming it here only turns on the
 # `util` feature, which is what `ServiceExt::oneshot` lives behind. It lets

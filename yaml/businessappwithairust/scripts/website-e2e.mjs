@@ -3,8 +3,8 @@
  * Website end-to-end tests.
  *
  * Every claim this site makes about a published model is checked against the
- * model itself, read with the generator's own reader — `viewers/eml-model.js`,
- * the bundle the viewers page runs. Nothing here re-implements the language: if
+ * model itself, read with the generator's own reader —
+ * `viewers/appwithai-model.js`, the bundle the viewers page runs. Nothing here re-implements the language: if
  * a count is wrong, it is wrong because the page is stale, not because this
  * file counts differently.
  *
@@ -15,8 +15,8 @@
  *   1. `try-it-yourself.html` said the hospital model had 28 entities, nine
  *      state machines and 87 access restrictions. It has 30, ten and 132.
  *   2. The same stale figures were repeated in three guide chapters.
- *   3. `assets/js/appwithai-fullstack.js` was months behind the acronym fix, so
- *      the deployable zip named a table `bus_k_y_c_record` while every reader of
+ *   3. A vendored generator was months behind the acronym fix, so the
+ *      deployable zip named a table `bus_k_y_c_record` while every reader of
  *      the same model called it `bus_kyc_record`. The application built, ran and
  *      answered; only a query written in the model's own words found it.
  *
@@ -36,25 +36,60 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const VERBOSE = process.argv.includes("--verbose");
 const p = (...s) => path.join(ROOT, ...s);
 
+/**
+ * Generate the deployable application from a published model with the bundle
+ * and assets this site serves — the same call the download button makes.
+ * Skipped with a said-out-loud note when either is absent: a check that quietly
+ * passes without running is worse than one that says it did not.
+ */
+async function generateDeployable(model) {
+  const bundle = p("assets", "js", "appwithai-loco.js");
+  const assets = p("assets", "vendor", "loco-assets.json");
+  if (!existsSync(bundle) || !existsSync(assets)) {
+    console.log("  note appwithai-loco.js or loco-assets.json absent — deployable checks skipped");
+    return null;
+  }
+  const source = readFileSync(p("guide", "models", model), "utf8");
+  const viewerModule = await import(`file://${p("viewers", "appwithai-model.js")}`);
+  const compiled = viewerModule.compileForBrowser(source);
+  const { generateLocoApplication } = await import(`file://${bundle}`);
+  const realLog = console.log;
+  console.log = () => {};
+  try {
+    return await generateLocoApplication({
+      document: compiled.document,
+      modelText: source,
+      name: model.replace(/\.eml\.yaml$/, ""),
+      assets: JSON.parse(readFileSync(assets, "utf8")),
+    });
+  } finally {
+    console.log = realLog;
+  }
+}
+
 let passed = 0;
 const failures = [];
 function ok(name) { passed++; if (VERBOSE) console.log(`  ok   ${name}`); }
 function fail(name, detail) { failures.push(`${name}\n         ${detail}`); console.log(`  FAIL ${name}\n         ${detail}`); }
 function is(actual, expected, name) { actual === expected ? ok(name) : fail(name, `expected ${expected}, page says ${actual}`); }
 
-const { readModel } = await import(`file://${p("viewers", "eml-model.js")}`);
-const { check, LANGUAGE_VERSION } = await import(`file://${p("guide", "checker.js")}`);
+const viewer = await import(`file://${p("viewers", "appwithai-model.js")}`);
+const { validate, LANGUAGE_VERSION } = await import(`file://${p("guide", "model-yaml.js")}`);
+/** The viewers' reading of a model: the compiled model, its stats and its access. */
+const readModel = (source) => viewer.readModelForViewer(source).model;
+/** The published validator's findings, under the name the checks below use. */
+const check = (source) => ({ issues: validate(source).diagnostics });
 
-const MODELS = readdirSync(p("guide", "models")).filter((f) => f.endsWith(".eml.mmd")).sort();
+const MODELS = readdirSync(p("guide", "models")).filter((f) => f.endsWith(".eml.yaml")).sort();
 
 /** The key each model is selected by, in chapter 09's BUILT_IN map and every `#hash` that links to it. */
 const KEY_OF = {
-  "crm.eml.mmd": "crm",
-  "dance-studio.eml.mmd": "dance",
-  "drug-discovery.eml.mmd": "drug",
-  "education-management-system.eml.mmd": "education",
-  "hospital-management-system.eml.mmd": "hospital",
-  "investment-planning-wealth-management-system.eml.mmd": "investment",
+  "crm.eml.yaml": "crm",
+  "dance-studio.eml.yaml": "dance",
+  "drug-discovery.eml.yaml": "drug",
+  "education-management-system.eml.yaml": "education",
+  "hospital-management-system.eml.yaml": "hospital",
+  "investment-planning-wealth-management-system.eml.yaml": "investment",
 };
 
 const NUMBER = "(?:a |one )?[\\w-]+(?:\\s+hundred\\s+and\\s+[\\w-]+)?";
@@ -77,16 +112,15 @@ function measure(file) {
     rules: m.stats.rules,
     hooks: m.stats.hooks,
     // The roles the *model* declares, which is what every other figure on a card
-    // is: a count of something in the .mmd. `stats.roles` is two higher — it adds
-    // the generated `administrator` and `user` that no model writes. Counting
-    // names in `%%rbac` lines instead gets this wrong in the other direction,
-    // because some models name `administrator` there and some do not, so that
-    // number silently means different things per model.
-    roles: m.access.roles.filter((r) => /Declared by %%rbac/.test(r.description || "")).length,
+    // is: a count of something in the model. `stats.roles` is two higher — it
+    // adds the generated `administrator` and `user` that no model writes.
+    // Counting names in `rbac` entries instead gets this wrong in the other
+    // direction, because some models name `administrator` there and some do
+    // not, so that number silently means different things per model.
+    roles: m.access.roles.filter((r) => /Declared by the model's access rules/.test(r.description || "")).length,
     accessRules: m.stats.accessRules,
-    // `%%report <key> ...` — matched on the directive's real shape, not the bare
-    // keyword: the education model contains a line of prose that mentions it.
-    reports: (src.match(/%%report[ \t]+[a-z0-9-]+[ \t]/g) || []).length,
+    // The model's own `reports` list — the questions its author wrote as SQL.
+    reports: (validate(src).document?.reports ?? []).length,
   };
 }
 
@@ -101,7 +135,7 @@ const CLAIMS = [
   ["hooks",         new RegExp(`(${NUMBER})\\s+(?:lifecycle\\s+)?hooks\\b`, "i"),      (s) => s.hooks],
   ["roles",         new RegExp(`(${NUMBER})\\s+roles\\b`, "i"),                          (s) => s.roles],
   ["accessRules",   new RegExp(`(${NUMBER})\\s+access\\s+restrictions\\b`, "i"),       (s) => s.accessRules],
-  ["reports",       new RegExp(`(${NUMBER})\\s+<code>%%report</code>\\s+directives\\b`, "i"), (s) => s.reports],
+  ["reports",       new RegExp(`(${NUMBER})\\s+authored\\s+reports\\b`, "i"),        (s) => s.reports],
 ];
 
 /** The block of markup that describes one model on one page. */
@@ -147,7 +181,7 @@ console.log(`  (${claimsChecked} figures checked across ${PAGES.length} pages)`)
 // ---------------------------------------------------------------------------
 console.log("\nEvery example a page offers is one chapter 09 can select");
 const runner = readFileSync(p("assets", "js", "run-in-browser.js"), "utf8");
-const builtIn = new Set([...runner.matchAll(/^\s*([a-z]+)\s*:\s*\{[^}]*?\.eml\.mmd/gms)].map((m) => m[1]));
+const builtIn = new Set([...runner.matchAll(/^\s*([a-z]+)\s*:\s*\{[^}]*?\.eml\.yaml/gms)].map((m) => m[1]));
 for (const key of Object.values(KEY_OF)) {
   builtIn.has(key)
     ? ok(`chapter 09 can select #${key}`)
@@ -165,64 +199,75 @@ console.log("\nThe vendored generator artifacts are current");
 // An entity whose name begins with an acronym is the case that reached the live
 // site: a stale bundle spelled it one letter at a time, and every join through
 // it matched nothing while the application looked healthy.
-const probe = readModel(`%%meta name: Acronym Probe
-erDiagram
-    KYCRecord {
-        string id PK
-        string reference
-    }
-    %%rbac role:officer on KYCRecord.read
+const probe = readModel(`eml: "1.0"
+name: Acronym Probe
+entities:
+  - name: KYCRecord
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: reference, type: string }
+rbac:
+  - { entity: KYCRecord, action: read, roles: [officer] }
 `);
-is(probe.entities[0].tableName, "kyc_record", "an acronym entity is one word (viewers/eml-model.js)");
+is(probe.entities[0].tableName, "kyc_record", "an acronym entity is one word (viewers/appwithai-model.js)");
 is(probe.rbac.operations[0]?.tableName, "bus_kyc_record", "and its bus_ table likewise");
 
-// The two copies of the checker this site publishes have to agree; they are one
+// The two copies of the reader this site publishes have to agree; they are one
 // engine built by two bundler entries, and a reader who gets different verdicts
 // from chapter 11 and the viewers has no way to tell which to believe.
-const viewerCheck = await import(`file://${p("viewers", "eml-model.js")}`);
-is(viewerCheck.LANGUAGE_VERSION, LANGUAGE_VERSION, "checker.js and eml-model.js report one language version");
+is(viewer.LANGUAGE_VERSION, LANGUAGE_VERSION, "model-yaml.js and appwithai-model.js report one language version");
+for (const f of MODELS) {
+  const fromViewer = viewer.inspectModel(STATS[f].src).report.counts;
+  const fromValidator = check(STATS[f].src).issues;
+  const counts = ["error", "warning", "info"].map((sev) => fromValidator.filter((i) => i.severity === sev).length);
+  is([fromViewer.errors, fromViewer.warnings, fromViewer.infos].join("/"), counts.join("/"), `${f}: the viewers and chapter 11 give one verdict`);
+}
 
 /*
- * `stack-templates.json` is the third artifact in that set, and the one with no
- * other reader here: `appwithai-fullstack.js` compiles the model, but the files
- * it writes come out of this payload. So the bundle can be perfectly current
- * and the deployable zip still ship last month's application — which is exactly
- * what happened. The four templates the line-item work touched were left behind
- * when the bundles beside them were re-vendored, and every zip a reader
- * downloaded built an application whose line items had no window to appear in.
- * Nothing else notices: the archive is internally consistent, it installs, it
- * builds, and it runs.
- *
- * These assert the feature is present in the payload rather than comparing
- * bytes against a generator checkout this repository does not have.
+ * The deployable application is the third artifact. `assets/js/appwithai-loco.js`
+ * is the generator's own pipeline built for the browser, and
+ * `assets/vendor/loco-assets.json` the templates it renders; both are built
+ * from the generator's checkout and `build-site-bundles.ts --check` there holds
+ * them current. What is asserted here is that the pair the site actually
+ * serves writes a whole application, from a published model, with the
+ * behaviour a stale pair has lost before — the line-item rule.
  */
-const templates = JSON.parse(readFileSync(p("assets", "vendor", "stack-templates.json"), "utf8"));
-const template = (name) => templates[`tanstack-start-nestjs/${name}`] ?? "";
-const carries = (name, needle, what) =>
-  template(name).includes(needle)
-    ? ok(`stack-templates.json: ${what}`)
-    : fail(
-        `stack-templates.json: ${what}`,
-        `"${needle}" is absent from ${name} — the payload predates the feature. ` +
-          "Rebuild it upstream with `bun run build:stack-templates` and re-copy."
-      );
+const loco = await generateDeployable("crm.eml.yaml");
+if (loco) {
+  for (const required of ["backend/Cargo.toml", "backend/Cargo.lock", "frontend/package.json", "docker-compose.yml", "README.md"]) {
+    loco.files.has(required)
+      ? ok(`the deployable application carries ${required}`)
+      : fail(`the deployable application carries ${required}`, "not written");
+  }
+  loco.files.get("model/model.eml.yaml") === STATS["crm.eml.yaml"].src
+    ? ok("and ships the model it was generated from, byte for byte")
+    : fail("the deployable application ships its model", "model/model.eml.yaml differs from guide/models/crm.eml.yaml");
+  /* The dashboard is one query, and a table with a tab at `tab_level` > 0 is
+     reached by opening its parent, so it is not a place to navigate to. */
+  String(loco.files.get("backend/src/controllers/me.rs") ?? "").includes("tab_level")
+    ? ok("the dashboard keeps line items off it (backend/src/controllers/me.rs)")
+    : fail("the dashboard keeps line items off it", "me.rs no longer reads sys_tab.tab_level — a stale generator");
+  loco.executables.size > 0
+    ? ok(`and marks its ${loco.executables.size} runner script(s) executable`)
+    : fail("the deployable application marks its runner scripts executable", "none were");
 
-carries(
-  "frontend/src/hooks/use-bus-entity-level.ts",
-  "childTabs",
-  "the entity hook resolves a parent's child tabs"
-);
-/* This rule used to be a `lineItemTables` list the service computed for itself.
-   The dashboard is one query now, and the rule is the NOT EXISTS below: a table
-   with a tab at `tab_level` > 0 is reached by opening its parent, so it is not
-   a place to navigate to. Read off `sys_tab` rather than recomputed, so this
-   screen and the detail screen cannot disagree — which is the property worth
-   asserting, and the reason this pins the predicate rather than a symbol. */
-carries(
-  "backend/src/modules/sys/services/sys-category.service.ts.hbs",
-  "tb.tab_level > 0",
-  "the category service keeps line items off the dashboard"
-);
+  /* Two pages state how many files the CRM generates, and the number moved
+     every time a template was added — 403 on the home page and 488 in chapter
+     04 survived long after either was true. They are held to the generator
+     here, along with the front end's share of the tree in chapter 04. */
+  const total = loco.files.size;
+  const frontend = [...loco.files.keys()].filter((path) => path.startsWith("frontend/")).length;
+  const tests = [...loco.files.keys()].filter((path) => path.startsWith("tests/")).length;
+  const home = readFileSync(p("index.html"), "utf8").match(/<div class="stat-value">(\d+)<\/div>\s*<div class="stat-label">Files Generated<\/div>/);
+  is(home ? Number(home[1]) : null, total, "index.html: the CRM's files-generated figure");
+  const chapter = readFileSync(p("guide", "04-generate.html"), "utf8");
+  const tree = chapter.match(/generated-projects\/crm — (\d+) files/);
+  is(tree ? Number(tree[1]) : null, total, "04-generate.html: the tree's file count");
+  const front = chapter.match(/TanStack Start \+ Astryx \((\d+) files\)/);
+  is(front ? Number(front[1]) : null, frontend, "04-generate.html: the front end's file count");
+  const suite = chapter.match(/end-to-end suite \((\d+) files\)/);
+  is(suite ? Number(suite[1]) : null, tests, "04-generate.html: the test suite's file count");
+}
 
 // ---------------------------------------------------------------------------
 console.log("\nEvery published model explains itself, and puts its line items where they belong");
@@ -234,15 +279,19 @@ console.log("\nEvery published model explains itself, and puts its line items wh
  * and every page still renders, every count still matches, and the generated
  * manual reads as a list of labels printed twice. `EML151` is what sees it.
  *
- * Line items are the second: `%%entity <Child> parent: <Parent>` is the only
+ * Line items are the second: an entity's `parent: <Parent>` is the only
  * thing that keeps an invoice line off the dashboard and inside its invoice,
  * and a model that loses the directive loses the arrangement silently — the
  * application still builds and still runs.
  *
+ * A third used to be here — a category with no name, which the old notation's
+ * reader dropped without a word. The schema requires `name` on every category,
+ * so such a model does not read at all; the 0-errors check above covers it.
+ *
  * Both are read from the published checker rather than counted here, so this
  * agrees with what chapter 11 tells a reader about the same file.
  */
-for (const name of readdirSync(p("guide", "models")).filter((f) => f.endsWith(".mmd")).sort()) {
+for (const name of MODELS) {
   const source = readFileSync(p("guide", "models", name), "utf8");
   const issues = check(source).issues;
 
@@ -256,136 +305,96 @@ for (const name of readdirSync(p("guide", "models")).filter((f) => f.endsWith(".
     ? ok(`${name}: no line item is left on the dashboard`)
     : fail(`${name}: line items`, onDashboard.map((i) => i.message).join("; "));
 
-  const namelessCategory = issues.filter((i) => i.code === "EML154");
-  namelessCategory.length === 0
-    ? ok(`${name}: every %%category declares a name, so none is silently dropped`)
-    : fail(`${name}: categories`, `${namelessCategory.length} %%category line(s) with no name: key`);
 }
 
 // ---------------------------------------------------------------------------
-// The reporting application the deployable archive now carries.
+// The reporting side chapter 09 shows.
 //
 // Chapter 09 states concrete figures about it — a role reads five of seventeen
 // tables and is offered 36 of 116 reports — and those are not figures anyone
 // can check by reading the model: they come out of the pack the generator
-// derives. So they are measured here, from the *vendored* bundle, which makes
-// this the same kind of check as the acronym one above: a page claim held to
-// the byte the site actually serves rather than to the generator upstream.
-//
-// It generates a whole application, so it is the slow group. Skipped with a
-// said-out-loud note when the templates are absent, because
-// `stack-templates.json` is a build artefact and a fresh clone may not have it
-// — a check that quietly passes without running is worse than one that says it
-// did not.
-console.log("\nThe reporting application in the deployable archive");
+// derives. So they are measured here, from the *vendored* bundle that draws the
+// preview (`appwithai-wasm.js` writes the pack into `app/model.json`), which
+// makes this the same kind of check as the acronym one above: a page claim held
+// to the byte the site actually serves rather than to the generator upstream.
+// Its queries are then held to the deployable application's own schema.
+console.log("\nThe reporting side chapter 09 shows");
 {
-  const templatesPath = p("assets", "vendor", "stack-templates.json");
-  const bundlePath = p("assets", "js", "appwithai-fullstack.js");
+  const wasm = await import(`file://${p("assets", "js", "appwithai-wasm.js")}`);
+  const source = STATS["crm.eml.yaml"].src;
+  const compiled = viewer.compileForBrowser(source);
+  const realLog = console.log;
+  console.log = () => {};
+  let files;
+  try {
+    const result = wasm.generateFromModel({
+      name: "crm",
+      model: compiled.model,
+      modelText: source,
+      adminEmail: "admin@admin.com",
+      adminPassword: "admin",
+      adminName: "admin",
+    });
+    files = result.files instanceof Map ? Object.fromEntries(result.files) : result.files;
+  } finally {
+    console.log = realLog;
+  }
+  const pack = JSON.parse(files["app/model.json"]).reporting;
+  const roles = pack.access.roles;
 
-  if (!existsSync(templatesPath) || !existsSync(bundlePath)) {
-    console.log("  note stack-templates.json or appwithai-fullstack.js absent — group skipped");
+  // One reporting role per role the model declares, plus the two the
+  // generator adds — the same arithmetic `measure()` documents above, from
+  // the other end.
+  is(roles.length, STATS["crm.eml.yaml"].roles + 2,
+    "one reporting role per declared role, plus administrator and user");
+
+  const chapter = readFileSync(p("guide", "run-in-browser.html"), "utf8");
+  const agent = roles.find((r) => /support\.agent@/.test(r.email));
+  if (!agent) {
+    fail("the CRM pack seeds a support.agent reporting account", "no such role in the pack");
   } else {
-    const templates = JSON.parse(readFileSync(templatesPath, "utf8"));
-    const { generateFullStack } = await import(`file://${bundlePath}`);
+    const stated = chapter.match(/It reads (\w+) of the model's\s*\n?\s*(\w+) tables/);
+    stated
+      ? (is(num(stated[1]), agent.tables.length, "chapter 09: the tables support.agent reads"),
+         is(num(stated[2]), pack.access.entityTotal, "chapter 09: the tables the model has"))
+      : fail("chapter 09 states what support.agent reads",
+             "the sentence naming its table counts is gone — update this check with it");
 
-    // The generator narrates to stdout, and this file's output is its report.
-    const realLog = console.log;
-    console.log = () => {};
-    let files;
-    try {
-      const result = await generateFullStack({
-        source: STATS["crm.eml.mmd"].src,
-        name: "crm",
-        templates,
-        // The archive is unzipped and run under Docker against a real
-        // PostgreSQL, so no WASM overlay — the same flag the download uses.
-        overlay: false,
-      });
-      files = result.files ?? result;
-    } finally {
-      console.log = realLog;
-    }
+    // Reports visible to that role: a report is visible when every table its
+    // query reads is one the role may. Computed the way the runtime computes
+    // it, off the pack's own `tables`, so the two cannot disagree.
+    const allowed = new Set(agent.tables);
+    const byKey = new Map(pack.queries.map((q) => [q.key, q]));
+    const visible = pack.reports.filter((r) =>
+      (byKey.get(r.queryKey)?.tables ?? []).every((table) => allowed.has(table))
+    ).length;
+    const offered = chapter.match(/offered (\d+) of the (\d+) reports/);
+    offered
+      ? (is(Number(offered[1]), visible, "chapter 09: the reports that role is offered"),
+         is(Number(offered[2]), pack.reports.length, "chapter 09: the reports the pack holds"))
+      : fail("chapter 09 states how many reports the role is offered",
+             "the sentence is gone — update this check with it");
+  }
 
-    const has = (path) => Object.hasOwn(files, path);
-    has("reporting/reporting-pack.json")
-      ? ok("the archive carries reporting/reporting-pack.json")
-      : fail("the archive carries the reporting pack", "reporting/reporting-pack.json was not written");
-    has("reporting/Dockerfile")
-      ? ok("and the Dockerfile that builds the platform")
-      : fail("the archive carries reporting/Dockerfile", "not written");
-    has("reporting/README.md")
-      ? ok("and the README naming both sets of accounts")
-      : fail("the archive carries reporting/README.md", "not written");
+  // Every query names the tables it reads, or a role cannot be scoped at all
+  // and every report is offered to everybody.
+  const unscoped = pack.queries.filter((q) => !q.tables?.length);
+  unscoped.length === 0
+    ? ok("every saved query records the tables it reads")
+    : fail("every saved query records its tables", `${unscoped.length} with none, e.g. ${unscoped[0].key}`);
 
-    const compose = files["docker-compose.yml"] ?? "";
-    /^ {2}report:/m.test(compose)
-      ? ok("docker-compose.yml names the report service")
-      : fail("compose names the report service", "no `report:` service found");
-    /^ {2}report-seeder:/m.test(compose)
-      ? ok("docker-compose.yml names the one-shot seeder")
-      : fail("compose names the seeder", "no `report-seeder:` service found");
-
-    if (has("reporting/reporting-pack.json")) {
-      const pack = JSON.parse(files["reporting/reporting-pack.json"]);
-      const roles = pack.access.roles;
-
-      // One reporting role per role the model declares, plus the two the
-      // generator adds — the same arithmetic `measure()` documents above, from
-      // the other end.
-      is(roles.length, STATS["crm.eml.mmd"].roles + 2,
-        "one reporting role per declared role, plus administrator and user");
-
-      // Every figure chapter 09 states about the reporting side.
-      const chapter = readFileSync(p("guide", "run-in-browser.html"), "utf8");
-      const agent = roles.find((r) => /support\.agent@/.test(r.email));
-      if (!agent) {
-        fail("the CRM pack seeds a support.agent reporting account", "no such role in the pack");
-      } else {
-        const stated = chapter.match(/It reads (\w+) of the model's\s*\n?\s*(\w+) tables/);
-        stated
-          ? (is(num(stated[1]), agent.tables.length, "chapter 09: the tables support.agent reads"),
-             is(num(stated[2]), pack.access.entityTotal, "chapter 09: the tables the model has"))
-          : fail("chapter 09 states what support.agent reads",
-                 "the sentence naming its table counts is gone — update this check with it");
-
-        // Reports visible to that role: a report is visible when every table
-        // its query reads is one the role may. Computed the way the runtime
-        // computes it, off the pack's own `tables`, so the two cannot disagree.
-        const allowed = new Set(agent.tables);
-        const byKey = new Map(pack.queries.map((q) => [q.key, q]));
-        const visible = pack.reports.filter((r) =>
-          (byKey.get(r.queryKey)?.tables ?? []).every((t) => allowed.has(t))
-        ).length;
-        const offered = chapter.match(/offered (\d+) of the (\d+) reports/);
-        offered
-          ? (is(Number(offered[1]), visible, "chapter 09: the reports that role is offered"),
-             is(Number(offered[2]), pack.reports.length, "chapter 09: the reports the pack holds"))
-          : fail("chapter 09 states how many reports the role is offered",
-                 "the sentence is gone — update this check with it");
-      }
-
-      // Every query names the tables it reads, or a role cannot be scoped at
-      // all and every report is offered to everybody.
-      const unscoped = pack.queries.filter((q) => !q.tables?.length);
-      unscoped.length === 0
-        ? ok("every saved query records the tables it reads")
-        : fail("every saved query records its tables",
-               `${unscoped.length} with none, e.g. ${unscoped[0].key}`);
-
-      // The acronym check, one layer deeper than the one above: the pack's SQL
-      // has to name tables the generated migration creates.
-      const migration = Object.entries(files).find(([k]) => /create_bus_tables/.test(k))?.[1] ?? "";
-      const created = new Set(
-        [...migration.matchAll(/CREATE TABLE IF NOT EXISTS (bus_[a-z0-9_]+)/g)].map((m) => m[1])
-      );
-      const phantom = pack.queries.flatMap((q) =>
-        (q.tables ?? []).filter((t) => !created.has(t)).map((t) => `${q.key} -> ${t}`)
-      );
-      created.size > 0 && phantom.length === 0
-        ? ok(`every table the pack queries is one the migration creates (${created.size})`)
-        : fail("the pack queries only tables the migration creates",
-               created.size === 0 ? "no CREATE TABLE found in the migration" : phantom.slice(0, 3).join(", "));
-    }
+  // The acronym check, one layer deeper: the pack's SQL has to name tables the
+  // deployable application's own migration creates.
+  if (loco) {
+    const migration = String(loco.files.get("backend/migration/src/m0002_bus_tables.rs") ?? "");
+    const created = new Set([...migration.matchAll(/CREATE TABLE IF NOT EXISTS (bus_[a-z0-9_]+)/g)].map((m) => m[1]));
+    const phantom = pack.queries.flatMap((q) =>
+      (q.tables ?? []).filter((table) => !created.has(table)).map((table) => `${q.key} -> ${table}`)
+    );
+    created.size > 0 && phantom.length === 0
+      ? ok(`every table the pack queries is one the deployable application creates (${created.size})`)
+      : fail("the pack queries only tables the deployable application creates",
+             created.size === 0 ? "no CREATE TABLE found in m0002_bus_tables" : phantom.slice(0, 3).join(", "));
   }
 }
 
@@ -517,8 +526,8 @@ console.log("\n8. The model assistant");
   /* The download is offered only at zero errors — and that promise was broken
      by CSS rather than by logic. `.btn` sets `display: inline-flex`, a class
      beats the user agent's `[hidden] { display: none }`, and so Download as
-     .mmd, Repair and Stop all rendered at rest on a merged main; clicking
-     Download handed over an empty `model.eml.mmd`. Node has no cascade to ask,
+     .eml.yaml, Repair and Stop all rendered at rest on a merged main; clicking
+     Download handed over an empty model file. Node has no cascade to ask,
      so assert the rule that settles it — every button the controller toggles
      with `hidden` carries a class that would otherwise win. */
   const assistantCss = readFileSync(p("assets", "css", "assistant.css"), "utf8");

@@ -34,6 +34,13 @@ export interface ButtonProps {
   type?: "button" | "submit" | "reset";
   onClick?: () => void;
   title?: string;
+  /**
+   * The accessible name of an icon-only button. Astryx names a button by its
+   * `label`, so this becomes the label of a button that shows only an icon.
+   * It was not declared here, so every icon-only button in the application
+   * had no name — the navigation's collapse toggle included.
+   */
+  "aria-label"?: string;
 }
 
 /**
@@ -84,6 +91,7 @@ export function Button({
   type = "button",
   onClick,
   title,
+  "aria-label": ariaLabel,
 }: ButtonProps) {
   // `asChild` without an href was composition we cannot express; render the
   // child rather than nesting it inside a button.
@@ -110,9 +118,31 @@ export function Button({
     );
   }
 
+  // An icon and nothing else: Astryx draws it from `icon`, and names the button
+  // from `label`. Passed as children it was laid out inside an empty label and
+  // never drawn, so the sidebar's collapse toggle was a clickable blank.
+  if (size === "icon" && isValidElement(children)) {
+    return (
+      <AstryxButton
+        label={ariaLabel ?? title ?? ""}
+        icon={children}
+        variant={VARIANTS[variant] as never}
+        size={SIZES[size]}
+        type={type}
+        isDisabled={disabled}
+        isLoading={isLoading}
+        isIconOnly
+        href={href}
+        className={className}
+        tooltip={title ?? ariaLabel}
+        clickAction={onClick}
+      />
+    );
+  }
+
   return (
     <AstryxButton
-      label={typeof children === "string" ? children : ""}
+      label={typeof children === "string" ? children : (ariaLabel ?? "")}
       variant={VARIANTS[variant] as never}
       size={SIZES[size]}
       type={type}

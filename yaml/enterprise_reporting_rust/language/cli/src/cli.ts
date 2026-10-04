@@ -10,19 +10,19 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { loadLanguageDefinition } from "../../../../../language/index.ts";
+import { loadLanguageDefinition } from "../../../../app-with-ai-rust/language/index.ts";
 import { generateApp } from "./generate/app.ts";
 import { generateCiWorkflow } from "./generate/ci.ts";
 import { generateDocker } from "./generate/docker.ts";
 import { publishToGithub } from "./generate/github.ts";
 import { generateJdm } from "./generate/jdm.ts";
 import { generateEnterpriseReporting } from "./generate/enterprise-reporting.ts";
-import type { ModelDocument } from "../../../../../language/yaml/document.ts";
+import type { ModelDocument } from "../../../../app-with-ai-rust/language/yaml/document.ts";
 import {
   isModelPath,
   readModel,
   toEmlModel,
-} from "../../../../../language/cli/src/document.ts";
+} from "../../../../app-with-ai-rust/language/cli/src/document.ts";
 import type { Diagnostic, EmlModel } from "./model.ts";
 
 const STACKS = ["enterprise-reporting", "node-rest"] as const;

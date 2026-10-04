@@ -7,9 +7,9 @@
  * raise — so a rule that stops firing fails its case, and so does a rule that
  * starts firing where it has no business.
  *
- * The cases were carried across from the port that replaced the checker which
- * read the model's Mermaid rendering; each one held the two checkers to the
- * same answer before that checker was deleted.
+ * The cases were carried across from the checker this one replaced, which read
+ * the model in its earlier notation; each one held the two checkers to the same
+ * answer before that checker was deleted.
  */
 
 import { describe, expect, it } from "vitest";

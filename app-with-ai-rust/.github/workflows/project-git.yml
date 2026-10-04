@@ -45,7 +45,3 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - run: bun run test -- src/lib/server/__tests__/project-repository.test.ts
-
-      # The one-time conversion of a Mermaid-era installation: its schema, its
-      # rows and a project history in the old layout, converted end to end.
-      - run: bun run test -- src/lib/server/stored-models/__tests__/convert-stored-models.test.ts

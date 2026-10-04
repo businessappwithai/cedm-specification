@@ -21,22 +21,27 @@ const TEST_PROJECTS = {
   },
 };
 
-const TEST_ERD = `erDiagram
-    Customer ||--o{ Order : places
-    Customer {
-        string id PK
-        string name
-        string email
-        datetime createdAt
-    }
-    Order {
-        string id PK
-        string customerId FK
-        decimal total
-        string status
-        datetime createdAt
-    }
-}`;
+const TEST_ERD = `eml: "1.0"
+name: Generator Test
+enums:
+  - { name: OrderStatus, values: [placed, paid, shipped, delivered, cancelled] }
+entities:
+  - name: Customer
+    help: A person or company that places orders.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: name, type: string, help: The customer's full name. }
+      - { name: email, type: email, help: Where order confirmations are sent. }
+  - name: Order
+    help: One purchase by a customer.
+    attributes:
+      - { name: id, type: uuid, pk: true }
+      - { name: customer_id, type: uuid, fk: true, help: The customer who placed the order. }
+      - { name: total, type: decimal, help: The order's total amount. }
+      - { name: status, type: string, enum: OrderStatus, help: Where the order is in fulfilment. }
+relationships:
+  - { from: Customer, to: Order, fromCardinality: exactly-one, toCardinality: zero-or-more, label: places }
+`;
 
 /**
  * Test Suite: AppWithAI Generator Application
@@ -137,7 +142,7 @@ test.describe("AppWithAI Generator", () => {
     // Enter ERD code
     const erdEditor = page
       .locator(
-        'textarea[placeholder*="Mermaid"], textarea[name="erdCode"], [data-testid="erd-editor"], .monaco-editor textarea'
+        'textarea[name="erdCode"], [data-testid="erd-editor"], .monaco-editor textarea'
       )
       .first();
     await erdEditor.fill(TEST_ERD);
@@ -176,7 +181,7 @@ test.describe("AppWithAI Generator", () => {
 
     const erdEditor = page
       .locator(
-        'textarea[placeholder*="Mermaid"], textarea[name="erdCode"], [data-testid="erd-editor"], .monaco-editor textarea'
+        'textarea[name="erdCode"], [data-testid="erd-editor"], .monaco-editor textarea'
       )
       .first();
     await erdEditor.fill(TEST_ERD);
@@ -224,7 +229,7 @@ test.describe("AppWithAI Generator", () => {
 
     const erdEditor = page
       .locator(
-        'textarea[placeholder*="Mermaid"], textarea[name="erdCode"], [data-testid="erd-editor"], .monaco-editor textarea'
+        'textarea[name="erdCode"], [data-testid="erd-editor"], .monaco-editor textarea'
       )
       .first();
     await erdEditor.fill(TEST_ERD);

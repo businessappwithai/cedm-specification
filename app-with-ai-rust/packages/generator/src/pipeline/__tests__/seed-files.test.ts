@@ -2,7 +2,7 @@
  * Every seed a task embeds must exist, for every model.
  *
  * `include_str!` is a *compile-time* macro. A generator that skips emitting
- * `seed/rules.sql` because the model declares no `%%rule` produces a backend
+ * `seed/rules.sql` because the model declares no `rules` produces a backend
  * that does not compile — and the parity check cannot see it, because both
  * generators emit the same nothing and their outputs still match.
  *

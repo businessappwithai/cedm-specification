@@ -301,8 +301,8 @@ const PERSON_ROLE_COLUMNS: &[&str] = &[
 /// the name gives a table that does not exist, so the picker has nothing to
 /// show and the field falls back to rendering a raw id.
 ///
-/// Mirrors `foreignKeys.qualifierPrefixes` in
-/// `language/appwithai-language.json`, which is the canonical list.
+/// Mirrors `QUALIFIER_PREFIXES` in `packages/core/src/types/bus-entity.types.ts`
+/// and `language/cedm/naming.ts`; the three lists must agree.
 const QUALIFIER_PREFIXES: &[&str] = &["parent_"];
 
 /// The table a lookup column points at: the stored target where there is one,

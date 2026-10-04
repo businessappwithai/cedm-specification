@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-07
 **Branch:** `claude/gstack-qa-workflow-testing-cgvcr7`
-**Model under test:** `examples/drug-discovery.eml.mmd` (17 entities, 7 categories, 3 rules, 2 state machines, 3 hook workflows, 1 saga)
+**Model under test:** `examples/drug-discovery.eml.yaml` (17 entities, 7 categories, 3 rules, 2 state machines, 3 hook workflows, 1 saga)
 **Scope:** gstack `/qa` on the generator CLI, then on the app it generates, with multi-step workflows and business rules tested in depth via API and browser.
 
 | | Before | After |
@@ -130,7 +130,7 @@ Every generation ended with `⚠️ Frontend type-check found 79 error(s)`. All 
 ## Open items — not fixed, needs a decision
 
 ### A. The model's business rules are never generated into the app — HIGH
-`drug-discovery.eml.mmd` declares three rules. `eml info` lists all three. `sys_rule_definitions` in the generated app is **empty**, and the generator has no rule parsing or seeding at all — `seed/` contains only `dictionary.sql` and `workflows.sql`.
+`drug-discovery.eml.yaml` declares three rules. `eml info` lists all three. `sys_rule_definitions` in the generated app is **empty**, and the generator has no rule parsing or seeding at all — `seed/` contains only `dictionary.sql` and `workflows.sql`.
 
 ```
 model rule "experimentSubmitGate" — not seeded
@@ -138,7 +138,7 @@ model rule "deviationSeverity"    — not seeded
 model rule "bookingConflict"      — not seeded
 ```
 
-The engine is fine: `rules-matrix.ts` re-encodes all three as JDM by hand and the app enforces them correctly. What is missing is the compiler — a `%%rule` flowchart → JDM path, and a `seed/rules.sql` to install it, mirroring what `saga.ts` already does for `%%step`.
+The engine is fine: `rules-matrix.ts` re-encodes all three as JDM by hand and the app enforces them correctly. What is missing is the compiler — a `rules` flowchart → JDM path, and a `seed/rules.sql` to install it, mirroring what `saga.ts` already does for saga `steps`.
 
 This is a feature of comparable size to the saga compiler, so I have not built it inside a QA pass. It is the single largest gap between what the model says and what the app does.
 
@@ -157,7 +157,7 @@ A saga has no rollback. `J1` scenarios confirm a `CreateEntity` that succeeds be
 
 ```bash
 # generate + bring up
-bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
   -o generated-projects/drug-discovery -n drug-discovery --force
 cd generated-projects/drug-discovery/backend
 cargo loco db migrate && cargo loco db seed && cargo loco start --server-and-worker
@@ -175,6 +175,6 @@ bun scripts/qa/workflow-ui.ts              # 22 browser checks
 
 ## Top 3 to fix next
 
-1. **Compile `%%rule` sections into JDM and seed them** (Open item A) — the model declares business rules that the generated app does not have.
+1. **Compile `rules` sections into JDM and seed them** (Open item A) — the model declares business rules that the generated app does not have.
 2. **Decide `Agent`'s fate** (Open item B) — implement it or drop it from the language.
 3. **Document saga non-compensation** (Open item C) — the behaviour is defensible, the silence about it is not.

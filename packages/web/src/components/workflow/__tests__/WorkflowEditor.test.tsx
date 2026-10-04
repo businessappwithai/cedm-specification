@@ -27,13 +27,6 @@ const mockHooks = [
   },
 ];
 
-const mockFlowchartCode = `
-flowchart TD
-  A[Start] --> B[Validate]
-  B --> C[Create User]
-  C --> D[End]
-`;
-
 describe("useWorkflowEditor - handleSaveGoRules", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,7 +47,6 @@ describe("useWorkflowEditor - handleSaveGoRules", () => {
         projectId: mockProjectId,
         entities: mockEntities,
         hooks: mockHooks,
-        flowchartCode: mockFlowchartCode,
       })
     );
 
@@ -108,7 +100,6 @@ describe("useWorkflowEditor - handleSaveGoRules", () => {
         projectId: mockProjectId,
         entities: mockEntities,
         hooks: mockHooks,
-        flowchartCode: mockFlowchartCode,
       })
     );
 
@@ -164,7 +155,6 @@ describe("useWorkflowEditor - handleSaveGoRules", () => {
         projectId: mockProjectId,
         entities: mockEntities,
         hooks: mockHooks,
-        flowchartCode: mockFlowchartCode,
       })
     );
 

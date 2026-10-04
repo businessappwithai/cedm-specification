@@ -13,7 +13,7 @@ both.
 
 ## Result
 
-On `examples/drug-discovery.eml.mmd`, **all 25 lookups now resolve to an entity
+On `examples/drug-discovery.eml.yaml`, **all 25 lookups now resolve to an entity
 the dictionary has, and all 25 render a human label.** Before: 18 rendered a
 label, 5 rendered a raw UUID, and 1 pointed at a table that does not exist.
 
@@ -161,7 +161,7 @@ The backend suite is now **272**.
 ```bash
 bun language/checker.ts <a model with a dangling FK> --no-color   # EML119
 
-bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
   -o generated-projects/dd-ts -n drug-discovery --no-setup --force --skip-cli-scaffold
 createdb dd_fix
 cd generated-projects/dd-ts/backend

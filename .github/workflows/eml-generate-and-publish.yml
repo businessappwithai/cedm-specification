@@ -1,20 +1,27 @@
 # EML — Generate & Publish
 #
-# Point this at an online .mmd EML model and a target GitHub repository.
-# It runs the EML CLI to generate a complete application (with Docker files and
-# a CI/CD workflow) and publishes the generated code to the target repository.
+# Point this at a model published online (`*.eml.yaml` or `*.cedm.yaml`) and a
+# target GitHub repository. It validates the model, generates the application
+# with the `eml` CLI and publishes the generated source to the target
+# repository.
+#
+#   tanstack-astryx-loco  the full application: a Loco.rs backend crate, a
+#                         TanStack Start + Astryx front end, both test suites,
+#                         Dockerfiles and docker-compose
+#   node-rest             a dependency-free node:http application over a JSON
+#                         datastore (with --docker, a Dockerfile and compose)
 #
 # Required secret:
 #   EML_PUBLISH_TOKEN  A GitHub Personal Access Token with `repo` and `workflow`
 #                      scopes (workflow scope is needed to push the generated
-#                      .github/workflows/app-ci.yml into the target repo).
+#                      .github/workflows into the target repository).
 name: EML — Generate & Publish
 
 on:
   workflow_dispatch:
     inputs:
-      mmd_url:
-        description: "URL of the online .mmd EML model to generate from"
+      model_url:
+        description: "URL of the model to generate from (*.eml.yaml or *.cedm.yaml)"
         required: true
       target_repo:
         description: "Target repository to publish to (owner/repo or repo)"
@@ -27,9 +34,9 @@ on:
         description: "Target stack"
         type: choice
         options:
+          - tanstack-astryx-loco
           - node-rest
-          - tanstack-nestjs
-        default: node-rest
+        default: tanstack-astryx-loco
       visibility:
         description: "Visibility of the created target repository"
         type: choice
@@ -43,7 +50,7 @@ permissions:
 
 jobs:
   generate-and-publish:
-    name: Generate from ${{ inputs.mmd_url }} → ${{ inputs.target_repo }}
+    name: Generate from ${{ inputs.model_url }} → ${{ inputs.target_repo }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout this repository
@@ -52,49 +59,64 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.3.14"
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
-      - name: Build core package (required for the tanstack-nestjs stack)
-        if: ${{ inputs.stack == 'tanstack-nestjs' }}
-        run: bun run --filter @appwithai/core build
-
-      - name: Download the online EML model
+      - name: Download the model
+        env:
+          MODEL_URL: ${{ inputs.model_url }}
         run: |
-          echo "Downloading ${{ inputs.mmd_url }}"
-          curl -fSL "${{ inputs.mmd_url }}" -o model.mmd
-          echo "----- model.mmd -----"
-          head -n 40 model.mmd
+          case "$MODEL_URL" in
+            *.cedm.yaml) file=model.cedm.yaml ;;
+            *.eml.yaml)  file=model.eml.yaml ;;
+            *) echo "::error::The model must be a *.eml.yaml or *.cedm.yaml document."; exit 1 ;;
+          esac
+          curl -fSL "$MODEL_URL" -o "$file"
+          echo "MODEL_FILE=$file" >> "$GITHUB_ENV"
+          echo "----- $file -----"
+          head -n 40 "$file"
 
       - name: Validate the model
-        run: bun language/cli/eml.ts validate -i model.mmd
+        run: bun language/cli/eml.ts validate -i "$MODEL_FILE"
 
+      # The Loco target is generated from templates alone: `loco new` would only
+      # add the framework's own CI workflow and rustfmt config, and installing
+      # its CLI here is a compile measured in minutes.
       - name: Generate and publish the application
         env:
           EML_PUBLISH_TOKEN: ${{ secrets.EML_PUBLISH_TOKEN }}
+          APP_NAME: ${{ inputs.app_name }}
+          STACK: ${{ inputs.stack }}
+          TARGET_REPO: ${{ inputs.target_repo }}
         run: |
           if [ -z "${EML_PUBLISH_TOKEN}" ]; then
             echo "::error::EML_PUBLISH_TOKEN secret is not set (needs repo + workflow scopes)."
             exit 1
           fi
+          extra=()
+          [ "$STACK" = "tanstack-astryx-loco" ] && extra+=(--skip-cli-scaffold)
           bun language/cli/eml.ts generate \
-            -i model.mmd \
+            -i "$MODEL_FILE" \
             -o generated-app \
-            --name "${{ inputs.app_name }}" \
-            --stack "${{ inputs.stack }}" \
+            --name "$APP_NAME" \
+            --stack "$STACK" \
             --docker \
             --force \
-            --github "${{ inputs.target_repo }}" \
+            "${extra[@]}" \
+            --github "$TARGET_REPO" \
             --github-token "${EML_PUBLISH_TOKEN}" \
             ${{ inputs.visibility == 'public' && '--public' || '--private' }}
 
       - name: Summary
         if: always()
+        env:
+          MODEL_URL: ${{ inputs.model_url }}
         run: |
-          echo "### EML generation" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Model: ${{ inputs.mmd_url }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Stack: ${{ inputs.stack }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Target repo: ${{ inputs.target_repo }} (${{ inputs.visibility }})" >> "$GITHUB_STEP_SUMMARY"
-          echo "- The generated app includes a Docker + docker compose CI/CD workflow (.github/workflows/app-ci.yml)." >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### EML generation"
+            echo "- Model: $MODEL_URL"
+            echo "- Stack: ${{ inputs.stack }}"
+            echo "- Target repo: ${{ inputs.target_repo }} (${{ inputs.visibility }})"
+          } >> "$GITHUB_STEP_SUMMARY"

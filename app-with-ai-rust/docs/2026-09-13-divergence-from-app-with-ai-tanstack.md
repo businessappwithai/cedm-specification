@@ -24,19 +24,19 @@ from the NestJS stack as a stack; where the sibling's fix assumed NestJS, the
 | # | Area | Symptom in a generated application | Status |
 |---|---|---|---|
 | 1 | Shared language contract had drifted 1,600 lines | The checker here accepted models the sibling refuses | **Closed** |
-| 2 | `%%report` directive absent | A model carrying reports could not be validated here at all | **Closed** |
+| 2 | `reports` directive absent | A model carrying reports could not be validated here at all | **Closed** |
 | 3 | EML151–154 diagnostics absent | Missing and self-restating help text went unreported | **Closed** |
 | 4 | Four copies of `snakeCase`, three of `formatDisplayName` | `KYCRecord` → table `bus_k_y_c_record`, label `Kyc Record` | **Closed** |
 | 5 | Foreign keys labelled by the column, not the target | `kyc_record_id` read `Kyc Record Id` over a cell showing a record | **Closed** |
 | 6 | `email` / `phone` / `website` columns read as plain text | No email input, no keyboard hint, no validation | **Closed** |
 | 7 | `Relationship.foreignKey` derived from the wrong end | `A ||--o{ B` reported `b_id` — the table it sits on | **Closed** |
-| 8 | `%%hook` matched anywhere in a line | Prose mentioning a hook compiled into a real one | **Closed** |
+| 8 | `hooks` matched anywhere in a line | Prose mentioning a hook compiled into a real one | **Closed** |
 | 9 | `validation-error` never became `prevent` | **A rule written to refuse a write let every write through** | **Closed** |
 | 10 | `transform` action had no payload column and no runtime arm | One of EML's three action types was inert | **Closed** |
 | 11 | `sys_column.description` never written | The dictionary's column screen was blank for every column | **Closed** |
 | 12 | `sys_field.help` composed only from the column's shape | The form restated the column name instead of the author's sentence | **Closed** |
-| 13 | `%%meta description:` parsed and dropped | The manual opened on a record count, not on what the app is for | **Closed** |
-| 14 | The test factory invented a status vocabulary | Records seeded outside the model's own `%%enum`, in states no machine draws | **Closed** |
+| 13 | the model's `description` parsed and dropped | The manual opened on a record count, not on what the app is for | **Closed** |
+| 14 | The test factory invented a status vocabulary | Records seeded outside the model's own `enums`, in states no machine draws | **Closed** |
 | 14b | No business-data seed task in the generated backend | `cargo loco db seed` leaves the business tables empty | **Closed** |
 | 15 | No CSV export from list grids | A reader who wanted the rows in a spreadsheet had the API and a uuid | **Closed** |
 | 16 | No `sys_system` configuration table | Changing the AI endpoint or the app's name meant editing YAML on the host and restarting | **Closed** |
@@ -63,7 +63,7 @@ application's per-request HTTP log — is closed too, and §4 records what
 measuring it first changed about the answer.
 
 The sibling has not stood still. Two commits landed there after this report was
-written — #131 and #132 — and between them they moved `%%report` from a
+written — #131 and #132 — and between them they moved `reports` from a
 directive this repository only validates to one it compiles. §6 is that round.
 
 ---
@@ -75,7 +75,7 @@ directive this repository only validates to one it compiles. §6 is that round.
 `CLAUDE.md` states these are byte-identical to `app-with-ai-tanstack@main`. They
 had drifted by roughly 1,600 lines. Restored byte for byte, which brings:
 
-- **`%%report`** — a question the application's users actually ask, written into
+- **`reports`** — a question the application's users actually ask, written into
   the model as the SQL that answers it. Parsed into `model.reports`
   (`language/cli/src/parser.ts`) and held to its shape by the checker
   (EML290–EML296: a query that exists, selects rather than writes, names both
@@ -83,23 +83,23 @@ had drifted by roughly 1,600 lines. Restored byte for byte, which brings:
   Nothing here compiles it — it is compiled in
   `app-and-report-with-ai-tanstack` — so a model carrying reports generates the
   same application it would without them, and a malformed one is still refused.
-  `language/examples/crm.eml.mmd` now carries 33 of them, which is what puts the
+  `language/yaml/examples/crm.eml.yaml` now carries 33 of them, which is what puts the
   directive in front of the parity gate.
 - **EML151–EML153** — help text, and the two ways a model has none: no `help:`
   at all, and `help:` that restates its own name (`Unique identifier for X`,
   `Status for Client`). Coverage that reads as complete while saying nothing is
   the failure these name.
 - **EML149 / EML150** — an entity shaped like a line item that never declares
-  `parent:`, and a child also named in a `%%category`. EML148's link resolver is
+  `parent:`, and a child also named in a `categories`. EML148's link resolver is
   now shared with EML149, so a parent the checker suggests is one it will then
   accept.
-- **EML154** — a `%%category` with no `name:`. `category.parser.ts` requires one
+- **EML154** — a `categories` with no `name:`. `category.parser.ts` requires one
   and skips the line without it, so the whole grouping was lost silently and its
   entities fell into the default General category.
-- **`%%field <E>.<c> help:` → `attribute.description`** in the CLI parser.
+- **an attribute's `help` → `attribute.description`** in the CLI parser.
 
 Verified with `bun run type-check:language`, the checker over every example
-model and `examples/drug-discovery.eml.mmd` (0 errors), and
+model and `examples/drug-discovery.eml.yaml` (0 errors), and
 `cargo test -p appwithai-gen language` — the Rust loader still reads the shipped
 definition rather than falling back to its built-in vocabulary, which is the
 failure mode `CLAUDE.md` warns about.
@@ -119,7 +119,7 @@ relation that does not exist, a long way from its cause.
 - `snakeCase` splits a run of capitals before its *last* letter, and collapses a
   doubled underscore (a project called "Drug Discovery Live" named its database
   `drug__discovery__live`).
-- `mermaid.parser.ts` and `dictionary-help.ts` each had their own copy and call
+- the ERD parser and `dictionary-help.ts` each had their own copy and call
   core's now. The help composer's was the quiet one: its stem for `KYCRecord`
   was `kycrecord`, which never matched the `kyc_record` a `kyc_record_id` column
   strips to, so every lookup onto such an entity was unresolvable and its field
@@ -138,25 +138,25 @@ Every one is mirrored in `crates/appwithai-gen` (`naming.rs`, `bus.rs`,
 `model.rs`, and the call sites in `context.rs`, `dictionary.rs`,
 `dictionary_help.rs`).
 
-### 2.3 The `%%hook` parser is anchored
+### 2.3 The `hooks` parser is anchored
 
-`compileHooks` matched `%%hook` anywhere in a line, so a plain `%%` comment that
+`compileHooks` matched `hooks` anywhere in a line, so a plain `%%` comment that
 merely mentioned a hook was compiled as a declaration — a handler module and a
 registered lifecycle binding nobody declared, with no warning. The shipped
 example models all carry prose headers shaped exactly like it.
 
-Anchored at `^%%+hook`, which still allows the doubled `%%%%hook` older
+Anchored at the start of the line, allowing the doubled comment marker older
 generated flowcharts emitted and a leading indent, because both are real and
 neither is prose. Mirrored in `crates/appwithai-gen/src/hooks.rs`.
 
 ### 2.4 A model-declared rule reaches the runtime that has to act on it
 
-EML ships three `%%action` types and two of them did nothing here.
+EML ships three a rule's `actions` types and two of them did nothing here.
 
 **`validation-error` never became `prevent`.** `promotion.rs` checks for
 `prevent` before any side effect runs; a compiled `validation-error` row
 matched, was handed to `run_action`, fell through the `other` arm and was logged
-as an unknown action. So `%%action refuseDiscount validation-error when:
+as an unknown action. So `rule action refuseDiscount validation-error when:
 discount_percent > 40` let every write through, and said so only in a
 `tracing::warn!`. Every refusal in `crm`, `dance-studio` and any model using the
 directive was inert.
@@ -213,7 +213,7 @@ and the mechanism is worth stating: `tests/harness/factory.ts` invented
 `active`, `pending`, `closed`, `draft` for any column matching
 `/status|state$/`, and no model declares those words.
 
-`%%enum` is a closed list the application enforces — `sys_ref_list`, a dropdown,
+`enums` is a closed list the application enforces — `sys_ref_list`, a dropdown,
 and an API that refuses anything outside it — so the guess was invalid rather
 than merely unrealistic. On `dance-studio`, three of the four words the factory
 could produce are values `MemberStatus` does not contain.
@@ -230,7 +230,7 @@ TypeScript only, and deliberately — `crates/appwithai-gen` does not emit
 
 ### 2.5 The model's own help text reaches the application
 
-`%%entity help:` and `%%field help:` are the only place a model says what
+entity and attribute `help` are the only place a model says what
 something is *for*, and the parser has hung both on the entity and the attribute
 since the directives were read. Only one landed.
 
@@ -247,7 +247,7 @@ derived *facts* still follow, because "required", "must be unique" and a length
 limit are things the author's sentence does not carry.
 
 In the manual: `formatDisplayName` from core rather than a third local copy, FK
-targets resolved against the declared names, and **`%%meta description:` read
+targets resolved against the declared names, and **the model's `description` read
 into `ParsedModel` and rendered as the overview** — it was parsed by the checker
 and dropped by the pipeline, so a model that said what the application was for
 produced a manual opening on a count of record types. It is deliberately kept
@@ -268,7 +268,7 @@ deliberate improvement made here and absent from `app-with-ai-tanstack@main`:
 | A unique column gets no extra conventional index (the DDL's own `UNIQUE` already has one) | Two unique indexes on every unique column, paid for on every write |
 | `BusEntity.attributes` narrowed to `BusEntityAttribute[]` | Callers cast |
 | `packages/generator/src/graph/` — the model graph in Apache AGE | An embedding index over prose about the model |
-| `%%rbac` compiles demonstration accounts, one per declared role, with argon2 digests | — |
+| `rbac` compiles demonstration accounts, one per declared role, with argon2 digests | — |
 | `resolve_ref_table_name` strips a `parent_` qualifier prefix | No hierarchical self-reference in its corpus, so it never needed the rule |
 | Workflow controller is JWT-guarded | Shipped unauthenticated once |
 | `bun run parity` — two generators diffed byte for byte over a corpus | Single generator |
@@ -311,7 +311,7 @@ sorts the entities so a row is written after everything it points at and leaves
 referential integrity switched **on**, so a seed that got the order wrong fails
 loudly instead of filling the tables with references to nothing.
 
-Every value is the model's own: a `%%enum` column takes a declared value, a
+Every value is the model's own: a `enums` column takes a declared value, a
 status column backing a state machine takes the machine's initial state, and a
 foreign key takes the id of a row the same file inserted. The state-machine rule
 beats the enum deliberately — a record seeded into a state the diagram never
@@ -474,9 +474,9 @@ divergence that `bun run parity` — which builds both itself — did not.
 
 ---
 
-## 6. The round after: `%%report` stops being decorative
+## 6. The round after: `reports` stops being decorative
 
-`%%report` was the one directive with a split status. The checker here reads it,
+`reports` was the one directive with a split status. The checker here reads it,
 holds it to its shape — EML290 to EML296 — and puts it in `model.reports`;
 neither generator had a case for it, so a model carrying reports produced an
 application with none, byte for byte the application it would have produced with
@@ -484,7 +484,7 @@ the directives deleted. The questions were declared, validated, and answered by
 nothing.
 
 The sibling closed that gap for its own stack (#131) and recorded it in the
-shared definition (#132): `%%report` now reads `"status": "compiled"`, and
+shared definition (#132): `reports` now reads `"status": "compiled"`, and
 `whereItIsCompiled` names a reader. Because `language/` is held byte-identical
 rather than merged, copying it across made the contract describe something this
 repository did not do — which is why the sync and this are two commits and not
@@ -535,9 +535,9 @@ can open the reports page.
 A directive is only real once something reads it *and* a corpus model exercises
 it — Handlebars strict mode is off in both engines, so an unregistered helper
 renders as an empty string and the gate stays green. But the usual instruction,
-"grow `language/examples/crm.eml.mmd`", cannot apply here: that file is inside
-the byte-identical contract. Eight `%%report` directives went into
-`examples/drug-discovery.eml.mmd` instead, which this repository owns outright.
+"grow `language/yaml/examples/crm.eml.yaml`", cannot apply here: that file is inside
+the byte-identical contract. Eight `reports` went into
+`examples/drug-discovery.eml.yaml` instead, which this repository owns outright.
 They are real questions against the real schema — compounds by registration
 status, open deviations by severity, CAPAs past their resolution date,
 instruments due for calibration, experiments by principal investigator,
@@ -568,7 +568,7 @@ against the schema this generator produced.
 | `cargo test -p appwithai-gen` | 155 passed (15 new) |
 | `cargo fmt --check -p appwithai-gen`, `cargo clippy -p appwithai-gen --all-targets -- -D warnings` | clean |
 | `bun run parity` | 3 models byte-identical, drug-discovery now carrying 8 reports |
-| `language/checker.ts examples/drug-discovery.eml.mmd` | 0 errors, no EML29x diagnostic |
+| `language/checker.ts examples/drug-discovery.eml.yaml` | 0 errors, no EML29x diagnostic |
 | Generated `drug-discovery` backend | clippy clean under `-D warnings`; request suite **311 passed** (was 304) |
 
 `requests::reports::every_declared_report_actually_runs` is the one to keep. It
@@ -649,13 +649,13 @@ rows means allowed:
 | Site | What a swallowed error did |
 |---|---|
 | `principal()` | Emptied the caller's role set — and quietly demoted a master-role administrator |
-| `require_operation` | Disabled every `%%rbac` operation rule for that request |
+| `require_operation` | Disabled every `rbac` operation rule for that request |
 | `require_transition`, status fields | Skipped the loop, making **every undrawn move legal** — and topology is the one gate with no master bypass |
 | `require_transition`, role rules | Disabled the transition role rules |
 
 Each carried a comment justifying the permissiveness, and the justification was
 sound for the case it named: a database predating m0009 genuinely has no such
-table, and "no rules means unrestricted" is what makes `%%rbac` additive. It was
+table, and "no rules means unrestricted" is what makes `rbac` additive. It was
 applied to *every* error, though, which is a different thing — a timeout or a
 dropped connection also produced "allowed". A restriction that disappears under
 load is not a restriction.
@@ -680,7 +680,7 @@ its reasoning.
 
 ---
 
-## 8. The contract moved again, and `%%entity icon:` with it
+## 8. The contract moved again, and an entity's `icon` with it
 
 Sixty commits landed on the sibling in four days. `language/` and
 `website/llmtext/` are held byte-identical, so the whole set was copied across
@@ -691,12 +691,12 @@ readers accept it: `type-check:language` passes and
 `language::tests::the_shipped_definition_loads_rather_than_falling_back` still
 does.
 
-The definition changed what it claims in one load-bearing way: `%%entity icon:`
+The definition changed what it claims in one load-bearing way: an entity's `icon`
 moved from "validated but not yet compiled" to compiled, into `sys_table.icon`
 — "what the entity's dashboard card, its window heading and the navigation all
 draw". `EML287` also arrived, and rides in with the checker.
 
-So this is the same shape as `%%report` in §6: copying the contract made it
+So this is the same shape as `reports` in §6: copying the contract made it
 describe something this repository did not do. The gap was smaller, though.
 `sys_table.icon` and `sys_category.icon` **already exist here** — m0001 declares
 `icon VARCHAR(100) DEFAULT 'Table'` — so nothing needed migrating. What was
@@ -713,7 +713,7 @@ nothing but the parity gate; and the column already defaults to `'Table'`, so an
 entity that declares nothing emits precisely the row it emitted before this key
 was read. The column list widens only for rows that have something to put in it.
 
-Eleven icons went into `examples/drug-discovery.eml.mmd` — the corpus this
+Eleven icons went into `examples/drug-discovery.eml.yaml` — the corpus this
 repository owns, `language/examples/` being inside the contract. One of them is
 the trap the definition names: lucide has `flask-conical` and no `flask`, so
 Compound is drawn with the former. An unknown name is **not** a diagnostic —
@@ -746,7 +746,7 @@ The front page was the last thing the sibling had that this repository did not,
 and reading the two side by side turned it from a layout difference into an
 authorisation one.
 
-Both repositories render the same screen: one block per `%%category`, a card per
+Both repositories render the same screen: one block per `categories`, a card per
 entity inside it, and the dictionary's own screens below. The difference is
 where the list comes from. The sibling answers it from
 `/sys/categories/dashboard`, a single statement that resolves the caller's roles
@@ -785,7 +785,7 @@ is allowed to see".
 
 **The scope is the request guard's own, expressed over a set.**
 `authz::readable_tables` applies the same two gates `require_read` applies —
-`sys_access` through role → window → tab → table, then the `%%rbac` read rules
+`sys_access` through role → window → tab → table, then the `rbac` read rules
 with their additive default — to a list of names rather than one name, because
 asking per table would be two queries each: sixty round trips on a
 seventeen-entity model, for a screen that renders on every sign-in.
@@ -800,7 +800,7 @@ least one entity was refused, because a probe that can read everything proves
 only that the two agree when nothing is at stake.
 
 Line items are the one deliberate difference and are excluded from the screen
-rather than from the API. `%%entity <Child> parent: <Parent>` gives the child no
+rather than from the API. `parent: <Parent>` on the child entity gives the child no
 window and puts its tab inside the parent's, so it is reached by opening a
 parent record — the rule is read off `sys_tab.tab_level` rather than recomputed,
 so this screen and the detail screen cannot disagree about what a line item is.
@@ -831,10 +831,10 @@ lookup turned out not to work.
 
 `ui/icon.tsx` resolved names against `import * as LucideIcons`, whose keys are
 lucide's **PascalCase exports** (`FlaskConical`). Every name the dictionary holds
-is lucide's own **kebab-case id** — `%%entity Compound icon: flask-conical` is
+is lucide's own **kebab-case id** — `icon: flask-conical` on Compound is
 what the language definition tells an author to write, and it is what the seed
 stores. The lookup missed on all of them and fell through to the placeholder:
-**the `%%entity icon:` support added in §8 rendered nothing at all**, and a model
+**the an entity's `icon` support added in §8 rendered nothing at all**, and a model
 that named an icon looked exactly like one that named none.
 
 The namespace import is also a barrel, which cannot be tree-shaken. Measured on
@@ -846,7 +846,7 @@ the generated drug-discovery frontend, built both ways:
 | `dynamicIconImports`, one lazy chunk per icon | **20,936 bytes** — all 26 distinct icons this dashboard names |
 
 The normaliser accepts `LayoutGrid`, `layout_grid` and `layout-grid` alike,
-because `%%category` writes the first and `%%entity` the third and both arrive
+because `categories` writes the first and `entities` the third and both arrive
 in the same response. It returns a name that is already an id untouched — the
 digit rule otherwise splits `grid-2x2` into `grid-2x-2`, breaking icons that
 were correct on arrival.
@@ -899,7 +899,7 @@ The last item the sibling had and this repository did not. Its own pass
 things; this stack shares the shape of two of them and none of the specifics,
 so the pass was run here rather than ported.
 
-**Method.** An application generated from `examples/drug-discovery.eml.mmd`,
+**Method.** An application generated from `examples/drug-discovery.eml.yaml`,
 built for production, served by `vite preview`, driven through headless
 Chromium against the real backend. Each page is loaded in a **fresh context
 with the cache disabled and a signed-in storage state**, so the numbers are
@@ -1145,7 +1145,7 @@ unguarded now, so a missing one fails the generation that produced it.
 
 The contract was re-synced first: `diff -rq` against the sibling is clean for
 `language/` and `website/llmtext/`, and the only substantive change was one
-generator-contract line — `%%entity <Name> icon:` is documented as compiling to
+generator-contract line — an entity's `icon` is documented as compiling to
 `sys_table.icon`, which this repository already does (§8).
 
 The shell itself has no gate, because the Rust generator emits only `backend/`
@@ -1421,15 +1421,15 @@ and not only the behaviour.
 A design-page save here did three things with no ordering between them: it wrote
 a new `erd_versions` row **for a draft** (so every Save Draft was a numbered
 version, and Save Version produced two), it POSTed the same text to a
-`.mermaid-library` folder keyed by project *name* (two projects called "CRM"
+shared diagram-library folder keyed by project *name* (two projects called "CRM"
 overwrote each other's canonical file), and it ignored whether that second write
 succeeded. Generation then wrote the application over its own directory with
 `--force`, so an edit anyone had made in the generated code was lost on the next
 run and nothing recorded which model a given application came from.
 
-The diagram library was also open: `GET /api/mermaid` with no `projectId`
+The diagram library was also open: `GET` on the diagram-library API with no `projectId`
 returned every project's diagrams to any caller, signed in or not, and
-`GET`/`DELETE /api/mermaid/$filename` checked nothing at all.
+`GET`/`DELETE` on a single library file checked nothing at all.
 
 ### What it is now
 
@@ -1452,7 +1452,7 @@ A Postgres advisory lock per project serialises writers across processes.
 
 Each commit also carries `.appwithai/model.ai.yaml`, a deterministic YAML
 projection of the model from the new `packages/yamltecture` package — the "YAML
-beside the Mermaid" the sibling added. It is what makes a model diff readable,
+beside the diagram" the sibling added. It is what makes a model diff readable,
 and it is what the assistant reads (below).
 
 ### Where this repository differs from the sibling, and why
@@ -1485,9 +1485,9 @@ and it is what the assistant reads (below).
 
 ### What was carried unchanged
 
-The enhance page's Business Rules tab now compiles `%%action` directives into the
+The enhance page's Business Rules tab now compiles a rule's `actions` directives into the
 same decision-table editor the generated application edits, and writes edits
-back to `%%action` (`serializeRuleActions`, `replaceRuleActions`, with round-trip
+back to a rule's `actions` (`serializeRuleActions`, `replaceRuleActions`, with round-trip
 tests); each hook gets its own Trigger.dev workflow with a locked trigger in the
 `AutomationBuilder`; and `language/browser/checker.entry.ts` now names the six
 Application Dictionary warnings as gaps rather than calling every warning
@@ -1505,8 +1505,8 @@ optional.
 - Driven over HTTP on a running modelling tool: draft → version (reused the
   draft's commit) → second version → restore of v1 (a fourth commit, the project
   reads the restored model) → `/git` history → `?q=yaml` → `?q=summary`, and
-  anonymous `GET /api/mermaid` and `GET /api/mermaid/x.mmd` both 401.
-- `/api/generate` over HTTP on `language/examples/crm.eml.mmd`, with the real
+  anonymous requests to the diagram-library API, for the list and for a single file, both 401.
+- `/api/generate` over HTTP on `language/yaml/examples/crm.eml.yaml`, with the real
   `loco new` scaffold: one commit carrying 159 `.rs` files and nothing under
   `backend/target`. A line appended by hand to `backend/src/controllers/bus.rs`
   was still there after a second generation.

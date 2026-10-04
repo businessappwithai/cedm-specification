@@ -216,7 +216,7 @@ This review covers the three enhancement plans for AppWithAI v6.0:
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| Fix Mermaid arrow visibility | **COMPLETE** | FlowchartPreview.tsx with proper Mermaid configuration |
+| Fix flowchart arrow visibility | **COMPLETE** | FlowchartPreview.tsx with proper renderer configuration |
 | Change to flowchart format | **COMPLETE** | hook-parser.ts generates flowchart (not sequence diagram) |
 | Service selection page | **COMPLETE** | `packages/web/src/app/projects/[id]/enhance/page.tsx` (223 lines) |
 | Dedicated workflow editor | **COMPLETE** | `packages/web/src/app/projects/[id]/enhance/[serviceName]/page.tsx` (842 lines) |
@@ -230,10 +230,10 @@ This review covers the three enhancement plans for AppWithAI v6.0:
 
 | Criterion (from ROADMAP.md) | Met? | Notes |
 |------------------------------|------|-------|
-| Connection arrows visible in Mermaid flowchart preview | **Yes** | FlowchartPreview.tsx renders with proper Mermaid config |
+| Connection arrows visible in flowchart preview | **Yes** | FlowchartPreview.tsx renders with proper renderer configuration |
 | Service selection page displays all entity services | **Yes** | Grid display with hook counts per service |
 | Hook editor accessible via `/projects/[id]/enhance/[serviceName]` | **Yes** | Full 2-panel UI with 6 states |
-| Hooks definable using `%%hook <type> <name> on <entity>` syntax | **Yes** | Parser supports full syntax including field parameters |
+| Hooks definable per entity, event and handler name | **Yes** | Parser supports full syntax including field parameters |
 | Draft auto-save every 30 seconds | **Partial** | Infrastructure exists (draftSaveTimerRef), but auto-save timer not fully wired |
 | Full save validates and persists to database | **Yes** | Apply endpoint validates hooks + flowchart syntax |
 | ANTLR4 grammar correctly parses hook definitions | **Yes** | Hook translator with parser + visitor pattern |

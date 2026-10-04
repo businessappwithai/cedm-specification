@@ -1,0 +1,42 @@
+{
+  "$comment": [
+    "The two product repositories this one orchestrates.",
+    "",
+    "Inside cedm-specification the four repositories are copies side by side, so",
+    "nothing is cloned: each dependency is the directory beside this one, at the",
+    "commit COPIES.yaml (at the root of cedm-specification) records it was copied",
+    "from. `./deps.sh` checks they are there; `./deps.sh --install` installs the",
+    "one whose node_modules this repository reads.",
+    "",
+    "Both are the Rust implementations. The generated application's server side is a Loco",
+    "crate written by app-with-ai-rust's generator, and the reporting platform's API,",
+    "workers, scheduler and seeder are enterprise_reporting_rust's Loco backend."
+  ],
+  "dependencies": [
+    {
+      "name": "app-with-ai-rust",
+      "repository": "businessappwithai/app-with-ai-rust",
+      "path": "../app-with-ai-rust",
+      "install": true,
+      "needed_for": [
+        "build/generate-app.ts reads, validates and compiles a model with its loader and generates the application with its pipeline (packages/generator/src/pipeline/generate-application.ts): a Loco (Rust) backend crate and a TanStack Start + Astryx front end",
+        "build/reporting-pack.ts imports packages/generator/src/reporting/pack.ts — the pack derivation, whose table names come from the same rule the Loco bus-table migration renders",
+        "start.sh validates a model with its `eml` CLI (language/cli/eml.ts), and the checks read models with its reader (packages/generator/src/model-yaml)",
+        "its scripts/sites/build-site-bundles.ts builds common/html/model-yaml.js, common/html/assets/appwithai-model.js and common/website/viewers/appwithai-model.js",
+        "that pipeline needs this repository's own dependencies installed, so `./deps.sh --install` runs `bun install --frozen-lockfile` in it",
+        "scripts/check-clis.ts runs both of its CLIs: `appwithai` (bun) and `appwithai-gen` (cargo, crates/appwithai-gen)"
+      ]
+    },
+    {
+      "name": "enterprise_reporting_rust",
+      "repository": "businessappwithai/enterprise_reporting_rust",
+      "path": "../enterprise-reporting-rust",
+      "install": false,
+      "install_note": "Nothing local reads this checkout's node_modules — it is a Docker build context twice over (rust/ for the backend and seeder, the root for the front end), and each image build runs its own install inside the image.",
+      "needed_for": [
+        "docker-compose.yml builds `report-backend` and `seeder` from rust/ — the Loco backend serving every API route, the job workers and the scheduler, and `task seed_reporting_pack`, which loads the generated application's database and reporting pack",
+        "docker-compose.yml builds the `report` front end from this checkout, with common/ passed as an additional context for the subpath overlay; it forwards every route in rust/routes.json to report-backend (ERS_RUST_API_URL)"
+      ]
+    }
+  ]
+}

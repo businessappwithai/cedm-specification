@@ -17,7 +17,7 @@ Result: Clean state confirmed
 ### Step 2: Regenerate Using Updated Templates ✅
 ```bash
 bun --filter @appwithai/generator generate \
-  --input simple-crm.mmd \
+  --input simple-crm model \
   --output generated-projects/crm-tanstack-v2 \
   --name "CRM App" \
   --stack tanstackjs-nestjs \

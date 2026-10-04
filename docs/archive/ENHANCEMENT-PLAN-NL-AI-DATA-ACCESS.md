@@ -203,7 +203,7 @@ AI_NL_MODEL=claude-sonnet-4       # Model for NL processing
 
 The platform already has:
 
-- **4 AI Agents**: Domain, Entity, Relationship, Mermaid (for ERD design)
+- **4 AI Agents**: Domain, Entity, Relationship, and the model writer (for ERD design)
 - **Mastra.ai Instance**: Configured with Claude Sonnet 4
 - **CopilotKit Setup**: Currently disabled due to dependency conflicts
 - **RBAC Types**: Table-level and field-level access control defined

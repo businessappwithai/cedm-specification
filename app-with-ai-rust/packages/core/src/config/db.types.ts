@@ -225,7 +225,6 @@ export interface RulesTable {
 export interface Database {
   project_git_state: ProjectGitStateTable;
   project_git_operations: ProjectGitOperationTable;
-  stored_model_conversions: StoredModelConversionsTable;
   projects: ProjectsTable;
   project_members: ProjectMembersTable;
   erd_versions: ErdVersionsTable;
@@ -263,24 +262,3 @@ export interface ProjectGitOperationTable {
   created_at: string;
 }
 
-/**
- * What the one-time conversion to YAML (`bun run convert:stored-models`) did
- * to each stored Mermaid text: the original, what it became, and anything the
- * conversion could not carry. Written once per text and never updated, so the
- * original survives whatever happens to the converted row afterwards.
- */
-export interface StoredModelConversionsTable {
-  id: string;
-  project_id: string | null;
-  /** `project_git_state`, `erd_versions`, `workflows`, `repository` or `library`. */
-  source: string;
-  /** The row id, or the file path for `repository` and `library`. */
-  source_key: string;
-  original_text: string;
-  /** Null when the text could not be converted; `error` then says why. */
-  converted_text: string | null;
-  /** JSON array of what the conversion reported dropping or resolving. */
-  issues: string;
-  error: string | null;
-  converted_at: string;
-}

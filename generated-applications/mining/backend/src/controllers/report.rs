@@ -1,7 +1,7 @@
 //! The questions the model declared in `reports`, and the queries that
 //! answer them.
 //!
-//! Each row in `sys_report` carries SQL authored in the `.eml.mmd` document.
+//! Each row in `sys_report` carries SQL authored in the model document (`reports`).
 //! Running one is the only place in this application where stored text becomes
 //! a statement, so most of what follows is about that.
 //!
@@ -9,7 +9,7 @@
 //! which render one record as a printable document. This is analysis over the
 //! whole database.
 //!
-//! Generated: 2026-10-01T09:33:31.143Z
+//! Generated: 2026-10-04T01:12:23.309Z
 //! Project: mining
 
 use axum::{

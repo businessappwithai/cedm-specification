@@ -8,7 +8,7 @@
  * The harness also owns cleanup: anything registered with `track()` is deleted
  * on teardown, in reverse creation order so children go before parents.
  *
- * Generated: 2026-10-01T12:26:18.186Z
+ * Generated: 2026-10-04T01:14:40.157Z
  * Project: sales
  */
 

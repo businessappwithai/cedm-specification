@@ -18,7 +18,7 @@
 # Every API request, workflow, scheduled job and seed is served by a Rust
 # binary: the generated application's `<app>-cli` (Loco, from this repository's
 # generator) and the platform's `ers-backend-cli` (Loco, from
-# yaml/enterprise_reporting_rust/rust). The two TanStack Start services render pages
+# ../enterprise-reporting-rust/rust). The two TanStack Start services render pages
 # and nothing else: nginx sends `/app/api/` straight to the application's Loco
 # backend, and the reporting front end forwards every route in its
 # rust/routes.json to its own (ERS_RUST_API_URL), starting no workers, no cron
@@ -233,14 +233,14 @@ services:
 
   # ── The reporting platform: Loco.rs backend ───────────────────────────────
   #
-  # ../enterprise_reporting_rust/rust — every route in its rust/routes.json, the
+  # ../enterprise-reporting-rust/rust — every route in its rust/routes.json, the
   # job workers and the cron scheduler, in one process. Exactly one of these
   # per installation, or monitoring rules fire twice. It creates the
   # administrator and NL-query accounts itself on boot.
   report-backend:
     image: app-and-report/report-backend:local
     build:
-      context: ../enterprise_reporting_rust/rust
+      context: ../enterprise-reporting-rust/rust
     restart: unless-stopped
     environment: &report-backend-env
       DATABASE_URL: *report-db-url
@@ -268,7 +268,7 @@ services:
   # ── The reporting platform: TanStack Start front end ─────────────────────
   report:
     build:
-      context: ../enterprise_reporting_rust
+      context: ../enterprise-reporting-rust
       dockerfile: ../app-and-report-with-ai-rust/common/docker/reporting.Dockerfile
       # The overlay lives in common/, which is not the build context. Naming it
       # as an extra context keeps the context itself small.
@@ -310,7 +310,7 @@ services:
   seeder:
     image: app-and-report/report-backend:local
     build:
-      context: ../enterprise_reporting_rust/rust
+      context: ../enterprise-reporting-rust/rust
     restart: "no"
     command: ["ers-backend-cli", "task", "seed_reporting_pack"]
     environment:

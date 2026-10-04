@@ -24,10 +24,10 @@
     ],
     "paths": {
       "@appwithai/core/*": [
-        "../../../packages/core/src/*"
+        "../../app-with-ai-rust/packages/core/src/*"
       ],
       "@appwithai/core": [
-        "../../../packages/core/src"
+        "../../app-with-ai-rust/packages/core/src"
       ]
     }
   },

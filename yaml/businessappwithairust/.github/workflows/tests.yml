@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: "22"
 
-      # llms-full.txt's own examples and claims, against the published checker.
+      # llms-full.txt's own examples and claims, against the published validator.
       - name: Specification
         run: node scripts/check-spec.mjs
 
@@ -27,7 +27,7 @@ jobs:
       # language model to use.
       - name: Models
         run: |
-          for f in guide/models/*.eml.mmd; do
+          for f in guide/models/*.eml.yaml; do
             echo "── $f"
             node guide/check-model.mjs "$f"
           done
@@ -35,31 +35,31 @@ jobs:
       # And through the *other* published runner — the checklist audit. A model
       # can pass the step above with 0 errors and 0 warnings and still be
       # missing half the language: no state machine, no access rules, a
-      # reference column that forgot its FK modifier, help that restates the
+      # reference column that forgot fk: true, help that restates the
       # column's own name. Every published model is meant to be a worked
       # example, so every one of them scores 22/22 or this fails.
       - name: Models are finished, not merely valid
         run: |
-          for f in guide/models/*.eml.mmd; do
+          for f in guide/models/*.eml.yaml; do
             echo "── $f"
             node guide/audit-model.mjs "$f" --base guide/
           done
 
       # The audit has to still bite. A scorer that passes everything is
       # indistinguishable from one that ran nothing, and this one is published,
-      # so a vendored checker that stopped emitting EML151-EML153 would leave it
-      # silently toothless. A bare ERD the checker accepts must fail it.
+      # so a rebuilt validator that stopped emitting EML151-EML153 would leave it
+      # silently toothless. A bare model the validator accepts must fail it.
       - name: The audit fails an unfinished model
         run: |
           work=$(mktemp -d)
-          printf '%%%%meta name: Bare Erd\n%%%%meta kind: erd\nerDiagram\n    Thing {\n        string id PK\n        string name\n        string status\n    }\n' > "$work/bare-erd.mmd"
-          node guide/check-model.mjs "$work/bare-erd.mmd" --quiet
-          node guide/audit-model.mjs "$work/bare-erd.mmd" --base guide/ --quiet && \
+          printf 'eml: "1.0"\nname: Bare Model\nentities:\n  - name: Thing\n    attributes:\n      - { name: id, type: uuid, pk: true }\n      - { name: name, type: string }\n      - { name: status, type: string }\n' > "$work/bare-model.eml.yaml"
+          node guide/check-model.mjs "$work/bare-model.eml.yaml" --quiet
+          node guide/audit-model.mjs "$work/bare-model.eml.yaml" --base guide/ --quiet && \
             { echo "expected the audit to fail a model with no rbac, no workflow and no help"; exit 1; } || true
 
-      # The one-file checker carries checker.js, fixer.js and both runners
-      # compressed inside it. Re-vendoring the validators without rebuilding it
-      # would publish a single file that disagrees with the four beside it —
+      # The one-file checker carries model-yaml.js and both runners compressed
+      # inside it. Rebuilding the validator without rebuilding it would publish
+      # a single file that disagrees with the three beside it —
       # and nothing about the page would look wrong.
       - name: One-file checker is current
         run: node scripts/build-standalone-checker.mjs --check
@@ -71,23 +71,23 @@ jobs:
         run: |
           work=$(mktemp -d)
           cp guide/check-model-standalone.mjs "$work"/
-          cp guide/models/crm.eml.mmd "$work"/model.mmd
-          ( cd "$work" && node check-model-standalone.mjs model.mmd --quiet ) > "$work/one-file.txt"
-          node guide/check-model.mjs guide/models/crm.eml.mmd --quiet > "$work/three-file.txt"
+          cp guide/models/crm.eml.yaml "$work"/model.eml.yaml
+          ( cd "$work" && node check-model-standalone.mjs model.eml.yaml --quiet ) > "$work/one-file.txt"
+          node guide/check-model.mjs guide/models/crm.eml.yaml --quiet > "$work/three-file.txt"
           diff "$work/one-file.txt" "$work/three-file.txt"
-          ( cd "$work" && node check-model-standalone.mjs model.mmd --audit --quiet ) > "$work/one-file-audit.txt"
-          node guide/audit-model.mjs guide/models/crm.eml.mmd --base guide/ --quiet > "$work/three-file-audit.txt"
+          ( cd "$work" && node check-model-standalone.mjs model.eml.yaml --audit --quiet ) > "$work/one-file-audit.txt"
+          node guide/audit-model.mjs guide/models/crm.eml.yaml --base guide/ --quiet > "$work/three-file-audit.txt"
           diff "$work/one-file-audit.txt" "$work/three-file-audit.txt"
-          printf 'prose about a model, not a model\n' > "$work"/prose.mmd
-          ( cd "$work" && node check-model-standalone.mjs prose.mmd >/dev/null 2>&1 ) && \
+          printf 'prose about a model, not a model\n' > "$work"/prose.eml.yaml
+          ( cd "$work" && node check-model-standalone.mjs prose.eml.yaml >/dev/null 2>&1 ) && \
             { echo "expected exit 1 on an invalid model"; exit 1; } || true
-          ( cd "$work" && node check-model-standalone.mjs prose.mmd --audit >/dev/null 2>&1 ) && \
+          ( cd "$work" && node check-model-standalone.mjs prose.eml.yaml --audit >/dev/null 2>&1 ) && \
             { echo "expected exit 1 from --audit on an invalid model"; exit 1; } || true
 
       # The validators are also published inside pages, for a fetch layer that
       # reads text/html and refuses application/javascript. Each page carries
       # one file base64-encoded plus its SHA-256, so a stale page would hand
-      # somebody a checker that is subtly not the published one.
+      # somebody a validator that is subtly not the published one.
       - name: Validator source pages are current
         run: node scripts/build-validator-source-page.mjs --check
 

@@ -2,31 +2,43 @@
 
 **AI-Powered Entity Relationship Design & Code Generation Platform**
 
-Transform natural language descriptions into production-ready full-stack applications with AI-powered entity extraction, human-in-the-loop approvals, and comprehensive code generation.
+Describe a business in natural language, review the model the AI proposes, and
+generate a complete application from it: a Loco.rs (Rust) backend crate and a
+TanStack Start + Astryx frontend, with its Application Dictionary, access
+rules, workflows, reports, tests and manual.
+
+> This is experimental software and is not fully tested. Read the generated
+> code before running it anywhere that matters.
 
 ---
 
 ## ✨ Features
 
-### AI-Powered Design
+### AI-Assisted Design
 - 🤖 **Natural Language Analysis** - Describe your domain in plain English
 - 👥 **Human-in-the-Loop** - Review and approve AI suggestions
-- 🎯 **Smart Entity Extraction** - Automatic detection of entities and relationships
+- 🎯 **Entity Extraction** - Entities and relationships proposed from the description
 - 💬 **Interactive UI** - Conversational interface for design approval
-- 🎨 **Visual ERD Designer** - Browser-based Mermaid ERD editor
+- 🎨 **Visual ERD Designer** - Browser-based model editor, saved as YAML
+
+### The Model
+- 📄 **One YAML document** (`*.eml.yaml`) holds the ERD, enums, categories,
+  access rules, hooks, business rules, workflows and reports
+- 🧱 **CEDM** (`*.cedm.yaml`) application models built from a common entity
+  library, lowered to the same document
+- ✅ **Checked in three layers** - YAML parse, JSON Schema, semantic checker
 
 ### Code Generation
-- ⚡ **Modern Web Stack** - TanStack Start + Shadcn UI + TanStack Query
-- 🏢 **Enterprise Backend** - NestJS + Fastify + Knex.js
-- 🌐 **OData V4 Services** - RESTful OData with jaystack
-- 📱 **OpenUI5 FCL** - SAP-style Flexible Column Layout apps
-- 🧪 **Auto-Generated E2E Tests** - Playwright tests for all generated apps
+- 🦀 **Backend** - Loco.rs 1.2 (Axum + SeaORM/sqlx) on PostgreSQL or Neon
+- ⚡ **Frontend** - TanStack Start + Astryx (seven themes)
+- 📘 **API description** - `/openapi.json`, `/redoc`, `/scalar`
+- 🧪 **Generated tests** - Rust request suites and bun:test suites, from the model
 
 ### Dictionary-Driven Architecture
-- 📚 **Application Dictionary** - Compiere-inspired metadata management
-- 🔐 **Built-in RBAC** - Table, record, and field-level access control
-- 🎨 **Template-Based Generation** - Handlebars templates for all code
-- 📊 **Runtime UI Configuration** - Modify field order at runtime
+- 📚 **Application Dictionary** - Compiere-inspired `sys_*` metadata
+- 🔐 **Authorization** - window/table grants, per-operation and per-transition role rules
+- 🧾 **Audit trail** - hash-chained `audit_log`
+- 📊 **Runtime UI Configuration** - reorder and hide fields without a redeploy
 
 ---
 
@@ -35,37 +47,21 @@ Transform natural language descriptions into production-ready full-stack applica
 ### Prerequisites
 
 ```bash
-# Install Bun.js (REQUIRED runtime)
+# Bun.js (required runtime)
 curl -fsSL https://bun.sh/install | bash
+bun --version  # >= 1.3.14
 
-# Verify installation
-bun --version  # >= 1.1.0
+# Rust toolchain (the generated backend is a cargo crate)
+rustup default stable
 ```
 
 ### Developer Tools (gstack)
 
-This project uses **gstack** - a collection of AI-powered development skills for Claude Code that enhance code review, testing, and deployment workflows.
-
-**Setup gstack** (one-time setup per developer):
-
 ```bash
-# Quick setup script
-./scripts/setup-gstack.sh
-
-# Or manual installation
-git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup
+bun run setup:gstack
 ```
 
-**Available gstack skills:**
-- `/browse` - Headless browser for web browsing and QA testing
-- `/review` - Code review before merge
-- `/qa` - Full QA testing of the app
-- `/ship` - Ready to deploy / create PR
-- `/office-hours` - Brainstorming and idea exploration
-- `/plan-eng-review` - Architecture/engineering plan review
-- And many more...
-
-See [CLAUDE.md](CLAUDE.md) for complete gstack documentation.
+See [CLAUDE.md](CLAUDE.md) for the skills it provides.
 
 ### Installation
 
@@ -75,12 +71,12 @@ bun install
 
 # 2. Configure environment
 cp .env.example .env
-# Edit .env with your ANTHROPIC_API_KEY
+# Set DATABASE_URL and LOCAL_AI_BASE_URL / LOCAL_AI_MODEL
 
-# 3. Run database migrations
-bun run migrate
+# 3. Run migrations and promote an administrator
+bun run seed:admin -- --email you@example.com
 
-# 4. Start development server
+# 4. Start the development server
 bun run dev
 ```
 
@@ -94,61 +90,56 @@ bun run dev
 
 ## 💡 Usage Examples
 
-### Example 1: Visual ERD Designer
+### Example 1: A model
 
-```bash
-# 1. Open http://localhost:3000/designer
-# 2. Create your ERD using Mermaid syntax
-# 3. Click "Generate Code" to see Knex.js migrations and SQL DDL
+```yaml
+eml: "1.0"
+name: Shop
+entities:
+  - name: Customer
+    help: Someone who places orders.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: name, type: string, help: Full name as it appears on invoices. }
+      - { name: email, type: email, unique: true, help: Where order confirmations go. }
+  - name: Order
+    help: One purchase by one customer.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: customer_id, type: string, fk: true, help: Who placed the order. }
+      - { name: order_date, type: datetime, help: When the order was placed. }
+      - { name: total_amount, type: decimal, help: Order total including tax. }
+relationships:
+  - { from: Customer, fromCardinality: exactly-one, to: Order, toCardinality: zero-or-more, label: places }
 ```
 
-**Example ERD:**
-```mermaid
-erDiagram
-    CUSTOMER ||--o{ ORDER : places
-    ORDER ||--|{ ORDER_ITEM : contains
-    PRODUCT ||--o{ ORDER_ITEM : "included in"
-
-    CUSTOMER {
-        string id PK
-        string name
-        string email UK
-        string phone
-    }
-    ORDER {
-        string id PK
-        string customer_id FK
-        datetime order_date
-        decimal total_amount
-        string status
-    }
-```
+The full reference is `language/yaml/README.md`.
 
 ### Example 2: CLI Converter
 
 ```bash
-# Convert natural language to Mermaid
-appwithai-convert "E-commerce with products, categories, orders" -o shop.mermaid
+# A new model from a description
+appwithai-convert "E-commerce with products, categories, orders" -n Shop -o shop.eml.yaml
 
-# Fast mode (programmatic)
-appwithai-convert -i description.txt --fast
+# A change to an existing model
+appwithai-convert "Add a Category entity" -m shop.eml.yaml -o shop.eml.yaml
 
 # Analysis only
 appwithai-convert "CRM system" --analyze-only --json > analysis.json
 ```
 
-### Example 3: Generate Full-Stack Application
+### Example 3: Generate an Application
 
 ```bash
-# 1. Create ERD (using designer or CLI)
-appwithai-convert "Blog platform" -o blog.mermaid
-
-# 2. Generate Modern Web Stack (tanstack-start-nestjs)
-bun run generate:tanstack -- -i blog.mermaid -o ./generated/blog-app
-
-# 3. Or Generate Enterprise SAP-Style Stack (openui5-odatav4)
-bun run generate:odata -- -i blog.mermaid -o ./generated/blog-api
+bun run generate:tanstack -- -i shop.eml.yaml -o ./generated/shop -n shop
+createdb shop_development
+cd generated/shop/backend
+cargo loco db migrate && cargo loco db seed
+cargo loco start --server-and-worker          # :3000
+cd ../frontend && bun install && bun run dev  # :3001
 ```
+
+Sign in as `admin@admin.com` / `admin`.
 
 ---
 
@@ -157,24 +148,24 @@ bun run generate:odata -- -i blog.mermaid -o ./generated/blog-api
 ```
 appwithai/
 ├── packages/
-│   ├── core/       # Core business logic, types, hooks, RBAC
-│   ├── generator/  # Code generation engine & Handlebars templates
-│   ├── ai/         # AI features (Mastra.ai agents, CopilotKit)
-│   └── web/        # TanStack Start web application
-├── docs/           # Documentation
-│   ├── ARCHITECTURE.md   # System architecture & code style guide
-│   ├── DEVELOPMENT.md    # Build system, commands, running the app
-│   ├── TESTING.md        # E2E test generation & execution
-│   └── ROADMAP.md        # Version 6.0 plans & feature roadmap
-├── tests/          # Test suites
-└── migrations/     # Database migrations
+│   ├── core/        # Types, hooks, services, auth, rules, workflow, config
+│   ├── generator/   # Model reading, generation pipeline, Handlebars templates
+│   ├── ai/          # Mastra.ai agents, workflows, converter, CLI
+│   ├── yamltecture/ # Deterministic YAML projection and model context
+│   └── web/         # TanStack Start modelling tool
+├── crates/
+│   └── appwithai-gen/   # The Rust generator (backend), held to parity
+├── language/        # The model language: definition, YAML schema, CEDM, CLI
+├── docs/            # Documentation
+├── examples/        # Example models
+└── tests/           # Playwright suites
 ```
 
 ---
 
 ## 🏗️ Architecture
 
-### AI-Powered Workflow
+### AI-Assisted Workflow
 
 ```
 Natural Language Input
@@ -189,30 +180,27 @@ Relationship Agent (Determine cardinality)
     ↓
 Human Approval (Review relationships)
     ↓
-Mermaid Agent (Generate ERD)
+Model writer (the YAML model document, checked)
     ↓
-Dictionary Populator (Create AD_Table, AD_Column records)
+Generation pipeline (generateApplication)
     ↓
-Code Generator (Template-based generation)
-    ↓
-Generated Application (TanStack Start/NestJS or OpenUI5/OData)
+Generated Application (Loco.rs backend + TanStack Start/Astryx frontend)
 ```
 
 ### Technology Stack
 
 | Layer | Technologies |
 |-------|-------------|
-| **Runtime** | Bun.js 1.3+ |
+| **Runtime** | Bun.js 1.3.14+, Rust stable |
 | **AI Framework** | Mastra.ai, CopilotKit |
-| **AI Model** | Anthropic Claude Sonnet 4 |
-| **Frontend** | TanStack Start 1+, Vite 5+, React 18+, Shadcn UI, TailwindCSS |
-| **Backend** | NestJS 10+, Fastify, Kysely (type-safe SQL) |
-| **OData** | jaystack/odata-v4-server |
-| **UI Framework** | OpenUI5 1.120+ (FCL) |
-| **Database** | PostgreSQL, SQLite |
+| **AI Model** | Any local OpenAI-compatible endpoint (`packages/ai/src/config.ts`) |
+| **Modelling tool** | TanStack Start, Vite 8, React 19, Tailwind CSS v4 |
+| **Generated backend** | Loco.rs 1.2 (Axum, SeaORM/sqlx), utoipa |
+| **Generated frontend** | TanStack Start + Astryx |
+| **Database** | PostgreSQL (Kysely in the tool; sqlx in generated apps) |
+| **Rules** | GoRules JDM / zen-engine |
 | **Templates** | Handlebars 4.7+ |
-| **Validation** | Zod 3.22+ |
-| **Testing** | Playwright, Vitest |
+| **Testing** | Vitest, Playwright, cargo test, bun:test |
 
 ---
 
@@ -221,41 +209,18 @@ Generated Application (TanStack Start/NestJS or OpenUI5/OData)
 ### Commands
 
 ```bash
-# Installation
-bun install
-
-# Development
-bun run dev          # Web app (http://localhost:3000)
-bun run dev:mastra   # AI server (if using standalone AI)
-
-# Building
-bun run build        # Build all packages
-bun run build:core    # Build @appwithai/core
-bun run build:web     # Build @appwithai/web
-
-# Code Quality
-bun run lint         # ESLint
-bun run type-check   # TypeScript checking
-
-# Testing
-bun run test         # Run all tests
-bun run test:e2e     # E2E tests (with auto-start server)
-
-# Code Generation
-bun run convert      # Convert natural language to Mermaid
-bun run migrate      # Run database migrations
-bun run generate:tanstack   # Generate TanStack Start app
-bun run generate:odata      # Generate OData V4 service
-bun run generate:ui5        # Generate OpenUI5 app
+bun run dev                 # Web app (http://localhost:3000)
+bun run dev:mastra          # Mastra AI server (http://localhost:4111)
+bun run build               # Build all packages
+bun run type-check          # TypeScript checking
+bun run type-check:language # language/** type-check
+bun run test                # Unit tests
+bun run test:generator      # Generator unit tests
+bun run parity              # TypeScript = Rust = WebAssembly generators
+bun run test:e2e:generated  # Generate, compile, run, test over HTTP
+bun run generate:tanstack   # Generate an application
+bun run convert             # Natural language → model document
 ```
-
-### Build Status
-
-✅ **All packages build successfully**
-- @appwithai/core: 124.75 KB (27 modules)
-- @appwithai/generator: 220.68 KB (51 modules)
-- @appwithai/ai: 44.7 KB (including Mastra)
-- @appwithai/web: TanStack Start optimized build
 
 ---
 
@@ -263,136 +228,68 @@ bun run generate:ui5        # Generate OpenUI5 app
 
 | Document | Description |
 |----------|-------------|
-| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System architecture, package descriptions, code style guidelines |
-| **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** | Build system, development commands, migration history |
-| **[TESTING.md](docs/TESTING.md)** | E2E test generation, test infrastructure, running tests |
-| **[ROADMAP.md](docs/ROADMAP.md)** | Version 6.0 plans, features, implementation phases |
-
-### Additional Resources
-
-- **AI Package**: `packages/ai/README.md` - Agent API and workflows
-- **Generator**: `packages/generator/README.md` - Template customization
-- **Tests**: `tests/README.md` - Testing guide and test data
+| **[CLAUDE.md](CLAUDE.md)** | The working guide to the repository |
+| **[language/yaml/README.md](language/yaml/README.md)** | The model language reference |
+| **[language/cedm/README.md](language/cedm/README.md)** | CEDM application models |
+| **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** | Build system and commands |
+| **[docs/TESTING.md](docs/TESTING.md)** | Test generation and execution |
+| **[docs/ROADMAP.md](docs/ROADMAP.md)** | Plans and history |
+| **`docs/qa/`** | QA passes, newest first |
 
 ---
 
 ## 🧪 Testing
 
-### E2E Testing
+Every generated application ships two suites generated from its model:
 
-Generated applications include comprehensive E2E tests using Playwright:
-
-- ✅ Navigation tests
-- ✅ Entity CRUD tests
-- ✅ Form validation
-- ✅ API endpoint tests
-- ✅ Auto-generated test data fixtures
-
-### Run Tests
+- Rust request suites (`cargo test --test app`) — the primary gate
+- bun:test suites over HTTP, including a 100k-record browser volume suite
 
 ```bash
-# Run all E2E tests (auto-starts server)
-bun run test:e2e:server
-
-# Run specific test suite
-bun test tests/e2e/comprehensive-all-frameworks.e2e.spec.ts
-
-# Run with browser visible
-HEADLESS=false bun test tests/e2e/
+cd generated/shop/backend && LOCO_ENV=test cargo test --test app
+cd generated/shop/tests && bun run test
 ```
-
-See [tests/README.md](tests/README.md) for complete testing documentation.
 
 ---
 
 ## 🚢 Deployment
 
-### Production Build
+Generated applications ship a `docker-compose.yml` and both Dockerfiles;
+`docker compose up` runs PostgreSQL, the backend and the frontend.
 
-```bash
-# Build all packages
-bun run build
-
-# Start production server
-bun run start              # Web app
-```
-
-### Environment Variables
+### Environment Variables (modelling tool)
 
 **Required:**
-- `ANTHROPIC_API_KEY` - Your Anthropic API key for AI features
 - `DATABASE_URL` - PostgreSQL connection string
+- `LOCAL_AI_BASE_URL`, `LOCAL_AI_MODEL` - the OpenAI-compatible model endpoint
 
 **Optional:**
-- `MASTRA_DATABASE_URL` - Mastra state database (default: SQLite)
+- `MASTRA_DATABASE_URL` - Mastra state database
 - `VITE_APP_URL` - Application URL (default: http://localhost:3000)
 - `CORS_ORIGIN` - CORS allowed origins
 
-See `.env.example` for complete list.
+See `.env.example` for the complete list.
 
 ---
 
 ## 🔒 Security
 
 - **API Keys**: Store in environment variables, never commit
-- **RBAC**: Built-in role-based access control
-- **SQL Injection**: Protected via Knex.js parameterized queries
-- **XSS**: Protected via React's built-in sanitization
+- **Authorization**: generated APIs pass three gates — `sys_access`, the model's
+  `rbac` operation rules, and workflow transitions
+- **SQL**: parameterised queries; stored report SQL is refused unless it is a
+  single `SELECT`/`WITH`, three times over
+- **XSS**: React's escaping
 - **CORS**: Configurable via environment variable
-
----
-
-## 📊 What's New
-
-### Recent Updates (v5.1 - February 2026)
-
-✅ **Bun.js Migration Complete**
-- Migrated from npm/yarn to Bun.js runtime
-- 3x faster package installation
-- 2x faster build times
-- Native TypeScript support
-
-✅ **Visual ERD Designer**
-- Browser-based Mermaid ERD editor
-- Live preview and validation
-- Import/export functionality
-- Code generation preview
-
-✅ **Comprehensive E2E Testing**
-- Playwright-based E2E tests auto-generated
-- Tests for all framework options
-- 90%+ test pass rate
-
-✅ **Documentation Consolidation**
-- 4 focused documentation files (down from 42)
-- Organized test suite (down from 6.7GB to 784KB)
-- Clear developer guides
-
----
-
-## 🗺️ Roadmap
-
-### Version 6.0 - In Planning
-
-**Complete Multi-Stack Generation with Application Dictionary**
-
-- System Tables (sys_ prefix) for metadata
-- Business Tables (bus_ prefix) for user entities
-- Runtime UI layout modification
-- Admin interface for field configuration
-- Two complete stack options (Modern Web & Enterprise SAP)
-
-See [docs/ROADMAP.md](docs/ROADMAP.md) for complete roadmap.
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Create a feature branch from `main`
+2. Commit your changes with descriptive messages
+3. Run `bun run type-check`, `bun run test` and `bun run parity`
+4. Open a Pull Request against `main`
 
 ---
 

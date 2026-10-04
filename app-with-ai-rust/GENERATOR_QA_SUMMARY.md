@@ -146,7 +146,7 @@ Total: 0 errors - full compilation success
 ## Template Quality Improvements
 
 ### Strengths Confirmed
-✅ Excellent Mermaid ERD parsing
+✅ Excellent ERD parsing
 ✅ Correct entity relationship mapping
 ✅ Professional code organization (modules pattern)
 ✅ Proper API documentation (Swagger decorators)
@@ -283,7 +283,7 @@ Total: 0 errors - full compilation success
 
 | Metric | Value |
 |--------|-------|
-| Mermaid Parsing Time | <1s |
+| ERD Parsing Time | <1s |
 | Code Generation Time | 2-3s |
 | Route Generation Time | 442ms |
 | Build Time (TypeScript) | <5s |

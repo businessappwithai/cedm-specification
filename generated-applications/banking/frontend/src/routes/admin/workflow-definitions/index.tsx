@@ -16,6 +16,7 @@ import {
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { useEntityLabel } from "@/components/admin/use-dictionary-entities";
 import { apiClient } from "../../../lib/api-client";
 import { Grid, HStack, Heading, Text } from "@/components/ui/layout";
 
@@ -43,6 +44,7 @@ interface WfDef {
 }
 
 function WorkflowDefinitionsList() {
+  const entityLabel = useEntityLabel();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [filterEntity, setFilterEntity] = useState("");
@@ -169,7 +171,7 @@ function WorkflowDefinitionsList() {
                         <div className="text-xs text-gray-400 mt-0.5">{d.description}</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-600">{d.entity_name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-600">{entityLabel(d.entity_name)}</td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className="text-xs">
                         {d.operation}

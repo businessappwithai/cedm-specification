@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-01T09:34:12.430Z
+//! Generated: 2026-10-04T01:12:42.038Z
 //! Project: real-estate
 
 use serde_json::{json, Value};

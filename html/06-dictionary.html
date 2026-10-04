@@ -32,7 +32,7 @@
     <li><a href="07-it-runs.html"><span class="nav-num">07</span> Watch it run</a></li>
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/yaml/examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -51,7 +51,7 @@
 <table>
   <thead><tr><th>Layer</th><th>Holds</th><th>Comes from</th></tr></thead>
   <tbody>
-    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>erDiagram</code></td></tr>
+    <tr><td><strong>Table and Column</strong></td><td>Every table and its columns: type, length, mandatory, unique, what a foreign key points at.</td><td>Your <code>entities</code></td></tr>
     <tr><td><strong>Window, Tab and Field</strong></td><td>How each entity is presented: one window per entity, a tab per record view, a field per displayed column, with order and grouping.</td><td>Derived from the columns</td></tr>
     <tr><td><strong>Role</strong></td><td>Which windows a role may reach, and whether it is read-only.</td><td>Seeded, then yours</td></tr>
   </tbody>
@@ -90,7 +90,30 @@
     <img src="img/16-crm-window-detail-tabs.png" alt="The Opportunity window detail with its generated help text and a Tab child panel.">
     <figcaption><b>A window.</b> Its metadata, its generated help, and the tabs beneath it.</figcaption>
   </figure>
-  </div>
+  <figure>
+    <img src="img/18-crm-tab-fields.png" alt="The Opportunity tab's field list showing each field with its column name, sequence, displayed, read-only and active flags.">
+    <figcaption><b>Its fields.</b> Every displayed column with its sequence — reorder here and the form reorders.</figcaption>
+  </figure>
+</div>
+
+<figure>
+  <img src="img/17-crm-window-tab-fields.png" alt="The Opportunity window record in the dictionary, showing eight fields and, under Help, a generated paragraph describing the entity: that Account Id, Name, Currency Code, Stage and Owner Id must be filled in before saving, that Opportunity points at Account, Contact and Campaign, that Opportunity Line Item, Quote and Activity refer back to it, and that every save starts as a Draft which becomes Final only if all rules and workflows succeed.">
+  <figcaption>
+    <b>The paragraph nobody wrote.</b> This is the Opportunity window's stored help, generated from the
+    model: the required fields by name, the three references out, the three entities that point back in,
+    and the exact transactional promise — all rules and workflows succeed and the record goes Final, any
+    one fails and nothing is kept and the reason is written onto the record. Seventeen of these exist, one
+    per entity, and an administrator can rewrite any of them.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="img/34-crm-tab-reference-resolved.png" alt="The tab grid inside the Opportunity window, with the Table column reading 'Opportunity'.">
+  <figcaption>
+    <b>The dictionary uses its own machinery.</b> The Tab grid's <em>Table</em> column is itself a
+    reference, resolved to a name the same way any business grid resolves a foreign key.
+  </figcaption>
+</figure>
 
 <h2>Business Rules</h2>
 <p>
@@ -106,12 +129,38 @@
   </figcaption>
 </figure>
 
+<figure>
+  <img src="img/29-crm-rule-editor-leadqualification.png" alt="The rule editor for leadQualification showing its decision table, a test panel and a coverage check.">
+  <figcaption>
+    <b>The rule editor.</b> Inputs on the left of the table, outputs on the right, rows read top to bottom
+    until one fits. <em>Test with values</em> runs the table against a record you type; <em>Coverage
+    check</em> warns when there is no catch-all row.
+  </figcaption>
+</figure>
+
 <h2>Workflow Designer</h2>
 <p>
   Every definition the model seeded, plus anything built in the app. Definitions marked
   <em>from the model</em> are read-only here and rewritten on the next generation; ones built in the
   designer carry <code>source: designer</code> and are never touched.
 </p>
+
+<figure>
+  <img src="img/30-crm-workflow-editor-leadconversion.png" alt="The workflow editor for LeadConversion showing the trigger, three rule gates, and six numbered steps.">
+  <figcaption>
+    <b>LeadConversion, opened.</b> The trigger reads "When a Lead record is CREATED · Runs when triggered by
+    a rule". Below it the rule gates that apply, then the six steps in order, with the node labels written
+    in the model. The sidebar carries the entity, run mode, step count and recent runs.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="img/31-crm-workflow-editor-steps.png" alt="The step list of the LeadConversion workflow: create record, create record, create record, update record, update record.">
+  <figcaption>
+    <b>The steps.</b> Each is typed — Create Record, Update Record — and titled with the label from the
+    flowchart node it was bound to, which is why writing readable node labels pays off later.
+  </figcaption>
+</figure>
 
 <h2>Audit log</h2>
 <p>
@@ -197,7 +246,7 @@
   <div class="note-title">The one trap</div>
   <p>
     Editing a model-owned rule or workflow in the app works, and the next generation overwrites it. If a
-    change matters, it belongs in the <code>.mmd</code>. The app is where you tune; the model is where you
+    change matters, it belongs in the model, <code>.eml.yaml</code>. The app is where you tune; the model is where you
     decide.
   </p>
 </div>

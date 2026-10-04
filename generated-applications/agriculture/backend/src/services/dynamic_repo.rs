@@ -618,7 +618,7 @@ fn filter_condition(filter: &Filter) -> Expr {
     let plain = Expr::col(Alias::new(filter.column.clone()));
     let uuid_valued = match filter.op {
         FilterOp::Equals => looks_like_uuid(&filter.value),
-        FilterOp::In => filter.value.split(',').any(|part| looks_like_uuid(part)),
+        FilterOp::In => filter.value.split(',').any(looks_like_uuid),
         _ => false,
     };
     let column = if uuid_valued {

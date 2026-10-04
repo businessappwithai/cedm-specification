@@ -1,7 +1,7 @@
 # QA — OpenAPI coverage, generator parity, and the dictionary's window/tab/field layer
 
 **Date:** 2026-08-12
-**Model:** `examples/drug-discovery.eml.mmd` (17 entities, 7 categories, 1 saga)
+**Model:** `examples/drug-discovery.eml.yaml` (17 entities, 7 categories, 1 saga)
 **Scope:** the OpenAPI document a generated app serves; equivalence between the
 TypeScript and Rust generators; the `sys_window` / `sys_tab` / `sys_field` rows
 the dictionary seed produces, exercised on an entity with two entity references.
@@ -237,9 +237,9 @@ does nothing. Whether `parent_<entity>_id` should additionally resolve to
 
 ```bash
 # parity
-bun run generate:tanstack -- -i examples/drug-discovery.eml.mmd \
+bun run generate:tanstack -- -i examples/drug-discovery.eml.yaml \
   -o generated-projects/dd-ts -n drug-discovery --no-setup --force --skip-cli-scaffold
-cargo run -p appwithai-gen -- generate -i examples/drug-discovery.eml.mmd \
+cargo run -p appwithai-gen -- generate -i examples/drug-discovery.eml.yaml \
   -o generated-projects/dd-rs -n drug-discovery --skip-cli-scaffold --force
 diff -r generated-projects/dd-ts/backend generated-projects/dd-rs/backend   # timestamps only
 

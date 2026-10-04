@@ -12,7 +12,7 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { ruleGraphToJdm } from "../../../../../../packages/generator/src/rules/jdm-converter.ts";
+import { ruleGraphToJdm } from "../../../../../app-with-ai-rust/packages/generator/src/rules/jdm-converter.ts";
 import type { EmlModel, EmlRule } from "../model.ts";
 import { kebabCase } from "../util.ts";
 

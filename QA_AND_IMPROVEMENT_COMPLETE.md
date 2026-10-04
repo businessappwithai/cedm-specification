@@ -23,7 +23,7 @@ Comprehensive QA testing and template improvements completed for the AppWithAI c
 ## Phase 1: QA Testing (Initial Discovery)
 
 ### Test Scenario
-Generated a complete CRM application from a Mermaid ERD diagram:
+Generated a complete CRM application from a ERD model:
 ```
 Entities: Account, Contact, Opportunity, Activity
 Relationships: Account→Contact, Account→Opportunity, 
@@ -308,7 +308,7 @@ Total: 42+ endpoints
 
 ### Performance Metrics
 ```
-Mermaid Parsing: <1s
+ERD Parsing: <1s
 Code Generation: 2-3s
 Route Generation: 436ms
 Backend Build: <5s
@@ -348,7 +348,7 @@ packages/generator/templates/tanstack-start-nestjs/
 
 ### 3. Test Artifacts
 - ✅ `generated-projects/crm-tanstack/` - Full working CRM application
-- ✅ `simple-crm.mmd` - Test ERD diagram
+- ✅ `simple-crm model` - Test ERD diagram
 - ✅ Git commits with detailed changes
 
 ### 4. Documentation
@@ -506,7 +506,7 @@ The AppWithAI code generator has been comprehensively tested, improved, and vali
 - ✅ **Professional code structure** following best practices
 - ✅ **Type-safe development** with full TypeScript support
 
-**The generator is ready for production use and can reliably generate complete full-stack applications from Mermaid ERD diagrams.**
+**The generator is ready for production use and can reliably generate complete full-stack applications from ERD models.**
 
 ---
 

@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { useEntityLabel } from '@/components/admin/use-dictionary-entities';
 import {
   Workflow,
   RefreshCw,
@@ -46,6 +47,7 @@ interface WorkflowRun {
 }
 
 function AdminWorkflowsPage() {
+  const entityLabel = useEntityLabel();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [entityFilter, setEntityFilter] = useState<string>('');
@@ -211,7 +213,7 @@ function AdminWorkflowsPage() {
               <option value="">All Entities</option>
               {entityNames.map((entity) => (
                 <option key={entity} value={entity}>
-                  {entity}
+                  {entityLabel(entity)}
                 </option>
               ))}
             </select>
@@ -272,7 +274,7 @@ function AdminWorkflowsPage() {
               >
                 <div className="col-span-2">
                   <code className="text-sm bg-gray-100 px-2 py-1 font-mono">
-                    {wf.entity_name}
+                    {entityLabel(wf.entity_name)}
                   </code>
                 </div>
 

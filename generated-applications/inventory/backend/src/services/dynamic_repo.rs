@@ -178,13 +178,17 @@ impl DynamicRepo {
             }
         }
 
-        // `order_by` is dictionary-verified by the caller; default to the
-        // deterministic `created_at` the TypeScript stack used.
-        let order_column = opts.order_by.as_deref().unwrap_or("created_at");
-        select
-            .order_by(Alias::new(order_column), opts.order_dir.to_order())
-            .limit(opts.limit)
-            .offset(opts.offset());
+        // `order_by` is dictionary-verified by the caller. A list nobody asked to
+        // sort is the records most recently changed first: `updated_at`,
+        // descending, with the key as the tiebreak so a page boundary never
+        // repeats or drops a row when several share a timestamp. The caller's
+        // direction (`pagination_from`) already says descending in that case.
+        let order_column = opts.order_by.as_deref().unwrap_or("updated_at");
+        select.order_by(Alias::new(order_column), opts.order_dir.to_order());
+        if order_column != "id" {
+            select.order_by(Alias::new("id"), Order::Asc);
+        }
+        select.limit(opts.limit).offset(opts.offset());
 
         let (sql, values) = select.build_sqlx(PostgresQueryBuilder);
         let rows = sqlx::query_with(AssertSqlSafe(sql), values).fetch_all(&self.pool).await?;
@@ -602,7 +606,7 @@ fn filter_condition(filter: &Filter) -> Expr {
     let plain = Expr::col(Alias::new(filter.column.clone()));
     let uuid_valued = match filter.op {
         FilterOp::Equals => looks_like_uuid(&filter.value),
-        FilterOp::In => filter.value.split(',').any(|part| looks_like_uuid(part)),
+        FilterOp::In => filter.value.split(',').any(looks_like_uuid),
         _ => false,
     };
     let column = if uuid_valued {

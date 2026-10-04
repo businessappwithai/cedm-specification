@@ -32,7 +32,7 @@
     <li><a href="07-it-runs.html"><span class="nav-num">07</span> Watch it run</a></li>
     <li><a href="08-reference.html"><span class="nav-num">08</span> Reference</a></li>
   </ul>
-  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/examples/crm.eml.mmd</code></div>
+  <div class="sidebar-foot">Every screenshot is from the CRM built in this guide, running locally.<br><br>Model: <code>language/yaml/examples/crm.eml.yaml</code></div>
 </aside>
 
 <main class="main">
@@ -41,83 +41,94 @@
 <span class="eyebrow">Chapter 01</span>
 <h1>The data model</h1>
 <p class="lede">
-  The <code>erDiagram</code> section is the foundation: it decides your tables, your API, your forms and
+  The model's <code>entities</code> and <code>relationships</code> are the foundation: it decides your tables, your API, your forms and
   your grids. Everything in later chapters attaches to something you name here, so it is worth getting the
   names right before you write a single rule.
 </p>
 
 <h2>The shape of a model file</h2>
 <p>
-  One file, several diagrams, read top to bottom. A section starts at a Mermaid keyword and runs until the
-  next one. Directives above a section configure it; directives inside it annotate what it declares.
+  One YAML document, read top to bottom. Each top-level key is one part of the application —
+  <code>enums</code>, <code>categories</code>, <code>entities</code>, <code>relationships</code>,
+  <code>rules</code>, <code>stateMachines</code>, <code>sagas</code>, <code>rbac</code> and the rest — and
+  <code>language/yaml/eml.schema.json</code> says exactly which keys each one takes.
 </p>
 
 <div class="code">
   <div class="code-head"><span class="tag">eml</span><span>the skeleton of every model</span></div>
-<pre><code><span class="c-com">%% ---- Section 1: ERD --------------------------------------------------</span>
-<span class="c-dir">%%meta</span> name: Enterprise CRM
-<span class="c-dir">%%meta</span> kind: erd
-<span class="c-dir">%%meta</span> version: 1.0.0
+<pre><code><span class="c-kw">eml</span>: <span class="c-str">"1.0"</span>
+<span class="c-kw">name</span>: Enterprise CRM
+<span class="c-kw">version</span>: 1.0.0
 
-<span class="c-dir">%%category</span> name: Sales Pipeline; icon: TrendingUp; entities: Opportunity, Product
-<span class="c-dir">%%enum</span> LeadStatus: new, working, nurturing, qualified, converted, disqualified
+<span class="c-kw">enums</span>:
+  - name: LeadStatus
+    values: [new, working, nurturing, qualified, converted, disqualified]
 
-<span class="c-kw">erDiagram</span>
-    Lead {
-        <span class="c-kw">string</span>  id PK
-        ...
-    }
+<span class="c-kw">categories</span>:
+  - name: Sales Pipeline
+    icon: TrendingUp
+    entities: [Opportunity, Product]
 
-    Campaign ||--o{ Lead : <span class="c-str">"generates"</span>
+<span class="c-kw">entities</span>:
+  - name: Lead
+    audited: true
+    attributes:
+      - { name: id, type: string, pk: true }
+      ...
+      - { name: status, type: string, enum: LeadStatus }
+    indexes:
+      - columns: [owner_id, status]
 
-    <span class="c-dir">%%field</span> Lead.status enum: LeadStatus
-    <span class="c-dir">%%index</span> Lead(owner_id, status)
-    <span class="c-dir">%%entity</span> Lead audited: true
+<span class="c-kw">relationships</span>:
+  - { from: Campaign, fromCardinality: exactly-one, to: Lead, toCardinality: zero-or-more, label: generates }
 
-<span class="c-com">%% ---- Section 2: a business rule --------------------------------------</span>
-<span class="c-dir">%%meta</span> kind: rules
-<span class="c-dir">%%rule</span> leadScoring on Lead event: beforeCreate priority: 10
-<span class="c-kw">flowchart TD</span>
-    ...</code></pre>
+<span class="c-kw">rules</span>:
+  - name: leadScoring
+    entity: Lead
+    event: beforeCreate
+    priority: 10
+    nodes: ...
+    edges: ...</code></pre>
 </div>
 
 <div class="note">
-  <div class="note-title">Read it as Mermaid</div>
+  <div class="note-title">Draw it, do not write the drawing</div>
   <p>
-    Open the file in any Mermaid preview. The ERD draws, the flowcharts draw, the state diagrams draw. The
-    <code>%%</code> lines are invisible there — which is the point: the picture stays honest and the
-    generator still gets its instructions.
+    The diagrams — the ERD, each rule's decision graph, each lifecycle — are drawn <em>from</em> this
+    document by the model viewer and the designer. Nothing reads a drawing back: the YAML is the one
+    thing every generator, checker and viewer compiles, so there is nothing for a picture to disagree with.
   </p>
 </div>
 
 <h2>Entities and attributes</h2>
 <p>
-  An entity block is a table. Each line inside is <code>type name [modifiers]</code>. The type comes first,
-  the way Mermaid's ER grammar wants it.
+  An entity is a table. Each entry under <code>attributes</code> is a column: its <code>name</code>, its
+  <code>type</code>, and the flags that say what else it is.
 </p>
 
 <div class="code">
-  <div class="code-head"><span class="tag">eml</span><span>language/examples/crm.eml.mmd · the Lead entity</span></div>
-<pre><code>    Lead {
-        <span class="c-kw">string</span>  id PK
-        <span class="c-kw">string</span>  first_name
-        <span class="c-kw">string</span>  last_name
-        <span class="c-kw">string</span>  company_name
-        <span class="c-kw">email</span>   email
-        <span class="c-kw">phone</span>   phone OPTIONAL
-        <span class="c-kw">string</span>  job_title OPTIONAL
-        <span class="c-kw">string</span>  industry OPTIONAL
-        <span class="c-kw">integer</span> employee_count OPTIONAL
-        <span class="c-kw">decimal</span> annual_revenue OPTIONAL
-        <span class="c-kw">string</span>  lead_source
-        <span class="c-kw">string</span>  rating OPTIONAL
-        <span class="c-kw">integer</span> score OPTIONAL
-        <span class="c-kw">string</span>  campaign_id FK OPTIONAL
-        <span class="c-kw">string</span>  status
-        <span class="c-kw">string</span>  owner_id FK
-        <span class="c-kw">datetime</span> converted_at OPTIONAL
-        <span class="c-kw">string</span>  disqualification_reason OPTIONAL
-    }</code></pre>
+  <div class="code-head"><span class="tag">eml</span><span>language/yaml/examples/crm.eml.yaml · the Lead entity (help text omitted)</span></div>
+<pre><code>  - name: Lead
+    audited: true
+    attributes:
+      - { name: id,                      type: <span class="c-kw">string</span>, pk: true }
+      - { name: first_name,              type: <span class="c-kw">string</span> }
+      - { name: last_name,               type: <span class="c-kw">string</span> }
+      - { name: company_name,            type: <span class="c-kw">string</span> }
+      - { name: email,                   type: <span class="c-kw">email</span> }
+      - { name: phone,                   type: <span class="c-kw">phone</span>, optional: true }
+      - { name: job_title,               type: <span class="c-kw">string</span>, optional: true }
+      - { name: industry,                type: <span class="c-kw">string</span>, optional: true, enum: Industry }
+      - { name: employee_count,          type: <span class="c-kw">integer</span>, optional: true }
+      - { name: annual_revenue,          type: <span class="c-kw">decimal</span>, optional: true }
+      - { name: lead_source,             type: <span class="c-kw">string</span>, enum: LeadSource }
+      - { name: rating,                  type: <span class="c-kw">string</span>, optional: true, enum: LeadRating }
+      - { name: score,                   type: <span class="c-kw">integer</span>, optional: true, min: 0, max: 100 }
+      - { name: campaign_id,             type: <span class="c-kw">string</span>, fk: true, optional: true }
+      - { name: status,                  type: <span class="c-kw">string</span>, enum: LeadStatus }
+      - { name: owner_id,                type: <span class="c-kw">string</span>, fk: true }
+      - { name: converted_at,            type: <span class="c-kw">datetime</span>, optional: true }
+      - { name: disqualification_reason, type: <span class="c-kw">string</span>, optional: true }</code></pre>
 </div>
 
 <h3>Types</h3>
@@ -133,12 +144,12 @@
 <h3>Modifiers</h3>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Modifier</th><th>Meaning</th><th>Watch out for</th></tr></thead>
+  <thead><tr><th>Flag</th><th>Meaning</th><th>Watch out for</th></tr></thead>
   <tbody>
-    <tr><td><code>PK</code></td><td>Primary key. Every entity gets <code>string id PK</code> if you omit one.</td><td>—</td></tr>
-    <tr><td><code>FK</code></td><td>Foreign key. The <em>column name</em> decides what it points at.</td><td>See below — this is the one that catches people.</td></tr>
-    <tr><td><code>UK</code></td><td>Unique. Emits a unique index.</td><td>Unique <em>and</em> required means the caller must always supply it.</td></tr>
-    <tr><td><code>OPTIONAL</code></td><td>Nullable. Everything is required by default.</td><td>Mermaid's ER grammar has no equivalent, so ERDs render through a normalizer that strips it.</td></tr>
+    <tr><td><code>pk: true</code></td><td>Primary key. Every entity gets a string <code>id</code> key if you omit one.</td><td>—</td></tr>
+    <tr><td><code>fk: true</code></td><td>Foreign key. The <em>column name</em> decides what it points at.</td><td>See below — this is the one that catches people.</td></tr>
+    <tr><td><code>unique: true</code></td><td>Unique. Emits a unique index.</td><td>Unique <em>and</em> required means the caller must always supply it.</td></tr>
+    <tr><td><code>optional: true</code></td><td>Nullable. Everything is required by default.</td><td>A required column the caller cannot know yet — a number a hook mints — has to be optional, or the insert fails before the hook runs.</td></tr>
   </tbody>
 </table>
 </div>
@@ -157,7 +168,7 @@
 <div class="note warn">
   <div class="note-title">The most common modelling mistake</div>
   <p>
-    <code>string assigned_to FK</code> looks fine and quietly does the wrong thing — it does not end in
+    <code>{ name: assigned_to, type: string, fk: true }</code> looks fine and quietly does the wrong thing — it does not end in
     <code>_id</code>, so the checker flags <strong>EML114</strong> and the column renders as raw text.
     Either use a name the resolver knows (<code>owner_id</code>, <code>escalated_by_id</code>) or accept
     that you are storing an opaque string.
@@ -166,19 +177,20 @@
 
 <h2>Relationships</h2>
 <p>
-  Standard Mermaid cardinality operators. The label becomes the relationship's name; the glyphs decide
-  which side carries the foreign key.
+  Each relationship names both ends and a cardinality for each — <code>exactly-one</code>,
+  <code>zero-or-one</code>, <code>zero-or-more</code> or <code>one-or-more</code>. The label becomes the
+  relationship's name; the two cardinalities decide which side carries the foreign key.
 </p>
 
 <div class="code">
   <div class="code-head"><span class="tag">eml</span><span>a few of the CRM's 39 relationships</span></div>
-<pre><code>    Account     ||--o{ Contact             : <span class="c-str">"employs"</span>
-    Account     ||--o{ Opportunity         : <span class="c-str">"has pipeline"</span>
-    Opportunity ||--o{ OpportunityLineItem : <span class="c-str">"contains"</span>
-    Opportunity ||--o{ Quote               : <span class="c-str">"is priced by"</span>
-    Quote       ||--o{ Contract            : <span class="c-str">"becomes"</span>
-    SlaPolicy   ||--o{ SupportCase         : <span class="c-str">"applies to"</span>
-    User        ||--o{ Opportunity         : <span class="c-str">"owns"</span></code></pre>
+<pre><code>  - { from: Account,     fromCardinality: exactly-one, to: Contact,             toCardinality: zero-or-more, label: employs }
+  - { from: Account,     fromCardinality: exactly-one, to: Opportunity,         toCardinality: zero-or-more, label: has pipeline }
+  - { from: Opportunity, fromCardinality: exactly-one, to: OpportunityLineItem, toCardinality: zero-or-more, label: contains }
+  - { from: Opportunity, fromCardinality: exactly-one, to: Quote,               toCardinality: zero-or-more, label: is priced by }
+  - { from: Quote,       fromCardinality: exactly-one, to: Contract,            toCardinality: zero-or-more, label: becomes }
+  - { from: SlaPolicy,   fromCardinality: exactly-one, to: SupportCase,         toCardinality: zero-or-more, label: applies to }
+  - { from: User,        fromCardinality: exactly-one, to: Opportunity,         toCardinality: zero-or-more, label: owns }</code></pre>
 </div>
 
 <p>
@@ -188,10 +200,10 @@
 </p>
 
 <figure>
-  <img src="img/04-generator-crm-design.png" alt="The generator's design step showing the CRM model's Mermaid source on the left and a rendered ERD of all 17 entities on the right.">
+  <img src="img/04-generator-crm-design.png" alt="The generator's design step showing the CRM model on the left and the ERD drawn from it of all 17 entities on the right.">
   <figcaption>
     <b>The ERD, rendered by the app itself.</b> Seventeen entity boxes and the relationships between them,
-    drawn from the same file the generator compiles. The entity count in the header is the parser's, not a
+    drawn from the same document the generator compiles. The entity count in the header is the parser's, not a
     guess.
   </figcaption>
 </figure>
@@ -204,15 +216,29 @@
 
 <div class="code">
   <div class="code-head"><span class="tag">eml</span><span>declare, then bind</span></div>
-<pre><code><span class="c-dir">%%enum</span> LeadStatus: new, working, nurturing, qualified, converted, disqualified
-<span class="c-dir">%%enum</span> LeadRating: hot, warm, cold
-<span class="c-dir">%%enum</span> CasePriority: low, medium, high, critical
+<pre><code><span class="c-kw">enums</span>:
+  - name: LeadStatus
+    values: [new, working, nurturing, qualified, converted, disqualified]
+  - name: LeadRating
+    values: [hot, warm, cold]
+  - name: CasePriority
+    values: [low, medium, high, critical]
 
-    <span class="c-com">%% inside the erDiagram, after the entity blocks</span>
-    <span class="c-dir">%%field</span> Lead.status          enum: LeadStatus
-    <span class="c-dir">%%field</span> Lead.rating          enum: LeadRating
-    <span class="c-dir">%%field</span> SupportCase.priority enum: CasePriority</code></pre>
+<span class="c-com"># on the column, under its entity's attributes</span>
+      - { name: status,   type: string, enum: LeadStatus }     <span class="c-com"># Lead</span>
+      - { name: rating,   type: string, optional: true, enum: LeadRating }
+      - { name: priority, type: string, enum: CasePriority }   <span class="c-com"># SupportCase</span></code></pre>
 </div>
+
+<figure>
+  <img src="img/32-crm-enum-dropdowns.png" alt="The Lead form in the generated CRM: Lead Source, Rating and Status each carry a Dropdown badge and render as select controls.">
+  <figcaption>
+    <b>What the binding buys you.</b> Lead Source, Rating and Status carry a <em>Dropdown</em> badge and a
+    select holding exactly the modelled values. Score stays an integer; Campaign Id and Owner Id stay
+    lookups. Each enum becomes a list reference in the dictionary, so an administrator can rename a label
+    later without touching the model.
+  </figcaption>
+</figure>
 
 <div class="note tip">
   <div class="note-title">Keep enum values machine-shaped</div>
@@ -233,40 +259,64 @@
 
 <h2>Indexes</h2>
 <p>
-  <code>UK</code> gets you a single-column unique index for free. Anything composite — the pairs your lists
+  <code>unique: true</code> on a column gets you a single-column unique index for free. Anything composite — the pairs your lists
   actually filter and sort by — has to be asked for.
 </p>
 
 <div class="code">
   <div class="code-head"><span class="tag">eml</span><span>the CRM's composite indexes, chosen from its own screens</span></div>
-<pre><code>    <span class="c-dir">%%index</span> Account(territory_id, status)
-    <span class="c-dir">%%index</span> Lead(owner_id, status)
-    <span class="c-dir">%%index</span> Opportunity(account_id, stage)
-    <span class="c-dir">%%index</span> Opportunity(owner_id, expected_close_date)
-    <span class="c-dir">%%index</span> SupportCase(owner_id, priority)
-    <span class="c-dir">%%index</span> Activity(owner_id, due_at)</code></pre>
+<pre><code>  - name: Account
+    indexes:
+      - columns: [territory_id, status]
+  - name: Lead
+    indexes:
+      - columns: [owner_id, status]
+  - name: Opportunity
+    indexes:
+      - columns: [account_id, stage]
+      - columns: [owner_id, expected_close_date]
+  - name: SupportCase
+    indexes:
+      - columns: [owner_id, priority]
+  - name: Activity
+    indexes:
+      - columns: [owner_id, due_at]</code></pre>
 </div>
 
 <p>
   Pick them from the questions the application asks: "my open opportunities by close date" is
-  <code>Opportunity(owner_id, expected_close_date)</code>. The column order matters — leading column first.
+  <code>[owner_id, expected_close_date]</code> on Opportunity. The column order matters — leading column first.
 </p>
 
 <h2>Grouping the dashboard</h2>
 <p>
-  <code>%%category</code> decides how the home screen is organised. Without it every entity lands in one
+  <code>categories</code> decides how the home screen is organised. Without it every entity lands in one
   undifferentiated "General" block, which is survivable at five entities and unusable at seventeen.
 </p>
 
 <div class="code">
   <div class="code-head"><span class="tag">eml</span><span>three of the CRM's seven categories</span></div>
-<pre><code><span class="c-dir">%%category</span> name: Sales Pipeline; description: Opportunities, their line items and the products sold; icon: TrendingUp; color: #0ea5e9; entities: Opportunity, OpportunityLineItem, Product
-<span class="c-dir">%%category</span> name: Customer Service; description: Support cases and the service levels that govern them; icon: LifeBuoy; color: #f59e0b; entities: SupportCase, SlaPolicy
-<span class="c-dir">%%category</span> name: People and Teams; description: Users, selling teams and organisational structure; icon: Users; color: #64748b; default: true; entities: User, Team</code></pre>
+<pre><code><span class="c-kw">categories</span>:
+  - name: Sales Pipeline
+    description: Opportunities and the products sold
+    icon: TrendingUp
+    color: <span class="c-str">"#0ea5e9"</span>
+    entities: [Opportunity, Product]
+  - name: Customer Service
+    description: Support cases and the service levels that govern them
+    icon: LifeBuoy
+    color: <span class="c-str">"#f59e0b"</span>
+    entities: [SupportCase, SlaPolicy]
+  - name: People and Teams
+    description: Users, selling teams and organisational structure
+    icon: Users
+    color: <span class="c-str">"#64748b"</span>
+    default: true
+    entities: [User, Team]</code></pre>
 </div>
 
 <p>
-  Keys are <code>;</code>-separated and only <code>name</code> is required. <code>default: true</code>
+  Only <code>name</code> is required. A colour is quoted, because an unquoted <code>#</code> starts a YAML comment. <code>default: true</code>
   marks the category that catches anything you forgot to assign — at most one document may declare it.
   The <code>description</code> is rendered under the group heading, so write it for the person using the
   application, not for yourself.
@@ -275,24 +325,28 @@
 <h2>Entity-level metadata</h2>
 <div class="code">
   <div class="code-head"><span class="tag">eml</span></div>
-<pre><code>    <span class="c-dir">%%entity</span> Account     audited: true      <span class="c-com">-- every change recorded in the audit log</span>
-    <span class="c-dir">%%entity</span> Activity    softDelete: true   <span class="c-com">-- deletes stamp deleted_at instead of removing</span>
-    <span class="c-dir">%%entity</span> Product     label: Product Catalogue</code></pre>
+<pre><code>  - name: Account
+    audited: true          <span class="c-com"># every change recorded in the audit log</span>
+  - name: Activity
+    softDelete: true       <span class="c-com"># deletes stamp deleted_at instead of removing</span>
+  - name: Product
+    label: Product Catalogue</code></pre>
 </div>
 
 <h2>Check before you go further</h2>
 <p>
-  The checker reads the whole document against the language definition and reports errors, warnings and
-  informational notes with line numbers and fixes. Run it while you write, not at the end.
+  The checker reads the whole document — its YAML, the schema, then the language definition — and reports
+  errors, warnings and informational notes at the YAML line they concern, with fixes. Run it while you write, not at the end.
 </p>
 
 <div class="code">
   <div class="code-head"><span class="tag">shell</span></div>
-<pre><code>$ bun language/checker.ts language/examples/crm.eml.mmd
+<pre><code>$ bun language/cli/eml.ts validate -i language/yaml/examples/crm.eml.yaml
 
-Checking crm.eml.mmd
-  ✓ No issues found.
-  crm.eml.mmd  0 errors · 0 warnings</code></pre>
+Validating language/yaml/examples/crm.eml.yaml
+  no issues
+
+0 errors, 0 warning(s)</code></pre>
 </div>
 
 <div class="note win">

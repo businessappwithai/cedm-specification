@@ -77,7 +77,6 @@ tmp/
 generated/
 output/
 test-output/
-*.mermaid
 *.generated.*
 .gstack/
 .playwright-mcp/
@@ -85,7 +84,6 @@ test-output/
 # EML checker output. Written next to the model on every generator run and
 # stamped with the time it ran, so tracking it means a one-line timestamp diff
 # after every single generation — noise that says nothing about the model.
-*.eml.mmd.error
 
 # Rust build output (crates/appwithai-gen)
 target/
@@ -97,3 +95,6 @@ target/
 .appwithai-web.pid
 language.zip
 __pycache__/
+
+# TypeScript incremental build state
+*.tsbuildinfo

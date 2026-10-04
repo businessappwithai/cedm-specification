@@ -7,7 +7,8 @@
  * drives `language/cli/eml.ts` — the `eml` CLI, which for the
  * `tanstack-astryx-loco` target loads the generator's pipeline as a library.
  * The two shipped binaries are different entry points with their own argument
- * parsing and their own defaults. Both live at the root of this repository and
+ * parsing and their own defaults. Both live in `app-with-ai-rust`, checked out
+ * beside this repository, and
  * both read a model as YAML:
  *
  *   appwithai       packages/generator/src/cli/generate.ts, run by bun
@@ -36,8 +37,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dir, "..");
-/** The root of this repository, where both CLIs ship from. */
-const APP_REPO = path.resolve(ROOT, "..", "..", "..");
+/** app-with-ai-rust, beside this repository, where both CLIs ship from. */
+const APP_REPO = path.resolve(ROOT, "..", "..", "app-with-ai-rust");
 const MODEL = process.env.CHECK_CLIS_MODEL ?? "examples/crm.eml.yaml";
 
 /** `--only <name>` runs one CLI. CI uses it to give each its own job. */
@@ -113,8 +114,8 @@ if (!existsSync(path.join(ROOT, MODEL))) {
 }
 if (!existsSync(path.join(APP_REPO, "node_modules"))) {
   console.error(
-    `The repository root (${APP_REPO}) has no node_modules.\n` +
-      "Both CLIs ship from it — run `bun install` there first."
+    `${APP_REPO} has no node_modules.\n` +
+      "Both CLIs ship from it — run `./deps.sh --install` first."
   );
   process.exit(1);
 }

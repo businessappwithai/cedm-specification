@@ -150,19 +150,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('373adc11-1fe1-5b0e-8b0a-b17ddb4de6cf', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', 'cd4b0d04-aab6-5c61-b62f-4847f8ceed6e', 'bb22183c-f5b0-529e-ac73-e41ac63e09ee', '83c22f90-98df-5b8e-b773-4134930e84f1', 'ccb3f5b1-fcae-5abf-af3d-61ce2b63aa80', 'dd1ad219-189d-55c4-9a10-0913e26059b7', 'bb263102-7aa4-534e-bd3e-db44bc58dbf1', 'final', NOW(), NOW())
+VALUES ('373adc11-1fe1-5b0e-8b0a-b17ddb4de6cf', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', 'cd4b0d04-aab6-5c61-b62f-4847f8ceed6e', 'bb22183c-f5b0-529e-ac73-e41ac63e09ee', '83c22f90-98df-5b8e-b773-4134930e84f1', 'ccb3f5b1-fcae-5abf-af3d-61ce2b63aa80', 'dd1ad219-189d-55c4-9a10-0913e26059b7', 'bb263102-7aa4-534e-bd3e-db44bc58dbf1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('07188e32-f4a6-55da-b87b-1309b57166ed', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', 'b7ee6587-dbd1-5249-bb45-542db3fabac9', 'abf75be5-867a-5453-aba0-ba4862eeb971', '462e0b3c-d941-5a9d-a33f-b669225763de', '8da8c20c-3b45-593a-b175-224d732da5fc', '6b5ac7bc-99e5-5672-b15b-58d728d48053', '6a04624f-a63a-5ef1-8d7f-667b3668ef21', 'final', NOW(), NOW())
+VALUES ('07188e32-f4a6-55da-b87b-1309b57166ed', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', 'b7ee6587-dbd1-5249-bb45-542db3fabac9', 'abf75be5-867a-5453-aba0-ba4862eeb971', '462e0b3c-d941-5a9d-a33f-b669225763de', '8da8c20c-3b45-593a-b175-224d732da5fc', '6b5ac7bc-99e5-5672-b15b-58d728d48053', '6a04624f-a63a-5ef1-8d7f-667b3668ef21', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('2125c07d-5c25-5bd0-9416-bbb1dc6f728f', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', '05f1ea98-e94e-5cb1-ba1f-c7c374b65e7d', '87bc58dd-b580-51e9-8416-ee0987d31d50', '649fb160-1aae-563d-91cb-5f403e4382cd', '1fbdfb95-383d-53ee-9cbc-c7f419f27360', 'e8bbb6b5-bba9-5376-92ef-2250508b9665', 'b07dab05-a52e-5060-9b7c-5c39c121cec5', 'final', NOW(), NOW())
+VALUES ('2125c07d-5c25-5bd0-9416-bbb1dc6f728f', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', '05f1ea98-e94e-5cb1-ba1f-c7c374b65e7d', '87bc58dd-b580-51e9-8416-ee0987d31d50', '649fb160-1aae-563d-91cb-5f403e4382cd', '1fbdfb95-383d-53ee-9cbc-c7f419f27360', 'e8bbb6b5-bba9-5376-92ef-2250508b9665', 'b07dab05-a52e-5060-9b7c-5c39c121cec5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('65029892-d5bd-553a-a313-a63df3e4dc90', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '3ccfa652-a3de-5d22-aec1-81145463048c', '4eb7867e-6d8a-5ffb-b720-25deaf184eb3', 'aa446ab1-e228-55c9-819e-5e4d6e9af563', 'fc049aa5-920d-5a5c-bd68-0d4a5da0c131', '29caca7e-4510-5698-9c3c-9419fb2ab158', '60ebba50-ba7f-5c3b-b5dc-b51d6f450a48', 'final', NOW(), NOW())
+VALUES ('65029892-d5bd-553a-a313-a63df3e4dc90', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '3ccfa652-a3de-5d22-aec1-81145463048c', '4eb7867e-6d8a-5ffb-b720-25deaf184eb3', 'aa446ab1-e228-55c9-819e-5e4d6e9af563', 'fc049aa5-920d-5a5c-bd68-0d4a5da0c131', '29caca7e-4510-5698-9c3c-9419fb2ab158', '60ebba50-ba7f-5c3b-b5dc-b51d6f450a48', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('0014336a-0f10-5687-8174-393f1e44cb3b', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', 'afdad40e-e989-51e2-9f55-e97aa42a5e6e', 'ef9d17a4-2665-516f-a3fb-74f9b7de3834', '68e2bf81-4c5a-5986-bee0-79757160d071', 'b49016e9-88bc-54fc-8c3f-d3588c5f8fca', 'a55cc94e-55b7-50fc-9fed-6bb79f13e1cd', '6e281ee4-70a8-5287-a266-71f35fede85f', 'final', NOW(), NOW())
+VALUES ('0014336a-0f10-5687-8174-393f1e44cb3b', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', 'afdad40e-e989-51e2-9f55-e97aa42a5e6e', 'ef9d17a4-2665-516f-a3fb-74f9b7de3834', '68e2bf81-4c5a-5986-bee0-79757160d071', 'b49016e9-88bc-54fc-8c3f-d3588c5f8fca', 'a55cc94e-55b7-50fc-9fed-6bb79f13e1cd', '6e281ee4-70a8-5287-a266-71f35fede85f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -286,17 +286,17 @@ ON CONFLICT DO NOTHING;
 
 -- Vehicle Model (bus_vehicle_model)
 INSERT INTO bus_vehicle_model (id, manufacturer, model_name, model_code, model_year, status, doc_status, created_at, updated_at)
-VALUES ('9db54780-0312-58f2-bd9f-2b64f0fdbd97', 'Vehicle Model 1', 'Model Name 1', 'Model Code 1', 1, 'PLANNED', 'final', NOW(), NOW())
+VALUES ('9db54780-0312-58f2-bd9f-2b64f0fdbd97', 'Manufacturer 1', 'Model Name 1', 'Vehicle Model 1', 1, 'PLANNED', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_vehicle_model (id, manufacturer, model_name, model_code, model_year, status, doc_status, created_at, updated_at)
-VALUES ('9a0c0a62-7973-5d34-92fc-5e8d3635debb', 'Vehicle Model 2', 'Model Name 2', 'Model Code 2', 2, 'PLANNED', 'final', NOW(), NOW())
+VALUES ('9a0c0a62-7973-5d34-92fc-5e8d3635debb', 'Manufacturer 2', 'Model Name 2', 'Vehicle Model 2', 2, 'PLANNED', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_vehicle_model (id, manufacturer, model_name, model_code, model_year, status, doc_status, created_at, updated_at)
-VALUES ('e41b2649-4e6c-509b-b735-436cb8527171', 'Vehicle Model 3', 'Model Name 3', 'Model Code 3', 3, 'PLANNED', 'final', NOW(), NOW())
+VALUES ('e41b2649-4e6c-509b-b735-436cb8527171', 'Manufacturer 3', 'Model Name 3', 'Vehicle Model 3', 3, 'PLANNED', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_vehicle_model (id, manufacturer, model_name, model_code, model_year, status, doc_status, created_at, updated_at)
-VALUES ('707a1b5c-4fe9-5fe4-8532-01bcd6656217', 'Vehicle Model 4', 'Model Name 4', 'Model Code 4', 4, 'PLANNED', 'final', NOW(), NOW())
+VALUES ('707a1b5c-4fe9-5fe4-8532-01bcd6656217', 'Manufacturer 4', 'Model Name 4', 'Vehicle Model 4', 4, 'PLANNED', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_vehicle_model (id, manufacturer, model_name, model_code, model_year, status, doc_status, created_at, updated_at)
-VALUES ('940d7a60-da1e-5502-a854-d85189841b5e', 'Vehicle Model 5', 'Model Name 5', 'Model Code 5', 5, 'PLANNED', 'final', NOW(), NOW())
+VALUES ('940d7a60-da1e-5502-a854-d85189841b5e', 'Manufacturer 5', 'Model Name 5', 'Vehicle Model 5', 5, 'PLANNED', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

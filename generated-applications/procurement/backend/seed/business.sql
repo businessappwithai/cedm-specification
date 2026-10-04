@@ -167,19 +167,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('67273f6a-c8c5-5022-bc75-f07f96750524', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '82e2ce27-e73b-58fb-b3ef-a66ce2e3ccd9', '43c03610-28b0-5dcb-922f-dd087a8582d4', '8cf105c6-ac35-5f7b-8569-991d57a411b8', '1a50fcbe-6c0f-5ee9-b59f-8d419c975cd4', '6592c183-89fd-5043-97dc-d055d4f82a90', 'a7dac9a6-33a0-54a8-919b-799f3dcf7b4b', '02a226f9-9015-5e4f-97b5-f485ad511536', 'final', NOW(), NOW())
+VALUES ('67273f6a-c8c5-5022-bc75-f07f96750524', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '82e2ce27-e73b-58fb-b3ef-a66ce2e3ccd9', '43c03610-28b0-5dcb-922f-dd087a8582d4', '8cf105c6-ac35-5f7b-8569-991d57a411b8', '1a50fcbe-6c0f-5ee9-b59f-8d419c975cd4', '6592c183-89fd-5043-97dc-d055d4f82a90', 'a7dac9a6-33a0-54a8-919b-799f3dcf7b4b', '02a226f9-9015-5e4f-97b5-f485ad511536', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('6f147c1d-77a3-5efa-a379-9b73cd64d052', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '9eea8488-dac9-5c4e-9237-71c06ddd5583', 'fbff3453-9d91-59ea-bb45-18a2803e1881', '0bd14b60-174a-51aa-8105-c81b924bacf5', '4131eaea-6731-5325-af90-9e27f82709fb', '4988d72f-d152-597d-9110-e9a2b49771e6', 'd29d7717-1e75-572a-8b3b-5068d42ffc2c', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'final', NOW(), NOW())
+VALUES ('6f147c1d-77a3-5efa-a379-9b73cd64d052', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '9eea8488-dac9-5c4e-9237-71c06ddd5583', 'fbff3453-9d91-59ea-bb45-18a2803e1881', '0bd14b60-174a-51aa-8105-c81b924bacf5', '4131eaea-6731-5325-af90-9e27f82709fb', '4988d72f-d152-597d-9110-e9a2b49771e6', 'd29d7717-1e75-572a-8b3b-5068d42ffc2c', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('dbdc3ad4-e188-50e4-813c-e2ec042d6bf1', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', '142d9369-04fa-57a0-995a-ca006e2ae7ce', '24d174dc-7d05-5ade-b5bb-cfb56bbfc0c5', '8b990e7a-8410-5e1e-bcc1-0305b5e3107c', '4bcc67e1-78e7-5317-8654-d41657f21b38', '2b9ecebf-6c5d-57c2-a508-499602a63a52', '3067c79d-9eae-5533-b080-91269f173848', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'final', NOW(), NOW())
+VALUES ('dbdc3ad4-e188-50e4-813c-e2ec042d6bf1', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', '142d9369-04fa-57a0-995a-ca006e2ae7ce', '24d174dc-7d05-5ade-b5bb-cfb56bbfc0c5', '8b990e7a-8410-5e1e-bcc1-0305b5e3107c', '4bcc67e1-78e7-5317-8654-d41657f21b38', '2b9ecebf-6c5d-57c2-a508-499602a63a52', '3067c79d-9eae-5533-b080-91269f173848', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('678e2a61-4a12-5f03-ac2b-2919e4450acc', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', '753ce117-23da-54d0-bb18-936c7f1e3b78', '5b377974-60b2-5529-83e0-a2ac3fa988e5', '87562370-667e-51e3-a332-46afb845dc0f', '484f2cdf-ac1e-52c7-aafe-a9bb6501f4fa', '1713ff51-65d7-5174-b876-ed8b56ebe013', 'bde023a4-6a67-5206-b654-2c79ed671392', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'final', NOW(), NOW())
+VALUES ('678e2a61-4a12-5f03-ac2b-2919e4450acc', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', '753ce117-23da-54d0-bb18-936c7f1e3b78', '5b377974-60b2-5529-83e0-a2ac3fa988e5', '87562370-667e-51e3-a332-46afb845dc0f', '484f2cdf-ac1e-52c7-aafe-a9bb6501f4fa', '1713ff51-65d7-5174-b876-ed8b56ebe013', 'bde023a4-6a67-5206-b654-2c79ed671392', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('b1db6d06-3273-5c80-b74a-5ffb9ecf3eed', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '0578c864-a9b9-59fc-be89-0e79e2561b0c', '95694d15-9c92-58d6-990f-2ca11ffac7ea', '755d26ed-379a-51d4-8403-f57e9a4391c6', 'ee6cbd00-96a4-5ae5-acc9-0d79a5ff8d73', '24014741-f4d0-5e31-b8d8-3617b0720fbf', 'b22d6ce9-9efe-588b-aa96-b86f17429be4', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'final', NOW(), NOW())
+VALUES ('b1db6d06-3273-5c80-b74a-5ffb9ecf3eed', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '0578c864-a9b9-59fc-be89-0e79e2561b0c', '95694d15-9c92-58d6-990f-2ca11ffac7ea', '755d26ed-379a-51d4-8403-f57e9a4391c6', 'ee6cbd00-96a4-5ae5-acc9-0d79a5ff8d73', '24014741-f4d0-5e31-b8d8-3617b0720fbf', 'b22d6ce9-9efe-588b-aa96-b86f17429be4', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -320,19 +320,19 @@ ON CONFLICT DO NOTHING;
 
 -- Purchase Requisition (bus_purchase_requisition)
 INSERT INTO bus_purchase_requisition (id, requisition_number, requisition_date, status, justification, requester_id, organization_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('20f637f2-543b-539b-b20c-c884758959dd', 'Requisition Number 1', '2026-01-15', 'DRAFT', 'Justification 1', '82e2ce27-e73b-58fb-b3ef-a66ce2e3ccd9', '8cf105c6-ac35-5f7b-8569-991d57a411b8', '02a226f9-9015-5e4f-97b5-f485ad511536', 'final', NOW(), NOW())
+VALUES ('20f637f2-543b-539b-b20c-c884758959dd', 'Purchase Requisition 1', '2026-01-15', 'DRAFT', 'Justification 1', '82e2ce27-e73b-58fb-b3ef-a66ce2e3ccd9', '8cf105c6-ac35-5f7b-8569-991d57a411b8', '02a226f9-9015-5e4f-97b5-f485ad511536', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_requisition (id, requisition_number, requisition_date, status, justification, requester_id, organization_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('12a303cc-51b0-52ce-981c-101f6c65c7d9', 'Requisition Number 2', '2026-02-15', 'DRAFT', 'Justification 2', '9eea8488-dac9-5c4e-9237-71c06ddd5583', '0bd14b60-174a-51aa-8105-c81b924bacf5', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'final', NOW(), NOW())
+VALUES ('12a303cc-51b0-52ce-981c-101f6c65c7d9', 'Purchase Requisition 2', '2026-02-15', 'DRAFT', 'Justification 2', '9eea8488-dac9-5c4e-9237-71c06ddd5583', '0bd14b60-174a-51aa-8105-c81b924bacf5', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_requisition (id, requisition_number, requisition_date, status, justification, requester_id, organization_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('3086a86b-5412-59a8-8d6b-199d3d946a5b', 'Requisition Number 3', '2026-03-15', 'DRAFT', 'Justification 3', '142d9369-04fa-57a0-995a-ca006e2ae7ce', '8b990e7a-8410-5e1e-bcc1-0305b5e3107c', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'final', NOW(), NOW())
+VALUES ('3086a86b-5412-59a8-8d6b-199d3d946a5b', 'Purchase Requisition 3', '2026-03-15', 'DRAFT', 'Justification 3', '142d9369-04fa-57a0-995a-ca006e2ae7ce', '8b990e7a-8410-5e1e-bcc1-0305b5e3107c', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_requisition (id, requisition_number, requisition_date, status, justification, requester_id, organization_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('0ddad651-d468-515f-8e11-55f9a5279fd4', 'Requisition Number 4', '2026-04-15', 'DRAFT', 'Justification 4', '753ce117-23da-54d0-bb18-936c7f1e3b78', '87562370-667e-51e3-a332-46afb845dc0f', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'final', NOW(), NOW())
+VALUES ('0ddad651-d468-515f-8e11-55f9a5279fd4', 'Purchase Requisition 4', '2026-04-15', 'DRAFT', 'Justification 4', '753ce117-23da-54d0-bb18-936c7f1e3b78', '87562370-667e-51e3-a332-46afb845dc0f', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_requisition (id, requisition_number, requisition_date, status, justification, requester_id, organization_id, supplier_id, doc_status, created_at, updated_at)
-VALUES ('a837be74-c438-566c-84f2-9b5b7e6a875f', 'Requisition Number 5', '2026-05-15', 'DRAFT', 'Justification 5', '0578c864-a9b9-59fc-be89-0e79e2561b0c', '755d26ed-379a-51d4-8403-f57e9a4391c6', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'final', NOW(), NOW())
+VALUES ('a837be74-c438-566c-84f2-9b5b7e6a875f', 'Purchase Requisition 5', '2026-05-15', 'DRAFT', 'Justification 5', '0578c864-a9b9-59fc-be89-0e79e2561b0c', '755d26ed-379a-51d4-8403-f57e9a4391c6', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Purchase Requisition Line (bus_purchase_requisition_line)
@@ -388,19 +388,19 @@ ON CONFLICT DO NOTHING;
 
 -- Supplier Quotation (bus_supplier_quotation)
 INSERT INTO bus_supplier_quotation (id, quotation_number, submitted_at, valid_until, total_amount, status, supplier_id, request_for_quotation_id, doc_status, created_at, updated_at)
-VALUES ('284a9683-31f8-5c8b-940a-e166efc94e1a', 'Quotation Number 1', '2026-01-15T09:00:00Z', NULL, 10.50, 'RECEIVED', '02a226f9-9015-5e4f-97b5-f485ad511536', 'f0e26a33-6b37-51ae-b09a-168468b7ea46', 'final', NOW(), NOW())
+VALUES ('284a9683-31f8-5c8b-940a-e166efc94e1a', 'Supplier Quotation 1', '2026-01-15T09:00:00Z', NULL, 10.50, 'RECEIVED', '02a226f9-9015-5e4f-97b5-f485ad511536', 'f0e26a33-6b37-51ae-b09a-168468b7ea46', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_quotation (id, quotation_number, submitted_at, valid_until, total_amount, status, supplier_id, request_for_quotation_id, doc_status, created_at, updated_at)
-VALUES ('6528e0ea-a3a1-5dd1-8d76-3d28ead189ba', 'Quotation Number 2', '2026-02-15T09:00:00Z', NULL, 21.00, 'RECEIVED', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '9976b1bc-0ed6-5139-a62e-9cefd113d304', 'final', NOW(), NOW())
+VALUES ('6528e0ea-a3a1-5dd1-8d76-3d28ead189ba', 'Supplier Quotation 2', '2026-02-15T09:00:00Z', NULL, 21.00, 'RECEIVED', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '9976b1bc-0ed6-5139-a62e-9cefd113d304', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_quotation (id, quotation_number, submitted_at, valid_until, total_amount, status, supplier_id, request_for_quotation_id, doc_status, created_at, updated_at)
-VALUES ('4748b7a5-4749-5618-9f3b-5c327c5df7e5', 'Quotation Number 3', '2026-03-15T09:00:00Z', NULL, 31.50, 'RECEIVED', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'c8e00b57-ee38-57fb-8d46-425c98b2c1c6', 'final', NOW(), NOW())
+VALUES ('4748b7a5-4749-5618-9f3b-5c327c5df7e5', 'Supplier Quotation 3', '2026-03-15T09:00:00Z', NULL, 31.50, 'RECEIVED', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'c8e00b57-ee38-57fb-8d46-425c98b2c1c6', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_quotation (id, quotation_number, submitted_at, valid_until, total_amount, status, supplier_id, request_for_quotation_id, doc_status, created_at, updated_at)
-VALUES ('d36eea36-24cc-526d-a52c-3a0a21338ead', 'Quotation Number 4', '2026-04-15T09:00:00Z', NULL, 42.00, 'RECEIVED', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'aba045da-0f82-50e3-a54e-d976f8d10139', 'final', NOW(), NOW())
+VALUES ('d36eea36-24cc-526d-a52c-3a0a21338ead', 'Supplier Quotation 4', '2026-04-15T09:00:00Z', NULL, 42.00, 'RECEIVED', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'aba045da-0f82-50e3-a54e-d976f8d10139', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_quotation (id, quotation_number, submitted_at, valid_until, total_amount, status, supplier_id, request_for_quotation_id, doc_status, created_at, updated_at)
-VALUES ('05a15ddd-8f90-534f-bf79-cb9edd0a87c1', 'Quotation Number 5', '2026-05-15T09:00:00Z', NULL, 52.50, 'RECEIVED', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '5aa5876f-9b36-5de0-a636-2b6e63a02b16', 'final', NOW(), NOW())
+VALUES ('05a15ddd-8f90-534f-bf79-cb9edd0a87c1', 'Supplier Quotation 5', '2026-05-15T09:00:00Z', NULL, 52.50, 'RECEIVED', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '5aa5876f-9b36-5de0-a636-2b6e63a02b16', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Supplier Quotation Line (bus_supplier_quotation_line)
@@ -439,19 +439,19 @@ ON CONFLICT DO NOTHING;
 
 -- Purchase Order (bus_purchase_order)
 INSERT INTO bus_purchase_order (id, order_number, order_date, status, currency_id, requested_delivery_date, total_amount, supplier_id, request_for_quotation_id, supplier_quotation_id, organization_id, delivery_location_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('28e7c37c-a1f5-532b-ba60-46f853b78329', 'Order Number 1', '2026-01-15T09:00:00Z', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', NULL, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', 'f0e26a33-6b37-51ae-b09a-168468b7ea46', '284a9683-31f8-5c8b-940a-e166efc94e1a', '8cf105c6-ac35-5f7b-8569-991d57a411b8', 'bd8b1954-b8ef-5155-a0b8-d1b242eb503d', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
+VALUES ('28e7c37c-a1f5-532b-ba60-46f853b78329', 'Purchase Order 1', '2026-01-15T09:00:00Z', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', NULL, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', 'f0e26a33-6b37-51ae-b09a-168468b7ea46', '284a9683-31f8-5c8b-940a-e166efc94e1a', '8cf105c6-ac35-5f7b-8569-991d57a411b8', 'bd8b1954-b8ef-5155-a0b8-d1b242eb503d', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_order (id, order_number, order_date, status, currency_id, requested_delivery_date, total_amount, supplier_id, request_for_quotation_id, supplier_quotation_id, organization_id, delivery_location_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('454d2c84-69b3-5abb-9268-62803faf3ba3', 'Order Number 2', '2026-02-15T09:00:00Z', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', NULL, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '9976b1bc-0ed6-5139-a62e-9cefd113d304', '6528e0ea-a3a1-5dd1-8d76-3d28ead189ba', '0bd14b60-174a-51aa-8105-c81b924bacf5', '9f13411f-8964-53b0-b4ae-d15199a14688', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
+VALUES ('454d2c84-69b3-5abb-9268-62803faf3ba3', 'Purchase Order 2', '2026-02-15T09:00:00Z', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', NULL, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '9976b1bc-0ed6-5139-a62e-9cefd113d304', '6528e0ea-a3a1-5dd1-8d76-3d28ead189ba', '0bd14b60-174a-51aa-8105-c81b924bacf5', '9f13411f-8964-53b0-b4ae-d15199a14688', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_order (id, order_number, order_date, status, currency_id, requested_delivery_date, total_amount, supplier_id, request_for_quotation_id, supplier_quotation_id, organization_id, delivery_location_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'Order Number 3', '2026-03-15T09:00:00Z', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', NULL, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'c8e00b57-ee38-57fb-8d46-425c98b2c1c6', '4748b7a5-4749-5618-9f3b-5c327c5df7e5', '8b990e7a-8410-5e1e-bcc1-0305b5e3107c', 'cb9ec9ee-ddbc-5075-9d3f-fff768d5e3bd', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
+VALUES ('86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'Purchase Order 3', '2026-03-15T09:00:00Z', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', NULL, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'c8e00b57-ee38-57fb-8d46-425c98b2c1c6', '4748b7a5-4749-5618-9f3b-5c327c5df7e5', '8b990e7a-8410-5e1e-bcc1-0305b5e3107c', 'cb9ec9ee-ddbc-5075-9d3f-fff768d5e3bd', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_order (id, order_number, order_date, status, currency_id, requested_delivery_date, total_amount, supplier_id, request_for_quotation_id, supplier_quotation_id, organization_id, delivery_location_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'Order Number 4', '2026-04-15T09:00:00Z', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', NULL, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'aba045da-0f82-50e3-a54e-d976f8d10139', 'd36eea36-24cc-526d-a52c-3a0a21338ead', '87562370-667e-51e3-a332-46afb845dc0f', 'f7fa9fd9-4442-5202-beec-54b55fee4286', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
+VALUES ('072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'Purchase Order 4', '2026-04-15T09:00:00Z', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', NULL, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'aba045da-0f82-50e3-a54e-d976f8d10139', 'd36eea36-24cc-526d-a52c-3a0a21338ead', '87562370-667e-51e3-a332-46afb845dc0f', 'f7fa9fd9-4442-5202-beec-54b55fee4286', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_purchase_order (id, order_number, order_date, status, currency_id, requested_delivery_date, total_amount, supplier_id, request_for_quotation_id, supplier_quotation_id, organization_id, delivery_location_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('cd279e1e-413f-55aa-89e7-c063710586dd', 'Order Number 5', '2026-05-15T09:00:00Z', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', NULL, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '5aa5876f-9b36-5de0-a636-2b6e63a02b16', '05a15ddd-8f90-534f-bf79-cb9edd0a87c1', '755d26ed-379a-51d4-8403-f57e9a4391c6', '924c2711-4d16-507a-9af0-daf7d8332eb6', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
+VALUES ('cd279e1e-413f-55aa-89e7-c063710586dd', 'Purchase Order 5', '2026-05-15T09:00:00Z', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', NULL, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '5aa5876f-9b36-5de0-a636-2b6e63a02b16', '05a15ddd-8f90-534f-bf79-cb9edd0a87c1', '755d26ed-379a-51d4-8403-f57e9a4391c6', '924c2711-4d16-507a-9af0-daf7d8332eb6', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Purchase Order Line (bus_purchase_order_line)
@@ -473,36 +473,36 @@ ON CONFLICT DO NOTHING;
 
 -- Supplier Claim (bus_supplier_claim)
 INSERT INTO bus_supplier_claim (id, claim_number, claim_date, status, claim_type, claimed_amount, resolution_code, notes, supplier_id, purchase_order_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'Claim Number 1', '2026-01-15T09:00:00Z', 'DRAFT', 'QUALITY', 10.50, 'NO_ACTION', 'Notes 1', '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
+VALUES ('2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'Supplier Claim 1', '2026-01-15T09:00:00Z', 'DRAFT', 'QUALITY', 10.50, 'NO_ACTION', 'Notes 1', '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim (id, claim_number, claim_date, status, claim_type, claimed_amount, resolution_code, notes, supplier_id, purchase_order_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('cd9b9fd7-2016-5820-99db-596c1bc43429', 'Claim Number 2', '2026-02-15T09:00:00Z', 'DRAFT', 'DAMAGE', 21.00, 'REPLACEMENT', 'Notes 2', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
+VALUES ('cd9b9fd7-2016-5820-99db-596c1bc43429', 'Supplier Claim 2', '2026-02-15T09:00:00Z', 'DRAFT', 'DAMAGE', 21.00, 'REPLACEMENT', 'Notes 2', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim (id, claim_number, claim_date, status, claim_type, claimed_amount, resolution_code, notes, supplier_id, purchase_order_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'Claim Number 3', '2026-03-15T09:00:00Z', 'DRAFT', 'SHORTAGE', 31.50, 'REPAIR', 'Notes 3', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
+VALUES ('ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'Supplier Claim 3', '2026-03-15T09:00:00Z', 'DRAFT', 'SHORTAGE', 31.50, 'REPAIR', 'Notes 3', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim (id, claim_number, claim_date, status, claim_type, claimed_amount, resolution_code, notes, supplier_id, purchase_order_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('bd028e76-4d73-5db0-a605-600ada5de0c3', 'Claim Number 4', '2026-04-15T09:00:00Z', 'DRAFT', 'OVERAGE', 42.00, 'RETURN', 'Notes 4', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
+VALUES ('bd028e76-4d73-5db0-a605-600ada5de0c3', 'Supplier Claim 4', '2026-04-15T09:00:00Z', 'DRAFT', 'OVERAGE', 42.00, 'RETURN', 'Notes 4', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim (id, claim_number, claim_date, status, claim_type, claimed_amount, resolution_code, notes, supplier_id, purchase_order_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('56e24451-6b34-5226-bffc-e1c5aa9f57ac', 'Claim Number 5', '2026-05-15T09:00:00Z', 'DRAFT', 'WRONG_ITEM', 52.50, 'CREDIT', 'Notes 5', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
+VALUES ('56e24451-6b34-5226-bffc-e1c5aa9f57ac', 'Supplier Claim 5', '2026-05-15T09:00:00Z', 'DRAFT', 'WRONG_ITEM', 52.50, 'CREDIT', 'Notes 5', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Goods Receipt (bus_goods_receipt)
 INSERT INTO bus_goods_receipt (id, receipt_number, receipt_date, status, received_quantity, accepted_quantity, notes, supplier_id, purchase_order_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('8b30948a-2524-57b4-8c15-57fd7988f541', 'Receipt Number 1', '2026-01-15T09:00:00Z', 'DRAFT', 10.50, 10.50, 'Notes 1', '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
+VALUES ('8b30948a-2524-57b4-8c15-57fd7988f541', 'Goods Receipt 1', '2026-01-15T09:00:00Z', 'DRAFT', 10.50, 10.50, 'Notes 1', '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_goods_receipt (id, receipt_number, receipt_date, status, received_quantity, accepted_quantity, notes, supplier_id, purchase_order_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('c2fac8ac-bac4-5d7e-8ad4-0d1d8d008924', 'Receipt Number 2', '2026-02-15T09:00:00Z', 'DRAFT', 21.00, 21.00, 'Notes 2', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
+VALUES ('c2fac8ac-bac4-5d7e-8ad4-0d1d8d008924', 'Goods Receipt 2', '2026-02-15T09:00:00Z', 'DRAFT', 21.00, 21.00, 'Notes 2', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_goods_receipt (id, receipt_number, receipt_date, status, received_quantity, accepted_quantity, notes, supplier_id, purchase_order_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('676ddbfe-55f8-5383-992b-da6facbdb184', 'Receipt Number 3', '2026-03-15T09:00:00Z', 'DRAFT', 31.50, 31.50, 'Notes 3', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
+VALUES ('676ddbfe-55f8-5383-992b-da6facbdb184', 'Goods Receipt 3', '2026-03-15T09:00:00Z', 'DRAFT', 31.50, 31.50, 'Notes 3', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_goods_receipt (id, receipt_number, receipt_date, status, received_quantity, accepted_quantity, notes, supplier_id, purchase_order_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('d9cde5ba-f075-573d-9397-ed42a7879893', 'Receipt Number 4', '2026-04-15T09:00:00Z', 'DRAFT', 42.00, 42.00, 'Notes 4', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'bd028e76-4d73-5db0-a605-600ada5de0c3', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
+VALUES ('d9cde5ba-f075-573d-9397-ed42a7879893', 'Goods Receipt 4', '2026-04-15T09:00:00Z', 'DRAFT', 42.00, 42.00, 'Notes 4', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'bd028e76-4d73-5db0-a605-600ada5de0c3', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_goods_receipt (id, receipt_number, receipt_date, status, received_quantity, accepted_quantity, notes, supplier_id, purchase_order_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('41b38d43-e12c-568f-8afb-9d2082f2e468', 'Receipt Number 5', '2026-05-15T09:00:00Z', 'DRAFT', 52.50, 52.50, 'Notes 5', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
+VALUES ('41b38d43-e12c-568f-8afb-9d2082f2e468', 'Goods Receipt 5', '2026-05-15T09:00:00Z', 'DRAFT', 52.50, 52.50, 'Notes 5', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Goods Receipt Line (bus_goods_receipt_line)
@@ -524,53 +524,53 @@ ON CONFLICT DO NOTHING;
 
 -- Supplier Claim Resolution (bus_supplier_claim_resolution)
 INSERT INTO bus_supplier_claim_resolution (id, resolution_number, resolution_date, resolution_type, status, approved_amount, supplier_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', 'Resolution Number 1', '2026-01-15T09:00:00Z', 'NO_ACTION', 'DRAFT', 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
+VALUES ('e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', 'Supplier Claim Resolution 1', '2026-01-15T09:00:00Z', 'NO_ACTION', 'DRAFT', 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim_resolution (id, resolution_number, resolution_date, resolution_type, status, approved_amount, supplier_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'Resolution Number 2', '2026-02-15T09:00:00Z', 'REPLACEMENT', 'DRAFT', 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
+VALUES ('bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'Supplier Claim Resolution 2', '2026-02-15T09:00:00Z', 'REPLACEMENT', 'DRAFT', 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim_resolution (id, resolution_number, resolution_date, resolution_type, status, approved_amount, supplier_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('d90c4039-b371-50ff-a9d9-35ea09291364', 'Resolution Number 3', '2026-03-15T09:00:00Z', 'REPAIR', 'DRAFT', 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
+VALUES ('d90c4039-b371-50ff-a9d9-35ea09291364', 'Supplier Claim Resolution 3', '2026-03-15T09:00:00Z', 'REPAIR', 'DRAFT', 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim_resolution (id, resolution_number, resolution_date, resolution_type, status, approved_amount, supplier_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('ebcd29ff-84a3-51c8-b308-1bb53f1a935e', 'Resolution Number 4', '2026-04-15T09:00:00Z', 'RETURN', 'DRAFT', 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'bd028e76-4d73-5db0-a605-600ada5de0c3', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
+VALUES ('ebcd29ff-84a3-51c8-b308-1bb53f1a935e', 'Supplier Claim Resolution 4', '2026-04-15T09:00:00Z', 'RETURN', 'DRAFT', 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'bd028e76-4d73-5db0-a605-600ada5de0c3', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_claim_resolution (id, resolution_number, resolution_date, resolution_type, status, approved_amount, supplier_id, supplier_claim_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('6c9773d7-752f-5411-b980-19c073f8de1a', 'Resolution Number 5', '2026-05-15T09:00:00Z', 'CREDIT', 'DRAFT', 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
+VALUES ('6c9773d7-752f-5411-b980-19c073f8de1a', 'Supplier Claim Resolution 5', '2026-05-15T09:00:00Z', 'CREDIT', 'DRAFT', 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Supplier Return (bus_supplier_return)
 INSERT INTO bus_supplier_return (id, return_number, status, return_date, reason_code, supplier_id, purchase_order_id, supplier_claim_id, supplier_claim_resolution_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('5d94d3e3-10e1-523d-8039-45d3ff06e570', 'Return Number 1', 'DRAFT', '2026-01-15T09:00:00Z', 'Reason Code 1', '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
+VALUES ('5d94d3e3-10e1-523d-8039-45d3ff06e570', 'Supplier Return 1', 'DRAFT', '2026-01-15T09:00:00Z', 'Reason Code 1', '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', 'c8a2e99a-6921-5f2a-9211-37e95f8903af', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_return (id, return_number, status, return_date, reason_code, supplier_id, purchase_order_id, supplier_claim_id, supplier_claim_resolution_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('c7bc6bcd-63ac-5e16-8228-4d74a57e30f9', 'Return Number 2', 'DRAFT', '2026-02-15T09:00:00Z', 'Reason Code 2', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
+VALUES ('c7bc6bcd-63ac-5e16-8228-4d74a57e30f9', 'Supplier Return 2', 'DRAFT', '2026-02-15T09:00:00Z', 'Reason Code 2', '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'a234bf11-f4c1-5d64-a8d6-c224bc9f7080', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_return (id, return_number, status, return_date, reason_code, supplier_id, purchase_order_id, supplier_claim_id, supplier_claim_resolution_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('3815c9c5-7bcd-57db-ac8b-04c6296cc036', 'Return Number 3', 'DRAFT', '2026-03-15T09:00:00Z', 'Reason Code 3', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'd90c4039-b371-50ff-a9d9-35ea09291364', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
+VALUES ('3815c9c5-7bcd-57db-ac8b-04c6296cc036', 'Supplier Return 3', 'DRAFT', '2026-03-15T09:00:00Z', 'Reason Code 3', 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'd90c4039-b371-50ff-a9d9-35ea09291364', 'c43af525-bba9-592f-9a7b-7217726d3132', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_return (id, return_number, status, return_date, reason_code, supplier_id, purchase_order_id, supplier_claim_id, supplier_claim_resolution_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('c6eedcc7-eed0-5ff8-91a8-63f37e7ddd6f', 'Return Number 4', 'DRAFT', '2026-04-15T09:00:00Z', 'Reason Code 4', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'ebcd29ff-84a3-51c8-b308-1bb53f1a935e', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
+VALUES ('c6eedcc7-eed0-5ff8-91a8-63f37e7ddd6f', 'Supplier Return 4', 'DRAFT', '2026-04-15T09:00:00Z', 'Reason Code 4', '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'ebcd29ff-84a3-51c8-b308-1bb53f1a935e', '4166ce46-dc2a-548f-aee5-ae41733242a3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_return (id, return_number, status, return_date, reason_code, supplier_id, purchase_order_id, supplier_claim_id, supplier_claim_resolution_id, supplier_performance_assessment_id, doc_status, created_at, updated_at)
-VALUES ('84102c1c-176d-5b19-aa87-49de83c94a67', 'Return Number 5', 'DRAFT', '2026-05-15T09:00:00Z', 'Reason Code 5', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '6c9773d7-752f-5411-b980-19c073f8de1a', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
+VALUES ('84102c1c-176d-5b19-aa87-49de83c94a67', 'Supplier Return 5', 'DRAFT', '2026-05-15T09:00:00Z', 'Reason Code 5', '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '6c9773d7-752f-5411-b980-19c073f8de1a', 'dc07926e-512b-5f67-bee9-7884d65cc572', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Supplier Credit Note (bus_supplier_credit_note)
 INSERT INTO bus_supplier_credit_note (id, credit_note_number, credit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_unapplied, supplier_id, supplier_claim_id, supplier_claim_resolution_id, source_return_id, doc_status, created_at, updated_at)
-VALUES ('7a2213c2-390d-5fec-b649-e4b7b745c93c', 'Credit Note Number 1', '2026-01-15', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', 10.50, 10.50, 10.50, 10.50, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', '5d94d3e3-10e1-523d-8039-45d3ff06e570', 'final', NOW(), NOW())
+VALUES ('7a2213c2-390d-5fec-b649-e4b7b745c93c', 'Supplier Credit Note 1', '2026-01-15', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', 10.50, 10.50, 10.50, 10.50, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', '5d94d3e3-10e1-523d-8039-45d3ff06e570', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_credit_note (id, credit_note_number, credit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_unapplied, supplier_id, supplier_claim_id, supplier_claim_resolution_id, source_return_id, doc_status, created_at, updated_at)
-VALUES ('4fca5f66-eb0d-53ac-9c54-9bf3a647c36f', 'Credit Note Number 2', '2026-02-15', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', 21.00, 21.00, 21.00, 21.00, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'c7bc6bcd-63ac-5e16-8228-4d74a57e30f9', 'final', NOW(), NOW())
+VALUES ('4fca5f66-eb0d-53ac-9c54-9bf3a647c36f', 'Supplier Credit Note 2', '2026-02-15', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', 21.00, 21.00, 21.00, 21.00, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'c7bc6bcd-63ac-5e16-8228-4d74a57e30f9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_credit_note (id, credit_note_number, credit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_unapplied, supplier_id, supplier_claim_id, supplier_claim_resolution_id, source_return_id, doc_status, created_at, updated_at)
-VALUES ('2f05da43-c252-5740-b9a5-031637de2213', 'Credit Note Number 3', '2026-03-15', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', 31.50, 31.50, 31.50, 31.50, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'd90c4039-b371-50ff-a9d9-35ea09291364', '3815c9c5-7bcd-57db-ac8b-04c6296cc036', 'final', NOW(), NOW())
+VALUES ('2f05da43-c252-5740-b9a5-031637de2213', 'Supplier Credit Note 3', '2026-03-15', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', 31.50, 31.50, 31.50, 31.50, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'd90c4039-b371-50ff-a9d9-35ea09291364', '3815c9c5-7bcd-57db-ac8b-04c6296cc036', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_credit_note (id, credit_note_number, credit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_unapplied, supplier_id, supplier_claim_id, supplier_claim_resolution_id, source_return_id, doc_status, created_at, updated_at)
-VALUES ('e83ca209-2231-5795-8f17-0e0b01217cbb', 'Credit Note Number 4', '2026-04-15', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', 42.00, 42.00, 42.00, 42.00, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'ebcd29ff-84a3-51c8-b308-1bb53f1a935e', 'c6eedcc7-eed0-5ff8-91a8-63f37e7ddd6f', 'final', NOW(), NOW())
+VALUES ('e83ca209-2231-5795-8f17-0e0b01217cbb', 'Supplier Credit Note 4', '2026-04-15', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', 42.00, 42.00, 42.00, 42.00, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'ebcd29ff-84a3-51c8-b308-1bb53f1a935e', 'c6eedcc7-eed0-5ff8-91a8-63f37e7ddd6f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_credit_note (id, credit_note_number, credit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_unapplied, supplier_id, supplier_claim_id, supplier_claim_resolution_id, source_return_id, doc_status, created_at, updated_at)
-VALUES ('875d5f6b-7955-5c0d-a6cc-a3c80a44eb45', 'Credit Note Number 5', '2026-05-15', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', 52.50, 52.50, 52.50, 52.50, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '6c9773d7-752f-5411-b980-19c073f8de1a', '84102c1c-176d-5b19-aa87-49de83c94a67', 'final', NOW(), NOW())
+VALUES ('875d5f6b-7955-5c0d-a6cc-a3c80a44eb45', 'Supplier Credit Note 5', '2026-05-15', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', 52.50, 52.50, 52.50, 52.50, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '6c9773d7-752f-5411-b980-19c073f8de1a', '84102c1c-176d-5b19-aa87-49de83c94a67', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Supplier Return Line (bus_supplier_return_line)
@@ -592,19 +592,19 @@ ON CONFLICT DO NOTHING;
 
 -- Supplier Debit Note (bus_supplier_debit_note)
 INSERT INTO bus_supplier_debit_note (id, debit_note_number, debit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_remaining, supplier_id, supplier_claim_id, supplier_claim_resolution_id, doc_status, created_at, updated_at)
-VALUES ('d0fbfa25-bcf9-5967-9679-aa6be97873dd', 'Debit Note Number 1', '2026-01-15', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', 10.50, 10.50, 10.50, 10.50, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', 'final', NOW(), NOW())
+VALUES ('d0fbfa25-bcf9-5967-9679-aa6be97873dd', 'Supplier Debit Note 1', '2026-01-15', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', 10.50, 10.50, 10.50, 10.50, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', 'e377d3a0-1e31-539a-87e6-5dd2d7c2a2d6', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_debit_note (id, debit_note_number, debit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_remaining, supplier_id, supplier_claim_id, supplier_claim_resolution_id, doc_status, created_at, updated_at)
-VALUES ('7a1905ca-c88f-5037-9f82-735a5149ac96', 'Debit Note Number 2', '2026-02-15', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', 21.00, 21.00, 21.00, 21.00, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'final', NOW(), NOW())
+VALUES ('7a1905ca-c88f-5037-9f82-735a5149ac96', 'Supplier Debit Note 2', '2026-02-15', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', 21.00, 21.00, 21.00, 21.00, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'bf5fe5d1-ab31-5504-93b2-ee11ee288914', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_debit_note (id, debit_note_number, debit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_remaining, supplier_id, supplier_claim_id, supplier_claim_resolution_id, doc_status, created_at, updated_at)
-VALUES ('45a7f168-80c9-538b-bee7-26abfb5b6899', 'Debit Note Number 3', '2026-03-15', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', 31.50, 31.50, 31.50, 31.50, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'd90c4039-b371-50ff-a9d9-35ea09291364', 'final', NOW(), NOW())
+VALUES ('45a7f168-80c9-538b-bee7-26abfb5b6899', 'Supplier Debit Note 3', '2026-03-15', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', 31.50, 31.50, 31.50, 31.50, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', 'd90c4039-b371-50ff-a9d9-35ea09291364', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_debit_note (id, debit_note_number, debit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_remaining, supplier_id, supplier_claim_id, supplier_claim_resolution_id, doc_status, created_at, updated_at)
-VALUES ('7c9e0ffd-2550-582d-905e-19490b9013fd', 'Debit Note Number 4', '2026-04-15', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', 42.00, 42.00, 42.00, 42.00, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'ebcd29ff-84a3-51c8-b308-1bb53f1a935e', 'final', NOW(), NOW())
+VALUES ('7c9e0ffd-2550-582d-905e-19490b9013fd', 'Supplier Debit Note 4', '2026-04-15', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', 42.00, 42.00, 42.00, 42.00, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'ebcd29ff-84a3-51c8-b308-1bb53f1a935e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_supplier_debit_note (id, debit_note_number, debit_note_date, status, currency_id, subtotal, tax_amount, total_amount, amount_applied, amount_remaining, supplier_id, supplier_claim_id, supplier_claim_resolution_id, doc_status, created_at, updated_at)
-VALUES ('ea3ffc84-19e2-5ef7-a6eb-8a0e3be84c7e', 'Debit Note Number 5', '2026-05-15', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', 52.50, 52.50, 52.50, 52.50, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '6c9773d7-752f-5411-b980-19c073f8de1a', 'final', NOW(), NOW())
+VALUES ('ea3ffc84-19e2-5ef7-a6eb-8a0e3be84c7e', 'Supplier Debit Note 5', '2026-05-15', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', 52.50, 52.50, 52.50, 52.50, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '6c9773d7-752f-5411-b980-19c073f8de1a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Supplier Debit Note Line (bus_supplier_debit_note_line)
@@ -626,19 +626,19 @@ ON CONFLICT DO NOTHING;
 
 -- Invoice (bus_invoice)
 INSERT INTO bus_invoice (id, invoice_number, invoice_date, due_date, invoice_type, status, currency_id, subtotal, discount_amount, taxable_amount, tax_amount, total_amount, amount_settled, amount_credited, amount_outstanding, supplier_id, purchase_order_id, supplier_claim_id, supplier_return_id, doc_status, created_at, updated_at)
-VALUES ('06f28552-19f2-5c16-a7b6-43070d2f96d4', 'Invoice Number 1', '2026-01-15', NULL, 'SALES', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', 10.50, 10.50, 10.50, 10.50, 10.50, 10.50, 10.50, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', '5d94d3e3-10e1-523d-8039-45d3ff06e570', 'final', NOW(), NOW())
+VALUES ('06f28552-19f2-5c16-a7b6-43070d2f96d4', 'Invoice 1', '2026-01-15', NULL, 'SALES', 'DRAFT', '38454409-dd10-52ea-8118-6da7176af2e9', 10.50, 10.50, 10.50, 10.50, 10.50, 10.50, 10.50, 10.50, '02a226f9-9015-5e4f-97b5-f485ad511536', '28e7c37c-a1f5-532b-ba60-46f853b78329', '2815c0eb-f25d-52ec-baff-daa9877c5fa5', '5d94d3e3-10e1-523d-8039-45d3ff06e570', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_invoice (id, invoice_number, invoice_date, due_date, invoice_type, status, currency_id, subtotal, discount_amount, taxable_amount, tax_amount, total_amount, amount_settled, amount_credited, amount_outstanding, supplier_id, purchase_order_id, supplier_claim_id, supplier_return_id, doc_status, created_at, updated_at)
-VALUES ('6cb756bd-749c-5a47-8928-f4d7abadf0fb', 'Invoice Number 2', '2026-02-15', NULL, 'PURCHASE', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', 21.00, 21.00, 21.00, 21.00, 21.00, 21.00, 21.00, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'c7bc6bcd-63ac-5e16-8228-4d74a57e30f9', 'final', NOW(), NOW())
+VALUES ('6cb756bd-749c-5a47-8928-f4d7abadf0fb', 'Invoice 2', '2026-02-15', NULL, 'PURCHASE', 'DRAFT', '707d18ce-13d7-5caa-bbd5-13c486bd2542', 21.00, 21.00, 21.00, 21.00, 21.00, 21.00, 21.00, 21.00, '1c713d38-5b2a-5ba6-80e8-87961a28b40a', '454d2c84-69b3-5abb-9268-62803faf3ba3', 'cd9b9fd7-2016-5820-99db-596c1bc43429', 'c7bc6bcd-63ac-5e16-8228-4d74a57e30f9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_invoice (id, invoice_number, invoice_date, due_date, invoice_type, status, currency_id, subtotal, discount_amount, taxable_amount, tax_amount, total_amount, amount_settled, amount_credited, amount_outstanding, supplier_id, purchase_order_id, supplier_claim_id, supplier_return_id, doc_status, created_at, updated_at)
-VALUES ('aeaa659a-148e-56a5-9e0e-fc922e7ba105', 'Invoice Number 3', '2026-03-15', NULL, 'CREDIT_NOTE', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', 31.50, 31.50, 31.50, 31.50, 31.50, 31.50, 31.50, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', '3815c9c5-7bcd-57db-ac8b-04c6296cc036', 'final', NOW(), NOW())
+VALUES ('aeaa659a-148e-56a5-9e0e-fc922e7ba105', 'Invoice 3', '2026-03-15', NULL, 'CREDIT_NOTE', 'DRAFT', '639546cb-1698-500b-aec1-51d15acdd347', 31.50, 31.50, 31.50, 31.50, 31.50, 31.50, 31.50, 31.50, 'bc3b8da9-51f5-57f6-8495-0b3bde05dd3b', '86f62ed6-3c19-57eb-a1e3-9a8cb53cf27d', 'ad5e2f5e-e7a9-581c-a8be-7d3f2accd0a1', '3815c9c5-7bcd-57db-ac8b-04c6296cc036', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_invoice (id, invoice_number, invoice_date, due_date, invoice_type, status, currency_id, subtotal, discount_amount, taxable_amount, tax_amount, total_amount, amount_settled, amount_credited, amount_outstanding, supplier_id, purchase_order_id, supplier_claim_id, supplier_return_id, doc_status, created_at, updated_at)
-VALUES ('c2f02ec4-503d-514e-97ea-2db1861af953', 'Invoice Number 4', '2026-04-15', NULL, 'DEBIT_NOTE', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', 42.00, 42.00, 42.00, 42.00, 42.00, 42.00, 42.00, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'c6eedcc7-eed0-5ff8-91a8-63f37e7ddd6f', 'final', NOW(), NOW())
+VALUES ('c2f02ec4-503d-514e-97ea-2db1861af953', 'Invoice 4', '2026-04-15', NULL, 'DEBIT_NOTE', 'DRAFT', 'de729ce0-5b0c-58be-bd79-cdd438cc64fc', 42.00, 42.00, 42.00, 42.00, 42.00, 42.00, 42.00, 42.00, '9be3cf8a-e2ba-52ff-8063-cf22decdb279', '072e6b89-649f-5f3b-a468-9b7a340dd8fa', 'bd028e76-4d73-5db0-a605-600ada5de0c3', 'c6eedcc7-eed0-5ff8-91a8-63f37e7ddd6f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_invoice (id, invoice_number, invoice_date, due_date, invoice_type, status, currency_id, subtotal, discount_amount, taxable_amount, tax_amount, total_amount, amount_settled, amount_credited, amount_outstanding, supplier_id, purchase_order_id, supplier_claim_id, supplier_return_id, doc_status, created_at, updated_at)
-VALUES ('183e7800-e615-5c3e-8fe7-52c555de5835', 'Invoice Number 5', '2026-05-15', NULL, 'SALES', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', 52.50, 52.50, 52.50, 52.50, 52.50, 52.50, 52.50, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '84102c1c-176d-5b19-aa87-49de83c94a67', 'final', NOW(), NOW())
+VALUES ('183e7800-e615-5c3e-8fe7-52c555de5835', 'Invoice 5', '2026-05-15', NULL, 'SALES', 'DRAFT', 'b155545d-5102-58bc-9f41-6b90ba1f7a4c', 52.50, 52.50, 52.50, 52.50, 52.50, 52.50, 52.50, 52.50, '28cfb7b7-7803-5367-9bcb-c7777fd20ed1', 'cd279e1e-413f-55aa-89e7-c063710586dd', '56e24451-6b34-5226-bffc-e1c5aa9f57ac', '84102c1c-176d-5b19-aa87-49de83c94a67', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Invoice Line (bus_invoice_line)

@@ -10,7 +10,6 @@ import { type Kysely, sql } from "kysely";
 import { type Database, destroyDb, getDb } from "../config/db.config.js";
 import { getLogger } from "../logging";
 import { migrateProjectGit } from "./git-migration";
-import { assertModelFormat, createStoredModelConversions } from "./model-format";
 
 // Re-export types consumed by other packages
 export type { Database };
@@ -411,9 +410,6 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
   }
 
   await migrateProjectGit(db);
-  await createStoredModelConversions(db);
-  // Last: every table above exists, so the check reads a complete schema.
-  await assertModelFormat(db);
 }
 
 // ─── Transform helpers ─────────────────────────────────────────────────────────

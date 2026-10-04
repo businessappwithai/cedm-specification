@@ -266,11 +266,6 @@ export function AutomationChain({
         }`}
       >
         <Text weight="medium">{triggerLabel}</Text>
-        {triggerEntity && (
-          <Text size="xs" color="secondary" block className="mt-0.5">
-            {triggerEntity}
-          </Text>
-        )}
       </button>
 
       {/* IF — conditions belong to the rule, not to this diagram, so they are

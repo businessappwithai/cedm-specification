@@ -33,8 +33,8 @@ bun scripts/build-site-bundles.ts --only orchestrator --check   # what CI runs
 
 It goes stale when anything under `packages/generator/src/{model,model-yaml,rbac}`,
 `language/yaml/` or `language/appwithai-language.json` changes.
-`yaml/verify` holds its model to the one the Mermaid-era reader produced for
-every published model.
+`yaml/verify` holds its model to the one the original reader produced for
+every published model, before the conversion to YAML.
 
 ## The files
 

@@ -167,19 +167,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, customer_id, doc_status, created_at, updated_at)
-VALUES ('2d615449-809d-5a57-8baf-02c65633a916', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', 'a9edc9b8-dc51-5a28-afc1-9e495cedc9ba', 'b6d91b1b-b6c4-5622-bc47-409cd3eb8c64', '55701b02-ba1d-5f00-a282-6b6d8f5f9488', '62558900-b33c-5145-b2db-e01c4df45938', '93d19bba-63be-584d-83d6-7d5b3e336bf0', '82afd356-6d65-5d1e-ac99-f43f3a4113b6', '4559660f-1c90-5bad-9f59-003b516de15f', 'final', NOW(), NOW())
+VALUES ('2d615449-809d-5a57-8baf-02c65633a916', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', 'a9edc9b8-dc51-5a28-afc1-9e495cedc9ba', 'b6d91b1b-b6c4-5622-bc47-409cd3eb8c64', '55701b02-ba1d-5f00-a282-6b6d8f5f9488', '62558900-b33c-5145-b2db-e01c4df45938', '93d19bba-63be-584d-83d6-7d5b3e336bf0', '82afd356-6d65-5d1e-ac99-f43f3a4113b6', '4559660f-1c90-5bad-9f59-003b516de15f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, customer_id, doc_status, created_at, updated_at)
-VALUES ('6855f6d1-72fb-5511-a5cc-a00c973c9f58', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', 'fa09d419-a7f7-54ee-bf2a-cb49b6e74c78', 'd8a48042-c50d-54bc-899c-42d4325cd97b', '4db12c51-aca3-59e3-9fa7-c34e8a84b0dc', '410c1a79-8338-5829-a394-0b149b1fffd4', 'd242c450-7ce0-557a-a5bd-47a4a4d675d4', '4d6c0142-2e5a-5416-8c7a-052116d007af', 'eb799112-8232-54c7-8a17-91143e4042a5', 'final', NOW(), NOW())
+VALUES ('6855f6d1-72fb-5511-a5cc-a00c973c9f58', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', 'fa09d419-a7f7-54ee-bf2a-cb49b6e74c78', 'd8a48042-c50d-54bc-899c-42d4325cd97b', '4db12c51-aca3-59e3-9fa7-c34e8a84b0dc', '410c1a79-8338-5829-a394-0b149b1fffd4', 'd242c450-7ce0-557a-a5bd-47a4a4d675d4', '4d6c0142-2e5a-5416-8c7a-052116d007af', 'eb799112-8232-54c7-8a17-91143e4042a5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, customer_id, doc_status, created_at, updated_at)
-VALUES ('85b00d10-31e8-5aeb-8085-7ee42f527153', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', 'ce0856d0-ed70-582c-a9cd-7b1139347d3a', 'b7ef02ea-a045-50f1-99e0-a8ac7caf559e', '68afe0ba-cea9-5612-99fa-db89a4229264', 'b02996d0-9cbe-5107-af4c-3395b7b4d0dd', '605f732b-64db-5681-aee0-3f9c675446e6', '225eb003-ddd2-5365-966e-71e2a825448d', 'cf97d4d6-62ce-597b-9e77-35f72010b88c', 'final', NOW(), NOW())
+VALUES ('85b00d10-31e8-5aeb-8085-7ee42f527153', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', 'ce0856d0-ed70-582c-a9cd-7b1139347d3a', 'b7ef02ea-a045-50f1-99e0-a8ac7caf559e', '68afe0ba-cea9-5612-99fa-db89a4229264', 'b02996d0-9cbe-5107-af4c-3395b7b4d0dd', '605f732b-64db-5681-aee0-3f9c675446e6', '225eb003-ddd2-5365-966e-71e2a825448d', 'cf97d4d6-62ce-597b-9e77-35f72010b88c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, customer_id, doc_status, created_at, updated_at)
-VALUES ('4b1746e9-fe42-50ff-9129-3be583dea45b', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', 'c95ef191-150a-5142-8ebb-d5cfa76c22be', '79c6a383-ac1c-5fff-82e4-0a0583253cb4', '6574a45c-4acf-533f-ac72-8341324bd478', '1aac2152-a40f-5e47-8218-2a9a1268aa65', '946b2820-f74f-5f44-a83a-17d8e8f31c46', '051bab99-8b1d-5458-9052-d4a43262ddac', 'd784fb07-da83-596e-89f7-be1b97b2bb29', 'final', NOW(), NOW())
+VALUES ('4b1746e9-fe42-50ff-9129-3be583dea45b', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', 'c95ef191-150a-5142-8ebb-d5cfa76c22be', '79c6a383-ac1c-5fff-82e4-0a0583253cb4', '6574a45c-4acf-533f-ac72-8341324bd478', '1aac2152-a40f-5e47-8218-2a9a1268aa65', '946b2820-f74f-5f44-a83a-17d8e8f31c46', '051bab99-8b1d-5458-9052-d4a43262ddac', 'd784fb07-da83-596e-89f7-be1b97b2bb29', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, customer_id, doc_status, created_at, updated_at)
-VALUES ('83b4b233-78a3-5404-9720-3f1f2042c42a', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', 'ae63133b-825c-54b8-b174-3d611c1d01a8', '94d28a61-162c-5fd1-b26d-1efb4ecdd317', '1cf9e3e1-a8d3-5e22-83d5-f0c9838a3960', 'c3d36cc7-0205-5afb-93ea-a6ea60696b98', 'b82a288f-4627-55a0-9f94-3df246be768d', 'fe4855c5-59ef-5a3b-bd31-2f16479e811a', '7da5d96d-94d3-5bbd-8101-931ebc79c7a2', 'final', NOW(), NOW())
+VALUES ('83b4b233-78a3-5404-9720-3f1f2042c42a', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', 'ae63133b-825c-54b8-b174-3d611c1d01a8', '94d28a61-162c-5fd1-b26d-1efb4ecdd317', '1cf9e3e1-a8d3-5e22-83d5-f0c9838a3960', 'c3d36cc7-0205-5afb-93ea-a6ea60696b98', 'b82a288f-4627-55a0-9f94-3df246be768d', 'fe4855c5-59ef-5a3b-bd31-2f16479e811a', '7da5d96d-94d3-5bbd-8101-931ebc79c7a2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -303,34 +303,34 @@ ON CONFLICT DO NOTHING;
 
 -- Telecom Service (bus_telecom_service)
 INSERT INTO bus_telecom_service (id, service_number, service_type, status, activation_date, termination_date, customer_id, location_id, doc_status, created_at, updated_at)
-VALUES ('8931af96-f65a-5839-bd09-a055b1353df5', 'Service Number 1', 'MOBILE', 'PENDING', NULL, NULL, '4559660f-1c90-5bad-9f59-003b516de15f', 'd3bb255b-68c3-5eaf-9a19-b46b13867111', 'final', NOW(), NOW())
+VALUES ('8931af96-f65a-5839-bd09-a055b1353df5', 'Telecom Service 1', 'MOBILE', 'PENDING', NULL, NULL, '4559660f-1c90-5bad-9f59-003b516de15f', 'd3bb255b-68c3-5eaf-9a19-b46b13867111', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_service (id, service_number, service_type, status, activation_date, termination_date, customer_id, location_id, doc_status, created_at, updated_at)
-VALUES ('34743d3a-d3e6-5a54-a1a8-9e14bb3a66fd', 'Service Number 2', 'FIXED', 'PENDING', NULL, NULL, 'eb799112-8232-54c7-8a17-91143e4042a5', '01cc3069-58e9-53a5-a972-944aa20c0dc4', 'final', NOW(), NOW())
+VALUES ('34743d3a-d3e6-5a54-a1a8-9e14bb3a66fd', 'Telecom Service 2', 'FIXED', 'PENDING', NULL, NULL, 'eb799112-8232-54c7-8a17-91143e4042a5', '01cc3069-58e9-53a5-a972-944aa20c0dc4', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_service (id, service_number, service_type, status, activation_date, termination_date, customer_id, location_id, doc_status, created_at, updated_at)
-VALUES ('60a2caf1-a73f-510e-ba62-f3763e8a95a0', 'Service Number 3', 'BROADBAND', 'PENDING', NULL, NULL, 'cf97d4d6-62ce-597b-9e77-35f72010b88c', '4b603399-fc99-5477-884a-de4ce53be24a', 'final', NOW(), NOW())
+VALUES ('60a2caf1-a73f-510e-ba62-f3763e8a95a0', 'Telecom Service 3', 'BROADBAND', 'PENDING', NULL, NULL, 'cf97d4d6-62ce-597b-9e77-35f72010b88c', '4b603399-fc99-5477-884a-de4ce53be24a', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_service (id, service_number, service_type, status, activation_date, termination_date, customer_id, location_id, doc_status, created_at, updated_at)
-VALUES ('9d9e9406-c46f-56e4-9019-2d70d9b98f58', 'Service Number 4', 'VOICE', 'PENDING', NULL, NULL, 'd784fb07-da83-596e-89f7-be1b97b2bb29', 'c68ca0d0-4e20-59ef-860b-2a14cdfc4578', 'final', NOW(), NOW())
+VALUES ('9d9e9406-c46f-56e4-9019-2d70d9b98f58', 'Telecom Service 4', 'VOICE', 'PENDING', NULL, NULL, 'd784fb07-da83-596e-89f7-be1b97b2bb29', 'c68ca0d0-4e20-59ef-860b-2a14cdfc4578', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_service (id, service_number, service_type, status, activation_date, termination_date, customer_id, location_id, doc_status, created_at, updated_at)
-VALUES ('b647d357-eb47-5083-ab4a-3276012d7613', 'Service Number 5', 'DATA', 'PENDING', NULL, NULL, '7da5d96d-94d3-5bbd-8101-931ebc79c7a2', '24697534-c06d-5ffc-8c3e-7948fc9d43b9', 'final', NOW(), NOW())
+VALUES ('b647d357-eb47-5083-ab4a-3276012d7613', 'Telecom Service 5', 'DATA', 'PENDING', NULL, NULL, '7da5d96d-94d3-5bbd-8101-931ebc79c7a2', '24697534-c06d-5ffc-8c3e-7948fc9d43b9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Telecom Subscription (bus_telecom_subscription)
 INSERT INTO bus_telecom_subscription (id, subscription_number, status, start_date, end_date, customer_id, service_id, doc_status, created_at, updated_at)
-VALUES ('f865397d-7017-5fb6-a9b0-1d2fc180445a', 'Subscription Number 1', 'PENDING', '2026-01-15', NULL, '4559660f-1c90-5bad-9f59-003b516de15f', '8931af96-f65a-5839-bd09-a055b1353df5', 'final', NOW(), NOW())
+VALUES ('f865397d-7017-5fb6-a9b0-1d2fc180445a', 'Telecom Subscription 1', 'PENDING', '2026-01-15', NULL, '4559660f-1c90-5bad-9f59-003b516de15f', '8931af96-f65a-5839-bd09-a055b1353df5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_subscription (id, subscription_number, status, start_date, end_date, customer_id, service_id, doc_status, created_at, updated_at)
-VALUES ('648dfec0-0ae1-5c70-a9fd-b005ece29a48', 'Subscription Number 2', 'PENDING', '2026-02-15', NULL, 'eb799112-8232-54c7-8a17-91143e4042a5', '34743d3a-d3e6-5a54-a1a8-9e14bb3a66fd', 'final', NOW(), NOW())
+VALUES ('648dfec0-0ae1-5c70-a9fd-b005ece29a48', 'Telecom Subscription 2', 'PENDING', '2026-02-15', NULL, 'eb799112-8232-54c7-8a17-91143e4042a5', '34743d3a-d3e6-5a54-a1a8-9e14bb3a66fd', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_subscription (id, subscription_number, status, start_date, end_date, customer_id, service_id, doc_status, created_at, updated_at)
-VALUES ('f546ab65-accf-5487-b18a-93a049b70b4f', 'Subscription Number 3', 'PENDING', '2026-03-15', NULL, 'cf97d4d6-62ce-597b-9e77-35f72010b88c', '60a2caf1-a73f-510e-ba62-f3763e8a95a0', 'final', NOW(), NOW())
+VALUES ('f546ab65-accf-5487-b18a-93a049b70b4f', 'Telecom Subscription 3', 'PENDING', '2026-03-15', NULL, 'cf97d4d6-62ce-597b-9e77-35f72010b88c', '60a2caf1-a73f-510e-ba62-f3763e8a95a0', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_subscription (id, subscription_number, status, start_date, end_date, customer_id, service_id, doc_status, created_at, updated_at)
-VALUES ('8a47a2d8-9f72-5bab-89a1-5e22c9be1277', 'Subscription Number 4', 'PENDING', '2026-04-15', NULL, 'd784fb07-da83-596e-89f7-be1b97b2bb29', '9d9e9406-c46f-56e4-9019-2d70d9b98f58', 'final', NOW(), NOW())
+VALUES ('8a47a2d8-9f72-5bab-89a1-5e22c9be1277', 'Telecom Subscription 4', 'PENDING', '2026-04-15', NULL, 'd784fb07-da83-596e-89f7-be1b97b2bb29', '9d9e9406-c46f-56e4-9019-2d70d9b98f58', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_telecom_subscription (id, subscription_number, status, start_date, end_date, customer_id, service_id, doc_status, created_at, updated_at)
-VALUES ('6e4daafc-cacf-5a0c-a94d-f4fe24863a4b', 'Subscription Number 5', 'PENDING', '2026-05-15', NULL, '7da5d96d-94d3-5bbd-8101-931ebc79c7a2', 'b647d357-eb47-5083-ab4a-3276012d7613', 'final', NOW(), NOW())
+VALUES ('6e4daafc-cacf-5a0c-a94d-f4fe24863a4b', 'Telecom Subscription 5', 'PENDING', '2026-05-15', NULL, '7da5d96d-94d3-5bbd-8101-931ebc79c7a2', 'b647d357-eb47-5083-ab4a-3276012d7613', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

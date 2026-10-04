@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-01T09:32:48.287Z
+//! Generated: 2026-10-04T01:12:01.845Z
 //! Project: inventory
 
 use sea_orm::entity::prelude::*;

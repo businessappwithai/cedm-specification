@@ -81,7 +81,7 @@ impl Hooks for App {
         // anything that must stay off `/api` is added before `.prefix()` is
         // called, and everything after it is mounted under `/api`.
         //
-        // (Verified against loco-rs 1.0.1 `app_routes.rs::add_route`. Using
+        // (Verified against loco-rs 1.0.1 and 1.2.0 `app_routes.rs::add_route`. Using
         // `.nest_route("", ...)` after `.prefix("/api")` does NOT escape the
         // prefix — it appends to it.)
         AppRoutes::with_default_routes()

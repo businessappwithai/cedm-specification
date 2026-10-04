@@ -3,7 +3,7 @@ name = "appwithai-gen"
 version = "5.2.0"
 edition = "2021"
 publish = false
-description = "Generate full-stack Loco.rs applications from EML / Mermaid ERD models"
+description = "Generate full-stack Loco.rs applications from YAML (EML) and CEDM models"
 
 # `appwithai` is the command every doc names; the crate keeps the longer name so
 # it cannot collide with the generated app's own `<name>-cli` binary.

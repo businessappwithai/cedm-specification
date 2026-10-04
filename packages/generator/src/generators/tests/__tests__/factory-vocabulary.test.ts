@@ -3,7 +3,7 @@
  *
  * `factory.ts` invented a status vocabulary — `active`, `pending`, `closed`,
  * `draft` — and used it for any column whose name matched `/status|state$/`.
- * No model declares those words. A `%%enum` is a closed list the generated
+ * No model declares those words. An `enum` is a closed list the generated
  * application enforces: the column gets a `sys_ref_list` reference, the form
  * renders a dropdown, and the API refuses a value outside it. So the guess was
  * not "a less realistic value", it was an invalid one, and where the entity had
@@ -25,7 +25,7 @@ import { describe, expect, it } from "vitest";
 import { readYamlFixture } from "../../../model/__tests__/compile-yaml";
 import { generateApplication } from "../../../index";
 
-/** A column bound to a `%%enum`, and a second entity with a state machine. */
+/** A column bound to an `enum`, and a second entity with a state machine. */
 const MODEL = `eml: "1.0"
 enums:
   - name: MemberStatus

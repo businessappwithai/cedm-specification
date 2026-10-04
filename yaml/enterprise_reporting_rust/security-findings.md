@@ -283,7 +283,7 @@ Two paths return `true` — allow — on failure: `if (!this.db) return true`, a
 that request.
 
 The "open unless closed" default for a table with no rules is a defensible design
-choice and is documented as one: it is what makes `%%rbac` additive. The *error*
+choice and is documented as one: it is what makes the model's `rbac` additive. The *error*
 paths are a different thing, and should not inherit that reasoning.
 
 **Fix.** Deny on lookup failure. A missing optional dependency should fail at

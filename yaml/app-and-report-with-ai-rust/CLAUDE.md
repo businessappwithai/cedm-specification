@@ -19,7 +19,7 @@ holds neither of them:
 **The server side is Rust throughout**, and **the model is YAML throughout.**
 This directory was the repository `businessappwithai/app-and-report-with-ai-rust`,
 which checked both products out at commits pinned in `deps.json` and carried its
-own fork of a Mermaid-based modelling language. It was imported here and
+own fork of the modelling language, in its earlier diagram notation. It was imported here and
 converted: the pins, `deps.sh`, the checkouts and the forked language are gone,
 because the language, the generator and the reporting platform are all
 directories of this one repository. A change to any of them is tested against
@@ -160,7 +160,7 @@ reports a failed fetch as a Markdown link around a bare host.
 There is **one** language, at the repository root: `language/yaml/eml.schema.json`
 is what a model may contain, `language/appwithai-language.json` what it means,
 and `language/yaml/README.md` the prose. A model is one YAML document,
-`*.eml.yaml`; nothing in this directory reads or writes Mermaid.
+`*.eml.yaml`; nothing in this directory reads any other notation.
 
 The reporting platform's `language/cli` re-exports the root's model rather than
 carrying a fork. Before the import there were three copies of the definition,
@@ -228,9 +228,9 @@ the platform, so a bundle built on anything but CI's pin is byte-wrong for CI
 while looking right locally.
 
 **The in-browser generator is vendored and patched.** `html/assets/appwithai-wasm.js`
-comes from `app-with-ai-tanstack` and compiled Mermaid itself;
+comes from `app-with-ai-tanstack` and compiled the earlier notation itself;
 `scripts/patch-vendored-generators.ts` gives it `generateFromModel`, which takes
-the model `appwithai-model.js` compiled from YAML, and removes the Mermaid entry
+the model `appwithai-model.js` compiled from YAML, and removes the text entry
 points from its exports. Re-vendoring means re-patching — see the
 `sync-downstream` skill.
 

@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDictionaryEntities } from "@/components/admin/use-dictionary-entities";
 import { apiClient } from "@/lib/api-client";
 import { Box, Grid, HStack, Heading, Text } from "@/components/ui/layout";
 
@@ -94,12 +95,18 @@ function AdminRulesPage() {
     },
   });
 
+  // A rule is stored against a table; the screen names it by the window it
+  // opens in, never by the table.
+  const { data: dictionaryEntities } = useDictionaryEntities();
+  const entityLabel = (table: string) =>
+    dictionaryEntities?.find((e) => e.value === table)?.label ?? table.replace(/^bus_/, "").replace(/_/g, " ");
   const filteredRules =
     rules?.filter((rule) => {
       const matchesSearch =
         searchQuery === "" ||
         rule.ruleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        rule.entityName.toLowerCase().includes(searchQuery.toLowerCase());
+        (rule.entityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          entityLabel(rule.entityName).toLowerCase().includes(searchQuery.toLowerCase()));
 
       return matchesSearch;
     }) || [];
@@ -212,7 +219,7 @@ function AdminRulesPage() {
               <option value="">All Entities</option>
               {entityNames.map((entity) => (
                 <option key={entity} value={entity}>
-                  {entity}
+                  {entityLabel(entity)}
                 </option>
               ))}
             </select>
@@ -276,7 +283,7 @@ function AdminRulesPage() {
                 </div>
 
                 <div className="col-span-2">
-                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">{rule.entityName}</code>
+                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">{entityLabel(rule.entityName)}</code>
                 </div>
 
                 <div className="col-span-2">
@@ -315,6 +322,7 @@ function AdminRulesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-label={`Edit rule ${rule.ruleName}`}
                       className="h-8 w-8 p-0 hover:bg-black hover:text-white rounded-none"
                     >
                       <Edit size={16} />
@@ -324,6 +332,7 @@ function AdminRulesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(rule)}
+                    aria-label={`Deactivate rule ${rule.ruleName}`}
                     className="h-8 w-8 p-0 hover:bg-red-600 hover:text-white rounded-none"
                     disabled={!rule.isActive}
                   >
@@ -359,7 +368,7 @@ function AdminRulesPage() {
 
       <footer className="border-t-2 border-black mt-16">
         <Box paddingInline={8} paddingBlock={8} className="max-w-7xl mx-auto">
-          <Text size="sm" color="secondary" block>clinic-app · Business Rules Management</Text>
+          <Text size="sm" color="secondary" block>Business Rules Management</Text>
         </Box>
       </footer>
     </div>

@@ -7,7 +7,7 @@
  * Enables runtime UI layout customization by fetching field
  * ordering and display settings from the backend.
  *
- * Generated: 2026-10-01T09:31:30.507Z
+ * Generated: 2026-10-04T01:11:27.094Z
  * Project: container-logistics
  */
 

@@ -203,7 +203,7 @@ AI_NL_MODEL=claude-sonnet-4       # Model for NL processing
 
 The platform already has:
 
-- **4 AI Agents**: Domain, Entity, Relationship, Mermaid (for ERD design)
+- **4 AI Agents**: Domain, Entity, Relationship, and the model writer (for ERD design)
 - **Mastra.ai Instance**: Configured with Claude Sonnet 4
 - **CopilotKit Setup**: Currently disabled due to dependency conflicts
 - **RBAC Types**: Table-level and field-level access control defined
@@ -3112,16 +3112,19 @@ packages/generator/templates/
 
 *Please review and provide approval or feedback before implementation begins.*
 
-
 AppWithAI - AI Enhancement Plan
 Two-Stage AI Natural Language Generator Workflow
-Document Version: 3.0 Date: February 12, 2026 Status: ACTIVE Platform Version: AppWithAI v5.1
+Document Version: 3.1 Date: October 4, 2026 Status: ACTIVE Platform Version: AppWithAI v5.1
+
+Version 3.1 restates both stages in the YAML model language (`*.eml.yaml`,
+`language/yaml/README.md`), which is the only model notation the generators
+read. The stages, the agents and the hook lifecycle are unchanged from 3.0.
 
 Table of Contents
 Overview
 Two-Stage Generator Architecture
-Stage 1: Entity & Relationship Design (Mermaid ERD)
-Stage 2: Flow Enhancement & Hook Code Generation (Mermaid Flowchart)
+Stage 1: Entity & Relationship Design (the `entities` and `relationships` keys)
+Stage 2: Flow Enhancement & Hook Code Generation (the `hooks` and `hookFlows` keys)
 Current Application Status
 Supported Framework Stacks
 AI Agent Architecture
@@ -3133,9 +3136,9 @@ Testing Strategy
 1. Overview
 AppWithAI is an AI-powered platform that uses natural language (NL) input to generate complete full-stack applications through a two-stage process:
 
-Stage	Input	AI Processing	Output Format	Purpose
-Stage 1	Natural language business description	Domain, Entity, Relationship, Mermaid agents	Mermaid ERD syntax	Define database schema (entities, attributes, relationships)
-Stage 2	Approved schema + chosen framework	Hook flow generation agent	Mermaid Flowchart syntax	Define business logic hooks on CRUD+List operations
+Stage	Input	AI Processing	Output	Purpose
+Stage 1	Natural language business description	Domain, Entity, Relationship and model-writer agents	`entities`, `relationships`, `enums` in the model document	Define database schema (entities, attributes, relationships)
+Stage 2	Approved schema + chosen framework	Hook flow generation agent	`hooks` and `hookFlows` in the same document	Define business logic hooks on CRUD+List operations
 After both stages complete, the generator produces a full-stack application with the schema, CRUD operations, and business logic hooks baked in.
 
 End-to-End Pipeline
@@ -3149,11 +3152,14 @@ Natural Language Description
   +-----------+     +-----------+     +---------------+
         |                                    |
         v                                    v
-  Mermaid ERD                          Mermaid Flowchart
-  (entities +                          (hook logic per
-   relationships)                       entity per CRUD)
+  entities +                           hooks + hookFlows
+  relationships                        (hook logic per
+                                        entity per CRUD)
         |                                    |
         +----------------+------------------+
+                         |
+                         v
+              model.eml.yaml (one document)
                          |
                          v
               +---------------------+
@@ -3167,11 +3173,11 @@ Natural Language Description
               (schema + CRUD + hooks)
 2. Two-Stage Generator Architecture
 Stage Separation
-The generator is intentionally split into two stages because they serve fundamentally different purposes and use different Mermaid diagram types:
+The generator is intentionally split into two stages because they serve fundamentally different purposes. Both write into one YAML model document, under different keys:
 
-Stage 1 - Structural (ERD): Defines what data exists and how it relates. Uses Mermaid Entity Relationship Diagram syntax which is designed for modeling data structures.
+Stage 1 - Structural: Defines what data exists and how it relates. Written under `entities`, `relationships` and `enums`.
 
-Stage 2 - Behavioral (Flowchart): Defines what happens during CRUD operations. Uses Mermaid Flowchart syntax which is designed for modeling process flows and decision logic.
+Stage 2 - Behavioral: Defines what happens during CRUD operations. Written under `hooks` (what runs) and `hookFlows` (in what order, drawn by the model viewer).
 
 +------------------------------------------------------------------+
 |                    TWO-STAGE GENERATOR                            |
@@ -3180,7 +3186,7 @@ Stage 2 - Behavioral (Flowchart): Defines what happens during CRUD operations. U
 |  STAGE 1: STRUCTURAL DEFINITION                                   |
 |  ================================                                  |
 |  Input:  "E-commerce with users, products, orders"                |
-|  Tool:   Mermaid ERD Syntax                                       |
+|  Writes: entities, relationships, enums                           |
 |  Output: Entity definitions, attributes, relationships            |
 |  Status: Schema ready for database generation                     |
 |                                                                    |
@@ -3190,14 +3196,14 @@ Stage 2 - Behavioral (Flowchart): Defines what happens during CRUD operations. U
 |  STAGE 2: BEHAVIORAL DEFINITION                                   |
 |  ================================                                  |
 |  Input:  Approved entities + chosen server framework              |
-|  Tool:   Mermaid Flowchart Syntax                                 |
+|  Writes: hooks, hookFlows                                         |
 |  Output: Hook implementations (before/after CRUD+List)            |
 |  Status: Business logic ready for code generation                 |
 |                                                                    |
 +------------------------------------------------------------------+
-3. Stage 1: Entity & Relationship Design (Mermaid ERD)
+3. Stage 1: Entity & Relationship Design
 3.1 How It Works
-The user provides a natural language business description. The AI agents analyze the description and produce a Mermaid ERD diagram defining entities, their attributes, and relationships.
+The user provides a natural language business description. The AI agents analyze the description and write the `entities`, `relationships` and `enums` of a YAML model document.
 
 AI Agent Pipeline for Stage 1
 User NL Input
@@ -3205,16 +3211,16 @@ User NL Input
     v
 +------------------+
 | Domain Agent     |  Analyzes business description,
-| (Claude Sonnet 4)|  extracts entity candidates and
-|                  |  relationship candidates with
-|                  |  confidence scores
+| (local model,    |  extracts entity candidates and
+|  packages/ai/    |  relationship candidates with
+|  src/config.ts)  |  confidence scores
 +------------------+
     |
     v
 +------------------+
 | Entity Agent     |  Refines entity structures,
 |                  |  determines attribute types,
-|                  |  keys (PK/FK/UK), constraints
+|                  |  keys (pk/fk/unique), constraints
 +------------------+
     |
     v
@@ -3227,24 +3233,24 @@ User NL Input
     |
     v
 +------------------+      +------------------+
-| Human-in-the-    |----->| Mermaid Agent    |
-| Loop Approval    |      | Generates ERD    |
-| (CopilotKit UI)  |      | syntax output    |
+| Human-in-the-    |----->| Model writer     |
+| Loop Approval    |      | Emits the YAML   |
+| (CopilotKit UI)  |      | model document   |
 +------------------+      +------------------+
-3.2 Mermaid ERD Syntax Reference
-The generator uses standard Mermaid Entity Relationship Diagram syntax:
+3.2 Model Language Reference (Stage 1 keys)
+`id` is added when no attribute is the key, and `version`, `created_at`, `updated_at`, `created_by`, `updated_by`, `deleted_at` and `deleted_by` are added by the generator to every table (`managedColumns` in `language/appwithai-language.json`), so a model does not declare them. The document is validated by `language/yaml/eml.schema.json` and then by the semantic checker; the full reference is `language/yaml/README.md`.
 
 Entity Definition
-erDiagram
-    Customer {
-        string id PK
-        string name
-        string email UK
-        boolean is_active
-        datetime created_at
-    }
+entities:
+  - name: Customer
+    help: Someone who buys from us.
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: name, type: string }
+      - { name: email, type: email, unique: true }
+      - { name: is_active, type: boolean }
 Supported Attribute Types
-Mermaid Type	Maps To	TypeScript Type
+Model type	Maps To	TypeScript Type
 string, varchar, char	string	string
 text, longtext	text	string
 int, integer, bigint	integer	number
@@ -3254,94 +3260,82 @@ date	date	Date
 datetime, timestamp	datetime	Date
 json, jsonb	json	Record<string, unknown>
 uuid, guid	string	string
-Attribute Modifiers
-Modifier	Meaning
-PK	Primary Key
-FK	Foreign Key
-UK or UNIQUE	Unique constraint
-OPTIONAL or NULL	Nullable field
-Relationship Cardinality Notation
-Notation	Meaning
-||--||	Exactly one to exactly one
-||--o{	Exactly one to zero or more
-|o--o{	Zero or one to zero or more
-}o--||	Zero or more to exactly one
-}o--o{	Zero or more to zero or more
-||--|{	Exactly one to one or more
-Identifying vs Non-Identifying Relationships
-Notation	Type	Visual
---	Identifying (solid line)	Child cannot exist without parent
-..	Non-identifying (dashed line)	Child can exist independently
-3.3 Example: NL to ERD
+email, url, phone, password, color	string	string (and the form control)
+Attribute Keys
+Key	Meaning
+pk: true	Primary Key
+fk: true	Foreign Key (column follows the `<entity>_id` convention)
+unique: true	Unique constraint
+optional: true	Nullable field
+enum: <Name>	Bound to a declared enum; renders as a dropdown
+Relationship Cardinality
+fromCardinality / toCardinality	Meaning
+exactly-one / exactly-one	Exactly one to exactly one
+exactly-one / zero-or-more	Exactly one to zero or more
+zero-or-one / zero-or-one	Zero or one to zero or one
+zero-or-more / exactly-one	Zero or more to exactly one
+zero-or-more / zero-or-more	Zero or more to zero or more
+exactly-one / one-or-more	Exactly one to one or more
+Only the eight pairs listed in `language/yaml/README.md` are valid; any other pair is a schema error. The foreign key is on the many side of a one-to-many, named after the one side. A child that cannot exist without its parent is declared with `parent:` on the child entity.
+3.3 Example: NL to Model
 User Input:
 
 "I need a blog platform where users can create posts, and readers can leave comments on posts. Users should have profiles with bio and avatar. Posts can be tagged with multiple tags."
 
-AI-Generated Mermaid ERD Output:
+AI-Generated Model (Stage 1 keys):
 
-erDiagram
-    User {
-        string id PK
-        string email UK
-        string password_hash
-        string first_name
-        string last_name
-        boolean is_active
-        datetime created_at
-        datetime updated_at
-    }
+entities:
+  - name: User
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: email, type: email, unique: true }
+      - { name: password_hash, type: password }
+      - { name: first_name, type: string }
+      - { name: last_name, type: string }
+      - { name: is_active, type: boolean }
+  - name: Profile
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: user_id, type: string, fk: true }
+      - { name: bio, type: text }
+      - { name: avatar_url, type: url }
+      - { name: website, type: url }
+  - name: Post
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: author_id, type: string, fk: true }
+      - { name: title, type: string }
+      - { name: slug, type: string, unique: true }
+      - { name: content, type: text }
+      - { name: is_published, type: boolean }
+      - { name: published_at, type: datetime }
+  - name: Comment
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: post_id, type: string, fk: true }
+      - { name: author_id, type: string, fk: true }
+      - { name: content, type: text }
+      - { name: is_approved, type: boolean }
+  - name: Tag
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: name, type: string, unique: true }
+      - { name: slug, type: string, unique: true }
+  - name: PostTag
+    attributes:
+      - { name: id, type: string, pk: true }
+      - { name: post_id, type: string, fk: true }
+      - { name: tag_id, type: string, fk: true }
 
-    Profile {
-        string id PK
-        string user_id FK
-        text bio
-        string avatar_url
-        string website
-        datetime created_at
-    }
-
-    Post {
-        string id PK
-        string author_id FK
-        string title
-        string slug UK
-        text content
-        boolean is_published
-        datetime published_at
-        datetime created_at
-        datetime updated_at
-    }
-
-    Comment {
-        string id PK
-        string post_id FK
-        string author_id FK
-        text content
-        boolean is_approved
-        datetime created_at
-    }
-
-    Tag {
-        string id PK
-        string name UK
-        string slug UK
-        datetime created_at
-    }
-
-    PostTag {
-        string id PK
-        string post_id FK
-        string tag_id FK
-    }
-
-    User ||--|| Profile : "has"
-    User ||--o{ Post : "authors"
-    User ||--o{ Comment : "writes"
-    Post ||--o{ Comment : "has"
-    Post ||--o{ PostTag : "tagged_with"
-    Tag ||--o{ PostTag : "applied_to"
-3.4 Parser Implementation
-The MermaidParser class (packages/generator/src/parsers/mermaid.parser.ts) parses the ERD syntax and extracts typed Entity[] and Relationship[] objects:
+relationships:
+  - { from: User, fromCardinality: exactly-one, to: Profile, toCardinality: exactly-one, label: has }
+  - { from: User, fromCardinality: exactly-one, to: Post, toCardinality: zero-or-more, label: authors }
+  - { from: User, fromCardinality: exactly-one, to: Comment, toCardinality: zero-or-more, label: writes }
+  - { from: Post, fromCardinality: exactly-one, to: Comment, toCardinality: zero-or-more, label: has }
+  - { from: Post, fromCardinality: exactly-one, to: PostTag, toCardinality: zero-or-more, label: tagged_with }
+  - { from: Tag, fromCardinality: exactly-one, to: PostTag, toCardinality: zero-or-more, label: applied_to }
+3.4 Reader Implementation
+`readModelYaml` (packages/generator/src/model-yaml/) parses and validates the document, `to-records.ts` turns it into model records, and `compileModelRecords` (packages/generator/src/model/compile.ts) produces the typed Entity[] and Relationship[] objects:
 
 // Core types produced by Stage 1
 interface Entity {
@@ -3368,10 +3362,10 @@ Between Stage 1 output and Stage 2 input, the user reviews and approves/modifies
 Entity Review - Each entity displayed as a card with attributes, types, constraints
 Relationship Review - Visualized connections with cardinality labels
 Modify - User can add/remove/change attributes, rename entities, adjust cardinality
-Approve - Finalized ERD is locked and passed to Stage 2
-4. Stage 2: Flow Enhancement & Hook Code Generation (Mermaid Flowchart)
+Approve - Finalized model is committed to the project history and passed to Stage 2
+4. Stage 2: Flow Enhancement & Hook Code Generation
 4.1 How It Works
-Once the database schema is defined (Stage 1) and the server-side framework is chosen, Stage 2 generates business logic hooks for each entity's CRUD+List operations using Mermaid Flowchart syntax.
+Once the database schema is defined (Stage 1) and the server-side framework is chosen, Stage 2 generates business logic hooks for each entity's CRUD+List operations, written under `hooks` and `hookFlows`.
 
 Hooks are injected into the lifecycle of each operation:
 
@@ -3381,177 +3375,199 @@ Read	beforeRead / beforeQuery	performRead	afterRead / afterQuery
 Update	beforeUpdate	performUpdate	afterUpdate
 Delete	beforeDelete	performDelete	afterDelete
 List	beforeList / beforeQuery	performList	afterList / afterQuery
-4.2 Mermaid Flowchart Syntax Reference
-Stage 2 uses Mermaid Flowchart syntax to define hook logic:
+4.2 Hook Flow Reference (`hookFlows`)
+A hook flow draws the order an entity's hooks run in around a write. Nothing compiles a flow; the checker holds it to the hooks it names, and the model viewer draws it.
 
-Basic Structure
-flowchart TD
-    A[Node A] --> B[Node B]
-    B --> C{Decision}
-    C -->|Yes| D[Action]
-    C -->|No| E[Other Action]
-Node Shapes
-Syntax	Shape	Usage
-A[text]	Rectangle	Standard process step
-A(text)	Rounded rectangle	Start/End
-A{text}	Diamond	Decision / condition
-A([text])	Stadium	Subprocess / external call
-A[[text]]	Subroutine	Reusable logic block
-A[(text)]	Cylinder	Database operation
-A((text))	Circle	Connector
-Link Types
-Syntax	Type	Usage
--->	Arrow	Standard flow
----	Line	Association (no direction)
--.->	Dotted arrow	Optional/conditional flow
-==>	Thick arrow	Primary/critical path
--->|text|	Labeled arrow	Conditional branch
-Direction Keywords
-Keyword	Direction
+hookFlows:
+  - name: UserCreate
+    title: User Create
+    entity: User
+    direction: TD
+    nodes:
+      - { id: A, label: Client POST /users }
+      - { id: B, label: Validate Request Body }
+      - { id: E, event: beforeCreate, handler: validateEmail }
+    edges:
+      - { from: A, to: B }
+      - { from: B, to: E, label: fields present }
+Node Kinds
+Node	Meaning
+{ id, label }	A step shown for context (request, validation, database write, response)
+{ id, event, handler }	A hook the entity declares under `hooks`
+Edge Keys
+Key	Meaning
+from, to	Node ids
+label	Condition on a branch (optional)
+Direction (`direction`)
+Value	Direction
 TD / TB	Top to bottom
 BT	Bottom to top
 LR	Left to right
 RL	Right to left
-Subgraphs
-subgraph title [Display Title]
-    direction TB
-    A --> B
-end
-Styling
-classDef hookStyle fill:#90caf9,stroke:#1565c0,stroke-width:2px;
-class nodeId hookStyle;
-Comments (Hook Metadata)
-Hook definitions are embedded as Mermaid comments using the %%hook syntax:
-
-%%hook beforeCreate hashPassword on User
-%%hook afterCreate sendWelcomeEmail on User[field: email]
-%%hook beforeUpdate validateSlug on Post[field: slug]
-%%hook beforeDelete checkDependencies on Category
-%%hook beforeList applyTenantFilter on Order
-4.3 Hook Comment Syntax
-%%hook <hookType> <hookName> on <EntityName>[field: <fieldName>, field: <fieldName>]
-Component	Required	Description
-hookType	Yes	One of: beforeCreate, afterCreate, beforeUpdate, afterUpdate, beforeDelete, afterDelete, beforeRead, afterRead, beforeList, afterList, beforeQuery, afterQuery, customValidate
-hookName	Yes	camelCase function name (e.g., hashPassword, sendWelcomeEmail)
-EntityName	Yes	PascalCase entity name (e.g., User, Post)
-[field: ...]	No	Optional field parameters the hook targets
+Hook Declarations (`hooks`)
+hooks:
+  - { entity: User, event: beforeCreate, handler: hashPassword }
+  - { entity: User, event: afterCreate, handler: sendWelcomeEmail, fields: [email] }
+  - { entity: Post, event: beforeUpdate, handler: validateSlug, fields: [slug] }
+  - { entity: Category, event: beforeDelete, handler: checkDependencies }
+  - { entity: Order, event: beforeList, handler: applyTenantFilter }
+4.3 Hook Declaration Keys
+Key	Required	Description
+event	Yes	One of: beforeCreate, afterCreate, beforeUpdate, afterUpdate, beforeDelete, afterDelete, beforeRead, afterRead, beforeList, afterList, beforeQuery, afterQuery, customValidate
+handler	Yes	camelCase function name (e.g., hashPassword, sendWelcomeEmail)
+entity	Yes	PascalCase entity name (e.g., User, Post)
+fields	No	The columns a field-level hook concerns, in order
 4.4 Example: Hook Flow Generation for User Entity
-Given the User entity from Stage 1, Stage 2 generates flowcharts for each CRUD operation:
+Given the User entity from Stage 1, Stage 2 writes the hooks and one flow per CRUD operation:
+
+hooks:
+  # Create
+  - { entity: User, event: beforeCreate, handler: validateEmail, fields: [email] }
+  - { entity: User, event: beforeCreate, handler: hashPassword, fields: [password_hash] }
+  - { entity: User, event: beforeCreate, handler: generateId, fields: [id] }
+  - { entity: User, event: afterCreate, handler: sendWelcomeEmail, fields: [email] }
+  - { entity: User, event: afterCreate, handler: createAuditLog }
+  # Update
+  - { entity: User, event: beforeUpdate, handler: validateEmailOnUpdate, fields: [email] }
+  - { entity: User, event: beforeUpdate, handler: rehashPassword, fields: [password_hash] }
+  - { entity: User, event: beforeUpdate, handler: updateTimestamp, fields: [updated_at] }
+  - { entity: User, event: afterUpdate, handler: invalidateCache }
+  - { entity: User, event: afterUpdate, handler: auditUpdate }
+  # Delete
+  - { entity: User, event: beforeDelete, handler: checkDependencies }
+  - { entity: User, event: beforeDelete, handler: softDeleteCheck }
+  - { entity: User, event: afterDelete, handler: cleanupRelated }
+  - { entity: User, event: afterDelete, handler: auditDelete }
+  # List
+  - { entity: User, event: beforeList, handler: applyTenantFilter }
+  - { entity: User, event: beforeList, handler: applyRBACFilter }
+  - { entity: User, event: beforeQuery, handler: buildSearchQuery }
+  - { entity: User, event: afterList, handler: maskSensitiveFields, fields: [password_hash] }
+  - { entity: User, event: afterList, handler: addPaginationMeta }
+
+One handler name serves one event per entity, so a handler that runs on two events (an audit entry after create and after update) is declared under two names.
 
 Create Flow
-flowchart TD
-    A([Client POST /users]) --> B[Validate Request Body]
-    B --> C{Required Fields Present?}
-    C -->|No| D([400 Bad Request])
-    C -->|Yes| E[beforeCreate: validateEmail]
-    E --> F{Email Format Valid?}
-    F -->|No| G([422 Validation Error])
-    F -->|Yes| H[beforeCreate: hashPassword]
-    H --> I[beforeCreate: generateId]
-    I --> J[(Insert into Database)]
-    J --> K[afterCreate: sendWelcomeEmail]
-    K --> L[afterCreate: createAuditLog]
-    L --> M([201 Created])
-
-    %%hook beforeCreate validateEmail on User[field: email]
-    %%hook beforeCreate hashPassword on User[field: password_hash]
-    %%hook beforeCreate generateId on User[field: id]
-    %%hook afterCreate sendWelcomeEmail on User[field: email]
-    %%hook afterCreate createAuditLog on User
-
-    classDef beforeHook fill:#90caf9,stroke:#1565c0,stroke-width:2px;
-    classDef afterHook fill:#a5d6a7,stroke:#2e7d32,stroke-width:2px;
-    classDef error fill:#ef9a9a,stroke:#c62828,stroke-width:2px;
-    classDef db fill:#fff59d,stroke:#f57f17,stroke-width:2px;
-
-    class E,H,I beforeHook;
-    class K,L afterHook;
-    class D,G error;
-    class J db;
+hookFlows:
+  - name: UserCreate
+    title: User Create
+    entity: User
+    nodes:
+      - { id: A, label: Client POST /users }
+      - { id: B, label: Validate Request Body }
+      - { id: C, label: Required Fields Present? }
+      - { id: D, label: 400 Bad Request }
+      - { id: E, event: beforeCreate, handler: validateEmail }
+      - { id: F, label: Email Format Valid? }
+      - { id: G, label: 422 Validation Error }
+      - { id: H, event: beforeCreate, handler: hashPassword }
+      - { id: I, event: beforeCreate, handler: generateId }
+      - { id: J, label: Insert into Database }
+      - { id: K, event: afterCreate, handler: sendWelcomeEmail }
+      - { id: L, event: afterCreate, handler: createAuditLog }
+      - { id: M, label: 201 Created }
+    edges:
+      - { from: A, to: B }
+      - { from: B, to: C }
+      - { from: C, to: D, label: "No" }
+      - { from: C, to: E, label: "Yes" }
+      - { from: E, to: F }
+      - { from: F, to: G, label: "No" }
+      - { from: F, to: H, label: "Yes" }
+      - { from: H, to: I }
+      - { from: I, to: J }
+      - { from: J, to: K }
+      - { from: K, to: L }
+      - { from: L, to: M }
 Update Flow
-flowchart TD
-    A([Client PUT /users/:id]) --> B[Validate Request Body]
-    B --> C{Record Exists?}
-    C -->|No| D([404 Not Found])
-    C -->|Yes| E[beforeUpdate: validateEmail]
-    E --> F{Password Changed?}
-    F -->|Yes| G[beforeUpdate: hashPassword]
-    F -->|No| H[beforeUpdate: updateTimestamp]
-    G --> H
-    H --> I[(Update in Database)]
-    I --> J[afterUpdate: invalidateCache]
-    J --> K[afterUpdate: createAuditLog]
-    K --> L([200 OK])
-
-    %%hook beforeUpdate validateEmail on User[field: email]
-    %%hook beforeUpdate hashPassword on User[field: password_hash]
-    %%hook beforeUpdate updateTimestamp on User[field: updated_at]
-    %%hook afterUpdate invalidateCache on User
-    %%hook afterUpdate createAuditLog on User
-
-    classDef beforeHook fill:#fff59d,stroke:#f57f17,stroke-width:2px;
-    classDef afterHook fill:#ffcc80,stroke:#e65100,stroke-width:2px;
-    classDef error fill:#ef9a9a,stroke:#c62828,stroke-width:2px;
-    classDef db fill:#ce93d8,stroke:#6a1b9a,stroke-width:2px;
-
-    class E,G,H beforeHook;
-    class J,K afterHook;
-    class D error;
-    class I db;
+  - name: UserUpdate
+    title: User Update
+    entity: User
+    nodes:
+      - { id: A, label: Client PUT /users/:id }
+      - { id: B, label: Validate Request Body }
+      - { id: C, label: Record Exists? }
+      - { id: D, label: 404 Not Found }
+      - { id: E, event: beforeUpdate, handler: validateEmailOnUpdate }
+      - { id: F, label: Password Changed? }
+      - { id: G, event: beforeUpdate, handler: rehashPassword }
+      - { id: H, event: beforeUpdate, handler: updateTimestamp }
+      - { id: I, label: Update in Database }
+      - { id: J, event: afterUpdate, handler: invalidateCache }
+      - { id: K, event: afterUpdate, handler: auditUpdate }
+      - { id: L, label: 200 OK }
+    edges:
+      - { from: A, to: B }
+      - { from: B, to: C }
+      - { from: C, to: D, label: "No" }
+      - { from: C, to: E, label: "Yes" }
+      - { from: E, to: F }
+      - { from: F, to: G, label: "Yes" }
+      - { from: F, to: H, label: "No" }
+      - { from: G, to: H }
+      - { from: H, to: I }
+      - { from: I, to: J }
+      - { from: J, to: K }
+      - { from: K, to: L }
 Delete Flow
-flowchart TD
-    A([Client DELETE /users/:id]) --> B{Record Exists?}
-    B -->|No| C([404 Not Found])
-    B -->|Yes| D[beforeDelete: checkDependencies]
-    D --> E{Has Active Posts?}
-    E -->|Yes| F([409 Conflict])
-    E -->|No| G[beforeDelete: softDeleteCheck]
-    G --> H{Soft Delete Enabled?}
-    H -->|Yes| I[(Set is_deleted = true)]
-    H -->|No| J[(Delete from Database)]
-    I --> K[afterDelete: cleanupRelated]
-    J --> K
-    K --> L[afterDelete: createAuditLog]
-    L --> M([200 OK])
-
-    %%hook beforeDelete checkDependencies on User
-    %%hook beforeDelete softDeleteCheck on User
-    %%hook afterDelete cleanupRelated on User
-    %%hook afterDelete createAuditLog on User
-
-    classDef beforeHook fill:#ef9a9a,stroke:#c62828,stroke-width:2px;
-    classDef afterHook fill:#b0bec5,stroke:#37474f,stroke-width:2px;
-    classDef error fill:#ef9a9a,stroke:#c62828,stroke-width:2px;
-    classDef db fill:#ce93d8,stroke:#6a1b9a,stroke-width:2px;
-
-    class D,G beforeHook;
-    class K,L afterHook;
-    class C,F error;
-    class I,J db;
+  - name: UserDelete
+    title: User Delete
+    entity: User
+    nodes:
+      - { id: A, label: Client DELETE /users/:id }
+      - { id: B, label: Record Exists? }
+      - { id: C, label: 404 Not Found }
+      - { id: D, event: beforeDelete, handler: checkDependencies }
+      - { id: E, label: Has Active Posts? }
+      - { id: F, label: 409 Conflict }
+      - { id: G, event: beforeDelete, handler: softDeleteCheck }
+      - { id: H, label: Soft Delete Enabled? }
+      - { id: I, label: Set is_deleted = true }
+      - { id: J, label: Delete from Database }
+      - { id: K, event: afterDelete, handler: cleanupRelated }
+      - { id: L, event: afterDelete, handler: auditDelete }
+      - { id: M, label: 200 OK }
+    edges:
+      - { from: A, to: B }
+      - { from: B, to: C, label: "No" }
+      - { from: B, to: D, label: "Yes" }
+      - { from: D, to: E }
+      - { from: E, to: F, label: "Yes" }
+      - { from: E, to: G, label: "No" }
+      - { from: G, to: H }
+      - { from: H, to: I, label: "Yes" }
+      - { from: H, to: J, label: "No" }
+      - { from: I, to: K }
+      - { from: J, to: K }
+      - { from: K, to: L }
+      - { from: L, to: M }
 List Flow
-flowchart TD
-    A([Client GET /users]) --> B[Parse Query Parameters]
-    B --> C[beforeList: applyTenantFilter]
-    C --> D[beforeList: applyRBACFilter]
-    D --> E{Has Search Term?}
-    E -->|Yes| F[beforeQuery: buildSearchQuery]
-    E -->|No| G[Apply Default Sorting]
-    F --> G
-    G --> H[(Query Database)]
-    H --> I[afterList: maskSensitiveFields]
-    I --> J[afterList: addPaginationMeta]
-    J --> K([200 OK with results])
+  - name: UserList
+    title: User List
+    entity: User
+    nodes:
+      - { id: A, label: Client GET /users }
+      - { id: B, label: Parse Query Parameters }
+      - { id: C, event: beforeList, handler: applyTenantFilter }
+      - { id: D, event: beforeList, handler: applyRBACFilter }
+      - { id: E, label: Has Search Term? }
+      - { id: F, event: beforeQuery, handler: buildSearchQuery }
+      - { id: G, label: Apply Default Sorting }
+      - { id: H, label: Query Database }
+      - { id: I, event: afterList, handler: maskSensitiveFields }
+      - { id: J, event: afterList, handler: addPaginationMeta }
+      - { id: K, label: 200 OK with results }
+    edges:
+      - { from: A, to: B }
+      - { from: B, to: C }
+      - { from: C, to: D }
+      - { from: D, to: E }
+      - { from: E, to: F, label: "Yes" }
+      - { from: E, to: G, label: "No" }
+      - { from: F, to: G }
+      - { from: G, to: H }
+      - { from: H, to: I }
+      - { from: I, to: J }
+      - { from: J, to: K }
 
-    %%hook beforeList applyTenantFilter on User
-    %%hook beforeList applyRBACFilter on User
-    %%hook beforeQuery buildSearchQuery on User
-    %%hook afterList maskSensitiveFields on User[field: password_hash]
-    %%hook afterList addPaginationMeta on User
-
-    classDef beforeHook fill:#d9f99d,stroke:#65a30d,stroke-width:2px;
-    classDef afterHook fill:#10b981,stroke:#064e3b,stroke-width:2px,color:#fff;
-    classDef db fill:#ce93d8,stroke:#6a1b9a,stroke-width:2px;
-
-    class C,D,F beforeHook;
-    class I,J afterHook;
-    class H db;
+The model viewer colours hook nodes by event (before-hooks, after-hooks) and draws context nodes neutrally; the colours are the viewer's, not the model's.

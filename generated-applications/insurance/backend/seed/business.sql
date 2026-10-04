@@ -167,19 +167,19 @@ ON CONFLICT DO NOTHING;
 
 -- Address (bus_address)
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('2571a8dc-81a6-59b7-a1c7-dc2d9f8c51fc', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Postal Code 1', 10.50, 10.50, TRUE, 'ACTIVE', '3ac4eecc-196e-5317-87a5-19d1d85c9361', '99c8d1e1-8ba1-5515-8219-2704b41b1782', '276dc9c4-d13c-5db1-a2d1-9342c909e389', 'f0c63de3-8c55-554d-8618-8f7d56fad8a5', 'd3a2c1fc-97b1-5f89-9c6e-08f1718faa2a', 'b1ff8826-1ad3-56ef-9140-0bc35d5fced7', 'final', NOW(), NOW())
+VALUES ('2571a8dc-81a6-59b7-a1c7-dc2d9f8c51fc', 'RESIDENTIAL', 'Line1 1', 'Line2 1', 'Line3 1', 'City Name 1', 'Address 1', 10.50, 10.50, TRUE, 'ACTIVE', '3ac4eecc-196e-5317-87a5-19d1d85c9361', '99c8d1e1-8ba1-5515-8219-2704b41b1782', '276dc9c4-d13c-5db1-a2d1-9342c909e389', 'f0c63de3-8c55-554d-8618-8f7d56fad8a5', 'd3a2c1fc-97b1-5f89-9c6e-08f1718faa2a', 'b1ff8826-1ad3-56ef-9140-0bc35d5fced7', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('f4fc086f-adf6-56af-8599-ab64c8c643fd', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Postal Code 2', 21.00, 21.00, FALSE, 'ACTIVE', '31ac84df-e174-5d64-b6a7-6e2eba614205', '28099113-7d37-5a19-a3ac-ccad24fd069a', '949be58b-83c3-594d-87d3-13174c7b0bdf', 'bbf23db7-43a3-5fb0-8b23-76cee9eec562', '2f9da0b0-7265-5c4f-af73-348898232322', '2bf84d33-b601-529f-9cc6-cd13bd4fdd79', 'final', NOW(), NOW())
+VALUES ('f4fc086f-adf6-56af-8599-ab64c8c643fd', 'BUSINESS', 'Line1 2', 'Line2 2', 'Line3 2', 'City Name 2', 'Address 2', 21.00, 21.00, FALSE, 'ACTIVE', '31ac84df-e174-5d64-b6a7-6e2eba614205', '28099113-7d37-5a19-a3ac-ccad24fd069a', '949be58b-83c3-594d-87d3-13174c7b0bdf', 'bbf23db7-43a3-5fb0-8b23-76cee9eec562', '2f9da0b0-7265-5c4f-af73-348898232322', '2bf84d33-b601-529f-9cc6-cd13bd4fdd79', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('b25e6b39-b392-5f91-8999-3b85083127dc', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Postal Code 3', 31.50, 31.50, TRUE, 'ACTIVE', '28033698-6063-5569-9ee8-b7cecb305549', '2bb854a4-4645-5a70-87b2-92c8c57fab38', 'd64e28ea-0268-56a0-9a43-d6fd6e990193', 'b153c1fe-f32f-55b5-983f-a108dcfc6418', 'bf1238e6-b434-5bb4-b03e-a725a847b00e', '23299302-712e-550f-992c-411511307a8d', 'final', NOW(), NOW())
+VALUES ('b25e6b39-b392-5f91-8999-3b85083127dc', 'BILLING', 'Line1 3', 'Line2 3', 'Line3 3', 'City Name 3', 'Address 3', 31.50, 31.50, TRUE, 'ACTIVE', '28033698-6063-5569-9ee8-b7cecb305549', '2bb854a4-4645-5a70-87b2-92c8c57fab38', 'd64e28ea-0268-56a0-9a43-d6fd6e990193', 'b153c1fe-f32f-55b5-983f-a108dcfc6418', 'bf1238e6-b434-5bb4-b03e-a725a847b00e', '23299302-712e-550f-992c-411511307a8d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('eb295b1b-c1d9-503f-a6ca-8517bacb5d6c', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Postal Code 4', 42.00, 42.00, FALSE, 'ACTIVE', 'dc62c0a2-fa4a-5f1e-8e13-9910ff9e68d3', '06b6cb88-d91b-5e0f-aedc-ecc788155ac5', '02811e88-6f9a-537c-8de6-6b324cb915d8', 'd6d65b45-3549-577e-af49-3fb57b919ca0', '9537e65c-712c-5fc2-a95a-9ce9618f9536', 'db16ace3-d5c4-5b4c-a822-f440a09ea2b8', 'final', NOW(), NOW())
+VALUES ('eb295b1b-c1d9-503f-a6ca-8517bacb5d6c', 'SHIPPING', 'Line1 4', 'Line2 4', 'Line3 4', 'City Name 4', 'Address 4', 42.00, 42.00, FALSE, 'ACTIVE', 'dc62c0a2-fa4a-5f1e-8e13-9910ff9e68d3', '06b6cb88-d91b-5e0f-aedc-ecc788155ac5', '02811e88-6f9a-537c-8de6-6b324cb915d8', 'd6d65b45-3549-577e-af49-3fb57b919ca0', '9537e65c-712c-5fc2-a95a-9ce9618f9536', 'db16ace3-d5c4-5b4c-a822-f440a09ea2b8', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_address (id, address_type, line1, line2, line3, city_name, postal_code, latitude, longitude, is_primary, status, party_id, person_id, organization_id, country_id, state_province_id, city_id, doc_status, created_at, updated_at)
-VALUES ('f9e56487-15db-53cd-867b-29aa2c5ece70', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Postal Code 5', 52.50, 52.50, TRUE, 'ACTIVE', '3e721fe2-bb68-510d-944d-70e24a3242ce', '0e221412-52e2-52af-a0c5-dd99fbeefc34', 'd421f0a6-e053-5f0d-9a8e-3323b096564c', '9c5a4e90-7f13-5ed9-82ab-cbb55796bfb2', '7d5af6d9-8412-5975-a77e-5762843ebb7b', '58156480-a7ac-52df-824c-a42e12b3e1ee', 'final', NOW(), NOW())
+VALUES ('f9e56487-15db-53cd-867b-29aa2c5ece70', 'REGISTERED', 'Line1 5', 'Line2 5', 'Line3 5', 'City Name 5', 'Address 5', 52.50, 52.50, TRUE, 'ACTIVE', '3e721fe2-bb68-510d-944d-70e24a3242ce', '0e221412-52e2-52af-a0c5-dd99fbeefc34', 'd421f0a6-e053-5f0d-9a8e-3323b096564c', '9c5a4e90-7f13-5ed9-82ab-cbb55796bfb2', '7d5af6d9-8412-5975-a77e-5762843ebb7b', '58156480-a7ac-52df-824c-a42e12b3e1ee', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Contact Point (bus_contact_point)
@@ -303,17 +303,17 @@ ON CONFLICT DO NOTHING;
 
 -- Insurance Claim (bus_insurance_claim)
 INSERT INTO bus_insurance_claim (id, claim_number, loss_date, reported_at, claimed_amount, approved_amount, status, policy_id, claimant_id, doc_status, created_at, updated_at)
-VALUES ('b2c9e883-e3ef-5a8b-b8ed-0bc90e4ad8a0', 'Claim Number 1', NULL, '2026-01-15T09:00:00Z', 10.50, 10.50, 'REPORTED', '3d4cd6b7-ed82-51dc-8378-94cd25c06a83', '3ac4eecc-196e-5317-87a5-19d1d85c9361', 'final', NOW(), NOW())
+VALUES ('b2c9e883-e3ef-5a8b-b8ed-0bc90e4ad8a0', 'Insurance Claim 1', NULL, '2026-01-15T09:00:00Z', 10.50, 10.50, 'REPORTED', '3d4cd6b7-ed82-51dc-8378-94cd25c06a83', '3ac4eecc-196e-5317-87a5-19d1d85c9361', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_insurance_claim (id, claim_number, loss_date, reported_at, claimed_amount, approved_amount, status, policy_id, claimant_id, doc_status, created_at, updated_at)
-VALUES ('8bae83fb-f2ab-5845-a994-bb741d95f7d0', 'Claim Number 2', NULL, '2026-02-15T09:00:00Z', 21.00, 21.00, 'REPORTED', '7f620ae9-a3dc-5eb3-be7d-95c33d027141', '31ac84df-e174-5d64-b6a7-6e2eba614205', 'final', NOW(), NOW())
+VALUES ('8bae83fb-f2ab-5845-a994-bb741d95f7d0', 'Insurance Claim 2', NULL, '2026-02-15T09:00:00Z', 21.00, 21.00, 'REPORTED', '7f620ae9-a3dc-5eb3-be7d-95c33d027141', '31ac84df-e174-5d64-b6a7-6e2eba614205', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_insurance_claim (id, claim_number, loss_date, reported_at, claimed_amount, approved_amount, status, policy_id, claimant_id, doc_status, created_at, updated_at)
-VALUES ('6c96948b-a5a0-57cb-92e5-94c86755a2b2', 'Claim Number 3', NULL, '2026-03-15T09:00:00Z', 31.50, 31.50, 'REPORTED', '313be7e7-0bec-5877-9fa1-bc30b25e5d0b', '28033698-6063-5569-9ee8-b7cecb305549', 'final', NOW(), NOW())
+VALUES ('6c96948b-a5a0-57cb-92e5-94c86755a2b2', 'Insurance Claim 3', NULL, '2026-03-15T09:00:00Z', 31.50, 31.50, 'REPORTED', '313be7e7-0bec-5877-9fa1-bc30b25e5d0b', '28033698-6063-5569-9ee8-b7cecb305549', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_insurance_claim (id, claim_number, loss_date, reported_at, claimed_amount, approved_amount, status, policy_id, claimant_id, doc_status, created_at, updated_at)
-VALUES ('5bf3ea22-da9a-5633-b557-09881d8d4346', 'Claim Number 4', NULL, '2026-04-15T09:00:00Z', 42.00, 42.00, 'REPORTED', '52252500-035d-56ff-ae19-36ccd68777f1', 'dc62c0a2-fa4a-5f1e-8e13-9910ff9e68d3', 'final', NOW(), NOW())
+VALUES ('5bf3ea22-da9a-5633-b557-09881d8d4346', 'Insurance Claim 4', NULL, '2026-04-15T09:00:00Z', 42.00, 42.00, 'REPORTED', '52252500-035d-56ff-ae19-36ccd68777f1', 'dc62c0a2-fa4a-5f1e-8e13-9910ff9e68d3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_insurance_claim (id, claim_number, loss_date, reported_at, claimed_amount, approved_amount, status, policy_id, claimant_id, doc_status, created_at, updated_at)
-VALUES ('5c3b356f-0cc4-5943-80b0-6e6c532863dc', 'Claim Number 5', NULL, '2026-05-15T09:00:00Z', 52.50, 52.50, 'REPORTED', 'c517c114-41a7-5b2d-be60-baf7bb0ceac2', '3e721fe2-bb68-510d-944d-70e24a3242ce', 'final', NOW(), NOW())
+VALUES ('5c3b356f-0cc4-5943-80b0-6e6c532863dc', 'Insurance Claim 5', NULL, '2026-05-15T09:00:00Z', 52.50, 52.50, 'REPORTED', 'c517c114-41a7-5b2d-be60-baf7bb0ceac2', '3e721fe2-bb68-510d-944d-70e24a3242ce', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

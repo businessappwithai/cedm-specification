@@ -15,7 +15,7 @@
  * A model is read and validated by the language's own reader — YAML syntax,
  * the JSON Schema, the full checker, every finding at its YAML line — and
  * compiled by the repository's one compiler (`compileModelDocument`). Nothing
- * here reads or writes Mermaid.
+ * here reads or writes the earlier text format.
  *
  * The browser bundles were built before the compiler's model settled, and
  * name a few things differently. `toGeneratorModel` is the translation, and it

@@ -4,8 +4,12 @@
  * each one wrote something — and that the full stack carries what the model
  * declared.
  *
- * The CLI is the one at the root of this repository (`language/cli/eml.ts`),
- * reading the model through the language's one reader. Two of its paths are
+ * Two `eml` CLIs offer the three targets, both reading the model through the
+ * language's one reader (`app-with-ai-rust`'s `packages/generator/src/model-yaml`):
+ * `app-with-ai-rust`'s (`node-rest`, `tanstack-astryx-loco`) and the reporting
+ * platform's own (`enterprise-reporting`, which is code for that platform and
+ * lives with it). Both are checked out beside this repository. Two of the
+ * first one's paths are
  * resolved at run time and nothing type-checks them: `generate/loco.ts` loads
  * the generation pipeline from a non-literal specifier, and `generate/jdm.ts`
  * reaches into the generator's rules package. Moving either breaks generation
@@ -31,20 +35,22 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import type { ModelDocument } from "../../../../language/yaml/document.ts";
-import { readModelYaml } from "../../../../packages/generator/src/model-yaml/index.ts";
+import type { ModelDocument } from "../../../app-with-ai-rust/language/yaml/document.ts";
+import { readModelYaml } from "../../../app-with-ai-rust/packages/generator/src/model-yaml/index.ts";
 
 const ROOT = path.resolve(import.meta.dir, "..");
-/** The root `eml` CLI, relative to common/. */
-const EML = "../../../language/cli/eml.ts";
+/** The generator's `eml` CLI, relative to common/. */
+const EML = "../../app-with-ai-rust/language/cli/eml.ts";
+/** The reporting platform's `eml` CLI, relative to common/: its own target. */
+const PLATFORM_EML = "../../enterprise-reporting-rust/language/cli/eml.ts";
 const MODEL = process.env.CHECK_STACKS_MODEL ?? "examples/helpdesk.eml.yaml";
 const skipHeavy = process.argv.includes("--skip-heavy");
 
 /** Each target, and the fewest files a run of it may legitimately write. */
-const TARGETS: { stack: string; minFiles: number; heavy: boolean }[] = [
-  { stack: "node-rest", minFiles: 10, heavy: false },
-  { stack: "enterprise-reporting", minFiles: 6, heavy: false },
-  { stack: "tanstack-astryx-loco", minFiles: 200, heavy: true },
+const TARGETS: { stack: string; minFiles: number; heavy: boolean; cli: string }[] = [
+  { stack: "node-rest", minFiles: 10, heavy: false, cli: EML },
+  { stack: "enterprise-reporting", minFiles: 6, heavy: false, cli: PLATFORM_EML },
+  { stack: "tanstack-astryx-loco", minFiles: 200, heavy: true, cli: EML },
 ];
 
 /**
@@ -158,7 +164,7 @@ const modelDocument = read.document;
 
 let failed = 0;
 
-for (const { stack, minFiles, heavy } of TARGETS) {
+for (const { stack, minFiles, heavy, cli } of TARGETS) {
   if (heavy && skipHeavy) {
     console.log(`  skip  ${stack} (--skip-heavy)`);
     continue;
@@ -168,7 +174,7 @@ for (const { stack, minFiles, heavy } of TARGETS) {
   const run = spawnSync(
     "bun",
     [
-      EML,
+      cli,
       "generate",
       "-i",
       MODEL,

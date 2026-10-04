@@ -46,14 +46,12 @@ export interface WorkflowEditorProps {
     enabled: boolean;
     order: number;
   }>;
-  flowchartCode: string;
 }
 
 export function useWorkflowEditor({
   serviceName,
   projectId,
   hooks,
-  flowchartCode,
 }: WorkflowEditorProps) {
   const [workflows, setWorkflows] = useState<HookWorkflow[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<HookWorkflow | null>(null);
@@ -75,26 +73,9 @@ export function useWorkflowEditor({
   const getWorkflowApiPath = (action: "validate" | "apply" | "generate" | "files" | "gorules") =>
     `/api/projects/${projectId}/workflows/${serviceName}/${action}`;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parseFlowchart = (code: string): any[] => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const steps: any[] = [];
-    const lines = code.split("\n");
-    lines.forEach((line) => {
-      const trimmed = line.trim();
-      const nodeMatch = trimmed.match(/(\w+)\[([^\]]+)\]/);
-      if (nodeMatch) {
-        steps.push({ id: nodeMatch[1], label: nodeMatch[2], type: "node" });
-      }
-    });
-    return steps;
-  };
-
   const generateWorkflowsFromHooks = async () => {
     setIsGenerating(true);
     try {
-      parseFlowchart(flowchartCode);
-
       const generatedWorkflows: HookWorkflow[] = hooks
         .filter((hook) => hook.enabled)
         .map((hook) => ({
@@ -274,7 +255,7 @@ export function useWorkflowEditor({
     if (hooks.length > 0) {
       generateWorkflowsFromHooks();
     }
-  }, [hooks, flowchartCode]); // eslint-disable-line -- generateWorkflowsFromHooks is stable
+  }, [hooks]); // eslint-disable-line -- generateWorkflowsFromHooks is stable
 
   return {
     workflows,
