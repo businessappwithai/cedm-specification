@@ -47,9 +47,17 @@ pub fn is_available(command: &str) -> bool {
     which::which(command).is_ok()
 }
 
-/// Run `loco new`, installing the CLI first if it is not on PATH.
+/// The Loco CLI the scaffold runs: the release line `Cargo.toml.hbs` pins for
+/// `loco-rs` (`1.2`). The two move together, and the TypeScript generator's
+/// `LOCO_CLI_*` constants say the same.
+const LOCO_CLI_MINOR: u64 = 2;
+const LOCO_CLI_REQUIREMENT: &str = "^1.2";
+
+/// Run `loco new`, installing the CLI first if it is not on PATH or is an
+/// older release line — the scaffold is where the framework's own defaults
+/// come from, and they have to be the release the templates pin.
 pub fn scaffold(output_dir: &Path, quiet: bool) -> Result<()> {
-    if !is_available("loco") {
+    if !has_current_loco_cli() {
         install_loco_cli(quiet)?;
     }
 
@@ -165,7 +173,30 @@ impl Drop for TempDir {
     }
 }
 
-/// Install the Loco CLI on demand.
+/// Whether the `loco` on PATH is the release line the templates pin.
+///
+/// `loco --version` prints `loco <semver>`; anything else — an older line, a
+/// 2.x, or output naming no version — counts as not current.
+fn has_current_loco_cli() -> bool {
+    if !is_available("loco") {
+        return false;
+    }
+    let Ok(output) = Command::new("loco").arg("--version").output() else {
+        return false;
+    };
+    let reported = String::from_utf8_lossy(&output.stdout);
+    let Some(version) = reported.split_whitespace().find(|word| word.contains('.')) else {
+        return false;
+    };
+    let mut parts = version.split('.').map(|part| part.parse::<u64>().ok());
+    matches!(
+        (parts.next(), parts.next()),
+        (Some(Some(1)), Some(Some(minor))) if minor >= LOCO_CLI_MINOR
+    )
+}
+
+/// Install the Loco CLI on demand, at the release line the templates pin,
+/// replacing an older `loco` already on PATH.
 ///
 /// It is a compile, so it is announced rather than done silently, and a failure
 /// names the command to run by hand.
@@ -177,17 +208,26 @@ fn install_loco_cli(quiet: bool) -> Result<()> {
         );
     }
 
+    let install = format!("cargo install loco --version {LOCO_CLI_REQUIREMENT} --locked");
     if !quiet {
-        println!("  📥 Loco CLI not found — installing it with `cargo install loco`…");
+        println!(
+            "  📥 Loco CLI {LOCO_CLI_REQUIREMENT} not found — installing it with `{install}`…"
+        );
     }
     let status = Command::new("cargo")
-        .args(["install", "loco"])
+        .args([
+            "install",
+            "loco",
+            "--version",
+            LOCO_CLI_REQUIREMENT,
+            "--locked",
+        ])
         .status()
-        .context("running `cargo install loco`")?;
+        .with_context(|| format!("running `{install}`"))?;
 
     if !status.success() {
         bail!(
-            "`cargo install loco` exited with {status}.\n  \
+            "`{install}` exited with {status}.\n  \
              Install it by hand, or pass --skip-cli-scaffold to generate from templates alone."
         );
     }
