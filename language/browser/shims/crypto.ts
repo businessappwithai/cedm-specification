@@ -11,8 +11,10 @@ import { Buffer } from "node:buffer";
 function sha1(message: Uint8Array): Uint8Array {
   const length = message.length;
   const words = new Uint32Array((((length + 8) >> 6) + 1) * 16);
-  for (let i = 0; i < length; i++) words[i >> 2] |= (message[i] as number) << (24 - (i % 4) * 8);
-  words[length >> 2] |= 0x80 << (24 - (length % 4) * 8);
+  for (let i = 0; i < length; i++) {
+    words[i >> 2] = (words[i >> 2] ?? 0) | ((message[i] as number) << (24 - (i % 4) * 8));
+  }
+  words[length >> 2] = (words[length >> 2] ?? 0) | (0x80 << (24 - (length % 4) * 8));
   words[words.length - 1] = length * 8;
   let h0 = 0x67452301;
   let h1 = 0xefcdab89;
