@@ -7247,8 +7247,11 @@ var appwithai_language_default = {
         "deleted_by"
       ],
       declaringOne: 'Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column "created_at" specified more than once`, so the generated application could not open its database. The generator now drops the model\'s definition and keeps its own; EML103 reports the line.',
+      version: 'The optimistic-lock counter. Every write that changes a row advances it, and every read returns it as an ETag (`"v<n>"`). An update names the version it was read at in `If-Match`; one made against a replaced version is refused with 409 `VERSION_CONFLICT`, carrying the record as it now stands, who changed it and when, the columns that differ and the record\'s status, and the screen offers to refresh or to overwrite. An update with no `If-Match` is 428 on an `optimistic` entity and accepted on a `last-write-wins` one. A record in a final state of its state machine is closed: every update is 409 `RECORD_FINAL`, the master role included.',
+      concurrencyKey: "The entity's `concurrency` (`optimistic`, the default, or `last-write-wins`), compiled to `sys_table.concurrency_mode`. In CEDM it is `persistence.concurrency`.",
       checkerCodes: {
-        EML103: "A column the generator manages, declared in the model - the declaration is ignored."
+        EML103: "A column the generator manages, declared in the model - the declaration is ignored.",
+        EML158: "info - `concurrency: last-write-wins` on an entity whose state machine has final states; those records stay closed."
       }
     },
     alsoDerived: [
@@ -7317,6 +7320,7 @@ var appwithai_language_default = {
       EML152: "warning — an entity with no help text at all.",
       EML153: "warning — columns with no help text, reported once per entity.",
       EML155: "An index names a column its entity does not declare. The index is left out of the DDL, because a migration that cannot apply is worse than a missing index.",
+      EML158: "info — an entity declared `concurrency: last-write-wins` whose state machine has final states. Records in a final state stay closed: a completed transaction refuses every update, whatever the entity's concurrency.",
       EML500: "A state machine bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -8030,6 +8034,16 @@ var appwithai_language_default = {
         ],
         purpose: "The sentence that explains the entity to whoever opens its screen, the icon that represents it, and the parent it is a line item of.",
         iconNaming: "`icon` is a lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_table.icon, which is what the entity's dashboard card, its window heading and the navigation all draw. An administrator can override it afterwards in Table and Column, including by uploading an image - the same column holds both."
+      },
+      {
+        key: "entities[].concurrency",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/model/compile-erd.ts -> sys_table.concurrency_mode",
+          "crates/appwithai-gen/src/model.rs",
+          "the generated backend's bus controller (If-Match, 428, 409 VERSION_CONFLICT)"
+        ],
+        purpose: "Whether a save must name the version it was read at (`optimistic`, the default) or may overwrite without one (`last-write-wins`). A final state closes the record either way."
       },
       {
         key: "entities[].label / prefix / softDelete / audited",
@@ -18660,6 +18674,7 @@ function entityOf(entity) {
     ...present("help", entity.help),
     ...present("icon", entity.icon),
     ...present("parent", entity.parent),
+    ...present("concurrency", entity.concurrency),
     ...present("label", entity.label),
     ...present("prefix", entity.prefix),
     ...present("softDelete", entity.softDelete),
@@ -18995,6 +19010,7 @@ class ModelChecker {
     this.checkEnums();
     this.checkEnumBindings();
     this.checkIndexes();
+    this.checkConcurrency();
     this.checkParents();
     this.checkLineItems();
     this.checkHelpText();
@@ -19216,6 +19232,23 @@ class ModelChecker {
         });
       });
     }
+  }
+  checkConcurrency() {
+    const finals = new Map;
+    for (const machine of this.document.stateMachines ?? []) {
+      if (machine.final?.length)
+        finals.set(machine.entity, machine.final);
+    }
+    this.entities.forEach((entity, index) => {
+      if (entity.concurrency !== "last-write-wins")
+        return;
+      const closed = finals.get(entity.name);
+      if (!closed)
+        return;
+      this.info("EML158", `"${entity.name}" is last-write-wins, but a record in ${closed.join(" or ")} stays closed.`, ["entities", index, "concurrency"], {
+        hint: "A final state of the entity's state machine is a completed transaction and refuses every update, whatever the entity's concurrency. Remove the state from `final` if records in it are meant to stay editable."
+      });
+    });
   }
   checkParents() {
     this.entities.forEach((entity, index) => {
@@ -20284,6 +20317,10 @@ var eml_schema_default = {
         parent: {
           description: "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent.",
           $ref: "#/$defs/identifier"
+        },
+        concurrency: {
+          description: "How two people editing one record are reconciled. `optimistic` (the default): every save names the version it was read at; a save against a version someone else has since replaced is refused with the record as it now stands, and the screen offers to refresh or to overwrite. `last-write-wins`: a save that names no version is accepted, for an append-only log or a counter nobody edits by hand. A record in a final state of the entity's state machine is closed either way.",
+          enum: ["optimistic", "last-write-wins"]
         },
         label: {
           description: "The name the screens show for the entity. Validated and carried; not yet compiled by the application generators.",
@@ -21526,6 +21563,9 @@ function lowerCedmModel(cedm) {
     const parent = parents.get(entity.name);
     if (parent !== undefined)
       document4.parent = parent;
+    if (entity.persistence?.concurrency !== undefined) {
+      document4.concurrency = entity.persistence.concurrency;
+    }
     if (entity.ui?.label !== undefined)
       document4.label = entity.ui.label;
     if (entity.persistence?.prefix !== undefined)
@@ -22347,11 +22387,12 @@ function raiseModelDocument(document3) {
         ...entity.label !== undefined ? { label: entity.label } : {}
       };
     }
-    if (entity.prefix !== undefined || entity.softDelete !== undefined || entity.audited !== undefined || entity.indexes?.length) {
+    if (entity.prefix !== undefined || entity.softDelete !== undefined || entity.audited !== undefined || entity.concurrency !== undefined || entity.indexes?.length) {
       raised.persistence = {
         ...entity.prefix !== undefined ? { prefix: entity.prefix } : {},
         ...entity.softDelete !== undefined ? { softDelete: entity.softDelete } : {},
         ...entity.audited !== undefined ? { audited: entity.audited } : {},
+        ...entity.concurrency !== undefined ? { concurrency: entity.concurrency } : {},
         ...entity.indexes?.length ? {
           indexes: entity.indexes.map((index) => ({
             columns: [...index.columns],
@@ -22930,6 +22971,10 @@ var cedm_model_schema_default = {
           type: "object",
           additionalProperties: false,
           properties: {
+            concurrency: {
+              description: "How two people editing one record are reconciled: `optimistic` (the default) refuses a save made against a version someone else has replaced; `last-write-wins` accepts a save that names no version. Lowered to the entity's `concurrency`.",
+              enum: ["optimistic", "last-write-wins"]
+            },
             prefix: { enum: ["bus", "sys"] },
             softDelete: { type: "boolean" },
             audited: { type: "boolean" },

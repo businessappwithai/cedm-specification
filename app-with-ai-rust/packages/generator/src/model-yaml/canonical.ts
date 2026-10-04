@@ -68,6 +68,7 @@ function entityOf(entity: EntityDocument): EntityDocument {
     ...present("help", entity.help),
     ...present("icon", entity.icon),
     ...present("parent", entity.parent),
+    ...present("concurrency", entity.concurrency),
     ...present("label", entity.label),
     ...present("prefix", entity.prefix),
     ...present("softDelete", entity.softDelete),

@@ -135,6 +135,7 @@ Keys are listed in canonical order. *Required* keys are in bold.
 | `help` | What one record is. Shown on the window. |
 | `icon` | A lucide id, e.g. `flask-conical`. The generated app pins lucide 0.312 — check the id exists there. |
 | `parent` | Makes this entity a line item: no window of its own, a tab inside the parent's, linked on its foreign key to the parent. |
+| `concurrency` | `optimistic` (default) or `last-write-wins`. Optimistic: a save names the version it was read at, and one made against a version someone else replaced is refused with the record as it now stands; the screen offers to refresh or to overwrite. Last-write-wins accepts a save that names no version — for an append-only log or a counter. A record in a final state of the entity's state machine is closed either way (`EML158`). Compiled to `sys_table.concurrency_mode`. |
 | `label` | The name the screens show. *Carried; not compiled by the application generators yet.* |
 | `prefix` | `bus` or `sys`. *Carried; not compiled yet.* |
 | `softDelete` | `true` to delete by setting `deleted_at`. *Carried; not compiled yet.* |
@@ -266,6 +267,11 @@ on every write, which the checker points out (EML282).
 caller: a move the machine does not draw is refused. A `trigger` is what an
 `rbac` rule names to restrict that move. Bind the entity's status column to an
 enum carrying exactly these states.
+
+A `final` state is a completed transaction. A record in one is closed: every
+update is refused with 409 `RECORD_FINAL`, for every caller, the master role
+included, and the screen offers only to refresh. Seeded into
+`sys_workflow_states` with the machine's `initial` state and labels.
 
 ### `sagas`
 

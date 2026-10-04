@@ -14582,7 +14582,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
   }
   async generateComponents(outputDir, _context) {
     const templateDir = this.resolvedTemplateDir;
-    const staticLibFiles = ["src/lib/utils.ts", "src/lib/csv.ts"];
+    const staticLibFiles = ["src/lib/utils.ts", "src/lib/csv.ts", "src/lib/concurrency.ts"];
     for (const file of staticLibFiles) {
       try {
         await copyFile2(join(templateDir, file), join(outputDir, file));
@@ -14607,10 +14607,6 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/forms/dynamic-form.tsx"
       },
       {
-        src: "src/components/forms/master-detail-tabs.tsx",
-        dest: "src/components/forms/master-detail-tabs.tsx"
-      },
-      {
         src: "src/components/tables/dynamic-table.tsx",
         dest: "src/components/tables/dynamic-table.tsx"
       },
@@ -14621,10 +14617,6 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/admin/field-group-manager.tsx",
         dest: "src/components/admin/field-group-manager.tsx"
-      },
-      {
-        src: "src/components/admin/ad-window-shell.tsx",
-        dest: "src/components/admin/ad-window-shell.tsx"
       },
       {
         src: "src/components/admin/ad-toolbar.tsx",
@@ -14691,8 +14683,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-list-shell.tsx"
       },
       {
-        src: "src/components/admin/entity-window-shell.tsx",
-        dest: "src/components/admin/entity-window-shell.tsx"
+        src: "src/components/admin/conflict-dialog.tsx",
+        dest: "src/components/admin/conflict-dialog.tsx"
       },
       {
         src: "src/components/admin/unified-field-layout.tsx",
@@ -16510,6 +16502,7 @@ function buildDictionarySeedSql(options) {
       name: entity2.displayName,
       description: entity2.description || `Manage ${entity2.displayName} records`,
       ...entity2.icon ? { icon: entity2.icon } : {},
+      ...entity2.concurrency === "last-write-wins" ? { concurrency_mode: "last-write-wins" } : {},
       access_level: "A",
       is_view: false,
       is_document: false,
@@ -16952,6 +16945,7 @@ class ModelChecker {
     this.checkEnums();
     this.checkEnumBindings();
     this.checkIndexes();
+    this.checkConcurrency();
     this.checkParents();
     this.checkLineItems();
     this.checkHelpText();
@@ -17173,6 +17167,23 @@ class ModelChecker {
         });
       });
     }
+  }
+  checkConcurrency() {
+    const finals = new Map;
+    for (const machine of this.document.stateMachines ?? []) {
+      if (machine.final?.length)
+        finals.set(machine.entity, machine.final);
+    }
+    this.entities.forEach((entity2, index) => {
+      if (entity2.concurrency !== "last-write-wins")
+        return;
+      const closed = finals.get(entity2.name);
+      if (!closed)
+        return;
+      this.info("EML158", `"${entity2.name}" is last-write-wins, but a record in ${closed.join(" or ")} stays closed.`, ["entities", index, "concurrency"], {
+        hint: "A final state of the entity's state machine is a completed transaction and refuses every update, whatever the entity's concurrency. Remove the state from `final` if records in it are meant to stay editable."
+      });
+    });
   }
   checkParents() {
     this.entities.forEach((entity2, index) => {
@@ -18045,6 +18056,8 @@ function buildTransitionsSeedSql(options) {
   out.push("-- `[*] --> x` and `x --> [*]` are deliberately absent. They name the initial");
   out.push("-- and terminal states, not moves a caller may make; recording `[*]` as a");
   out.push("-- from-state would let any request reset a record to its starting status.");
+  out.push("");
+  out.push("DELETE FROM sys_workflow_states;");
   const rows = workflows.flatMap((workflow) => workflow.transitions.map((transition) => ({ workflow, transition })));
   if (rows.length === 0) {
     out.push("--");
@@ -18069,6 +18082,27 @@ function buildTransitionsSeedSql(options) {
       is_active: true,
       created_at: NOW2
     }));
+  }
+  const stateId = (...parts) => uuidv5(`${projectName}:state:${parts.join(":")}`);
+  for (const workflow of workflows) {
+    if (workflow.transitions.length === 0)
+      continue;
+    const statusField = statusFieldFor(workflow.tableName, columnsByTable);
+    out.push("");
+    out.push(`-- ${workflow.name}: states`);
+    workflow.states.forEach((state, index) => {
+      out.push(insert("sys_workflow_states", {
+        sys_workflow_state_id: stateId(workflow.tableName, statusField, state.name),
+        table_name: workflow.tableName,
+        status_field: statusField,
+        state: state.name,
+        is_initial: state.name === workflow.initial,
+        is_final: workflow.terminal.includes(state.name),
+        seq_no: (index + 1) * 10,
+        is_active: true,
+        created_at: NOW2
+      }));
+    });
   }
   out.push("");
   return out.join(`
@@ -19102,6 +19136,10 @@ var RENDERED_FILES = [
     tpl: "migration/src/m0019_sys_column_narrowed_by.rs.hbs",
     out: "migration/src/m0019_sys_column_narrowed_by.rs"
   },
+  {
+    tpl: "migration/src/m0020_workflow_states_and_concurrency.rs.hbs",
+    out: "migration/src/m0020_workflow_states_and_concurrency.rs"
+  },
   { tpl: "src/lib.rs.hbs", out: "src/lib.rs" },
   { tpl: "src/bin/main.rs.hbs", out: "src/bin/main.rs" },
   { tpl: "src/app.rs.hbs", out: "src/app.rs" },
@@ -19136,6 +19174,7 @@ var RENDERED_FILES = [
   { tpl: "tests/requests/openapi.rs.hbs", out: "tests/requests/openapi.rs" },
   { tpl: "tests/requests/model_rules.rs.hbs", out: "tests/requests/model_rules.rs" },
   { tpl: "tests/requests/model_transitions.rs.hbs", out: "tests/requests/model_transitions.rs" },
+  { tpl: "tests/requests/concurrency.rs.hbs", out: "tests/requests/concurrency.rs" },
   { tpl: "tests/requests/permissions.rs.hbs", out: "tests/requests/permissions.rs" },
   { tpl: "tests/requests/rate_limit.rs.hbs", out: "tests/requests/rate_limit.rs" },
   { tpl: "tests/requests/ai.rs.hbs", out: "tests/requests/ai.rs" },
@@ -19153,6 +19192,7 @@ var RENDERED_FILES = [
   { tpl: "src/common/rate_limit.rs.hbs", out: "src/common/rate_limit.rs" },
   { tpl: "src/services/system_config.rs.hbs", out: "src/services/system_config.rs" },
   { tpl: "src/services/audit.rs.hbs", out: "src/services/audit.rs" },
+  { tpl: "src/services/concurrency.rs.hbs", out: "src/services/concurrency.rs" },
   { tpl: "src/services/authz.rs.hbs", out: "src/services/authz.rs" },
   { tpl: "src/services/nl_query.rs.hbs", out: "src/services/nl_query.rs" },
   { tpl: "src/services/promotion.rs.hbs", out: "src/services/promotion.rs" },
@@ -19582,7 +19622,8 @@ class LocoBackendGenerator extends BaseGenerator {
         statusField: statusFieldFor(workflow.tableName, this.columnsByTable(entities)),
         initial: workflow.initial ?? "",
         transitions: workflow.transitions,
-        states: workflow.states
+        states: workflow.states,
+        final: workflow.terminal
       })),
       access: deriveAccess(this.options.compiledRbac ?? { operations: [], transitions: [] }, {
         projectId: projectKebab,
@@ -19647,7 +19688,8 @@ var SHARED_SUITES = [
   "09-browser-volume.test.ts",
   "09-workflow-multistep.test.ts",
   "10-benchmark.test.ts",
-  "11-performance-budget.test.ts"
+  "11-performance-budget.test.ts",
+  "12-optimistic-lock.test.ts"
 ];
 var ROOT_FILES = ["package.json", "tsconfig.json", "README.md", "run.ts", "cleanup.ts"];
 var EXECUTABLE_FILES = ["run.ts", "cleanup.ts"];
@@ -24163,6 +24205,11 @@ function compileErdRecords(records) {
     if (entity2)
       entity2.icon = icon;
   }
+  for (const { entity: name, mode } of records.entityConcurrency) {
+    const entity2 = entities.find((candidate) => candidate.name === name);
+    if (entity2)
+      entity2.concurrency = mode;
+  }
   attachParents(entities, entityParents);
   for (const { entity: name, key: key2, rows } of records.entityData) {
     const entity2 = entities.find((candidate) => candidate.name === name);
@@ -24784,6 +24831,7 @@ function entityOf(entity2) {
     ...present("help", entity2.help),
     ...present("icon", entity2.icon),
     ...present("parent", entity2.parent),
+    ...present("concurrency", entity2.concurrency),
     ...present("label", entity2.label),
     ...present("prefix", entity2.prefix),
     ...present("softDelete", entity2.softDelete),
@@ -24977,6 +25025,7 @@ function erdOf(document) {
     fieldHelp: [],
     entityHelp: [],
     entityIcons: [],
+    entityConcurrency: [],
     entityData: [],
     entityParents: [],
     entityOptions: [],
@@ -24997,6 +25046,9 @@ function erdOf(document) {
       erd.entityHelp.push({ entity: entity2.name, help: entity2.help });
     if (entity2.icon !== undefined)
       erd.entityIcons.push({ entity: entity2.name, icon: entity2.icon });
+    if (entity2.concurrency !== undefined) {
+      erd.entityConcurrency.push({ entity: entity2.name, mode: entity2.concurrency });
+    }
     if (entity2.data !== undefined)
       erd.entityData.push({ entity: entity2.name, ...entity2.data });
     if (entity2.parent !== undefined) {

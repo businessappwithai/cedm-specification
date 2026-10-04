@@ -216,6 +216,12 @@ export function compileErdRecords(records: ErdRecords): {
     const entity = entities.find((candidate) => candidate.name === name);
     if (entity) entity.icon = icon;
   }
+  // Only a declared mode is carried; an entity that names none is optimistic,
+  // which is the column's default, so the seed has nothing to write for it.
+  for (const { entity: name, mode } of records.entityConcurrency) {
+    const entity = entities.find((candidate) => candidate.name === name);
+    if (entity) entity.concurrency = mode;
+  }
   attachParents(entities, entityParents);
   for (const { entity: name, key, rows } of records.entityData) {
     const entity = entities.find((candidate) => candidate.name === name);

@@ -298,6 +298,7 @@ class ModelChecker {
     this.checkEnums();
     this.checkEnumBindings();
     this.checkIndexes();
+    this.checkConcurrency();
     this.checkParents();
     this.checkLineItems();
     this.checkHelpText();
@@ -700,6 +701,37 @@ class ModelChecker {
         });
       });
     }
+  }
+
+  /* ---------------------------------------------------------------------- */
+  /*  EML158: concurrency                                                    */
+  /* ---------------------------------------------------------------------- */
+
+  /**
+   * `last-write-wins` lets a save that names no version through. It does not
+   * open a record its state machine has closed: a final state is a completed
+   * transaction, refused for every caller whatever the entity's concurrency.
+   * Said once, as an info, because an author who chose `last-write-wins` for a
+   * lifecycle entity may expect it to reach closed records too.
+   */
+  private checkConcurrency(): void {
+    const finals = new Map<string, string[]>();
+    for (const machine of this.document.stateMachines ?? []) {
+      if (machine.final?.length) finals.set(machine.entity, machine.final);
+    }
+    this.entities.forEach((entity, index) => {
+      if (entity.concurrency !== "last-write-wins") return;
+      const closed = finals.get(entity.name);
+      if (!closed) return;
+      this.info(
+        "EML158",
+        `"${entity.name}" is last-write-wins, but a record in ${closed.join(" or ")} stays closed.`,
+        ["entities", index, "concurrency"],
+        {
+          hint: "A final state of the entity's state machine is a completed transaction and refuses every update, whatever the entity's concurrency. Remove the state from `final` if records in it are meant to stay editable.",
+        }
+      );
+    });
   }
 
   /* ---------------------------------------------------------------------- */

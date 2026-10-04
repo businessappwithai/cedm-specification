@@ -29,6 +29,7 @@ entities:
 | `help` | What one record is, in the business's words. See [Help](#help). | compiled |
 | `icon` | A lucide icon id. See [Icons](#icons). | compiled |
 | `parent` | Makes the entity a line item of the one named. See [Line items](#line-items). | compiled |
+| `concurrency` | `optimistic` (default) or `last-write-wins`. See [Concurrency](#concurrency). | compiled |
 | **`attributes`** | The columns, in order. See [Attributes](#attributes). | compiled |
 | `indexes` | `{ columns: [...], unique?: true }`. See [Indexes](#indexes). | compiled |
 | `label` | The name the screens show. | validated |
@@ -42,6 +43,33 @@ Every table gets `created_at`, `updated_at`, `deleted_at` and `version`, and the
 audit columns `created_by`, `updated_by`, `deleted_by`. Declaring one of them is
 `EML103` (auto-fixable: the declaration is removed) — PostgreSQL refuses a
 `CREATE TABLE` that names a column twice.
+
+### Concurrency
+
+`version` is the optimistic-lock counter. Every write that changes a row
+advances it, and every read returns it as an ETag, `"v<n>"`. Two people who
+open one record both hold its version; the first save advances it, and the
+second — still naming the version it read in `If-Match` — is refused with
+**409 `VERSION_CONFLICT`**. The refusal carries the record as it now stands,
+who changed it and when, the columns that changed, and the record's status, so
+the screen offers *Refresh to latest* or *Overwrite with my changes* without a
+second request. An overwrite names the version the refusal reported.
+
+An entity's `concurrency` decides what a save that names no version means:
+
+| Value | A save without `If-Match` |
+|---|---|
+| `optimistic` (default) | refused with **428** — a client that never read the record cannot overwrite it blind |
+| `last-write-wins` | accepted — for an append-only log or a counter nobody edits by hand |
+
+A save that does name a version is checked either way. In CEDM the key is
+`persistence.concurrency`.
+
+**A final state closes the record.** A record whose status is one of its state
+machine's `final` states is a completed transaction: every update is refused
+with **409 `RECORD_FINAL`**, for every caller, the master role included, and
+whatever the entity's `concurrency`. `EML158` (info) says so when an entity
+with final states is declared `last-write-wins`.
 
 An entity that declares no `id` column and no unique or primary `*_id` column
 gets an `id` primary key (a UUID) from the generator. A natural key the model

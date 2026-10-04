@@ -1007,6 +1007,9 @@ entities:
         help: Clear this to retire a policy without disturbing the cases already measured against it.
   - name: Activity
     help: A call, a meeting, an email or a task, attached to whatever it was about. The history of a relationship is its activities.
+    # An activity is a log entry its author writes and rarely revisits, so a
+    # save that names no version is accepted rather than refused.
+    concurrency: last-write-wins
     softDelete: true
     attributes:
       - name: id

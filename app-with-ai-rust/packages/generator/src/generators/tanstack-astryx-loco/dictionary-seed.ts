@@ -652,6 +652,11 @@ export function buildDictionarySeedSql(options: DictionarySeedOptions): string {
         // guess in `getEntityIcon` stays out of the seed deliberately, because a
         // derivation here would be a second one for the Rust side to mirror.
         ...(entity.icon ? { icon: entity.icon } : {}),
+        // Written only for a declared `last-write-wins`: m0020 defaults the
+        // column to 'optimistic', so every other entity's row is unchanged.
+        ...(entity.concurrency === "last-write-wins"
+          ? { concurrency_mode: "last-write-wins" }
+          : {}),
         access_level: "A",
         is_view: false,
         is_document: false,

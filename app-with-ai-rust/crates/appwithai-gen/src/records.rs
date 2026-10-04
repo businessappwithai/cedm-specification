@@ -83,6 +83,8 @@ pub struct ErdRecords {
     pub field_help: Vec<(String, String, String)>,
     pub entity_help: Vec<(String, String)>,
     pub entity_icons: Vec<(String, String)>,
+    /// An entity's `concurrency`, where it declares one: `(entity, mode)`.
+    pub entity_concurrency: Vec<(String, String)>,
     /// Rows an entity ships with: `(entity, data)`.
     pub entity_data: Vec<(String, EntityData)>,
     pub entity_parents: Vec<(String, String)>,

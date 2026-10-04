@@ -121,6 +121,16 @@ export interface Entity {
    */
   icon?: string;
   /**
+   * How concurrent edits of one record are reconciled, from its `concurrency`.
+   *
+   * Absent means `optimistic`: a save must name the version it was read at
+   * (`If-Match`), and one made against a replaced version is refused with the
+   * record as it now stands. `last-write-wins` accepts a save that names no
+   * version. Compiled to `sys_table.concurrency_mode`, and only when declared,
+   * because the column's default is `optimistic`.
+   */
+  concurrency?: "optimistic" | "last-write-wins";
+  /**
    * Rows the application ships with (`data` of the entity document). Keys are
    * physical columns; a foreign key column holds the natural key of its target
    * row, and `key` names the column that is this entity's own natural key.

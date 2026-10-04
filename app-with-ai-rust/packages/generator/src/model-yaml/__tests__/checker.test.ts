@@ -915,6 +915,27 @@ const CASES: Case[] = [
     },
     expect: ["EML413"],
   },
+  {
+    name: "a last-write-wins entity whose machine has final states (info)",
+    change: (d) => {
+      order(d).concurrency = "last-write-wins";
+    },
+    expect: ["EML158"],
+  },
+  {
+    name: "a last-write-wins entity with no state machine",
+    change: (d) => {
+      d.entities[0]!.concurrency = "last-write-wins";
+    },
+    expect: [],
+  },
+  {
+    name: "an optimistic entity, said out loud",
+    change: (d) => {
+      order(d).concurrency = "optimistic";
+    },
+    expect: [],
+  },
 ];
 
 function codes(document: ModelDocument): Map<string, number> {

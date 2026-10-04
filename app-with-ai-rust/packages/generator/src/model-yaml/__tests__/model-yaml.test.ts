@@ -26,6 +26,7 @@ entities:
   - name: Customer
     help: A person or company that buys from us.
     icon: user
+    concurrency: last-write-wins
     attributes:
       - { name: id, type: uuid, pk: true }
       - { name: name, type: string(120) }
@@ -216,6 +217,13 @@ describe("compiling a YAML model", () => {
       .find((entity) => entity.name === "Order")!
       .attributes.find((attribute) => attribute.name === "status")!;
     expect(status).toMatchObject({ enumRef: "OrderStatus", enumReferenceId: 1000 });
+  });
+
+  it("carries a declared concurrency mode and leaves the default unstated", () => {
+    expect(model.entities.find((entity) => entity.name === "Customer")!.concurrency).toBe(
+      "last-write-wins"
+    );
+    expect(model.entities.find((entity) => entity.name === "Order")!.concurrency).toBeUndefined();
   });
 
   it("links a line item to its parent through the foreign key it declares", () => {
