@@ -42,7 +42,7 @@
 //! and an orchestrator polling it every second must not consume the budget of
 //! whoever shares its address.
 //!
-//! Generated: 2026-10-04T01:11:23.967Z
+//! Generated: 2026-10-04T08:29:22.058Z
 //! Project: construction
 
 use std::{
@@ -407,6 +407,7 @@ pub async fn enforce(
         message: "Too many requests. Slow down and try again shortly.".to_string(),
         errors: None,
         error: "Too Many Requests".to_string(),
+        conflict: None,
     };
     let mut response = (StatusCode::TOO_MANY_REQUESTS, Json(body)).into_response();
     write_budget_headers(&mut response, &decision, true);

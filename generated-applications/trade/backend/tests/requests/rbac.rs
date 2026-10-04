@@ -1,6 +1,6 @@
 //! What the model's access rules compile to, enforced on the request.
 //!
-//! Generated: 2026-10-04T01:13:09.043Z
+//! Generated: 2026-10-04T08:31:23.123Z
 //! Project: trade
 //!
 //! Every other suite in this crate signs in as the seeded administrator, who
@@ -341,9 +341,12 @@ async fn a_status_move_with_no_edge_is_refused_even_for_the_master_role() {
             let route = entity.route;
             let id = id.clone();
             async move {
+                // `*`: this case is about who may move a record, not about
+                // concurrent edits, and the two probes share one record.
                 request
                     .patch(&format!("/api/bus/{route}/{id}"))
                     .add_header("authorization", bearer(&token))
+                    .add_header("if-match", "*")
                     .json(&json!({ "status": to }))
                     .await
                     .status_code()

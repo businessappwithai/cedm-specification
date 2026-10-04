@@ -123,6 +123,11 @@ pub struct Entity {
     /// Compiled to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
+    /// How concurrent edits are reconciled, from `concurrency`. Absent means
+    /// `optimistic`, the column's default; compiled to
+    /// `sys_table.concurrency_mode` only when declared.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub concurrency: Option<String>,
     /// Rows the entity ships with (reference data), from `data`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<EntityData>,
@@ -226,6 +231,15 @@ pub fn compile_erd(records: &ErdRecords, lang: &Language) -> Model {
             .find(|candidate| candidate.name == *name)
         {
             entity.icon = Some(icon.clone());
+        }
+    }
+    // Only a declared mode is carried; see the TypeScript compiler.
+    for (name, mode) in &records.entity_concurrency {
+        if let Some(entity) = entities
+            .iter_mut()
+            .find(|candidate| candidate.name == *name)
+        {
+            entity.concurrency = Some(mode.clone());
         }
     }
     attach_parents(&mut entities, &last_wins(&records.entity_parents));
@@ -633,6 +647,7 @@ fn complete_entity(name: String, declared_attributes: Vec<Attribute>) -> Entity 
         parent_entity: None,
         parent_link_column: None,
         icon: None,
+        concurrency: None,
         data: None,
     }
 }

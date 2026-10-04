@@ -125,6 +125,9 @@ pub struct BusEntity {
     /// The entity's `icon`, carried through to `sys_table.icon`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon: Option<String>,
+    /// The entity's `concurrency`, carried through to `sys_table.concurrency_mode`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub concurrency: Option<String>,
     /// Rows the entity ships with (reference data).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<crate::records::EntityData>,
@@ -204,6 +207,7 @@ pub fn entity_to_bus_entity(entity: &Entity, declared: &HashMap<String, String>)
         // its `parent` made it a line item, in which case the
         // parent's — a child has no window of its own.
         icon: entity.icon.clone(),
+        concurrency: entity.concurrency.clone(),
         data: entity.data.clone(),
         window_owner: entity
             .parent_entity

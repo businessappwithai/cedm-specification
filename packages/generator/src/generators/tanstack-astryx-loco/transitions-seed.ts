@@ -75,6 +75,13 @@ export function buildTransitionsSeedSql(options: TransitionsSeedOptions): string
   out.push("-- and terminal states, not moves a caller may make; recording `[*]` as a");
   out.push("-- from-state would let any request reset a record to its starting status.");
 
+  // `sys_workflow_states` is wholly the model's — nothing in the running
+  // application writes it — so it is replaced rather than topped up: a state
+  // that stops being final must reopen its records on the next seed. The file
+  // is applied as one statement batch, so the table is never seen empty.
+  out.push("");
+  out.push("DELETE FROM sys_workflow_states;");
+
   const rows = workflows.flatMap((workflow) =>
     workflow.transitions.map((transition) => ({ workflow, transition }))
   );
@@ -115,6 +122,32 @@ export function buildTransitionsSeedSql(options: TransitionsSeedOptions): string
         created_at: NOW,
       })
     );
+  }
+
+  // The states each machine declares, in its order, marking its initial and
+  // final ones. A record in a final state is a completed transaction and the
+  // backend refuses every update to it (`sys_workflow_states`, m0020).
+  const stateId = (...parts: string[]) => uuidv5(`${projectName}:state:${parts.join(":")}`);
+  for (const workflow of workflows) {
+    if (workflow.transitions.length === 0) continue;
+    const statusField = statusFieldFor(workflow.tableName, columnsByTable);
+    out.push("");
+    out.push(`-- ${workflow.name}: states`);
+    workflow.states.forEach((state, index) => {
+      out.push(
+        insert("sys_workflow_states", {
+          sys_workflow_state_id: stateId(workflow.tableName, statusField, state.name),
+          table_name: workflow.tableName,
+          status_field: statusField,
+          state: state.name,
+          is_initial: state.name === workflow.initial,
+          is_final: workflow.terminal.includes(state.name),
+          seq_no: (index + 1) * 10,
+          is_active: true,
+          created_at: NOW,
+        })
+      );
+    });
   }
 
   out.push("");

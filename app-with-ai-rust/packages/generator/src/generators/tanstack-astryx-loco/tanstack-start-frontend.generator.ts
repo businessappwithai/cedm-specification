@@ -494,7 +494,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
      * a frontend that does not build. `frontend-lib-files.test.ts` asserts each
      * one reaches the output, because the `catch` below only warns.
      */
-    const staticLibFiles = ["src/lib/utils.ts", "src/lib/csv.ts"];
+    const staticLibFiles = ["src/lib/utils.ts", "src/lib/csv.ts", "src/lib/concurrency.ts"];
 
     for (const file of staticLibFiles) {
       try {
@@ -541,10 +541,6 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/forms/dynamic-form.tsx",
       },
       {
-        src: "src/components/forms/master-detail-tabs.tsx",
-        dest: "src/components/forms/master-detail-tabs.tsx",
-      },
-      {
         src: "src/components/tables/dynamic-table.tsx",
         dest: "src/components/tables/dynamic-table.tsx",
       },
@@ -557,10 +553,6 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/field-group-manager.tsx",
       },
       // AD (Application Dictionary) components
-      {
-        src: "src/components/admin/ad-window-shell.tsx",
-        dest: "src/components/admin/ad-window-shell.tsx",
-      },
       {
         src: "src/components/admin/ad-toolbar.tsx",
         dest: "src/components/admin/ad-toolbar.tsx",
@@ -643,8 +635,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-list-shell.tsx",
       },
       {
-        src: "src/components/admin/entity-window-shell.tsx",
-        dest: "src/components/admin/entity-window-shell.tsx",
+        src: "src/components/admin/conflict-dialog.tsx",
+        dest: "src/components/admin/conflict-dialog.tsx",
       },
       {
         src: "src/components/admin/unified-field-layout.tsx",

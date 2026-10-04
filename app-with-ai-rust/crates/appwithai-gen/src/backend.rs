@@ -144,6 +144,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "migration/src/m0019_sys_column_narrowed_by.rs.hbs",
         "migration/src/m0019_sys_column_narrowed_by.rs",
     ),
+    (
+        "migration/src/m0020_workflow_states_and_concurrency.rs.hbs",
+        "migration/src/m0020_workflow_states_and_concurrency.rs",
+    ),
     ("src/lib.rs.hbs", "src/lib.rs"),
     ("src/bin/main.rs.hbs", "src/bin/main.rs"),
     ("src/app.rs.hbs", "src/app.rs"),
@@ -196,6 +200,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "src/services/system_config.rs",
     ),
     ("src/services/audit.rs.hbs", "src/services/audit.rs"),
+    (
+        "src/services/concurrency.rs.hbs",
+        "src/services/concurrency.rs",
+    ),
     ("src/services/authz.rs.hbs", "src/services/authz.rs"),
     ("src/services/nl_query.rs.hbs", "src/services/nl_query.rs"),
     ("src/services/promotion.rs.hbs", "src/services/promotion.rs"),
@@ -253,6 +261,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
     (
         "tests/requests/model_transitions.rs.hbs",
         "tests/requests/model_transitions.rs",
+    ),
+    (
+        "tests/requests/concurrency.rs.hbs",
+        "tests/requests/concurrency.rs",
     ),
     (
         "tests/requests/permissions.rs.hbs",

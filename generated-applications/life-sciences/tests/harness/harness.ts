@@ -8,7 +8,7 @@
  * The harness also owns cleanup: anything registered with `track()` is deleted
  * on teardown, in reverse creation order so children go before parents.
  *
- * Generated: 2026-10-04T01:12:08.781Z
+ * Generated: 2026-10-04T08:30:15.277Z
  * Project: life-sciences
  */
 
@@ -20,7 +20,7 @@ import {
   topologicalEntities,
 } from "./entities";
 import { buildRecord } from "./factory";
-import { HttpClient } from "./http";
+import { HttpClient, type RequestOptions } from "./http";
 import { deleteRule } from "./rules";
 import { waitForServer } from "./server";
 
@@ -106,6 +106,35 @@ class TestHarness {
    * Re-entering an entity already being created is the real terminating
    * condition, and it is exact: that, and only that, is a cycle.
    */
+  /**
+   * Save changes to a record the way a person does: read it, then write naming
+   * the version that was read (`If-Match`).
+   *
+   * Every entity is optimistic unless its model says otherwise, so an update
+   * that names no version is refused with 428. Suites whose subject is not
+   * concurrency use this; `12-optimistic-lock` makes conflicts on purpose with
+   * the raw client.
+   */
+  async saveRecord<T = Record<string, unknown>>(
+    route: string,
+    id: string,
+    changes: Record<string, unknown>,
+    options: RequestOptions & { method?: "PATCH" | "PUT" } = {}
+  ) {
+    const { method = "PATCH", headers, ...rest } = options;
+    const read = await this.client.get<Record<string, unknown>>(`/bus/${route}/${id}`, {
+      allowFailure: true,
+    });
+    const version = read.ok ? read.data?.version : undefined;
+    const precondition =
+      typeof version === "number" ? { "If-Match": `"v${version}"` } : ({} as Record<string, string>);
+    const send = method === "PUT" ? this.client.put.bind(this.client) : this.client.patch.bind(this.client);
+    return send<T>(`/bus/${route}/${id}`, changes, {
+      ...rest,
+      headers: { ...precondition, ...(headers ?? {}) },
+    });
+  }
+
   async createWithParents(
     entity: EntityMeta,
     overrides: Record<string, unknown> = {}

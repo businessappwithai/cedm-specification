@@ -1,0 +1,121 @@
+/**
+ * Two people, one record — optimistic locking over HTTP.
+ *
+ * The Rust request suite (`backend/tests/requests/concurrency.rs`) proves the
+ * same contract in-process; this one walks it as a client does, with a
+ * readable transcript when it fails: read, save, be refused, overwrite,
+ * refresh — and a record in a final state refusing every save.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { beforeAll, describe, expect, it } from "bun:test";
+import { entities, firstTextField, getEntity, harness, stateMachines } from "../harness";
+
+type Row = Record<string, unknown>;
+
+interface Meta {
+  concurrency?: "optimistic" | "last-write-wins";
+}
+
+const ifMatch = (row: Row | null | undefined): Record<string, string> =>
+  typeof row?.version === "number" ? { "If-Match": `"v${row.version}"` } : {};
+
+beforeAll(async () => {
+  await harness.setup();
+});
+
+/** The first optimistic entity with a text column to edit. */
+async function optimisticEntity() {
+  for (const entity of entities) {
+    const field = firstTextField(entity);
+    if (!field) continue;
+    const meta = await harness.client.get<Meta>(`/bus/${entity.route}/meta`, { allowFailure: true });
+    if (meta.ok && meta.data?.concurrency !== "last-write-wins") return { entity, field };
+  }
+  return null;
+}
+
+describe("optimistic locking", () => {
+  it("refuses a stale save with the record as it stands, then accepts the overwrite", async () => {
+    const target = await optimisticEntity();
+    if (!target) return; // a model with no text column anywhere has nothing to edit
+    const { entity, field } = target;
+
+    const read = await harness.createWithParents(entity);
+    expect(read?.id).toBeTruthy();
+    const url = `/bus/${entity.route}/${read?.id}`;
+
+    const first = await harness.client.patch<Row>(
+      url,
+      { [field.name]: `first-${Date.now()}` },
+      { headers: ifMatch(read) }
+    );
+    expect(first.status).toBe(200);
+
+    const stale = await harness.client.patch<Row>(
+      url,
+      { [field.name]: `second-${Date.now()}` },
+      { headers: ifMatch(read), allowFailure: true }
+    );
+    expect(stale.status).toBe(409);
+    const refusal = stale.data as Row & { error: string; conflict: Row };
+    expect(refusal.error).toBe("VERSION_CONFLICT");
+    expect(refusal.conflict.currentVersion).toBe(first.data.version);
+    expect((refusal.conflict.current as Row)[field.name]).toBe(first.data[field.name]);
+    expect(refusal.conflict.overwritable).toBe(true);
+
+    const mine = `overwrite-${Date.now()}`;
+    const overwrite = await harness.client.patch<Row>(
+      url,
+      { [field.name]: mine },
+      { headers: ifMatch(refusal.conflict.current as Row) }
+    );
+    expect(overwrite.status).toBe(200);
+
+    const refreshed = await harness.client.get<Row>(url);
+    expect(refreshed.data[field.name]).toBe(mine);
+    expect(refreshed.headers.get("etag")).toBe(`"v${overwrite.data.version}"`);
+  });
+
+  it("refuses an update that names no version", async () => {
+    const target = await optimisticEntity();
+    if (!target) return;
+    const read = await harness.createWithParents(target.entity);
+    expect(read?.id).toBeTruthy();
+
+    const blind = await harness.client.patch(
+      `/bus/${target.entity.route}/${read?.id}`,
+      { [target.field.name]: `blind-${Date.now()}` },
+      { allowFailure: true }
+    );
+    expect(blind.status).toBe(428);
+  });
+});
+
+const closing = stateMachines.find((machine) => machine.terminal.length > 0);
+
+describe.if(Boolean(closing))("a record in a final state", () => {
+  it("is closed to every save, and says so", async () => {
+    const machine = closing!;
+    const entity = getEntity(machine.entity);
+    const finalState = machine.terminal[0]!;
+    const read = await harness.createWithParents(entity, { [machine.statusField]: finalState });
+    expect(read?.id).toBeTruthy();
+    const url = `/bus/${entity.route}/${read?.id}`;
+
+    for (const headers of [ifMatch(read), { "If-Match": "*" }]) {
+      const response = await harness.client.patch(
+        url,
+        { [machine.statusField]: finalState },
+        { headers, allowFailure: true }
+      );
+      expect(response.status).toBe(409);
+      const body = response.data as { error: string; conflict: Row };
+      expect(body.error).toBe("RECORD_FINAL");
+      expect(body.conflict.overwritable).toBe(false);
+      expect((body.conflict.status as Row).isFinal).toBe(true);
+    }
+  });
+});

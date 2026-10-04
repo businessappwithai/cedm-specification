@@ -61,6 +61,7 @@ function erdOf(document: ModelDocument): ErdRecords {
     fieldHelp: [],
     entityHelp: [],
     entityIcons: [],
+    entityConcurrency: [],
     entityData: [],
     entityParents: [],
     entityOptions: [],
@@ -82,6 +83,9 @@ function erdOf(document: ModelDocument): ErdRecords {
     });
     if (entity.help !== undefined) erd.entityHelp.push({ entity: entity.name, help: entity.help });
     if (entity.icon !== undefined) erd.entityIcons.push({ entity: entity.name, icon: entity.icon });
+    if (entity.concurrency !== undefined) {
+      erd.entityConcurrency.push({ entity: entity.name, mode: entity.concurrency });
+    }
     if (entity.data !== undefined) erd.entityData.push({ entity: entity.name, ...entity.data });
     if (entity.parent !== undefined) {
       erd.entityParents.push({ entity: entity.name, parent: entity.parent });

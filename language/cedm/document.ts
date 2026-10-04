@@ -227,6 +227,8 @@ export interface CedmEntity {
     prefix?: "bus" | "sys";
     softDelete?: boolean;
     audited?: boolean;
+    /** How concurrent edits of one record are reconciled; lowered to `concurrency`. */
+    concurrency?: "optimistic" | "last-write-wins";
     indexes?: CedmIndex[];
   };
   /**

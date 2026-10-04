@@ -511,7 +511,7 @@ the application looks for PGlite beside itself, then at this site's copy.
 
 *Download the deployable app (.zip)* writes the real application: the Loco.rs (Rust) backend crate,
 the TanStack Start + Astryx front end, the cargo and bun test suites, the CEDM specification bundle,
-`model/model.eml.yaml`, a `docker-compose.yml` and a README — 521 files for the CRM.
+`model/model.eml.yaml`, a `docker-compose.yml` and a README — 526 files for the CRM.
 
 - **It is the platform's own pipeline, not a copy of it.** `assets/js/appwithai-loco.js` is
   `generateApplication` — the function the `appwithai` command line calls — bundled for the browser
@@ -996,7 +996,7 @@ dependencies.
 
 **`scripts/website-e2e.mjs` exists because pages drifted from the things they describe.** A page
 claimed the hospital model had 28 entities when it had 30; the home page said the CRM generates 403
-files when it generates 521. It asserts nothing by hand: every figure is measured with the bundles
+files when it generates 526. It asserts nothing by hand: every figure is measured with the bundles
 this site serves, so a disagreement means the page is stale.
 
 1. every published model validates clean through `guide/model-yaml.js`;

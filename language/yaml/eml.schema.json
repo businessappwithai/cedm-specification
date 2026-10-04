@@ -217,6 +217,10 @@
           "description": "Makes this entity a line item of another: it gets no window of its own and appears as a tab inside the parent's, linked on its foreign key to the parent.",
           "$ref": "#/$defs/identifier"
         },
+        "concurrency": {
+          "description": "How two people editing one record are reconciled. `optimistic` (the default): every save names the version it was read at; a save against a version someone else has since replaced is refused with the record as it now stands, and the screen offers to refresh or to overwrite. `last-write-wins`: a save that names no version is accepted, for an append-only log or a counter nobody edits by hand. A record in a final state of the entity's state machine is closed either way.",
+          "enum": ["optimistic", "last-write-wins"]
+        },
         "label": {
           "description": "The name the screens show for the entity. Validated and carried; not yet compiled by the application generators.",
           "$ref": "#/$defs/line"

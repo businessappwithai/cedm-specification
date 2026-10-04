@@ -463,6 +463,10 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "concurrency": {
+              "description": "How two people editing one record are reconciled: `optimistic` (the default) refuses a save made against a version someone else has replaced; `last-write-wins` accepts a save that names no version. Lowered to the entity's `concurrency`.",
+              "enum": ["optimistic", "last-write-wins"]
+            },
             "prefix": { "enum": ["bus", "sys"] },
             "softDelete": { "type": "boolean" },
             "audited": { "type": "boolean" },

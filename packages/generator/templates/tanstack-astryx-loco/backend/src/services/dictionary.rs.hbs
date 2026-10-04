@@ -84,7 +84,54 @@ pub struct TableMeta {
     /// `sys_table.is_changelog` — whether writes to this table are audited.
     /// An administrator can turn it off per table from the dictionary UI.
     pub is_changelog: bool,
+    /// `sys_table.concurrency_mode` — whether an update must name the version
+    /// it was read at (m0020).
+    pub concurrency: ConcurrencyMode,
+    /// The status column this table's state machine drives and the states that
+    /// close a record, from `sys_workflow_states`. `None` for a table with no
+    /// machine — the common case — and then nothing is ever closed.
+    pub lifecycle: Option<Lifecycle>,
     pub columns: Vec<ColumnMeta>,
+}
+
+/// How concurrent edits of one record are reconciled. Serialised as the
+/// model writes it, `optimistic` or `last-write-wins`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ConcurrencyMode {
+    /// An update must carry `If-Match`; a stale one is a `VERSION_CONFLICT`.
+    Optimistic,
+    /// An update without `If-Match` is accepted. One that carries it is still
+    /// checked — a client that names a version means it.
+    LastWriteWins,
+}
+
+impl ConcurrencyMode {
+    fn parse(raw: Option<&str>) -> Self {
+        match raw {
+            Some("last-write-wins") => Self::LastWriteWins,
+            _ => Self::Optimistic,
+        }
+    }
+}
+
+/// A table's state machine, as far as closing a record is concerned.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct Lifecycle {
+    /// The column the machine drives (`status`, `stage`, …).
+    pub status_field: String,
+    /// The states a record's transaction ends in.
+    pub finals: Vec<String>,
+}
+
+impl Lifecycle {
+    /// Whether a stored row is in a final state.
+    #[must_use]
+    pub fn is_final(&self, row: &serde_json::Value) -> bool {
+        row.get(&self.status_field)
+            .and_then(serde_json::Value::as_str)
+            .is_some_and(|state| self.finals.iter().any(|final_state| final_state == state))
+    }
 }
 
 impl TableMeta {
@@ -202,12 +249,31 @@ impl DictionaryCache {
     }
 
     async fn load_meta(&self, table_name: &str) -> AppResult<TableMeta> {
-        let table: (String, String, Option<bool>) = sqlx::query_as(
-            "SELECT table_name, name, is_changelog FROM sys_table WHERE table_name = $1",
+        let table: (String, String, Option<bool>, Option<String>) = sqlx::query_as(
+            "SELECT table_name, name, is_changelog, concurrency_mode FROM sys_table WHERE table_name = $1",
         )
         .bind(table_name)
         .fetch_one(&self.pool)
         .await?;
+
+        // One machine per table: every state row of it names the same column.
+        let states: Vec<(String, String, bool)> = sqlx::query_as(
+            r"SELECT status_field, state, is_final
+                FROM sys_workflow_states
+               WHERE table_name = $1 AND is_active
+               ORDER BY seq_no",
+        )
+        .bind(table_name)
+        .fetch_all(&self.pool)
+        .await?;
+        let lifecycle = states.first().map(|(field, _, _)| Lifecycle {
+            status_field: field.clone(),
+            finals: states
+                .iter()
+                .filter(|(_, _, is_final)| *is_final)
+                .map(|(_, state, _)| state.clone())
+                .collect(),
+        });
 
         // The lookup target is the stored `ref_table_name` where the model
         // stated one, and is derived from the column name otherwise — see
@@ -232,6 +298,8 @@ impl DictionaryCache {
             // or one written by hand, should still be logged. Silence is the
             // wrong default for an audit trail.
             is_changelog: table.2.unwrap_or(true),
+            concurrency: ConcurrencyMode::parse(table.3.as_deref()),
+            lifecycle,
             columns: columns.into_iter().map(Into::into).collect(),
         })
     }

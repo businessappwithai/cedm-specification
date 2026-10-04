@@ -85,8 +85,9 @@ describe("{{entity.displayName}} CRUD", () => {
     if (!textField) return;
 
     const updated = `patched-${Date.now()}`;
-    const response = await harness.client.patch<Record<string, unknown>>(
-      `/bus/${entity.route}/${createdId}`,
+    const response = await harness.saveRecord<Record<string, unknown>>(
+      entity.route,
+      String(createdId),
       { [textField.name]: updated }
     );
 
@@ -102,8 +103,9 @@ describe("{{entity.displayName}} CRUD", () => {
     const textField = firstTextField(entity);
     if (!textField) return;
 
-    const response = await harness.client.patch<Record<string, unknown>>(
-      `/bus/${entity.route}/${created?.id}`,
+    const response = await harness.saveRecord<Record<string, unknown>>(
+      entity.route,
+      String(created?.id),
       { [textField.name]: `v-${Date.now()}` }
     );
 
@@ -115,10 +117,11 @@ describe("{{entity.displayName}} CRUD", () => {
     expect(created).not.toBeNull();
 
     const replacement = buildRecord(entity);
-    const response = await harness.client.put<Record<string, unknown>>(
-      `/bus/${entity.route}/${created?.id}`,
+    const response = await harness.saveRecord<Record<string, unknown>>(
+      entity.route,
+      String(created?.id),
       replacement,
-      { allowFailure: true }
+      { method: "PUT", allowFailure: true }
     );
 
     expect(response.status).toBeLessThan(500);

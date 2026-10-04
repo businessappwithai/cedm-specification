@@ -300,12 +300,18 @@ describe(`volume CRUD via the browser — ${entity.displayName}`, () => {
       const sample = createdIds.slice(0, SAMPLE);
 
       const readLatencies: number[] = [];
+      const versions = new Map<string, number>();
       await timed("read by id", sample.length, async () => {
         for (const id of sample) {
           const started = performance.now();
-          const response = await session.apiFetch(`/bus/${entity.route}/${id}`);
+          const response = await session.apiFetch<Record<string, unknown>>(
+            `/bus/${entity.route}/${id}`
+          );
           readLatencies.push(performance.now() - started);
           expect(response.status).toBe(200);
+          // What the update below names in If-Match, as a screen would.
+          const version = response.data?.version;
+          if (typeof version === "number") versions.set(id, version);
         }
       });
       phases[phases.length - 1]!.samples = [...readLatencies].sort((a, b) => a - b);
@@ -317,9 +323,11 @@ describe(`volume CRUD via the browser — ${entity.displayName}`, () => {
             ? { [marker.name]: `${RUN_ID}-updated-${index}` }
             : { version: undefined };
           const started = performance.now();
+          const version = versions.get(id);
           const response = await session.apiFetch(`/bus/${entity.route}/${id}`, {
             method: "PATCH",
             body,
+            headers: version === undefined ? {} : { "If-Match": `"v${version}"` },
           });
           updateLatencies.push(performance.now() - started);
           expect(response.ok).toBe(true);

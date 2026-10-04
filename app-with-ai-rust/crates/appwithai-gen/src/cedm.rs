@@ -1148,10 +1148,13 @@ fn lower(cedm: &Value) -> Result<Value> {
         if let Some(parent) = parents.get(&name) {
             set(&mut document, "parent", text(parent));
         }
+        let persistence = get(entity, "persistence");
+        if let Some(mode) = persistence.and_then(|p| get(p, "concurrency")) {
+            set(&mut document, "concurrency", mode.clone());
+        }
         if let Some(label) = ui.and_then(|u| get(u, "label")) {
             set(&mut document, "label", label.clone());
         }
-        let persistence = get(entity, "persistence");
         for option in ["prefix", "softDelete", "audited"] {
             if let Some(value) = persistence.and_then(|p| get(p, option)) {
                 set(&mut document, option, value.clone());

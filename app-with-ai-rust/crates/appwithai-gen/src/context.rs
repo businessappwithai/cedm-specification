@@ -145,6 +145,9 @@ pub struct ContextWorkflow {
     pub initial: String,
     pub transitions: Vec<ContextTransition>,
     pub states: Vec<ContextState>,
+    /// The states the machine's transactions end in.
+    #[serde(rename = "final")]
+    pub final_states: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -274,6 +277,7 @@ impl BackendContext {
                                 name: state.name.clone(),
                             })
                             .collect(),
+                        final_states: workflow.terminal.clone(),
                     })
                     .collect()
             },

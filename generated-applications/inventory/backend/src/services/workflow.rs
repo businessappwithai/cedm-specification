@@ -27,7 +27,7 @@ use serde_json::{json, Map, Value};
 
 use crate::errors::{AppError, AppResult};
 use crate::services::dictionary::DictionaryCache;
-use crate::services::dynamic_repo::DynamicRepo;
+use crate::services::dynamic_repo::{DynamicRepo, UpdateResult, WriteGuard};
 use crate::services::rules_engine::{RuleOperation, RulesEngine};
 
 #[derive(Debug, Clone, Default)]
@@ -506,8 +506,21 @@ impl WorkflowExecutor {
 
         let mut payload = Map::new();
         payload.insert(field.clone(), value);
-        self.repo.update(&meta, id, &payload, None).await?;
-        Ok(())
+        // A workflow writes as the system, in one statement that advances the
+        // row's version — so whoever has the record open is told it changed —
+        // and with no condition of its own: it is completing a transaction,
+        // which a final state does not refuse.
+        match self
+            .repo
+            .update(&meta, id, &payload, &WriteGuard::default())
+            .await?
+        {
+            UpdateResult::Updated(_) => Ok(()),
+            UpdateResult::Refused { .. } => Err(AppError::Conflict(format!(
+                "UpdateEntity could not write {} {id}",
+                meta.table_name
+            ))),
+        }
     }
 
     async fn create_entity(&self, task: &BpmnTask, ctx: &mut WorkflowContext) -> AppResult<()> {

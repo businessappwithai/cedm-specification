@@ -19,7 +19,7 @@
 //! triggers it, then assert on the response, the *other* entity, or the run
 //! log.
 //!
-//! Generated: 2026-10-04T01:12:49.357Z
+//! Generated: 2026-10-04T08:31:01.592Z
 //! Project: retail
 
 use serde_json::{json, Value};
@@ -716,6 +716,7 @@ async fn a_blocking_rule_refuses_the_write_under_either_name() {
         let control = request
             .put(&format!("/api/bus/{}/{}", entity.route, id))
             .add_header("authorization", bearer(&token))
+            .add_header("if-match", support::if_match(&record))
             .json(&body)
             .await;
         assert_eq!(
@@ -726,6 +727,9 @@ async fn a_blocking_rule_refuses_the_write_under_either_name() {
             control.text()
         );
 
+        // Every refused write below must leave the record exactly as the
+        // control left it — its version included — so each names that one.
+        let settled = control.json::<Value>();
         for action in ["prevent", "validation-error"] {
             let name = format!("e2e-wf-block-{action}-{}", uuid::Uuid::new_v4());
             let rule_id = {
@@ -758,6 +762,7 @@ async fn a_blocking_rule_refuses_the_write_under_either_name() {
             let response = request
                 .put(&format!("/api/bus/{}/{}", entity.route, id))
                 .add_header("authorization", bearer(&token))
+                .add_header("if-match", support::if_match(&settled))
                 .json(&body)
                 .await;
             let status = response.status_code();

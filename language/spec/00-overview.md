@@ -103,7 +103,7 @@ reader; held so a later meaning cannot collide with it). The definition's
 one. Today:
 
 - **compiled** — `name`/`version`/`description`, `enums`, `categories`,
-  `entities` (with `help`, `icon`, `parent`, `indexes`), attribute `enum` and
+  `entities` (with `help`, `icon`, `parent`, `concurrency`, `indexes`), attribute `enum` and
   `help`, `relationships`, `hooks`, `rbac`, `reports`, `rules`,
   `stateMachines`, `sagas`;
 - **validated** — `hookFlows`, `triggers`, and the entity keys `label`,

@@ -121,7 +121,6 @@ export function useDictionaryEntityFields(table: string | undefined) {
           return true;
         });
     },
-    enabled: !!table,
     staleTime: 30 * 60 * 1000,
   });
 }

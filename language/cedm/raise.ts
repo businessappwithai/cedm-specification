@@ -289,12 +289,14 @@ export function raiseModelDocument(document: ModelDocument): CedmModelDocument {
       entity.prefix !== undefined ||
       entity.softDelete !== undefined ||
       entity.audited !== undefined ||
+      entity.concurrency !== undefined ||
       entity.indexes?.length
     ) {
       raised.persistence = {
         ...(entity.prefix !== undefined ? { prefix: entity.prefix } : {}),
         ...(entity.softDelete !== undefined ? { softDelete: entity.softDelete } : {}),
         ...(entity.audited !== undefined ? { audited: entity.audited } : {}),
+        ...(entity.concurrency !== undefined ? { concurrency: entity.concurrency } : {}),
         ...(entity.indexes?.length
           ? {
               indexes: entity.indexes.map((index) => ({

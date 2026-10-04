@@ -273,6 +273,9 @@ export function lowerCedmModel(cedm: CedmModelDocument): LoweringResult {
     if (entity.ui?.icon !== undefined) document.icon = entity.ui.icon;
     const parent = parents.get(entity.name);
     if (parent !== undefined) document.parent = parent;
+    if (entity.persistence?.concurrency !== undefined) {
+      document.concurrency = entity.persistence.concurrency;
+    }
     if (entity.ui?.label !== undefined) document.label = entity.ui.label;
     if (entity.persistence?.prefix !== undefined) document.prefix = entity.persistence.prefix;
     if (entity.persistence?.softDelete !== undefined) {

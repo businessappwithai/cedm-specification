@@ -22,6 +22,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type FieldMetadata, refreshDropdowns, useEntityMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
+import {
+  type ConcurrencyCode,
+  describeStatus,
+  ifMatch,
+  isConcurrencyError,
+  transactionStatusOf,
+  type VersionConflict,
+  withoutResponseKeys,
+} from "@/lib/concurrency";
+import { ConflictDialog } from "./conflict-dialog";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
 import {
@@ -694,10 +704,26 @@ export function ADDetailShell({
     }
   }, [currentRecord]);
 
+  // A save that someone else's save overtook: the refusal, and what this
+  // person tried to write, for the refresh-or-overwrite dialog.
+  const [conflict, setConflict] = useState<{
+    code: ConcurrencyCode;
+    conflict: VersionConflict;
+    mine: AnyRecord;
+  } | null>(null);
+
   const saveMutation = useMutation({
-    mutationFn: (data: AnyRecord) => apiClient.patch(`${level.endpoint}/${recordId}`, data),
-    onSuccess: () => {
-      toast.success("Saved");
+    // Every save names the version it was read at; `readAt` is the record the
+    // edit started from, or — for an overwrite — the record the refusal
+    // reported, whose version is now the current one.
+    mutationFn: ({ data, readAt }: { data: AnyRecord; readAt: AnyRecord | null }) =>
+      apiClient.patch<AnyRecord>(`${level.endpoint}/${recordId}`, withoutResponseKeys(data), {
+        headers: ifMatch(readAt),
+      }),
+    onSuccess: (saved) => {
+      setConflict(null);
+      const status = describeStatus(transactionStatusOf(saved));
+      toast.success(status ? `Saved — Status: ${status}` : "Saved");
       setHasChanges(false);
       setSaveErrors([]);
       if (initialMode === "view") setIsEditing(false);
@@ -705,7 +731,11 @@ export function ADDetailShell({
       refetch();
       refetchRecord();
     },
-    onError: (err: any) => {
+    onError: (err: any, variables) => {
+      if (isConcurrencyError(err)) {
+        setConflict({ code: err.error, conflict: err.conflict, mine: variables.data });
+        return;
+      }
       const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
       const fallback = Array.isArray(err?.message)
         ? err.message.join(", ")
@@ -777,7 +807,7 @@ export function ADDetailShell({
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
-        onSave={() => saveMutation.mutate(formData)}
+        onSave={() => saveMutation.mutate({ data: formData, readAt: currentRecord })}
         onDelete={() => deleteMutation.mutate()}
         onUndo={() => {
           if (currentRecord) {
@@ -935,7 +965,7 @@ export function ADDetailShell({
                 onSubmit={(fd) => {
                   setFormData(fd);
                   setHasChanges(false);
-                  saveMutation.mutate(fd);
+                  saveMutation.mutate({ data: fd, readAt: currentRecord });
                 }}
                 onChange={(fd) => {
                   setFormData(fd);
@@ -1008,6 +1038,39 @@ export function ADDetailShell({
           </>
         )}
       </Box>
+
+      {conflict && (
+        <ConflictDialog
+          open
+          code={conflict.code}
+          conflict={conflict.conflict}
+          mine={conflict.mine}
+          recordName={`${level.label} ${currentName}`}
+          labelOf={(field) =>
+            [...(level.formFields ?? []), ...((entityMeta?.columns ?? []) as FieldMetadata[])].find(
+              (candidate) => candidate.column_name === field
+            )?.name ?? field
+          }
+          busy={saveMutation.isPending}
+          onRefresh={() => {
+            // The refusal carries the record as it now stands: show it, and
+            // drop the edits that were made against the older one.
+            const latest = conflict.conflict.current as AnyRecord;
+            queryClient.setQueryData(["ad-detail-record", level.endpoint, recordId], latest);
+            setFormData(latest);
+            setHasChanges(false);
+            setSaveErrors([]);
+            setConflict(null);
+          }}
+          onOverwrite={() =>
+            saveMutation.mutate({
+              data: conflict.mine,
+              readAt: conflict.conflict.current as AnyRecord,
+            })
+          }
+          onClose={() => setConflict(null)}
+        />
+      )}
     </div>
   );
 }

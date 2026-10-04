@@ -13,7 +13,7 @@
 use serde_json::{json, Value};
 use serial_test::serial;
 
-use crate::support::{self, bearer, entities::entity, factory::create_with_parents};
+use crate::support::{self, bearer, entities::entity, factory::create_with_parents, if_match};
 
 /// `(table, statusField, from, to)` for every edge the model draws.
 const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
@@ -115,6 +115,7 @@ async fn a_move_the_diagram_does_not_draw_is_refused() {
         let refused = request
             .patch(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&created))
             .json(&json!({ status_field: "definitely-not-a-declared-state" }))
             .await;
         assert_eq!(
@@ -135,6 +136,9 @@ async fn a_move_the_diagram_does_not_draw_is_refused() {
             let accepted = request
                 .patch(&format!("/api/bus/{}/{id}", meta.route))
                 .add_header("authorization", bearer(&token))
+                // The refused move above wrote nothing, so the version read at
+                // create still holds.
+                .add_header("if-match", if_match(&created))
                 .json(&json!({ status_field: to }))
                 .await;
             assert_eq!(

@@ -273,6 +273,10 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
     tpl: "migration/src/m0019_sys_column_narrowed_by.rs.hbs",
     out: "migration/src/m0019_sys_column_narrowed_by.rs",
   },
+  {
+    tpl: "migration/src/m0020_workflow_states_and_concurrency.rs.hbs",
+    out: "migration/src/m0020_workflow_states_and_concurrency.rs",
+  },
 
   { tpl: "src/lib.rs.hbs", out: "src/lib.rs" },
   { tpl: "src/bin/main.rs.hbs", out: "src/bin/main.rs" },
@@ -311,6 +315,7 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
   { tpl: "tests/requests/openapi.rs.hbs", out: "tests/requests/openapi.rs" },
   { tpl: "tests/requests/model_rules.rs.hbs", out: "tests/requests/model_rules.rs" },
   { tpl: "tests/requests/model_transitions.rs.hbs", out: "tests/requests/model_transitions.rs" },
+  { tpl: "tests/requests/concurrency.rs.hbs", out: "tests/requests/concurrency.rs" },
   { tpl: "tests/requests/permissions.rs.hbs", out: "tests/requests/permissions.rs" },
   { tpl: "tests/requests/rate_limit.rs.hbs", out: "tests/requests/rate_limit.rs" },
   { tpl: "tests/requests/ai.rs.hbs", out: "tests/requests/ai.rs" },
@@ -328,6 +333,7 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
   { tpl: "src/common/rate_limit.rs.hbs", out: "src/common/rate_limit.rs" },
   { tpl: "src/services/system_config.rs.hbs", out: "src/services/system_config.rs" },
   { tpl: "src/services/audit.rs.hbs", out: "src/services/audit.rs" },
+  { tpl: "src/services/concurrency.rs.hbs", out: "src/services/concurrency.rs" },
   { tpl: "src/services/authz.rs.hbs", out: "src/services/authz.rs" },
   { tpl: "src/services/nl_query.rs.hbs", out: "src/services/nl_query.rs" },
   { tpl: "src/services/promotion.rs.hbs", out: "src/services/promotion.rs" },
@@ -1132,6 +1138,7 @@ export class LocoBackendGenerator extends BaseGenerator {
         initial: workflow.initial ?? "",
         transitions: workflow.transitions,
         states: workflow.states,
+        final: workflow.terminal,
       })),
       /* The roles the model named, one account per role, and how many entities
          each may read — the same derivation the seed writer uses, so the

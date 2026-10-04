@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Box, HStack, Text } from "@/components/ui/layout";
 import { apiClient } from "@/lib/api-client";
+import { describeStatus, ifMatch, isConcurrencyError, transactionStatusOf } from "@/lib/concurrency";
 
 interface Move {
   tableName: string;
@@ -56,13 +57,34 @@ export function WorkflowStateBar({
   });
 
   const move = useMutation({
+    // The move names the version the record was read at, like any other save:
+    // a move made on a record someone has since changed is refused rather than
+    // applied to a state the person never saw.
     mutationFn: (step: Move) =>
-      apiClient.patch(`${endpoint}/${recordId}`, { [step.statusField]: step.to }),
-    onSuccess: (_data, step) => {
-      toast.success(`${step.transition ? words(step.transition) : "Moved"}: now ${words(step.to)}`);
+      apiClient.patch(
+        `${endpoint}/${recordId}`,
+        { [step.statusField]: step.to },
+        { headers: ifMatch(record) }
+      ),
+    onSuccess: (saved, step) => {
+      const status = describeStatus(transactionStatusOf(saved)) ?? words(step.to);
+      toast.success(`${step.transition ? words(step.transition) : "Moved"}: now ${status}`);
       onMoved();
     },
     onError: (err: unknown) => {
+      if (isConcurrencyError(err)) {
+        // Someone else moved or changed the record first. Say where it is now
+        // and re-read it, so the buttons offered are the moves out of the
+        // state it is really in.
+        const where = describeStatus(err.conflict.status);
+        toast.error(
+          err.error === "RECORD_FINAL"
+            ? `This record is ${where ?? "in a final state"}: its transaction is complete.`
+            : `Changed by ${err.conflict.changedBy ?? "another user"} since you opened it${where ? ` — now ${where}` : ""}.`
+        );
+        onMoved();
+        return;
+      }
       const e = err as { errors?: string[]; message?: string | string[] };
       const text =
         e?.errors?.join(", ") ??
@@ -78,6 +100,8 @@ export function WorkflowStateBar({
 
   const current = String(record[field] ?? "");
   const next = moves.filter((m) => m.from === current);
+  // The record's own read says whether its state is final (`transactionStatus`).
+  const isFinal = transactionStatusOf(record)?.isFinal === true;
 
   return (
     <Box
@@ -112,7 +136,7 @@ export function WorkflowStateBar({
           </>
         ) : (
           <Text size="xs" color="secondary">
-            No further moves from here
+            {isFinal ? "Final — this transaction is complete" : "No further moves from here"}
           </Text>
         )}
       </HStack>

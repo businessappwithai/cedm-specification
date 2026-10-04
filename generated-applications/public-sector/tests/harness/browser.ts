@@ -20,7 +20,7 @@
  *    "through the browser"; driving a form a hundred thousand times would
  *    measure Playwright's typing speed and take days.
  *
- * Generated: 2026-10-04T01:12:37.376Z
+ * Generated: 2026-10-04T08:30:45.377Z
  * Project: public-sector
  */
 
@@ -43,7 +43,7 @@ export interface BrowserSession {
   /** Issue an API request from inside the page, with the app's own session. */
   apiFetch<T = unknown>(
     path: string,
-    init?: { method?: string; body?: unknown }
+    init?: { method?: string; body?: unknown; headers?: Record<string, string> }
   ): Promise<PageResponse<T>>;
   /**
    * Issue many requests from inside the page with bounded concurrency,
@@ -189,17 +189,20 @@ export async function openApp(): Promise<BrowserSession> {
 
   const apiFetch = async <T = unknown>(
     path: string,
-    init: { method?: string; body?: unknown } = {}
+    init: { method?: string; body?: unknown; headers?: Record<string, string> } = {}
   ): Promise<PageResponse<T>> =>
     page.evaluate(
-      async ([target, method, body, prefix, deadlineMs]) => {
+      async ([target, method, body, prefix, deadlineMs, extra]) => {
         // `window` is not in this package's `lib`, and adding DOM to it would
         // change the types every other suite sees. The page has the global
         // regardless; this just names the one member we use.
         const store = (globalThis as { sessionStorage?: { getItem(key: string): string | null } })
           .sessionStorage;
         const token = store ? store.getItem("auth_token") : null;
-        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          ...(extra as Record<string, string>),
+        };
         if (token) headers.Authorization = `Bearer ${token}`;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), deadlineMs as number);
@@ -229,6 +232,7 @@ export async function openApp(): Promise<BrowserSession> {
         init.body == null ? null : JSON.stringify(init.body),
         config.apiPrefix,
         config.requestTimeoutMs,
+        init.headers ?? {},
       ] as const
     ) as Promise<PageResponse<T>>;
 
