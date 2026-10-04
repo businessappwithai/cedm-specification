@@ -28,6 +28,11 @@ pub struct ErrorBody {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
     pub error: String,
+    /// Present on a concurrency refusal: what a client needs to resolve it —
+    /// the record as it now stands, who changed it, what changed, and where the
+    /// transaction stands. See `services::concurrency`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub conflict: Option<serde_json::Value>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -45,9 +50,27 @@ pub enum AppError {
     #[error("{0}")]
     BadRequest(String),
 
-    /// 409 — ETag version mismatch or a Postgres unique violation.
+    /// 409 — a Postgres unique violation, or a conflict with no record to
+    /// describe.
     #[error("{0}")]
     Conflict(String),
+
+    /// 409 — an update refused for concurrency: the record changed since the
+    /// caller read it (`VERSION_CONFLICT`), or it is in a final state and its
+    /// transaction is complete (`RECORD_FINAL`). `conflict` carries the
+    /// record as it now stands, so the screen can offer refresh or overwrite
+    /// without a second request.
+    #[error("{message}")]
+    Concurrency {
+        code: &'static str,
+        message: String,
+        conflict: serde_json::Value,
+    },
+
+    /// 428 — an update with no `If-Match` on an optimistic table. A client
+    /// that never read the record cannot overwrite it blind.
+    #[error("{0}")]
+    PreconditionRequired(String),
 
     #[error("unauthorized")]
     Unauthorized,
@@ -69,12 +92,13 @@ pub enum AppError {
 }
 
 impl AppError {
-    /// The exact message the TypeScript stack returns when `If-Match` loses a
-    /// race. The frontend matches on it to decide whether to offer a reload.
-    #[must_use]
-    pub fn version_mismatch() -> Self {
-        Self::Conflict("Record was modified by another user. Please reload and try again.".into())
-    }
+    /// The message a `VERSION_CONFLICT` carries.
+    pub const VERSION_CONFLICT_MESSAGE: &'static str =
+        "This record was changed by another user since you opened it.";
+
+    /// The message a `RECORD_FINAL` carries.
+    pub const RECORD_FINAL_MESSAGE: &'static str =
+        "This record is in a final state: its transaction is complete and it can no longer be changed.";
 
     /// The exact message the TypeScript stack returns for Postgres `23505`.
     #[must_use]
@@ -86,7 +110,8 @@ impl AppError {
         match self {
             Self::NotFound(_) => StatusCode::NOT_FOUND,
             Self::Validation { .. } | Self::BadRequest(_) => StatusCode::BAD_REQUEST,
-            Self::Conflict(_) => StatusCode::CONFLICT,
+            Self::Conflict(_) | Self::Concurrency { .. } => StatusCode::CONFLICT,
+            Self::PreconditionRequired(_) => StatusCode::PRECONDITION_REQUIRED,
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
             Self::Forbidden(_) => StatusCode::FORBIDDEN,
             Self::ServiceUnavailable(_) => StatusCode::SERVICE_UNAVAILABLE,
@@ -177,20 +202,32 @@ impl IntoResponse for AppError {
             crate::log_event!(request_unhandled, error = ?err);
         }
 
-        let (message, errors) = match self {
-            Self::Validation { message, errors } => (message, Some(errors)),
-            Self::Internal(_) => ("Internal server error".to_string(), None),
-            other => (other.to_string(), None),
+        let canonical = || {
+            status
+                .canonical_reason()
+                .unwrap_or("Internal Server Error")
+                .to_string()
+        };
+        let (message, errors, error, conflict) = match self {
+            Self::Validation { message, errors } => (message, Some(errors), canonical(), None),
+            Self::Internal(_) => ("Internal server error".to_string(), None, canonical(), None),
+            // The machine-readable code replaces the reason phrase, so a client
+            // can tell a stale version from a closed record without parsing
+            // prose.
+            Self::Concurrency {
+                code,
+                message,
+                conflict,
+            } => (message, None, code.to_string(), Some(conflict)),
+            other => (other.to_string(), None, canonical(), None),
         };
 
         let body = ErrorBody {
             status_code: status.as_u16(),
             message,
             errors,
-            error: status
-                .canonical_reason()
-                .unwrap_or("Internal Server Error")
-                .to_string(),
+            error,
+            conflict,
         };
 
         (status, Json(body)).into_response()

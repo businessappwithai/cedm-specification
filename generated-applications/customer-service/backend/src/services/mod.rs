@@ -1,5 +1,6 @@
 pub mod audit;
 pub mod authz;
+pub mod concurrency;
 pub mod dictionary;
 pub mod dynamic_repo;
 pub mod field_meta;

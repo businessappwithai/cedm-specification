@@ -67,7 +67,7 @@ fn resolve_placeholders(template: &Map<String, Value>, row: &Value) -> Map<Strin
 
 use crate::errors::AppResult;
 use crate::services::dictionary::TableMeta;
-use crate::services::dynamic_repo::DynamicRepo;
+use crate::services::dynamic_repo::{DynamicRepo, RawVersion};
 use crate::services::rules_engine::{RuleOperation, RulesEngine};
 use crate::services::workflow::{WorkflowContext, WorkflowExecutor};
 
@@ -452,8 +452,10 @@ impl PromotionService {
             return Ok(Map::new());
         };
 
+        // Part of the write that fired the rule, so the version the response
+        // returns stays the one the next save sends back.
         self.repo
-            .update_raw(&meta.table_name, id, &resolved)
+            .update_raw(&meta.table_name, id, &resolved, RawVersion::Keep)
             .await?;
         Ok(resolved)
     }
@@ -485,7 +487,11 @@ impl PromotionService {
             return Ok(());
         }
 
-        self.repo.update_raw(target, target_id, &resolved).await
+        // A separate write to another record: whoever has it open now holds a
+        // stale copy, and their next save must say so.
+        self.repo
+            .update_raw(target, target_id, &resolved, RawVersion::Advance)
+            .await
     }
 
     /// Create a row in another entity.

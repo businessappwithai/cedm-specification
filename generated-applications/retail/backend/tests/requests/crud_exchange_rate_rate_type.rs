@@ -3,7 +3,7 @@
 //! One module per entity, so a failure names the entity that broke instead of
 //! collapsing every entity into one suite.
 //!
-//! Generated: 2026-10-04T01:12:49.485Z
+//! Generated: 2026-10-04T08:31:01.682Z
 //! Project: retail
 
 use serde_json::{json, Value};
@@ -13,7 +13,7 @@ use crate::support::{
     self, bearer,
     entities::entity,
     factory::{build_invalid_record, build_record, create_with_parents, marked},
-    rows, total,
+    if_match, rows, total,
 };
 
 const ENTITY: &str = "ExchangeRateRateType";
@@ -132,6 +132,7 @@ async fn updates_with_patch_and_bumps_the_version() {
         let response = request
             .patch(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&created))
             .json(&json!({ text_field.name: updated.clone() }))
             .await;
 
@@ -170,6 +171,7 @@ async fn replaces_a_record_with_put() {
         let response = request
             .put(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&created))
             .json(&Value::Object(build_record(meta)))
             .await;
 
@@ -326,10 +328,13 @@ async fn clears_an_optional_field_with_an_explicit_null() {
         // only way a caller can clear an optional value, and it is what the
         // generated form emits when you empty a number or date input — the
         // backend used to answer 400 to its own UI.
+        // Each clear is a new version, so each names the one before it.
+        let mut current = created.clone();
         for name in fields {
             let response = request
                 .patch(&format!("/api/bus/{}/{id}", meta.route))
                 .add_header("authorization", bearer(&token))
+                .add_header("if-match", if_match(&current))
                 .json(&json!({ name: Value::Null }))
                 .await;
 
@@ -339,8 +344,9 @@ async fn clears_an_optional_field_with_an_explicit_null() {
                 response.status_code(),
                 response.text()
             );
+            current = response.json::<Value>();
             assert_eq!(
-                response.json::<Value>().get(name),
+                current.get(name),
                 Some(&Value::Null),
                 "{ENTITY}.{name} did not read back as null after being cleared"
             );

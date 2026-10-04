@@ -31,6 +31,7 @@ mod m0016_sys_window_icon;
 mod m0017_workflow_definition_yaml;
 mod m0018_sys_column_ref_table;
 mod m0019_sys_column_narrowed_by;
+mod m0020_workflow_states_and_concurrency;
 
 pub struct Migrator;
 
@@ -58,6 +59,7 @@ impl MigratorTrait for Migrator {
             Box::new(m0017_workflow_definition_yaml::Migration),
             Box::new(m0018_sys_column_ref_table::Migration),
             Box::new(m0019_sys_column_narrowed_by::Migration),
+            Box::new(m0020_workflow_states_and_concurrency::Migration),
         ]
     }
 }

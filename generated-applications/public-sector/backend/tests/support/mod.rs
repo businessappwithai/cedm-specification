@@ -6,7 +6,7 @@
 //! while the toolchain, the port juggling and the "is the backend up yet?"
 //! polling all disappear.
 //!
-//! Generated: 2026-10-04T01:12:36.299Z
+//! Generated: 2026-10-04T08:30:44.276Z
 //! Project: public-sector
 
 #![allow(dead_code)]
@@ -126,6 +126,19 @@ pub async fn login(request: &TestServer) -> String {
 /// `Authorization: Bearer …`, the header every authenticated route wants.
 pub fn bearer(token: &str) -> String {
     format!("Bearer {token}")
+}
+
+/// `If-Match` for a record as it was read: `"v{version}"`.
+///
+/// Every entity is optimistic unless its model says otherwise, so an update
+/// names the version it was read at — the generated frontend does the same.
+/// A record with no version (one that came from a list of another shape) is
+/// sent as `*`, a deliberate overwrite.
+pub fn if_match(record: &Value) -> String {
+    record
+        .get("version")
+        .and_then(Value::as_i64)
+        .map_or_else(|| "*".to_string(), |version| format!("\"v{version}\""))
 }
 
 /// The rows out of a `{ data, meta }` list response.

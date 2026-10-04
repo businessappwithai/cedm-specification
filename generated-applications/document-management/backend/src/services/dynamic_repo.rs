@@ -29,7 +29,7 @@ use sqlx::{AssertSqlSafe, PgPool};
 use uuid::Uuid;
 
 use crate::errors::{AppError, AppResult};
-use crate::services::dictionary::{is_managed_column, ColumnMeta, TableMeta, TableName};
+use crate::services::dictionary::{is_managed_column, ColumnMeta, Lifecycle, TableMeta, TableName};
 use crate::services::row_json::{row_to_json, rows_to_json};
 
 /// Reference types the `search` query parameter scans. Preserved exactly from
@@ -136,6 +136,44 @@ pub struct PaginatedResult {
 #[derive(Clone)]
 pub struct DynamicRepo {
     pool: PgPool,
+}
+
+/// Keys a write's response carries that are not columns.
+const RESPONSE_ONLY_KEYS: [&str; 2] = ["promotion", "transactionStatus"];
+
+/// What an update depends on besides its own columns. See `DynamicRepo::update`.
+#[derive(Debug, Default)]
+pub struct WriteGuard<'a> {
+    /// The version the caller read, from `If-Match`. `None` imposes none.
+    pub expected_version: Option<i32>,
+    /// `(status column, state it moves from)` for each transition the request
+    /// makes.
+    pub status_from: &'a [(String, String)],
+    /// The table's machine, when a record in a final state must be refused.
+    /// `None` for a system write — a rule's or a workflow's — which completes
+    /// a transaction rather than reopening one.
+    pub closed_by: Option<&'a Lifecycle>,
+}
+
+/// How `update_raw` treats the row's `version`.
+#[derive(Debug, Clone, Copy)]
+pub enum RawVersion {
+    /// A separate write to the row: advance it.
+    Advance,
+    /// Part of the write the request is making: leave it.
+    Keep,
+    /// Undo a refused write: set it back to `previous`, only if it is still
+    /// `written`.
+    Restore { written: i32, previous: i32 },
+}
+
+/// The outcome of a guarded update.
+#[derive(Debug)]
+pub enum UpdateResult {
+    /// The row as written.
+    Updated(Value),
+    /// A condition of the write no longer held; the row as it now stands.
+    Refused { current: Value },
 }
 
 impl DynamicRepo {
@@ -259,16 +297,26 @@ impl DynamicRepo {
 
     /// Update with optimistic concurrency.
     ///
-    /// `expected_version` comes from `If-Match: "v{n}"`. The comparison happens
-    /// inside the UPDATE's WHERE clause, so the check and the write are one
-    /// atomic statement — no read-then-write race (§6.12).
+    /// Everything the write depends on is a condition of the one UPDATE
+    /// statement, so the check and the write are atomic — no read-then-write
+    /// race (§6.12):
+    ///
+    /// - the version the caller read (`If-Match: "v{n}"`), when it named one;
+    /// - for each status column the request moves, the state it moves *from* —
+    ///   so of two concurrent moves out of one state, exactly one lands;
+    /// - that the record is not in a final state of its machine, when the
+    ///   caller is subject to that rule.
+    ///
+    /// Zero rows means the row is gone (404) or one of the conditions no longer
+    /// holds; the latter is `UpdateResult::Refused` with the row as it now
+    /// stands, and the caller decides how to describe it.
     pub async fn update(
         &self,
         meta: &TableMeta,
         id: Uuid,
         payload: &Map<String, Value>,
-        expected_version: Option<i32>,
-    ) -> AppResult<Value> {
+        guard: &WriteGuard<'_>,
+    ) -> AppResult<UpdateResult> {
         let assignments = self.collect_assignments(meta, payload)?;
 
         let mut update = Query::update();
@@ -287,8 +335,32 @@ impl DynamicRepo {
             .and_where(Expr::col(Alias::new("id")).eq(id))
             .and_where(Expr::col(Alias::new("deleted_at")).is_null());
 
-        if let Some(version) = expected_version {
+        if let Some(version) = guard.expected_version {
             update.and_where(Expr::col(Alias::new("version")).eq(version));
+        }
+        for (column, from_state) in guard.status_from {
+            // The column is a dictionary column (the transition table names
+            // it), compared as text so any status type works.
+            if meta.column(column).is_some() {
+                update.and_where(
+                    Expr::col(Alias::new(column.clone()))
+                        .cast_as(Alias::new("text"))
+                        .eq(from_state.clone()),
+                );
+            }
+        }
+        if let Some(lifecycle) = guard.closed_by {
+            if !lifecycle.finals.is_empty() && meta.column(&lifecycle.status_field).is_some() {
+                let column = Expr::col(Alias::new(lifecycle.status_field.clone()))
+                    .cast_as(Alias::new("text"));
+                // A NULL status is no state at all, so it is not final.
+                update.and_where(
+                    column
+                        .clone()
+                        .is_null()
+                        .or(column.is_not_in(lifecycle.finals.iter().cloned())),
+                );
+            }
         }
 
         let (sql, bound) = update.returning_all().build_sqlx(PostgresQueryBuilder);
@@ -297,18 +369,12 @@ impl DynamicRepo {
             .await?;
 
         match row {
-            Some(row) => Ok(row_to_json(&row)),
-            None if expected_version.is_some() => {
-                // Zero rows with an `If-Match` present means either the row is
-                // gone or someone else bumped the version. Distinguish, so a
-                // deleted row still reports 404 rather than a misleading 409.
-                if self.find_by_id(&meta_table(meta), id).await?.is_some() {
-                    Err(AppError::version_mismatch())
-                } else {
-                    Err(AppError::NotFound(format!("Record {id} not found")))
-                }
-            }
-            None => Err(AppError::NotFound(format!("Record {id} not found"))),
+            Some(row) => Ok(UpdateResult::Updated(row_to_json(&row))),
+            None => match self.find_by_id(&meta_table(meta), id).await? {
+                // The row exists, so a condition failed: report it as it is now.
+                Some(current) => Ok(UpdateResult::Refused { current }),
+                None => Err(AppError::NotFound(format!("Record {id} not found"))),
+            },
         }
     }
 
@@ -345,10 +411,17 @@ impl DynamicRepo {
     }
 
     /// Soft delete. Returns false when the row was already gone.
+    ///
+    /// Advances `version` like any other write: a reader holding the record
+    /// must not be able to save over a deletion as if nothing had happened.
     pub async fn soft_delete(&self, table: &TableName, id: Uuid) -> AppResult<bool> {
         let (sql, bound) = Query::update()
             .table(Alias::new(table.as_str()))
             .value(Alias::new("deleted_at"), Expr::val(Utc::now()))
+            .value(
+                Alias::new("version"),
+                Expr::col(Alias::new("version")).add(1),
+            )
             .and_where(Expr::col(Alias::new("id")).eq(id))
             .and_where(Expr::col(Alias::new("deleted_at")).is_null())
             .build_sqlx(PostgresQueryBuilder);
@@ -374,11 +447,18 @@ impl DynamicRepo {
     /// table is checked against the dictionary before anything is written —
     /// so an unknown table or column is a no-op rather than an interpolated
     /// identifier.
+    ///
+    /// `version` decides whether the write advances the row's version. A write
+    /// to *another* row — a cascade — does, because whoever has that row open
+    /// is now holding a stale copy. A transform of the row the request itself
+    /// is writing does not: it is part of that one write, and the version the
+    /// request returns has to be the one the next save sends back.
     pub async fn update_raw(
         &self,
         table: &str,
         id: Uuid,
         values: &Map<String, Value>,
+        version: RawVersion,
     ) -> AppResult<()> {
         let Some(columns) = self.verified_columns(table, values).await? else {
             return Ok(());
@@ -392,6 +472,22 @@ impl DynamicRepo {
         update
             .value(Alias::new("updated_at"), Expr::val(Utc::now()))
             .and_where(Expr::col(Alias::new("id")).eq(id));
+        match version {
+            RawVersion::Advance => {
+                update.value(
+                    Alias::new("version"),
+                    Expr::col(Alias::new("version")).add(1),
+                );
+            }
+            RawVersion::Keep => {}
+            // Put back what a refused write replaced — the version included —
+            // but only while nobody has written since: a newer write wins.
+            RawVersion::Restore { written, previous } => {
+                update
+                    .value(Alias::new("version"), Expr::val(previous))
+                    .and_where(Expr::col(Alias::new("version")).eq(written));
+            }
+        }
 
         let (sql, bound) = update.build_sqlx(PostgresQueryBuilder);
         sqlx::query_with(AssertSqlSafe(sql), bound)
@@ -501,7 +597,10 @@ impl DynamicRepo {
     ) -> AppResult<Vec<(String, Expr)>> {
         let mut assignments = Vec::new();
         for (key, value) in payload {
-            if is_managed_column(key) {
+            // Managed columns are the server's; the two response-only keys are
+            // what a write answers with, so a client that saves back the
+            // record it was given is not refused for carrying them.
+            if is_managed_column(key) || RESPONSE_ONLY_KEYS.contains(&key.as_str()) {
                 continue;
             }
             let Some(column) = meta.column(key) else {

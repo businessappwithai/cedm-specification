@@ -1,6 +1,6 @@
 //! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
-//! Generated: 2026-10-04T01:12:46.974Z
+//! Generated: 2026-10-04T08:30:58.191Z
 //! Project: research
 //!
 //! **The gap this closes.** `/api/bus/*` required a JWT and nothing else, so
@@ -419,13 +419,20 @@ pub async fn require_write(
 ///
 /// A table with no edges at all has no state machine, so nothing is refused.
 /// That is what makes this safe to call unconditionally from `update`.
+///
+/// Returns `(status column, state it moves from)` for each move it allowed.
+/// The answers above were read before the write, so the write makes the
+/// from-state a condition of its own UPDATE: of two concurrent moves out of
+/// one state, only one lands, and the other is refused as a concurrency
+/// conflict rather than recorded as a move nobody drew.
 pub async fn require_transition(
     pool: &PgPool,
     principal: &Principal,
     table_name: &str,
     id: Uuid,
     body: &Map<String, Value>,
-) -> AppResult<()> {
+) -> AppResult<Vec<(String, String)>> {
+    let mut moves = Vec::new();
     // The status columns this table's machines drive. Empty for a table with no
     // machine, which is the common case and costs one indexed lookup.
     let fields: Vec<String> = sqlx::query_scalar(
@@ -506,6 +513,7 @@ pub async fn require_transition(
                 )],
             });
         }
+        moves.push((field.clone(), from_state.clone()));
 
         if principal.is_master {
             continue;
@@ -544,7 +552,7 @@ pub async fn require_transition(
         }
     }
 
-    Ok(())
+    Ok(moves)
 }
 
 /// A bare SQL identifier: what a generated table or column name looks like.

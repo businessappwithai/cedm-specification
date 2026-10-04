@@ -23,8 +23,12 @@ use crate::hooks;
 use crate::models::_entities::users;
 use crate::services::audit::{AuditEntry, AuditOperation, AuditService};
 use crate::services::authz;
-use crate::services::dictionary::DictionaryCache;
-use crate::services::dynamic_repo::{DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions};
+use crate::services::concurrency::{self, Refusal};
+use crate::services::dictionary::{ConcurrencyMode, DictionaryCache};
+use crate::services::dynamic_repo::{
+    DynamicRepo, Filter, FilterOp, OrderDir, PaginationOptions, RawVersion, UpdateResult,
+    WriteGuard,
+};
 use crate::services::field_meta::{self, FieldLayout};
 use crate::services::promotion::{
     PromotionOutcome, PromotionService, STATUS_DRAFT, STATUS_REJECTED,
@@ -150,6 +154,13 @@ pub async fn get_one(
     // from what the caller actually receives.
     hooks::after_read(table.as_str(), &mut row).await?;
 
+    // Where the record's transaction stands, so a screen can say a record in a
+    // final state is closed before anyone tries to edit it.
+    let meta = dictionary.meta(&entity).await?;
+    let status =
+        concurrency::transaction_status(ctx.db.get_postgres_connection_pool(), &meta, &row).await;
+    attach_transaction_status(&mut row, status);
+
     Ok(with_etag(&row, Json(row.clone()).into_response()))
 }
 
@@ -221,7 +232,15 @@ pub async fn create(
     // the caller with the row already committed.
     hooks::after_create(&meta.table_name, &row).await?;
 
-    Ok((StatusCode::CREATED, Json(row)).into_response())
+    // The ETag, so the first save of the new record can send `If-Match`
+    // without reading it back, and where its transaction stands.
+    let status =
+        concurrency::transaction_status(ctx.db.get_postgres_connection_pool(), &meta, &row).await;
+    attach_transaction_status(&mut row, status);
+    Ok(with_etag(
+        &row,
+        (StatusCode::CREATED, Json(row.clone())).into_response(),
+    ))
 }
 
 /// `PUT`/`PATCH /api/bus/{entity}/{id}` — change a record.
@@ -235,10 +254,11 @@ pub async fn create(
     params(("entity" = String, Path, description = "Dictionary table or entity name, e.g. `bus_compound` or `compound`"), ("id" = String, Path, description = "Record id (UUID)")),
     request_body(content = serde_json::Value, description = "Only the columns to change; `PATCH` is accepted at the same path and does the same thing"),
     responses(
-        (status = 200, description = "The updated record, with `version` advanced"),
+        (status = 200, description = "The updated record, with `version` advanced and its `transactionStatus`"),
         (status = 400, description = "Unknown column, or a value of the wrong type"),
         (status = 404, description = "No such record"),
-        (status = 409, description = "Unique violation, or a stale `version`"),
+        (status = 409, description = "`VERSION_CONFLICT`: the record changed since the `If-Match` version — `conflict` carries it as it now stands, who changed it, when, which columns, and its status. `RECORD_FINAL`: the record is in a final state and closed. Also a unique violation"),
+        (status = 428, description = "No `If-Match` on an entity whose `concurrency` is optimistic"),
     ),
 )]
 pub async fn update(
@@ -260,7 +280,18 @@ pub async fn update(
     )
     .await?;
     let mut body = as_object(payload)?;
-    let expected_version = parse_if_match(&headers)?;
+    let expected_version = match parse_if_match(&headers)? {
+        Precondition::Version(version) => Some(version),
+        // `*` is a deliberate overwrite of whatever is there.
+        Precondition::Any => None,
+        Precondition::Absent if meta.concurrency == ConcurrencyMode::Optimistic => {
+            return Err(AppError::PreconditionRequired(format!(
+                "An update to {} must name the version it was read at: send If-Match: \"v<version>\" from the record's ETag.",
+                meta.name
+            )));
+        }
+        Precondition::Absent => None,
+    };
 
     // Same order as `create`: validate what the caller sent, then let
     // `beforeUpdate` rewrite it.
@@ -272,7 +303,7 @@ pub async fn update(
     // that this caller may make it. Both are no-ops for a table with no
     // machine, which is every table until a state machine
     // section names one.
-    authz::require_transition(
+    let moves = authz::require_transition(
         ctx.db.get_postgres_connection_pool(),
         &principal,
         &meta.table_name,
@@ -287,6 +318,28 @@ pub async fn update(
     let table = dictionary.resolve(&entity).await?;
     let before = repo.find_by_id(&table, id).await.ok().flatten();
 
+    // A record in a final state is a completed transaction: closed to every
+    // caller. Said here so the refusal comes before any rule work; the write
+    // below repeats the condition, so a record that becomes final in between
+    // is refused just the same.
+    if let Some(current) = before.as_ref() {
+        if meta
+            .lifecycle
+            .as_ref()
+            .is_some_and(|lifecycle| lifecycle.is_final(current))
+        {
+            return Err(concurrency::refusal(
+                ctx.db.get_postgres_connection_pool(),
+                &meta,
+                current,
+                expected_version,
+                &body,
+                Refusal::RecordFinal,
+            )
+            .await);
+        }
+    }
+
     // A choice another column narrows is checked against the record as it will
     // be: what is stored, with this request's columns laid over it.
     let mut candidate: Map<String, Value> = match &before {
@@ -296,14 +349,33 @@ pub async fn update(
     candidate.extend(body.iter().map(|(k, v)| (k.clone(), v.clone())));
     verify_narrowing(ctx.db.get_postgres_connection_pool(), &meta, &candidate).await?;
 
-    let mut row = repo.update(&meta, id, &body, expected_version).await?;
+    let guard = WriteGuard {
+        expected_version,
+        status_from: &moves,
+        closed_by: meta.lifecycle.as_ref(),
+    };
+    let mut row = match repo.update(&meta, id, &body, &guard).await? {
+        UpdateResult::Updated(row) => row,
+        UpdateResult::Refused { current } => {
+            return Err(concurrency::refusal(
+                ctx.db.get_postgres_connection_pool(),
+                &meta,
+                &current,
+                expected_version,
+                &body,
+                Refusal::of(&meta, &current),
+            )
+            .await);
+        }
+    };
     let outcome = run_promotion(&ctx, &meta, &row, RuleOperation::Update, before.as_ref()).await;
     if let Err(refusal) = reject_if_prevented(&ctx, &repo, &table, &row, &outcome, false).await {
         // A rule that refuses a write has to leave nothing of it behind. The
-        // update has already landed, so put back what it replaced; otherwise
-        // the refused value stays in the record and every later edit — a status
-        // move included — is judged against it and refused too.
-        restore_columns(&repo, &meta.table_name, id, before.as_ref(), &body).await;
+        // update has already landed, so put back what it replaced — its
+        // version included, so the caller's `If-Match` still holds for the
+        // corrected save; otherwise the refused value stays in the record and
+        // every later edit, a status move included, is judged against it.
+        restore_columns(&repo, &meta.table_name, id, before.as_ref(), &row, &body).await;
         return Err(refusal);
     }
     apply_promotion(&mut row, &outcome);
@@ -324,6 +396,9 @@ pub async fn update(
     // After the audit entry, and unable to undo the write — see `create`.
     hooks::after_update(&meta.table_name, &row).await?;
 
+    let status =
+        concurrency::transaction_status(ctx.db.get_postgres_connection_pool(), &meta, &row).await;
+    attach_transaction_status(&mut row, status);
     Ok(with_etag(&row, Json(row.clone()).into_response()))
 }
 
@@ -411,6 +486,10 @@ pub async fn meta(
     Ok(Json(json!({
         "tableName": meta.table_name,
         "name": meta.name,
+        // `optimistic` or `last-write-wins`, and the lifecycle that closes a
+        // record — so a screen knows before a save what the save must carry.
+        "concurrency": meta.concurrency,
+        "lifecycle": meta.lifecycle,
         "columns": meta.columns,
     }))
     .into_response())
@@ -668,13 +747,24 @@ fn as_object(payload: Value) -> AppResult<Map<String, Value>> {
     }
 }
 
+/// What an update's `If-Match` asks for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Precondition {
+    /// No header.
+    Absent,
+    /// `*`: whatever version is there — a deliberate overwrite.
+    Any,
+    /// `"v{n}"`: only if the row is still at that version.
+    Version(i32),
+}
+
 /// Parse `If-Match: "v{n}"` into a row version.
 ///
 /// The quoted `v`-prefixed form is what the frontend sends; anything else is a
 /// malformed precondition rather than a silent full-overwrite.
-fn parse_if_match(headers: &HeaderMap) -> AppResult<Option<i32>> {
+fn parse_if_match(headers: &HeaderMap) -> AppResult<Precondition> {
     let Some(raw) = headers.get(axum::http::header::IF_MATCH) else {
-        return Ok(None);
+        return Ok(Precondition::Absent);
     };
     let raw = raw
         .to_str()
@@ -683,7 +773,7 @@ fn parse_if_match(headers: &HeaderMap) -> AppResult<Option<i32>> {
     // `*` means "any current version" — a valid precondition that imposes no
     // version constraint.
     if raw.trim() == "*" {
-        return Ok(None);
+        return Ok(Precondition::Any);
     }
 
     let version = raw
@@ -696,7 +786,17 @@ fn parse_if_match(headers: &HeaderMap) -> AppResult<Option<i32>> {
                 "Malformed If-Match header: expected \"v{{n}}\", got {raw}"
             ))
         })?;
-    Ok(Some(version))
+    Ok(Precondition::Version(version))
+}
+
+/// Put where the record's transaction stands into the response body, when its
+/// table has a state machine. A response-only key: `collect_assignments`
+/// ignores it, so a client that saves the record it was given back does not
+/// trip over it.
+fn attach_transaction_status(row: &mut Value, status: Value) {
+    if let (Value::Object(map), false) = (row, status.is_null()) {
+        map.insert("transactionStatus".to_string(), status);
+    }
 }
 
 /// Echo the row's version back as an ETag so the next write can send `If-Match`.
@@ -886,9 +986,20 @@ async fn restore_columns(
     table: &str,
     id: Uuid,
     before: Option<&Value>,
+    written: &Value,
     body: &Map<String, Value>,
 ) {
     let Some(Value::Object(previous)) = before else {
+        return;
+    };
+    let version_of = |row: Option<&Value>| {
+        row.and_then(Value::as_i64)
+            .and_then(|version| i32::try_from(version).ok())
+    };
+    let (Some(written_version), Some(previous_version)) = (
+        version_of(written.get("version")),
+        version_of(previous.get("version")),
+    ) else {
         return;
     };
     let restored: Map<String, Value> = body
@@ -902,7 +1013,11 @@ async fn restore_columns(
     if restored.is_empty() {
         return;
     }
-    if let Err(err) = repo.update_raw(table, id, &restored).await {
+    let version = RawVersion::Restore {
+        written: written_version,
+        previous: previous_version,
+    };
+    if let Err(err) = repo.update_raw(table, id, &restored, version).await {
         crate::log_event!(entity_update_restore_failed, error = ?err, %id);
     }
 }
