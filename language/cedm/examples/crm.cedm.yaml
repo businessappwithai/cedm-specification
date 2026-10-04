@@ -1294,6 +1294,7 @@ entities:
         help: The user who did it, or has to.
     persistence:
       softDelete: true
+      concurrency: last-write-wins
       indexes:
         - columns: [owner_id, due_at]
         - columns: [account_id, activity_type]

@@ -722,6 +722,10 @@ pub fn build_dictionary_seed_sql(options: &DictionarySeedOptions<'_>) -> String 
         if let Some(icon) = entity.icon.as_ref().filter(|icon| !icon.is_empty()) {
             table_columns.push(("icon", text(icon.clone())));
         }
+        // Only a declared `last-write-wins`: the column defaults to 'optimistic'.
+        if entity.concurrency.as_deref() == Some("last-write-wins") {
+            table_columns.push(("concurrency_mode", text("last-write-wins")));
+        }
         table_columns.extend([
             ("access_level", text("A")),
             ("is_view", Sql::Bool(false)),

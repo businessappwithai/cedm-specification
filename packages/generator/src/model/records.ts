@@ -15,6 +15,8 @@
  * keys, default categories — is derived by the compilers, once.
  */
 
+import type { ConcurrencyMode } from "../model-yaml/document";
+
 /* -------------------------------------------------------------------------- */
 /*  Entity-relationship model                                                  */
 /* -------------------------------------------------------------------------- */
@@ -123,6 +125,8 @@ export interface ErdRecords {
   fieldHelp: FieldHelp[];
   entityHelp: Array<{ entity: string; help: string }>;
   entityIcons: Array<{ entity: string; icon: string }>;
+  /** An entity's `concurrency`, where it declares one. */
+  entityConcurrency: Array<{ entity: string; mode: ConcurrencyMode }>;
   /** Rows an entity ships with: `data` of the entity document. */
   entityData: Array<{ entity: string; key: string; rows: Array<Record<string, string | number | boolean | null>> }>;
   entityParents: Array<{ entity: string; parent: string }>;

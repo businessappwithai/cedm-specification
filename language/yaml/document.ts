@@ -76,11 +76,21 @@ export interface IndexDocument {
   unique?: boolean;
 }
 
+/** The entity's `concurrency`: how two people editing one record are reconciled. */
+export type ConcurrencyMode = "optimistic" | "last-write-wins";
+
 export interface EntityDocument {
   name: string;
   help?: string;
   icon?: string;
   parent?: string;
+  /**
+   * How concurrent edits of one record are reconciled. `optimistic` (the
+   * default) refuses a save made against a version someone else has replaced;
+   * `last-write-wins` accepts a save that names no version. Compiled to
+   * `sys_table.concurrency_mode`.
+   */
+  concurrency?: ConcurrencyMode;
   /** Validated and carried; no application generator compiles these yet. */
   label?: string;
   prefix?: "bus" | "sys";

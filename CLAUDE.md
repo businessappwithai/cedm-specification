@@ -629,6 +629,32 @@ Things to know before editing it:
   from. It deletes its rows before asserting, because a failed assertion that
   left a `read` restriction behind would fail the next twenty tests for a reason
   none of them names.
+- **Two people, one record: optimistic locking, and a final state closes it.**
+  Every write that changes a bus row advances `version`; every read and write
+  answers with `ETag: "v<n>"`, and `/meta` reports the table's
+  `concurrency` and `lifecycle`. `DynamicRepo::update` takes a `WriteGuard`
+  and makes everything the write depends on a condition of its one UPDATE: the
+  `If-Match` version, the from-state of each transition the body makes (so of
+  two moves out of one state exactly one lands), and — for a caller, not a
+  rule or workflow — that the row is not in a final state. Zero rows is
+  `UpdateResult::Refused { current }`, and `services/concurrency.rs` turns it
+  into **409 `VERSION_CONFLICT`** or **409 `RECORD_FINAL`** with a `conflict`
+  body: the record as it stands, who changed it (the audit trail's last entry),
+  when, the columns changed since the caller's version, the status with its
+  label and `isFinal`, and `overwritable`. An optimistic table (`sys_table.concurrency_mode`,
+  m0020, from the entity's `concurrency`) refuses a save with no `If-Match`
+  with **428**; `last-write-wins` accepts it; `If-Match: *` is a deliberate
+  overwrite. Final states live in `sys_workflow_states` (m0020), replaced on
+  every seed by `seed/transitions.sql`. A rule's transform on the row being
+  written keeps the version (`RawVersion::Keep`), a cascade to another row
+  advances it, and a refused write's `restore_columns` puts the version back
+  too (`RawVersion::Restore`, only while nobody wrote since) — which is what
+  lets the caller's `If-Match` still hold for the corrected save. The screen
+  side is `lib/concurrency.ts` and `components/admin/conflict-dialog.tsx`:
+  refresh to the record the refusal carried, or overwrite naming its version.
+  The gates are `tests/requests/concurrency.rs` and the bun
+  `12-optimistic-lock`; every other suite reads before it writes
+  (`support::if_match`, `harness.saveRecord`).
 - **The dashboard is scoped to the caller, and it is `/api/me/dashboard`.**
   The front page used to be built from four unscoped calls — two `/sys/tables`
   listings, `/sys/categories/with-entities` and `/me/permissions`. The first

@@ -395,8 +395,11 @@
         "deleted_by"
       ],
       "declaringOne": "Redundant, and it used to be fatal: the column reached CREATE TABLE twice and PostgreSQL refused the statement with `column \"created_at\" specified more than once`, so the generated application could not open its database. The generator now drops the model's definition and keeps its own; EML103 reports the line.",
+      "version": "The optimistic-lock counter. Every write that changes a row advances it, and every read returns it as an ETag (`\"v<n>\"`). An update names the version it was read at in `If-Match`; one made against a replaced version is refused with 409 `VERSION_CONFLICT`, carrying the record as it now stands, who changed it and when, the columns that differ and the record's status, and the screen offers to refresh or to overwrite. An update with no `If-Match` is 428 on an `optimistic` entity and accepted on a `last-write-wins` one. A record in a final state of its state machine is closed: every update is 409 `RECORD_FINAL`, the master role included.",
+      "concurrencyKey": "The entity's `concurrency` (`optimistic`, the default, or `last-write-wins`), compiled to `sys_table.concurrency_mode`. In CEDM it is `persistence.concurrency`.",
       "checkerCodes": {
-        "EML103": "A column the generator manages, declared in the model - the declaration is ignored."
+        "EML103": "A column the generator manages, declared in the model - the declaration is ignored.",
+        "EML158": "info - `concurrency: last-write-wins` on an entity whose state machine has final states; those records stay closed."
       }
     },
     "alsoDerived": [
@@ -465,6 +468,7 @@
       "EML152": "warning — an entity with no help text at all.",
       "EML153": "warning — columns with no help text, reported once per entity.",
       "EML155": "An index names a column its entity does not declare. The index is left out of the DDL, because a migration that cannot apply is worse than a missing index.",
+      "EML158": "info — an entity declared `concurrency: last-write-wins` whose state machine has final states. Records in a final state stay closed: a completed transaction refuses every update, whatever the entity's concurrency.",
       "EML500": "A state machine bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     "reportDesigns": {
@@ -1178,6 +1182,16 @@
         ],
         "purpose": "The sentence that explains the entity to whoever opens its screen, the icon that represents it, and the parent it is a line item of.",
         "iconNaming": "`icon` is a lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_table.icon, which is what the entity's dashboard card, its window heading and the navigation all draw. An administrator can override it afterwards in Table and Column, including by uploading an image - the same column holds both."
+      },
+      {
+        "key": "entities[].concurrency",
+        "status": "compiled",
+        "consumedBy": [
+          "packages/generator/src/model/compile-erd.ts -> sys_table.concurrency_mode",
+          "crates/appwithai-gen/src/model.rs",
+          "the generated backend's bus controller (If-Match, 428, 409 VERSION_CONFLICT)"
+        ],
+        "purpose": "Whether a save must name the version it was read at (`optimistic`, the default) or may overwrite without one (`last-write-wins`). A final state closes the record either way."
       },
       {
         "key": "entities[].label / prefix / softDelete / audited",

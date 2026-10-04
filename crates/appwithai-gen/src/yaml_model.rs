@@ -133,6 +133,8 @@ struct EntityDocument {
     help: Option<String>,
     icon: Option<String>,
     parent: Option<String>,
+    /// `optimistic` or `last-write-wins`; the schema holds it to the two.
+    concurrency: Option<String>,
     /// `label`, `prefix`, `softDelete`, `audited`: validated by the schema and
     /// carried by the language, compiled by neither application generator yet.
     #[allow(dead_code)]
@@ -461,6 +463,9 @@ fn document_to_records(document: Document) -> Result<ModelRecords> {
         }
         if let Some(icon) = entity.icon {
             erd.entity_icons.push((name.clone(), icon));
+        }
+        if let Some(mode) = entity.concurrency {
+            erd.entity_concurrency.push((name.clone(), mode));
         }
         if let Some(data) = entity.data {
             erd.entity_data.push((

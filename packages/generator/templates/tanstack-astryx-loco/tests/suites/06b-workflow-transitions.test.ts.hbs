@@ -220,8 +220,9 @@ describe("state machines", () => {
                 diverted = `${edgeKey(edge.from, edge.to)} (carried to ${at ?? "?"})`;
                 break;
               }
-              const response = await harness.client.patch(
-                `/bus/${entity.route}/${record.id}`,
+              const response = await harness.saveRecord(
+                entity.route,
+                String(record.id),
                 { [machine.statusField]: step.to },
                 { allowFailure: true }
               );
@@ -257,8 +258,9 @@ describe("state machines", () => {
               continue;
             }
 
-            const move = await harness.client.patch(
-              `/bus/${entity.route}/${record.id}`,
+            const move = await harness.saveRecord(
+              entity.route,
+              String(record.id),
               { [machine.statusField]: edge.to },
               { allowFailure: true }
             );
@@ -309,8 +311,9 @@ describe("state machines", () => {
           return;
         }
 
-        const response = await harness.client.patch(
-          `/bus/${entity.route}/${record.id}`,
+        const response = await harness.saveRecord(
+          entity.route,
+          String(record.id),
           { [machine.statusField]: target },
           { allowFailure: true }
         );
@@ -343,8 +346,9 @@ describe("state machines", () => {
         const target = settled === from ? illegal : settled ? illegalTargetFrom(machine, settled) : null;
         if (!settled || !target) return;
 
-        await harness.client.patch(
-          `/bus/${entity.route}/${record.id}`,
+        await harness.saveRecord(
+          entity.route,
+          String(record.id),
           { [machine.statusField]: target },
           { allowFailure: true }
         );

@@ -97,6 +97,7 @@ const SHARED_SUITES = [
   "09-workflow-multistep.test.ts",
   "10-benchmark.test.ts",
   "11-performance-budget.test.ts",
+  "12-optimistic-lock.test.ts",
 ];
 
 /** Root-level files. */

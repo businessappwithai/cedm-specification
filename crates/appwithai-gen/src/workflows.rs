@@ -230,6 +230,11 @@ pub fn build_transitions_seed_sql(options: &TransitionsSeedOptions<'_>) -> Strin
         "-- from-state would let any request reset a record to its starting status.".to_string(),
     );
 
+    // `sys_workflow_states` is wholly the model's — replaced, not topped up.
+    // See the TypeScript seed.
+    out.push(String::new());
+    out.push("DELETE FROM sys_workflow_states;".to_string());
+
     let rows: Vec<(&CompiledWorkflow, &WorkflowTransition)> = workflows
         .iter()
         .flat_map(|workflow| {
@@ -299,6 +304,51 @@ pub fn build_transitions_seed_sql(options: &TransitionsSeedOptions<'_>) -> Strin
                 ("created_at", now()),
             ],
         ));
+    }
+
+    // The states each machine declares, in its order, marking its initial and
+    // final ones — see the TypeScript seed.
+    let state_id = |parts: &[&str]| -> String {
+        let name = format!("{project_name}:state:{}", parts.join(":"));
+        Uuid::new_v5(&NAMESPACE, name.as_bytes()).to_string()
+    };
+    for workflow in workflows {
+        if workflow.transitions.is_empty() {
+            continue;
+        }
+        let status_field = status_field_for(&workflow.table_name, columns_by_table);
+        out.push(String::new());
+        out.push(format!("-- {}: states", workflow.name));
+        for (index, state) in workflow.states.iter().enumerate() {
+            let seq_no = i64::try_from((index + 1) * 10).unwrap_or(i64::MAX);
+            out.push(insert(
+                "sys_workflow_states",
+                &[
+                    (
+                        "sys_workflow_state_id",
+                        text(state_id(&[
+                            &workflow.table_name,
+                            &status_field,
+                            &state.name,
+                        ])),
+                    ),
+                    ("table_name", text(workflow.table_name.clone())),
+                    ("status_field", text(status_field.clone())),
+                    ("state", text(state.name.clone())),
+                    (
+                        "is_initial",
+                        Sql::Bool(workflow.initial.as_deref() == Some(state.name.as_str())),
+                    ),
+                    (
+                        "is_final",
+                        Sql::Bool(workflow.terminal.contains(&state.name)),
+                    ),
+                    ("seq_no", Sql::Int(seq_no)),
+                    ("is_active", Sql::Bool(true)),
+                    ("created_at", now()),
+                ],
+            ));
+        }
     }
 
     out.push(String::new());

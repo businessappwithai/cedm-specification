@@ -135,8 +135,9 @@ describe("randomised workflow chaos", () => {
               ? { [textField.name]: `chaos-${faker.string.alphanumeric(8)}` }
               : buildRecord(entity);
 
-            const response = await harness.client.patch(
-              `/bus/${entity.route}/${previous.id}`,
+            const response = await harness.saveRecord(
+              entity.route,
+              String(previous.id),
               payload,
               { allowFailure: true }
             );
