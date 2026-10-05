@@ -24,6 +24,37 @@ entity:
   - {name: employment, target: Employment, cardinality: '1', ownership: reference, help: {summary: Employment relationship governing the payroll result., businessMeaning: Supplies organizational and contractual employment context., usage: Eligibility and compensation interpretation., cardinalityMeaning: Exactly one applicable employment is required., workflowRole: Must overlap the payroll period.}}
   - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Settlement transactions paying the approved net obligation., businessMeaning: Separates payroll calculation from actual cash settlement., usage: Reconciliation and audit., cardinalityMeaning: Zero or many payments support partial/retry/reversal patterns., workflowRole: PAID requires reconciled settlement.}}
   - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries generated from approved payroll., businessMeaning: Records ledger consequences separately from calculation., usage: Financial accounting and reconciliation., cardinalityMeaning: Zero or many controlled entries may exist., workflowRole: POSTED requires balanced attributable accounting evidence.}}
+  - name: compensationTerms
+    target: Compensation
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Effective compensation terms consumed or reconciled by this Payroll result.
+      businessMeaning: Preserves the remuneration basis used for calculation without copying mutable HR policy into payroll history.
+      usage: Payroll calculation audit, reconciliation and dispute analysis.
+      cardinalityMeaning: Zero or many terms may apply when a payroll period crosses an effective-date change.
+      workflowRole: Only compensation effective for the covered period may contribute to calculation.
+  - name: attendanceRecords
+    target: Attendance
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Approved attendance evidence consumed by this Payroll result.
+      businessMeaning: Connects financial calculation to actual work or absence facts.
+      usage: Payroll calculation, overtime, absence treatment and audit.
+      cardinalityMeaning: Zero or many attendance records may contribute to the period.
+      workflowRole: Payroll processing must preserve which approved evidence was consumed.
+  - name: leaveRequests
+    target: LeaveRequest
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Approved leave authorizations relevant to this Payroll result.
+      businessMeaning: Provides policy authorization for paid or unpaid absence treatment.
+      usage: Payroll calculation, reconciliation and audit.
+      cardinalityMeaning: Zero or many leave requests may affect a payroll period.
+      workflowRole: Leave effects must reconcile with actual attendance evidence and applicable policy.
+
   invariants:
   - {id: PAYROLL-001, rule: periodStart must not be after periodEnd and employment must be eligible for the applicable period.}
   - {id: PAYROLL-002, rule: "grossAmount and netAmount must be reproducible from governed earning, deduction, attendance, leave, compensation, and statutory inputs applicable to the period."}
