@@ -136,6 +136,17 @@ entity:
       usage: Used for financial reporting, asset valuation, period close, disposal accounting, and book-value analysis.
       cardinalityMeaning: An asset can have zero or many depreciation records because schedules may be period-based, revised, or maintained for different accounting contexts.
       context: AssetDepreciation represents financial measurement of the asset and must not be confused with physical condition or market value.
+  - name: meters
+    target: Meter
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Measuring points associated with this Asset.
+      businessMeaning: Connects durable asset identity to usage and condition measurement without embedding reading history in Asset.
+      usage: Preventive maintenance, condition monitoring, reliability, utilization and audit.
+      cardinalityMeaning: An Asset may have zero or many meters over its lifecycle.
+      workflowRole: Asset lifecycle constrains future meter use while historical readings and decisions remain attributable.
+
   invariants:
   - id: ASSET-001
     rule: assetNumber must be unique among active managed assets.
