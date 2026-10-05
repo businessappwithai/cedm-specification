@@ -98,6 +98,57 @@ Shots `chat-03` and `chat-05` were taken before the theme-selector fix.
 - The chat sidebar's session titles read "I could not find that." That is the
   scripted model's text, not a defect.
 
+## 2a. Working through the chat: list, search, create, read, update, approve, delete, report
+
+`chat-deepseek/tests/e2e/walkthrough.ts` drives one person through every
+operation in Chromium, against the same stack, and screenshots each step into
+`screenshots/2026-10-04-chat-crud/`. As above, only the model's choice of tool
+and its words are scripted. Its replies are built from what the real tools
+returned.
+
+| # | Step | What happens |
+|---:|---|---|
+| 01 | List the accounts | `search_records`: five accounts with status, type and industry |
+| 02 | Which are in technology? | `search_records` with a filter on industry |
+| 03 | Open Account 4 | `open_record`: the application's read view inside the conversation |
+| 04–06 | Create an account | `open_create_form`; the person fills the application's form and presses Create; the gateway reads the record back before the `[Application]` notice reaches the conversation |
+| 07 | What does it look like? | `get_record_summary` on the new record |
+| 08–10 | Update it | `open_update_form`; phone, headcount and status changed and saved under optimistic locking, then confirmed |
+| 11–12 | Move Opportunity 1 to Qualification | `request_approval` opens the stage bar with **Qualify** preselected; the person presses it; the notice reports the new status |
+| 13–14 | Delete the account | the application asks for confirmation, naming the record, and the delete is confirmed by the gateway's read returning 404 |
+| 15 | Search again | the account is gone |
+| 16 | Accounts by status | `search_reports` then `run_approved_report`: a paged card under the report's own headers |
+| — | CSV | the card's download returned `Status,Records / active,2 / on_hold,2 / churned,1` |
+| 17–19 | Chart and report page | the platform's chart and its report page, embedded, with no second sign-in |
+| 20 | Activities register | a second report in the same conversation |
+
+The run leaves no data behind: the account it creates is deleted in step 14,
+and Opportunity 1 is put back at its starting stage afterwards.
+
+### Found by the walkthrough, and fixed
+
+| What the screen showed | Cause | Fix |
+|---|---|---|
+| **Delete removed the record on the first click**, with no confirmation, in the chat and in the application alike | The detail screen's toolbar called the delete mutation directly | `ad-detail-shell.tsx` now asks first through the existing `DeleteConfirmDialog`, naming the record |
+| **The report card's CSV was three empty lines** while the card showed rows | The seeder stored the pack's columns as `{field, label}`. The platform's `ColumnDefinition` is `{id, field, header, visible, …}`, and its export keeps only visible columns, with no fallback. | Both seeders (Rust and the Node twin) write `ColumnDefinition`s. Both exports fall back to the result's columns when none is visible, as the viewer already did. There is a Rust test for the fallback. |
+| The report page headed its columns `Bucket` and `Records` rather than the pack's `Status` | The same column shape: the viewer ignored the unreadable config | Same fix |
+| The card in the conversation headed its columns `bucket` and `records` | The gateway took column names from the first row's keys | The gateway reads the report's visible columns and sends them with every page; the model gets the same headers |
+| **Chart and report page** opened no chart | The gateway's chart lookup asked for page 1 of a list that counts from 0, so it skipped the first 100 charts (all 84 here). The card also had nowhere to put a chart. | The lookup pages from 0. The chart viewer is embeddable under `?embed=1` (`EMBEDDABLE`, chromeless, with no Share or Configure), and the card shows it above the report page. The embed tests cover the new route. |
+| "Opportunity Opportunity 1 moved" | The notice prefixed the record's kind even when its label already began with it | The prefix is dropped in that case, as in the conflict dialog |
+
+### Not fixed here
+
+- **Enum values show raw** (`on_hold`, `former customer`) in the application's
+  read views, in the search results the model receives, and in report rows.
+  The pre-existing defect noted above, now visible in three places.
+- The round badge at the bottom right of every embedded screen is TanStack
+  Query's devtools button: this front end runs under `vite dev`. A production
+  build does not include it.
+
+The chat's two new files (`README.md`, `tests/e2e/walkthrough.ts`) take the
+CRM from 576 to 578 generated files. The website's figures and
+`website-e2e.mjs` were updated with them.
+
 ## 3. Security gates, against the live stack
 
 | Suite | Result |
