@@ -231,6 +231,17 @@ entity:
   - {name: attributes, target: ProductAttribute, cardinality: "0..*", ownership: reference, help: {summary: Governed characteristic definitions applicable to Product., businessMeaning: Defines descriptive/configuration semantics., usage: "PIM, search and variant configuration.", cardinalityMeaning: Zero or many attributes., workflowRole: Variant-defining attributes constrain ProductVariant uniqueness.}}
   - {name: packagingConfigurations, target: Packaging, cardinality: "0..*", ownership: aggregate, help: {summary: Governed pack configurations for Product., businessMeaning: Defines quantity/containment options for commercial and logistics use., usage: "Procurement, sales, WMS and shipping.", cardinalityMeaning: Zero or many configurations., workflowRole: Conversion changes require open-work impact analysis.}}
   - {name: lifecycleHistory, target: ProductLifecycle, cardinality: 0..*, ownership: aggregate, help: {summary: Effective-dated lifecycle transition history., businessMeaning: Preserves why/when Product eligibility changed., usage: Governance and audit., cardinalityMeaning: Zero or many lifecycle events., workflowRole: Current status must reconcile to effective history.}}
+  - name: inventoryItems
+    target: InventoryItem
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Inventory-control profiles governing this Product.
+      businessMeaning: Keeps reusable product identity separate from organization-specific stocking policy.
+      usage: Inventory setup, warehouse operations, replenishment, manufacturing and reporting.
+      cardinalityMeaning: A Product may participate in zero or many InventoryItem profiles.
+      workflowRole: Product lifecycle changes require validation of active inventory profiles without rewriting historical stock evidence.
+
   invariants:
   - id: PRODUCT-001
     rule: code must be unique within its ERP context.
