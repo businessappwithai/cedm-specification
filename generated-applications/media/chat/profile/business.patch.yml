@@ -1,0 +1,284 @@
+# The business chat's composition: the shipped Web surface (`dsh-base` +
+# `dsh-web-app`) narrowed to a person talking to one application.
+#
+# Passed to every host as `--patch`, after the bundle, profile and home layers,
+# so it is the last word and nothing a profile on disk holds can widen it.
+# Our plugins are packages of this workspace (`plugins/*`), resolved by name.
+#
+# Three things happen here, in order:
+#
+# 1. Every row that gives the agent, or the browser, a way off the business
+#    surface is disabled: shells and subprocesses, the sandbox, terminals,
+#    workspace files and uploads, web fetch and search, MCP, programmatic tool
+#    calling (it runs model-written code), sub-agents and workflows, the plugin
+#    manager, the configuration editor and every settings screen that writes the
+#    composition, other model providers and account sign-in, and telemetry that
+#    leaves the machine. The gateway proxies this host's whole HTTP surface to
+#    the person, so a Host API left mounted is an API the person can call.
+# 2. The four shipped agent presets are disabled and one is inserted: the
+#    `business` preset, whose only tools are the application's (`business-tools`)
+#    and `skill`, which reads the skills written for it.
+# 3. The model is fixed: DeepSeek, by the key in the host's environment.
+#
+# `tests/composition/check-composition.ts` composes this file over the shipped
+# bundles and fails on any enabled row outside its allowlist, and boots a host
+# to confirm the agent's tool catalog is exactly the business tools plus `skill`.
+
+# ── 1. Off the business surface ──────────────────────────────────────────────
+
+# Package management, live reconfiguration and the editors that write the profile.
+- id: plugin-manager
+  disabled: true
+- id: tool-plugin-manager
+  disabled: true
+- id: hmr
+  disabled: true
+# `settings`, `settings-controller` and `config-editor` stay: the client reads
+# its display preferences through them (`ui-chat`'s transcript mode, below),
+# and the settings service will not start without the editor that persists it.
+# Every write method is refused by the gateway for every caller
+# (`REMOTE_ALLOWLIST.settings` in gateway/proxy.ts) and the editor has no Remote
+# namespace of its own, so the person can read what is configured and change
+# nothing.
+- id: permission
+  disabled: true
+
+# Processes, shells and the sandbox they run in.
+- id: subprocess
+  disabled: true
+- id: sandbox
+  disabled: true
+- id: bash-sandbox
+  disabled: true
+- id: pwsh-sandbox
+  disabled: true
+- id: shell-env
+  disabled: true
+- id: jobs
+  disabled: true
+- id: ptc-runtime
+  disabled: true
+
+# The web and external tool servers.
+- id: web
+  disabled: true
+- id: web-search-deepseek
+  disabled: true
+- id: web-fetch-http
+  disabled: true
+- id: mcp-resources
+  disabled: true
+
+# Delegation and long-running goals.
+- id: subagent
+  disabled: true
+- id: subagent-spawn-in-process
+  disabled: true
+- id: subagent-fork-in-process
+  disabled: true
+- id: subagent-model-selection-settings
+  disabled: true
+- id: goal
+  disabled: true
+- id: goal-round-driver
+  disabled: true
+
+# Other model routes and account sign-in: the deployment's key is the only route.
+- id: llm-pi-ai
+  disabled: true
+- id: deepseek-account
+  disabled: true
+- id: llm-deepseek-account
+  disabled: true
+- id: account-controller
+  disabled: true
+- id: ui-settings-account
+  disabled: true
+
+# Telemetry and feedback that leave the machine.
+- id: otel
+  disabled: true
+- id: session-telemetry-otel
+  disabled: true
+- id: message-feedback
+  disabled: true
+- id: ui-message-feedback
+  disabled: true
+
+# Host APIs over the machine: terminals, workspace files, the workspace, jobs,
+# opening native applications, picking directories, the Cordis runners.
+# `fs`, `sandbox-policy`, `attachment-local` and `file-upload` stay: the session
+# API will not start without them, and they serve message attachments, not the
+# machine — no agent tool reads a file and no browser API browses one.
+- id: terminal-controller
+  disabled: true
+- id: workspace-files
+  disabled: true
+# The chat's own session folders. Its documents directory is the person's host
+# home, so the first-use workspace is created there; the gateway refuses the
+# methods that would name any other directory (`workspace.create`,
+# `directoryPicker.*`).
+- id: workspace-controller
+  config:
+    documentsDirectory: !!js process.env.CHAT_DOCUMENTS_DIR
+- id: workspace-changes
+  disabled: true
+- id: job-controller
+  disabled: true
+- id: file-reference-local
+  disabled: true
+- id: open-in-app
+  disabled: true
+- id: ui-open-in-app
+  disabled: true
+- id: directory-picker
+  disabled: true
+- id: plugin-inventory
+  disabled: true
+- id: cordis-host-runner
+  disabled: true
+- id: cordis-inspect-providers
+  disabled: true
+- id: cordis-client-runner
+  disabled: true
+- id: office-to-pdf
+  disabled: true
+
+# The screens for what is switched off above.
+- id: ui-sidebar-terminal
+  disabled: true
+- id: ui-sidebar-files
+  disabled: true
+- id: ui-sidebar-browser
+  disabled: true
+- id: ui-sidebar-documentpreview
+  disabled: true
+- id: ui-jobs
+  disabled: true
+- id: ui-cordis
+  disabled: true
+- id: ui-subagent
+  disabled: true
+- id: ui-goal
+  disabled: true
+- id: ui-plan
+  disabled: true
+- id: ui-plugin-manager
+  disabled: true
+- id: ui-settings-plugin-inventory
+  disabled: true
+- id: ui-settings-plugins
+  disabled: true
+- id: ui-settings-shell
+  disabled: true
+- id: ui-settings-subagent
+  disabled: true
+- id: ui-settings-web-search
+  disabled: true
+- id: ui-settings-models
+  disabled: true
+- id: ui-settings-agent-loop
+  disabled: true
+- id: ui-model-selection
+  disabled: true
+- id: ui-permission
+  disabled: true
+- id: ui-agent-preset
+  disabled: true
+- id: ui-trajectory
+  disabled: true
+- id: ui-deliverables
+  disabled: true
+- id: ui-settings-session-log
+  disabled: true
+
+# ── 2. One agent preset ──────────────────────────────────────────────────────
+
+- id: agent-preset-registry
+  config:
+    default: business
+- id: preset-standard
+  disabled: true
+- id: preset-ptc
+  disabled: true
+- id: preset-minimal
+  disabled: true
+- id: preset-cordis
+  disabled: true
+
+- insert:
+    - id: preset-business
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: business
+        order: 1
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: >-
+                You are the business assistant for this application, working for the person
+                signed in to this chat. You act only through your tools, and only ever as that
+                person: you can find and read what they are allowed to see, run the reports they
+                are allowed to run, and open the application's own screens for them to create,
+                change and approve records in. You never change a record yourself.
+              complete: true
+              includeRuntimeContext: false
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+            config:
+              includeDefaultRoots: false
+              customSkillDirs: !!js "[process.env.CHAT_SKILLS_DIR].filter(Boolean)"
+              watch: false
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: business-tools
+            name: '@appwithai/chat-business-tools'
+
+# The cards that render the business tools' results in the conversation: the
+# application's own screens and the reports. A top-level row, because a row is
+# what puts a package's browser half (`dsh.client`) into the Web client.
+- insert:
+    - id: business-nodes
+      name: '@appwithai/chat-business-nodes'
+
+# ── 3. The model ─────────────────────────────────────────────────────────────
+
+- id: agent-default-model
+  config:
+    provider: deepseek-official
+    model: !!js "process.env.CHAT_DEEPSEEK_MODEL || 'deepseek-flash'"
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You are the business assistant for this application.
+    personaSuffix: ''
+
+# Finished turns stay unfolded. Harness folds a completed turn's steps under
+# "Completed in 1s" in every mode but `verbose`, and in this chat the steps are
+# the application's own screens: a form folded away is a form the person was
+# told is open and cannot see. Fixed here because the person's own patch layer
+# is reset on every host start (gateway/hosts.ts).
+- id: ui-chat
+  config:
+    transcriptView: verbose

@@ -155,6 +155,11 @@ say "6/7  Configuration"
 #                          Its bootstrap refuses anything under eight
 #                          characters and would otherwise generate one and
 #                          print it once, into a log nobody reads.
+#   CHAT_AUTH_SECRET       the chat's Better Auth sessions
+#   SSO_SIGNING_KEY        the chat's Ed25519 key for signing people in to the
+#   SSO_PUBLIC_KEY         reporting platform, and its public half, which the
+#                          platform verifies with. Written as a pair, one PEM
+#                          per line with \n escapes, because .env holds lines.
 gen() { head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n'; }
 genpw() { head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n'; }
 if [[ ! -f "$ENV_FILE" ]]; then
@@ -169,7 +174,7 @@ else
 fi
 # Everything below the derived marker is rewritten; secrets go above it.
 sed -i.bak '/^# --- derived/,$d' "$ENV_FILE" && rm -f "${ENV_FILE}.bak"
-for key in AUTH_SECRET ENCRYPTION_KEY JWT_SECRET REPORT_ADMIN_PASSWORD; do
+for key in AUTH_SECRET ENCRYPTION_KEY JWT_SECRET REPORT_ADMIN_PASSWORD CHAT_AUTH_SECRET; do
   if ! grep -q "^${key}=" "$ENV_FILE"; then
     if [[ "$key" == "REPORT_ADMIN_PASSWORD" ]]; then
       echo "${key}=$(genpw)" >> "$ENV_FILE"
@@ -179,6 +184,20 @@ for key in AUTH_SECRET ENCRYPTION_KEY JWT_SECRET REPORT_ADMIN_PASSWORD; do
     echo "  added ${key}"
   fi
 done
+
+# The pair is generated together or not at all: a new private key beside an old
+# public one makes every reporting sign-in fail as a bad signature.
+if ! grep -q "^SSO_SIGNING_KEY=" "$ENV_FILE" || ! grep -q "^SSO_PUBLIC_KEY=" "$ENV_FILE"; then
+  sed -i.bak '/^SSO_SIGNING_KEY=/d; /^SSO_PUBLIC_KEY=/d' "$ENV_FILE" && rm -f "${ENV_FILE}.bak"
+  bun -e '
+    const { generateKeyPairSync } = require("node:crypto");
+    const { privateKey, publicKey } = generateKeyPairSync("ed25519");
+    const line = (pem) => pem.trim().replaceAll("\n", "\\n");
+    console.log(`SSO_SIGNING_KEY="${line(privateKey.export({ type: "pkcs8", format: "pem" }))}"`);
+    console.log(`SSO_PUBLIC_KEY="${line(publicKey.export({ type: "spki", format: "pem" }))}"`);
+  ' >> "$ENV_FILE"
+  echo "  added SSO_SIGNING_KEY and SSO_PUBLIC_KEY"
+fi
 
 # Everything derived from this run is rewritten every time.
 {
@@ -218,6 +237,8 @@ cat <<EOF
     ${ORIGIN}/app        the application
     ${ORIGIN}/report     the reports and charts derived from its model
     ${ORIGIN}/accounts   the accounts for both, one pair per role
+    ${ORIGIN}/chat       the chat: sign in once with an application account,
+                         and it opens both applications inside the conversation
 
   These are two systems: separate databases, separate user tables, separate
   sign-ins. A role name means "what you may do to a record" in the application
@@ -240,3 +261,11 @@ cat <<EOF
 
   Stop with ./stop.sh, or ./stop.sh --volumes to discard the databases too.
 EOF
+if [[ -z "${DEEPSEEK_API_KEY:-}" ]]; then
+  cat <<EOF
+
+  DEEPSEEK_API_KEY is not set, so the chat signs people in and opens screens
+  but cannot answer. Export it and run ./start.sh again to give it a model;
+  nothing else here uses it.
+EOF
+fi

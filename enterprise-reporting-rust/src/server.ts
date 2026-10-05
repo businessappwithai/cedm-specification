@@ -7,12 +7,15 @@ import { initGraph } from "@/lib/graph/graph-init";
 import { syncKnowledgeGraph } from "@/lib/graph/sync";
 import { rustApiUrl, withoutBase } from "@/lib/api/backend";
 import { isRustRoute } from "@/lib/api/rust-routes";
+import { isEmbeddableRequest } from "@/lib/embed/embed";
 
 // Persistent config store will be imported and initialized on first use
 
+const CONTENT_SECURITY_POLICY =
+  "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' ws: wss: http://localhost:4050 http://localhost:8080 http://localhost:8081 http://localhost:8083 http://localhost:4111 https://api.cloud.copilotkit.ai https://cdn.copilotkit.ai https://telemetry.copilotkit.ai; worker-src 'self' blob:; frame-ancestors 'none';";
+
 const SECURITY_HEADERS: Record<string, string> = {
-  "Content-Security-Policy":
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' ws: wss: http://localhost:4050 http://localhost:8080 http://localhost:8081 http://localhost:8083 http://localhost:4111 https://api.cloud.copilotkit.ai https://cdn.copilotkit.ai https://telemetry.copilotkit.ai; worker-src 'self' blob:; frame-ancestors 'none';",
+  "Content-Security-Policy": CONTENT_SECURITY_POLICY,
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
@@ -97,6 +100,16 @@ const fetch: RequestHandler<Register> = async (request, opts) => {
   const headers = new Headers(response.headers);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value);
+  }
+  // The one exception to "never framed": a page the chat opens beside the
+  // application, on this origin only (`src/lib/embed/embed.ts`).
+  const requested = new URL(request.url);
+  if (isEmbeddableRequest(withoutBase(requested.pathname), requested.search)) {
+    headers.set(
+      "Content-Security-Policy",
+      CONTENT_SECURITY_POLICY.replace("frame-ancestors 'none'", "frame-ancestors 'self'")
+    );
+    headers.set("X-Frame-Options", "SAMEORIGIN");
   }
 
   return new Response(response.body, {

@@ -1,0 +1,5 @@
+# Installs, and what a running gateway writes: one Harness home per person
+# (sessions, logs) under .data/, and the local configuration with its secrets.
+node_modules/
+.data/
+.env

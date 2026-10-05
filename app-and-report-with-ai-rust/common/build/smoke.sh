@@ -102,6 +102,20 @@ else
 fi
 
 echo
+echo "The chat"
+probe "$ORIGIN/chat/_/health" 200 application/json "/chat/_/health (gateway)"
+# Signed out, the chat is its own sign-in page — not the application's, and not
+# a 502 from a gateway that never came up.
+chat_page=$(curl -sL -o /dev/null -w '%{url_effective}' --max-time 30 "$ORIGIN/chat/" 2>/dev/null)
+if [[ "$chat_page" == "$ORIGIN/chat/_/sign-in" ]]; then
+  printf '  ok    %-46s %s\n' "/chat/ signed out opens its sign-in" "$chat_page"
+else
+  printf '  FAIL  %-46s %s  (wanted %s)\n' "/chat/ signed out opens its sign-in" "${chat_page:-nothing}" "$ORIGIN/chat/_/sign-in"
+  FAILED=$((FAILED + 1))
+fi
+probe "$ORIGIN/chat/" 200 text/html "/chat/ (redirect followed)"
+
+echo
 if [[ $FAILED -gt 0 ]]; then
   echo "${FAILED} check(s) failed."
   exit 1

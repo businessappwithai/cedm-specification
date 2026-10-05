@@ -16,9 +16,51 @@ import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Who may frame these pages: this origin, and nobody else.
+ *
+ * The chat generated beside this application (`/chat`, same origin behind the
+ * reverse proxy) opens its screens in a frame, so `'none'` would break it; and
+ * no header at all would let any site frame a signed-in screen and click it for
+ * the person. The API answers with its own `frame-ancestors 'none'`
+ * (`backend/config/production.yaml`): data is never a page to frame.
+ */
+const PAGE_HEADERS = {
+  "Content-Security-Policy": "frame-ancestors 'self'",
+  "X-Content-Type-Options": "nosniff",
+};
+
+/**
+ * Set `PAGE_HEADERS` on every response, rendered pages included.
+ *
+ * Vite's own `server.headers` does not reach them: TanStack Start answers a
+ * page from its own middleware, and only the files Vite serves itself carried
+ * the header — which is to say every page could still be framed by anyone.
+ * Set first, on the response object, so whatever answers afterwards keeps it.
+ */
+function pageHeaders(): Plugin {
+  const apply = (
+    _req: unknown,
+    res: { setHeader(name: string, value: string): void },
+    next: () => void
+  ) => {
+    for (const [name, value] of Object.entries(PAGE_HEADERS)) res.setHeader(name, value);
+    next();
+  };
+  return {
+    name: "page-headers",
+    configureServer(server) {
+      server.middlewares.use(apply);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(apply);
+    },
+  };
+}
 
 export default defineConfig({
   server: {
@@ -95,6 +137,7 @@ export default defineConfig({
   },
 
   plugins: [
+    pageHeaders(),
     // Tailwind v4 runs as a Vite plugin, not a PostCSS step. It is still here
     // during the Astryx migration because `components/admin/*` has not been
     // ported off utility classes yet — Phase C removes it.

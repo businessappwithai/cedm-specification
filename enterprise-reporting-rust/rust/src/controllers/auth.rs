@@ -3,6 +3,11 @@
 //! (`src/routes/api/auth/permissions.ts`), and `/api/auth/session`, the REST
 //! twin of the `getSessionFn` server functions.
 //!
+//! `/api/auth/assertion` has no Node twin: it is how the chat generated beside
+//! an application signs its user in here without a second password (see
+//! `auth::assertion`). It is Rust's alone, and off unless `SSO_PUBLIC_KEY` is
+//! set.
+//!
 //! Every other path under `/api/auth` (sign-up, password reset, OAuth, …)
 //! stays on Node: `routes.json` names only these, so the proxy sends nothing
 //! else here.
@@ -31,6 +36,7 @@ use sqlx::Row;
 
 use crate::{
     auth::{
+        assertion,
         better_auth::{self as ba, AuthError},
         session::{read_session_cookie, verify_signed_token},
         CurrentSession,
@@ -523,10 +529,316 @@ async fn permissions(
     ))
 }
 
+// ── Sign-in by assertion ─────────────────────────────────────────────────────
+
+/// The provider id that marks an account as one the chat gateway vouches for.
+const ASSERTION_PROVIDER: &str = "appwithai-chat";
+
+/// The configured verification key, or why there is none.
+fn assertion_key() -> std::result::Result<[u8; 32], String> {
+    let pem = std::env::var("SSO_PUBLIC_KEY").map_err(|_| "SSO_PUBLIC_KEY is not set".to_string())?;
+    assertion::public_key_from_pem(&pem)
+}
+
+/// Who an accepted assertion signs in, and whether this platform manages that
+/// account's roles from the assertion.
+struct AssertedUser {
+    id: String,
+    federated: bool,
+}
+
+/// Find the account an assertion names, linking or creating it.
+///
+/// - An account this endpoint created before is found by its federated
+///   identity, and its roles follow the assertion on every sign-in — a role
+///   removed in the application is removed here on the next one.
+/// - An account that already exists here under that address (the bootstrap
+///   administrator, an account an administrator created) is linked and signed
+///   in; its roles are this platform's to manage, so the assertion does not
+///   touch them.
+/// - Otherwise the account is created, with no password: the only way in is
+///   another assertion.
+async fn resolve_asserted_user(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    a: &assertion::Assertion,
+) -> std::result::Result<AssertedUser, sqlx::Error> {
+    if let Some(id) = sqlx::query_scalar::<_, String>(
+        "SELECT user_id FROM auth_accounts WHERE provider_id = $1 AND account_id = $2 LIMIT 1",
+    )
+    .bind(ASSERTION_PROVIDER)
+    .bind(&a.sub)
+    .fetch_optional(&mut **tx)
+    .await?
+    {
+        let federated = !sqlx::query_scalar::<_, bool>(
+            "SELECT EXISTS (SELECT 1 FROM auth_accounts WHERE user_id = $1 AND provider_id = 'credential')",
+        )
+        .bind(&id)
+        .fetch_one(&mut **tx)
+        .await?;
+        return Ok(AssertedUser { id, federated });
+    }
+
+    let link = |id: String| {
+        sqlx::query(
+            "INSERT INTO auth_accounts (id, user_id, account_id, provider_id, created_at, updated_at) \
+             VALUES (LEFT($3 || '_' || $1, 255), $1, $2, $3, NOW(), NOW()) ON CONFLICT (id) DO NOTHING",
+        )
+        .bind(id)
+        .bind(a.sub.clone())
+        .bind(ASSERTION_PROVIDER)
+    };
+
+    if let Some(id) = sqlx::query_scalar::<_, String>("SELECT id FROM users WHERE email = $1 LIMIT 1")
+        .bind(&a.sub)
+        .fetch_optional(&mut **tx)
+        .await?
+    {
+        link(id.clone()).execute(&mut **tx).await?;
+        let federated = !sqlx::query_scalar::<_, bool>(
+            "SELECT EXISTS (SELECT 1 FROM auth_accounts WHERE user_id = $1 AND provider_id = 'credential')",
+        )
+        .bind(&id)
+        .fetch_one(&mut **tx)
+        .await?;
+        return Ok(AssertedUser { id, federated });
+    }
+
+    let id = uuid::Uuid::new_v4().simple().to_string();
+    let now = crate::bootstrap::stamp();
+    let name = if a.name.trim().is_empty() {
+        a.sub.clone()
+    } else {
+        a.name.trim().to_string()
+    };
+    // `password_hash` is NOT NULL and read by nothing that signs anyone in
+    // (Better Auth reads `auth_accounts.password`); `!` is no bcrypt hash, so
+    // even a reader of the legacy column cannot match it.
+    sqlx::query(
+        "INSERT INTO users (id, email, password_hash, display_name, avatar_url, is_active, created_at, updated_at) \
+         VALUES ($1, $2, '!', $3, NULL, TRUE, $4, $4)",
+    )
+    .bind(&id)
+    .bind(&a.sub)
+    .bind(&name)
+    .bind(&now)
+    .execute(&mut **tx)
+    .await?;
+    link(id.clone()).execute(&mut **tx).await?;
+    Ok(AssertedUser { id, federated: true })
+}
+
+/// Make a federated account's roles exactly the ones the assertion names.
+///
+/// The application's roles and this platform's are matched by name, folded
+/// (`Sales Manager` = `sales_manager`): the reporting pack creates one role
+/// per application role, in both the system layer (`roles`) and every data
+/// source it attached (`ds_roles`). The application's master role is this
+/// platform's administrator. A role the pack never created matches nothing,
+/// which leaves the account able to sign in and read nothing.
+async fn sync_asserted_roles(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    user_id: &str,
+    a: &assertion::Assertion,
+) -> std::result::Result<(), sqlx::Error> {
+    let wanted: std::collections::HashSet<String> = a
+        .roles
+        .iter()
+        .map(|r| assertion::fold_role(r))
+        .filter(|r| !r.is_empty())
+        .collect();
+    let now = crate::bootstrap::stamp();
+
+    let roles: Vec<(String, String)> = sqlx::query_as("SELECT id, name FROM roles")
+        .fetch_all(&mut **tx)
+        .await?;
+    let mut system: Vec<String> = roles
+        .into_iter()
+        .filter(|(_, name)| wanted.contains(&assertion::fold_role(name)))
+        .map(|(id, _)| id)
+        .collect();
+    if a.master {
+        system.push(crate::bootstrap::ADMIN_ROLE_ID.to_string());
+    }
+    sqlx::query("DELETE FROM user_roles WHERE user_id = $1 AND NOT (role_id = ANY($2))")
+        .bind(user_id)
+        .bind(&system)
+        .execute(&mut **tx)
+        .await?;
+    for role_id in &system {
+        sqlx::query("INSERT INTO user_roles (user_id, role_id, assigned_at) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING")
+            .bind(user_id)
+            .bind(role_id)
+            .bind(&now)
+            .execute(&mut **tx)
+            .await?;
+    }
+
+    let ds_roles: Vec<(String, String, String)> =
+        sqlx::query_as("SELECT id, data_source_id, name FROM ds_roles WHERE is_active IS NOT FALSE")
+            .fetch_all(&mut **tx)
+            .await?;
+    let data_roles: Vec<(String, String)> = ds_roles
+        .into_iter()
+        .filter(|(_, _, name)| wanted.contains(&assertion::fold_role(name)))
+        .map(|(id, ds, _)| (id, ds))
+        .collect();
+    let keep: Vec<String> = data_roles.iter().map(|(id, _)| id.clone()).collect();
+    sqlx::query("DELETE FROM ds_user_roles WHERE user_id = $1 AND NOT (ds_role_id = ANY($2))")
+        .bind(user_id)
+        .bind(&keep)
+        .execute(&mut **tx)
+        .await?;
+    for (role_id, ds_id) in &data_roles {
+        sqlx::query(
+            "INSERT INTO ds_user_roles (data_source_id, user_id, ds_role_id, assigned_at) VALUES ($1, $2, $3, $4) \
+             ON CONFLICT DO NOTHING",
+        )
+        .bind(ds_id)
+        .bind(user_id)
+        .bind(role_id)
+        .bind(&now)
+        .execute(&mut **tx)
+        .await?;
+    }
+    Ok(())
+}
+
+/// `POST /api/auth/assertion`: open a session for the person the chat gateway
+/// vouches for.
+///
+/// This is a server-to-server call — the gateway makes it while the person
+/// signs in to the chat, and relays the `Set-Cookie` to their browser — so it
+/// carries no browser origin to check. What authenticates it is the signature,
+/// and what stops a captured assertion being used twice is `auth_assertions`:
+/// its id is recorded in the same transaction that signs the person in, so
+/// two concurrent uses cannot both succeed. Every refusal is the same 401,
+/// with the reason in the log rather than the body.
+///
+/// Without `SSO_PUBLIC_KEY` the endpoint is off (503): an installation that
+/// never configured the chat accepts no assertion from anyone.
+async fn sign_in_with_assertion(
+    State(ctx): State<AppContext>,
+    headers: HeaderMap,
+    bytes: Bytes,
+) -> Result<Response> {
+    let refused = || {
+        refuse(&AuthError::new(
+            401,
+            "INVALID_ASSERTION",
+            "The sign-in assertion was not accepted",
+        ))
+    };
+    let key = match assertion_key() {
+        Ok(k) => k,
+        Err(why) => {
+            tracing::warn!("assertion sign-in is off: {why}");
+            return Ok(refuse(&AuthError::new(
+                503,
+                "ASSERTION_SIGN_IN_DISABLED",
+                "Sign-in by assertion is not configured",
+            )));
+        }
+    };
+    let body = match read_body(&headers, &bytes, &["application/json"]) {
+        Ok(b) => b,
+        Err(e) => return Ok(refuse(&e)),
+    };
+    let Some(token) = body.get("assertion").and_then(Value::as_str) else {
+        return Ok(refuse(&AuthError::new(
+            400,
+            "VALIDATION_ERROR",
+            "assertion is required",
+        )));
+    };
+    let a = match assertion::verify(token, &key, chrono::Utc::now().timestamp()) {
+        Ok(a) => a,
+        Err(assertion::Refusal(why)) => {
+            tracing::warn!("assertion refused: {why}");
+            return Ok(refused());
+        }
+    };
+    let Ok(secret) = settings::auth_secret() else {
+        return Ok(refuse(&AuthError::new(
+            500,
+            "INTERNAL_SERVER_ERROR",
+            "Internal Server Error",
+        )));
+    };
+
+    let db = pool(&ctx);
+    let mut tx = db.begin().await.map_err(|e| Error::string(&e.to_string()))?;
+    // Assertions live a minute; a day's grace keeps the table small without
+    // ever forgetting an id that could still be presented.
+    sqlx::query("DELETE FROM auth_assertions WHERE expires_at < NOW() - INTERVAL '1 day'")
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| Error::string(&e.to_string()))?;
+    let first_use = sqlx::query(
+        "INSERT INTO auth_assertions (jti, subject, expires_at) VALUES ($1, $2, to_timestamp($3)) \
+         ON CONFLICT (jti) DO NOTHING",
+    )
+    .bind(&a.jti)
+    .bind(&a.sub)
+    .bind(a.exp as f64)
+    .execute(&mut *tx)
+    .await
+    .map_err(|e| Error::string(&e.to_string()))?
+    .rows_affected()
+        == 1;
+    if !first_use {
+        tracing::warn!("assertion refused: jti already used");
+        return Ok(refused());
+    }
+
+    let user = resolve_asserted_user(&mut tx, &a)
+        .await
+        .map_err(|e| Error::string(&e.to_string()))?;
+    let active: Option<bool> = sqlx::query_scalar("SELECT is_active FROM users WHERE id = $1")
+        .bind(&user.id)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(|e| Error::string(&e.to_string()))?;
+    // D-30: a deactivated account stays out, whoever vouches for it.
+    if active == Some(false) {
+        tx.commit().await.map_err(|e| Error::string(&e.to_string()))?;
+        tracing::warn!("assertion refused: account deactivated");
+        return Ok(refused());
+    }
+    if user.federated {
+        sync_asserted_roles(&mut tx, &user.id, &a)
+            .await
+            .map_err(|e| Error::string(&e.to_string()))?;
+    }
+    tx.commit().await.map_err(|e| Error::string(&e.to_string()))?;
+
+    let ip = ba::client_ip(&headers);
+    let ua = headers.get(header::USER_AGENT).and_then(|v| v.to_str().ok());
+    let session = ba::create_session(db, &user.id, false, ip.as_deref(), ua)
+        .await
+        .map_err(|e| Error::string(&e.to_string()))?;
+    let cookies = ba::session_cookies(&session.token, false, &secret);
+    let row = sqlx::query(
+        "SELECT id, email, display_name, avatar_url, email_verified, is_active, created_at, updated_at \
+         FROM users WHERE id = $1",
+    )
+    .bind(&user.id)
+    .fetch_one(db)
+    .await
+    .map_err(|e| Error::string(&e.to_string()))?;
+    Ok(respond(
+        200,
+        &json!({ "user": ba::user_json(&row) }),
+        &cookies,
+        &[],
+    ))
+}
+
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("api/auth")
         .add("/sign-in/email", post(sign_in))
+        .add("/assertion", post(sign_in_with_assertion))
         .add("/sign-out", post(sign_out))
         .add("/get-session", get(get_session))
         .add("/session", get(session_twin))

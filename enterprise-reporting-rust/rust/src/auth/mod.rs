@@ -1,3 +1,4 @@
+pub mod assertion;
 pub mod better_auth;
 pub mod session;
 

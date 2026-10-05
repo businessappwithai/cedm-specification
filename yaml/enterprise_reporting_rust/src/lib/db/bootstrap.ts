@@ -679,6 +679,15 @@ export async function bootstrapSchema(db: Kysely<Database>): Promise<void> {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`,
+
+    // Sign-in assertions from the chat gateway, by id, so each is accepted once.
+    // A row outlives its assertion only until the next sign-in sweeps it.
+    sql`CREATE TABLE IF NOT EXISTS auth_assertions (
+      jti VARCHAR(64) PRIMARY KEY,
+      subject VARCHAR(255) NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      used_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`,
   ];
 
   // Additive columns for tables that predate the feature needing them. Separate

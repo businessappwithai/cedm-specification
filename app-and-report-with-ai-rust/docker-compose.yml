@@ -253,6 +253,10 @@ services:
       # The bootstrap administrator. Eight characters or more, or the platform
       # ignores it and generates one; ./start.sh writes a random one once.
       ADMIN_PASSWORD: ${REPORT_ADMIN_PASSWORD:-}
+      # Verifies the chat's sign-in assertions (POST /api/auth/assertion), so a
+      # person signed in to the chat reaches /report without a second password.
+      # The private half is the chat's SSO_SIGNING_KEY; ./start.sh writes both.
+      SSO_PUBLIC_KEY: ${SSO_PUBLIC_KEY:-}
       # The application's database is on this network, and the platform
       # refuses a private address unless it is named here.
       DATA_SOURCE_HOST_ALLOWLIST: ${APP_DB_HOST:-postgres}
@@ -320,6 +324,48 @@ services:
     volumes:
       - ./common/.runtime/pack:/pack:ro
 
+  # ── The chat ──────────────────────────────────────────────────────────────
+  #
+  # The DeepSeek Harness chat the generator writes into every project
+  # (`chat/`): one sign-in for the chat, the application and the reporting
+  # platform, and the application's own screens inside the conversation. It
+  # runs one Harness host per signed-in person; see chat/README.md for what
+  # that costs and CHAT_MAX_HOSTS for the ceiling.
+  #
+  # Its database sits on the application's server but is never the
+  # application's: the reporting platform reads every schema of the database it
+  # reports on. The gateway creates it on first start.
+  #
+  # DEEPSEEK_API_KEY comes from the environment that runs `docker compose`.
+  # Without it the chat signs people in and opens screens, and refuses to
+  # answer; nothing else here needs it.
+  chat:
+    build:
+      context: ./common/.runtime/app/chat
+    restart: unless-stopped
+    environment:
+      CHAT_PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      CHAT_BASE_PATH: /chat
+      CHAT_HOST: 0.0.0.0
+      CHAT_PORT: "3100"
+      CHAT_TRUST_PROXY: "1"
+      CHAT_DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@${APP_DB_HOST:-postgres}:5432/${APP_DB_NAME:-appdb}_chat
+      CHAT_AUTH_SECRET: ${CHAT_AUTH_SECRET:?CHAT_AUTH_SECRET is required — ./start.sh writes one into .env}
+      CHAT_APP_API_URL: http://app-backend:4001/api
+      CHAT_APP_PUBLIC_PATH: /app
+      CHAT_REPORT_API_URL: http://report-backend:5150/api
+      CHAT_REPORT_PUBLIC_PATH: /report
+      SSO_SIGNING_KEY: ${SSO_SIGNING_KEY:?SSO_SIGNING_KEY is required — ./start.sh writes one into .env}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      CHAT_MAX_HOSTS: ${CHAT_MAX_HOSTS:-0}
+    volumes:
+      - chat_data:/chat/.data
+    expose:
+      - "3100"
+    depends_on:
+      app-backend:
+        condition: service_healthy
+
   # ── The front door ────────────────────────────────────────────────────────
   nginx:
     image: nginx:1.27-alpine
@@ -339,6 +385,7 @@ services:
       retries: 5
 
 volumes:
+  chat_data:
   demo_pg:
   prod_pg_app:
   prod_pg_report:

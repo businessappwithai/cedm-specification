@@ -29,6 +29,7 @@ import type { ParsedModel } from "../model/compile";
 import type { CedmSource } from "../model-cedm/library";
 import { compileModelDocument, type ModelDocument, serializeModelDocument } from "../model-yaml";
 import { writeCedmBundle } from "./cedm-bundle";
+import { writeChatBundle } from "./chat-bundle";
 import type { PipelineLogger } from "./logger-port";
 import { GENERATION_DEFAULTS, type GenerationSettings } from "./settings";
 
@@ -273,6 +274,13 @@ export async function generateApplication(
       options.cedm ? { text: options.cedm.text, document: options.document } : undefined
     );
     await writeCedmBundle(options.outputDir, options.cedm);
+    const port = options.port ?? GENERATION_DEFAULTS.port;
+    await writeChatBundle(options.outputDir, model, {
+      projectName: options.projectName,
+      port,
+      frontendPort: options.frontendPort ?? port + 1,
+      skipFrontend: options.skipFrontend,
+    });
     await writeManual(options.outputDir, model, options);
 
     if (options.writeManifestFile !== false) {

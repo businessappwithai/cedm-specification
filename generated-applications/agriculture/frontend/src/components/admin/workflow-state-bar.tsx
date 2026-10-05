@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Box, HStack, Text } from "@/components/ui/layout";
 import { apiClient } from "@/lib/api-client";
 import { describeStatus, ifMatch, isConcurrencyError, transactionStatusOf } from "@/lib/concurrency";
+import { notifySaved } from "@/lib/embed";
 
 interface Move {
   tableName: string;
@@ -21,6 +22,12 @@ interface WorkflowStateBarProps {
   endpoint: string;
   recordId: string;
   record: Record<string, unknown>;
+  /**
+   * A move proposed from outside the screen — the chat's approval request opens
+   * a record with the transition it suggested. It is marked, never made: the
+   * person presses it.
+   */
+  proposed?: string | null;
   /** Called after a move is accepted, so the page can read the record again. */
   onMoved: () => void;
 }
@@ -48,6 +55,7 @@ export function WorkflowStateBar({
   endpoint,
   recordId,
   record,
+  proposed = null,
   onMoved,
 }: WorkflowStateBarProps) {
   const { data: machine } = useQuery({
@@ -67,6 +75,7 @@ export function WorkflowStateBar({
         { headers: ifMatch(record) }
       ),
     onSuccess: (saved, step) => {
+      notifySaved("transition", saved, recordId);
       const status = describeStatus(transactionStatusOf(saved)) ?? words(step.to);
       toast.success(`${step.transition ? words(step.transition) : "Moved"}: now ${status}`);
       onMoved();
@@ -124,7 +133,7 @@ export function WorkflowStateBar({
               <Button
                 key={`${step.from}-${step.to}`}
                 type="button"
-                variant="secondary"
+                variant={step.to === proposed ? "default" : "secondary"}
                 size="sm"
                 disabled={move.isPending}
                 data-testid={`workflow-move-${step.to}`}

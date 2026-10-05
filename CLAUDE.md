@@ -1526,6 +1526,77 @@ point, **and** a rebuild before the running server sees it.
 
 ---
 
+## The chat (`chat-deepseek/`) — shipped with every generated application
+
+A DeepSeek Harness (`@deepseek-ai/dsh`, pinned **0.2.0-rc.2** exactly) chat in
+which a person works with the application in plain language: it finds records,
+runs the business's reports, and opens the application's **own screens inside
+the conversation** to create, edit and approve. Reference:
+`chat-deepseek/README.md`.
+
+```
+browser ─► nginx ─► /chat ─► gateway (Bun, Better Auth)  ─► one Harness host per person (loopback)
+                │                │  SSO broker, view ids,        business composition only
+                │                │  host manager, proxy          tools ─► gateway ─► app / reporting,
+                ├─► /       the application (?embed=1 inside a chat card)          as that person
+                └─► /report the reporting platform (embed routes)
+```
+
+- **It is source here, copied into every project.** `pipeline/chat-bundle.ts`
+  copies `chat-deepseek/` to `<project>/chat/` (skipping installs and dot-files
+  but `.dockerignore`), and writes two files for the project: the domain skill
+  `skills/<project>-domain/SKILL.md` (`chat/domain-skill.ts`, from the compiled
+  model — records, value lists, lifecycles with final states, roles, reports)
+  and `.env.example`. It is written exactly when the front end is, and a
+  missing source is an error rather than a skipped step. A regeneration keeps
+  `.data/`, `.env` and `node_modules`. `app-with-ai-rust/chat-deepseek` is the
+  copy the website bundle carries (`loco-assets.json`): **change both**.
+- **The chat is the single-sign-on broker; both applications keep their own
+  authentication.** A person signs in once with their application account. The
+  gateway relays the application's session cookie, and signs a 60-second
+  Ed25519 assertion (`SSO_SIGNING_KEY`; the platform refuses any lifetime over
+  120 seconds) that the reporting platform's
+  `POST /api/auth/assertion` verifies with `SSO_PUBLIC_KEY` and a single-use
+  `jti`, re-syncing the person's roles by folded name on every sign-in.
+- **The composition is narrow by construction.** `profile/business.patch.yml`
+  disables every filesystem, shell, browser, MCP, plugin-install and workspace
+  plugin; `bun run test:composition` fails on any enabled package outside
+  `ALLOWED_PACKAGES`. The model's tools are four reads (`search_records`,
+  `get_record_summary`, `search_reports`, `run_approved_report`) and four screen
+  openers (`open_record`, `open_create_form`, `open_update_form`,
+  `request_approval`). **The model never writes a record**: the person saves in
+  the embedded screen, under optimistic locking, and the save arrives back as a
+  durable `[Application]` event only after the gateway has read the record back.
+- **The model never sees a credential, a cookie, a raw URL or SQL.** Records
+  are opaque refs issued per person; a screen is a view id that expires
+  (`CHAT_VIEW_TTL_SECONDS`) and is re-authorised on every open.
+- **The gateway filters Harness's own protocol, not just its routes.** The mux
+  WebSocket can open any endpoint, so `checkMuxFrame` applies the same
+  allowlist to every `open` frame; `settings` is read-only (`describe`), because
+  a settings write could repoint the DeepSeek base URL the server's key is sent
+  to. `tests/security/gateway.test.ts` is the gate.
+- **The chat database is never the application's.** The reporting platform
+  introspects every schema of the database it reports on, so chat sessions
+  stored there would become reportable rows. `ensureDatabase` creates
+  `<project>_chat` when it is missing.
+- **Embedding.** `?embed=1` makes the generated front end chromeless
+  (`lib/embed.ts`, persisted per tab, only when framed) and its save, delete and
+  transition paths post `record-saved` to `window.location.origin`. The front
+  end serves `frame-ancestors 'self'` on every page through a Vite plugin,
+  because TanStack Start's server-rendered responses bypass `server.headers`.
+- **Capacity is measured, not estimated.** `bun run load` (`tests/load/host-memory.ts`)
+  starts real hosts behind the real gateway with real tool calls and a scripted
+  model, and reads RSS and PSS from `/proc`. `MEASURED_HOST_RSS_MB` in
+  `gateway/hosts.ts` sizes the default `CHAT_MAX_HOSTS`; the figures and the
+  200-user projection are in the README.
+- **Tests.** `bun run test` (unit); `tests/security/*` and `tests/e2e/*` run
+  against a live stack (application, reporting platform, gateway behind nginx)
+  with the DeepSeek endpoint pointed at `tests/support/messages-recorder.ts`.
+  Everything but the model's words is real. A live-model run needs
+  `DEEPSEEK_API_KEY` and is reported as not run where there is none.
+
+---
+
 ## Code Style Guidelines
 
 ### TypeScript

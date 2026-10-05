@@ -450,7 +450,19 @@ async function upsertReports(
     const values = {
       description: r.description,
       saved_query_id: savedQueryId,
-      column_config: JSON.stringify(r.columns),
+      // The platform's own ColumnDefinition (src/types/database.ts), which is
+      // what the viewer and the export read: visible columns, under `header`.
+      column_config: JSON.stringify(
+        r.columns.map((c) => ({
+          id: c.field,
+          field: c.field,
+          header: c.label,
+          visible: true,
+          sortable: true,
+          filterable: true,
+          resizable: true,
+        }))
+      ),
       pagination_config: JSON.stringify({ pageSize: r.pageSize, mode: "server" }),
       export_formats: JSON.stringify(["csv", "xlsx", "pdf"]),
       updated_at: stamp,

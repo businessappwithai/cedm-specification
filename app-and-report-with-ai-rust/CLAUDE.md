@@ -256,6 +256,7 @@ running is indistinguishable from one that ran.
 | http://localhost/accounts | the front door: both applications and the accounts for each |
 | http://localhost/app | the application generated from the model; `/app/api/` is its Loco backend |
 | http://localhost/report | the reporting platform, already holding that application's schema as a data source and its reports, charts and dashboard; `/report/api/` is forwarded to its Loco backend |
+| http://localhost/chat | the DeepSeek Harness chat generated with the application (its `chat/`): one sign-in with an application account reaches both, and their screens open inside the conversation. Needs `DEEPSEEK_API_KEY` in the environment to answer; without it, it signs people in and opens screens |
 
 The first start compiles both Rust backends inside their images (minutes, once),
 then the application's container migrates and seeds (`<app>-cli db migrate`,
@@ -322,8 +323,15 @@ against the first rather than merely resembling it.
 `start.sh`'s seven steps: check the model → generate into `common/.runtime/app` →
 overlay onto `/app` → derive the pack into `common/.runtime/pack` → write the
 front door → write `common/.runtime/.env` → `docker compose up`. The secrets in
-`.env` (`AUTH_SECRET`, `ENCRYPTION_KEY`, `JWT_SECRET`, `REPORT_ADMIN_PASSWORD`)
-are each added only when absent, so an older `.env` gains what it lacks. Everything it writes stays under
+`.env` (`AUTH_SECRET`, `ENCRYPTION_KEY`, `JWT_SECRET`, `REPORT_ADMIN_PASSWORD`,
+`CHAT_AUTH_SECRET`) are each added only when absent, so an older `.env` gains
+what it lacks. `SSO_SIGNING_KEY` and `SSO_PUBLIC_KEY` — the chat's Ed25519 key
+for signing people in to `/report`, and the half the platform verifies with —
+are added **as a pair or not at all**: a new private key beside an old public
+one makes every reporting sign-in a bad signature. They are written on one
+line each, quoted, with `\n` escapes, which compose expands and both verifiers
+also accept literally. `DEEPSEEK_API_KEY` is never written: it comes from the
+environment that runs `docker compose`. Everything it writes stays under
 `common/.runtime/`, which is gitignored. **Neither product's source is
 modified.**
 

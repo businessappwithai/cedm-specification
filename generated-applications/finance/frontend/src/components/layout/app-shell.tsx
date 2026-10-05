@@ -19,11 +19,12 @@
  * already does its own. One guard per screen, where the screen can say what it
  * needs.
  */
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
 import { VStack } from "@/components/ui/layout";
+import { isEmbedded } from "@/lib/embed";
 
 /**
  * Route prefixes that render without chrome.
@@ -34,10 +35,20 @@ import { VStack } from "@/components/ui/layout";
 const CHROMELESS = ["/auth"];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation();
-  const bare = CHROMELESS.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-  );
+  const { pathname, searchStr } = useLocation();
+  // A screen the chat opened (`?embed=1`) is a card in a conversation, not an
+  // application: no sidebar, no header. The query string decides on the first
+  // render, which the server renders too; `isEmbedded()` then keeps the frame
+  // chromeless as it navigates (a create lands on the record it made, a URL
+  // without the flag).
+  const [embedded, setEmbedded] = useState(false);
+  useEffect(() => {
+    setEmbedded(isEmbedded());
+  }, [pathname]);
+  const bare =
+    embedded ||
+    new URLSearchParams(searchStr).get("embed") === "1" ||
+    CHROMELESS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
   if (bare) {
     return <main className="min-h-screen bg-background">{children}</main>;

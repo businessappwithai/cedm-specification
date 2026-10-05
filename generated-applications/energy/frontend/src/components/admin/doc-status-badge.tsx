@@ -9,6 +9,13 @@ interface DocStatusBadgeProps {
   className?: string;
 }
 
+/**
+ * The business-rules verdict on a record (`doc_status`), not where its
+ * transaction stands. These labels used to say "Final" for "every rule passed",
+ * which beside the lifecycle bar read as a closed transaction: a record in
+ * Prospecting carried a Final badge. Final belongs to the lifecycle alone
+ * (`transactionStatus.isFinal`); this badge says what the rules decided.
+ */
 const STATUS_CONFIG: Record<
   string,
   {
@@ -19,31 +26,31 @@ const STATUS_CONFIG: Record<
   }
 > = {
   draft: {
-    label: "Draft",
+    label: "Rules not met",
     variant: "outline",
     className: "border-amber-300 text-amber-700 bg-amber-50",
     icon: FileEdit,
   },
   pending_rules: {
-    label: "Evaluating",
+    label: "Checking rules",
     variant: "outline",
     className: "border-blue-300 text-blue-700 bg-blue-50",
     icon: Clock,
   },
   final: {
-    label: "Final",
+    label: "Rules passed",
     variant: "outline",
     className: "border-green-300 text-green-700 bg-green-50",
     icon: CheckCircle,
   },
   approved: {
-    label: "Final",
+    label: "Rules passed",
     variant: "outline",
     className: "border-green-300 text-green-700 bg-green-50",
     icon: CheckCircle,
   },
   rejected: {
-    label: "Draft",
+    label: "Rules not met",
     variant: "outline",
     className: "border-amber-300 text-amber-700 bg-amber-50",
     icon: FileEdit,

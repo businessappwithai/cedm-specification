@@ -191,9 +191,21 @@ export interface LanguageDefinition {
 
 /** Absolute path to the language definition file. */
 export const LANGUAGE_DEFINITION_PATH = (() => {
-  // Resolve relative to this module so it works from source and from dist.
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  return path.join(here, "appwithai-language.json");
+  // An explicit location wins: the browser build defines it as the file's
+  // place in its in-memory volume, and the bundled CLI is not beside the JSON.
+  // `globalThis`: a browser bundle without the Node globals has no `process`.
+  const env = (globalThis as { process?: { env?: Record<string, string | undefined>; cwd?: () => string } }).process;
+  const configured = env?.env?.APPWITHAI_LANGUAGE_FILE;
+  if (configured) return configured;
+  // Otherwise resolve relative to this module, which works from source and
+  // from dist. Guarded because this runs at import: in a browser the module's
+  // URL is http(s), `fileURLToPath` refuses it, and an unguarded throw here
+  // failed every import of the bundle — the website's download button with it.
+  try {
+    return path.join(path.dirname(fileURLToPath(import.meta.url)), "appwithai-language.json");
+  } catch {
+    return path.join(env?.cwd?.() ?? "/", "language", "appwithai-language.json");
+  }
 })();
 
 let cached: LanguageDefinition | null = null;

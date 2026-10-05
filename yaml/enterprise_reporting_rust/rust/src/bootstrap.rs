@@ -21,7 +21,7 @@ use crate::{auth::better_auth as ba, common::time::now_iso};
 
 /// The bootstrap administrator's id — the same fixed value `bootstrap.ts` uses.
 pub const ADMIN_ID: &str = "1aa00cc2af0225000c5c114df3eebb69";
-const ADMIN_ROLE_ID: &str = "admin-role-id";
+pub const ADMIN_ROLE_ID: &str = "admin-role-id";
 const NLQUERY_USER_ID: &str = "nlquery0user00000000000000000000";
 const NLQUERY_ROLE_ID: &str = "nlquery0role00000000000000000000";
 
@@ -65,7 +65,7 @@ struct HelpArticle {
 
 /// `new Date().toISOString()`, which is what Node writes into these tables'
 /// `VARCHAR` timestamp columns.
-fn stamp() -> String {
+pub fn stamp() -> String {
     now_iso()
 }
 

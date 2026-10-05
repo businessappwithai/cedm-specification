@@ -117,7 +117,11 @@ fn build_table(raw: &[Value], column_config: Option<&str>) -> Table {
             .filter(|f| !f.is_empty())
             .unwrap_or_else(|| header.to_string())
     };
-    if config.is_empty() {
+    let visible: Vec<&Value> = config.iter().filter(|c| js::truthy(c.get("visible"))).collect();
+    // No visible column means the result's own columns, as the viewer does.
+    // Otherwise a report whose config marks nothing visible exports a file of
+    // empty lines while the same report shows its rows on screen.
+    if visible.is_empty() {
         let headers: Vec<String> = objects
             .first()
             .map(|r| r.keys().cloned().collect())
@@ -129,7 +133,6 @@ fn build_table(raw: &[Value], column_config: Option<&str>) -> Table {
             rows: objects,
         };
     }
-    let visible: Vec<&Value> = config.iter().filter(|c| js::truthy(c.get("visible"))).collect();
     let headers: Vec<String> = visible
         .iter()
         .map(|c| c.get("header").map(crate::render::cell_text).unwrap_or_default())
@@ -529,6 +532,20 @@ mod tests {
         );
         assert_eq!(t.headers, vec!["B", "C"]);
         assert_eq!(csv(&t), "B,C\n\"x,y\",");
+    }
+
+    #[test]
+    fn no_visible_column_exports_the_result_columns() {
+        // A config with nothing marked visible — the shape a reporting pack
+        // wrote before its columns were written as ColumnDefinitions — must
+        // export what the viewer shows, not a file of empty lines.
+        let raw = vec![json!({"bucket": "active", "records": 2})];
+        let t = build_table(
+            &raw,
+            Some(r#"[{"field":"bucket","label":"Status"},{"field":"records","label":"Records"}]"#),
+        );
+        assert_eq!(t.headers, vec!["bucket", "records"]);
+        assert_eq!(csv(&t), "bucket,records\nactive,2");
     }
 
     #[test]

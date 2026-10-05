@@ -73,6 +73,10 @@ pub struct ColumnMeta {
     pub default_value: Option<String>,
     pub ref_table_name: Option<String>,
     pub seq_no: Option<i32>,
+    /// `sys_column.is_identifier`: this column is part of what a record is
+    /// called (its label in lookups, lists and the chat). Derived once, by
+    /// `identifierColumnNames`, when the dictionary is seeded.
+    pub is_identifier: bool,
     /// What narrows this lookup's choices; empty for a column that offers every row.
     pub narrowed_by: Vec<Narrowing>,
 }
@@ -281,7 +285,7 @@ impl DictionaryCache {
         let columns = sqlx::query_as::<_, ColumnRow>(
             r"SELECT c.column_name, c.name, c.sys_reference_id, c.is_mandatory,
                      c.is_updateable, c.is_key, c.field_length, c.default_value,
-                     c.seq_no, c.ref_table_name, c.narrowed_by
+                     c.seq_no, c.ref_table_name, c.narrowed_by, c.is_identifier
                 FROM sys_column c
                 JOIN sys_table t ON t.sys_table_id = c.sys_table_id
                WHERE t.table_name = $1 AND c.is_active = true
@@ -454,6 +458,7 @@ struct ColumnRow {
     seq_no: Option<i32>,
     ref_table_name: Option<String>,
     narrowed_by: Option<String>,
+    is_identifier: Option<bool>,
 }
 
 impl From<ColumnRow> for ColumnMeta {
@@ -474,6 +479,7 @@ impl From<ColumnRow> for ColumnMeta {
             ),
             column_name,
             seq_no: row.seq_no,
+            is_identifier: row.is_identifier.unwrap_or(false),
             narrowed_by: row
                 .narrowed_by
                 .as_deref()
