@@ -155,6 +155,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - name: meters
+    target: Meter
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Meters whose accepted readings can drive or inform this MaintenancePlan.
+      businessMeaning: Enables usage-based and condition-based maintenance independently of calendar frequency.
+      usage: Preventive maintenance, predictive maintenance and due-date calculation.
+      cardinalityMeaning: Zero or many meters may contribute to a plan.
+      workflowRole: Reading thresholds can make work due but do not themselves complete maintenance or rewrite meter evidence.
+
   invariants:
   - id: MAINT-PLAN-001
     rule: frequencyValue must be positive when supplied.
