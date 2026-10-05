@@ -45,7 +45,7 @@ todo:
       name: Inventory
       entities: [InventoryItem, InventoryBalance, Lot, SerialNumber, InventoryReservation, InventoryMovement, InventoryTransfer, InventoryAdjustment, InventoryCount]
       status: in-progress
-      notes: Canonical Lot and SerialNumber traceability plus InventoryTransfer, InventoryCount and InventoryAdjustment are implemented. Stock-changing controls reconcile through InventoryMovement; remaining inventory work is verification and cross-domain hardening.
+      notes: InventoryItem is now implemented and connected to Product, InventoryBalance and InventoryMovement; all requested core inventory entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: warehouse-wms
       name: Warehouse / WMS
       entities: [Warehouse, WarehouseZone, InventoryLocation, Putaway, Picking, Packing, Wave, Dock, HandlingUnit]
@@ -64,7 +64,8 @@ todo:
     - id: maintenance-eam
       name: Maintenance / EAM
       entities: [Asset, Equipment, MaintenancePlan, MaintenanceWorkOrder, Failure, QualityInspection, Meter, SparePart]
-      status: pending-verification
+      status: in-progress
+      notes: Meter is now implemented and connected to Asset and MaintenancePlan; all requested core Maintenance/EAM entities are represented, with reading-depth extensions, reciprocal audit and repository validation remaining.
     - id: quality
       name: Quality
       entities: [QualityCharacteristic, QualityPlanCharacteristic, QualityPlan, TestMethod, SamplingPlan, SamplingRule, QualityInspection, InspectionSample, QualityMeasurement, Nonconformance, CorrectiveAction, CorrectiveActionVerification, ReturnDisposition, CertificateOfAnalysis]
@@ -89,12 +90,12 @@ todo:
       name: Projects
       entities: [Project, ProjectPhase, Milestone, ProjectTask, ResourceAssignment, Timesheet, ProjectCost]
       status: in-progress
-      notes: ProjectPhase is implemented and linked from Project; remaining requested project entities require systematic verification.
+      notes: ProjectCost is now implemented and connected to Project, ProjectTask and Timesheet with accounting reconciliation semantics; all requested core project entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: hr-hcm
       name: HR / HCM
       entities: [Employee, Employment, Position, Job, Department, Compensation, LeaveRequest, Attendance, Payroll]
       status: in-progress
-      notes: Job is implemented and linked from Position; remaining requested HCM entities require systematic verification.
+      notes: Compensation, LeaveRequest and Attendance are now implemented and connected to Employment, Employee and Payroll; all requested core HCM entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: service-management
       name: Service Management
       entities: [ServiceRequest, ServiceCase, Ticket, ServiceLevelAgreement, ServiceOrder, ServiceContract, Entitlement]
@@ -203,13 +204,13 @@ todo:
     - [Contract, ContractObligation, Approval, Signature, Invoice, Payment]
 
   auditBaseline:
-    measuredAt: 2026-09-28
-    registeredEntities: 294
+    measuredAt: 2026-10-06
+    registeredEntities: 317
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 49
+    unregisteredRequestedNames: 43
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 49 unresolved requested names, then validate help and relationship integrity.
-    progress: Added and registered 16 foundational gaps covering organization structure, party contact/relationships, reference data, IAM and workflow control.
+    nextAudit: Continue classifying and implementing the remaining 43 unresolved requested names, then validate help and relationship integrity.
+    progress: Added six canonical entities for inventory, Maintenance/EAM, projects and HCM and propagated reciprocal relationships into existing domain records.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
     Quote: Quotation
