@@ -114,6 +114,27 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - name: leaveRequests
+    target: LeaveRequest
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Leave requests submitted for this Employee.
+      businessMeaning: Preserves absence authorization history independently of actual attendance evidence.
+      usage: Employee self-service, HR, scheduling, payroll and audit.
+      cardinalityMeaning: An Employee may have zero or many leave requests.
+      workflowRole: Requests are evaluated under applicable Employment and leave policy.
+  - name: attendanceRecords
+    target: Attendance
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Attendance evidence recorded for this Employee.
+      businessMeaning: Captures actual work or absence separately from authorization and payroll calculation.
+      usage: Timekeeping, workforce analytics, scheduling, payroll and audit.
+      cardinalityMeaning: An Employee may have zero or many attendance records.
+      workflowRole: Approved attendance can become payroll input while corrections remain explicit evidence.
+
   invariants:
   - id: EMPLOYEE-001
     rule: partyRole.roleType must equal EMPLOYEE.
