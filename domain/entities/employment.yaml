@@ -127,6 +127,37 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - name: compensationHistory
+    target: Compensation
+    cardinality: 0..*
+    ownership: aggregate
+    help:
+      summary: Effective-dated compensation arrangements for this Employment.
+      businessMeaning: Preserves remuneration history without overwriting terms used by earlier payroll periods.
+      usage: HCM, payroll, workforce planning, budgeting and audit.
+      cardinalityMeaning: An Employment may have zero or many compensation records over time.
+      workflowRole: Active terms must be temporally compatible with Employment and overlapping terms require governed policy.
+  - name: leaveRequests
+    target: LeaveRequest
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Leave requests governed by this Employment context.
+      businessMeaning: Supplies employer and effective-policy context for absence authorization.
+      usage: Leave administration, scheduling, payroll and audit.
+      cardinalityMeaning: Zero or many requests may occur during an Employment.
+      workflowRole: Requested dates must overlap eligible Employment unless an explicit exception applies.
+  - name: attendanceRecords
+    target: Attendance
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Attendance evidence recorded under this Employment.
+      businessMeaning: Connects timekeeping evidence to the applicable employer relationship.
+      usage: Timekeeping, payroll, scheduling and audit.
+      cardinalityMeaning: Zero or many attendance records may occur during an Employment.
+      workflowRole: Attendance dates must reconcile with the effective Employment period.
+
   invariants:
   - id: EMPLOYMENT-001
     rule: endDate must not precede startDate.
