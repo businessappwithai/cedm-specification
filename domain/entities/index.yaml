@@ -5,15 +5,15 @@ registry:
   specificationVersion: 0.3.0
   status: draft
   entities:
-    - AIEvaluation
-    - AIModel
-    - AIPolicy
-    - AIPrediction
     - AccessGrant
     - Account
     - Activity
     - Address
     - Agreement
+    - AIEvaluation
+    - AIModel
+    - AIPolicy
+    - AIPrediction
     - Aircraft
     - Allergy
     - Approval
@@ -25,15 +25,16 @@ registry:
     - AssetTransfer
     - Assignment
     - Attachment
+    - Attendance
     - AuditCase
     - AuditEvent
-    - BOMComponent
     - BankAccount
     - BankLoan
     - BankReconciliation
     - BankTransaction
-    - BillOfMaterial
     - BillingCycle
+    - BillOfMaterial
+    - BOMComponent
     - Brand
     - Budget
     - BudgetLine
@@ -52,6 +53,7 @@ registry:
     - City
     - Classification
     - Collateral
+    - Compensation
     - ComplianceRequirement
     - Compound
     - Consignment
@@ -94,7 +96,6 @@ registry:
     - Document
     - DocumentClassification
     - DocumentVersion
-    - ERP
     - EducationCourse
     - EducationProgram
     - EducationStudent
@@ -106,6 +107,7 @@ registry:
     - EnergyTariff
     - Enrollment
     - Equipment
+    - ERP
     - Escalation
     - Event
     - ExchangeRate
@@ -144,6 +146,7 @@ registry:
     - InventoryAdjustment
     - InventoryBalance
     - InventoryCount
+    - InventoryItem
     - InventoryLocation
     - InventoryMovement
     - InventoryReservation
@@ -156,6 +159,7 @@ registry:
     - Language
     - Lead
     - Lease
+    - LeaveRequest
     - Ledger
     - LegalCase
     - LegalEntity
@@ -172,6 +176,7 @@ registry:
     - MediaRight
     - Medication
     - Message
+    - Meter
     - MeterReading
     - Milestone
     - MiningSite
@@ -206,13 +211,14 @@ registry:
     - Product
     - ProductAttribute
     - ProductCategory
-    - ProductLifecycle
-    - ProductVariant
     - ProductionReceipt
     - ProductionRecord
+    - ProductLifecycle
+    - ProductVariant
     - ProfessionalEngagement
     - ProfitCenter
     - Project
+    - ProjectCost
     - ProjectPhase
     - ProjectTask
     - Promotion
