@@ -59,6 +59,17 @@ entity:
       usage: Workflow navigation, validation, traceability, reporting, and audit.
       cardinalityMeaning: Every Timesheet belongs to exactly one governing ProfessionalEngagement in this baseline model.
       context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+  - name: projectCosts
+    target: ProjectCost
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Labor cost evidence derived from or reconciled to this Timesheet.
+      businessMeaning: Keeps reported time separate from monetary cost attribution while preserving provenance.
+      usage: Labor costing, project profitability, billing and audit.
+      cardinalityMeaning: Zero or many ProjectCost records may derive from a Timesheet under governed allocation policy.
+      workflowRole: Cost generation must be idempotent and based on eligible approved or completed time evidence.
+
   invariants:
   - id: TIMESHEET-001
     rule: The governing ProfessionalEngagement relationship is required and must reference a valid record.
