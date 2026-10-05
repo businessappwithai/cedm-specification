@@ -118,6 +118,17 @@ entity:
     help: {summary: Manufacturing scrap transaction causing this stock reduction when applicable., businessMeaning: Explains the governed production-loss reason for stock decrease., usage: "Yield, costing, quality and inventory reconciliation.", cardinalityMeaning: Optional outside manufacturing scrap or when process loss never entered inventory., workflowRole: "Product, quantity, lot and serial evidence must reconcile and posting must be idempotent."}
   - {name: inventoryTransfer, target: InventoryTransfer, cardinality: "0..1", ownership: reference, help: {summary: Transfer authorization causing this relocation event., businessMeaning: Explains source/target relocation purpose., usage: Transfer reconciliation and audit., cardinalityMeaning: Optional outside controlled transfer., workflowRole: "Product, locations, quantity, lot and serial must reconcile."}}
   - {name: inventoryAdjustment, target: InventoryAdjustment, cardinality: 0..1, ownership: reference, help: {summary: Approved discrepancy correction causing this adjustment event., businessMeaning: Supplies reason and evidence for stock correction., usage: Count reconciliation and audit., cardinalityMeaning: Optional outside adjustment., workflowRole: Signed ledger effect must reconcile with approved delta.}}
+  - name: inventoryItem
+    target: InventoryItem
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Inventory-control profile under which this movement was posted.
+      businessMeaning: Preserves the stock-policy context used to authorize the event.
+      usage: Policy validation, audit, reconciliation and integration.
+      cardinalityMeaning: Optional for historical or transitional events; governed new movements should normally identify the applicable InventoryItem.
+      workflowRole: Movement posting validates InventoryItem status, stocking UOM and negative-stock policy without allowing later policy changes to rewrite history.
+
   invariants:
   - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
   - {id: INVENTORY-MOVEMENT-002, rule: "TRANSFER requires sourceLocation and targetLocation, and they must differ."}
