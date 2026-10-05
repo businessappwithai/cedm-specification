@@ -93,6 +93,17 @@ entity:
     help:
       summary: Posted inventory events contributing to the balance projection.
       workflowRole: Supplies the historical event stream against which the balance must reconcile.
+  - name: inventoryItem
+    target: InventoryItem
+    cardinality: 0..1
+    ownership: reference
+    help:
+      summary: Inventory-control profile governing this balance.
+      businessMeaning: Connects current quantity state to the policy under which the Product is stocked.
+      usage: Availability, replenishment, policy validation and reconciliation.
+      cardinalityMeaning: Optional for legacy or transitional balances; new governed balances should normally identify an InventoryItem.
+      workflowRole: Balance remains event-derived while InventoryItem supplies stock-control policy.
+
   invariants:
   - {id: INVENTORY-BALANCE-001, rule: "quantityOnHand, quantityReserved, and quantityAvailable must not be negative unless an explicitly authorized policy permits it."}
   - {id: INVENTORY-BALANCE-002, rule: quantityReserved must not normally exceed quantityOnHand.}
