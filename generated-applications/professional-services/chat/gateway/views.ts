@@ -67,7 +67,7 @@ export class ViewService {
               headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
             });
           }
-          return await this.open(view.kind, target, who);
+          return await this.open(view.kind, target, who, new URL(request.url).searchParams.get("part"));
         case "GET rows":
           if (expired) return json(410, { code: "EXPIRED", message: "This view has expired; re-open it." });
           return await this.rows(request, target, who);
@@ -108,7 +108,7 @@ export class ViewService {
   }
 
   /** Re-check access, then send the browser to the screen itself. */
-  private async open(kind: string, target: Json, who: SessionCredentials): Promise<Response> {
+  private async open(kind: string, target: Json, who: SessionCredentials, part: string | null = null): Promise<Response> {
     if (kind === "business-application") {
       const path = String(target.path ?? "");
       const record = /^\/[^/?]+\/([^/?]+)(\?|$)/.exec(path);
@@ -121,7 +121,18 @@ export class ViewService {
     }
     if (!this.reporting || !who.reportSession) return json(503, { code: "REPORTING_UNAVAILABLE", message: "Reports are unavailable." });
     const reportId = String(target.reportId ?? "");
+    // Running the report re-checks that this person may still read its tables;
+    // the chart is drawn from the same saved query, so it is covered by the
+    // same check, and its own data endpoint checks again.
     await this.reporting.run(who.reportSession, reportId, 0, 1);
+    if (part === "chart") {
+      const chartId = typeof target.chartId === "string" ? target.chartId : "";
+      if (!chartId) return json(404, { code: "NO_CHART", message: "This report has no chart." });
+      return Response.redirect(
+        `${this.config.publicOrigin}${this.config.reportPublicPath}/charts/viewer/${encodeURIComponent(chartId)}?embed=1`,
+        303
+      );
+    }
     return Response.redirect(
       `${this.config.publicOrigin}${this.config.reportPublicPath}/reports/${encodeURIComponent(reportId)}/viewer?embed=1`,
       303
@@ -133,8 +144,14 @@ export class ViewService {
     const url = new URL(request.url);
     const page = Math.max(0, Number.parseInt(url.searchParams.get("page") ?? "0", 10) || 0);
     const pageSize = Math.min(200, Math.max(1, Number.parseInt(url.searchParams.get("pageSize") ?? "50", 10) || 50));
-    const data = await this.reporting.run(who.reportSession, String(target.reportId), page, pageSize);
-    return json(200, data);
+    const reportId = String(target.reportId);
+    const [data, report] = await Promise.all([
+      this.reporting.run(who.reportSession, reportId, page, pageSize),
+      this.reporting.report(who.reportSession, reportId),
+    ]);
+    // The report's own headers travel with the rows, so the card shows what the
+    // report page shows rather than raw field names.
+    return json(200, { ...data, columns: report.columns });
   }
 
   private async export(request: Request, target: Json, who: SessionCredentials): Promise<Response> {
@@ -209,7 +226,8 @@ export class ViewService {
         .join(" · ") || entity.windowName;
     const statusText = status ? ` — status ${status.label}${status.isFinal ? " (final: the transaction is complete)" : ""}` : "";
     return json(200, {
-      notice: `${entity.windowName} ${label} ${operation} in the application${statusText}.`,
+      // "Opportunity Opportunity 1" when the record is named after its kind.
+      notice: `${label.toLowerCase().startsWith(entity.windowName.toLowerCase()) ? label : `${entity.windowName} ${label}`} ${operation} in the application${statusText}.`,
       ref: sealRecordRef(this.refKey, who.userId, { table: entity.table, id }),
       version: typeof row.version === "number" ? row.version : null,
     });

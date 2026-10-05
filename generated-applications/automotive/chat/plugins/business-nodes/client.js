@@ -259,7 +259,11 @@ window.__ModuleLoader__.load({
       };
 
       const rows = data ? data.rows : [];
-      const columns = rows.length ? Object.keys(rows[0]) : [];
+      // The report's own headers when it configures them, as its page shows them.
+      const columns =
+        data && Array.isArray(data.columns) && data.columns.length
+          ? data.columns
+          : (rows.length ? Object.keys(rows[0]) : []).map((field) => ({ field, header: field }));
       const total = data ? data.totalRows : 0;
       const lastPage = Math.max(0, Math.ceil(total / pageSize) - 1);
 
@@ -282,6 +286,16 @@ window.__ModuleLoader__.load({
           h("button", { style: styles.button, type: "button", onClick: reopen }, "Re-open")
         ),
         problem ? h("div", { style: styles.error }, problem) : null,
+        showPage && meta.hasChart
+          ? h("iframe", {
+              key: `chart-${viewId}`,
+              title: `${meta.title} — chart`,
+              src: viewUrl(viewId, "open", { part: "chart" }),
+              style: styles.frame,
+              sandbox: "allow-scripts allow-same-origin allow-downloads",
+              referrerPolicy: "no-referrer",
+            })
+          : null,
         showPage
           ? h("iframe", {
               key: `page-${viewId}`,
@@ -299,7 +313,7 @@ window.__ModuleLoader__.load({
               h(
                 "table",
                 { style: styles.table },
-                h("thead", null, h("tr", null, columns.map((column) => h("th", { key: column, style: styles.cell }, column)))),
+                h("thead", null, h("tr", null, columns.map((column) => h("th", { key: column.field, style: styles.cell }, column.header)))),
                 h(
                   "tbody",
                   null,
@@ -307,8 +321,8 @@ window.__ModuleLoader__.load({
                     h(
                       "tr",
                       { key: index },
-                      columns.map((column) =>
-                        h("td", { key: column, style: styles.cell }, row[column] === null || row[column] === undefined ? "—" : String(row[column]))
+                      columns.map(({ field }) =>
+                        h("td", { key: field, style: styles.cell }, row[field] === null || row[field] === undefined ? "—" : String(row[field]))
                       )
                     )
                   )

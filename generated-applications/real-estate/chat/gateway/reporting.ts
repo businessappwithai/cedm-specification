@@ -17,6 +17,38 @@ export interface ReportSummary {
   name: string;
   description: string;
   savedQueryId: string | null;
+  /**
+   * The report's visible columns, in the report's own order and under its own
+   * headers (`column_config`). Empty when the report configures none, and a
+   * reader then falls back to the result's own columns, as the platform's
+   * viewer does.
+   */
+  columns: ReportColumn[];
+}
+
+export interface ReportColumn {
+  field: string;
+  header: string;
+}
+
+/** The visible columns of a stored `column_config`, or none when it holds none. */
+export function visibleColumns(config: unknown): ReportColumn[] {
+  let parsed: unknown = config;
+  if (typeof config === "string") {
+    try {
+      parsed = JSON.parse(config);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed
+    .filter((column): column is Json => !!column && typeof column === "object" && (column as Json).visible === true)
+    .filter((column) => typeof column.field === "string" && column.field !== "")
+    .map((column) => ({
+      field: String(column.field),
+      header: typeof column.header === "string" && column.header !== "" ? column.header : String(column.field),
+    }));
 }
 
 export interface ReportPage {
@@ -98,6 +130,7 @@ export class ReportingClient {
         name: String(item.name ?? ""),
         description: String(item.description ?? ""),
         savedQueryId: typeof item.saved_query_id === "string" ? item.saved_query_id : null,
+        columns: visibleColumns(item.column_config),
       })),
       total: Number(data.meta?.total ?? data.meta?.totalItems ?? 0),
     };
@@ -112,6 +145,7 @@ export class ReportingClient {
       name: String(item.name ?? ""),
       description: String(item.description ?? ""),
       savedQueryId: typeof item.saved_query_id === "string" ? item.saved_query_id : null,
+      columns: visibleColumns(item.column_config),
     };
   }
 
@@ -129,12 +163,24 @@ export class ReportingClient {
     };
   }
 
-  /** Whether a chart is drawn from the same saved query as the report. */
+  /**
+   * The chart drawn from the same saved query as the report, if any. The
+   * platform's pages count from 0: asking for page 1 skipped the first hundred
+   * charts, which on an installation with fewer than that was all of them.
+   */
   async chartFor(session: string, savedQueryId: string): Promise<string | null> {
-    const { status, body } = await this.request(`/charts?${new URLSearchParams({ page: "1", pageSize: "100" })}`, { cookie: session });
-    if (status !== 200) return null;
-    const items = ((body?.data?.items ?? []) as Json[]).filter((item) => item.saved_query_id === savedQueryId);
-    return items.length > 0 ? String(items[0]!.id) : null;
+    const pageSize = 100;
+    for (let page = 0; page < 50; page++) {
+      const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+      const { status, body } = await this.request(`/charts?${query}`, { cookie: session });
+      if (status !== 200) return null;
+      const items = (body?.data?.items ?? []) as Json[];
+      const match = items.find((item) => item.saved_query_id === savedQueryId && item.is_deleted !== true);
+      if (match) return String(match.id);
+      const total = Number(body?.data?.meta?.total ?? 0);
+      if (items.length < pageSize || (page + 1) * pageSize >= total) return null;
+    }
+    return null;
   }
 
   /** The platform's own export, streamed back unchanged. */

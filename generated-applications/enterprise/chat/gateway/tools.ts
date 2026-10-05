@@ -360,7 +360,15 @@ export class BusinessTools {
     if (!reportId) throw new ToolRefusal(400, "REPORT_REQUIRED", "Name the report to run, by the id search_reports gave.");
     const report = await reporting.report(session, reportId);
     const first = await reporting.run(session, reportId, 0, 20);
-    const columns = Object.keys(first.rows[0] ?? {});
+    // The report's own headers, in its own order — what a person sees on the
+    // report page — and the result's columns only when it configures none.
+    const configured = report.columns.length > 0
+      ? report.columns
+      : Object.keys(first.rows[0] ?? {}).map((field) => ({ field, header: field }));
+    const columns = configured.map((column) => column.header);
+    const preview = first.rows.map((row) =>
+      Object.fromEntries(configured.map((column) => [column.header, row[column.field] ?? null]))
+    );
     const chartId = report.savedQueryId ? await reporting.chartFor(session, report.savedQueryId) : null;
     const view = await this.mintView(
       who,
@@ -375,7 +383,7 @@ export class BusinessTools {
       title: report.name,
       columns,
       rowCount: first.totalRows,
-      preview: first.rows,
+      preview,
       hasChart: chartId !== null,
       expiresAt: view.expiresAt.toISOString(),
     };

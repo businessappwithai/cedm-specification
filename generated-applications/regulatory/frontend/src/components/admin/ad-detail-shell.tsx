@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { DynamicTable } from "@/components/tables/dynamic-table";
 import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmDialog } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
@@ -599,6 +600,9 @@ export function ADDetailShell({
   const [activeChildTab, setActiveChildTab] = useState(() => level.childTabs?.[0]?.id ?? "");
   const [isEditing, setIsEditing] = useState(initialMode === "edit");
   const [saveErrors, setSaveErrors] = useState<string[]>([]);
+  // A delete is confirmed first, naming the record: there is no screen that
+  // brings a deleted record back, so one stray click must not be enough.
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   /**
    * The business table this window sits on, or "" for a dictionary window.
@@ -811,7 +815,7 @@ export function ADDetailShell({
     <div className="flex flex-col h-full">
       <ADToolbar
         onSave={() => saveMutation.mutate({ data: formData, readAt: currentRecord })}
-        onDelete={() => deleteMutation.mutate()}
+        onDelete={() => setConfirmingDelete(true)}
         onUndo={() => {
           if (currentRecord) {
             setFormData(currentRecord);
@@ -1042,6 +1046,15 @@ export function ADDetailShell({
           </>
         )}
       </Box>
+
+      <DeleteConfirmDialog
+        open={confirmingDelete}
+        onOpenChange={setConfirmingDelete}
+        title={`Delete ${level.label}`}
+        itemName={currentName}
+        onConfirm={() => deleteMutation.mutate()}
+        isConfirming={deleteMutation.isPending}
+      />
 
       {conflict && (
         <ConflictDialog
