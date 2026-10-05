@@ -175,6 +175,17 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - name: projectCosts
+    target: ProjectCost
+    cardinality: 0..*
+    ownership: reference
+    help:
+      summary: Project costs attributed to this task.
+      businessMeaning: Provides task-level cost traceability within the parent Project.
+      usage: Work-breakdown costing, earned-value analysis, profitability and audit.
+      cardinalityMeaning: A task may have zero or many attributed costs.
+      workflowRole: Every linked ProjectCost must reference the same parent Project as this task.
+
   invariants:
   - id: PROJECT-TASK-001
     rule: percentComplete must be between 0 and 100.
