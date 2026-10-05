@@ -9,6 +9,7 @@ import { FilterBar } from "@/components/reporting/filter-bar";
 import { ShareDialog } from "@/components/share/ShareDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isEmbedSearch } from "@/lib/embed/embed";
 import type { ChartConfig, ChartDefinition, DataMapping } from "@/types/database";
 
 export const Route = createFileRoute("/_authed/charts/viewer/$id")({
@@ -18,6 +19,9 @@ export const Route = createFileRoute("/_authed/charts/viewer/$id")({
 function ChartViewerPage() {
   const { id: chartId } = Route.useParams();
   const location = useLocation();
+  // Opened inside the chat: no breadcrumb, Share or Configure — each navigates
+  // the frame away from the chart it was opened on.
+  const embedded = isEmbedSearch(location.searchStr);
   const queryClient = useQueryClient();
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
@@ -120,7 +124,7 @@ function ChartViewerPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: "Charts", href: "/charts" }, { label: chart.name }]} />
+      {!embedded && <Breadcrumb items={[{ label: "Charts", href: "/charts" }, { label: chart.name }]} />}
 
       <div className="flex items-center justify-between">
         <div>
@@ -133,19 +137,23 @@ function ChartViewerPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShareDialogOpen(true)}>
-            Share
-          </Button>
+          {!embedded && (
+            <Button variant="outline" size="sm" onClick={() => setShareDialogOpen(true)}>
+              Share
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => handleExport("png")}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/charts/editor/$id" params={{ id: chartId }}>
-              <Settings className="h-4 w-4 mr-2" />
-              Configure
-            </Link>
-          </Button>
+          {!embedded && (
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/charts/editor/$id" params={{ id: chartId }}>
+                <Settings className="h-4 w-4 mr-2" />
+                Configure
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 

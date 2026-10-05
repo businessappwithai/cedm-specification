@@ -236,8 +236,10 @@ export const Route = createFileRoute("/api/reports/$id/export")({
           let filteredRows = typedRows;
           let headers: string[] = [];
 
-          if (columnConfig.length > 0) {
-            const visibleColumns = columnConfig.filter((col) => col.visible);
+          // No visible column means the result's own columns, as the viewer
+          // does; otherwise the file is empty lines while the screen has rows.
+          const visibleColumns = columnConfig.filter((col) => col.visible);
+          if (visibleColumns.length > 0) {
             headers = visibleColumns.map((col) => col.header);
             filteredRows = typedRows.map((row) => {
               const filteredRow: Record<string, unknown> = {};

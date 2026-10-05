@@ -424,7 +424,23 @@ async fn upsert_reports(
         let columns = serde_json::to_string(
             &r.columns
                 .iter()
-                .map(|c| json!({ "field": c.field, "label": c.label }))
+                // The platform's own ColumnDefinition (src/types/database.ts):
+                // the viewer and the export show only columns marked visible,
+                // under `header`. The pack's {field, label} stored as it came
+                // was a shape neither reads — the viewer fell back to raw field
+                // names, and the export, which has no fallback, wrote a file of
+                // empty lines.
+                .map(|c| {
+                    json!({
+                        "id": c.field,
+                        "field": c.field,
+                        "header": c.label,
+                        "visible": true,
+                        "sortable": true,
+                        "filterable": true,
+                        "resizable": true,
+                    })
+                })
                 .collect::<Vec<_>>(),
         )
         .unwrap_or_default();

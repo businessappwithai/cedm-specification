@@ -15,7 +15,7 @@
  */
 
 /** Pages the chat may frame, by path without the URL prefix. */
-const EMBEDDABLE = [/^\/reports\/[^/]+\/viewer\/?$/];
+const EMBEDDABLE = [/^\/reports\/[^/]+\/viewer\/?$/, /^\/charts\/viewer\/[^/]+\/?$/];
 
 /** True for a request the server may let this origin frame. */
 export function isEmbeddableRequest(pathname: string, search: string): boolean {
