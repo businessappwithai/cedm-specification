@@ -28,7 +28,7 @@ catalog:
       processes: [pick-pack-ship, delivery, receipt]
     - id: inventory-management
       name: Inventory Management
-      entities: [InventoryBalance, InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product, InventoryLocation]
+      entities: [InventoryItem, InventoryBalance, InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product, InventoryLocation]
       processes: [stock-receipt, stock-issue, stock-transfer, lot-traceability, serial-traceability, reservation, cycle-count, adjustment, recall]
     - id: warehouse-management
       name: Warehouse Management
@@ -48,7 +48,7 @@ catalog:
       processes: [asset-acquisition, capitalization, transfer, disposal]
     - id: maintenance-management
       name: Maintenance Management
-      entities: [Asset, MaintenancePlan, MaintenanceWorkOrder, RepairEstimate, RepairEstimateLine]
+      entities: [Asset, Meter, MaintenancePlan, MaintenanceWorkOrder, RepairEstimate, RepairEstimateLine]
       processes: [inspection, preventive-maintenance, corrective-maintenance, repair, closure]
     - id: quality-management
       name: Quality Management
@@ -80,11 +80,11 @@ catalog:
       processes: [case-intake, triage, resolution, escalation, closure]
     - id: project-management
       name: Project Management
-      entities: [Project, ProjectPhase, ProjectTask, Milestone, ResourceAssignment, Timesheet]
+      entities: [Project, ProjectPhase, ProjectTask, Milestone, ResourceAssignment, Timesheet, ProjectCost]
       processes: [project-initiation, planning, execution, monitoring, closure]
     - id: human-capital
       name: Human Capital Management
-      entities: [Employee, Position, Employment, Attendance, LeaveRequest, Payroll]
+      entities: [Employee, Position, Employment, Compensation, Attendance, LeaveRequest, Payroll]
       processes: [recruitment, onboarding, attendance, leave, payroll, offboarding]
     - id: document-management
       name: Document Management
