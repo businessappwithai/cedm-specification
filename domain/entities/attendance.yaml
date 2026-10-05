@@ -1,0 +1,77 @@
+entity:
+  name: Attendance
+  namespace: cedm.domain
+  kind: human_capital_attendance_transaction
+  description: A governed record of an employee's work or absence evidence for a date or interval, distinct from leave authorization and payroll calculation.
+  ui: {icon: clock-3}
+  identity: {key: attendanceId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of attendance evidence., businessMeaning: Identifies one attendance record independently of later approval or correction., usage: "Timekeeping, payroll, scheduling, reporting and audit.", relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact., requiredMeaning: Required.}}
+    - {name: attendanceDate, type: date, required: true, help: {summary: Business date to which attendance evidence applies., businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., usage: "Timekeeping, payroll and reporting.", relationshipContext: Must align with applicable Employment and work schedule., requiredMeaning: Required.}}
+    - name: attendanceType
+      type: enum
+      required: true
+      values: [PRESENT, ABSENT, LEAVE, REMOTE, HOLIDAY, OFF_DAY, OTHER]
+      help:
+        summary: Business interpretation of the attendance record.
+        businessMeaning: Distinguishes work presence and governed non-work categories.
+        usage: Timekeeping, scheduling, payroll and reporting.
+        relationshipContext: LEAVE should reconcile to an approved LeaveRequest where policy requires one.
+        valueSemantics:
+          PRESENT: Employee worked at an approved work context.
+          ABSENT: Employee was absent without another more specific category.
+          LEAVE: Absence is attributable to governed leave.
+          REMOTE: Employee worked from an approved remote context.
+          HOLIDAY: Date is treated as a governed holiday.
+          OFF_DAY: Scheduled non-working day.
+          OTHER: Another governed attendance classification.
+        requiredMeaning: Required.
+    - {name: clockInAt, type: datetime, required: false, help: {summary: Recorded start timestamp for worked time., businessMeaning: Timekeeping evidence used when interval capture applies., usage: "Attendance, overtime and payroll.", relationshipContext: Must not be after clockOutAt when both are supplied., optionalMeaning: Optional for day-status-only or summarized time.}}
+    - {name: clockOutAt, type: datetime, required: false, help: {summary: Recorded end timestamp for worked time., businessMeaning: Completes a captured work interval., usage: "Attendance, overtime and payroll.", relationshipContext: Must not precede clockInAt when both are supplied., optionalMeaning: Optional while a shift is open or for summarized attendance.}}
+    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed worked-time quantity., businessMeaning: Summarized hours attributable to attendance evidence., usage: "Payroll, utilization and reporting.", relationshipContext: Should reconcile to captured intervals and policy when available., optionalMeaning: Optional when derived downstream.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, RECORDED, APPROVED, CANCELLED]
+      help:
+        summary: Governance state of attendance evidence.
+        businessMeaning: Separates provisional capture from approved payroll-eligible evidence.
+        usage: Supervisor review, payroll gating and audit.
+        relationshipContext: APPROVED evidence is historical and corrected through follow-up records.
+        valueSemantics:
+          DRAFT: Record is incomplete or provisional.
+          RECORDED: Timekeeping evidence is captured and awaits approval where required.
+          APPROVED: Evidence is approved for downstream governed use.
+          CANCELLED: Erroneous or inapplicable provisional evidence was cancelled and retained.
+        requiredMeaning: Required.
+  relationships:
+    - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee whose work or absence is recorded., businessMeaning: Establishes the person affected by the evidence., usage: "Timekeeping, payroll and reporting.", cardinalityMeaning: Exactly one Employee., workflowRole: Employee eligibility and work schedule constrain interpretation.}}
+    - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which attendance occurred., businessMeaning: Supplies employer and effective employment context., usage: "Payroll and policy validation.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: attendanceDate must fall within eligible Employment.}}
+    - {name: leaveRequest, target: LeaveRequest, cardinality: "0..1", ownership: reference, help: {summary: Approved leave authorization explaining an absence record., businessMeaning: Connects authorization to actual attendance evidence., usage: "Leave reconciliation and payroll.", cardinalityMeaning: Optional unless attendanceType is LEAVE and policy requires authorization., workflowRole: Leave dates and employee must reconcile.}}
+    - {name: payrollResults, target: Payroll, cardinality: "0..*", ownership: reference, help: {summary: Payroll results that consumed or reconciled this attendance evidence., businessMeaning: Separates time evidence from financial calculation., usage: "Payroll audit and reconciliation.", cardinalityMeaning: Zero or many results where corrections or reruns apply., workflowRole: Approved attendance may become payroll input under policy.}}
+  invariants:
+    - {id: ATTENDANCE-001, rule: clockOutAt must not precede clockInAt when both are supplied.}
+    - {id: ATTENDANCE-002, rule: workedHours must be non-negative when supplied.}
+    - {id: ATTENDANCE-003, rule: attendanceType LEAVE must reconcile to approved leave evidence when policy requires authorization.}
+    - {id: ATTENDANCE-004, rule: APPROVED attendance is historical evidence and corrections require governed corrective or replacement evidence.}
+    - {id: ATTENDANCE-005, rule: Import or capture retries must be idempotent for the same external timekeeping identity.}
+  lifecycle:
+    title: Attendance Lifecycle
+    attribute: status
+    states: [DRAFT, RECORDED, APPROVED, CANCELLED]
+    initial: DRAFT
+    terminal: [APPROVED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: RECORDED, action: record}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: RECORDED, to: APPROVED, action: approve}
+      - {from: RECORDED, to: CANCELLED, action: cancel}
+  help:
+    summary: Represents auditable evidence of employee work presence or absence for timekeeping and downstream payroll use.
+    businessMeaning: Attendance records what happened; LeaveRequest authorizes absence; Payroll calculates financial consequences.
+    usage: HR/HCM, timekeeping, scheduling, payroll, workforce analytics and audit.
+    relationshipContext: Employee is mandatory, Employment supplies eligibility, LeaveRequest explains authorized absence, and Payroll references approved evidence it consumed.
+    lifecycle: Attendance is drafted or recorded, approved for governed downstream use, or cancelled while remaining auditable.
+    example: A worker's approved daily attendance becomes payroll input and any later correction is represented by explicit corrective evidence.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ATTENDANCE}
