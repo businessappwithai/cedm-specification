@@ -1,0 +1,78 @@
+entity:
+  name: Meter
+  namespace: cedm.domain
+  kind: asset_measurement_master
+  description: A governed physical or logical measuring point associated with an Asset or Location and used to drive condition, usage, billing, maintenance or operational decisions.
+  ui: {icon: gauge}
+  identity: {key: meterId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: meterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the meter., businessMeaning: Identifies one measuring point independently of readings., usage: "Maintenance, utilities, operations, audit and integration.", relationshipContext: The meter persists while readings accumulate as evidence., requiredMeaning: Required.}}
+    - {name: meterCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing meter reference., businessMeaning: Operational identifier used on devices, work orders and reports., usage: "Search, field work, integration and audit.", relationshipContext: Distinct from manufacturer serial numbers and Asset identifiers., requiredMeaning: Required.}}
+    - name: meterType
+      type: enum
+      required: true
+      values: [HOURS, DISTANCE, CYCLES, ENERGY, VOLUME, COUNT, PRESSURE, TEMPERATURE, OTHER]
+      help:
+        summary: Measurement purpose of the meter.
+        businessMeaning: Defines how readings are interpreted and which maintenance or operational rules may consume them.
+        usage: Maintenance scheduling, condition monitoring, utilities and analytics.
+        relationshipContext: UnitOfMeasure provides the quantitative unit.
+        valueSemantics:
+          HOURS: Accumulated operating time.
+          DISTANCE: Accumulated distance travelled.
+          CYCLES: Count of operating cycles.
+          ENERGY: Energy consumption or production.
+          VOLUME: Accumulated or instantaneous volume.
+          COUNT: Generic cumulative count.
+          PRESSURE: Pressure measurement.
+          TEMPERATURE: Temperature measurement.
+          OTHER: Governed measurement outside the standard classes.
+        requiredMeaning: Required.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, OUT_OF_SERVICE, RETIRED]
+      help:
+        summary: Operational lifecycle state of the meter.
+        businessMeaning: Controls whether new readings should normally be accepted.
+        usage: Maintenance, telemetry validation and audit.
+        relationshipContext: Historical readings remain valid after status changes.
+        valueSemantics:
+          DRAFT: Meter is being configured.
+          ACTIVE: Meter is available for governed readings.
+          OUT_OF_SERVICE: Meter is temporarily unavailable or unreliable.
+          RETIRED: Meter is permanently withdrawn from new readings.
+        requiredMeaning: Required.
+    - {name: lastReadingValue, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Convenience projection of the latest accepted reading., businessMeaning: Current observed value rather than authoritative reading history., usage: "Scheduling, dashboards and condition monitoring.", relationshipContext: Must remain traceable to reading evidence., optionalMeaning: Optional before the first accepted reading.}}
+    - {name: lastReadingAt, type: datetime, required: false, help: {summary: Timestamp of the latest accepted reading projection., businessMeaning: Indicates freshness of current meter state., usage: "Scheduling, telemetry health and audit.", relationshipContext: Must correspond to the projected latest reading value., optionalMeaning: Optional before the first accepted reading.}}
+  relationships:
+    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: Asset measured by this meter., businessMeaning: Connects usage or condition evidence to a durable managed resource., usage: "Maintenance, reliability and lifecycle analysis.", cardinalityMeaning: Optional when the meter belongs to a Location rather than a specific Asset., workflowRole: Asset lifecycle constrains new meter use but not historical readings.}}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Location measured by or containing this meter., businessMeaning: Supports facility and utility measurement when no single Asset owns the meter., usage: "Facilities, utilities and operational reporting.", cardinalityMeaning: Optional when Asset is sufficient context., workflowRole: At least one governed context must identify what is measured.}}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "1", ownership: reference, help: {summary: Unit in which readings are expressed., businessMeaning: Makes meter values quantitatively unambiguous., usage: "Validation, reporting and integration.", cardinalityMeaning: Exactly one UnitOfMeasure., workflowRole: Unit changes require controlled conversion or meter replacement semantics.}}
+    - {name: maintenancePlans, target: MaintenancePlan, cardinality: "0..*", ownership: reference, help: {summary: Maintenance plans driven or informed by this meter., businessMeaning: Enables usage and condition based maintenance intervals., usage: "Preventive and condition-based maintenance.", cardinalityMeaning: Zero or many plans., workflowRole: Accepted readings may trigger plan-due evaluation without rewriting prior readings.}}
+  invariants:
+    - {id: METER-001, rule: A Meter must identify an Asset or Location as its governed measurement context.}
+    - {id: METER-002, rule: lastReadingValue and lastReadingAt are projections and must remain traceable to accepted reading evidence when present.}
+    - {id: METER-003, rule: RETIRED meters do not accept ordinary new readings; correction evidence remains separately auditable.}
+  lifecycle:
+    title: Meter Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, OUT_OF_SERVICE, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: OUT_OF_SERVICE, action: take_out_of_service}
+      - {from: OUT_OF_SERVICE, to: ACTIVE, action: return_to_service}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: OUT_OF_SERVICE, to: RETIRED, action: retire}
+  help:
+    summary: Defines the measuring point used to observe usage or condition for maintenance and operational decisions.
+    businessMeaning: Meter is the durable measurement master; readings are time-based evidence. Current reading fields are only a convenience projection.
+    usage: Maintenance/EAM, facilities, fleet, utilities, reliability, condition monitoring, reporting and integration.
+    relationshipContext: A Meter belongs to an Asset or Location, uses a governed UnitOfMeasure, and can drive MaintenancePlans.
+    lifecycle: Configuration becomes active, may be taken out of service, and can be retired while historical readings and decisions remain auditable.
+    example: An engine-hour meter on a generator drives a MaintenancePlan due every 500 operating hours.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-METER}
