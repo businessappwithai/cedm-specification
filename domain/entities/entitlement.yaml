@@ -1,0 +1,67 @@
+entity:
+  name: Entitlement
+  namespace: cedm.domain
+  kind: service_entitlement
+  description: A governed right for a Customer to receive a defined service scope under a ServiceContract, including effective dates, coverage limits and optional Asset or Product scope.
+  ui: {icon: badge-check}
+  identity: {key: entitlementId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: entitlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service entitlement., businessMeaning: Identifies one service right independently of the contract header or service work consuming it., usage: "Coverage validation, service authorization, reporting and audit.", relationshipContext: Remains stable as consumption and status change., requiredMeaning: Required.}}
+    - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing entitlement reference., businessMeaning: Operational identifier for coverage administration., usage: "Case intake, service authorization and reporting.", relationshipContext: Distinct from Contract and ServiceContract numbers., requiredMeaning: Required.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: First date the service right may be used., businessMeaning: Starts entitlement eligibility., usage: "Coverage checks and reporting.", relationshipContext: Must fall within the governing ServiceContract period., requiredMeaning: Required.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: Last date the service right may be used., businessMeaning: Ends ordinary eligibility without rewriting historical consumption., usage: "Coverage checks and renewals.", relationshipContext: Must not exceed governed contract scope., optionalMeaning: Optional for open-ended rights permitted by the ServiceContract.}}
+    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: Supports visit, hour, quantity or credit limits according to policy., usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context., optionalMeaning: Optional for unlimited coverage.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUSPENDED, EXHAUSTED, EXPIRED, TERMINATED]
+      help:
+        summary: Lifecycle state controlling new entitlement use.
+        businessMeaning: Distinguishes prepared, usable, temporarily unavailable, consumed and ended rights.
+        usage: Service authorization and audit.
+        relationshipContext: Historical service orders retain entitlement evidence after the right ends.
+        valueSemantics:
+          DRAFT: Entitlement is being prepared.
+          ACTIVE: Eligible covered service may consume the entitlement.
+          SUSPENDED: New ordinary use is temporarily blocked.
+          EXHAUSTED: Governed usage limit has been consumed.
+          EXPIRED: Effective period ended.
+          TERMINATED: Right ended through governed action.
+        requiredMeaning: Required.
+  relationships:
+    - {name: customer, target: Customer, cardinality: "1", ownership: reference, help: {summary: Customer entitled to receive service., businessMeaning: Establishes beneficiary identity., usage: "Service authorization and customer history.", cardinalityMeaning: Exactly one Customer., workflowRole: Must agree with governing ServiceContract.}}
+    - {name: serviceContract, target: ServiceContract, cardinality: "1", ownership: reference, help: {summary: Service contract granting this right., businessMeaning: Supplies commercial and temporal coverage basis., usage: "Authorization, renewal and audit.", cardinalityMeaning: Exactly one ServiceContract., workflowRole: Entitlement scope and dates must remain within contract terms.}}
+    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: Specific Asset covered by the entitlement., businessMeaning: Supports serial or asset-level service rights., usage: "Warranty-like service, field service and maintenance.", cardinalityMeaning: Optional for customer-wide or product-wide coverage., workflowRole: Applied ServiceOrders must concern the same covered Asset when supplied.}}
+    - {name: product, target: Product, cardinality: "0..1", ownership: reference, help: {summary: Product or service family covered by the entitlement., businessMeaning: Defines product-level service scope., usage: "Coverage validation and service catalog integration.", cardinalityMeaning: Optional when Asset or broader contract scope is sufficient., workflowRole: Applied work must be within covered Product scope when supplied.}}
+    - {name: serviceLevelAgreement, target: ServiceLevelAgreement, cardinality: "0..1", ownership: reference, help: {summary: SLA specifically associated with this entitlement., businessMeaning: Defines measurable service commitment for the right., usage: "Deadline and escalation calculation.", cardinalityMeaning: Optional when SLA is inherited from ServiceContract or absent., workflowRole: Applied SLA terms are retained for historical evidence.}}
+    - {name: serviceOrders, target: ServiceOrder, cardinality: "0..*", ownership: reference, help: {summary: Service orders authorized against this entitlement., businessMeaning: Provides concrete consumption and service history., usage: "Usage limits, billing and audit.", cardinalityMeaning: Zero or many orders., workflowRole: New orders require ACTIVE in-scope entitlement with sufficient remaining limit when a limit applies.}}
+  invariants:
+    - {id: ENTITLEMENT-001, rule: effectiveTo must not precede effectiveFrom.}
+    - {id: ENTITLEMENT-002, rule: usageLimit must be positive when supplied.}
+    - {id: ENTITLEMENT-003, rule: Entitlement Customer, scope and effective period must be compatible with the governing ServiceContract.}
+    - {id: ENTITLEMENT-004, rule: Consumption retries must be idempotent and historical ServiceOrder usage must not be lost when entitlement status changes.}
+  lifecycle:
+    title: Entitlement Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, EXHAUSTED, EXPIRED, TERMINATED]
+    initial: DRAFT
+    terminal: [EXHAUSTED, EXPIRED, TERMINATED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: DRAFT, to: TERMINATED, action: terminate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: EXHAUSTED, action: exhaust}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: SUSPENDED, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: TERMINATED, action: terminate}
+      - {from: SUSPENDED, to: TERMINATED, action: terminate}
+  help:
+    summary: Represents a concrete right to covered service under a ServiceContract.
+    businessMeaning: Entitlement answers whether a customer, asset or product scope qualifies for service; ServiceOrder records actual authorized execution.
+    usage: Customer service, field service, contract service, coverage validation, billing and audit.
+    relationshipContext: ServiceContract and Customer are mandatory; Asset, Product and SLA refine scope; ServiceOrders provide consumption evidence.
+    lifecycle: Draft rights become active, may suspend, and end by exhaustion, expiry or termination without losing historical usage.
+    example: A support contract grants ten on-site visits for one Asset; each covered ServiceOrder consumes the Entitlement until the limit is exhausted.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ENTITLEMENT}
