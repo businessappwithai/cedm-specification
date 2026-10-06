@@ -143,6 +143,10 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: insuredParty, target: InsuredParty, cardinality: "0..1", ownership: reference, help: {summary: Insured-party relationship whose coverage is invoked by this Claim., businessMeaning: Preserves policy-specific eligibility context beyond generic claimant identity., usage: "Coverage validation, claims history and audit.", cardinalityMeaning: Optional where claimant or policy-wide coverage is sufficient., workflowRole: InsuredParty must belong to the Claim policy and be eligible at loss time.}}
+  - {name: claimLines, target: ClaimLine, cardinality: "0..*", ownership: aggregate, help: {summary: Line-level benefits, losses or expenses adjudicated within this Claim., businessMeaning: Allows distinct Coverage, amounts and decisions under one claim aggregate., usage: "Claims adjudication, reserves and reporting.", cardinalityMeaning: Zero or many ClaimLines., workflowRole: Header claim outcome must reconcile with line-level decisions.}}
+  - {name: settlements, target: Settlement, cardinality: "0..*", ownership: reference, help: {summary: Settlement transactions discharging approved liability on this Claim., businessMeaning: Separates claim adjudication from payment or other liability discharge., usage: "Claims finance, payment and audit.", cardinalityMeaning: Zero or many Settlements., workflowRole: Executed settlement totals must reconcile to approved liability and line allocations.}}
+
   invariants:
   - id: INSURANCE-CLAIM-001
     rule: approvedAmount cannot exceed claimedAmount when both are supplied.
