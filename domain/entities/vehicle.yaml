@@ -126,6 +126,9 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: drivers, target: Driver, cardinality: "0..*", ownership: reference, help: {summary: Drivers currently or historically assigned to this Vehicle., businessMeaning: Supports operating responsibility without embedding Person identity in Vehicle., usage: "Dispatch, compliance and reporting.", cardinalityMeaning: Zero or many Drivers over vehicle lifecycle., workflowRole: Assignment must validate both Driver and Vehicle eligibility.}}
+  - {name: fuelTransactions, target: FuelTransaction, cardinality: "0..*", ownership: reference, help: {summary: Fuel or energy transactions recorded for this Vehicle., businessMeaning: Preserves consumption and operating-cost history., usage: "Fleet efficiency, cost, fraud control and audit.", cardinalityMeaning: Zero or many transactions., workflowRole: Verified fuel evidence remains historical after Vehicle status changes.}}
+
   invariants:
   - {id: VEHICLE-EXE-001, rule: "Capacity cannot be negative.", violatedWhen: "capacity != null and capacity < 0", message: "Capacity cannot be negative."}
   lifecycle:
