@@ -76,7 +76,7 @@ catalog:
       processes: [lead-management, opportunity-management, quotation, order-capture]
     - id: customer-service
       name: Customer Service
-      entities: [Customer, ServiceCase, ServiceRequest, Task]
+      entities: [Customer, ServiceCase, ServiceRequest, Ticket, ServiceOrder, ServiceContract, Entitlement, ServiceLevelAgreement, Task]
       processes: [case-intake, triage, resolution, escalation, closure]
     - id: project-management
       name: Project Management
