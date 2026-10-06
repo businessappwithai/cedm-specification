@@ -1,0 +1,49 @@
+entity:
+  name: Study
+  namespace: cedm.domain
+  kind: research_study
+  description: A governed organized research investigation carried out under a Protocol within a ResearchProject, coordinating experiments, samples, assays, observations and results.
+  ui: {icon: flask-conical}
+  identity: {key: studyId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: studyId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Study., businessMeaning: Identifies one organized research investigation independently of its component experiments and measurements., usage: "Research operations, reporting and audit.", relationshipContext: Protocol supplies governed method while ResearchProject supplies portfolio context., requiredMeaning: Required.}}
+    - {name: studyCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing study reference., businessMeaning: Operational identifier for study execution and integration., usage: "Search, documents, reporting and audit.", relationshipContext: Distinct from Protocol and Experiment codes., requiredMeaning: Required.}}
+    - {name: title, type: string, required: true, maxLength: 500, help: {summary: Human-readable study title., businessMeaning: States the investigation focus., usage: "Planning, reporting and communication.", relationshipContext: Protocol and project provide additional governance context., requiredMeaning: Required.}}
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, ACTIVE, SUSPENDED, COMPLETED, CANCELLED, ARCHIVED]
+      help: {summary: Lifecycle state of the Study., businessMeaning: Controls execution and evidence collection progression., usage: "Research workflow and audit.", relationshipContext: Completed evidence remains immutable., valueSemantics: {PLANNED: Study is being prepared., ACTIVE: Governed research execution is underway., SUSPENDED: Execution is temporarily paused., COMPLETED: Planned execution concluded., CANCELLED: Study ended before ordinary completion., ARCHIVED: Completed study is closed for ordinary operational change.}, requiredMeaning: Required.}
+  relationships:
+    - {name: project, target: ResearchProject, cardinality: "1", ownership: reference, help: {summary: ResearchProject containing this Study., businessMeaning: Supplies sponsorship, portfolio and accountability context., usage: "Research governance and reporting.", cardinalityMeaning: Exactly one ResearchProject., workflowRole: Project state constrains study execution.}}
+    - {name: protocol, target: Protocol, cardinality: "1", ownership: reference, help: {summary: Approved Protocol governing this Study., businessMeaning: Defines methods and execution rules., usage: "Study execution, reproducibility and audit.", cardinalityMeaning: Exactly one Protocol., workflowRole: Applied version must be retained.}}
+    - {name: experiments, target: Experiment, cardinality: "0..*", ownership: aggregate, help: {summary: Experiments performed within the Study., businessMeaning: Decomposes organized investigation into executable scientific work., usage: "Research execution and traceability.", cardinalityMeaning: Zero or many Experiments., workflowRole: Experiment evidence must remain attributable to Study and Protocol.}}
+    - {name: assays, target: Assay, cardinality: "0..*", ownership: reference, help: {summary: Assays performed for this Study., businessMeaning: Connects analytical methods to the investigation., usage: "Laboratory execution and results traceability.", cardinalityMeaning: Zero or many Assays., workflowRole: Assay provenance and samples must reconcile.}}
+    - {name: observations, target: Observation, cardinality: "0..*", ownership: reference, help: {summary: Recorded observations arising in the Study., businessMeaning: Preserves measured or observed evidence independently of interpretation., usage: "Analysis, reproducibility and audit.", cardinalityMeaning: Zero or many Observations., workflowRole: Evidence is immutable after finalization except explicit correction.}}
+    - {name: results, target: Result, cardinality: "0..*", ownership: reference, help: {summary: Interpreted or summarized results produced by the Study., businessMeaning: Separates conclusions or derived outputs from raw observations., usage: "Analysis, reporting and decisions.", cardinalityMeaning: Zero or many Results., workflowRole: Result lineage must remain traceable to observations/assays.}}
+  invariants:
+    - {id: STUDY-001, rule: ACTIVE Study requires an APPROVED eligible Protocol.}
+    - {id: STUDY-002, rule: Completed or archived Study evidence must not be destructively rewritten; corrections preserve provenance.}
+  lifecycle:
+    title: Study Lifecycle
+    attribute: status
+    states: [PLANNED, ACTIVE, SUSPENDED, COMPLETED, CANCELLED, ARCHIVED]
+    initial: PLANNED
+    terminal: [CANCELLED, ARCHIVED]
+    transitions:
+      - {from: PLANNED, to: ACTIVE, action: activate}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+      - {from: COMPLETED, to: ARCHIVED, action: archive}
+  help:
+    summary: Coordinates one governed research investigation under a Protocol.
+    businessMeaning: Study is the organized investigation; Experiment and Assay execute work; Observation records evidence; Result records derived interpretation.
+    usage: Research, life sciences, laboratories, analytics, reproducibility and audit.
+    relationshipContext: Project and Protocol are mandatory; experiments, assays, observations and results form the evidence graph.
+    lifecycle: Study is planned, executed, may suspend, completes and archives or is cancelled.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-STUDY}
