@@ -160,6 +160,9 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: practitioners, target: Practitioner, cardinality: "0..*", ownership: reference, help: {summary: Practitioners participating in this encounter., businessMeaning: Preserves actual professional care attribution., usage: "Clinical operations, reporting and audit.", cardinalityMeaning: Zero or many practitioners according to care setting., workflowRole: Historical participation remains attributable after later credential or affiliation changes.}}
+  - {name: appointment, target: Appointment, cardinality: "0..1", ownership: reference, help: {summary: Appointment from which this encounter arose., businessMeaning: Reconciles planned care with actual care delivery., usage: "Scheduling analytics, patient flow and audit.", cardinalityMeaning: Optional for walk-in, emergency or unscheduled encounters., workflowRole: Appointment and Encounter patient/provider context must reconcile where linked.}}
+
   invariants:
   - id: ENCOUNTER-001
     rule: endAt must not precede startAt.
