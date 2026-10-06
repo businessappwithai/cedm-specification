@@ -1,0 +1,62 @@
+entity:
+  name: Practitioner
+  namespace: cedm.domain
+  kind: healthcare_practitioner
+  description: A governed healthcare professional role held by a Person who is authorized to deliver, order, supervise or document healthcare services within defined provider and credential contexts.
+  ui: {icon: stethoscope}
+  identity: {key: practitionerId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: practitionerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the practitioner role., businessMeaning: Identifies one governed professional healthcare role independently of the underlying Person identity., usage: "Scheduling, encounters, orders, credentialing, reporting and audit.", relationshipContext: Person supplies human identity while Practitioner supplies professional service role., requiredMeaning: Required.}}
+    - {name: practitionerCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing practitioner reference., businessMeaning: Operational identifier used by healthcare workflows and integrations., usage: "Search, scheduling, encounter documentation and reporting.", relationshipContext: Distinct from professional license numbers and Person identity., requiredMeaning: Required.}}
+    - {name: licenseNumber, type: string, required: false, maxLength: 200, help: {summary: Professional credential or license identifier when applicable., businessMeaning: Supports evidence that the practitioner is authorized under an external credentialing regime., usage: "Credentialing, compliance and reporting.", relationshipContext: Jurisdiction and credential type may require additional governed context outside this baseline entity., optionalMeaning: Optional where no license number applies or credential details are managed elsewhere.}}
+    - {name: specialty, type: string, required: false, maxLength: 200, help: {summary: Primary clinical or professional specialty., businessMeaning: Describes the practitioner's service domain for scheduling and routing., usage: "Scheduling, referral, reporting and provider directories.", relationshipContext: Does not replace formal credential or privilege evidence., optionalMeaning: Optional where specialty classification is not used.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
+      help:
+        summary: Lifecycle state controlling ordinary professional participation.
+        businessMeaning: Distinguishes preparation, active practice, temporary restriction, inactivity and retirement.
+        usage: Scheduling, authorization, encounter validation and audit.
+        relationshipContext: Historical encounters remain attributable after status changes.
+        valueSemantics:
+          DRAFT: Professional role is being configured.
+          ACTIVE: Practitioner is eligible for governed professional work subject to credentials and privileges.
+          SUSPENDED: New ordinary professional activity is temporarily restricted.
+          INACTIVE: Practitioner is not currently available for ordinary new activity.
+          RETIRED: Practitioner role is permanently closed for new activity.
+        requiredMeaning: Required.
+  relationships:
+    - {name: person, target: Person, cardinality: "1", ownership: reference, help: {summary: Person holding the practitioner role., businessMeaning: Separates common human identity from healthcare professional role., usage: "Identity, contact, scheduling and audit.", cardinalityMeaning: Exactly one Person., workflowRole: Person identity changes do not rewrite historical clinical attribution.}}
+    - {name: providers, target: HealthcareProvider, cardinality: "0..*", ownership: reference, help: {summary: Healthcare providers with which the practitioner is affiliated or authorized to work., businessMeaning: Supplies organizational care-delivery context., usage: "Scheduling, credentialing and reporting.", cardinalityMeaning: Zero or many provider affiliations., workflowRole: Provider affiliation and practitioner status jointly constrain new appointments and encounters.}}
+    - {name: appointments, target: Appointment, cardinality: "0..*", ownership: reference, help: {summary: Appointments assigned to this practitioner., businessMeaning: Provides scheduled-care workload independently of actual encounter history., usage: "Scheduling, capacity and patient service.", cardinalityMeaning: Zero or many appointments., workflowRole: Scheduling must respect practitioner eligibility and availability policy.}}
+    - {name: encounters, target: HealthcareEncounter, cardinality: "0..*", ownership: reference, help: {summary: Healthcare encounters in which this practitioner participated., businessMeaning: Preserves actual care-delivery attribution., usage: "Clinical operations, reporting and audit.", cardinalityMeaning: Zero or many encounters., workflowRole: Historical encounter attribution remains intact after practitioner status changes.}}
+  invariants:
+    - {id: PRACTITIONER-001, rule: ACTIVE practitioner participation requires applicable credential and affiliation eligibility under organization policy.}
+    - {id: PRACTITIONER-002, rule: SUSPENDED, INACTIVE or RETIRED status prevents ordinary new appointments or encounters except explicitly governed exceptions.}
+    - {id: PRACTITIONER-003, rule: Historical appointment and encounter attribution must not be rewritten merely because practitioner affiliation or credentials later change.}
+  lifecycle:
+    title: Practitioner Lifecycle
+    attribute: status
+    states: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
+    initial: DRAFT
+    terminal: [RETIRED]
+    transitions:
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: DRAFT, to: RETIRED, action: retire}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+  help:
+    summary: Represents the professional healthcare role of a Person.
+    businessMeaning: Practitioner identifies who is professionally authorized to deliver care; HealthcareProvider supplies organizational context; Appointment schedules intended care and HealthcareEncounter records actual care.
+    usage: Healthcare scheduling, provider directories, encounters, credentialing, reporting and audit.
+    relationshipContext: Person is mandatory, provider affiliations define care settings, appointments represent scheduled commitments and encounters preserve actual participation.
+    lifecycle: Practitioner roles become active after setup, may suspend or become inactive, and eventually retire while historical care evidence remains attributable.
+    example: A physician Person holds one Practitioner record, is affiliated with two HealthcareProviders, has scheduled Appointments and is later referenced by completed HealthcareEncounters.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRACTITIONER}
