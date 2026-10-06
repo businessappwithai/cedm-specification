@@ -96,6 +96,11 @@ entity:
       cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: course, target: EducationCourse, cardinality: "0..1", ownership: reference, help: {summary: Course associated with this Enrollment when course-level registration applies., businessMeaning: Adds curriculum participation context alongside program enrollment., usage: "Registration, class assignment and reporting.", cardinalityMeaning: Optional when Enrollment is only program-level., workflowRole: Course must belong to or be eligible under the governing EducationProgram where policy requires.}}
+  - {name: class, target: Class, cardinality: "0..1", ownership: reference, help: {summary: Specific Class assigned under this Enrollment., businessMeaning: Establishes delivery-instance membership for attendance and assessment., usage: "Registers, schedules and gradebook.", cardinalityMeaning: Optional until class assignment or for program-only enrollment., workflowRole: Class course/program context must be compatible with Enrollment.}}
+  - {name: grades, target: Grade, cardinality: "0..*", ownership: reference, help: {summary: Grades whose learner eligibility is supported by this Enrollment., businessMeaning: Connects academic results to registration context., usage: "Gradebook, transcript and audit.", cardinalityMeaning: Zero or many Grades., workflowRole: Grade student and assessment context must agree with Enrollment.}}
+  - {name: fees, target: Fee, cardinality: "0..*", ownership: reference, help: {summary: Education Fees attributable to this Enrollment., businessMeaning: Connects program/course participation to student charges., usage: "Tuition, student accounts and reconciliation.", cardinalityMeaning: Zero or many Fees., workflowRole: Fee student and Enrollment must agree.}}
+
   invariants:
   - id: ENROLLMENT-001
     rule: a COMPLETED enrollment must have completion evidence or outcome where required by the program.
