@@ -144,7 +144,8 @@ todo:
     - id: healthcare
       name: Healthcare
       entities: [HealthcarePatient, HealthcareProvider, Practitioner, HealthcareEncounter, Appointment, Diagnosis, Procedure, Medication, InsuranceClaim]
-      status: pending-verification
+      status: in-progress
+      notes: Practitioner and Appointment are now implemented and connected to HealthcarePatient, HealthcareProvider and HealthcareEncounter; all requested core Healthcare entities are represented, with deeper clinical scheduling semantics and repository validation remaining.
     - id: education
       name: Education
       entities: [EducationStudent, Guardian, EducationCourse, Class, Enrollment, Attendance, Assessment, Grade, Fee]
@@ -205,12 +206,12 @@ todo:
 
   auditBaseline:
     measuredAt: 2026-10-06
-    registeredEntities: 322
+    registeredEntities: 324
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 38
+    unregisteredRequestedNames: 36
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 38 unresolved requested names, then validate help and relationship integrity.
-    progress: Added the complete requested Service Management tranche and propagated service-case, ticket, order, contract and entitlement relationships across customer, contract, asset, product, SLA and EAM contexts.
+    nextAudit: Continue classifying and implementing the remaining 36 unresolved requested names, then validate help and relationship integrity.
+    progress: Added Practitioner and Appointment and reconciled planned-care versus actual-encounter semantics across patient, provider and encounter records.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
     Quote: Quotation
