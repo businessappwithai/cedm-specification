@@ -1,0 +1,47 @@
+entity:
+  name: GateEvent
+  namespace: cedm.domain
+  kind: terminal_gate_event
+  description: An immutable operational event recording a governed entry, exit or gate-processing occurrence for a Container, Vehicle or visit at a terminal Gate.
+  ui: {icon: log-in}
+  identity: {key: gateEventId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: gateEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Gate event., businessMeaning: Identifies one terminal entry/exit occurrence independently of current container or vehicle state., usage: "Terminal operations, custody, billing, security and audit.", relationshipContext: Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects., requiredMeaning: Required.}}
+    - {name: occurredAt, type: datetime, required: true, help: {summary: Timestamp of the gate occurrence., businessMeaning: Establishes custody and terminal chronology., usage: "Tracking, dwell, security and audit.", relationshipContext: Must preserve source event time independently of ingestion time., requiredMeaning: Required.}}
+    - name: direction
+      type: enum
+      required: true
+      values: [IN, OUT, INTERNAL, OTHER]
+      help: {summary: Direction or category of gate movement., businessMeaning: Determines whether the event represents entry, exit or another gate-controlled movement., usage: "Custody, yard inventory and reporting.", relationshipContext: ContainerVisit/Movement must reconcile to direction., valueSemantics: {IN: Entry into controlled area., OUT: Exit from controlled area., INTERNAL: Internal gate-controlled transition., OTHER: Another governed gate direction.}, requiredMeaning: Required.}
+    - name: status
+      type: enum
+      required: true
+      default: RECORDED
+      values: [RECORDED, VERIFIED, REVERSED]
+      help: {summary: Governance state of the GateEvent., businessMeaning: Distinguishes captured, verified and explicitly reversed events., usage: "Terminal reconciliation and audit.", relationshipContext: Reversal preserves original evidence., valueSemantics: {RECORDED: Event captured., VERIFIED: Event validated., REVERSED: Event effect explicitly reversed.}, requiredMeaning: Required.}
+  relationships:
+    - {name: gate, target: Gate, cardinality: "1", ownership: reference, help: {summary: Terminal Gate where the event occurred., businessMeaning: Supplies checkpoint context., usage: "Operations, security and reporting.", cardinalityMeaning: Exactly one Gate., workflowRole: Gate must be operational at event time except governed exceptions.}}
+    - {name: container, target: Container, cardinality: "0..1", ownership: reference, help: {summary: Container processed by the GateEvent., businessMeaning: Preserves container custody and terminal presence evidence., usage: "Container tracking and yard operations.", cardinalityMeaning: Optional for vehicle-only or non-container events., workflowRole: ContainerVisit/Movement direction must reconcile.}}
+    - {name: vehicle, target: Vehicle, cardinality: "0..1", ownership: reference, help: {summary: Vehicle processed by the GateEvent., businessMeaning: Preserves landside transport context., usage: "Truck gate, fleet and security.", cardinalityMeaning: Optional where no Vehicle is involved., workflowRole: Vehicle/driver eligibility may be validated under terminal policy.}}
+    - {name: driver, target: Driver, cardinality: "0..1", ownership: reference, help: {summary: Driver associated with the gate movement., businessMeaning: Supports access authorization and accountability., usage: "Security, transport and audit.", cardinalityMeaning: Optional where no driver is involved., workflowRole: Driver eligibility is evaluated at event time.}}
+    - {name: containerVisit, target: ContainerVisit, cardinality: "0..1", ownership: reference, help: {summary: Container terminal visit to which this GateEvent belongs., businessMeaning: Connects immutable gate evidence to the container's broader terminal stay., usage: "Dwell, custody and terminal reporting.", cardinalityMeaning: Optional before visit matching or for non-container events., workflowRole: Gate-in/out chronology must reconcile to Visit lifecycle.}}
+  invariants:
+    - {id: GATE-EVENT-001, rule: GateEvent must identify at least one operational subject such as Container or Vehicle.}
+    - {id: GATE-EVENT-002, rule: VERIFIED GateEvent is immutable evidence; corrections use an explicit reversal/follow-up event.}
+    - {id: GATE-EVENT-003, rule: Import retries must be idempotent for the same external gate transaction identity.}
+  lifecycle:
+    title: Gate Event Lifecycle
+    attribute: status
+    states: [RECORDED, VERIFIED, REVERSED]
+    initial: RECORDED
+    terminal: [VERIFIED, REVERSED]
+    transitions:
+      - {from: RECORDED, to: VERIFIED, action: verify}
+      - {from: RECORDED, to: REVERSED, action: reverse}
+  help:
+    summary: Preserves immutable terminal gate entry/exit evidence.
+    businessMeaning: Gate is checkpoint master data; GateEvent records what happened; ContainerVisit and Movement summarize broader operational state/history.
+    usage: Container terminals, ports, yards, security, custody, billing, tracking and audit.
+    relationshipContext: Gate is mandatory; Container, Vehicle, Driver and ContainerVisit identify event subjects and context.
+    lifecycle: Event is recorded, then verified or reversed with original evidence retained.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GATE-EVENT}
