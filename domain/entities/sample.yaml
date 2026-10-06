@@ -146,6 +146,9 @@ entity:
       usage: Lineage navigation, custody, quantity reconciliation, and audit.
       cardinalityMeaning: A sample may produce zero or many derived samples.
       context: Derivation does not silently overwrite the source sample history.
+  - {name: assays, target: Assay, cardinality: "0..*", ownership: reference, help: {summary: Assay executions that analyze this Sample., businessMeaning: Connects specimen provenance to analytical work., usage: "Laboratory operations, chain of custody and audit.", cardinalityMeaning: Zero or many Assays subject to sample availability and protocol., workflowRole: Assay use must preserve sample lineage and quantity/custody rules.}}
+  - {name: observations, target: Observation, cardinality: "0..*", ownership: reference, help: {summary: Observations directly attributed to this Sample., businessMeaning: Preserves measurement provenance even when no explicit Assay is modeled., usage: "Research analysis and audit.", cardinalityMeaning: Zero or many Observations., workflowRole: Evidence remains linked to the sample lineage that produced it.}}
+
   invariants:
   - id: SAMPLE-001
     rule: sampleCode must uniquely identify a Sample within the governing research context.
