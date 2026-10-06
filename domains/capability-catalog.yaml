@@ -122,6 +122,14 @@ catalog:
       name: Sustainability and ESG
       entities: [Emission, EnergyUsage, WasteRecord, ESGMetric, SustainabilityTarget]
       processes: [measurement, target-setting, reduction, disclosure, assurance]
+    - id: healthcare-operations
+      name: Healthcare Operations
+      entities: [HealthcarePatient, HealthcareProvider, Practitioner, Appointment, HealthcareEncounter, Diagnosis, Procedure, Medication, InsuranceClaim]
+      processes: [patient-registration, appointment-scheduling, check-in, encounter-management, diagnosis, procedure, medication-management, claim-preparation]
+    - id: education-management
+      name: Education Management
+      entities: [EducationStudent, Guardian, EducationCourse, Class, Enrollment, Attendance, Assessment, Grade, Fee]
+      processes: [student-administration, enrollment, class-scheduling, attendance, assessment, grading, student-fee-management]
     - id: budgeting-planning
       name: Budgeting and Planning
       entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
