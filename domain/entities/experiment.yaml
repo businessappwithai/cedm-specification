@@ -144,6 +144,11 @@ entity:
       cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: protocol, target: Protocol, cardinality: "0..1", ownership: reference, help: {summary: Protocol governing this Experiment., businessMeaning: Supplies reproducible method definition., usage: "Experiment execution and audit.", cardinalityMeaning: Optional when method is governed elsewhere., workflowRole: Applied protocol/version remains historical.}}
+  - {name: study, target: Study, cardinality: "0..1", ownership: reference, help: {summary: Study containing this Experiment., businessMeaning: Connects experiment execution to an organized investigation., usage: "Research traceability and reporting.", cardinalityMeaning: Optional for standalone experiments., workflowRole: Study and protocol context must be compatible.}}
+  - {name: assays, target: Assay, cardinality: "0..*", ownership: reference, help: {summary: Analytical Assays performed as part of this Experiment., businessMeaning: Connects experimental work to analytical execution., usage: "Laboratory traceability and results interpretation.", cardinalityMeaning: Zero or many Assays., workflowRole: Assay samples and evidence must reconcile to Experiment context.}}
+  - {name: observations, target: Observation, cardinality: "0..*", ownership: reference, help: {summary: Primary Observations captured during this Experiment., businessMeaning: Preserves evidence independently of conclusions., usage: "Analysis, reproducibility and audit.", cardinalityMeaning: Zero or many Observations., workflowRole: Observation provenance remains immutable after experiment completion.}}
+
   invariants:
   - id: EXPERIMENT-001
     rule: completedAt must not precede startedAt.
