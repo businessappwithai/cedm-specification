@@ -154,7 +154,8 @@ todo:
     - id: insurance
       name: Insurance
       entities: [InsurancePolicy, Coverage, InsuredParty, Premium, InsuranceClaim, ClaimLine, Underwriting, Settlement]
-      status: pending-verification
+      status: in-progress
+      notes: Coverage, InsuredParty, Premium, ClaimLine, Underwriting and Settlement are now implemented and connected to InsurancePolicy, InsuranceClaim, Invoice, Payment and RiskAssessment; all requested core Insurance entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: banking-financial-services
       name: Banking / Financial Services
       entities: [Account, Customer, Deposit, BankLoan, Facility, BankTransaction, Interest, Collateral]
@@ -207,12 +208,12 @@ todo:
 
   auditBaseline:
     measuredAt: 2026-10-06
-    registeredEntities: 329
+    registeredEntities: 335
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 31
+    unregisteredRequestedNames: 25
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 31 unresolved requested names, then validate help and relationship integrity.
-    progress: Completed the requested Education tranche, generalized Attendance across HCM and Education, and added explicit Healthcare and Education capability-catalog coverage.
+    nextAudit: Continue classifying and implementing the remaining 25 unresolved requested names, then validate help and relationship integrity.
+    progress: Completed the requested Insurance tranche with explicit coverage, insured-party, premium, underwriting, claim-line and settlement semantics plus finance/risk reconciliation.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
     Quote: Quotation
