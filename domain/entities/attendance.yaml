@@ -2,7 +2,7 @@ entity:
   name: Attendance
   namespace: cedm.domain
   kind: human_capital_attendance_transaction
-  description: A governed record of an employee's work or absence evidence for a date or interval, distinct from leave authorization and payroll calculation.
+  description: A governed record of a person's presence, participation, work, or absence for a date or interval in an employment or education context, preserving domain-specific authorization and downstream consequences.
   ui: {icon: clock-3}
   identity: {key: attendanceId, type: uuid, generated: true, immutable: true}
   attributes:
@@ -55,7 +55,8 @@ entity:
     - {id: ATTENDANCE-002, rule: workedHours must be non-negative when supplied.}
     - {id: ATTENDANCE-003, rule: attendanceType LEAVE must reconcile to approved leave evidence when policy requires authorization.}
     - {id: ATTENDANCE-004, rule: APPROVED attendance is historical evidence and corrections require governed corrective or replacement evidence.}
-    - {id: ATTENDANCE-005, rule: Import or capture retries must be idempotent for the same external timekeeping identity.}
+    - {id: ATTENDANCE-005, rule: Import or capture retries must be idempotent for the same external attendance identity.}
+    - {id: ATTENDANCE-006, rule: Attendance must identify at least one governed subject through employee or student; domain-specific context relationships must agree with that subject.}
   lifecycle:
     title: Attendance Lifecycle
     attribute: status
@@ -68,10 +69,10 @@ entity:
       - {from: RECORDED, to: APPROVED, action: approve}
       - {from: RECORDED, to: CANCELLED, action: cancel}
   help:
-    summary: Represents auditable evidence of employee work presence or absence for timekeeping and downstream payroll use.
-    businessMeaning: Attendance records what happened; LeaveRequest authorizes absence; Payroll calculates financial consequences.
-    usage: HR/HCM, timekeeping, scheduling, payroll, workforce analytics and audit.
-    relationshipContext: Employee is mandatory, Employment supplies eligibility, LeaveRequest explains authorized absence, and Payroll references approved evidence it consumed.
+    summary: Represents auditable evidence of presence, participation, work or absence across employment and education contexts.
+    businessMeaning: Attendance records what actually happened. In HCM, LeaveRequest authorizes absence and Payroll calculates financial consequences; in Education, Class and Enrollment context explain expected participation.
+    usage: HR/HCM, education, timekeeping, class registers, scheduling, payroll, workforce or learner analytics and audit.
+    relationshipContext: Employee or EducationStudent identifies the attendance subject. Employment and LeaveRequest provide HCM context; Class and Enrollment-related policy provide education context; Payroll may reference approved HCM evidence.
     lifecycle: Attendance is drafted or recorded, approved for governed downstream use, or cancelled while remaining auditable.
     example: A worker's approved daily attendance becomes payroll input and any later correction is represented by explicit corrective evidence.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ATTENDANCE}
