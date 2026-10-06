@@ -11,6 +11,8 @@ entity:
   - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
   relationships:
   - {name: risk, target: Risk, cardinality: '1', ownership: reference, help: {summary: Risk being assessed., businessMeaning: Supplies risk identity and context., usage: Risk governance and treatment., cardinalityMeaning: Exactly one Risk., workflowRole: Assessment may drive controls/treatment without rewriting prior assessments.}}
+  - {name: underwritingEvaluations, target: Underwriting, cardinality: "0..*", ownership: reference, help: {summary: Insurance underwriting evaluations supported by this RiskAssessment., businessMeaning: Reuses structured enterprise risk evidence without turning RiskAssessment into insurance decision authority., usage: "Underwriting decision support and audit.", cardinalityMeaning: Zero or many underwriting evaluations may reference the assessment., workflowRole: Underwriting decisions remain separately governed and explainable.}}
+
   invariants:
   - {id: RISK-ASSESSMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
