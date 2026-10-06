@@ -18,6 +18,7 @@ registry:
     - Allergy
     - Appointment
     - Approval
+    - Assay
     - Assessment
     - Asset
     - AssetAcquisition
@@ -194,6 +195,7 @@ registry:
     - Nonconformance
     - NonprofitCampaign
     - Obligation
+    - Observation
     - Operation
     - Opportunity
     - Organization
@@ -236,6 +238,7 @@ registry:
     - Promotion
     - Property
     - Prospect
+    - Protocol
     - PurchaseOrder
     - PurchaseOrderLine
     - PurchaseRequisition
@@ -256,6 +259,7 @@ registry:
     - RequestForQuotationLine
     - ResearchProject
     - ResourceAssignment
+    - Result
     - RetailSale
     - RetailSaleLine
     - ReturnDisposition
@@ -288,6 +292,7 @@ registry:
     - SparePart
     - StateProvince
     - Store
+    - Study
     - Subscription
     - SubscriptionPlan
     - Supplier
