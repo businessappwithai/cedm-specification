@@ -106,6 +106,7 @@ registry:
     - EnergyMeter
     - EnergyTariff
     - Enrollment
+    - Entitlement
     - Equipment
     - ERP
     - Escalation
@@ -262,7 +263,10 @@ registry:
     - Scrap
     - SecurityIncident
     - SerialNumber
+    - ServiceCase
+    - ServiceContract
     - ServiceLevelAgreement
+    - ServiceOrder
     - ServiceRequest
     - Shipment
     - ShipmentLine
@@ -301,6 +305,7 @@ registry:
     - TelecomService
     - TelecomSubscription
     - TestMethod
+    - Ticket
     - Timesheet
     - TrackingEvent
     - TradeDeclaration
