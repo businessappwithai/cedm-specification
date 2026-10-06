@@ -100,7 +100,7 @@ todo:
       name: Service Management
       entities: [ServiceRequest, ServiceCase, Ticket, ServiceLevelAgreement, ServiceOrder, ServiceContract, Entitlement]
       status: in-progress
-      notes: ServiceLevelAgreement is implemented and linked from ServiceRequest; remaining requested service entities require systematic verification.
+      notes: ServiceCase, Ticket, ServiceOrder, ServiceContract and Entitlement are now implemented and connected to ServiceRequest, ServiceLevelAgreement, Contract, Customer, Asset, Product and MaintenanceWorkOrder; all requested core Service Management entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: contracts
       name: Contracts
       entities: [Contract, ContractLine, ContractClause, ContractObligation, ContractAmendment, ContractRenewal, ContractTermination]
@@ -205,12 +205,12 @@ todo:
 
   auditBaseline:
     measuredAt: 2026-10-06
-    registeredEntities: 317
+    registeredEntities: 322
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 43
+    unregisteredRequestedNames: 38
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 43 unresolved requested names, then validate help and relationship integrity.
-    progress: Added six canonical entities for inventory, Maintenance/EAM, projects and HCM and propagated reciprocal relationships into existing domain records.
+    nextAudit: Continue classifying and implementing the remaining 38 unresolved requested names, then validate help and relationship integrity.
+    progress: Added the complete requested Service Management tranche and propagated service-case, ticket, order, contract and entitlement relationships across customer, contract, asset, product, SLA and EAM contexts.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
     Quote: Quotation
