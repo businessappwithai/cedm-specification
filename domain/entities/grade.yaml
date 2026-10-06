@@ -1,0 +1,42 @@
+entity:
+  name: Grade
+  namespace: cedm.domain
+  kind: education_grade
+  description: A governed learner-specific outcome for an Assessment, preserving score, grade value and finalization history independently of the Assessment definition.
+  ui: {icon: badge}
+  identity: {key: gradeId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: gradeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the learner assessment outcome., businessMeaning: Identifies one Grade independently of later correction or transcript presentation., usage: "Gradebook, transcript, learner analytics and audit.", relationshipContext: Assessment and EducationStudent define what and who were evaluated., requiredMeaning: Required.}}
+    - {name: score, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Numeric score achieved by the learner when numeric scoring applies., businessMeaning: Raw or governed numeric outcome before or alongside grade-value interpretation., usage: "Grade calculation and analytics.", relationshipContext: Must respect Assessment maxScore when applicable., optionalMeaning: Optional for purely categorical grading.}}
+    - {name: gradeValue, type: string, required: false, maxLength: 80, help: {summary: Human-readable or categorical grade value., businessMeaning: Records values such as A, Pass, Distinction or rubric result under policy., usage: "Gradebook, transcript and communication.", relationshipContext: Interpretation belongs to the applicable grading policy., optionalMeaning: Optional when numeric score alone is authoritative.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, FINAL, VOID]
+      help: {summary: Governance state of the Grade., businessMeaning: Distinguishes provisional result, finalized academic evidence and voided erroneous record., usage: "Grade approval, transcript and audit.", relationshipContext: FINAL grades are immutable historical evidence under ordinary operation., valueSemantics: {DRAFT: Result is provisional., FINAL: Result is approved/final., VOID: Record is invalidated while retained for audit.}, requiredMeaning: Required.}
+  relationships:
+    - {name: student, target: EducationStudent, cardinality: "1", ownership: reference, help: {summary: Student receiving this Grade., businessMeaning: Establishes learner identity for the result., usage: "Gradebook, transcript and analytics.", cardinalityMeaning: Exactly one EducationStudent., workflowRole: Student must be eligible for the Assessment context.}}
+    - {name: assessment, target: Assessment, cardinality: "1", ownership: reference, help: {summary: Assessment producing this learner outcome., businessMeaning: Supplies scoring scale, type and curriculum context., usage: "Grade validation and reporting.", cardinalityMeaning: Exactly one Assessment., workflowRole: Score and finalization must comply with Assessment policy.}}
+    - {name: enrollment, target: Enrollment, cardinality: "0..1", ownership: reference, help: {summary: Enrollment establishing learner eligibility for the course or class., businessMeaning: Provides registration context for the Grade., usage: "Gradebook, transcript and eligibility checks.", cardinalityMeaning: Optional when eligibility is established elsewhere., workflowRole: Enrollment student/course context must agree with Grade and Assessment.}}
+  invariants:
+    - {id: GRADE-001, rule: At least one of score or gradeValue must be supplied.}
+    - {id: GRADE-002, rule: score must not exceed Assessment maxScore when maxScore is defined, except under explicit governed extra-credit policy.}
+    - {id: GRADE-003, rule: FINAL Grade is immutable academic evidence; correction uses a governed replacement, amendment or void process rather than destructive overwrite.}
+  lifecycle:
+    title: Grade Lifecycle
+    attribute: status
+    states: [DRAFT, FINAL, VOID]
+    initial: DRAFT
+    terminal: [FINAL, VOID]
+    transitions:
+      - {from: DRAFT, to: FINAL, action: finalize}
+      - {from: DRAFT, to: VOID, action: void}
+  help:
+    summary: Records one learner's result for one Assessment.
+    businessMeaning: Assessment defines the evaluated activity; Grade is the student-specific outcome retained for academic evidence.
+    usage: Gradebooks, transcripts, learner progress, reporting, certification and audit.
+    relationshipContext: EducationStudent and Assessment are mandatory; Enrollment may supply eligibility context.
+    lifecycle: Grade begins provisional and becomes final or void; final outcomes are corrected through explicit follow-up evidence.
+    example: A student receives score 86 and grade value A on a published Assessment, then the Grade is finalized for transcript use.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GRADE}
