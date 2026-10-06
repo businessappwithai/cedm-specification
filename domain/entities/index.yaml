@@ -53,6 +53,7 @@ registry:
     - Charge
     - ChemicalBatch
     - City
+    - ClaimLine
     - Class
     - Classification
     - Collateral
@@ -77,6 +78,7 @@ registry:
     - CorrectiveActionVerification
     - CostCenter
     - Country
+    - Coverage
     - Credit
     - CreditNote
     - CreditNoteApplication
@@ -148,6 +150,7 @@ registry:
     - InspectionSample
     - InsuranceClaim
     - InsurancePolicy
+    - InsuredParty
     - IntegrationEndpoint
     - Interest
     - InventoryAdjustment
@@ -211,6 +214,7 @@ registry:
     - Policy
     - Position
     - Practitioner
+    - Premium
     - Prescription
     - Pricing
     - Procedure
@@ -275,6 +279,7 @@ registry:
     - ServiceLevelAgreement
     - ServiceOrder
     - ServiceRequest
+    - Settlement
     - Shipment
     - ShipmentLine
     - ShoppingCart
@@ -318,6 +323,7 @@ registry:
     - TradeDeclaration
     - Trip
     - TripSegment
+    - Underwriting
     - UnitOfMeasure
     - UsageRecord
     - User
