@@ -242,6 +242,9 @@ entity:
       cardinalityMeaning: A Product may participate in zero or many InventoryItem profiles.
       workflowRole: Product lifecycle changes require validation of active inventory profiles without rewriting historical stock evidence.
 
+  - {name: serviceOrders, target: ServiceOrder, cardinality: "0..*", ownership: reference, help: {summary: Service execution orders associated with this Product or service definition., businessMeaning: Connects standardized offering/equipment context to service history., usage: "Service catalog, field service, billing and analytics.", cardinalityMeaning: Zero or many orders., workflowRole: Product lifecycle affects future eligibility without rewriting completed service.}}
+  - {name: entitlements, target: Entitlement, cardinality: "0..*", ownership: reference, help: {summary: Entitlements whose coverage is scoped to this Product., businessMeaning: Expresses product-level service rights outside the product master itself., usage: "Coverage validation and service authorization.", cardinalityMeaning: Zero or many entitlements., workflowRole: Applied service must remain within covered scope.}}
+
   invariants:
   - id: PRODUCT-001
     rule: code must be unique within its ERP context.
