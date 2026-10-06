@@ -1,0 +1,45 @@
+entity:
+  name: Assay
+  namespace: cedm.domain
+  kind: research_assay
+  description: A governed analytical or experimental procedure execution performed on one or more Samples to produce Observations and Results under a Protocol or Study context.
+  ui: {icon: test-tube}
+  identity: {key: assayId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: assayId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Assay execution., businessMeaning: Identifies one analytical execution independently of samples and resulting measurements., usage: "Laboratory operations, analysis, reporting and audit.", relationshipContext: Samples are inputs while Observations and Results are outputs., requiredMeaning: Required.}}
+    - {name: assayCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing assay reference., businessMeaning: Operational identifier for laboratory execution and integration., usage: "Search, instrument integration and reporting.", relationshipContext: Distinct from reusable Protocol code., requiredMeaning: Required.}}
+    - {name: assayType, type: string, required: true, maxLength: 160, help: {summary: Scientific classification of the assay., businessMeaning: Identifies analytical method family for planning and interpretation., usage: "Laboratory routing and analytics.", relationshipContext: Detailed method is supplied by Protocol when applicable., requiredMeaning: Required.}}
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, RUNNING, COMPLETED, FAILED, CANCELLED]
+      help: {summary: Lifecycle state of the Assay execution., businessMeaning: Tracks analytical execution and final outcome., usage: "Laboratory workflow and audit.", relationshipContext: Completed observations/results retain assay identity., valueSemantics: {PLANNED: Assay is prepared but not started., RUNNING: Execution is underway., COMPLETED: Execution concluded successfully., FAILED: Execution failed and evidence is retained., CANCELLED: Execution was cancelled.}, requiredMeaning: Required.}
+  relationships:
+    - {name: study, target: Study, cardinality: "0..1", ownership: reference, help: {summary: Study to which the Assay contributes., businessMeaning: Supplies investigation context., usage: "Research traceability and reporting.", cardinalityMeaning: Optional for standalone laboratory work., workflowRole: Study and protocol context must be compatible.}}
+    - {name: protocol, target: Protocol, cardinality: "0..1", ownership: reference, help: {summary: Protocol governing the Assay method., businessMeaning: Supplies reproducible procedure definition., usage: "Laboratory governance and audit.", cardinalityMeaning: Optional when method is governed elsewhere., workflowRole: Applied version remains historical.}}
+    - {name: samples, target: Sample, cardinality: "1..*", ownership: reference, help: {summary: Samples analyzed by the Assay., businessMeaning: Establishes specimen/input provenance., usage: "Chain of custody, analysis and audit.", cardinalityMeaning: One or more Samples., workflowRole: Sample status and quantity must permit use.}}
+    - {name: observations, target: Observation, cardinality: "0..*", ownership: aggregate, help: {summary: Measurements or qualitative observations produced by the Assay., businessMeaning: Preserves primary analytical evidence., usage: "Analysis, QC and audit.", cardinalityMeaning: Zero or many Observations., workflowRole: Completed evidence must remain attributable to execution and Sample.}}
+    - {name: results, target: Result, cardinality: "0..*", ownership: reference, help: {summary: Derived or interpreted results produced from the Assay., businessMeaning: Separates interpretation from primary observations., usage: "Reporting and scientific decisions.", cardinalityMeaning: Zero or many Results., workflowRole: Result lineage must trace to Assay observations.}}
+  invariants:
+    - {id: ASSAY-001, rule: Assay requires at least one Sample before ordinary execution.}
+    - {id: ASSAY-002, rule: COMPLETED or FAILED Assay evidence must not be destructively rewritten; reruns create new execution evidence.}
+  lifecycle:
+    title: Assay Lifecycle
+    attribute: status
+    states: [PLANNED, RUNNING, COMPLETED, FAILED, CANCELLED]
+    initial: PLANNED
+    terminal: [COMPLETED, FAILED, CANCELLED]
+    transitions:
+      - {from: PLANNED, to: RUNNING, action: start}
+      - {from: PLANNED, to: CANCELLED, action: cancel}
+      - {from: RUNNING, to: COMPLETED, action: complete}
+      - {from: RUNNING, to: FAILED, action: fail}
+      - {from: RUNNING, to: CANCELLED, action: cancel}
+  help:
+    summary: Represents one analytical laboratory execution with sample and evidence provenance.
+    businessMeaning: Protocol defines method; Assay executes it; Observation records primary evidence; Result captures derived interpretation.
+    usage: Laboratories, research, life sciences, quality testing, analytics and audit.
+    relationshipContext: Samples are required inputs; Study/Protocol provide context; Observations and Results provide outputs.
+    lifecycle: Assay is planned, runs, and ends completed, failed or cancelled with evidence retained.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSAY}
