@@ -117,6 +117,9 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: classes, target: Class, cardinality: "0..*", ownership: aggregate, help: {summary: Scheduled delivery instances of this Course., businessMeaning: Separates reusable curriculum from term/section execution., usage: "Scheduling, enrollment and reporting.", cardinalityMeaning: Zero or many Classes., workflowRole: Course lifecycle constrains new Class creation without rewriting completed offerings.}}
+  - {name: assessments, target: Assessment, cardinality: "0..*", ownership: reference, help: {summary: Assessments evaluating learning under this Course., businessMeaning: Connects curriculum expectations to governed evaluation activities., usage: "Assessment planning, gradebook and analytics.", cardinalityMeaning: Zero or many Assessments., workflowRole: Assessment scope must remain compatible with Course and optional Class.}}
+
   lifecycle:
     title: Education Course Lifecycle
     attribute: status
