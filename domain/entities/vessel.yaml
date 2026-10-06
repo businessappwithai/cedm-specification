@@ -1,0 +1,46 @@
+entity:
+  name: Vessel
+  namespace: cedm.domain
+  kind: maritime_vessel
+  description: A governed maritime transport resource used to carry cargo, containers, passengers or equipment between Ports across one or more Voyages.
+  ui: {icon: ship}
+  identity: {key: vesselId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: vesselId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Vessel., businessMeaning: Identifies one maritime transport resource independently of voyages and port calls., usage: "Port operations, logistics, scheduling, reporting and audit.", relationshipContext: Vessel persists across many Voyages., requiredMeaning: Required.}}
+    - {name: vesselCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Operational vessel reference., businessMeaning: Human/integration identifier for port and shipping workflows., usage: "Search, scheduling and reporting.", relationshipContext: May complement external IMO or registry identifiers., requiredMeaning: Required.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable vessel name., businessMeaning: Operationally recognizes the maritime asset., usage: "Port planning, documents and communication.", relationshipContext: Name may change while vesselId remains stable., requiredMeaning: Required.}}
+    - {name: imoNumber, type: string, required: false, maxLength: 40, help: {summary: International Maritime Organization vessel identifier where applicable., businessMeaning: Supports external maritime identity and integration., usage: "Shipping, compliance and port operations.", relationshipContext: Does not replace internal vesselId., optionalMeaning: Optional for vessel classes without IMO number or where not known.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, OUT_OF_SERVICE, RETIRED]
+      help: {summary: Operational lifecycle state of the Vessel., businessMeaning: Controls eligibility for new voyage assignment., usage: "Scheduling, port operations and audit.", relationshipContext: Historical Voyages remain attributable after status changes., valueSemantics: {ACTIVE: Eligible for ordinary assignment., INACTIVE: Temporarily not scheduled., OUT_OF_SERVICE: Unavailable due to operational/maintenance condition., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+  relationships:
+    - {name: owner, target: Organization, cardinality: "0..1", ownership: reference, help: {summary: Organization owning the Vessel where known., businessMeaning: Supplies asset ownership context., usage: "Shipping, finance and reporting.", cardinalityMeaning: Optional for leased/third-party vessels., workflowRole: Ownership changes do not rewrite voyage history.}}
+    - {name: operator, target: Organization, cardinality: "0..1", ownership: reference, help: {summary: Organization operating the Vessel., businessMeaning: Supplies operational accountability distinct from ownership., usage: "Port calls, scheduling and compliance.", cardinalityMeaning: Optional when operator is unknown or same as owner., workflowRole: Operator at voyage time remains historical evidence.}}
+    - {name: voyages, target: Voyage, cardinality: "0..*", ownership: reference, help: {summary: Voyages performed by this Vessel., businessMeaning: Preserves journey history independently of vessel master state., usage: "Shipping operations, ETA, container and port reporting.", cardinalityMeaning: Zero or many Voyages., workflowRole: New Voyage requires eligible Vessel status.}}
+  invariants:
+    - {id: VESSEL-001, rule: RETIRED or OUT_OF_SERVICE Vessel cannot receive ordinary new Voyage assignments except governed exceptions.}
+    - {id: VESSEL-002, rule: Historical Voyage and berth evidence must not be rewritten because owner, operator, name or status changes.}
+  lifecycle:
+    title: Vessel Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE, OUT_OF_SERVICE, RETIRED]
+    initial: ACTIVE
+    terminal: [RETIRED]
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
+      - {from: ACTIVE, to: OUT_OF_SERVICE, action: take_out_of_service}
+      - {from: OUT_OF_SERVICE, to: ACTIVE, action: return_to_service}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: INACTIVE, to: RETIRED, action: retire}
+      - {from: OUT_OF_SERVICE, to: RETIRED, action: retire}
+  help:
+    summary: Represents the persistent maritime transport resource across voyages and port operations.
+    businessMeaning: Vessel is the long-lived ship identity; Voyage is one journey; Berth and Port provide terminal context.
+    usage: Shipping, port operations, container logistics, scheduling, reporting and audit.
+    relationshipContext: Owner/operator provide Party context and Voyages preserve operational history.
+    lifecycle: Vessel remains active or temporarily unavailable until retirement, with voyage history retained.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VESSEL}
