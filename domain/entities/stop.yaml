@@ -1,0 +1,30 @@
+entity:
+  name: Stop
+  namespace: cedm.domain
+  kind: transportation_route_stop
+  description: A governed ordered location or service point on a Route at which a vehicle, shipment or service operation is planned to arrive, depart, load, unload, serve or perform another transportation activity.
+  ui: {icon: map-pin}
+  identity: {key: stopId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: stopId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Route stop., businessMeaning: Identifies one ordered route point independently of Location identity., usage: "Route planning, dispatch, tracking and audit.", relationshipContext: Location states where; Stop states route sequence and operational purpose., requiredMeaning: Required.}}
+    - {name: sequenceNumber, type: integer, required: true, help: {summary: Ordered position of the Stop on its Route., businessMeaning: Defines planned route progression., usage: "Routing, ETA and dispatch.", relationshipContext: Unique within a Route under ordinary policy., requiredMeaning: Required.}}
+    - name: stopType
+      type: enum
+      required: true
+      values: [ORIGIN, PICKUP, DELIVERY, SERVICE, WAYPOINT, FUEL, BREAK, DESTINATION, OTHER]
+      help: {summary: Operational purpose of the Stop., businessMeaning: Explains expected activity at the route point., usage: "Routing, dispatch and reporting.", relationshipContext: Specific shipments or tasks may further refine activity., valueSemantics: {ORIGIN: Route start., PICKUP: Planned collection., DELIVERY: Planned delivery., SERVICE: Service activity., WAYPOINT: Routing waypoint., FUEL: Planned refueling., BREAK: Driver/rest stop., DESTINATION: Route end., OTHER: Another governed stop purpose.}, requiredMeaning: Required.}
+    - {name: plannedArrivalAt, type: datetime, required: false, help: {summary: Planned arrival timestamp., businessMeaning: Supports schedule and ETA expectations., usage: "Dispatch, customer communication and performance analysis.", relationshipContext: Actual tracking events remain separate evidence., optionalMeaning: Optional before schedule is fixed.}}
+    - {name: plannedDepartureAt, type: datetime, required: false, help: {summary: Planned departure timestamp., businessMeaning: Defines service window or dwell plan., usage: "Route planning and capacity.", relationshipContext: Must not precede plannedArrivalAt when both are supplied., optionalMeaning: Optional when no departure commitment exists.}}
+  relationships:
+    - {name: route, target: Route, cardinality: "1", ownership: reference, help: {summary: Route containing this Stop., businessMeaning: Supplies ordered transportation context., usage: "Route planning, dispatch and reporting.", cardinalityMeaning: Exactly one Route., workflowRole: sequenceNumber is interpreted within this Route.}}
+    - {name: location, target: Location, cardinality: "1", ownership: reference, help: {summary: Physical or logical location of the Stop., businessMeaning: Separates reusable Location master from route-specific occurrence., usage: "Navigation, dispatch and reporting.", cardinalityMeaning: Exactly one Location., workflowRole: Location changes do not rewrite completed route history.}}
+  invariants:
+    - {id: STOP-001, rule: sequenceNumber must be positive and unique within the Route.}
+    - {id: STOP-002, rule: plannedDepartureAt must not precede plannedArrivalAt when both are supplied.}
+  help:
+    summary: Represents one ordered operational point on a transportation Route.
+    businessMeaning: Route defines the journey; Stop defines sequence and activity at a reusable Location.
+    usage: Transportation, fleet, logistics, dispatch, ETA planning and audit.
+    relationshipContext: Route and Location are mandatory; planned times support scheduling while tracking events provide actual evidence.
+    example: A delivery Route has origin, three delivery Stops and a fuel Stop before its final destination.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-STOP}
