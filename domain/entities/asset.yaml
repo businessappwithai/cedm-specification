@@ -147,6 +147,9 @@ entity:
       cardinalityMeaning: An Asset may have zero or many meters over its lifecycle.
       workflowRole: Asset lifecycle constrains future meter use while historical readings and decisions remain attributable.
 
+  - {name: serviceOrders, target: ServiceOrder, cardinality: "0..*", ownership: reference, help: {summary: Service execution orders performed against this Asset., businessMeaning: Adds commercial/service execution history alongside technical maintenance history., usage: "Field service, warranty-like coverage, billing and audit.", cardinalityMeaning: Zero or many service orders., workflowRole: Asset lifecycle constrains new execution while completed orders remain historical.}}
+  - {name: entitlements, target: Entitlement, cardinality: "0..*", ownership: reference, help: {summary: Service entitlements covering this Asset., businessMeaning: Defines asset-specific service rights without embedding contract terms in Asset., usage: "Coverage validation and service history.", cardinalityMeaning: Zero or many entitlements over the asset lifecycle., workflowRole: Effective scope is evaluated at service authorization time.}}
+
   invariants:
   - id: ASSET-001
     rule: assetNumber must be unique among active managed assets.
