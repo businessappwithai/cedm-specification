@@ -127,6 +127,11 @@ entity:
       cardinality: 0..*
       ownership: reference
       help: {summary: Business transactions in which the customer participates., usage: Supports customer history exposure reporting and analytics., cardinalityMeaning: A customer may participate in many transactions., workflowRole: Preserves cross-process customer history.}
+  - {name: serviceCases, target: ServiceCase, cardinality: "0..*", ownership: reference, help: {summary: Service cases managed for this Customer., businessMeaning: Preserves customer service history independently of individual requests or tickets., usage: "Customer service, account history and analytics.", cardinalityMeaning: Zero or many cases., workflowRole: Customer status and entitlement can constrain new covered service.}}
+  - {name: serviceContracts, target: ServiceContract, cardinality: "0..*", ownership: reference, help: {summary: Service contracts under which this Customer receives coverage., businessMeaning: Connects customer relationship to operational service terms., usage: "Entitlement, renewal, SLA and service history.", cardinalityMeaning: Zero or many contracts., workflowRole: Contract party/customer identity must reconcile.}}
+  - {name: entitlements, target: Entitlement, cardinality: "0..*", ownership: reference, help: {summary: Concrete service rights held by this Customer., businessMeaning: Defines covered service eligibility and scope., usage: "Case intake, service authorization and billing.", cardinalityMeaning: Zero or many entitlements., workflowRole: Only active in-scope rights authorize covered service.}}
+  - {name: serviceOrders, target: ServiceOrder, cardinality: "0..*", ownership: reference, help: {summary: Service execution orders performed for this Customer., businessMeaning: Provides service execution history and billing provenance., usage: "Customer history, operations and audit.", cardinalityMeaning: Zero or many orders., workflowRole: Covered orders must reconcile to applicable contract or entitlement when used.}}
+
   invariants:
     - {id: CUSTOMER-001, rule: partyRole.roleType must equal CUSTOMER.}
     - {id: CUSTOMER-002, rule: customerCode must be unique within its organizational ERP context.}
