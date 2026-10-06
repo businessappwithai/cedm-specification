@@ -149,7 +149,8 @@ todo:
     - id: education
       name: Education
       entities: [EducationStudent, Guardian, EducationCourse, Class, Enrollment, Attendance, Assessment, Grade, Fee]
-      status: pending-verification
+      status: in-progress
+      notes: Guardian, Class, Assessment, Grade and Fee are now implemented, and canonical Attendance has been generalized for both HCM and Education with EducationStudent/Class context; all requested core Education entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: insurance
       name: Insurance
       entities: [InsurancePolicy, Coverage, InsuredParty, Premium, InsuranceClaim, ClaimLine, Underwriting, Settlement]
@@ -206,12 +207,12 @@ todo:
 
   auditBaseline:
     measuredAt: 2026-10-06
-    registeredEntities: 324
+    registeredEntities: 329
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 36
+    unregisteredRequestedNames: 31
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 36 unresolved requested names, then validate help and relationship integrity.
-    progress: Added Practitioner and Appointment and reconciled planned-care versus actual-encounter semantics across patient, provider and encounter records.
+    nextAudit: Continue classifying and implementing the remaining 31 unresolved requested names, then validate help and relationship integrity.
+    progress: Completed the requested Education tranche, generalized Attendance across HCM and Education, and added explicit Healthcare and Education capability-catalog coverage.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
     Quote: Quotation
