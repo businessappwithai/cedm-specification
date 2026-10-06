@@ -18,6 +18,7 @@ registry:
     - Allergy
     - Appointment
     - Approval
+    - Assessment
     - Asset
     - AssetAcquisition
     - AssetClass
@@ -52,6 +53,7 @@ registry:
     - Charge
     - ChemicalBatch
     - City
+    - Class
     - Classification
     - Collateral
     - Compensation
@@ -118,6 +120,7 @@ registry:
     - Failure
     - Farm
     - FarmField
+    - Fee
     - Filing
     - Finding
     - FiscalPeriod
@@ -130,6 +133,8 @@ registry:
     - GoodsReceipt
     - GoodsReceiptLine
     - GovernmentCase
+    - Grade
+    - Guardian
     - HandlingUnit
     - HealthcareEncounter
     - HealthcareOrder
