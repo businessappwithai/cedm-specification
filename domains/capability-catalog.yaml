@@ -134,6 +134,10 @@ catalog:
       name: Insurance Management
       entities: [InsurancePolicy, Coverage, InsuredParty, Premium, Underwriting, InsuranceClaim, ClaimLine, Settlement]
       processes: [underwriting, policy-administration, coverage-management, premium-billing, claim-intake, claim-adjudication, claim-settlement]
+    - id: research-life-sciences
+      name: Research and Life Sciences
+      entities: [ResearchProject, Protocol, Study, Experiment, Assay, Sample, Observation, Result]
+      processes: [research-planning, protocol-governance, study-execution, experiment-execution, assay-processing, observation-capture, result-finalization]
     - id: budgeting-planning
       name: Budgeting and Planning
       entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
