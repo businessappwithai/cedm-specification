@@ -18,10 +18,10 @@ entity:
         usage: Timekeeping, scheduling, payroll and reporting.
         relationshipContext: LEAVE should reconcile to an approved LeaveRequest where policy requires one.
         valueSemantics:
-          PRESENT: Employee worked at an approved work context.
-          ABSENT: Employee was absent without another more specific category.
+          PRESENT: The attendance subject participated or was present in the expected work or education context.
+          ABSENT: The attendance subject was absent without another more specific governed category.
           LEAVE: Absence is attributable to governed leave.
-          REMOTE: Employee worked from an approved remote context.
+          REMOTE: The attendance subject participated from an approved remote context.
           HOLIDAY: Date is treated as a governed holiday.
           OFF_DAY: Scheduled non-working day.
           OTHER: Another governed attendance classification.
@@ -46,7 +46,9 @@ entity:
           CANCELLED: Erroneous or inapplicable provisional evidence was cancelled and retained.
         requiredMeaning: Required.
   relationships:
-    - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee whose work or absence is recorded., businessMeaning: Establishes the person affected by the evidence., usage: "Timekeeping, payroll and reporting.", cardinalityMeaning: Exactly one Employee., workflowRole: Employee eligibility and work schedule constrain interpretation.}}
+    - {name: employee, target: Employee, cardinality: "0..1", ownership: reference, help: {summary: Employee whose work or absence is recorded when Attendance is used in HCM., businessMeaning: Establishes the employment subject without making Attendance HCM-only., usage: "Timekeeping, payroll and workforce reporting.", cardinalityMeaning: Optional outside employment attendance., workflowRole: Employee eligibility and work schedule constrain HCM interpretation.}}
+    - {name: student, target: EducationStudent, cardinality: "0..1", ownership: reference, help: {summary: Student whose participation or absence is recorded when Attendance is used in Education., businessMeaning: Establishes the education subject without duplicating a second attendance concept., usage: "Class attendance, learner support and education reporting.", cardinalityMeaning: Optional outside education attendance., workflowRole: Student enrollment and class membership constrain education interpretation.}}
+    - {name: class, target: Class, cardinality: "0..1", ownership: reference, help: {summary: Education Class context for student attendance., businessMeaning: Identifies the instructional delivery context in which participation is measured., usage: "Class registers, attendance analysis and learner support.", cardinalityMeaning: Optional outside education attendance., workflowRole: Student must be eligible for the Class under enrollment policy.}}
     - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which attendance occurred., businessMeaning: Supplies employer and effective employment context., usage: "Payroll and policy validation.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: attendanceDate must fall within eligible Employment.}}
     - {name: leaveRequest, target: LeaveRequest, cardinality: "0..1", ownership: reference, help: {summary: Approved leave authorization explaining an absence record., businessMeaning: Connects authorization to actual attendance evidence., usage: "Leave reconciliation and payroll.", cardinalityMeaning: Optional unless attendanceType is LEAVE and policy requires authorization., workflowRole: Leave dates and employee must reconcile.}}
     - {name: payrollResults, target: Payroll, cardinality: "0..*", ownership: reference, help: {summary: Payroll results that consumed or reconciled this attendance evidence., businessMeaning: Separates time evidence from financial calculation., usage: "Payroll audit and reconciliation.", cardinalityMeaning: Zero or many results where corrections or reruns apply., workflowRole: Approved attendance may become payroll input under policy.}}
