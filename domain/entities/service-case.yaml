@@ -1,0 +1,66 @@
+entity:
+  name: ServiceCase
+  namespace: cedm.domain
+  kind: service_case
+  description: A governed customer or operational service issue aggregate that coordinates requests, tickets, fulfillment, communications and resolution evidence across its lifecycle.
+  ui: {icon: briefcase-business}
+  identity: {key: serviceCaseId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: serviceCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service case., businessMeaning: Identifies one managed issue independently of requests or work items created beneath it., usage: "Customer service, support, reporting, audit and integration.", relationshipContext: Remains stable while related requests, tickets and orders evolve., requiredMeaning: Required.}}
+    - {name: caseNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing case reference., businessMeaning: Operational identifier used in customer and service communications., usage: "Search, communication, escalation, reporting and integration.", relationshipContext: Distinct from request, ticket and service-order references., requiredMeaning: Required.}}
+    - {name: subject, type: string, required: true, maxLength: 300, help: {summary: Concise description of the service issue., businessMeaning: Human-readable statement of why the case exists., usage: "Queues, communication, search and reporting.", relationshipContext: Detailed evidence belongs in related records or documents., requiredMeaning: Required.}}
+    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: Operational urgency of the case., businessMeaning: Guides triage and resource attention independently of SLA clocks., usage: "Queue ordering, escalation and reporting.", relationshipContext: Does not replace SLA commitments., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated business impact., URGENT: Immediate attention is required.}, requiredMeaning: Required.}}
+    - name: status
+      type: enum
+      required: true
+      default: OPEN
+      values: [OPEN, IN_PROGRESS, PENDING, RESOLVED, CLOSED, CANCELLED]
+      help:
+        summary: Lifecycle state of the case.
+        businessMeaning: Distinguishes active investigation, external/internal waiting, resolution and final closure.
+        usage: Service workflow, SLA measurement, customer communication and reporting.
+        relationshipContext: Child work can continue only when compatible with case state.
+        valueSemantics:
+          OPEN: Case has been accepted for management.
+          IN_PROGRESS: Active investigation or coordination is occurring.
+          PENDING: Progress is waiting on customer, supplier or another dependency.
+          RESOLVED: A resolution outcome has been recorded and awaits closure.
+          CLOSED: Case is formally complete and retained as historical evidence.
+          CANCELLED: Case was cancelled through governed workflow.
+        requiredMeaning: Required.
+  relationships:
+    - {name: customer, target: Customer, cardinality: "0..1", ownership: reference, help: {summary: Customer whose service relationship the case concerns., businessMeaning: Supplies commercial customer context where applicable., usage: "Customer history, entitlement, service and reporting.", cardinalityMeaning: Optional for internal or non-customer cases., workflowRole: Customer status and entitlement may constrain covered service.}}
+    - {name: requester, target: Party, cardinality: "1", ownership: reference, help: {summary: Party who raised or owns the reported issue., businessMeaning: Preserves originator identity even where no Customer role exists., usage: "Communication, authorization and audit.", cardinalityMeaning: Exactly one requester., workflowRole: Requester changes use governed reassignment rather than rewriting origin.}}
+    - {name: primaryRequest, target: ServiceRequest, cardinality: "0..1", ownership: reference, help: {summary: Service request that originated or primarily represents this case., businessMeaning: Separates intake request from longer-lived case coordination., usage: "Traceability and service workflow.", cardinalityMeaning: Optional when the case originates through another channel., workflowRole: Request closure does not automatically erase case obligations.}}
+    - {name: tickets, target: Ticket, cardinality: "0..*", ownership: aggregate, help: {summary: Operational tickets used to execute or coordinate case work., businessMeaning: Allows multiple teams or work queues to act without fragmenting the customer issue identity., usage: "Support operations, assignment and escalation.", cardinalityMeaning: Zero or many tickets., workflowRole: Case resolution normally requires required active tickets to be resolved or explicitly waived.}}
+    - {name: serviceOrders, target: ServiceOrder, cardinality: "0..*", ownership: reference, help: {summary: Authorized service fulfillment orders created for this case., businessMeaning: Separates issue management from execution authorization., usage: "Field service, depot service, billing and audit.", cardinalityMeaning: Zero or many orders., workflowRole: Completion contributes evidence toward case resolution.}}
+    - {name: serviceLevelAgreement, target: ServiceLevelAgreement, cardinality: "0..1", ownership: reference, help: {summary: SLA governing case response or resolution targets., businessMeaning: Supplies measurable commitments independently of priority., usage: "Deadline, breach and escalation management.", cardinalityMeaning: Optional when no SLA applies., workflowRole: Applied SLA terms remain historical even after later SLA changes.}}
+    - {name: entitlement, target: Entitlement, cardinality: "0..1", ownership: reference, help: {summary: Service entitlement supporting coverage of the case., businessMeaning: Explains why the customer is eligible for covered service., usage: "Coverage validation, authorization and billing.", cardinalityMeaning: Optional for billable or non-entitled service., workflowRole: Eligibility is evaluated at the governed service decision time.}}
+  invariants:
+    - {id: SERVICE-CASE-001, rule: CLOSED or CANCELLED cases are historical evidence and cannot be destructively reopened without an explicit governed reopen or follow-up case process.}
+    - {id: SERVICE-CASE-002, rule: A case using an Entitlement must concern the same eligible customer or covered scope.}
+    - {id: SERVICE-CASE-003, rule: Resolution and closure must preserve attributable child-work and communication evidence.}
+  lifecycle:
+    title: Service Case Lifecycle
+    attribute: status
+    states: [OPEN, IN_PROGRESS, PENDING, RESOLVED, CLOSED, CANCELLED]
+    initial: OPEN
+    terminal: [CLOSED, CANCELLED]
+    transitions:
+      - {from: OPEN, to: IN_PROGRESS, action: start}
+      - {from: OPEN, to: CANCELLED, action: cancel}
+      - {from: IN_PROGRESS, to: PENDING, action: pend}
+      - {from: PENDING, to: IN_PROGRESS, action: resume}
+      - {from: IN_PROGRESS, to: RESOLVED, action: resolve}
+      - {from: PENDING, to: RESOLVED, action: resolve}
+      - {from: RESOLVED, to: CLOSED, action: close}
+      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
+      - {from: PENDING, to: CANCELLED, action: cancel}
+  help:
+    summary: Coordinates a service issue from intake through operational work and final resolution.
+    businessMeaning: ServiceCase is the durable issue aggregate; ServiceRequest captures requested service, Ticket represents operational work, and ServiceOrder authorizes execution.
+    usage: Customer service, help desk, field service, service operations, escalation, analytics and audit.
+    relationshipContext: Customer and requester identify who is affected, SLA and Entitlement define commitments and eligibility, while tickets and service orders provide execution evidence.
+    lifecycle: Cases move from open through active or pending work to resolution and closure; cancellation remains auditable.
+    example: A customer reports equipment failure; one ServiceCase coordinates the original ServiceRequest, two team Tickets and a field ServiceOrder until the issue is resolved.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-CASE}
