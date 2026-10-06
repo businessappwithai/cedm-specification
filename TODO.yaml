@@ -163,7 +163,8 @@ todo:
     - id: research-life-sciences
       name: Research / Life Sciences
       entities: [Compound, Sample, Experiment, Protocol, Study, Assay, Observation, Result]
-      status: pending-verification
+      status: in-progress
+      notes: Protocol, Study, Assay, Observation and Result are now implemented and connected to ResearchProject, Experiment and Sample with explicit evidence/provenance lineage; all requested core Research/Life Sciences entities are represented, with reciprocal-depth audit and repository validation remaining.
     - id: transportation-fleet
       name: Transportation / Fleet
       entities: [Vehicle, Driver, Trip, Route, Stop, FuelTransaction, MaintenanceWorkOrder]
@@ -208,12 +209,12 @@ todo:
 
   auditBaseline:
     measuredAt: 2026-10-06
-    registeredEntities: 335
+    registeredEntities: 340
     requestedUniqueEntityNames: 282
-    unregisteredRequestedNames: 25
+    unregisteredRequestedNames: 20
     note: Unregistered names include both genuine missing entities and names requiring explicit canonical-equivalent mapping; they are not automatically treated as 135 new entity requirements.
-    nextAudit: Continue classifying and implementing the remaining 25 unresolved requested names, then validate help and relationship integrity.
-    progress: Completed the requested Insurance tranche with explicit coverage, insured-party, premium, underwriting, claim-line and settlement semantics plus finance/risk reconciliation.
+    nextAudit: Continue classifying and implementing the remaining 20 unresolved requested names, then validate help and relationship integrity.
+    progress: Completed the requested Research/Life Sciences tranche with protocol-to-study-to-assay/observation/result provenance and capability-catalog coverage.
   canonicalNameMappings:
     ProductionOrder: ManufacturingWorkOrder
     Quote: Quotation
