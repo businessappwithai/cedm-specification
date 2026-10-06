@@ -10,6 +10,8 @@ entity:
   - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Route., businessMeaning: Identifies one governed Route record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
   - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Route., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships: []
+  - {name: stops, target: Stop, cardinality: "0..*", ownership: aggregate, help: {summary: Ordered operational points belonging to this Route., businessMeaning: Decomposes a journey into location-specific activities and schedule points., usage: "Routing, dispatch, ETA and reporting.", cardinalityMeaning: Zero or many Stops., workflowRole: Stop sequence must remain unique and ordered within Route.}}
+
   invariants:
   - {id: ROUTE-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
