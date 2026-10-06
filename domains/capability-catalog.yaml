@@ -130,6 +130,10 @@ catalog:
       name: Education Management
       entities: [EducationStudent, Guardian, EducationCourse, Class, Enrollment, Attendance, Assessment, Grade, Fee]
       processes: [student-administration, enrollment, class-scheduling, attendance, assessment, grading, student-fee-management]
+    - id: insurance-management
+      name: Insurance Management
+      entities: [InsurancePolicy, Coverage, InsuredParty, Premium, Underwriting, InsuranceClaim, ClaimLine, Settlement]
+      processes: [underwriting, policy-administration, coverage-management, premium-billing, claim-intake, claim-adjudication, claim-settlement]
     - id: budgeting-planning
       name: Budgeting and Planning
       entities: [Budget, BudgetLine, Forecast, Scenario, CostCenter, ProfitCenter, Variance]
