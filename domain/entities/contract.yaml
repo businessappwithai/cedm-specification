@@ -173,6 +173,8 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: serviceContracts, target: ServiceContract, cardinality: "0..*", ownership: aggregate, help: {summary: Operational service-coverage specializations of this Contract., businessMeaning: Keeps legal/commercial agreement semantics in Contract while allowing service-specific administration., usage: "Service entitlement, SLA, renewals and audit.", cardinalityMeaning: Zero or many service specializations may exist under a Contract., workflowRole: ServiceContract terms must remain compatible with Contract lifecycle and amendments.}}
+
   invariants:
   - id: CONTRACT-001
     rule: effectiveTo must not precede effectiveFrom.
