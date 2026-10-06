@@ -133,6 +133,9 @@ entity:
       cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
       context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
         ownership, conditions, and invariants.
+  - {name: practitioners, target: Practitioner, cardinality: "0..*", ownership: reference, help: {summary: Practitioners affiliated with this healthcare provider., businessMeaning: Connects organizational delivery context to professional roles., usage: "Credentialing, scheduling and provider directories.", cardinalityMeaning: Zero or many practitioners., workflowRole: Affiliation and practitioner eligibility constrain new care assignments.}}
+  - {name: appointments, target: Appointment, cardinality: "0..*", ownership: reference, help: {summary: Appointments scheduled under this provider context., businessMeaning: Provides planned service workload distinct from completed encounters., usage: "Scheduling, capacity and reporting.", cardinalityMeaning: Zero or many appointments., workflowRole: Scheduled resources must remain eligible under provider policy.}}
+
   lifecycle:
     title: Healthcare Provider Lifecycle
     attribute: status
