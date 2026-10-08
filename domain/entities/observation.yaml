@@ -15,7 +15,7 @@ entity:
       required: true
       default: RECORDED
       values: [RECORDED, VERIFIED, INVALIDATED]
-      help: {summary: Governance state of the Observation., businessMeaning: Distinguishes captured evidence, verified evidence and explicitly invalidated evidence., usage: "QC, analysis and audit.", relationshipContext: Invalidation preserves original evidence rather than deleting it., valueSemantics: {RECORDED: Evidence is captured., VERIFIED: Evidence passed applicable review/QC., INVALIDATED: Evidence is retained but excluded or flagged under governed reason.}, requiredMeaning: Required.}
+      help: {summary: Governance state of the Observation., businessMeaning: "Distinguishes captured evidence, verified evidence and explicitly invalidated evidence.", usage: "QC, analysis and audit.", relationshipContext: Invalidation preserves original evidence rather than deleting it., valueSemantics: {RECORDED: Evidence is captured., VERIFIED: Evidence passed applicable review/QC., INVALIDATED: Evidence is retained but excluded or flagged under governed reason.}, requiredMeaning: Required.}
   relationships:
     - {name: sample, target: Sample, cardinality: "0..1", ownership: reference, help: {summary: Sample from which the Observation originates., businessMeaning: Preserves specimen provenance., usage: "Traceability and interpretation.", cardinalityMeaning: Optional for non-sample observations., workflowRole: Sample lineage remains intact.}}
     - {name: assay, target: Assay, cardinality: "0..1", ownership: reference, help: {summary: Assay execution producing the Observation., businessMeaning: Preserves method/execution provenance., usage: "Laboratory analysis and audit.", cardinalityMeaning: Optional when captured outside an Assay., workflowRole: Completed Assay evidence retains observation identity.}}
@@ -23,7 +23,7 @@ entity:
     - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "0..1", ownership: reference, help: {summary: Unit for quantitative observations., businessMeaning: Makes numerical evidence interpretable., usage: "Validation, analysis and integration.", cardinalityMeaning: Optional for qualitative/categorical values., workflowRole: Unit changes do not reinterpret historical values.}}
     - {name: results, target: Result, cardinality: "0..*", ownership: reference, help: {summary: Results derived partly or wholly from this Observation., businessMeaning: Preserves evidence-to-interpretation lineage., usage: "Analysis, reporting and audit.", cardinalityMeaning: Zero or many Results., workflowRole: Result validity depends on its source observation status and method.}}
   invariants:
-    - {id: OBSERVATION-001, rule: Observation must have at least one governed scientific context such as Sample, Assay or Experiment.}
+    - {id: OBSERVATION-001, rule: "Observation must have at least one governed scientific context such as Sample, Assay or Experiment."}
     - {id: OBSERVATION-002, rule: Verified evidence is not destructively rewritten; corrections or invalidations remain explicit records or states.}
   lifecycle:
     title: Observation Lifecycle

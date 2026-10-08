@@ -1,0 +1,39 @@
+entity:
+  name: ContainerVisit
+  namespace: cedm.domain
+  kind: container_visit
+  description: A governed record of one Container's stay in a terminal, from arrival to departure, tying gate evidence and Voyage context to the container's presence.
+  ui: {icon: container}
+  identity: {key: containerVisitId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: containerVisitId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the ContainerVisit., businessMeaning: Identifies one container terminal stay independently of its labels., usage: "Operations, integration, reporting and audit.", relationshipContext: Referenced by related terminal and maritime entities., requiredMeaning: Required.}}
+    - {name: visitReference, type: string, required: false, unique: true, maxLength: 120, help: {summary: Business reference for the visit., businessMeaning: Human or integration-friendly reference for the terminal stay., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional where another reference identifies the record.}}
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, ON_TERMINAL, DEPARTED]
+      help: {summary: Operational state of the ContainerVisit., businessMeaning: Controls whether new operations may rely on the ContainerVisit., usage: "Planning, safety and reporting.", relationshipContext: Historical references remain valid after status changes., valueSemantics: {PLANNED: Visit expected but container not yet present., ON_TERMINAL: Container is present in the terminal., DEPARTED: Container has left the terminal.}, requiredMeaning: Required.}
+  relationships:
+    - {name: container, target: Container, cardinality: "1", ownership: reference, help: {summary: Container whose terminal stay this is., businessMeaning: Identifies the subject of the visit., usage: "Dwell, custody and reporting.", cardinalityMeaning: Exactly one Container., workflowRole: A container has at most one open visit per terminal.}}
+    - {name: voyage, target: Voyage, cardinality: "0..1", ownership: reference, help: {summary: Voyage by which the container arrives or departs., businessMeaning: Links cargo presence to the maritime journey., usage: "Scheduling and reporting.", cardinalityMeaning: Optional for landside-only visits., workflowRole: Voyage schedule informs expected arrival.}}
+    - {name: gateEvents, target: GateEvent, cardinality: "0..*", ownership: reference, help: {summary: Gate events belonging to this visit., businessMeaning: Connects immutable gate evidence to the container's terminal stay., usage: "Dwell, custody and audit.", cardinalityMeaning: Zero or many GateEvents., workflowRole: Gate-in and gate-out chronology must reconcile to the visit lifecycle.}}
+  invariants:
+    - {id: CONTAINER-VISIT-001, rule: A Container cannot have two open ContainerVisits at the same terminal.}
+    - {id: CONTAINER-VISIT-002, rule: DEPARTED ContainerVisit is historical evidence and is not reopened.}
+  lifecycle:
+    title: ContainerVisit Lifecycle
+    attribute: status
+    states: [PLANNED, ON_TERMINAL, DEPARTED]
+    initial: PLANNED
+    terminal: [DEPARTED]
+    transitions:
+      - {from: PLANNED, to: ON_TERMINAL, action: arrive}
+      - {from: ON_TERMINAL, to: DEPARTED, action: depart}
+  help:
+    summary: Represents one container's stay in a terminal.
+    businessMeaning: ContainerVisit summarises presence; GateEvent and ContainerMovement record what happened.
+    usage: Dwell, custody, terminal reporting and audit.
+    relationshipContext: Container is mandatory; Voyage and GateEvents provide context.
+    lifecycle: A visit is planned, on the terminal, then departed.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTAINER-VISIT}

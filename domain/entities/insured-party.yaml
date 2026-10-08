@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: insurance_party_role
   description: A governed relationship linking a Party to an InsurancePolicy as an insured, beneficiary, dependent or other covered role, distinct from generic policyholder identity.
-  ui: {icon: user-shield}
+  ui: {icon: shield-check}
   identity: {key: insuredPartyId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: insuredPartyId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the insured-party relationship., businessMeaning: Identifies one Party-policy insurance role independently of Party identity., usage: "Policy servicing, coverage eligibility, claims and reporting.", relationshipContext: Party supplies common identity; InsurancePolicy supplies contract context., requiredMeaning: Required.}}

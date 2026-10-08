@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: research_result
   description: A governed interpreted, calculated or summarized scientific output derived from Observations, Assays, Experiments or a Study, with explicit provenance and finalization.
-  ui: {icon: chart-no-axes-column}
+  ui: {icon: bar-chart-2}
   identity: {key: resultId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: resultId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Result., businessMeaning: Identifies one derived scientific output independently of source evidence and presentation., usage: "Analysis, reporting, decisions and audit.", relationshipContext: Provenance relationships identify source Observations or execution context., requiredMeaning: Required.}}

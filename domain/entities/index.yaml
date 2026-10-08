@@ -5,15 +5,15 @@ registry:
   specificationVersion: 0.3.0
   status: draft
   entities:
+    - AIEvaluation
+    - AIModel
+    - AIPolicy
+    - AIPrediction
     - AccessGrant
     - Account
     - Activity
     - Address
     - Agreement
-    - AIEvaluation
-    - AIModel
-    - AIPolicy
-    - AIPrediction
     - Aircraft
     - Allergy
     - Appointment
@@ -31,13 +31,14 @@ registry:
     - Attendance
     - AuditCase
     - AuditEvent
+    - BOMComponent
     - BankAccount
     - BankLoan
     - BankReconciliation
     - BankTransaction
-    - BillingCycle
+    - Berth
     - BillOfMaterial
-    - BOMComponent
+    - BillingCycle
     - Brand
     - Budget
     - BudgetLine
@@ -67,6 +68,7 @@ registry:
     - ContactPoint
     - Container
     - ContainerMovement
+    - ContainerVisit
     - Contract
     - ContractAmendment
     - ContractClause
@@ -102,6 +104,8 @@ registry:
     - Document
     - DocumentClassification
     - DocumentVersion
+    - Driver
+    - ERP
     - EducationCourse
     - EducationProgram
     - EducationStudent
@@ -114,7 +118,6 @@ registry:
     - Enrollment
     - Entitlement
     - Equipment
-    - ERP
     - Escalation
     - Event
     - ExchangeRate
@@ -132,7 +135,10 @@ registry:
     - Forecast
     - ForeignExchangeTransaction
     - FreightCharge
+    - FuelTransaction
     - Fulfillment
+    - Gate
+    - GateEvent
     - GoodsReceipt
     - GoodsReceiptLine
     - GovernmentCase
@@ -214,6 +220,7 @@ registry:
     - Person
     - Picking
     - Policy
+    - Port
     - Position
     - Practitioner
     - Premium
@@ -225,10 +232,10 @@ registry:
     - Product
     - ProductAttribute
     - ProductCategory
-    - ProductionReceipt
-    - ProductionRecord
     - ProductLifecycle
     - ProductVariant
+    - ProductionReceipt
+    - ProductionRecord
     - ProfessionalEngagement
     - ProfitCenter
     - Project
@@ -291,6 +298,7 @@ registry:
     - Signature
     - SparePart
     - StateProvince
+    - Stop
     - Store
     - Study
     - Subscription
@@ -335,6 +343,8 @@ registry:
     - Variance
     - Vehicle
     - VehicleModel
+    - Vessel
+    - Voyage
     - Warehouse
     - WarehouseZone
     - Wave

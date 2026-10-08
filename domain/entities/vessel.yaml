@@ -22,7 +22,7 @@ entity:
     - {name: voyages, target: Voyage, cardinality: "0..*", ownership: reference, help: {summary: Voyages performed by this Vessel., businessMeaning: Preserves journey history independently of vessel master state., usage: "Shipping operations, ETA, container and port reporting.", cardinalityMeaning: Zero or many Voyages., workflowRole: New Voyage requires eligible Vessel status.}}
   invariants:
     - {id: VESSEL-001, rule: RETIRED or OUT_OF_SERVICE Vessel cannot receive ordinary new Voyage assignments except governed exceptions.}
-    - {id: VESSEL-002, rule: Historical Voyage and berth evidence must not be rewritten because owner, operator, name or status changes.}
+    - {id: VESSEL-002, rule: "Historical Voyage and berth evidence must not be rewritten because owner, operator, name or status changes."}
   lifecycle:
     title: Vessel Lifecycle
     attribute: status

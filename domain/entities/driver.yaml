@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: transportation_driver_role
   description: A governed transportation role held by a Person who is authorized to operate Vehicles under applicable licensing, qualification, assignment and safety rules.
-  ui: {icon: id-card}
+  ui: {icon: contact}
   identity: {key: driverId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: driverId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Driver role., businessMeaning: Identifies one transportation operating role independently of Person identity., usage: "Fleet operations, dispatch, compliance, fuel and audit.", relationshipContext: Person supplies common identity while Driver supplies operating authorization context., requiredMeaning: Required.}}
@@ -14,14 +14,14 @@ entity:
       required: true
       default: ACTIVE
       values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
-      help: {summary: Lifecycle state controlling ordinary driver assignment., businessMeaning: Separates setup, active eligibility, temporary restriction, inactivity and retirement., usage: "Dispatch, safety and compliance.", relationshipContext: Historical trips and fuel transactions retain Driver attribution., valueSemantics: {DRAFT: Role is being prepared., ACTIVE: Eligible for governed assignment., SUSPENDED: Temporarily restricted., INACTIVE: Not currently available., RETIRED: Closed to new assignment.}, requiredMeaning: Required.}
+      help: {summary: Lifecycle state controlling ordinary driver assignment., businessMeaning: "Separates setup, active eligibility, temporary restriction, inactivity and retirement.", usage: "Dispatch, safety and compliance.", relationshipContext: Historical trips and fuel transactions retain Driver attribution., valueSemantics: {DRAFT: Role is being prepared., ACTIVE: Eligible for governed assignment., SUSPENDED: Temporarily restricted., INACTIVE: Not currently available., RETIRED: Closed to new assignment.}, requiredMeaning: Required.}
   relationships:
     - {name: person, target: Person, cardinality: "1", ownership: reference, help: {summary: Person holding the Driver role., businessMeaning: Reuses common identity without duplicating Person data., usage: "Dispatch, contact and audit.", cardinalityMeaning: Exactly one Person., workflowRole: Identity changes do not rewrite historical Driver evidence.}}
     - {name: vehicles, target: Vehicle, cardinality: "0..*", ownership: reference, help: {summary: Vehicles currently or historically associated with the Driver under assignment policy., businessMeaning: Supports fleet responsibility and utilization context., usage: "Dispatch, compliance and reporting.", cardinalityMeaning: Zero or many Vehicles., workflowRole: Vehicle/Driver eligibility must be validated at assignment time.}}
     - {name: fuelTransactions, target: FuelTransaction, cardinality: "0..*", ownership: reference, help: {summary: Fuel transactions attributed to this Driver., businessMeaning: Preserves who performed or authorized fuel activity., usage: "Fleet cost, fraud control and audit.", cardinalityMeaning: Zero or many transactions., workflowRole: Driver must be eligible at transaction time where policy requires.}}
   invariants:
-    - {id: DRIVER-001, rule: ACTIVE Driver must satisfy applicable licensing, qualification and safety eligibility policy.}
-    - {id: DRIVER-002, rule: Historical route, vehicle and fuel evidence must not be rewritten because Driver status later changes.}
+    - {id: DRIVER-001, rule: "ACTIVE Driver must satisfy applicable licensing, qualification and safety eligibility policy."}
+    - {id: DRIVER-002, rule: "Historical route, vehicle and fuel evidence must not be rewritten because Driver status later changes."}
   lifecycle:
     title: Driver Lifecycle
     attribute: status

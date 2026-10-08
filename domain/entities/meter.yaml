@@ -7,7 +7,7 @@ entity:
   identity: {key: meterId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: meterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the meter., businessMeaning: Identifies one measuring point independently of readings., usage: "Maintenance, utilities, operations, audit and integration.", relationshipContext: The meter persists while readings accumulate as evidence., requiredMeaning: Required.}}
-    - {name: meterCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing meter reference., businessMeaning: Operational identifier used on devices, work orders and reports., usage: "Search, field work, integration and audit.", relationshipContext: Distinct from manufacturer serial numbers and Asset identifiers., requiredMeaning: Required.}}
+    - {name: meterCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing meter reference., businessMeaning: "Operational identifier used on devices, work orders and reports.", usage: "Search, field work, integration and audit.", relationshipContext: Distinct from manufacturer serial numbers and Asset identifiers., requiredMeaning: Required.}}
     - name: meterType
       type: enum
       required: true

@@ -10,7 +10,7 @@ entity:
     - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing entitlement reference., businessMeaning: Operational identifier for coverage administration., usage: "Case intake, service authorization and reporting.", relationshipContext: Distinct from Contract and ServiceContract numbers., requiredMeaning: Required.}}
     - {name: effectiveFrom, type: date, required: true, help: {summary: First date the service right may be used., businessMeaning: Starts entitlement eligibility., usage: "Coverage checks and reporting.", relationshipContext: Must fall within the governing ServiceContract period., requiredMeaning: Required.}}
     - {name: effectiveTo, type: date, required: false, help: {summary: Last date the service right may be used., businessMeaning: Ends ordinary eligibility without rewriting historical consumption., usage: "Coverage checks and renewals.", relationshipContext: Must not exceed governed contract scope., optionalMeaning: Optional for open-ended rights permitted by the ServiceContract.}}
-    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: Supports visit, hour, quantity or credit limits according to policy., usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context., optionalMeaning: Optional for unlimited coverage.}}
+    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context., optionalMeaning: Optional for unlimited coverage.}}
     - name: status
       type: enum
       required: true
@@ -39,7 +39,7 @@ entity:
   invariants:
     - {id: ENTITLEMENT-001, rule: effectiveTo must not precede effectiveFrom.}
     - {id: ENTITLEMENT-002, rule: usageLimit must be positive when supplied.}
-    - {id: ENTITLEMENT-003, rule: Entitlement Customer, scope and effective period must be compatible with the governing ServiceContract.}
+    - {id: ENTITLEMENT-003, rule: "Entitlement Customer, scope and effective period must be compatible with the governing ServiceContract."}
     - {id: ENTITLEMENT-004, rule: Consumption retries must be idempotent and historical ServiceOrder usage must not be lost when entitlement status changes.}
   lifecycle:
     title: Entitlement Lifecycle

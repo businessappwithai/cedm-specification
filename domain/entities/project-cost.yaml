@@ -52,7 +52,7 @@ entity:
     - {name: invoiceLine, target: InvoiceLine, cardinality: "0..1", ownership: reference, help: {summary: Invoice line serving as commercial source or recharge evidence., businessMeaning: Connects project costing to supplier or customer billing., usage: "Cost recovery, AP/AR reconciliation and audit.", cardinalityMeaning: Optional when not invoice-derived., workflowRole: Amount semantics reconcile under policy rather than requiring identical values.}}
     - {name: journalEntryLine, target: JournalEntryLine, cardinality: "0..1", ownership: reference, help: {summary: Accounting line recognizing this project cost when posted., businessMeaning: Keeps project costing separate from ledger evidence while enabling reconciliation., usage: "Financial accounting and audit.", cardinalityMeaning: Optional before posting or when posting is aggregated., workflowRole: POSTED requires attributable accounting evidence under posting policy.}}
   invariants:
-    - {id: PROJECT-COST-001, rule: amount must not be zero; negative amounts require governed credit, reversal or correction semantics.}
+    - {id: PROJECT-COST-001, rule: "amount must not be zero; negative amounts require governed credit, reversal or correction semantics."}
     - {id: PROJECT-COST-002, rule: projectTask must belong to project whenever projectTask is supplied.}
     - {id: PROJECT-COST-003, rule: POSTED cost is historical evidence and cannot be destructively edited; corrections use reversal or follow-up evidence.}
     - {id: PROJECT-COST-004, rule: Repeated posting or import of the same external cost evidence must be idempotent.}

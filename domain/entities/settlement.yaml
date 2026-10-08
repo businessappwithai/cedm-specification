@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: insurance_claim_settlement
   description: A governed transaction that discharges approved insurance claim liability through payment, service, recovery, offset or another recognized settlement method.
-  ui: {icon: handshake}
+  ui: {icon: users}
   identity: {key: settlementId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: settlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim settlement transaction., businessMeaning: Identifies one discharge of insurance liability independently of claim approval and payment execution., usage: "Claims payment, reconciliation, reporting and audit.", relationshipContext: InsuranceClaim supplies liability context while Payment may provide financial execution evidence., requiredMeaning: Required.}}
@@ -19,7 +19,7 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, EXECUTED, VOID]
-      help: {summary: Lifecycle state of the Settlement., businessMeaning: Separates preparation, approval, execution and voiding., usage: "Claims finance and audit.", relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable., valueSemantics: {DRAFT: Settlement is being prepared., APPROVED: Settlement is authorized., EXECUTED: Liability discharge has occurred., VOID: Draft or approved settlement was invalidated before ordinary execution.}, requiredMeaning: Required.}
+      help: {summary: Lifecycle state of the Settlement., businessMeaning: "Separates preparation, approval, execution and voiding.", usage: Claims finance and audit., relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable., valueSemantics: {DRAFT: Settlement is being prepared., APPROVED: Settlement is authorized., EXECUTED: Liability discharge has occurred., VOID: Draft or approved settlement was invalidated before ordinary execution.}, requiredMeaning: Required.}
   relationships:
     - {name: claim, target: InsuranceClaim, cardinality: "1", ownership: reference, help: {summary: InsuranceClaim whose liability is settled., businessMeaning: Supplies approved claim context., usage: "Claims payment and reconciliation.", cardinalityMeaning: Exactly one InsuranceClaim., workflowRole: Settlement must not exceed approved liability except governed adjustments.}}
     - {name: claimLines, target: ClaimLine, cardinality: "1..*", ownership: reference, help: {summary: Claim lines to which settlement is allocated., businessMeaning: Preserves line-level liability discharge traceability., usage: "Claims accounting and audit.", cardinalityMeaning: One or more ClaimLines., workflowRole: Lines must belong to the same Claim and be eligible for settlement.}}

@@ -1,0 +1,42 @@
+entity:
+  name: Port
+  namespace: cedm.domain
+  kind: port_master
+  description: A governed maritime port or terminal complex that contains Berths and serves as origin or destination of Voyages.
+  ui: {icon: anchor}
+  identity: {key: portId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: portId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Port., businessMeaning: Identifies one maritime port independently of its labels., usage: "Operations, integration, reporting and audit.", relationshipContext: Referenced by related terminal and maritime entities., requiredMeaning: Required.}}
+    - {name: portCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing port reference., businessMeaning: Operational code (for example a UN/LOCODE) used by planners and external systems., usage: "Scheduling, communication and integration.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: name, type: string, required: true, maxLength: 120, help: {summary: Human-readable port name., businessMeaning: Supports operational recognition., usage: "Planning screens and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, RESTRICTED, CLOSED]
+      help: {summary: Operational state of the Port., businessMeaning: Controls whether new operations may rely on the Port., usage: "Planning, safety and reporting.", relationshipContext: Historical references remain valid after status changes., valueSemantics: {ACTIVE: Available under normal rules., RESTRICTED: Available only under constraints., CLOSED: Permanently closed to new operations.}, requiredMeaning: Required.}
+  relationships:
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Physical location record associated with the Port., businessMeaning: Provides geospatial context without duplicating Location master data., usage: "Navigation, GIS and reporting.", cardinalityMeaning: Optional where the port code is sufficient., workflowRole: Location changes do not rewrite historical voyages.}}
+    - {name: berths, target: Berth, cardinality: "0..*", ownership: reference, help: {summary: Berths contained in this Port., businessMeaning: Decomposes the port into assignable vessel positions., usage: "Berth planning and capacity reporting.", cardinalityMeaning: Zero or many Berths., workflowRole: Berth ownership stays within one Port.}}
+    - {name: gates, target: Gate, cardinality: "0..*", ownership: reference, help: {summary: Gates controlling landside access to this Port., businessMeaning: Connects checkpoint master data to its terminal., usage: "Security, gate operations and reporting.", cardinalityMeaning: Zero or many Gates., workflowRole: Gate events occur within this Port.}}
+  invariants:
+    - {id: PORT-001, rule: CLOSED Port cannot receive new Voyage assignments.}
+    - {id: PORT-002, rule: Historical voyages and berth use remain auditable after port status or naming changes.}
+  lifecycle:
+    title: Port Lifecycle
+    attribute: status
+    states: [ACTIVE, RESTRICTED, CLOSED]
+    initial: ACTIVE
+    terminal: [CLOSED]
+    transitions:
+      - {from: ACTIVE, to: RESTRICTED, action: restrict}
+      - {from: RESTRICTED, to: ACTIVE, action: restore}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: RESTRICTED, to: CLOSED, action: close}
+  help:
+    summary: Represents a maritime port and its terminal context.
+    businessMeaning: Port is persistent terminal master data; Berths, Gates and Voyages refer to it.
+    usage: Port planning, voyage scheduling, terminal operations, reporting and audit.
+    relationshipContext: Berths and Gates belong to a Port; Voyages use Ports as origin and destination.
+    lifecycle: Port is active, may be restricted and eventually closed.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PORT}
