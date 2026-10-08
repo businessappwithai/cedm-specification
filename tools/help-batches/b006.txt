@@ -126,6 +126,7 @@ l: An event is final when written. A correction is a new event, and delivery ret
 x: Event "OrderShipped" for order SO-20413, published when the carrier confirmed pick-up, consumed by invoicing and customer notification.
 a businessEventId
 s: The identity of the event, also used by consumers to ignore a delivery they have already processed.
+u: Generated when the event is written; consumers store it to make processing idempotent, and audit queries use it to find the event.
 a occurredAt
 s: When the business fact happened, as opposed to when it was published.
 u: Set from the source transaction's time; consumers order and window events by it.
@@ -138,23 +139,30 @@ c: A process is owned by an Organization and realised by Workflows, Tasks and su
 l: A process is drafted, becomes active when approved for use, may be suspended for rework, and is retired when replaced. Only one version is normally effective for a given period.
 x: The order-to-cash process, version 3.0, owned by Finance and effective from 1 January.
 a businessProcessId
-s: The identity of the process, constant across its versions' editing.
+s: The identity of the process, constant while its definition is revised.
+u: Generated on creation; workflows, tasks and documents refer to the process through it.
 a code
 s: The reference by which the process is named in documents and discussions, for example P2P-001.
+u: Assigned by the process owner when the process is defined; unique, and used in searches and process maps.
 a name
 s: The title of the process, such as Procure to Pay.
+u: Shown in process catalogues and on the workflows and tasks that realise it.
 a description
 s: A narrative of what the process achieves, where it starts and ends and who takes part.
+u: Written by the process owner; read by newcomers, analysts and auditors to understand scope and intent.
 a processVersion
 s: The revision of the process definition, so a change to how work is done is traceable.
 u: Incremented by the process owner when the steps change; runs of the process record the version they followed.
 a status
+s: Whether this version of the process is being designed, in use, paused, or replaced.
+u: Moved by the process owner; only ACTIVE processes are offered when workflows and tasks are linked.
 v DRAFT: Being designed; not yet in use.
 v ACTIVE: Approved and in use.
 v SUSPENDED: Temporarily withdrawn, for example while being reworked; not used for new runs.
 v RETIRED: Permanently replaced or discontinued; kept for history.
 a effectiveFrom
 s: The first date on which this version of the process applies.
+u: Set at approval so a revised process can be prepared ahead and take over on a known date.
 a effectiveTo
 s: The last date on which this version of the process applies.
 u: Set when a successor takes over; must not precede the effective-from date.

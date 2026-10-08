@@ -184,6 +184,9 @@ def main(argv: list[str]) -> int:
                 authored["examples"] = [e.strip() for e in authored["examples"].split(";") if e.strip()]
             attr["help"] = merge(attr.get("help"), authored, filler_set(attr.get("help"), attr_name, (attr.get("target"),)),
                                  set(ATTR_KEYS.values()))
+            for need in ("summary", "usage"):
+                if not attr["help"].get(need):
+                    problems.append(f"{name}.{attr_name}: no {need} (DICT-006 needs both)")
             want = {str(v) for v in attr.get("values") or []}
             have = {str(v) for v in (attr["help"].get("valueSemantics") or {})}
             if want and have != want:

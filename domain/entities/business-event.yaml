@@ -7,7 +7,7 @@ entity:
     icon: activity
   identity: {key: businessEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the event, also used by consumers to ignore a delivery they have already processed.'}}
+    - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the event, also used by consumers to ignore a delivery they have already processed.', usage: 'Generated when the event is written; consumers store it to make processing idempotent, and audit queries use it to find the event.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: 'When the business fact happened, as opposed to when it was published.', usage: Set from the source transaction's time; consumers order and window events by it.}}
   relationships: []
   invariants:

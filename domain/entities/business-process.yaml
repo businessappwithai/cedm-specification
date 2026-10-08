@@ -16,7 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the process, constant across its versions' editing.
+        summary: The identity of the process, constant while its definition is revised.
+        usage: Generated on creation; workflows, tasks and documents refer to the process through it.
     - name: code
       type: string
       required: true
@@ -24,18 +25,21 @@ entity:
       maxLength: 100
       help:
         summary: The reference by which the process is named in documents and discussions, for example P2P-001.
+        usage: Assigned by the process owner when the process is defined; unique, and used in searches and process maps.
     - name: name
       type: string
       required: true
       maxLength: 300
       help:
         summary: The title of the process, such as Procure to Pay.
+        usage: Shown in process catalogues and on the workflows and tasks that realise it.
     - name: description
       type: string
       required: false
       maxLength: 4000
       help:
         summary: A narrative of what the process achieves, where it starts and ends and who takes part.
+        usage: Written by the process owner; read by newcomers, analysts and auditors to understand scope and intent.
     - name: processVersion
       type: string
       required: true
@@ -54,6 +58,8 @@ entity:
         - SUSPENDED
         - RETIRED
       help:
+        summary: Whether this version of the process is being designed, in use, paused, or replaced.
+        usage: Moved by the process owner; only ACTIVE processes are offered when workflows and tasks are linked.
         valueSemantics:
           DRAFT: Being designed; not yet in use.
           ACTIVE: Approved and in use.
@@ -64,6 +70,7 @@ entity:
       required: false
       help:
         summary: The first date on which this version of the process applies.
+        usage: Set at approval so a revised process can be prepared ahead and take over on a known date.
     - name: effectiveTo
       type: date
       required: false
