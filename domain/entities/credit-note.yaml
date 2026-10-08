@@ -11,7 +11,12 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the credit note., businessMeaning: "Identifies the financial adjustment independently of its business number, original invoice, return, accounting entry, application or refund.", usage: "Used for audit, accounting, customer statements, integrations, reconciliation, tax and reversal workflows.", relationshipContext: "CreditNoteId is the stable system identity; creditNoteNumber is the business-facing reference; the original Invoice remains a separate historical claim.", workflowRole: "Root reference across preparation, approval, posting, application, reversal, reporting and refund processing."}
+      help:
+        summary: The identity of the credit note.
+        businessMeaning: "Identifies the financial adjustment independently of its business number, original invoice, return, accounting entry, application or refund."
+        usage: "Used for audit, accounting, customer statements, integrations, reconciliation, tax and reversal workflows."
+        relationshipContext: "CreditNoteId is the stable system identity; creditNoteNumber is the business-facing reference; the original Invoice remains a separate historical claim."
+        workflowRole: "Root reference across preparation, approval, posting, application, reversal, reporting and refund processing."
     - name: creditNoteNumber
       type: string
       required: true
@@ -28,21 +33,21 @@ entity:
       default: DRAFT
       values: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, REFUND_DUE, REFUNDED, CANCELLED, REVERSED]
       help:
+        valueSemantics:
+          DRAFT: Being prepared; has no financial effect.
+          APPROVED: Authorised but not yet posted to the ledger.
+          POSTED: Recorded in the books; it now reduces what the customer owes.
+          PARTIALLY_APPLIED: Part of its value has been set against invoices; some remains.
+          FULLY_APPLIED: All of its value has been set against invoices.
+          REFUND_DUE: The remaining value is to be paid back to the customer in cash.
+          REFUNDED: The remaining value has been refunded.
+          CANCELLED: Withdrawn before it was posted.
+          REVERSED: Cancelled after posting by a compensating entry; the original stays on record.
         summary: Lifecycle state of the credit adjustment.
         businessMeaning: Indicates preparation, authorization, accounting recognition, application to invoices, customer refund obligation, settlement, cancellation or reversal.
         usage: Controls approval, posting, application, refund and correction workflows.
         relationshipContext: CreditNote status is independent of Invoice, CustomerReturn, Payment and CreditNoteApplication status.
         workflowRole: POSTED establishes the financial adjustment; application reduces eligible outstanding receivable; refund states apply when money must be returned.
-        valueSemantics:
-          DRAFT: The status of the credit note is draft; set it when that is what the business means for this record.
-          APPROVED: The status of the credit note is approved; set it when that is what the business means for this record.
-          POSTED: The status of the credit note is posted; set it when that is what the business means for this record.
-          PARTIALLY_APPLIED: The status of the credit note is partially applied; set it when that is what the business means for this record.
-          FULLY_APPLIED: The status of the credit note is fully applied; set it when that is what the business means for this record.
-          REFUND_DUE: The status of the credit note is refund due; set it when that is what the business means for this record.
-          REFUNDED: The status of the credit note is refunded; set it when that is what the business means for this record.
-          CANCELLED: The status of the credit note is cancelled; set it when that is what the business means for this record.
-          REVERSED: The status of the credit note is reversed; set it when that is what the business means for this record.
     - name: currencyId
       type: reference
       target: Currency
@@ -139,20 +144,27 @@ entity:
     attribute: status
     states: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, REFUND_DUE, REFUNDED, CANCELLED, REVERSED]
     initial: DRAFT
-    terminal: [FULLY_APPLIED, REFUNDED, CANCELLED, REVERSED]
+    terminal:
+      - CANCELLED
+      - REVERSED
     transitions:
       - {from: DRAFT, to: APPROVED, action: approve}
       - {from: APPROVED, to: POSTED, action: post}
-      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
+      - {from: POSTED, to: PARTIALLY_APPLIED, action: apply}
+      - {from: POSTED, to: FULLY_APPLIED, action: apply}
+      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: apply}
+      - {from: POSTED, to: REFUND_DUE, action: mark_refund_due}
       - {from: PARTIALLY_APPLIED, to: REFUND_DUE, action: mark_refund_due}
-      - {from: REFUND_DUE, to: FULLY_APPLIED, action: mark_fully_applied}
       - {from: REFUND_DUE, to: REFUNDED, action: refund}
+      - {from: REFUND_DUE, to: PARTIALLY_APPLIED, action: apply}
+      - {from: REFUND_DUE, to: FULLY_APPLIED, action: apply}
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: POSTED, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
-      - {from: REFUND_DUE, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: REVERSED, action: reverse}
+      - {from: PARTIALLY_APPLIED, to: REVERSED, action: reverse}
+      - {from: FULLY_APPLIED, to: REVERSED, action: reverse}
       - {from: REFUND_DUE, to: REVERSED, action: reverse}
+      - {from: REFUNDED, to: REVERSED, action: reverse}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a credit note is ended"

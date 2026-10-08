@@ -36,7 +36,7 @@ entity:
       required: true
       maxLength: 100
       help:
-        summary: Human-readable currency name.
+        summary: The name of the currency, such as Euro or US Dollar.
         usage: Used in user interfaces, documents, reports, master-data management, and integrations.
         relationshipContext: Describes the currency identified by code and currencyId.
         workflowRole: Provides understandable monetary context to business users.
@@ -66,14 +66,14 @@ entity:
       default: ACTIVE
       values: [ACTIVE, INACTIVE, RETIRED]
       help:
+        valueSemantics:
+          ACTIVE: Available for use on new prices, documents and payments.
+          INACTIVE: Temporarily not offered, for example while a market is closed; it can be reactivated.
+          RETIRED: No longer in use, such as a replaced national currency; historical amounts keep it.
         summary: Controls whether the currency is available for new monetary transactions.
         usage: Used by pricing, order, invoicing, payment, banking, and accounting validation.
         relationshipContext: Retiring a currency must not invalidate historical transactions expressed in that currency.
         workflowRole: New transactions should use ACTIVE currencies unless an authorized legacy exception applies.
-        valueSemantics:
-          ACTIVE: Available for normal financial activity.
-          INACTIVE: Temporarily unavailable for new normal activity.
-          RETIRED: No longer available for new normal activity while historical financial records remain valid.
   relationships:
     - name: products
       target: Product

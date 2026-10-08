@@ -57,7 +57,8 @@ def show(entity: dict, bad) -> None:
         for key, value in (r.get("help") or {}).items():
             if (where, key) not in bad:
                 print(f"      keep {key}: {str(value)[:70]}")
-    for inv in entity.get("invariants") or []:
+    stars = sum(1 for k in (entity.get("help") or {}) if (n, k) in bad)
+    for inv in (entity.get("invariants") or []) if stars >= 2 else []:
         print(f"   I {inv.get('id')}: {str(inv.get('rule'))[:120]}")
     lc = entity.get("lifecycle")
     if lc:

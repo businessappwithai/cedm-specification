@@ -12,7 +12,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Immutable identity of the customer return.
+        summary: The identity of the return.
         businessMeaning: Identifies the reverse-fulfillment event independently of its number, lines, shipment, invoice or credit note.
         usage: Used for reverse logistics, inventory, financial adjustment, audit and integration.
         relationshipContext: Stable root identity for CustomerReturnLine and downstream CreditNote evidence.
@@ -23,7 +23,7 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: Business-facing customer return reference.
+        summary: The number the customer and warehouse quote for the return, often called an RMA number.
         businessMeaning: Identifies the return for customer service, warehouse and finance operations.
         usage: Used in return authorization, transport, receiving, inspection, credit and audit.
         relationshipContext: Distinct from customerReturnId, Shipment and CreditNote numbers.
@@ -34,21 +34,21 @@ entity:
       default: DRAFT
       values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
       help:
+        valueSemantics:
+          DRAFT: Being prepared; not yet authorised.
+          AUTHORIZED: Approved by the seller; the customer may send the goods back.
+          IN_TRANSIT: The goods are on their way back.
+          RECEIVED: The goods have arrived at the returns location.
+          INSPECTION_PENDING: Waiting for the returned goods to be inspected.
+          DISPOSITIONED: 'Each line has a decision: restock, quarantine, repair or scrap.'
+          COMPLETED: All physical and financial effects are done.
+          CANCELLED: Withdrawn before completion; no effects remain.
+          EXCEPTION: Held because something went wrong, such as damage or a missing item, and needs a decision.
         summary: Lifecycle state of the authorized customer return.
         businessMeaning: Controls progression through transport, receipt, inspection, disposition, inventory and financial adjustment.
         usage: Controls return processing and completion decisions.
         relationshipContext: Return status does not itself change inventory or invoice balances.
         workflowRole: Coordinates dependent return workflows; CreditNote posting is a separate financial state.
-        valueSemantics:
-          DRAFT: The status of the customer return is draft; set it when that is what the business means for this record.
-          AUTHORIZED: The status of the customer return is authorized; set it when that is what the business means for this record.
-          IN_TRANSIT: The status of the customer return is in transit; set it when that is what the business means for this record.
-          RECEIVED: The status of the customer return is received; set it when that is what the business means for this record.
-          INSPECTION_PENDING: The status of the customer return is inspection pending; set it when that is what the business means for this record.
-          DISPOSITIONED: The status of the customer return is dispositioned; set it when that is what the business means for this record.
-          COMPLETED: The status of the customer return is completed; set it when that is what the business means for this record.
-          CANCELLED: The status of the customer return is cancelled; set it when that is what the business means for this record.
-          EXCEPTION: The status of the customer return is exception; set it when that is what the business means for this record.
     - name: returnDate
       type: datetime
       required: true
@@ -162,30 +162,26 @@ entity:
     attribute: status
     states: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
     initial: DRAFT
-    terminal: [DISPOSITIONED, CANCELLED]
+    terminal:
+      - COMPLETED
+      - CANCELLED
     transitions:
       - {from: DRAFT, to: AUTHORIZED, action: authorize}
-      - {from: AUTHORIZED, to: IN_TRANSIT, action: mark_in_transit}
+      - {from: AUTHORIZED, to: IN_TRANSIT, action: ship_back}
       - {from: IN_TRANSIT, to: RECEIVED, action: receive}
-      - {from: RECEIVED, to: COMPLETED, action: complete}
-      - {from: COMPLETED, to: DISPOSITIONED, action: mark_dispositioned}
-      - {from: AUTHORIZED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-      - {from: INSPECTION_PENDING, to: AUTHORIZED, action: resume}
-      - {from: IN_TRANSIT, to: INSPECTION_PENDING, action: mark_inspection_pending}
-      - {from: INSPECTION_PENDING, to: IN_TRANSIT, action: resume}
-      - {from: RECEIVED, to: INSPECTION_PENDING, action: mark_inspection_pending}
-      - {from: INSPECTION_PENDING, to: RECEIVED, action: resume}
-      - {from: AUTHORIZED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: AUTHORIZED, action: resolve_exception}
-      - {from: IN_TRANSIT, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: IN_TRANSIT, action: resolve_exception}
-      - {from: RECEIVED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: RECEIVED, action: resolve_exception}
+      - {from: RECEIVED, to: INSPECTION_PENDING, action: send_to_inspection}
+      - {from: RECEIVED, to: DISPOSITIONED, action: disposition}
+      - {from: INSPECTION_PENDING, to: DISPOSITIONED, action: disposition}
+      - {from: DISPOSITIONED, to: COMPLETED, action: complete}
+      - {from: AUTHORIZED, to: EXCEPTION, action: raise_exception}
+      - {from: IN_TRANSIT, to: EXCEPTION, action: raise_exception}
+      - {from: RECEIVED, to: EXCEPTION, action: raise_exception}
+      - {from: INSPECTION_PENDING, to: EXCEPTION, action: raise_exception}
+      - {from: EXCEPTION, to: AUTHORIZED, action: resume}
+      - {from: EXCEPTION, to: IN_TRANSIT, action: resume}
+      - {from: EXCEPTION, to: RECEIVED, action: resume}
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: AUTHORIZED, to: CANCELLED, action: cancel}
-      - {from: IN_TRANSIT, to: CANCELLED, action: cancel}
-      - {from: RECEIVED, to: CANCELLED, action: cancel}
-      - {from: INSPECTION_PENDING, to: CANCELLED, action: cancel}
       - {from: EXCEPTION, to: CANCELLED, action: cancel}
   workflows:
     - name: ExceptionRaised
