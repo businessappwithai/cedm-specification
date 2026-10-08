@@ -7,18 +7,17 @@ entity:
     icon: database
   identity: {key: integrationEndpointId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of IntegrationEndpoint., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows.}}
-    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps.}}
+    - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the endpoint, independent of its current address.', usage: 'Generated on registration; subscriptions and delivery attempts refer to it, so the URL can change without breaking them.'}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: When the endpoint was registered or last took effect., usage: Set on registration or when its configuration changes; operators use it to tell which configuration applied to an old delivery.}}
   relationships: []
   invariants:
     - {id: INTEGRATION-ENDPOINT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
   help:
-    summary: A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system.
-    purpose: Provide canonical implementation-neutral integration semantics for IntegrationEndpoint.
-    businessMeaning: A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system.
+    summary: A logical endpoint through which messages or business events are exchanged with an internal or external system.
+    businessMeaning: Systems talk to each other through addresses and agreed channels. An endpoint record names one such channel and how it is used, so that deliveries can be routed, retried and audited against a known destination.
+    usage: Registered when a connection to another system is set up; referenced by delivery attempts; read by integration operators when diagnosing failures.
+    relationshipContext: Delivery attempts target an endpoint, and messages are routed to it by subscription.
+    lifecycle: Delivery retries and corrections keep auditable evidence and never duplicate downstream business effects.
+    example: The partner's order-status webhook, to which the application posts "shipment.dispatched" events.
     whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
-    howItRelates: Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
-    lifecycleUsage: Created and processed through governed integration states; attempts and finalized evidence are retained.
-    commonProcesses: Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-    commonExamples: Enterprise application integration and event-driven workflows.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INTEGRATION-ENDPOINT}
