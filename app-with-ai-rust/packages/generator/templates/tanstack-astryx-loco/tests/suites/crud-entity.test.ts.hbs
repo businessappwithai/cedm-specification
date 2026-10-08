@@ -209,7 +209,7 @@ describe("{{entity.displayName}} CRUD", () => {
     const created = await harness.createWithParents(entity);
     expect(created).not.toBeNull();
 
-    const response = await harness.client.delete(`/bus/${entity.route}/${created?.id}`);
+    const response = await harness.deleteRecord(entity.route, String(created?.id));
     expect(response.status).toBe(204);
 
     const after = await harness.client.get(`/bus/${entity.route}/${created?.id}`, {
