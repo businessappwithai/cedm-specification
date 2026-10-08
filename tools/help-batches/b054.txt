@@ -1,0 +1,177 @@
+@ RetailSale
+s: A point-of-sale transaction in which a store sells goods or services to a shopper and issues a receipt.
+b: A retail sale is the till record of one purchase. It captures what was sold, the total, the currency and the payments taken, and it is the base for the receipt, the day's takings, stock reduction and any later refund.
+u: Created at the till as items are scanned; completed on payment; read by store management, finance and returns.
+c: A sale happens in one store, may name a customer, has one or more lines and is settled by payments.
+l: A sale is open while being rung up, completed on payment and may later be refunded. An open sale may be voided. Voided and refunded are final.
+x: Receipt R-88213 at the Central store sells three items for 54.60 paid by card.
+a retailSaleId
+s: The identity of the sale, constant for its life.
+u: Generated on creation; lines, payments and refunds refer to it.
+c: Referenced by every line and payment of the sale.
+a receiptNumber
+s: The number printed on the shopper's receipt.
+u: Unique; the shopper quotes it on a return.
+c: Used to find the sale again for refunds.
+a saleDate
+u: Set when the sale is opened; takings are reported by it.
+c: Decides which trading day the sale falls in.
+a status
+s: Where the sale is.
+u: Starts as OPEN at the till; completed on payment.
+c: Only completed sales count in takings.
+v OPEN: Being rung up; not yet paid.
+v COMPLETED: Paid and receipted.
+v VOIDED: Abandoned before completion. A final state.
+v REFUNDED: Returned and paid back. A final state.
+a totalAmount
+s: The amount the shopper pays, after discounts and tax.
+u: Calculated from the lines; must not be negative.
+c: Compared with payments to confirm the sale is settled.
+a currencyId
+s: The currency of the sale.
+u: Set from the store; all amounts are in it.
+c: Read with the total.
+r store
+s: The store where the sale took place.
+u: Set from the till.
+n: Exactly one store.
+t: Attributes takings and stock to the right outlet.
+r customer
+s: The customer, if the shopper is identified.
+u: Chosen when a loyalty card or account is used.
+n: At most one customer; empty for an anonymous sale.
+t: Allows purchase history and loyalty to be recorded.
+r lines
+s: The items sold.
+u: Added as items are scanned.
+n: At least one line to complete the sale.
+t: The lines belong to the sale and go with it.
+r payments
+s: The payments tendered for the sale.
+u: Recorded at checkout.
+n: Any number, since a sale may be split between payment methods.
+t: Together they must cover the total.
+
+@ RetailSaleLine
+s: One product or service sold on a retail sale, with its quantity, price, discount and tax.
+b: Each line records what was sold and at what price at that moment, so the receipt, tax return and stock reduction can be reproduced even after prices change.
+u: Created at the till for each item; read by stock, tax and returns.
+c: A line belongs to one sale and names a product and optionally a unit.
+l: A line follows its sale. It is fixed when the sale completes; changes after that are made by refund.
+x: Three bottles of olive oil at 6.50 each, with 1.95 tax, on receipt R-88213.
+a retailSaleLineId
+s: The identity of the line, constant for its life.
+u: Generated on creation; refunds refer to it.
+c: Referenced when an item is returned.
+a quantity
+s: The number of units sold.
+u: Entered or scanned; must be greater than zero.
+c: Multiplied by the unit price.
+a unitPrice
+s: The price for one unit at the time of sale.
+u: Taken from the price list; must not be negative; kept even if prices change.
+c: Used with quantity to give the line amount.
+a discountAmount
+s: The discount given on the line.
+u: Applied by a promotion or the cashier; must not be negative.
+c: Subtracted from quantity times price.
+a taxAmount
+s: The tax charged on the line.
+u: Calculated from the product's tax class; must not be negative.
+c: Included in the line amount.
+a lineAmount
+s: The amount charged for the line.
+u: Calculated; summed into the sale total.
+c: Matched against the receipt.
+r sale
+s: The sale the line belongs to.
+u: Set when the line is added.
+n: Exactly one sale; a line cannot stand alone.
+t: Ties the line to its receipt.
+r product
+s: The product sold.
+u: Chosen or scanned.
+n: Exactly one product per line.
+t: Reduces the product's stock.
+r unitOfMeasure
+s: The unit the quantity is expressed in.
+u: Defaults to the product's selling unit.
+n: At most one unit; empty uses the default.
+t: Makes the quantity unambiguous, for example kilograms versus items.
+
+@ Risk
+s: A potential event or condition that could affect the achievement of business objectives.
+b: The risk register lets the organisation name what could go wrong, judge how likely and how serious it is, decide what to do and track it to a close. It supports governance by keeping each risk, its owner and its controls in one place.
+u: Raised by anyone; assessed and owned by risk or business managers; read by governance and audit.
+c: A risk may have an owner and an organisation, is addressed by controls and has treatments.
+l: A risk is identified, assessed and then mitigated or accepted before it is closed. It may materialise at any point, becoming an incident. Closed and materialised are final.
+x: Risk RSK-021 records that a single supplier provides a critical component; likelihood possible, impact major, mitigated by a second source.
+a riskId
+s: The identity of the risk, constant for its life.
+u: Generated on creation; controls and treatments refer to it.
+c: Referenced by assessments and treatments.
+a code
+s: The register code of the risk, such as RSK-021.
+u: Unique; quoted in reports and audits.
+c: Read with the name to identify the risk.
+a name
+s: A short name for the risk.
+u: Shown in the register and heat map.
+c: Read by owners and reviewers.
+a description
+s: A fuller account of the cause, event and consequence.
+u: Written when the risk is raised and revised on assessment.
+c: Read by the assessor.
+a category
+s: The kind of risk, such as financial, operational or compliance.
+u: Chosen when raised; the register is grouped by it.
+c: Decides which reviewer sees it.
+a likelihood
+s: How likely the risk is to occur.
+u: Assigned at assessment; combined with impact to rate the risk.
+c: Together with impact gives the risk's exposure.
+v RARE: Expected to occur only in exceptional circumstances.
+v UNLIKELY: Could occur but is not expected.
+v POSSIBLE: Might occur at some time.
+v LIKELY: Will probably occur.
+v ALMOST_CERTAIN: Expected to occur in most circumstances.
+a impact
+s: How serious the consequences would be if the risk occurred.
+u: Assigned at assessment.
+c: Together with likelihood gives the risk's exposure.
+v INSIGNIFICANT: Negligible effect.
+v MINOR: Small effect that is easily absorbed.
+v MODERATE: Noticeable effect needing management attention.
+v MAJOR: Serious effect on objectives.
+v SEVERE: Threatens the organisation's objectives or survival.
+a status
+s: Where the risk is in its handling.
+u: Starts as IDENTIFIED; moved by the owner.
+c: Decides whether treatments and reviews are due.
+v IDENTIFIED: Recorded, not yet assessed.
+v ASSESSED: Likelihood and impact are set.
+v MITIGATING: Actions are under way to reduce it.
+v ACCEPTED: The remaining exposure is accepted.
+v CLOSED: No longer a risk. A final state.
+v MATERIALIZED: The risk has occurred. A final state.
+r owner
+s: The person accountable for managing the risk.
+u: Chosen when the risk is assessed.
+n: At most one owner; empty until assigned.
+t: Names who answers for it.
+r organization
+s: The organisation the risk affects.
+u: Chosen when the risk is specific to a unit.
+n: At most one organisation.
+t: Groups the risk in the right register.
+r controls
+s: The controls that reduce the risk.
+u: Linked when controls are identified.
+n: Any number of controls.
+t: Shows how well the risk is covered.
+r treatments
+s: The actions planned to treat the risk.
+u: Added when a response is decided.
+n: Any number of treatments.
+t: Treatments belong to the risk.
