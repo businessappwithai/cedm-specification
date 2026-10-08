@@ -1,0 +1,100 @@
+@ RequestForQuotation
+a status
+v DRAFT: Being prepared; not yet sent to suppliers.
+v ISSUED: Sent to the suppliers, who may now respond.
+v CLOSED: The response period has ended; quotations are being compared.
+v AWARDED: A supplier has been chosen. A final state.
+v CANCELLED: Withdrawn without an award. A final state.
+
+@ ResearchProject
+s: A structured scientific research initiative with defined objectives, resources, experiments and outcomes.
+b: A research project is the top-level frame for a body of scientific work. It gathers the protocols, studies and experiments run under one objective, the team doing the work and the documents produced, so progress and results can be reviewed together.
+u: Created by a project lead; read by scientists, management and quality.
+c: A project may belong to an organisation, has a team, and contains protocols, studies and experiments with documents.
+l: A project is planned, becomes active, may be suspended and resumed, and completes. It is then archived, or cancelled earlier. Archived and cancelled are final.
+x: Project RP-014 investigates a new formulation for stability over twelve months, with three studies and a protocol.
+a researchProjectId
+s: The identity of the project, constant for its life.
+u: Generated on creation; protocols, studies and experiments refer to it.
+c: Referenced by all work run under it.
+a projectCode
+s: The code of the project, such as RP-014.
+u: Unique; quoted in reports and notebooks.
+c: Read with the title to identify the project.
+a title
+s: The title of the project.
+u: Shown in lists and reports.
+c: Read by the team and by management.
+a objective
+s: A statement of what the project sets out to find or prove.
+u: Written when planned; reviewed when deciding to continue.
+c: Read by anyone judging whether results meet it.
+a status
+s: Where the project is.
+u: Starts as PLANNED; moved by the project lead.
+c: Decides whether new studies and experiments can start.
+v PLANNED: Approved to proceed but not yet started.
+v ACTIVE: Work is under way.
+v COMPLETED: The objective has been addressed; reporting remains.
+v SUSPENDED: Paused; can be resumed.
+v CANCELLED: Stopped before completion. A final state.
+v ARCHIVED: Closed out and kept for record. A final state.
+r organization
+s: The organisation that runs or funds the project.
+u: Chosen when the project is set up.
+n: At most one organisation.
+t: Decides whose records and budget the work belongs to.
+r experiments
+s: The experiments run under the project.
+u: Read to follow the work.
+n: Any number of experiments.
+t: Experiments belong to the project.
+r documents
+s: The documents produced or used by the project.
+u: Attached as work proceeds.
+n: Any number of documents.
+t: Holds reports, approvals and data sheets.
+r team
+s: The people working on the project.
+u: Chosen when the team is formed.
+n: Any number of people.
+t: Decides who may see and record work.
+r protocols
+n: Any number of protocols govern the project's work.
+r studies
+n: Any number of studies are run within the project.
+
+@ ResourceAssignment
+s: An assignment of a person, role or resource to a project with a defined responsibility and allocation.
+b: An assignment says who is committed to a project and in what capacity. It lets managers see how people are allocated, plan capacity and attribute time and cost, and it keeps the history of who was on the project when.
+u: Created by the project manager; read by resource planning, timesheets and finance.
+c: An assignment belongs to one project.
+l: An assignment is drafted, active while the person is committed, and completed when the commitment ends. It may be cancelled before it starts to matter. Completed and cancelled are final.
+x: A senior engineer is assigned to the Warehouse automation project at 50 percent from March to August.
+a resourceAssignmentId
+s: The identity of the assignment, constant for its life.
+u: Generated on creation; time and cost records refer to it.
+c: Referenced by timesheets booked under the assignment.
+a resourceAssignmentCode
+s: The code of the assignment, such as RA-0231.
+u: Unique; quoted in resource plans.
+a status
+s: Where the assignment is.
+u: Starts as DRAFT; moved by the project manager.
+v DRAFT: Proposed and not yet committed.
+v ACTIVE: The person is committed to the project.
+v COMPLETED: The commitment has ended. A final state.
+v CANCELLED: Withdrawn. A final state.
+r context
+s: The project the resource is assigned to.
+u: Chosen when the assignment is created.
+n: Exactly one project; an assignment to two projects is two assignments.
+t: Places the commitment in the right plan and budget.
+
+@ Result
+a resultId
+s: The identity of the result, constant for its life.
+a resultCode
+s: The code of the result, such as R-2210.
+a status
+s: Whether the result is final.

@@ -16,7 +16,17 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, ISSUED, CLOSED, AWARDED, CANCELLED]
-      help: {summary: Lifecycle state of the RFQ., businessMeaning: "Controls solicitation, response, closure, and award behavior.", usage: Sourcing workflow and governance., relationshipContext: "Award does not itself create a supplier commitment; PurchaseOrder does.", valueSemantics: {DRAFT: Being prepared., ISSUED: Open to invited supplier responses., CLOSED: Response collection ended without final award state., AWARDED: One or more responses were selected for downstream commitment., CANCELLED: Sourcing request terminated.}}
+      help:
+        valueSemantics:
+          DRAFT: Being prepared; not yet sent to suppliers.
+          ISSUED: Sent to the suppliers, who may now respond.
+          CLOSED: The response period has ended; quotations are being compared.
+          AWARDED: A supplier has been chosen. A final state.
+          CANCELLED: Withdrawn without an award. A final state.
+        summary: Lifecycle state of the RFQ.
+        businessMeaning: "Controls solicitation, response, closure, and award behavior."
+        usage: Sourcing workflow and governance.
+        relationshipContext: "Award does not itself create a supplier commitment; PurchaseOrder does."
   relationships:
     - {name: lines, target: RequestForQuotationLine, cardinality: "1..*", ownership: aggregate, help: {summary: Detailed requirements suppliers are invited to quote., businessMeaning: "Defines line-level sourced quantity, product/service, and demand provenance.", usage: "Supplier response, comparison, split award, and audit.", cardinalityMeaning: An issued RFQ requires at least one line., workflowRole: Each line may receive multiple SupplierQuotationLine responses.}}
     - {name: requisitions, target: PurchaseRequisition, cardinality: 1..*, ownership: reference, help: {summary: Approved internal demands being sourced., businessMeaning: Provides authorized demand basis for the solicitation., usage: Demand-to-source traceability and audit., cardinalityMeaning: An RFQ must source at least one approved requisition., workflowRole: Supplies approved requirements without creating supplier commitment.}}

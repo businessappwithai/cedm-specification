@@ -16,46 +16,41 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the ResourceAssignment record.
-        businessMeaning: Identifies one governed ResourceAssignment independently of related records and later lifecycle changes.
-        usage: Referencing, workflow execution, reporting, audit, and integration.
-        relationshipContext: Connects this record to its governing Project context and downstream evidence.
+        summary: The identity of the assignment, constant for its life.
+        usage: Generated on creation; time and cost records refer to it.
+        relationshipContext: Referenced by timesheets booked under the assignment.
     - name: resourceAssignmentCode
       type: string
       required: true
       unique: true
       maxLength: 120
       help:
-        summary: Human-readable business reference for the ResourceAssignment.
-        businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-        usage: Creation, review, search, workflow, reporting, and audit.
-        relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
+        summary: The code of the assignment, such as RA-0231.
+        usage: Unique; quoted in resource plans.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Lifecycle state of the ResourceAssignment.
-        businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-        usage: Workflow gating, governance, reporting, and audit.
-        relationshipContext: Status changes can affect related Project workflows but never erase historical evidence.
+        summary: Where the assignment is.
+        usage: Starts as DRAFT; moved by the project manager.
         valueSemantics:
-          DRAFT: Record is being prepared and is not yet normally effective.
-          ACTIVE: Record is effective for its governed business purpose.
-          COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-          CANCELLED: Record was cancelled through controlled workflow and remains auditable.
+          DRAFT: Proposed and not yet committed.
+          ACTIVE: The person is committed to the project.
+          COMPLETED: The commitment has ended. A final state.
+          CANCELLED: Withdrawn. A final state.
+        relationshipContext: Status changes can affect related Project workflows but never erase historical evidence.
   relationships:
     - name: context
       target: Project
       cardinality: '1'
       ownership: reference
       help:
-        summary: Governing Project associated with this ResourceAssignment.
-        businessMeaning: Supplies the business context needed to interpret and validate the record.
-        usage: Workflow navigation, validation, traceability, reporting, and audit.
-        cardinalityMeaning: Every ResourceAssignment belongs to exactly one governing Project in this baseline model.
-        context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+        summary: The project the resource is assigned to.
+        usage: Chosen when the assignment is created.
+        cardinalityMeaning: Exactly one project; an assignment to two projects is two assignments.
+        context: Places the commitment in the right plan and budget.
   invariants:
     - id: RESOURCE-ASSIGNMENT-001
       rule: The governing Project relationship is required and must reference a valid record.
@@ -112,13 +107,12 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents ResourceAssignment as a first-class governed CEDM business concept.
-    businessMeaning: A governed assignment of a person, role, or resource to a Project with defined responsibility and allocation.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: Project supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A ResourceAssignment is created for a valid Project, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: An assignment of a person, role or resource to a project with a defined responsibility and allocation.
+    businessMeaning: An assignment says who is committed to a project and in what capacity. It lets managers see how people are allocated, plan capacity and attribute time and cost, and it keeps the history of who was on the project when.
+    usage: Created by the project manager; read by resource planning, timesheets and finance.
+    relationshipContext: An assignment belongs to one project.
+    lifecycle: An assignment is drafted, active while the person is committed, and completed when the commitment ends. It may be cancelled before it starts to matter. Completed and cancelled are final.
+    example: A senior engineer is assigned to the Warehouse automation project at 50 percent from March to August.
 specification:
   version: 0.1.0
   status: draft
