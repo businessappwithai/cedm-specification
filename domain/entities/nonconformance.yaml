@@ -21,7 +21,11 @@ entity:
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Business-facing nonconformance reference., businessMeaning: Identifies the issue for quality and supplier operations., usage: "Audit, reporting, CAPA and dispute handling.", workflowRole: Human-recognizable issue reference.}
+      help:
+        summary: The unique reference by which the deviation is cited in reports and corrective actions.
+        businessMeaning: Identifies the issue for quality and supplier operations.
+        usage: "Audit, reporting, CAPA and dispute handling."
+        workflowRole: Human-recognizable issue reference.
     - name: severity
       type: enum
       required: true

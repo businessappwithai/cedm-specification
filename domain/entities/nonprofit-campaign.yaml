@@ -58,13 +58,13 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
-        summary: Where the campaign is.
-        usage: Updated by the fundraising team.
         valueSemantics:
-          PLANNED: Being prepared.
-          ACTIVE: Running.
+          PLANNED: Being prepared and not yet launched.
+          ACTIVE: Running and accepting gifts.
           COMPLETED: Finished. A final state.
           CANCELLED: Called off. A final state.
+        summary: Where the campaign is.
+        usage: Updated by the fundraising team.
   relationships:
     - name: organization
       target: Organization

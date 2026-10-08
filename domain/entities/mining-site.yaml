@@ -65,9 +65,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one location: a site is a defined piece of ground with coordinates and a jurisdiction.'
         summary: Where the site is.
         usage: Set at registration.
-        cardinalityMeaning: Exactly one location.
         workflowRole: Provides coordinates and jurisdiction.
     - name: organization
       target: Organization
