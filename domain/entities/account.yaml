@@ -155,7 +155,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a financial master entity called Account within the CEDM business model.
+    summary: "A ledger account in the chart of accounts that classifies every monetary posting, so balances, statements and reconciliations can be produced by account."
     businessMeaning: Account is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,

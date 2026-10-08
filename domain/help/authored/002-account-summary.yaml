@@ -1,0 +1,4 @@
+# Authored help, batch 002: replaces Account's short entity summary.
+Account:
+  help:
+    summary: "A ledger account in the chart of accounts that classifies every monetary posting, so balances, statements and reconciliations can be produced by account."

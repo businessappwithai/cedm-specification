@@ -54,6 +54,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ENTITY_DIR = ROOT / "domain" / "entities"
 AUTHORED_DIR = ROOT / "domain" / "help" / "authored"
 DICTIONARY_MAPPING = ROOT / "specification" / "dictionary-mapping.yaml"
+HELP_SEMANTICS = ROOT / "specification" / "help-semantics.yaml"
 
 SECTIONS = ("attributes", "relationships")
 
@@ -140,6 +141,8 @@ def after_last_line(text: str, node) -> int:
 class Edit:
     index: int
     text: str
+    #: Where the replaced span ends; equal to `index` for a pure insertion.
+    end: int | None = None
 
 
 @dataclass
@@ -183,7 +186,33 @@ def add_help(text: str, holder: yaml.MappingNode, pairs: list[tuple[str, str]]) 
     return Edit(at, lines)
 
 
-def plan_file(path: Path, entries: dict, known, aliases, report: Report):
+def load_minimums():
+    """The contract's minimum summary lengths, entity and field."""
+    rules = yaml.safe_load(HELP_SEMANTICS.read_text(encoding="utf-8")).get("qualityRules") or {}
+    return {
+        "entity": int(rules.get("minimumEntitySummaryWords", 0)),
+        "field": int(rules.get("minimumFieldSummaryWords", 0)),
+    }
+
+
+def short_summary(summary, label, minimums) -> bool:
+    """Is this existing summary below the contract's minimum length?
+
+    Only entity and attribute summaries have a minimum; a relationship's
+    summary is never replaced.
+    """
+    if not isinstance(summary, str) or not summary.strip():
+        return False
+    if label == "help":
+        floor = minimums["entity"]
+    elif label.startswith("attributes."):
+        floor = minimums["field"]
+    else:
+        return False
+    return len(summary.split()) < floor
+
+
+def plan_file(path: Path, entries: dict, known, aliases, report: Report, minimums=None):
     """The edits one entity file needs, and what each one writes."""
     text = path.read_text(encoding="utf-8")
     root = yaml.compose(text)
@@ -199,7 +228,7 @@ def plan_file(path: Path, entries: dict, known, aliases, report: Report):
             return
         existing = holder_parsed.get("help") if isinstance(holder_parsed.get("help"), dict) else {}
         have = {canonical(k, aliases) for k, v in existing.items() if v not in (None, "", [], {})}
-        pairs = []
+        pairs, replacements = [], []
         for key, value in authored.items():
             if key not in known:
                 report.errors.append(f"{name} {label}: '{key}' is not a help key the specification knows")
@@ -207,15 +236,29 @@ def plan_file(path: Path, entries: dict, known, aliases, report: Report):
             if not isinstance(value, str) or not value.strip():
                 report.errors.append(f"{name} {label}: '{key}' must be non-empty text")
                 continue
+            value = " ".join(value.split())
+            if key == "summary" and short_summary(existing.get("summary"), label, minimums):
+                # The one key that is replaced rather than added: a summary
+                # shorter than the contract's minimum is a gap even though
+                # the key is present, and there can only be one summary.
+                replacements.append(value)
+                continue
             if canonical(key, aliases) in have:
                 report.present.append(f"{name} {label}.{key}")
                 continue
-            value = " ".join(value.split())
             pairs.append((key, value))
             have.add(canonical(key, aliases))
+        help_node = mapping_get(holder_node, "help")
+        for value in replacements:
+            old = mapping_get(help_node, "summary")
+            if not isinstance(old, yaml.ScalarNode):
+                report.errors.append(f"{name} {label}: summary is not text; fix it by hand")
+                continue
+            edits.append(Edit(old.start_mark.index, scalar(value), old.end_mark.index))
+            expect.append((label, "summary", value))
+            report.applied.append(f"{name} {label}.summary (replaced)")
         if not pairs:
             return
-        help_node = mapping_get(holder_node, "help")
         try:
             if isinstance(help_node, yaml.MappingNode):
                 edits.append(append_to_mapping(text, help_node, pairs))
@@ -302,6 +345,7 @@ def main(argv=None):
         return 0
     known, aliases = load_contract()
     authored = load_batches(batches)
+    minimums = load_minimums()
     files = entity_files()
     report = Report()
     changed = 0
@@ -312,7 +356,7 @@ def main(argv=None):
             report.errors.append(f"{entity}: no entity file declares this entity (or it does not parse)")
             continue
         before_errors = len(report.errors)
-        text, edits, expect = plan_file(path, entries, known, aliases, report)
+        text, edits, expect = plan_file(path, entries, known, aliases, report, minimums)
         if not edits or args.check:
             continue
         if len(report.errors) > before_errors:
@@ -321,7 +365,8 @@ def main(argv=None):
             continue
         new = text
         for edit in sorted(edits, key=lambda e: e.index, reverse=True):
-            new = new[: edit.index] + edit.text + new[edit.index :]
+            end = edit.index if edit.end is None else edit.end
+            new = new[: edit.index] + edit.text + new[end:]
         try:
             mismatched = [
                 f"{label}.{key}" for label, key, value in expect if read_back(new, label, key) != value
