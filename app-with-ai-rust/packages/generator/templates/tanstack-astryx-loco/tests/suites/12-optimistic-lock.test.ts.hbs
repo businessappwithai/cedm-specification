@@ -92,6 +92,39 @@ describe("optimistic locking", () => {
     );
     expect(blind.status).toBe(428);
   });
+
+  it("refuses a stale delete, and a delete that names no version", async () => {
+    const target = await optimisticEntity();
+    if (!target) return;
+    const { entity, field } = target;
+    const read = await harness.createWithParents(entity);
+    expect(read?.id).toBeTruthy();
+    const url = `/bus/${entity.route}/${read?.id}`;
+
+    const blind = await harness.client.delete(url, { allowFailure: true });
+    expect(blind.status).toBe(428);
+
+    const saved = await harness.client.patch<Row>(
+      url,
+      { [field.name]: `before-delete-${Date.now()}` },
+      { headers: ifMatch(read) }
+    );
+    expect(saved.status).toBe(200);
+
+    const stale = await harness.client.delete(url, { headers: ifMatch(read), allowFailure: true });
+    expect(stale.status).toBe(409);
+    const refusal = stale.data as Row & { error: string; conflict: Row };
+    expect(refusal.error).toBe("VERSION_CONFLICT");
+    expect((refusal.conflict.current as Row)[field.name]).toBe(saved.data[field.name]);
+
+    const still = await harness.client.get(url, { allowFailure: true });
+    expect(still.status).toBe(200);
+
+    const deleted = await harness.client.delete(url, {
+      headers: ifMatch(refusal.conflict.current as Row),
+    });
+    expect(deleted.status).toBe(204);
+  });
 });
 
 const closing = stateMachines.find((machine) => machine.terminal.length > 0);
@@ -117,5 +150,22 @@ describe.if(Boolean(closing))("a record in a final state", () => {
       expect(body.conflict.overwritable).toBe(false);
       expect((body.conflict.status as Row).isFinal).toBe(true);
     }
+  });
+
+  it("is not deleted, by anyone", async () => {
+    const machine = closing!;
+    const entity = getEntity(machine.entity);
+    const finalState = machine.terminal[0]!;
+    const read = await harness.createWithParents(entity, { [machine.statusField]: finalState });
+    expect(read?.id).toBeTruthy();
+    const url = `/bus/${entity.route}/${read?.id}`;
+
+    for (const headers of [ifMatch(read), { "If-Match": "*" }]) {
+      const response = await harness.client.delete(url, { headers, allowFailure: true });
+      expect(response.status).toBe(409);
+      expect((response.data as { error: string }).error).toBe("RECORD_FINAL");
+    }
+    const still = await harness.client.get(url, { allowFailure: true });
+    expect(still.status).toBe(200);
   });
 });
