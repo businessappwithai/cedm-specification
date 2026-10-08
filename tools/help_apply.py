@@ -200,6 +200,11 @@ def main(argv: list[str]) -> int:
             rel = rels[rel_name]
             rel["help"] = merge(rel.get("help"), authored, filler_set(rel.get("help"), rel_name, (rel.get("target"),)),
                                 set(REL_KEYS.values()))
+            for need in ("summary", "usage"):
+                if not rel["help"].get(need):
+                    problems.append(f"{name}.{rel_name}: relationship has no {need}")
+            if not (rel["help"].get("cardinalityMeaning") or rel["help"].get("workflowRole") or rel["help"].get("context")):
+                problems.append(f"{name}.{rel_name}: relationship says nothing about cardinality or its role in a process")
     if problems:
         print("\n".join(problems))
         return 1

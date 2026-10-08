@@ -16,9 +16,9 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the inspection sample record.
+        summary: The identity of the sample drawn for inspection, separate from the lot it came from.
+        usage: Generated when the sample is selected; measurements and disposal records refer to it.
         businessMeaning: Identifies one executed sample selection independently of the inspection and measurements performed on it.
-        usage: Traceability, audit, sample reconciliation, quality analytics, and integration.
         relationshipContext: Connects the actual selected sample to QualityInspection and the SamplingRule that governed its selection.
     - name: sampleNumber
       type: string
@@ -63,17 +63,17 @@ entity:
       default: SELECTED
       values: [SELECTED, IN_TESTING, TESTED, REJECTED, DISPOSED, CANCELLED]
       help:
+        valueSemantics:
+          SELECTED: Drawn from the population and waiting to be tested.
+          IN_TESTING: Under test; measurements are being taken.
+          TESTED: Testing finished and results recorded.
+          REJECTED: Found unsuitable, for example damaged or mislabelled, and excluded. A final state.
+          DISPOSED: Discarded or consumed after testing. A final state.
+          CANCELLED: Withdrawn before testing. A final state.
         summary: Lifecycle state of the selected sample.
         businessMeaning: Shows whether the sample is awaiting testing, being tested, has completed testing, or has been otherwise dispositioned.
         usage: Sample handling, measurement gating, chain of custody, and audit.
         relationshipContext: Sample status is distinct from overall QualityInspection status and does not independently determine product disposition.
-        valueSemantics:
-          SELECTED: Sample has been selected and is awaiting testing or handling.
-          IN_TESTING: Sample is actively undergoing governed testing.
-          TESTED: Required testing for the sample has completed.
-          REJECTED: Sample itself was rejected or invalidated for the governed purpose.
-          DISPOSED: Sample has been physically disposed of under an authorized process.
-          CANCELLED: Sample selection was cancelled under controlled workflow.
     - name: selectionBasis
       type: string
       required: false
@@ -89,10 +89,10 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one inspection: a sample is drawn for a particular inspection and has no meaning outside it.'
         summary: QualityInspection for which this sample was selected.
         businessMeaning: Provides the execution context and population being inspected.
         usage: Sample traceability, inspection completion, measurement linkage, and audit.
-        cardinalityMeaning: Every InspectionSample belongs to exactly one QualityInspection.
         context: Inspection status and result remain independent; the sample supplies evidence to the inspection.
     - name: samplingPlan
       target: SamplingPlan

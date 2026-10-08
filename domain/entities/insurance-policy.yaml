@@ -16,51 +16,45 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the insurance policy record associated with this InsurancePolicy. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the policy.
+        usage: Generated at quotation; coverages, premiums and claims refer to it.
     - name: policyNumber
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of policy number for the InsurancePolicy. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The number printed on the policy documents.
+        usage: Allocated by the insurer; unique.
     - name: policyType
       type: string
       required: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of policy type for the InsurancePolicy. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The kind of insurance, such as home, motor or life.
+        usage: Chosen at quotation; decides the available coverages and rating.
     - name: effectiveFrom
       type: date
       required: true
       help:
-        summary: Captures the business meaning of effective from for the InsurancePolicy. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The date cover starts.
+        usage: Agreed at binding; claims for losses before this date are not covered.
     - name: effectiveTo
       type: date
       required: true
       help:
-        summary: Captures the business meaning of effective to for the InsurancePolicy. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The date cover ends.
+        usage: Agreed at binding; must not be before the start date.
     - name: premium
       type: money
       required: false
       help:
-        summary: Captures the business meaning of premium for the InsurancePolicy. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The price of the cover for the policy period.
+        usage: Calculated by rating and agreed at binding; billed through premium records.
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: QUOTED
       values:
         - QUOTED
         - ACTIVE
@@ -68,56 +62,55 @@ entity:
         - EXPIRED
         - CANCELLED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsurancePolicy records, where applicable.
-        relationshipContext: Its meaning is specific to InsurancePolicy; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Whether the policy is a quote, in force or ended.
+        usage: Moved by underwriting and policy administration; claims are accepted under ACTIVE policies.
         valueSemantics:
-          QUOTED: Represents the quoted state or classification in the context of InsurancePolicy.
-          ACTIVE: Represents the active state or classification in the context of InsurancePolicy.
-          SUSPENDED: Represents the suspended state or classification in the context of InsurancePolicy.
-          EXPIRED: Represents the expired state or classification in the context of InsurancePolicy.
-          CANCELLED: Represents the cancelled state or classification in the context of InsurancePolicy.
+          QUOTED: Offered but not yet accepted; no cover.
+          ACTIVE: In force.
+          SUSPENDED: Cover paused, for example for unpaid premium.
+          EXPIRED: The term has ended. A final state.
+          CANCELLED: Ended early, or withdrawn as a quote. A final state.
   relationships:
     - name: insurer
       target: Organization
       cardinality: '1'
       ownership: reference
       help:
-        summary: Connects InsurancePolicy to Organization so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Organization records associated with a InsurancePolicy.
-        cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The organisation that carries the risk and issues the policy.
+        usage: Set at quotation; its underwriting rules and capital stand behind the cover.
+        cardinalityMeaning: 'Exactly one insurer: a policy is a contract with a single risk carrier (co-insurance is split into separate policies).'
+        workflowRole: Determines who must pay valid claims.
     - name: policyholders
       target: Party
       cardinality: 1..*
       ownership: reference
       help:
-        summary: Connects InsurancePolicy to Party so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Party records associated with a InsurancePolicy.
-        cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The parties who hold the contract and are responsible for premiums.
+        usage: Added at quotation; they receive documents and renewal notices.
+        cardinalityMeaning: 'At least one policyholder: a policy needs someone to hold it, and joint holders are allowed.'
+        workflowRole: Identifies who may change or cancel the policy.
     - name: contract
       target: Contract
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects InsurancePolicy to Contract so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Contract records associated with a InsurancePolicy.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The legal contract on which the policy rests, when the cover is arranged by a wider agreement.
+        usage: Linked for group schemes and negotiated programmes.
+        cardinalityMeaning: At most one contract; ordinary retail policies stand on their own terms.
+        workflowRole: Brings the wider agreement's terms into the policy.
     - name: claims
       target: InsuranceClaim
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Connects InsurancePolicy to InsuranceClaim so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about InsuranceClaim records associated with a InsurancePolicy.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
-    - {name: coverages, target: Coverage, cardinality: "0..*", ownership: aggregate, help: {summary: Coverage components defining insured benefits and risks under this Policy., businessMeaning: "Separates policy header from specific limits, deductibles and benefit scope.", usage: "Policy administration, underwriting and claims.", cardinalityMeaning: Zero or many Coverage records., workflowRole: Historical claim decisions retain the Coverage terms applied at loss time.}}
-    - {name: insuredParties, target: InsuredParty, cardinality: "0..*", ownership: aggregate, help: {summary: Party-policy relationships covered under this Policy., businessMeaning: "Identifies insured, beneficiary or dependent roles without duplicating Party identity.", usage: "Eligibility, servicing and claims.", cardinalityMeaning: Zero or many InsuredParty records., workflowRole: Claim eligibility must reconcile to role and effective coverage.}}
-    - {name: premiums, target: Premium, cardinality: "0..*", ownership: aggregate, help: {summary: Premium obligations assessed under this Policy., businessMeaning: Separates policy contract from billing installments and settlement., usage: "Billing, collections and policy servicing.", cardinalityMeaning: Zero or many Premium records., workflowRole: Premium changes use new governed obligations rather than rewriting billed history.}}
-    - {name: underwritingEvaluations, target: Underwriting, cardinality: "0..*", ownership: reference, help: {summary: Underwriting decisions supporting issuance or renewal of this Policy., businessMeaning: Preserves risk-decision provenance behind policy terms., usage: "Issuance, renewal, risk governance and audit.", cardinalityMeaning: Zero or many evaluations over policy lifecycle., workflowRole: Issued or renewed terms must reconcile to approved underwriting evidence.}}
+        summary: The claims made under the policy.
+        usage: Read to see a policy's claims history and remaining limits.
+        cardinalityMeaning: Any number of claims over the policy's life, including none.
+        workflowRole: Claims history affects renewal and pricing.
+    - {name: coverages, target: Coverage, cardinality: "0..*", ownership: aggregate, help: {summary: 'The coverages, each insuring a particular risk with its own limit and deductible.', usage: Added at quotation; claim lines are assessed against them., cardinalityMeaning: 'Any number of coverages, usually several.', workflowRole: Define what the policy actually pays for., businessMeaning: "Separates policy header from specific limits, deductibles and benefit scope."}}
+    - {name: insuredParties, target: InsuredParty, cardinality: "0..*", ownership: aggregate, help: {summary: The people or entities covered by the policy., usage: Added at quotation and changed during the term., cardinalityMeaning: Any number of insured parties., workflowRole: Decide whose losses are covered and who is paid., businessMeaning: "Identifies insured, beneficiary or dependent roles without duplicating Party identity."}}
+    - {name: premiums, target: Premium, cardinality: "0..*", ownership: aggregate, help: {summary: The premium amounts billed for each period., usage: Created by the billing schedule., cardinalityMeaning: 'Any number of premium records, one for each billing period.', workflowRole: Unpaid premium can lead to suspension of cover., businessMeaning: Separates policy contract from billing installments and settlement.}}
+    - {name: underwritingEvaluations, target: Underwriting, cardinality: "0..*", ownership: reference, help: {summary: The underwriting evaluations made when the policy was quoted or renewed., usage: Read to see the basis for acceptance and pricing., cardinalityMeaning: Any number of evaluations over the policy's life., workflowRole: Document why the risk was accepted on the terms offered., businessMeaning: Preserves risk-decision provenance behind policy terms.}}
 
   invariants:
     - id: INSURANCE-POLICY-001
@@ -158,12 +151,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a insurance entity called InsurancePolicy within the CEDM business model.
-    businessMeaning: InsurancePolicy is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate InsurancePolicy records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Contract, InsuranceClaim. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical InsurancePolicy record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A contract that provides defined insurance cover in return for premium payments.
+    businessMeaning: The policy is the product the customer holds. It defines who is covered, for what, over which period and at what price, and everything else, from premiums to claims, hangs from it.
+    usage: Quoted, bound and issued by underwriting; maintained through its term; consulted when claims are made and premiums are collected.
+    relationshipContext: A policy is issued by an insurer (Organization) to policyholders, may rest on a Contract, and has Coverages, InsuredParties, Premiums, Underwriting evaluations and Claims.
+    lifecycle: A policy begins as a quote, becomes active when accepted, may be suspended and restored, and ends expired or cancelled.
+    example: Home policy HP-884201 with the insurer Northern Mutual, valid for twelve months from 1 June with an annual premium of 640.
 specification:
   version: 0.1.0
   status: draft
