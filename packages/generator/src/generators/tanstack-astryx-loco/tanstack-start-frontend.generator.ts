@@ -499,6 +499,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/csv.ts",
       "src/lib/concurrency.ts",
       "src/lib/embed.ts",
+      "src/lib/accounts.ts",
     ];
 
     for (const file of staticLibFiles) {

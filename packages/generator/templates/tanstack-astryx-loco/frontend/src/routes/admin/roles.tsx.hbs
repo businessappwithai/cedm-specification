@@ -1,29 +1,57 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { UserCog, ArrowLeft, Loader2, AlertCircle, Star, Plus, Pencil, Trash2 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
-import { UserCog, ArrowLeft, Loader2, AlertCircle, Star } from 'lucide-react';
-import { HStack, Heading, Text } from "@/components/ui/layout";
+import { describeError, type Role } from '@/lib/accounts';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { HStack, Heading, Text } from '@/components/ui/layout';
 
+/**
+ * Roles: create, rename, describe, and mark which one is master.
+ *
+ * Reads and writes `/api/accounts/roles`, master-role only. A new role reaches
+ * no window until it is granted one, and renaming a role detaches it from any
+ * access rule the model wrote against the old name — both are said on the
+ * screen, because neither is visible from here otherwise. The backend refuses
+ * any change that would leave no active administrator.
+ */
 export const Route = createFileRoute('/admin/roles')({
   component: RolesPage,
 });
 
-interface SysRole {
-  sys_role_id: string;
-  name: string;
-  description?: string;
-  is_master_role: boolean;
-  is_active: boolean;
-  user_count?: number;
-}
+type Editing = { kind: 'create' } | { kind: 'edit'; role: Role } | { kind: 'delete'; role: Role } | null;
+
+const ROLES_KEY = ['admin', 'account-roles'];
 
 function RolesPage() {
-  const { data, isLoading, error } = useQuery<{ data: SysRole[] }>({
-    queryKey: ['admin', 'sys-roles'],
-    queryFn: () => apiClient.get('/sys/roles'),
-  });
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState<Editing>(null);
 
+  const { data, isLoading, error } = useQuery<{ data: Role[] }>({
+    queryKey: ROLES_KEY,
+    queryFn: () => apiClient.get('/accounts/roles'),
+  });
   const roles = data?.data ?? [];
+
+  const done = () => {
+    setEditing(null);
+    queryClient.invalidateQueries({ queryKey: ROLES_KEY });
+    queryClient.invalidateQueries({ queryKey: ['admin', 'accounts'] });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,6 +63,11 @@ function RolesPage() {
             </Link>
             <UserCog className="w-4 h-4 text-primary" />
             <Heading level={1} className="font-display">Role Management</Heading>
+            <div className="ml-auto">
+              <Button size="sm" onClick={() => setEditing({ kind: 'create' })}>
+                <Plus size={14} /> New role
+              </Button>
+            </div>
           </HStack>
         </div>
       </header>
@@ -48,7 +81,7 @@ function RolesPage() {
         {error && (
           <div className="swiss-alert-error p-8 text-center">
             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-destructive" />
-            <p>Failed to load roles</p>
+            <p>{describeError(error)}</p>
           </div>
         )}
         {!isLoading && !error && (
@@ -56,37 +89,64 @@ function RolesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Name</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Role</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Description</th>
-                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Type</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Users</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
-                {roles.map((r) => (
-                  <tr key={r.sys_role_id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                    <td className="px-4 py-3 font-medium flex items-center gap-2">
-                      {r.is_master_role && <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />}
-                      {r.name}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{r.description ?? '—'}</td>
+                {roles.map((role) => (
+                  <tr key={role.id} className="border-b border-border last:border-0 hover:bg-muted/20">
                     <td className="px-4 py-3">
-                      {r.is_master_role ? (
-                        <Text size="xs" weight="medium" className="inline-block px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Master</Text>
-                      ) : (
-                        <Text size="xs" weight="medium" color="secondary" className="inline-block px-2 py-0.5 rounded-full bg-muted">Standard</Text>
-                      )}
+                      <HStack align="center" gap={2}>
+                        <span className="font-medium">{role.name}</span>
+                        {role.isMasterRole && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">
+                            <Star size={10} /> Master
+                          </span>
+                        )}
+                      </HStack>
                     </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {role.description || <Text color="secondary" size="xs">—</Text>}
+                    </td>
+                    <td className="px-4 py-3">{role.userCount}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
-                        {r.is_active ? 'Active' : 'Inactive'}
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${role.isActive ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}
+                      >
+                        {role.isActive ? 'Active' : 'Inactive'}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <HStack gap={1} justify="end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={`Edit ${role.name}`}
+                          title="Edit"
+                          onClick={() => setEditing({ kind: 'edit', role })}
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={`Delete ${role.name}`}
+                          title="Delete"
+                          onClick={() => setEditing({ kind: 'delete', role })}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </HStack>
                     </td>
                   </tr>
                 ))}
                 {roles.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">No roles found</td>
+                    <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No roles found</td>
                   </tr>
                 )}
               </tbody>
@@ -94,6 +154,112 @@ function RolesPage() {
           </div>
         )}
       </main>
+
+      {(editing?.kind === 'create' || editing?.kind === 'edit') && (
+        <RoleDialog role={editing.kind === 'edit' ? editing.role : undefined} onClose={() => setEditing(null)} onSaved={done} />
+      )}
+      {editing?.kind === 'delete' && (
+        <DeleteRoleDialog role={editing.role} onClose={() => setEditing(null)} onDeleted={done} />
+      )}
     </div>
+  );
+}
+
+function RoleDialog({ role, onClose, onSaved }: { role?: Role; onClose: () => void; onSaved: () => void }) {
+  const isNew = !role;
+  const [name, setName] = useState(role?.name ?? '');
+  const [description, setDescription] = useState(role?.description ?? '');
+  const [isMasterRole, setIsMasterRole] = useState(role?.isMasterRole ?? false);
+  const [isActive, setIsActive] = useState(role?.isActive ?? true);
+  const [error, setError] = useState<string | null>(null);
+
+  const save = useMutation({
+    mutationFn: () => {
+      const body = { name, description: description || null, isMasterRole, isActive };
+      return isNew ? apiClient.post('/accounts/roles', body) : apiClient.put(`/accounts/roles/${role.id}`, body);
+    },
+    onSuccess: onSaved,
+    onError: (err: unknown) => setError(describeError(err)),
+  });
+
+  const renamed = !isNew && name.trim() !== role.name;
+
+  return (
+    <Dialog open onOpenChange={(next) => (next ? undefined : onClose())}>
+      <DialogContent className="space-y-4">
+        <DialogHeader>
+          <DialogTitle>{isNew ? 'New role' : `Edit ${role.name}`}</DialogTitle>
+          <DialogDescription>
+            {isNew
+              ? 'A new role reaches no window until it is granted one.'
+              : 'A master role bypasses every access rule. At least one active account must keep one.'}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label>Name</Label>
+            <Input aria-label="Role name" placeholder="Role name" value={name} onChange={(e) => setName(e.target.value)} />
+            {renamed && (
+              <Text color="secondary" size="xs">
+                Access rules written against “{role.name}” will no longer apply to this role.
+              </Text>
+            )}
+          </div>
+          <div className="space-y-1">
+            <Label>Description</Label>
+            <Textarea aria-label="Description" value={description ?? ''} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <Checkbox aria-label="Master role" checked={isMasterRole} onCheckedChange={setIsMasterRole} />
+            Master role
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <Switch aria-label="Active" checked={isActive} onCheckedChange={setIsActive} />
+            Active
+          </label>
+        </div>
+        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+        <DialogFooter>
+          <HStack gap={2} justify="end">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button isLoading={save.isPending} onClick={() => save.mutate()}>
+              {isNew ? 'Create' : 'Save'}
+            </Button>
+          </HStack>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteRoleDialog({ role, onClose, onDeleted }: { role: Role; onClose: () => void; onDeleted: () => void }) {
+  const [error, setError] = useState<string | null>(null);
+  const remove = useMutation({
+    mutationFn: () => apiClient.delete(`/accounts/roles/${role.id}`),
+    onSuccess: onDeleted,
+    onError: (err: unknown) => setError(describeError(err)),
+  });
+  return (
+    <Dialog open onOpenChange={(next) => (next ? undefined : onClose())}>
+      <DialogContent className="space-y-4">
+        <DialogHeader>
+          <DialogTitle>Delete {role.name}?</DialogTitle>
+          <DialogDescription>
+            {role.userCount > 0
+              ? `${role.userCount} account(s) hold this role and will lose it.`
+              : 'No account holds this role.'}
+          </DialogDescription>
+        </DialogHeader>
+        {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+        <DialogFooter>
+          <HStack gap={2} justify="end">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button variant="destructive" isLoading={remove.isPending} onClick={() => remove.mutate()}>
+              Delete
+            </Button>
+          </HStack>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
