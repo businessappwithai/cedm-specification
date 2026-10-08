@@ -7,18 +7,16 @@ entity:
     icon: activity
   identity: {key: lossEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: lossEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LossEvent., businessMeaning: Identifies one governed LossEvent record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records.}}
-    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten.}}
+    - {name: lossEventId, type: uuid, required: true, immutable: true, help: {summary: The identity of the loss event., usage: Generated on recording.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: When the loss was suffered., usage: Set from the incident; used to place the loss in a reporting period.}}
   relationships: []
   invariants:
     - {id: LOSS-EVENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
-    summary: A governed record of realized financial, operational, physical, legal, or other loss attributable to a risk or incident.
-    purpose: Provide canonical governance semantics for LossEvent.
-    businessMeaning: A governed record of realized financial, operational, physical, legal, or other loss attributable to a risk or incident.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: A record of realised financial, operational, physical, legal or other loss that can be attributed to a risk or incident.
+    businessMeaning: Risk management is judged by outcomes. A loss event records what was actually lost, so risk estimates can be tested against reality and insurance and recovery claims can be supported.
+    usage: Recorded after an incident when the loss is known; read by risk managers, finance and insurers.
+    relationshipContext: A loss event is linked to the risk it materialised and to the incident that caused it.
+    lifecycle: Finalised evidence and effective history are preserved; reassessments and recoveries are separate, explicit records.
+    example: A 120,000 loss from a warehouse fire, linked to the fire incident and the property damage risk.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LOSS-EVENT}

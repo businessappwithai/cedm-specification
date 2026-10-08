@@ -109,9 +109,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one lessee: the lease binds a single party to pay for and use the property or asset.'
         summary: The party that holds the right of use.
         usage: Set at creation.
-        cardinalityMeaning: Exactly one lessee.
         workflowRole: Identifies who pays and is bound by the lease.
     - name: contract
       target: Contract
