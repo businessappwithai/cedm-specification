@@ -38,7 +38,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: RECORDED
+      default: PLANNED
       values:
         - PLANNED
         - RECORDED
@@ -98,14 +98,15 @@ entity:
     title: Production Record Lifecycle
     attribute: status
     states: [PLANNED, RECORDED, VERIFIED, REJECTED]
-    initial: RECORDED
-    terminal: [REJECTED]
+    initial: PLANNED
+    terminal:
+      - VERIFIED
+      - REJECTED
     transitions:
-      - {from: RECORDED, to: PLANNED, action: plan}
-      - {from: PLANNED, to: VERIFIED, action: verify}
+      - {from: PLANNED, to: RECORDED, action: record}
+      - {from: RECORDED, to: VERIFIED, action: verify}
       - {from: RECORDED, to: REJECTED, action: reject}
       - {from: PLANNED, to: REJECTED, action: reject}
-      - {from: VERIFIED, to: REJECTED, action: reject}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a production record is ended"

@@ -1,0 +1,115 @@
+@ Product
+s: A canonical business offering or managed item that can be bought, sold, stocked, consumed, delivered or subscribed to, and that other processes refer to.
+b: Product is the shared definition of what the business deals in. Sales, purchasing, stock, manufacturing and finance all refer to the same product record, so a price, a stock level and an invoice line are about the same thing.
+u: Created by product management when an item enters the catalogue; maintained over its life; referenced on almost every order, movement and invoice line.
+c: A product belongs to a ProductCategory and Brand, is supplied by Suppliers, is stored at Locations, has variants, attributes, packaging and a lifecycle history, and appears on order, stock and invoice lines.
+l: A product is drafted, becomes active when approved for trade, can be blocked while an issue is resolved, and ends discontinued or retired. History and past documents keep their reference.
+x: Item A-200, "Cordless drill 18V", a finished good in the Power Tools category, sold in cartons of four.
+a productId
+s: The identity of the product, which never changes even when its code or name does.
+u: Generated on creation; order lines, stock and invoices refer to it.
+a code
+s: The code by which staff and systems name the product.
+u: Unique; assigned by product management and used in orders, price lists and integrations.
+a name
+s: The name of the product as shown to users and customers.
+u: Shown in catalogues, on documents and in search results.
+a description
+s: A longer description of what the product is.
+u: Written by product management; used on websites, quotes and datasheets.
+a productType
+s: What kind of offering the product is, which decides how it is bought, stocked and delivered.
+u: Chosen on creation; stock rules apply only to physical types.
+v GOOD: A finished physical item that is bought or sold and held in stock.
+v MATERIAL: A raw material or component consumed in production.
+v SERVICE: Work performed for a customer, not held in stock.
+v SUBSCRIPTION: A recurring entitlement billed on a schedule.
+v ASSET: A durable item the business keeps and depreciates.
+v BUNDLE: A package of other products sold together.
+v OTHER: Anything else that is traded.
+a status
+s: Whether the product can currently be traded.
+u: Set by product management; new orders are accepted only for ACTIVE products.
+v DRAFT: Being set up; not yet tradable.
+v ACTIVE: Available for ordinary trading.
+v DISCONTINUED: Being phased out; existing stock may be sold but it is not reordered. A final state.
+v BLOCKED: Temporarily barred from trading, for example during a quality or compliance issue.
+v RETIRED: Removed from the catalogue; kept for history. A final state.
+a sku
+s: The stock-keeping unit code used in warehouses and on retail systems.
+u: Assigned at creation; printed on labels and scanned during handling.
+a unitOfMeasure
+s: The base unit in which the product is counted, such as each or kilogram.
+u: Chosen on creation; stock and order quantities are converted to it.
+a standardPrice
+s: The standard selling price of the product.
+u: Set by pricing; quotes and orders start from it before discounts.
+a taxCategory
+s: The tax category that decides how the product is taxed.
+u: Chosen on creation; tax rules look it up when documents are priced.
+a createdAt
+s: When the product record was created.
+u: Set by the system.
+a updatedAt
+s: When the product record was last changed.
+u: Set by the system.
+r category
+s: The category the product is classified in.
+u: Chosen on creation; used for assortment and reporting.
+n: At most one category; uncategorised products are allowed while being set up.
+w: Places the product in the catalogue hierarchy.
+r suppliers
+s: The suppliers from which the product can be bought.
+u: Linked as sources are approved.
+n: Any number of suppliers.
+w: Defines the sourcing options for purchasing.
+r locations
+s: The locations where the product is held or sold.
+u: Linked as the product is stocked.
+n: Any number of locations.
+w: Defines where stock may exist.
+r salesOrderLines
+s: The sales order lines that sell the product.
+u: Read for sales history.
+n: Any number, growing as the product sells.
+w: Show demand for the product.
+r purchaseOrderLines
+s: The purchase order lines that buy the product.
+u: Read for purchasing history.
+n: Any number.
+w: Show supply commitments.
+r inventoryBalances
+s: The stock balances held of the product.
+u: Read for stock levels.
+n: Any number, one for each location holding it.
+w: Show how much is available where.
+r inventoryMovements
+s: The stock movements of the product.
+u: Read for stock history.
+n: Any number over the product's life.
+w: Explain how stock reached its level.
+r invoiceLines
+s: The invoice lines that bill the product.
+u: Read for revenue and cost analysis.
+n: Any number.
+w: Connect the product to money.
+r lots
+n: Any number of lots, for lot-controlled products.
+r serialNumbers
+n: Any number of serial numbers, for serialised products.
+r brand
+n: At most one brand under which the product is marketed.
+r variants
+n: Any number of variants, such as sizes and colours.
+r attributes
+n: Any number of descriptive attributes.
+r packagingConfigurations
+n: Any number of packaging configurations.
+r lifecycleHistory
+n: Any number of lifecycle records, one for each status change.
+r inventoryItems
+n: Any number of inventory profiles, one for each organisation that stocks the product.
+r serviceOrders
+n: Any number of service orders that concern the product.
+r entitlements
+n: Any number of entitlements to service for the product.
