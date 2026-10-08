@@ -7,15 +7,22 @@ entity:
     icon: credit-card
   identity: {key: paymentInstructionId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PaymentInstruction., businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows.}}
+    - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: The identity of the instruction., usage: Generated on creation; the bank file and the resulting payments refer to it.}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of PaymentInstruction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}}
+      help:
+        summary: Where the instruction is in its path to the bank.
+        usage: Moved by treasury and the bank interface.
+        valueSemantics:
+          DRAFT: Being prepared; not yet released.
+          ACTIVE: Released to the bank and awaiting execution.
+          COMPLETED: Executed by the bank. A final state.
+          CANCELLED: Withdrawn before execution. A final state.
   relationships:
-    - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account from/to which payment is instructed., businessMeaning: Supplies treasury settlement account., usage: Payment execution., cardinalityMeaning: Exactly one BankAccount., workflowRole: Instruction does not itself prove bank settlement.}}
-    - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: Payment resulting from executed instruction., businessMeaning: Connects intent to settlement transaction., usage: Treasury reconciliation., cardinalityMeaning: Optional until execution., workflowRole: Retries must not create duplicate Payment.}}
+    - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: The bank account from which the payment is to be made., usage: Chosen when the instruction is created., cardinalityMeaning: 'Exactly one account: an instruction debits one account.', workflowRole: 'Determines the bank channel, balances and approval limits.', businessMeaning: Supplies treasury settlement account.}}
+    - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: The payment that results from the instruction., usage: Linked when the instruction has been executed., cardinalityMeaning: At most one payment; a draft or cancelled instruction produces none., workflowRole: Connects what was authorised to what was paid., businessMeaning: Connects intent to settlement transaction.}}
   invariants:
     - {id: PAYMENT-INSTRUCTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
@@ -49,12 +56,11 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
-    purpose: Provide canonical enterprise semantics for PaymentInstruction while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
+    summary: An instruction that authorises or requests a future payment through a bank or payment channel, kept apart from the payment and bank transaction that result.
+    businessMeaning: 'Paying someone is a two-step affair: the organisation instructs the bank, and later the bank confirms. Holding the instruction separately shows what was authorised, by whom and when, and lets it be compared with what the bank actually did.'
+    usage: Created when a payment run is approved or a standing instruction is set up; sent to the bank; read by treasury to follow what was authorised.
+    relationshipContext: An instruction is for a BankAccount and, once executed, relates to the Payment it produces. It does not itself duplicate or rewrite cash, accounting or billing evidence.
+    lifecycle: An instruction is drafted, becomes active when released to the bank, completes when executed and is cancelled if withdrawn first.
+    example: A supplier payment run of 38 invoices approved on Thursday and sent to the bank for execution on Friday.
     howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PAYMENT-INSTRUCTION}

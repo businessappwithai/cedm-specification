@@ -63,16 +63,16 @@ entity:
         - OTHER
         - UNSPECIFIED
       help:
-        summary: Gender classification where required by the business process
-        usage: permitted business processes only
+        summary: The person's gender as recorded for the organisation's purposes.
+        usage: Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it.
+        valueSemantics:
+          FEMALE: Identifies as female.
+          MALE: Identifies as male.
+          NON_BINARY: Identifies as neither exclusively male nor female.
+          OTHER: Identifies in another way.
+          UNSPECIFIED: Not stated or not collected.
         relationshipContext: person attribute and not role
         workflowRole: process-specific
-        valueSemantics:
-          FEMALE: The gender of the person is female; set it when that is what the business means for this record.
-          MALE: The gender of the person is male; set it when that is what the business means for this record.
-          NON_BINARY: The gender of the person is non binary; set it when that is what the business means for this record.
-          OTHER: The gender of the person is other; set it when that is what the business means for this record.
-          UNSPECIFIED: The gender of the person is unspecified; set it when that is what the business means for this record.
     - name: nationalityId
       type: reference
       target: Country
@@ -85,9 +85,9 @@ entity:
       ownership: reference
       inverse: person
       help:
+        cardinalityMeaning: 'Exactly one party: a person is the individual form of a party, so each person has one party record.'
         summary: Canonical Party represented by this Person specialization.
         usage: Navigates to common party identity and PartyRoles.
-        cardinalityMeaning: Exactly one Party.
         workflowRole: Connects intrinsic person identity to business participation.
     - name: employerOrganizations
       target: Organization
