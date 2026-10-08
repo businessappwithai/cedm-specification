@@ -1,0 +1,12 @@
+@ Sample
+a sampleType
+v SPECIMEN: A portion taken from a larger whole for study.
+v ALIQUOT: A measured part of a prepared sample.
+v COMPOUND: A sample of a chemical compound under study.
+v MATERIAL: A sample of a material or substance.
+v BIOLOGICAL: Biological matter such as tissue, cells or fluid.
+v CHEMICAL: A chemical substance or mixture.
+v ENVIRONMENTAL: Taken from the environment, such as water, soil or air.
+v CONTROL: A sample with a known result used to check a test.
+v REFERENCE: A certified standard to compare against.
+v OTHER: A sample that fits no other type.

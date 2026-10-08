@@ -12,26 +12,26 @@ entity:
       required: true
       immutable: true
       help:
-        summary: 'The sales order line id of the sales order line: an identifier the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The identity of the line, constant for its life.
+        usage: Generated on creation; shipments and invoices refer to it.
+        relationshipContext: Referenced when delivery and billing are matched.
     - name: lineNumber
       type: integer
       required: true
       minimum: 1
       help:
-        summary: 'The line number of the sales order line: a whole number the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The position of the line on the order.
+        usage: Assigned in sequence; used to refer to the line.
+        relationshipContext: Read with the order number to name a line.
     - name: quantity
       type: decimal
       required: true
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity of the sales order line: a number the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity ordered.
+        usage: Entered by sales; allocation and shipment are measured against it.
+        relationshipContext: Compared with allocated and fulfilled quantity.
     - name: quantityFulfilled
       type: decimal
       required: true
@@ -39,9 +39,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity fulfilled of the sales order line: a number the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity shipped so far.
+        usage: Increased by shipments; cannot exceed the ordered quantity.
+        relationshipContext: Reaching the ordered quantity completes the line.
     - name: quantityAllocated
       type: decimal
       required: true
@@ -49,9 +49,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity allocated of the sales order line: a number the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity of stock reserved for the line.
+        usage: Increased by reservations; read by the warehouse.
+        relationshipContext: Compared with the quantity still to ship.
     - name: unitPrice
       type: Money
       required: true
@@ -80,24 +80,24 @@ entity:
         - PROMOTION
         - OTHER
       help:
-        summary: 'The price source of the sales order line: a value the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: Where the price on the line came from.
+        usage: Set when the price is determined.
+        relationshipContext: Lets a disputed price be traced.
         valueSemantics:
-          PRICE_LIST: The price source of the sales order line is price list; set it when that is what the business means for this record.
-          CONTRACT: The price source of the sales order line is contract; set it when that is what the business means for this record.
-          CUSTOMER_AGREEMENT: The price source of the sales order line is customer agreement; set it when that is what the business means for this record.
-          QUOTATION: The price source of the sales order line is quotation; set it when that is what the business means for this record.
-          MANUAL: The price source of the sales order line is manual; set it when that is what the business means for this record.
-          PROMOTION: The price source of the sales order line is promotion; set it when that is what the business means for this record.
-          OTHER: The price source of the sales order line is other; set it when that is what the business means for this record.
+          PRICE_LIST: Taken from the price list.
+          CONTRACT: Taken from a contract with the customer.
+          CUSTOMER_AGREEMENT: Taken from a standing customer agreement.
+          QUOTATION: Taken from an accepted quotation.
+          MANUAL: Entered by the salesperson.
+          PROMOTION: Set by a promotion.
+          OTHER: Determined some other way.
     - name: priceDeterminedAt
       type: datetime
       required: false
       help:
-        summary: 'The price determined at of the sales order line: a point in time the business records on it.'
-        usage: Entered or maintained when a sales order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful on its own.
+        summary: When the price was fixed.
+        usage: Set when the price is determined and kept.
+        relationshipContext: Used to explain which price list was in force.
   relationships:
     - name: salesOrder
       target: SalesOrder
@@ -113,46 +113,46 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
-        summary: Links a sales order line to product, the product it relates to.
-        usage: Chosen from the existing product records when the sales order line is created or edited.
-        cardinalityMeaning: A sales order line has exactly one product in this role.
-        context: Lets the sales order line be found from, and reported with, its product.
+        summary: The product ordered.
+        usage: Chosen when the line is entered.
+        cardinalityMeaning: Exactly one product per line.
+        context: Decides what stock is allocated and shipped.
     - name: unitOfMeasure
       target: UnitOfMeasure
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a sales order line to unit of measure, the unit of measure it relates to.
-        usage: Chosen from the existing unit of measure records when the sales order line is created or edited.
-        cardinalityMeaning: A sales order line has at most one unit of measure in this role.
-        context: Lets the sales order line be found from, and reported with, its unit of measure.
+        summary: The unit the quantity is expressed in.
+        usage: Defaults to the product's selling unit.
+        cardinalityMeaning: At most one unit; empty uses the default.
+        context: Makes the quantity unambiguous.
     - name: shipments
       target: Shipment
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Links a sales order line to shipment, the shipments it relates to.
-        usage: Chosen from the existing shipment records when the sales order line is created or edited.
-        cardinalityMeaning: A sales order line has any number of shipment in this role.
-        context: Lets the sales order line be found from, and reported with, its shipment.
+        summary: The shipments carrying this line.
+        usage: Read to follow delivery.
+        cardinalityMeaning: Any number, since a line may ship in parts.
+        context: Show how much has gone.
     - name: reservations
       target: InventoryReservation
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Links a sales order line to inventory reservation, the reservations it relates to.
-        usage: Chosen from the existing inventory reservation records when the sales order line is created or edited.
-        cardinalityMeaning: A sales order line has any number of inventory reservation in this role.
-        context: Lets the sales order line be found from, and reported with, its inventory reservation.
+        summary: The stock reservations held for the line.
+        usage: Read to see what is set aside.
+        cardinalityMeaning: Any number of reservations.
+        context: Show how the line is covered by stock.
     - name: invoiceLines
       target: InvoiceLine
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Links a sales order line to invoice line, the invoice lines it relates to.
-        usage: Chosen from the existing invoice line records when the sales order line is created or edited.
-        cardinalityMeaning: A sales order line has any number of invoice line in this role.
-        context: Lets the sales order line be found from, and reported with, its invoice line.
+        summary: The invoice lines billing this line.
+        usage: Read to follow billing.
+        cardinalityMeaning: Any number, as billing may be in parts.
+        context: Show how much has been billed.
   invariants:
     - {id: SALES-ORDER-LINE-001, rule: quantity must be greater than zero.}
     - {id: SALES-ORDER-LINE-002, rule: quantityAllocated must be between zero and quantity unless an authorized over-allocation policy applies.}
@@ -178,13 +178,13 @@ entity:
     - {id: SALES-ORDER-LINE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
     - {id: SALES-ORDER-LINE-EXE-005, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
-    summary: Authoritative commercial commitment at product/quantity level, reconciling transaction pricing with allocation, fulfillment and billing evidence.
-    businessMeaning: The line states what the customer agreed to buy and how it is priced. Reservations state committed stock, shipment/fulfillment events state what was delivered, and InvoiceLines state what was billed.
-    usage: Order management, allocation, warehouse fulfillment, shipment, invoicing, credit, margin, customer service and audit.
-    relationshipContext: SalesOrder supplies customer/currency context; Product/UOM define item and quantity semantics; InventoryReservation supplies allocation evidence; Shipment supplies transport/fulfillment evidence; InvoiceLine supplies financial claim evidence.
+    summary: One product or service on a sales order, with its quantity, price, discount, tax and fulfilment progress.
+    businessMeaning: 'The line is the precise commitment: what, how many, at what price from which source. It tracks how much has been reserved, shipped and billed, so each line can be followed to completion and the price the customer agreed is preserved.'
+    usage: Created with the order; updated as stock is allocated and shipped; read by warehouse and billing.
+    relationshipContext: A line belongs to one order and product, and is matched by shipments, reservations and invoice lines.
+    lifecycle: A line follows its order. Its allocated and fulfilled quantities grow as stock is reserved and shipped.
+    example: Line 2 of SO-10482 orders 40 units at 18.50; 25 are allocated and 15 shipped.
     workflowContext: Confirmed order line → availability → InventoryReservation → pick/issue → Shipment → accepted fulfillment → quantityFulfilled → billing. Cancellation/reduction releases or reconciles reservations and open shipments before changing remaining demand. Master-data changes trigger controlled revalidation.
-    lifecycle: Draft → confirmed → allocated → partially fulfilled → fulfilled/cancelled. Historical pricing and fulfillment evidence remain reproducible.
     propagation: quantityAllocated follows reservation events; quantityFulfilled follows accepted fulfillment events; SalesOrder status follows line states; InvoiceLine follows billing policy; Product/UOM/pricing changes affect future or explicitly revalidated open work only.
     concurrency: Reservation, fulfillment, cancellation and billing allocation require concurrency control and idempotency to prevent double allocation, double fulfillment or double billing.
-    example: A line requests 20 units. Twenty are reserved, 12 are shipped and accepted, leaving 8 executable. quantityAllocated and quantityFulfilled are updated from their respective workflows. Cancelling the remaining 8 releases the reservation and cancels open work without reversing the accepted 12.
 specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER-LINE}

@@ -16,7 +16,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the sampling rule.
+        summary: The identity of the rule, constant for its life.
         businessMeaning: Identifies one conditional sampling configuration within a SamplingPlan.
         usage: Sampling execution, audit, traceability, and integration.
         relationshipContext: The rule belongs to a SamplingPlan and determines how a qualifying inspection population is sampled.
@@ -25,7 +25,7 @@ entity:
       required: true
       maxLength: 100
       help:
-        summary: Business reference for the sampling rule.
+        summary: The number of the rule within its plan.
         businessMeaning: Identifies the rule within its sampling plan for authoring, review, and audit.
         usage: Configuration, inspection execution, reporting, and integration.
         relationshipContext: Rule identity is scoped to the SamplingPlan and is distinct from actual sample records.
@@ -72,10 +72,10 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: DRAFT
       values: [DRAFT, ACTIVE, RETIRED]
       help:
-        summary: Lifecycle state of the sampling rule.
+        summary: Whether the rule is in force.
         businessMeaning: Controls whether the rule can be selected for new sample executions.
         usage: Governance, authoring, and inspection execution.
         relationshipContext: Retired rules remain available for historical sample traceability.

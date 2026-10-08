@@ -35,28 +35,28 @@ entity:
       required: true
       values: [SPECIMEN, ALIQUOT, COMPOUND, MATERIAL, BIOLOGICAL, CHEMICAL, ENVIRONMENTAL, CONTROL, REFERENCE, OTHER]
       help:
+        valueSemantics:
+          SPECIMEN: A portion taken from a larger whole for study.
+          ALIQUOT: A measured part of a prepared sample.
+          COMPOUND: A sample of a chemical compound under study.
+          MATERIAL: A sample of a material or substance.
+          BIOLOGICAL: Biological matter such as tissue, cells or fluid.
+          CHEMICAL: A chemical substance or mixture.
+          ENVIRONMENTAL: Taken from the environment, such as water, soil or air.
+          CONTROL: A sample with a known result used to check a test.
+          REFERENCE: A certified standard to compare against.
+          OTHER: A sample that fits no other type.
         summary: Classification of the scientific sample.
         businessMeaning: Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules.
         usage: Laboratory routing, protocol selection, reporting, safety, and analytics.
         relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
-        valueSemantics:
-          SPECIMEN: The sample type of the sample is specimen; set it when that is what the business means for this record.
-          ALIQUOT: The sample type of the sample is aliquot; set it when that is what the business means for this record.
-          COMPOUND: The sample type of the sample is compound; set it when that is what the business means for this record.
-          MATERIAL: The sample type of the sample is material; set it when that is what the business means for this record.
-          BIOLOGICAL: The sample type of the sample is biological; set it when that is what the business means for this record.
-          CHEMICAL: The sample type of the sample is chemical; set it when that is what the business means for this record.
-          ENVIRONMENTAL: The sample type of the sample is environmental; set it when that is what the business means for this record.
-          CONTROL: The sample type of the sample is control; set it when that is what the business means for this record.
-          REFERENCE: The sample type of the sample is reference; set it when that is what the business means for this record.
-          OTHER: The sample type of the sample is other; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
       default: AVAILABLE
       values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
       help:
-        summary: Lifecycle state of the sample.
+        summary: Where the sample is in its life, from planned through use to disposal.
         businessMeaning: Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically.
         usage: Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal.
         relationshipContext: Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations.
@@ -140,7 +140,7 @@ entity:
         cardinalityMeaning: A sample may produce zero or many derived samples.
         context: Derivation does not silently overwrite the source sample history.
     - {name: assays, target: Assay, cardinality: "0..*", ownership: reference, help: {summary: Assay executions that analyze this Sample., businessMeaning: Connects specimen provenance to analytical work., usage: "Laboratory operations, chain of custody and audit.", cardinalityMeaning: Zero or many Assays subject to sample availability and protocol., workflowRole: Assay use must preserve sample lineage and quantity/custody rules.}}
-    - {name: observations, target: Observation, cardinality: "0..*", ownership: reference, help: {summary: Observations directly attributed to this Sample., businessMeaning: Preserves measurement provenance even when no explicit Assay is modeled., usage: "Research analysis and audit.", cardinalityMeaning: Zero or many Observations., workflowRole: Evidence remains linked to the sample lineage that produced it.}}
+    - {name: observations, target: Observation, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: Any number of observations recorded against the sample., summary: Observations directly attributed to this Sample., businessMeaning: Preserves measurement provenance even when no explicit Assay is modeled., usage: "Research analysis and audit.", workflowRole: Evidence remains linked to the sample lineage that produced it.}}
 
   invariants:
     - id: SAMPLE-001
@@ -163,32 +163,29 @@ entity:
     attribute: status
     states: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
     initial: PLANNED
-    terminal: [CONSUMED, DISPOSED, LOST]
+    terminal:
+      - CONSUMED
+      - DISPOSED
+      - LOST
     transitions:
-      - {from: PLANNED, to: COLLECTED, action: mark_collected}
+      - {from: PLANNED, to: COLLECTED, action: collect}
       - {from: COLLECTED, to: RECEIVED, action: receive}
-      - {from: RECEIVED, to: AVAILABLE, action: mark_available}
-      - {from: AVAILABLE, to: IN_USE, action: mark_in_use}
-      - {from: IN_USE, to: ARCHIVED, action: archive}
-      - {from: ARCHIVED, to: CONSUMED, action: consume}
+      - {from: RECEIVED, to: AVAILABLE, action: release}
+      - {from: AVAILABLE, to: IN_USE, action: issue}
+      - {from: IN_USE, to: AVAILABLE, action: return}
+      - {from: IN_USE, to: CONSUMED, action: consume}
+      - {from: AVAILABLE, to: CONSUMED, action: consume}
+      - {from: AVAILABLE, to: DISPOSED, action: dispose}
+      - {from: QUARANTINED, to: DISPOSED, action: dispose}
+      - {from: AVAILABLE, to: LOST, action: lose}
+      - {from: IN_USE, to: LOST, action: lose}
       - {from: COLLECTED, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: COLLECTED, action: release}
       - {from: RECEIVED, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: RECEIVED, action: release}
       - {from: AVAILABLE, to: QUARANTINED, action: quarantine}
       - {from: QUARANTINED, to: AVAILABLE, action: release}
-      - {from: IN_USE, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: IN_USE, action: release}
-      - {from: COLLECTED, to: DISPOSED, action: mark_disposed}
-      - {from: RECEIVED, to: DISPOSED, action: mark_disposed}
-      - {from: AVAILABLE, to: DISPOSED, action: mark_disposed}
-      - {from: IN_USE, to: DISPOSED, action: mark_disposed}
-      - {from: QUARANTINED, to: DISPOSED, action: mark_disposed}
-      - {from: COLLECTED, to: LOST, action: mark_lost}
-      - {from: RECEIVED, to: LOST, action: mark_lost}
-      - {from: AVAILABLE, to: LOST, action: mark_lost}
-      - {from: IN_USE, to: LOST, action: mark_lost}
-      - {from: QUARANTINED, to: LOST, action: mark_lost}
+      - {from: AVAILABLE, to: ARCHIVED, action: archive}
+      - {from: ARCHIVED, to: AVAILABLE, action: restore}
+      - {from: ARCHIVED, to: DISPOSED, action: dispose}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a sample is stopped"

@@ -16,7 +16,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the sampling plan.
+        summary: The identity of the sampling plan, constant for its life.
         businessMeaning: Identifies one governed sampling definition independently of any inspection execution.
         usage: Sampling configuration, inspection planning, audit, reporting, and integration.
         relationshipContext: SamplingPlan may be assigned to a QualityPlan and contains SamplingRule records that determine how samples are selected.
@@ -26,7 +26,7 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: Business code identifying the sampling plan.
+        summary: The short code of the plan, such as SP-AQL-1.5.
         businessMeaning: Provides a stable operational reference for a governed sampling definition.
         usage: Plan selection, inspection authoring, reports, and integrations.
         relationshipContext: Identifies the sampling definition rather than an individual sample or inspection.
@@ -35,7 +35,7 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: Human-readable name of the sampling plan.
+        summary: The name inspectors know the plan by.
         businessMeaning: Explains the purpose of the sampling strategy.
         usage: Quality authoring, inspection execution, training, reporting, and audit.
         relationshipContext: Describes the overall sampling definition whose detailed rules are represented by SamplingRule.
@@ -62,7 +62,7 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
       help:
-        summary: Lifecycle state of the sampling plan.
+        summary: Whether the plan may be used in quality plans.
         businessMeaning: Controls whether the sampling definition may be assigned to new governed inspections.
         usage: Governance, authoring, inspection planning, and retirement.
         relationshipContext: Retirement preserves historical inspection evidence and does not invalidate completed samples.

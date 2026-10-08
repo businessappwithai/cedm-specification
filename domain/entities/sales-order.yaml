@@ -37,17 +37,17 @@ entity:
       default: DRAFT
       values: [DRAFT, CONFIRMED, ALLOCATED, PARTIALLY_FULFILLED, FULFILLED, CANCELLED]
       help:
+        valueSemantics:
+          DRAFT: Being entered; not yet binding on either side.
+          CONFIRMED: Accepted by the business; the commitment stands.
+          ALLOCATED: Stock has been reserved to meet the order.
+          PARTIALLY_FULFILLED: Part of the order has been shipped.
+          FULFILLED: Everything ordered has been delivered. A final state.
+          CANCELLED: Withdrawn before fulfilment. A final state.
         summary: Order-level lifecycle state controlling commercial and fulfillment permissions.
         usage: Drives confirmation, allocation, fulfillment, shipment readiness and cancellation.
         relationshipContext: Summarizes downstream evidence; it is not an independent source of fulfillment quantity.
         workflowRole: Status transitions are validated against line, reservation, shipment and fulfillment evidence.
-        valueSemantics:
-          DRAFT: The status of the sales order is draft; set it when that is what the business means for this record.
-          CONFIRMED: The status of the sales order is confirmed; set it when that is what the business means for this record.
-          ALLOCATED: The status of the sales order is allocated; set it when that is what the business means for this record.
-          PARTIALLY_FULFILLED: The status of the sales order is partially fulfilled; set it when that is what the business means for this record.
-          FULFILLED: The status of the sales order is fulfilled; set it when that is what the business means for this record.
-          CANCELLED: The status of the sales order is cancelled; set it when that is what the business means for this record.
     - name: currencyId
       type: reference
       target: Currency
@@ -78,9 +78,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: An order is placed by a single customer, who is the one shipped to and invoiced unless stated otherwise.
         summary: The customer who placed the order.
         usage: Chosen when the order is created.
-        cardinalityMeaning: Exactly one customer.
         context: Decides who is shipped to and invoiced.
     - name: organization
       target: Organization

@@ -1,0 +1,103 @@
+@ SalesOrder
+a status
+v DRAFT: Being entered; not yet binding on either side.
+v CONFIRMED: Accepted by the business; the commitment stands.
+v ALLOCATED: Stock has been reserved to meet the order.
+v PARTIALLY_FULFILLED: Part of the order has been shipped.
+v FULFILLED: Everything ordered has been delivered. A final state.
+v CANCELLED: Withdrawn before fulfilment. A final state.
+r customer
+n: An order is placed by a single customer, who is the one shipped to and invoiced unless stated otherwise.
+
+@ SalesOrderLine
+s: One product or service on a sales order, with its quantity, price, discount, tax and fulfilment progress.
+b: The line is the precise commitment: what, how many, at what price from which source. It tracks how much has been reserved, shipped and billed, so each line can be followed to completion and the price the customer agreed is preserved.
+u: Created with the order; updated as stock is allocated and shipped; read by warehouse and billing.
+c: A line belongs to one order and product, and is matched by shipments, reservations and invoice lines.
+l: A line follows its order. Its allocated and fulfilled quantities grow as stock is reserved and shipped.
+x: Line 2 of SO-10482 orders 40 units at 18.50; 25 are allocated and 15 shipped.
+a salesOrderLineId
+s: The identity of the line, constant for its life.
+u: Generated on creation; shipments and invoices refer to it.
+c: Referenced when delivery and billing are matched.
+a lineNumber
+s: The position of the line on the order.
+u: Assigned in sequence; used to refer to the line.
+c: Read with the order number to name a line.
+a quantity
+s: The quantity ordered.
+u: Entered by sales; allocation and shipment are measured against it.
+c: Compared with allocated and fulfilled quantity.
+a quantityFulfilled
+s: The quantity shipped so far.
+u: Increased by shipments; cannot exceed the ordered quantity.
+c: Reaching the ordered quantity completes the line.
+a quantityAllocated
+s: The quantity of stock reserved for the line.
+u: Increased by reservations; read by the warehouse.
+c: Compared with the quantity still to ship.
+a priceSource
+s: Where the price on the line came from.
+u: Set when the price is determined.
+c: Lets a disputed price be traced.
+v PRICE_LIST: Taken from the price list.
+v CONTRACT: Taken from a contract with the customer.
+v CUSTOMER_AGREEMENT: Taken from a standing customer agreement.
+v QUOTATION: Taken from an accepted quotation.
+v MANUAL: Entered by the salesperson.
+v PROMOTION: Set by a promotion.
+v OTHER: Determined some other way.
+a priceDeterminedAt
+s: When the price was fixed.
+u: Set when the price is determined and kept.
+c: Used to explain which price list was in force.
+r product
+s: The product ordered.
+u: Chosen when the line is entered.
+n: Exactly one product per line.
+t: Decides what stock is allocated and shipped.
+r unitOfMeasure
+s: The unit the quantity is expressed in.
+u: Defaults to the product's selling unit.
+n: At most one unit; empty uses the default.
+t: Makes the quantity unambiguous.
+r shipments
+s: The shipments carrying this line.
+u: Read to follow delivery.
+n: Any number, since a line may ship in parts.
+t: Show how much has gone.
+r reservations
+s: The stock reservations held for the line.
+u: Read to see what is set aside.
+n: Any number of reservations.
+t: Show how the line is covered by stock.
+r invoiceLines
+s: The invoice lines billing this line.
+u: Read to follow billing.
+n: Any number, as billing may be in parts.
+t: Show how much has been billed.
+
+@ Sample
+a status
+s: Where the sample is in its life, from planned through use to disposal.
+
+r observations
+n: Any number of observations recorded against the sample.
+
+@ SamplingPlan
+a samplingPlanId
+s: The identity of the sampling plan, constant for its life.
+a code
+s: The short code of the plan, such as SP-AQL-1.5.
+a name
+s: The name inspectors know the plan by.
+a status
+s: Whether the plan may be used in quality plans.
+
+@ SamplingRule
+a samplingRuleId
+s: The identity of the rule, constant for its life.
+a ruleNumber
+s: The number of the rule within its plan.
+a status
+s: Whether the rule is in force.
