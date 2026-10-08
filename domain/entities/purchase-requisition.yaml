@@ -112,6 +112,7 @@ entity:
     - id: PURCHASE-REQUISITION-004
       rule: A requisition approval authorizes demand but does not itself establish a supplier contract or PurchaseOrder.
   lifecycle:
+    attribute: status
     states: [DRAFT, SUBMITTED, APPROVED, REJECTED, ORDERED, CLOSED, CANCELLED]
     initial: DRAFT
     terminal: [CLOSED, REJECTED, CANCELLED]

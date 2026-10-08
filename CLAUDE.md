@@ -1280,6 +1280,21 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
   prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
   round trip rewraps every folded line in the library).
+- **Help text is authored, and a filler detector holds it.** `tools/help_shapes.py
+  --check` (HELP-001, run by `tools/validate.py`) replaces an entity's, attribute's
+  or relationship's names with placeholders and compares the sentence with the frozen
+  shapes in `tools/help-legacy-shapes.txt`; a match is template text and an error. To
+  author help: `tools/help_skeleton.py --next N` prints what is missing (`*`),
+  `tools/help-batches/bNNN.txt` holds the text (`@ Entity`, `s:`/`b:`/`u:`/`c:`/`l:`/`x:`
+  for the entity, `a name` then `s:`/`u:`/`c:` and `v VALUE:` for an attribute,
+  `r name` then `s:`/`u:`/`n:`/`w:`/`t:` for a relationship), and
+  `tools/help_apply.py` validates and writes it. A `v` list must cover **every** value
+  of the enum, so reword one flagged value and you re-send all of them. Reword a
+  flagged line rather than appending to it: the detector is shape-based, so
+  "Exactly one X." fails wherever X is. `tools/lifecycle_lint.py` checks a lifecycle
+  (L4 default≠initial is advisory); `tools/lifecycle_set.py` and `tools/attr_set.py`
+  repair one. A lowering drops managed columns, so never name a business attribute
+  `version`.
 - **Reference data comes from the common specification.** Country, StateProvince,
   City, Currency and Language are library entities whose rows live in
   `domain/reference-data/*.yaml` (`tools/build_reference_data.py`, from ISO 3166/4217/639

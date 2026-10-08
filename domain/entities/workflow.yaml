@@ -70,14 +70,14 @@ entity:
         - SUSPENDED
         - RETIRED
       help:
+        valueSemantics:
+          DRAFT: Being designed; it cannot be started and may be changed freely.
+          ACTIVE: Published; new runs may be started and its version is fixed.
+          SUSPENDED: Paused; no new runs start, and runs already under way continue.
+          RETIRED: Replaced or withdrawn; kept so earlier runs can still be explained. A final state.
         summary: Whether the workflow can be started.
         usage: Starts as DRAFT; set by process owners.
         relationshipContext: Only active workflows start new runs.
-        valueSemantics:
-          DRAFT: Being designed.
-          ACTIVE: Available to start.
-          SUSPENDED: Temporarily not started.
-          RETIRED: Replaced or withdrawn. A final state.
     - name: definitionFormat
       type: enum
       required: false
@@ -87,14 +87,14 @@ entity:
         - STATE_MACHINE
         - OTHER
       help:
-        summary: The notation the definition is written in.
+        summary: The notation the definition is written in, which decides how the system reads and checks it.
+        valueSemantics:
+          CEDM: Written in the CEDM notation used across the library.
+          BPMN: Written as a business process diagram that analysts can read.
+          STATE_MACHINE: Written as states and the transitions between them.
+          OTHER: Written in a notation not listed here.
         usage: Chosen when designed.
         relationshipContext: Decides how the definition is read.
-        valueSemantics:
-          CEDM: Written in the CEDM notation.
-          BPMN: Written as a business process diagram.
-          STATE_MACHINE: Written as states and transitions.
-          OTHER: Written in another notation.
     - name: definition
       type: object
       required: false
