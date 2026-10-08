@@ -16,32 +16,32 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the quotation record associated with this Quotation. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the quotation, constant for its life.
+        usage: Generated on creation; its lines and any resulting order refer to it.
+        relationshipContext: Referenced by the quotation lines and the sales order made from it.
     - name: quotationNumber
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of quotation number for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The number printed on the quotation, such as Q-2026-0415.
+        usage: Unique; quoted by the customer when accepting.
+        relationshipContext: Read by sales and order entry to find the offer.
     - name: quotationDate
       type: date
       required: true
       help:
+        usage: Set to the issue date; the validity period is measured from it.
+        relationshipContext: Compared with the validity date.
         summary: Records the business date associated with the quotation. It is used in chronology, eligibility, scheduling, reporting, and related business rules.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
     - name: validUntil
       type: date
       required: false
       help:
-        summary: Captures the business meaning of valid until for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The last date on which the customer may accept the offer.
+        usage: Must not be before the quotation date; expired offers can no longer be accepted.
+        relationshipContext: Drives expiry.
     - name: status
       type: enum
       required: true
@@ -54,70 +54,70 @@ entity:
         - EXPIRED
         - CANCELLED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Where the quotation stands with the customer.
+        usage: Starts as DRAFT; moved by sales and by the customer's reply.
+        relationshipContext: Only submitted quotations can be accepted.
         valueSemantics:
-          DRAFT: Represents the draft state or classification in the context of Quotation.
-          SUBMITTED: Represents the submitted state or classification in the context of Quotation.
-          ACCEPTED: Represents the accepted state or classification in the context of Quotation.
-          REJECTED: Represents the rejected state or classification in the context of Quotation.
-          EXPIRED: Represents the expired state or classification in the context of Quotation.
-          CANCELLED: Represents the cancelled state or classification in the context of Quotation.
+          DRAFT: Being prepared; the customer has not seen it.
+          SUBMITTED: Sent to the customer and awaiting a reply.
+          ACCEPTED: The customer accepted the offer. A final state.
+          REJECTED: The customer declined it. A final state.
+          EXPIRED: The validity date passed without a reply. A final state.
+          CANCELLED: Withdrawn by the seller. A final state.
     - name: currencyId
       type: reference
       target: Currency
       required: true
       help:
-        summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: This field connects Quotation to Currency. The reference establishes business context between the two entities and lets processes navigate from this record to the related Currency.
+        summary: The currency the offer is made in.
+        usage: Chosen when the quotation is created; all line amounts are in it.
+        relationshipContext: Read with the total to state the offer's value.
     - name: totalAmount
       type: decimal
       required: true
       precision: 20
       scale: 4
       help:
-        summary: Captures the business meaning of total amount for the Quotation. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Quotation records, where applicable.
-        relationshipContext: Its meaning is specific to Quotation; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The total value of the offer, the sum of its lines less discounts.
+        usage: Calculated; must not be negative.
+        relationshipContext: Compared with the opportunity's expected value.
   relationships:
     - name: customer
       target: Customer
       cardinality: '1'
       ownership: reference
       help:
-        summary: Connects Quotation to Customer so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Customer records associated with a Quotation.
-        cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The customer the offer is made to.
+        usage: Chosen when the quotation is created.
+        cardinalityMeaning: Exactly one customer; an offer is addressed to a single customer.
+        context: Decides who may accept it and who is invoiced afterwards.
     - name: opportunity
       target: Opportunity
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects Quotation to Opportunity so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Opportunity records associated with a Quotation.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The sales opportunity the quotation was prepared for.
+        usage: Chosen when the offer follows a tracked opportunity.
+        cardinalityMeaning: At most one opportunity; empty for an unsolicited offer.
+        context: Lets the pipeline show which quotes belong to which deal.
     - name: lines
       target: QuotationLine
       cardinality: 1..*
       ownership: aggregate
       help:
-        summary: Connects Quotation to QuotationLine so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about QuotationLine records associated with a Quotation.
-        cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The items offered.
+        usage: Edited while drafting; read by the customer and by order entry.
+        cardinalityMeaning: At least one line; a quotation with no lines offers nothing.
+        context: The lines belong to the quotation and go with it.
     - name: paymentTerms
       target: PaymentTerm
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects Quotation to PaymentTerm so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about PaymentTerm records associated with a Quotation.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The payment terms offered with the quote.
+        usage: Chosen from the standard terms.
+        cardinalityMeaning: At most one set of terms; empty uses the customer's default.
+        context: Carried to the order and invoice if accepted.
   invariants:
     - id: QUOTATION-001
       rule: validUntil must not precede quotationDate.
@@ -127,18 +127,18 @@ entity:
     attribute: status
     states: [DRAFT, SUBMITTED, ACCEPTED, REJECTED, EXPIRED, CANCELLED]
     initial: DRAFT
-    terminal: [REJECTED, EXPIRED, CANCELLED]
+    terminal:
+      - ACCEPTED
+      - REJECTED
+      - EXPIRED
+      - CANCELLED
     transitions:
       - {from: DRAFT, to: SUBMITTED, action: submit}
       - {from: SUBMITTED, to: ACCEPTED, action: accept}
-      - {from: DRAFT, to: REJECTED, action: reject}
       - {from: SUBMITTED, to: REJECTED, action: reject}
-      - {from: ACCEPTED, to: REJECTED, action: reject}
       - {from: SUBMITTED, to: EXPIRED, action: expire}
-      - {from: ACCEPTED, to: EXPIRED, action: expire}
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: SUBMITTED, to: CANCELLED, action: cancel}
-      - {from: ACCEPTED, to: CANCELLED, action: cancel}
   workflows:
     - name: ApprovalRequested
       title: "Ask for a decision when a quotation is put forward"
@@ -177,12 +177,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a commercial transaction called Quotation within the CEDM business model.
-    businessMeaning: Quotation is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Quotation records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Customer, Opportunity, QuotationLine, PaymentTerm. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Quotation record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A commercial offer to a customer that specifies products or services, quantities, prices, terms and how long it is valid.
+    businessMeaning: A quotation lets the business commit to a price before an order exists. The customer can accept it within its validity, and the accepted lines carry over to the order so the agreed price and terms are not retyped or disputed later.
+    usage: Prepared by sales; submitted to the customer; read by sales managers, finance and order entry.
+    relationshipContext: A quotation is for one customer, may come from an opportunity, has one or more lines and may name payment terms.
+    lifecycle: A quotation is drafted and submitted. The customer accepts it, rejects it or lets it expire, or sales cancels it. Accepted, rejected, expired and cancelled are final.
+    example: Quotation Q-2026-0415 offers a customer 40 units at 18.50 each, valid until 30 November, and is accepted on 12 November.
 specification:
   version: 0.1.0
   status: draft

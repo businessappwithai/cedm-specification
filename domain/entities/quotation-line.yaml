@@ -12,26 +12,26 @@ entity:
       required: true
       immutable: true
       help:
-        summary: 'The quotation line id of the quotation line: an identifier the business records on it.'
-        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+        summary: The identity of the line, constant for its life.
+        usage: Generated on creation; the order line made from it refers to it.
+        relationshipContext: Referenced when the quote is converted.
     - name: lineNumber
       type: integer
       required: true
       minimum: 1
       help:
-        summary: 'The line number of the quotation line: a whole number the business records on it.'
-        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+        summary: The position of the line on the quotation.
+        usage: Assigned in sequence; used to refer to the line.
+        relationshipContext: Read with the quotation number to name the line.
     - name: quantity
       type: decimal
       required: true
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity of the quotation line: a number the business records on it.'
-        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity offered.
+        usage: Entered by sales; priced against the unit price.
+        relationshipContext: Carried to the order line if accepted.
     - name: unitPrice
       type: Money
       required: true
@@ -61,17 +61,17 @@ entity:
       required: false
       values: [PRICE_LIST, CONTRACT, CUSTOMER_AGREEMENT, MANUAL, PROMOTION, OTHER]
       help:
+        valueSemantics:
+          PRICE_LIST: Taken from the price list.
+          CONTRACT: Taken from a contract with the customer.
+          CUSTOMER_AGREEMENT: Taken from a standing agreement with the customer.
+          MANUAL: Entered by the salesperson.
+          PROMOTION: Set by a promotion.
+          OTHER: Determined some other way.
         summary: Records the business source used to determine the quoted price.
         usage: Supports audit, margin analysis, pricing explanation, and downstream conversion.
         relationshipContext: Source metadata does not replace the transaction-time unitPrice.
         workflowRole: Explains why the quoted price was selected.
-        valueSemantics:
-          PRICE_LIST: The price source of the quotation line is price list; set it when that is what the business means for this record.
-          CONTRACT: The price source of the quotation line is contract; set it when that is what the business means for this record.
-          CUSTOMER_AGREEMENT: The price source of the quotation line is customer agreement; set it when that is what the business means for this record.
-          MANUAL: The price source of the quotation line is manual; set it when that is what the business means for this record.
-          PROMOTION: The price source of the quotation line is promotion; set it when that is what the business means for this record.
-          OTHER: The price source of the quotation line is other; set it when that is what the business means for this record.
     - name: priceDeterminedAt
       type: datetime
       required: false
@@ -85,9 +85,9 @@ entity:
       required: false
       maxLength: 1000
       help:
-        summary: "The description of the quotation line: a value the business records on it."
-        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+        summary: A description of what is offered on the line.
+        usage: Defaults to the product description; edited for services or special terms.
+        relationshipContext: Printed on the quotation.
   relationships:
     - name: quotation
       target: Quotation
@@ -104,19 +104,19 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a quotation line to product, the product it relates to.
-        usage: Chosen from the existing product records when the quotation line is created or edited.
-        cardinalityMeaning: A quotation line has at most one product in this role.
-        context: Lets the quotation line be found from, and reported with, its product.
+        summary: The product offered on the line.
+        usage: Chosen when the line is entered.
+        cardinalityMeaning: At most one product; empty for a free-text service line.
+        context: Supplies the default description, unit and price.
     - name: unitOfMeasure
       target: UnitOfMeasure
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a quotation line to unit of measure, the unit of measure it relates to.
-        usage: Chosen from the existing unit of measure records when the quotation line is created or edited.
-        cardinalityMeaning: A quotation line has at most one unit of measure in this role.
-        context: Lets the quotation line be found from, and reported with, its unit of measure.
+        summary: The unit the quantity is in.
+        usage: Defaults to the product's selling unit.
+        cardinalityMeaning: At most one unit; empty uses the product's default.
+        context: Makes the quantity unambiguous.
   invariants:
     - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
     - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}

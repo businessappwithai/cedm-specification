@@ -15,29 +15,45 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Stable identity of the quality plan., businessMeaning: Identifies one governed collection of inspection and acceptance requirements., usage: "Referencing, authoring, inspection execution, audit, reporting, and integration.", relationshipContext: "Connects the plan to Product, QualityPlanCharacteristic configurations, SamplingPlan configurations, and QualityInspection executions."}
+      help:
+        summary: The identity of the quality plan, constant for its life.
+        businessMeaning: Identifies one governed collection of inspection and acceptance requirements.
+        usage: "Referencing, authoring, inspection execution, audit, reporting, and integration."
+        relationshipContext: "Connects the plan to Product, QualityPlanCharacteristic configurations, SamplingPlan configurations, and QualityInspection executions."
     - name: code
       type: string
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Business code identifying the quality plan., businessMeaning: Provides a stable human-readable reference for the governed inspection definition., usage: "Plan selection, search, reports, integrations, and operational instructions.", relationshipContext: "Distinguishes the plan from its characteristic requirements, sampling policies, and inspection transactions."}
+      help:
+        summary: The short code of the plan, such as QP-FOOD-01.
+        businessMeaning: Provides a stable human-readable reference for the governed inspection definition.
+        usage: "Plan selection, search, reports, integrations, and operational instructions."
+        relationshipContext: "Distinguishes the plan from its characteristic requirements, sampling policies, and inspection transactions."
     - name: name
       type: string
       required: true
       maxLength: 300
-      help: {summary: Human-readable name of the quality plan., businessMeaning: Explains the purpose of the inspection definition., usage: "Authoring, selection, inspection execution, reporting, and audit.", relationshipContext: Names the overall plan whose detailed controls are represented by QualityPlanCharacteristic and SamplingPlan.}
+      help:
+        summary: The name of the plan as inspectors know it.
+        businessMeaning: Explains the purpose of the inspection definition.
+        usage: "Authoring, selection, inspection execution, reporting, and audit."
+        relationshipContext: Names the overall plan whose detailed controls are represented by QualityPlanCharacteristic and SamplingPlan.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
       help:
-        summary: Lifecycle state of the quality plan.
+        summary: Whether the plan may be used for inspections.
         businessMeaning: Controls whether the plan may normally govern new inspections.
         usage: Plan selection, workflow gating, governance, and retirement.
         relationshipContext: Status affects characteristic and sampling configurations and creation of new QualityInspection records; historical inspections remain evidence.
-        valueSemantics: {DRAFT: Plan is being prepared and is not normally used for production inspection execution., ACTIVE: Plan is approved for governed inspection use., SUSPENDED: Plan is temporarily unavailable for new governed use while retained for traceability., RETIRED: Plan is no longer normally selected for new inspections but remains historical evidence.}
+        valueSemantics:
+          DRAFT: Plan is being prepared and is not normally used for production inspection execution.
+          ACTIVE: Plan is approved for governed inspection use.
+          SUSPENDED: Plan is temporarily unavailable for new governed use while retained for traceability.
+          RETIRED: Plan is no longer normally selected for new inspections but remains historical evidence.
   relationships:
     - name: product
       target: Product

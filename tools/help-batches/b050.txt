@@ -1,0 +1,105 @@
+@ QualityPlan
+a qualityPlanId
+s: The identity of the quality plan, constant for its life.
+a code
+s: The short code of the plan, such as QP-FOOD-01.
+a name
+s: The name of the plan as inspectors know it.
+a status
+s: Whether the plan may be used for inspections.
+
+@ Quotation
+s: A commercial offer to a customer that specifies products or services, quantities, prices, terms and how long it is valid.
+b: A quotation lets the business commit to a price before an order exists. The customer can accept it within its validity, and the accepted lines carry over to the order so the agreed price and terms are not retyped or disputed later.
+u: Prepared by sales; submitted to the customer; read by sales managers, finance and order entry.
+c: A quotation is for one customer, may come from an opportunity, has one or more lines and may name payment terms.
+l: A quotation is drafted and submitted. The customer accepts it, rejects it or lets it expire, or sales cancels it. Accepted, rejected, expired and cancelled are final.
+x: Quotation Q-2026-0415 offers a customer 40 units at 18.50 each, valid until 30 November, and is accepted on 12 November.
+a quotationId
+s: The identity of the quotation, constant for its life.
+u: Generated on creation; its lines and any resulting order refer to it.
+c: Referenced by the quotation lines and the sales order made from it.
+a quotationNumber
+s: The number printed on the quotation, such as Q-2026-0415.
+u: Unique; quoted by the customer when accepting.
+c: Read by sales and order entry to find the offer.
+a quotationDate
+u: Set to the issue date; the validity period is measured from it.
+c: Compared with the validity date.
+a validUntil
+s: The last date on which the customer may accept the offer.
+u: Must not be before the quotation date; expired offers can no longer be accepted.
+c: Drives expiry.
+a status
+s: Where the quotation stands with the customer.
+u: Starts as DRAFT; moved by sales and by the customer's reply.
+c: Only submitted quotations can be accepted.
+v DRAFT: Being prepared; the customer has not seen it.
+v SUBMITTED: Sent to the customer and awaiting a reply.
+v ACCEPTED: The customer accepted the offer. A final state.
+v REJECTED: The customer declined it. A final state.
+v EXPIRED: The validity date passed without a reply. A final state.
+v CANCELLED: Withdrawn by the seller. A final state.
+a currencyId
+s: The currency the offer is made in.
+u: Chosen when the quotation is created; all line amounts are in it.
+c: Read with the total to state the offer's value.
+a totalAmount
+s: The total value of the offer, the sum of its lines less discounts.
+u: Calculated; must not be negative.
+c: Compared with the opportunity's expected value.
+r customer
+s: The customer the offer is made to.
+u: Chosen when the quotation is created.
+n: Exactly one customer; an offer is addressed to a single customer.
+t: Decides who may accept it and who is invoiced afterwards.
+r opportunity
+s: The sales opportunity the quotation was prepared for.
+u: Chosen when the offer follows a tracked opportunity.
+n: At most one opportunity; empty for an unsolicited offer.
+t: Lets the pipeline show which quotes belong to which deal.
+r lines
+s: The items offered.
+u: Edited while drafting; read by the customer and by order entry.
+n: At least one line; a quotation with no lines offers nothing.
+t: The lines belong to the quotation and go with it.
+r paymentTerms
+s: The payment terms offered with the quote.
+u: Chosen from the standard terms.
+n: At most one set of terms; empty uses the customer's default.
+t: Carried to the order and invoice if accepted.
+
+@ QuotationLine
+a quotationLineId
+s: The identity of the line, constant for its life.
+u: Generated on creation; the order line made from it refers to it.
+c: Referenced when the quote is converted.
+a lineNumber
+s: The position of the line on the quotation.
+u: Assigned in sequence; used to refer to the line.
+c: Read with the quotation number to name the line.
+a quantity
+s: The quantity offered.
+u: Entered by sales; priced against the unit price.
+c: Carried to the order line if accepted.
+a priceSource
+v PRICE_LIST: Taken from the price list.
+v CONTRACT: Taken from a contract with the customer.
+v CUSTOMER_AGREEMENT: Taken from a standing agreement with the customer.
+v MANUAL: Entered by the salesperson.
+v PROMOTION: Set by a promotion.
+v OTHER: Determined some other way.
+a description
+s: A description of what is offered on the line.
+u: Defaults to the product description; edited for services or special terms.
+c: Printed on the quotation.
+r product
+s: The product offered on the line.
+u: Chosen when the line is entered.
+n: At most one product; empty for a free-text service line.
+t: Supplies the default description, unit and price.
+r unitOfMeasure
+s: The unit the quantity is in.
+u: Defaults to the product's selling unit.
+n: At most one unit; empty uses the product's default.
+t: Makes the quantity unambiguous.
