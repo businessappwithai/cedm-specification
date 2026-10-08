@@ -1,0 +1,43 @@
+@ Prescription
+r medication
+n: Exactly one medication: a prescription orders a single drug, and a multi-drug treatment is several prescriptions.
+
+@ Procedure
+r patient
+n: Exactly one patient: a procedure is performed on a specific person, and it must be on that person's record.
+
+@ ProcessDefinition
+s: A versioned definition of a business process, independent of the engine that runs it: its activities, transitions, assignments, controls and what counts as complete.
+b: Before a process can be run, it has to be described. The definition states the steps and rules once, so every run behaves the same way and a change to the process is a new version rather than an edit of the old one.
+u: Designed by process owners; activated for use; read by the workflow engine when it starts new instances.
+c: Each ProcessInstance is an execution of a process definition at a particular version.
+l: A definition is pending while being designed, active when released, completed when no longer used for new instances, or cancelled if abandoned. State changes keep an auditable history and cannot duplicate effects.
+x: The "Purchase approval" process, version 4, with steps for request, manager approval, budget check and order.
+a processDefinitionId
+s: The identity of the process definition.
+u: Generated on creation; instances refer to it.
+a status
+s: Whether the definition is available to start new instances.
+u: Moved by the process owner; only ACTIVE definitions can be started.
+v PENDING: Being designed or awaiting release.
+v ACTIVE: Released; new instances can be started from it.
+v COMPLETED: Retired from new use after its instances have run their course. A final state.
+v CANCELLED: Abandoned before release. A final state.
+
+@ ProcessInstance
+s: One execution of a process definition, keeping the process version that applied, the business context, the state and the audit history.
+b: Each time a business process runs, such as one purchase approval, the instance records how far it has got and what happened, so work can be tracked, resumed and audited.
+u: Created when a process starts; updated as steps complete; read by workers, managers and auditors.
+c: An instance runs a ProcessDefinition, and works on the records it was started for.
+l: An instance is pending when created, active while running, and ends completed or cancelled. State changes keep auditable history and cannot duplicate effects.
+x: The approval of purchase request PR-4417, started on Monday and completed after two approvals on Wednesday.
+a processInstanceId
+s: The identity of the process instance.
+u: Generated when the process starts; tasks and audit entries refer to it.
+a status
+s: Where the run stands.
+u: Moved by the workflow engine and users.
+v PENDING: Created but not yet running.
+v ACTIVE: Running; steps are being executed.
+v COMPLETED: Finished. A final state.
+v CANCELLED: Stopped before it finished. A final state.

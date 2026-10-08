@@ -93,9 +93,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one medication: a prescription orders a single drug, and a multi-drug treatment is several prescriptions.'
         summary: The medication prescribed.
         usage: Chosen from the formulary.
-        cardinalityMeaning: Exactly one medication.
         workflowRole: Defines the product to be dispensed.
     - name: prescriber
       target: HealthcareProvider

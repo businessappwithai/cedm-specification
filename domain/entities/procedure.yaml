@@ -77,9 +77,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: "Exactly one patient: a procedure is performed on a specific person, and it must be on that person's record."
         summary: The patient on whom the procedure is performed.
         usage: Set at creation.
-        cardinalityMeaning: Exactly one patient.
         workflowRole: Adds it to the patient's record.
     - name: performer
       target: HealthcareProvider
