@@ -1,0 +1,55 @@
+@ TelecomService
+s: A telecommunications service that a customer subscribes to, such as a mobile line or broadband connection.
+b: A telecom service is the thing the customer actually has and is billed for. Recording it with its number, type, dates and place lets support, provisioning and billing all work from the same record.
+u: Created when an order is provisioned; read by support, billing and network operations.
+c: A service belongs to one customer, may be sold as a product and may be installed at a location.
+l: A service is pending until activated, active while in use, may be suspended and resumed, and ends terminated. Terminated is final.
+x: Mobile service 07700 900123 is activated on 1 March for a business customer and suspended for non-payment in June.
+a telecomServiceId
+s: The identity of the service, constant for its life.
+u: Generated on creation; usage and billing refer to it.
+c: Referenced by usage and invoice lines.
+a serviceNumber
+s: The number or reference of the service, such as a phone number or circuit id.
+u: Unique; quoted on bills and support calls.
+c: Read with the service type.
+a serviceType
+s: The kind of service.
+u: Chosen when provisioned; decides the network and billing rules.
+c: Read by provisioning.
+v MOBILE: A mobile voice or data line.
+v FIXED: A fixed telephone line.
+v BROADBAND: A fixed internet connection.
+v VOICE: A voice service.
+v DATA: A data service.
+v IOT: A connection for machine-to-machine devices.
+v OTHER: A service of another kind.
+a status
+s: Where the service is.
+u: Starts as PENDING; moved by provisioning and billing.
+c: Only active services carry traffic and are billed.
+v PENDING: Ordered and not yet switched on.
+v ACTIVE: In service.
+v SUSPENDED: Temporarily switched off.
+v TERMINATED: Ended. A final state.
+a activationDate
+u: Set when the service is switched on; billing starts from it.
+c: Not later than the termination date.
+a terminationDate
+u: Set when the service ends; must not be before activation.
+c: Gives the length of service.
+r customer
+s: The customer who holds the service.
+u: Chosen when ordered.
+n: Exactly one customer.
+t: Decides who is billed and supported.
+r product
+s: The product the service was sold as.
+u: Chosen when the service is provisioned from a product.
+n: At most one product.
+t: Decides the price and terms.
+r location
+s: The place the service is installed.
+u: Chosen for fixed services.
+n: At most one location.
+t: Used for installation and fault repair.

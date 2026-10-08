@@ -7,20 +7,18 @@ entity:
     icon: table
   identity: {key: teamId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: teamId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Team., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Team is referenced.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Team., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Team., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity.}}
+    - {name: teamId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the team, constant when it is renamed.', businessMeaning: Lets assignments and ownership point at the team rather than its name., usage: Generated on creation., relationshipContext: Referenced by tasks and records owned by the team.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the team, such as WH-LDS.', businessMeaning: Gives a stable way to refer to the team in imports and rules., usage: Unique; used in imports and rules., relationshipContext: Read with the name.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the team as people know it., businessMeaning: What people look for when assigning work., usage: Shown on assignments., relationshipContext: Read with the organisation.}}
   relationships:
-    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: Governing Organization context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Organization., workflowRole: Referenced workflows must remain compatible with governing context.}}
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation the team belongs to., usage: Chosen when the team is created., cardinalityMeaning: Exactly one organisation., workflowRole: Decides whose structure the team is part of.}}
   invariants:
     - {id: TEAM-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A collaborative grouping of people used to assign work, roles, ownership and accountability.
+    businessMeaning: Teams let work and responsibility be given to a group rather than a single person, and let access and reporting follow the group. A team belongs to an organisation, so each unit manages its own groups.
+    usage: Set up by managers or administrators; chosen on tasks and records; read in reports.
+    relationshipContext: A team belongs to one organisation.
+    lifecycle: A team is created, used while it works together, and left unused when disbanded. History keeps its name.
+    example: The "Warehouse Leeds" team is responsible for stock counts at the Leeds site.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TEAM}

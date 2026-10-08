@@ -7,14 +7,23 @@ entity:
     icon: percent
   identity: {key: taxRateId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: taxRateId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRate., businessMeaning: Identifies one governed TaxRate record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows.}}
+    - {name: taxRateId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the tax rate, constant for its life.', businessMeaning: Lets tax lines point at the rate that was applied., usage: Generated on creation; tax lines refer to it., relationshipContext: Referenced by every tax calculation that used it.}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxRate., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}}
+      help:
+        summary: Whether the rate can be applied.
+        businessMeaning: Stops an out-of-date rate being used on new transactions.
+        usage: Starts as DRAFT; set by tax staff.
+        relationshipContext: Only active rates are picked up in calculation.
+        valueSemantics:
+          DRAFT: Being defined; not yet applied.
+          ACTIVE: In force and applied to transactions.
+          COMPLETED: Replaced or expired. A final state.
+          CANCELLED: Withdrawn before use. A final state.
   relationships:
-    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the rate is set up for., usage: Chosen when the rate is company specific., cardinalityMeaning: At most one organisation; empty means it applies to all., workflowRole: Decides which company's returns carry the tax.}}
   invariants:
     - {id: TAX-RATE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
@@ -48,12 +57,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction.
-    purpose: Provide canonical enterprise semantics for TaxRate while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A tax percentage or amount that applies under a tax code and jurisdiction for a period of time.
+    businessMeaning: A tax rate is the figure applied to a taxable amount. Because rates change by date and place, each is recorded with its period so a transaction is taxed at the rate in force on its date, and past calculations can be explained.
+    usage: Maintained by tax staff when authorities change rates; read by tax calculation.
+    relationshipContext: A rate may belong to an organisation and applies to a tax code in a jurisdiction.
+    lifecycle: A rate is drafted, active while in force and completed when superseded. It may be cancelled before use. Completed and cancelled are final.
+    example: The standard rate for code STD in the United Kingdom is twenty percent from 4 January 2011.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-RATE}
