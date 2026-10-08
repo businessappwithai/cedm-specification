@@ -126,6 +126,12 @@ pub fn normalize_role(name: &str) -> String {
 /// A user with no `sys_user` link holds nothing. That is not an error: the
 /// account exists, it simply reaches nothing until an administrator grants it
 /// something.
+///
+/// A deactivated or locked account holds nothing either. The token extractor
+/// already refuses one (`users::Model::find_by_claims_key`), so this is the
+/// second statement of that rule rather than the only one — but it is the one
+/// every gate below reads, and a role that outlives its account's suspension is
+/// exactly the hole a suspension exists to close.
 pub async fn principal(pool: &PgPool, user: &users::Model) -> AppResult<Principal> {
     let Some(sys_user_id) = user.sys_user_id else {
         return Ok(Principal::default());
@@ -134,9 +140,12 @@ pub async fn principal(pool: &PgPool, user: &users::Model) -> AppResult<Principa
     let rows: Vec<(String, bool)> = sqlx::query_as(
         r"SELECT r.name, COALESCE(r.is_master_role, false)
             FROM sys_user_roles ur
-            JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+            JOIN sys_role r  ON r.sys_role_id  = ur.sys_role_id
+            JOIN sys_user su ON su.sys_user_id = ur.sys_user_id
            WHERE ur.sys_user_id = $1
-             AND COALESCE(ur.is_active, true) = true",
+             AND COALESCE(ur.is_active, true) = true
+             AND su.is_active = true
+             AND su.is_locked = false",
     )
     .bind(sys_user_id)
     .fetch_all(pool)
@@ -622,6 +631,74 @@ pub fn require_dictionary_admin(principal: &Principal) -> AppResult<()> {
     }
     Err(AppError::Forbidden(
         "administering the Application Dictionary requires the master role".to_string(),
+    ))
+}
+
+/// The tables that decide who an administrator is.
+///
+/// A write to any of them can remove the last one: deactivate or lock the
+/// account, revoke its grant, or clear `is_master_role` on the role it holds.
+/// `/api/accounts` and the generic `/api/sys/{users,user-roles,roles}` writes
+/// both pass through [`require_an_administrator`] for exactly these.
+pub const ACCOUNT_TABLES: [&str; 3] = ["sys_user", "sys_user_roles", "sys_role"];
+
+/// Serialise every write that could change who the administrators are.
+///
+/// Held for the rest of the transaction. Without it, two administrators
+/// deactivating each other at the same moment would each see the other still
+/// standing, both commits would land, and nobody could sign in to undo it —
+/// the check below is only sound if no other account write runs between it and
+/// the commit.
+pub async fn lock_accounts(txn: &mut sqlx::PgConnection) -> AppResult<()> {
+    sqlx::query("SELECT pg_advisory_xact_lock(hashtext('appwithai:accounts'))")
+        .execute(txn)
+        .await?;
+    Ok(())
+}
+
+/// How many accounts could sign in right now and administer the application.
+///
+/// The same conditions the request path applies, read the same way: a
+/// credential row to sign in with, a `sys_user` that is active and not locked,
+/// and an active grant of a role flagged `is_master_role` — which is all
+/// [`principal`] asks of a master.
+pub async fn administrator_count(conn: &mut sqlx::PgConnection) -> AppResult<i64> {
+    let (count,): (i64,) = sqlx::query_as(
+        r"SELECT COUNT(DISTINCT su.sys_user_id)
+            FROM sys_user su
+            JOIN users u            ON u.sys_user_id  = su.sys_user_id
+            JOIN sys_user_roles ur  ON ur.sys_user_id = su.sys_user_id
+            JOIN sys_role r         ON r.sys_role_id  = ur.sys_role_id
+           WHERE su.is_active = true
+             AND su.is_locked = false
+             AND COALESCE(ur.is_active, true) = true
+             AND COALESCE(r.is_master_role, false) = true",
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
+/// Refuse a change that would leave nobody able to administer the application.
+///
+/// Run inside the transaction that made the change, after the change, under
+/// [`lock_accounts`] — so the question is asked of the state the commit would
+/// produce, and the caller rolls back on the error. Asking it of the request
+/// instead ("is this the last admin?") is a second statement of the rule for
+/// every kind of write, and misses the ones nobody thought of: revoking the
+/// master flag from the role, say, rather than the role from the account.
+///
+/// 409: nothing is wrong with the request on its own, it conflicts with the
+/// state of the application. (Were it ever to happen anyway, `cargo loco task
+/// ensure_admin` reactivates, unlocks and re-grants the seeded administrator.)
+pub async fn require_an_administrator(conn: &mut sqlx::PgConnection) -> AppResult<()> {
+    if administrator_count(conn).await? > 0 {
+        return Ok(());
+    }
+    Err(AppError::Conflict(
+        "This change would leave no active administrator. Grant the master role to another \
+         active account first."
+            .to_string(),
     ))
 }
 

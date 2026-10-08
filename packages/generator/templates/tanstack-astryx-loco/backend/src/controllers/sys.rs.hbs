@@ -1082,10 +1082,21 @@ pub async fn update(
     update.and_where(pk_predicate(spec, &id)?);
 
     let (sql, bound) = update.returning_all().build_sqlx(PostgresQueryBuilder);
+    // One transaction, so a write to the account tables can be checked against
+    // the state it produces and undone — see `authz::require_an_administrator`.
+    let guarded = authz::ACCOUNT_TABLES.contains(&spec.table);
+    let mut txn = pool.begin().await?;
+    if guarded {
+        authz::lock_accounts(&mut txn).await?;
+    }
     let row = sqlx::query_with(AssertSqlSafe(sql), bound)
-        .fetch_optional(pool)
+        .fetch_optional(&mut *txn)
         .await?
         .ok_or_else(|| AppError::NotFound(format!("{} {id} not found", spec.segment)))?;
+    if guarded {
+        authz::require_an_administrator(&mut txn).await?;
+    }
+    txn.commit().await?;
 
     invalidate_for(&ctx, spec).await;
     Ok(Json(crate::services::row_json::row_to_json(&row)).into_response())
@@ -1120,10 +1131,19 @@ pub async fn remove(
         .and_where(pk_predicate(spec, &id)?)
         .build_sqlx(PostgresQueryBuilder);
 
-    let result = sqlx::query_with(AssertSqlSafe(sql), bound).execute(pool).await?;
+    let guarded = authz::ACCOUNT_TABLES.contains(&spec.table);
+    let mut txn = pool.begin().await?;
+    if guarded {
+        authz::lock_accounts(&mut txn).await?;
+    }
+    let result = sqlx::query_with(AssertSqlSafe(sql), bound).execute(&mut *txn).await?;
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound(format!("{} {id} not found", spec.segment)));
     }
+    if guarded {
+        authz::require_an_administrator(&mut txn).await?;
+    }
+    txn.commit().await?;
 
     invalidate_for(&ctx, spec).await;
     Ok(StatusCode::NO_CONTENT.into_response())

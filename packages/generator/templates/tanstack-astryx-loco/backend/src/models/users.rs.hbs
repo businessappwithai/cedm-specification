@@ -64,9 +64,30 @@ impl Authenticable for Model {
             .ok_or(ModelError::EntityNotFound)
     }
 
+    /// Resolve a token to its account — and refuse one that may no longer sign in.
+    ///
+    /// JWTs are stateless, so deactivating or locking an account does nothing
+    /// to a token issued before it: without this check a suspended user kept
+    /// working until the token expired. This is where every
+    /// `JWTWithUser` extractor lands, so a refusal here is a 401 on every
+    /// route that knows who is calling.
     async fn find_by_claims_key(db: &DatabaseConnection, claims_key: &str) -> ModelResult<Self> {
-        Self::find_by_pid(db, claims_key).await
+        let user = Self::find_by_pid(db, claims_key).await?;
+        match user.standing(db).await? {
+            Standing::Active => Ok(user),
+            Standing::Inactive | Standing::Locked => Err(ModelError::EntityNotFound),
+        }
     }
+}
+
+/// Whether an account may sign in, read off its `sys_user` row.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Standing {
+    Active,
+    /// `sys_user.is_active` is false: an administrator deactivated it.
+    Inactive,
+    /// `sys_user.is_locked` is true.
+    Locked,
 }
 
 impl Model {
@@ -146,6 +167,55 @@ impl Model {
         let mut active = self.into_active_model();
         active.password = ActiveValue::set(hashed);
         Ok(active.update(db).await?)
+    }
+
+    /// May this account sign in?
+    ///
+    /// An account with no `sys_user` link is active: a freshly registered user
+    /// is a valid state that reaches nothing until someone grants it a role,
+    /// and refusing it here would make registration useless. Locked wins over
+    /// inactive when both are set, because it is the more specific thing to
+    /// tell the person.
+    ///
+    /// A failed read is an error, not "active": a suspension that lapses
+    /// whenever the database is slow is not a suspension.
+    pub async fn standing(&self, db: &DatabaseConnection) -> ModelResult<Standing> {
+        let Some(sys_user_id) = self.sys_user_id else {
+            return Ok(Standing::Active);
+        };
+        let pool = db.get_postgres_connection_pool();
+        let row: Option<(bool, bool)> =
+            sqlx::query_as("SELECT is_active, is_locked FROM sys_user WHERE sys_user_id = $1")
+                .bind(sys_user_id)
+                .fetch_optional(pool)
+                .await
+                .map_err(|err| ModelError::Any(err.into()))?;
+        Ok(match row {
+            // The link points at nothing: the dictionary row was deleted out
+            // from under the credential. Nothing grants it anything, so it is
+            // the same as an unlinked account.
+            None => Standing::Active,
+            Some((_, true)) => Standing::Locked,
+            Some((false, false)) => Standing::Inactive,
+            Some((true, false)) => Standing::Active,
+        })
+    }
+
+    /// Record a successful sign-in on the dictionary row.
+    ///
+    /// Best-effort: a sign-in that succeeded must not fail because the audit
+    /// column could not be stamped.
+    pub async fn record_login(&self, db: &DatabaseConnection) {
+        let Some(sys_user_id) = self.sys_user_id else {
+            return;
+        };
+        let pool = db.get_postgres_connection_pool();
+        let _ = sqlx::query(
+            "UPDATE sys_user SET login_date = NOW(), login_failure_count = 0 WHERE sys_user_id = $1",
+        )
+        .bind(sys_user_id)
+        .execute(pool)
+        .await;
     }
 
     /// Resolve this user's role name through the dictionary's RBAC join.

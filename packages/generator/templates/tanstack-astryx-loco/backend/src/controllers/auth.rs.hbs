@@ -21,7 +21,7 @@ use serde_json::json;
 
 use crate::errors::{AppError, AppResult};
 use crate::models::_entities::users;
-use crate::models::users::{LoginParams, RegisterParams, UserResponse};
+use crate::models::users::{LoginParams, RegisterParams, Standing, UserResponse};
 
 #[derive(Debug, Serialize)]
 struct LoginResponse {
@@ -68,6 +68,7 @@ pub async fn register(
     responses(
         (status = 200, description = "`{ token, user }`; the token is also set as an httpOnly cookie"),
         (status = 401, description = "Wrong email or password"),
+        (status = 403, description = "The password matched, but the account is deactivated or locked"),
     ),
 )]
 pub async fn login(
@@ -81,6 +82,30 @@ pub async fn login(
     if !user.verify_password(&params.password) {
         return Err(invalid_credentials());
     }
+
+    // Only after the password matched: telling a caller who does not know the
+    // password that an account is locked would confirm the address exists.
+    // Someone who does know it is owed the real reason, or they will reset a
+    // password that was never the problem.
+    match user
+        .standing(&ctx.db)
+        .await
+        .map_err(|err| AppError::Internal(anyhow::anyhow!(err)))?
+    {
+        Standing::Active => {}
+        Standing::Locked => {
+            return Err(AppError::Forbidden(
+                "This account is locked. Ask an administrator to unlock it.".to_string(),
+            ))
+        }
+        Standing::Inactive => {
+            return Err(AppError::Forbidden(
+                "This account has been deactivated. Ask an administrator to reactivate it."
+                    .to_string(),
+            ))
+        }
+    }
+    user.record_login(&ctx.db).await;
 
     let token = issue_token(&ctx, &user.pid.to_string())?;
     let role = user.role_name(&ctx.db).await;
