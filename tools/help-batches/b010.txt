@@ -1,0 +1,224 @@
+@ ContractAmendment
+s: A change instrument that modifies defined terms of a contract from a given date, while the originally signed contract stays on record.
+b: Contracts change after they are signed: a price is revised, a scope extended. An amendment records exactly what changed and from when, so everyone can reconstruct which terms applied at any date without altering the signed original.
+u: Raised when both parties agree to change a signed contract; read when someone needs the current or historical terms.
+c: Each amendment belongs to one Contract; the effective terms are the contract as signed plus its amendments in order.
+l: Executed amendments are evidence and are not edited. A correction or replacement is recorded as another amendment.
+x: Amendment 2 to a supply contract raises unit prices by 3% from 1 July.
+a contractAmendmentId
+s: The identity of the amendment.
+u: Generated on creation; version history and approvals refer to it.
+a effectiveAt
+s: The date and time from which the amended terms apply.
+u: Entered from the signed amendment; terms before this moment remain those of the earlier text.
+r contract
+s: The contract that is being amended.
+u: Set when the amendment is created.
+n: Exactly one contract; an amendment always modifies a single contract.
+w: Keeps the change attached to the agreement it changes.
+
+@ ContractClause
+s: A clause that forms part of a contract, holding its effective wording or a reference to a structured term.
+b: A contract is made of clauses, and disputes turn on the exact words. Holding each clause as a record lets the organisation find, compare and reuse wording and show which clause applied when.
+u: Added when a contract is drafted or amended; read by negotiators, reviewers and anyone checking what was promised.
+c: Each clause belongs to one Contract, and amendments may add or replace clauses.
+l: Executed clause text is evidence and is not silently rewritten; changes are recorded as superseding clauses.
+x: The limitation of liability clause in a services contract, capping liability at twelve months of fees.
+a contractClauseId
+s: The identity of the clause.
+u: Generated on creation; amendments and reviews refer to the clause.
+a effectiveAt
+s: When this wording of the clause took effect.
+u: Set from the contract or amendment that introduced it; the effective text on any date is the latest clause in force then.
+r contract
+s: The contract of which the clause is a part.
+u: Set when the clause is created.
+n: Exactly one contract.
+w: Groups the clauses that make up the agreement.
+
+@ ContractLine
+s: A line within a contract that fixes a specific product or service, its price, quantity, term or scope of obligation.
+b: Commercial contracts are priced and scoped line by line. Lines state exactly what is being bought or provided, and orders and invoices are checked against them.
+u: Added when a contract is drafted or amended; read when orders are placed, delivered and invoiced under the contract.
+c: Each line belongs to one Contract; orders, shipments and invoices draw on lines.
+l: Executed lines are evidence. A change in price or quantity is made by amendment, not by editing the signed line.
+x: Line 3 of a supply contract: 10,000 units of part A-200 per quarter at 4.20 each.
+a contractLineId
+s: The identity of the contract line.
+u: Generated on creation; call-offs and invoice lines refer to it.
+a effectiveAt
+s: When the line took effect.
+u: Set from the signed contract or amendment; the price and quantity that apply to an order are those of the line in force on the order date.
+r contract
+s: The contract that contains the line.
+u: Set when the line is created.
+n: Exactly one contract.
+w: Places the line within the agreed commercial terms.
+
+@ ContractObligation
+s: A specific obligation, commitment, deliverable or condition that arises from a contract and that one party must fulfil.
+b: A contract matters through what it makes people do. Tracking obligations individually shows what is due, who is responsible, and whether it was delivered, so breaches are noticed and claims are supported.
+u: Created from the contract terms; assigned to a responsible party; updated as work proceeds; read by contract managers and in disputes.
+c: Each obligation belongs to one Contract and is the responsibility of one Party.
+l: An obligation is open, goes in progress, and ends fulfilled, breached or waived; it can be cancelled if the contract no longer requires it. Fulfilment needs evidence where policy requires it.
+x: The supplier must deliver the first batch of parts by 15 May; recorded as an obligation, fulfilled on 14 May with a signed delivery note.
+a contractObligationId
+s: The identity of the obligation.
+u: Generated on creation; evidence and breach notices refer to it.
+a code
+s: The reference for the obligation within the contract, such as 4.2 or DELIVERY-1.
+u: Entered when the obligation is created; used in correspondence and reports.
+a description
+s: What exactly must be done, in plain terms.
+u: Written from the contract text; read by the responsible party and by anyone assessing performance.
+a obligationType
+s: The kind of commitment.
+u: Chosen when the obligation is created; drives reminders and how fulfilment is evidenced.
+v DELIVERY: Goods or deliverables must be delivered.
+v PAYMENT: Money must be paid.
+v SERVICE: A service must be performed.
+v REPORTING: Information or reports must be supplied.
+v COMPLIANCE: A legal, regulatory or standards requirement must be met.
+v PERFORMANCE: A level of performance, such as a service level, must be achieved.
+v OTHER: Any other commitment.
+a status
+s: Whether the obligation is still due, being met, or resolved.
+u: Updated by the contract manager as work proceeds and evidence is received.
+v OPEN: Due but not yet started.
+v IN_PROGRESS: Being worked on.
+v FULFILLED: Met; evidence is on record. A final state.
+v BREACHED: Not met in time or at the required standard. A final state that may lead to remedies.
+v WAIVED: Released by the other party; no longer required. A final state.
+v CANCELLED: No longer applicable, for example because the contract changed. A final state.
+a dueDate
+s: The date by which the obligation must be met.
+u: Taken from the contract; reminders and breach checks use it.
+r contract
+s: The contract that creates the obligation.
+u: Set when the obligation is created.
+n: Exactly one contract.
+w: Obligations are monitored while the contract is active.
+r responsibleParty
+s: The party that has to meet the obligation.
+u: Chosen when the obligation is created; receives reminders and answers for it.
+n: Exactly one responsible party; shared duties are split into separate obligations.
+w: Makes accountability explicit.
+
+@ ContractRenewal
+s: An event that extends a contract, or replaces it, for a new term under agreed renewal conditions.
+b: Many contracts run in terms. A renewal record shows that the relationship continued, on what terms and from when, so there is no doubt whether a contract was in force on a given day.
+u: Created when a contract is renewed, automatically or by agreement; read when checking coverage or planning the next renewal.
+c: Each renewal belongs to one Contract; a chain of renewals gives its full term history.
+l: Executed renewals are evidence. A correction is recorded as a further record.
+x: Automatic one-year renewal of a software licence from 1 January, at the price in the renewal terms.
+a contractRenewalId
+s: The identity of the renewal.
+u: Generated on creation; invoices and term calculations refer to it.
+a effectiveAt
+s: The date and time from which the new term starts.
+u: Set from the renewal terms, normally the day after the previous term ended.
+r contract
+s: The contract that is renewed.
+u: Set when the renewal is created.
+n: Exactly one contract.
+w: Extends the contract's period of effect.
+
+@ ContractTermination
+s: An event that ends a contract, or selected obligations under it, according to its termination terms.
+b: Ending a contract has consequences: obligations stop, notices are given, final settlements are made. Recording the termination states when and how it ended, which is what disputes and wind-down tasks rely on.
+u: Created when notice is given or the contract ends by agreement; read by contract managers, finance and legal.
+c: Each termination belongs to one Contract.
+l: Executed terminations are evidence; they are not edited. A wrongly recorded termination is corrected by an explicit follow-up record.
+x: The customer terminates a service contract with 90 days' notice, effective 31 October.
+a contractTerminationId
+s: The identity of the termination.
+u: Generated on creation; settlement and wind-down tasks refer to it.
+a effectiveAt
+s: The date and time from which the contract, or the named obligations, ceases to apply.
+u: Taken from the notice or agreement; later charges and obligations stop at this moment.
+r contract
+s: The contract being ended.
+u: Set when the termination is recorded.
+n: Exactly one contract.
+w: Closes the contract's period of effect.
+
+@ Control
+s: A policy, procedure, mechanism or activity designed to prevent, detect or reduce a business risk.
+b: Controls are what the organisation actually does about its risks. Naming each control, saying how often it runs and who owns it makes assurance possible, because an auditor can test the control rather than rely on assurances.
+u: Defined by risk and compliance teams; assigned an owner; tested periodically; read by auditors and management.
+c: A control is owned by a Party, belongs to an Organization, mitigates Risks and implements Policies.
+l: A control is drafted, becomes active when put into operation, can be made inactive, and is retired when no longer needed.
+x: Monthly bank reconciliation review by the financial controller, a detective control against misstatement of cash.
+a controlId
+s: The identity of the control.
+u: Generated on creation; tests, findings and risk links refer to it.
+a code
+s: The reference by which the control is cited in risk registers and audits.
+u: Unique; assigned when the control is defined.
+a name
+s: The short name of the control.
+u: Shown in registers and test plans.
+a description
+s: A full description of what the control does and how it operates.
+u: Written by the control owner; read by those who test or rely on the control.
+a controlType
+s: How the control acts on a risk.
+u: Chosen when the control is defined; auditors use it to judge whether coverage is balanced.
+v PREVENTIVE: Stops a risk event from happening.
+v DETECTIVE: Finds a risk event after it has happened.
+v CORRECTIVE: Limits damage and restores normal operation after an event.
+v DIRECTIVE: Tells people what they must or must not do, such as a policy or procedure.
+a frequency
+s: How often the control operates.
+u: Set by the control owner; testers use it to decide how many occurrences to sample.
+v CONTINUOUS: Operates all the time, for example an automated system check.
+v DAILY: Performed every day.
+v WEEKLY: Performed every week.
+v MONTHLY: Performed every month.
+v QUARTERLY: Performed every quarter.
+v ANNUAL: Performed once a year.
+v EVENT_DRIVEN: Performed when a particular event occurs.
+v AD_HOC: Performed as needed, with no fixed schedule.
+a status
+s: Whether the control is being designed, in operation or ended.
+u: Set by the control owner; only ACTIVE controls are tested and relied on.
+v DRAFT: Being designed; not yet operating.
+v ACTIVE: Operating and relied upon.
+v INACTIVE: Not currently operating, but may be reinstated.
+v RETIRED: Permanently ended; kept for history.
+r owner
+s: The person or party accountable for the control operating.
+u: Set when the control is defined; receives test findings.
+n: At most one owner; a control without an owner is an assurance gap.
+w: Identifies who answers for the control.
+r organization
+s: The organisation in which the control operates.
+u: Set so controls can be scoped and tested per legal entity.
+n: At most one organisation.
+w: Scopes assurance work.
+r risks
+s: The risks the control mitigates.
+u: Linked when the control is designed against a risk; read to see how well each risk is covered.
+n: Any number of risks; a control may address several.
+w: Shows risk coverage.
+r policies
+s: The policies the control implements.
+u: Linked to show how a policy is put into practice.
+n: Any number of policies.
+w: Traces policy to operating control.
+
+@ CorrectiveAction
+a correctiveActionId
+s: The identity of the action.
+a actionType
+v CONTAINMENT: Immediate action to stop the problem spreading, such as quarantining stock.
+v CORRECTION: Fixing the specific nonconforming item or condition.
+v CORRECTIVE: Removing the root cause so the problem does not recur.
+v PREVENTIVE: Action to prevent a similar problem elsewhere before it happens.
+a status
+v OPEN: Raised but not yet assigned.
+v ASSIGNED: Given to an owner, who has not started.
+v IN_PROGRESS: Being carried out.
+v VERIFICATION: Done and waiting for an effectiveness check.
+v COMPLETED: Done and, where required, verified effective.
+v CANCELLED: Withdrawn and not carried out.

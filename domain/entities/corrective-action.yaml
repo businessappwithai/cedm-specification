@@ -15,7 +15,12 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the corrective action., businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification.", usage: "CAPA, quality audit, supplier improvement and compliance.", relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities., workflowRole: "Stable reference through assignment, execution, verification and closure."}
+      help:
+        summary: The identity of the action.
+        businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification."
+        usage: "CAPA, quality audit, supplier improvement and compliance."
+        relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities.
+        workflowRole: "Stable reference through assignment, execution, verification and closure."
     - name: actionNumber
       type: string
       required: true
@@ -31,16 +36,16 @@ entity:
         - CORRECTIVE
         - PREVENTIVE
       help:
+        valueSemantics:
+          CONTAINMENT: Immediate action to stop the problem spreading, such as quarantining stock.
+          CORRECTION: Fixing the specific nonconforming item or condition.
+          CORRECTIVE: Removing the root cause so the problem does not recur.
+          PREVENTIVE: Action to prevent a similar problem elsewhere before it happens.
         summary: Classification of the quality action.
         businessMeaning: Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action.
         usage: Determines evidence expectations, routing and effectiveness criteria.
         relationshipContext: Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence.
         workflowRole: Determines the intended outcome that verification must assess.
-        valueSemantics:
-          CONTAINMENT: The action type of the corrective action is containment; set it when that is what the business means for this record.
-          CORRECTION: The action type of the corrective action is correction; set it when that is what the business means for this record.
-          CORRECTIVE: The action type of the corrective action is corrective; set it when that is what the business means for this record.
-          PREVENTIVE: The action type of the corrective action is preventive; set it when that is what the business means for this record.
     - name: description
       type: string
       required: true
@@ -58,18 +63,18 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
+        valueSemantics:
+          OPEN: Raised but not yet assigned.
+          ASSIGNED: Given to an owner, who has not started.
+          IN_PROGRESS: Being carried out.
+          VERIFICATION: Done and waiting for an effectiveness check.
+          COMPLETED: Done and, where required, verified effective.
+          CANCELLED: Withdrawn and not carried out.
         summary: Lifecycle state of the action.
         businessMeaning: Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled.
         usage: Controls execution and closure.
         relationshipContext: COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence.
         workflowRole: VERIFICATION gates final completion when effectiveness verification is required.
-        valueSemantics:
-          OPEN: The status of the corrective action is open; set it when that is what the business means for this record.
-          ASSIGNED: The status of the corrective action is assigned; set it when that is what the business means for this record.
-          IN_PROGRESS: The status of the corrective action is in progress; set it when that is what the business means for this record.
-          VERIFICATION: The status of the corrective action is verification; set it when that is what the business means for this record.
-          COMPLETED: The status of the corrective action is completed; set it when that is what the business means for this record.
-          CANCELLED: The status of the corrective action is cancelled; set it when that is what the business means for this record.
     - name: dueDate
       type: date
       required: false

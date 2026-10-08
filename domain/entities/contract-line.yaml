@@ -7,19 +7,17 @@ entity:
     icon: file-check
   identity: {key: contractLineId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: contractLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractLine., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence.}}
+    - {name: contractLineId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contract line., usage: Generated on creation; call-offs and invoice lines refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the line took effect., usage: Set from the signed contract or amendment; the price and quantity that apply to an order are those of the line in force on the order date.}}
   relationships:
-    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract that contains the line., usage: Set when the line is created., cardinalityMeaning: Exactly one contract., workflowRole: Places the line within the agreed commercial terms.}}
   invariants:
     - {id: CONTRACT-LINE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed commercial or legal line within a Contract defining a specific product, service, price, quantity, term, or obligation scope.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractLine.
-    businessMeaning: A governed commercial or legal line within a Contract defining a specific product, service, price, quantity, term, or obligation scope.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A line within a contract that fixes a specific product or service, its price, quantity, term or scope of obligation.
+    businessMeaning: Commercial contracts are priced and scoped line by line. Lines state exactly what is being bought or provided, and orders and invoices are checked against them.
+    usage: Added when a contract is drafted or amended; read when orders are placed, delivered and invoiced under the contract.
+    relationshipContext: Each line belongs to one Contract; orders, shipments and invoices draw on lines.
+    lifecycle: Executed lines are evidence. A change in price or quantity is made by amendment, not by editing the signed line.
+    example: 'Line 3 of a supply contract: 10,000 units of part A-200 per quarter at 4.20 each.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-LINE}

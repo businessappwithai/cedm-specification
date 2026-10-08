@@ -7,19 +7,17 @@ entity:
     icon: file-check
   identity: {key: contractRenewalId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: contractRenewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractRenewal., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence.}}
+    - {name: contractRenewalId, type: uuid, required: true, immutable: true, help: {summary: The identity of the renewal., usage: Generated on creation; invoices and term calculations refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time from which the new term starts., usage: 'Set from the renewal terms, normally the day after the previous term ended.'}}
   relationships:
-    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract that is renewed., usage: Set when the renewal is created., cardinalityMeaning: Exactly one contract., workflowRole: Extends the contract's period of effect.}}
   invariants:
     - {id: CONTRACT-RENEWAL-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed event extending or replacing a Contract for a new term under approved renewal conditions.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractRenewal.
-    businessMeaning: A governed event extending or replacing a Contract for a new term under approved renewal conditions.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: An event that extends a contract, or replaces it, for a new term under agreed renewal conditions.
+    businessMeaning: Many contracts run in terms. A renewal record shows that the relationship continued, on what terms and from when, so there is no doubt whether a contract was in force on a given day.
+    usage: Created when a contract is renewed, automatically or by agreement; read when checking coverage or planning the next renewal.
+    relationshipContext: Each renewal belongs to one Contract; a chain of renewals gives its full term history.
+    lifecycle: Executed renewals are evidence. A correction is recorded as a further record.
+    example: Automatic one-year renewal of a software licence from 1 January, at the price in the renewal terms.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-RENEWAL}
