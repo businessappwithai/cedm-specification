@@ -3,6 +3,7 @@
 // and an HTML index. No framework — just node:http.
 
 import { createServer } from "node:http";
+import { ConcurrencyError, etagOf, parseIfMatch } from "./concurrency.js";
 import { initDb } from "./db.js";
 import { ENUMS, MODEL } from "./model.js";
 import { buildOpenApi } from "./openapi.js";
@@ -18,11 +19,15 @@ const byCollection = new Map((MODEL.entities ?? []).map((e) => [e.collection, se
 
 function send(res, status, body, type = "application/json") {
   const payload = type === "application/json" ? JSON.stringify(body, null, 2) : body;
+  const etag = type === "application/json" && !Array.isArray(body) ? etagOf(body) : null;
   res.writeHead(status, {
     "Content-Type": type === "application/json" ? "application/json" : type,
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, If-Match",
+    "Access-Control-Expose-Headers": "ETag",
+    // Every record answers with its version; an update or delete names it back.
+    ...(etag ? { ETag: etag } : {}),
   });
   res.end(payload);
 }
@@ -63,6 +68,7 @@ const server = createServer(async (req, res) => {
           name: e.name,
           collection: e.collection,
           attributes: e.attributes.length,
+          concurrency: e.concurrency ?? "optimistic",
         })),
         rules: MODEL.rules.map((r) => ({ name: r.name, entity: r.entity, event: r.event })),
         workflows: MODEL.workflows.map((w) => ({ name: w.name, kind: w.kind, entity: w.entity })),
@@ -83,12 +89,13 @@ const server = createServer(async (req, res) => {
         const row = await svc.get(id);
         return row ? send(res, 200, row) : send(res, 404, { error: "Not found" });
       }
-      if (req.method === "PUT" && id) {
-        const row = await svc.update(id, await readBody(req));
+      if ((req.method === "PUT" || req.method === "PATCH") && id) {
+        const precondition = parseIfMatch(req.headers["if-match"]);
+        const row = await svc.update(id, await readBody(req), precondition);
         return row ? send(res, 200, row) : send(res, 404, { error: "Not found" });
       }
       if (req.method === "DELETE" && id) {
-        const ok = await svc.remove(id);
+        const ok = await svc.remove(id, parseIfMatch(req.headers["if-match"]));
         return ok ? send(res, 204, "") : send(res, 404, { error: "Not found" });
       }
       return send(res, 405, { error: "Method not allowed" });
@@ -96,6 +103,9 @@ const server = createServer(async (req, res) => {
 
     return send(res, 404, { error: "Not found" });
   } catch (err) {
+    // A concurrency refusal carries the record as it now stands, so the client
+    // can refresh or overwrite without asking again.
+    if (err instanceof ConcurrencyError) return send(res, 409, err.toJSON());
     const status = err.status ?? 500;
     send(res, status, { error: err.message, details: err.details });
   }

@@ -33,6 +33,7 @@ import type {
   ParsedCondition,
   RuleNode,
 } from "./model.ts";
+import { LIFECYCLE_COLUMN_NAMES } from "../../yaml/checker.ts";
 import { foreignKeyName, stripQuotes, toSnakeCase } from "./util.ts";
 
 const READER_MODULE = "../../../packages/generator/src/model-yaml/index.ts";
@@ -237,6 +238,7 @@ function entityOf(raw: ModelDocument["entities"][number]): EmlEntity {
     ...(raw.prefix ? { prefix: raw.prefix } : {}),
     ...(raw.label ? { label: raw.label } : {}),
     ...(raw.help ? { help: raw.help } : {}),
+    concurrency: raw.concurrency ?? "optimistic",
   };
 }
 
@@ -339,12 +341,25 @@ function ruleOf(raw: RuleDocument, roles: Map<string, JdmNodeRole>): EmlRule {
   };
 }
 
+/**
+ * The column a state machine drives: the first lifecycle column its entity
+ * declares, in the checker's order. The same resolution as the generator's
+ * `statusFieldFor`, which falls back to the `workflow_status` column every
+ * generated table carries.
+ */
+function statusFieldOf(entityName: string, model: EmlModel): string {
+  const entity = model.entities.find((candidate) => candidate.name === entityName);
+  const columns = new Set(entity?.attributes.map((attribute) => attribute.name) ?? []);
+  return [...LIFECYCLE_COLUMN_NAMES].find((name) => columns.has(name)) ?? "workflow_status";
+}
+
 function stateMachineOf(raw: StateMachineDocument, model: EmlModel): EmlWorkflow {
   const initial = raw.initial ?? raw.states[0];
   return {
     name: raw.name,
     entity: raw.entity,
     kind: "state",
+    statusField: statusFieldOf(raw.entity, model),
     hooks: model.hooks.filter((hook) => hook.entity === raw.entity),
     states: [...raw.states],
     ...(initial ? { initial } : {}),

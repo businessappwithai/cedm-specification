@@ -70,6 +70,7 @@ out/
     workflows.js   state machines (enforces legal status transitions → 409)
     hooks.js       lifecycle hook handlers (generated stubs to implement)
     validate.js    request validation (required fields, enums, coercion)
+    concurrency.js optimistic locking: versions, ETag / If-Match, closed final states
     db.js          JSON-file datastore
     model.js       the model (generated)
     openapi.js     OpenAPI 3 document builder
@@ -78,6 +79,16 @@ out/
   package.json  README.md  .gitignore
   Dockerfile  docker-compose.yml  .dockerignore  .github/workflows/app-ci.yml   (with --docker)
 ```
+
+Two people editing one record are reconciled as the Loco backend reconciles
+them, with the same response body. Every record carries a `version` and every
+read and write answers with it as an `ETag`. An update (`PUT`/`PATCH`) or a
+`DELETE` names the version it was read at in `If-Match`. A stale one is **409
+`VERSION_CONFLICT`**, with the record as it now stands, and one that names none
+is **428** unless the entity is `concurrency: last-write-wins`. A record in a
+final state of its state machine is **409 `RECORD_FINAL`** to every update and
+delete. The machine drives the column its entity actually declares (`status`,
+`state` or `stage`), resolved as the generator resolves it.
 
 **`tanstack-astryx-loco`** — the application `appwithai generate` produces, by
 the same pipeline (`generateApplication`): the Loco.rs backend with its seeds and

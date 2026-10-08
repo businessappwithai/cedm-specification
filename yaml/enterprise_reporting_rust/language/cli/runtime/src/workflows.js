@@ -1,10 +1,10 @@
 // Workflow state machines.
-// Builds a transition table per entity from the EML state workflows, and
+// Builds a transition table per entity from the model's state machines, and
 // enforces legal status transitions on update.
 
 import { MODEL } from "./model.js";
 
-/** entity -> { initial, states, statusField, transitions: {from: {event: to}} } */
+/** entity -> { initial, states, finals, statusField, transitions: {from: {event: to}} } */
 export const stateMachines = buildStateMachines();
 
 function buildStateMachines() {
@@ -12,20 +12,19 @@ function buildStateMachines() {
   for (const wf of MODEL.workflows ?? []) {
     if (wf.kind !== "state" || !wf.entity) continue;
     const transitions = {};
-    let initial = null;
     for (const t of wf.transitions ?? []) {
-      if (t.from === "[*]") {
-        initial = t.to;
-        continue;
-      }
-      if (t.to === "[*]") continue;
-      (transitions[t.from] ??= {})[t.event || `${t.from}_to_${t.to}`] = t.to;
+      if (!transitions[t.from]) transitions[t.from] = {};
+      transitions[t.from][t.event || `${t.from}_to_${t.to}`] = t.to;
     }
     machines[wf.entity] = {
-      // A YAML model states the start (`initial`); a drawing drew it as `[*] --> s`.
-      initial: wf.initial ?? initial ?? wf.states?.[0] ?? null,
+      initial: wf.initial ?? wf.states?.[0] ?? null,
       states: wf.states ?? [],
-      statusField: "status",
+      // A completed transaction: a record in one of these is closed.
+      finals: wf.final ?? [],
+      // The column the machine drives — `status`, `state` or `stage`, resolved
+      // when the model was read. Not always `status`: a sales opportunity keeps
+      // its lifecycle in `stage`.
+      statusField: wf.statusField ?? "status",
       transitions,
     };
   }
