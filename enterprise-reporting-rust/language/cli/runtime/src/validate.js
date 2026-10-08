@@ -1,4 +1,4 @@
-// Request validation derived from the EML model: required fields, enum
+// Request validation derived from the model: required fields, enum
 // membership, and basic type coercion. Throws HttpError(400) on failure.
 
 import { ENUMS, MODEL } from "./model.js";
@@ -11,7 +11,7 @@ export class HttpError extends Error {
   }
 }
 
-const SYSTEM_FIELDS = new Set(["id", "created_at", "updated_at"]);
+const SYSTEM_FIELDS = new Set(["id", "version", "created_at", "updated_at"]);
 
 export function entityMeta(entityName) {
   return (MODEL.entities ?? []).find((e) => e.name === entityName) ?? null;

@@ -57,6 +57,17 @@ function tsType(attr: EmlAttribute): string {
   }
 }
 
+/**
+ * The Kysely column type. A date is read back as a \`Date\` but written as the
+ * ISO string the form and the input schema carry, so its insert and update
+ * types say so; every other column is read and written as one type.
+ */
+function kyselyColumnType(attr: EmlAttribute): string {
+  return attr.type === "date" || attr.type === "datetime"
+    ? "ColumnType<Date, Date | string, Date | string>"
+    : tsType(attr);
+}
+
 // PostgreSQL types. This platform runs PostgreSQL and nothing else — the
 // config DB, the knowledge graph and every generated table — so the DDL below
 // has to be PostgreSQL's. It used to be MySQL's (INT, TINYINT(1), DATETIME,
@@ -131,6 +142,15 @@ function serverFnsFile(e: EmlEntity, model: EmlModel): string {
   const Type = e.name;
   const tableName = tbl(e);
   const pk = e.primaryKey || "id";
+  const optimistic = e.concurrency !== "last-write-wins";
+  const machine = model.workflows.find((w) => w.kind === "state" && w.entity === e.name);
+  const finals = machine?.final ?? [];
+  const statusField = machine?.statusField ?? "status";
+  /** The write's final-state condition, for an entity whose machine has finals. */
+  const finalsWhere = (name: string) =>
+    finals.length
+      ? `    ${name} = ${name}.where((eb) =>\n      eb.or([eb("${statusField}", "is", null), eb("${statusField}", "not in", ${JSON.stringify(finals)})])\n    );`
+      : "";
   const editable = e.attributes.filter((a) => !a.isPrimaryKey);
   const enumMap = Object.fromEntries(model.enums.map((en) => [en.name, en.values]));
 
@@ -169,8 +189,10 @@ function serverFnsFile(e: EmlEntity, model: EmlModel): string {
     .join("\n");
 
   return `import { createServerFn } from "@tanstack/react-start";
+import { sql } from "kysely";
 import { getDb } from "@/lib/db/kysely-db";
 import { requireAuth } from "@/lib/auth/middleware";
+import { NotFoundError } from "@/lib/server-fns/with-error-handler";
 import { z } from "zod";
 
 // --------------- Types --------------------------------------------------------
@@ -178,6 +200,8 @@ import { z } from "zod";
 export type ${Type} = {
   ${pk}: string;
 ${editable.map((a) => `  ${a.name}${a.required ? "" : "?"}: ${tsType(a)} | null;`).join("\n")}
+  /** The optimistic-lock counter: every write advances it. */
+  version: number;
   created_at: Date;
   updated_at: Date;
 };
@@ -228,29 +252,150 @@ export const create${Type}Fn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await requireAuth();
     const id = crypto.randomUUID();
-    await getDb().insertInto("${tableName}").values({ id, ...data }).execute();
-    return { id };
+    await getDb().insertInto("${tableName}").values({ id, ...data, version: 1 }).execute();
+    return { id, version: 1 };
   });
 
 export const update${Type}Fn = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: string } & Partial<${Type}Input>) => input)
-  .handler(async ({ data: { id, ...rest } }) => {
+  .inputValidator(
+    (input: { id: string; version?: number } & Partial<${Type}Input>) => input
+  )
+  .handler(async ({ data: { id, version, ...rest } }): Promise<WriteResult> => {
     await requireAuth();
-    await getDb()
-      .updateTable("${tableName}")
-      .set(rest as Record<string, unknown>)
+    const db = getDb();
+    const current = await db
+      .selectFrom("${tableName}")
+      .selectAll()
       .where("id", "=", id)
-      .execute();
-    return { id };
+      .executeTakeFirst();
+    if (!current) throw new NotFoundError("${Type}", id);
+    const refused = precondition(current as unknown as Row, version);
+    if (refused) return refused;
+
+    // The version and the final-state test are conditions of the one UPDATE,
+    // so a save that landed in between is refused rather than overwritten.
+    let update = db
+      .updateTable("${tableName}")
+      .set({
+        ...(${Type}InputSchema.partial().parse(rest) as Record<string, unknown>),
+        version: sql\`version + 1\`,
+        updated_at: new Date(),
+      } as never)
+      .where("id", "=", id);
+    if (version !== undefined) update = update.where("version", "=", version);
+${finalsWhere("update")}
+    const row = await update.returningAll().executeTakeFirst();
+    if (row) return { ok: true, row: row as unknown as Row };
+    return refusedNow(id, version);
   });
 
 export const delete${Type}Fn = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: string }) => input)
-  .handler(async ({ data: { id } }) => {
+  .inputValidator((input: { id: string; version?: number }) => input)
+  .handler(async ({ data: { id, version } }): Promise<WriteResult> => {
     await requireAuth();
-    await getDb().deleteFrom("${tableName}").where("id", "=", id).execute();
-    return { id };
+    const db = getDb();
+    const current = await db
+      .selectFrom("${tableName}")
+      .selectAll()
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!current) throw new NotFoundError("${Type}", id);
+    const refused = precondition(current as unknown as Row, version);
+    if (refused) return refused;
+
+    let remove = db.deleteFrom("${tableName}").where("id", "=", id);
+    if (version !== undefined) remove = remove.where("version", "=", version);
+${finalsWhere("remove")}
+    const row = await remove.returningAll().executeTakeFirst();
+    if (row) return { ok: true, row: row as unknown as Row };
+    return refusedNow(id, version);
   });
+
+// --------------- Optimistic locking -------------------------------------------
+//
+// Every row carries a \`version\` that every write advances. An update or a
+// delete names the version it was read at; one made against a version somebody
+// else has since replaced is refused with the record as it now stands, so the
+// screen can offer to refresh or to overwrite. ${optimistic ? "This entity is optimistic: a write that names no version is refused." : "This entity is last-write-wins: a write that names no version is accepted."}${finals.length ? ` A record whose \`${statusField}\` is ${finals.map((f) => `\`${f}\``).join(" or ")} is a completed transaction and closed to every update and delete.` : ""}
+//
+// The outcome is returned, not thrown: a refusal is an answer the screen acts
+// on, and a thrown error reaches the client without its fields.
+
+type Value = string | number | boolean | Date | null | Value[] | { [key: string]: Value };
+type Row = { [column: string]: Value };
+
+export type WriteResult =
+  | { ok: true; row: Row }
+  | {
+      ok: false;
+      error: "VERSION_CONFLICT" | "RECORD_FINAL" | "PRECONDITION_REQUIRED";
+      message: string;
+      conflict?: {
+        yourVersion: number | null;
+        currentVersion: number | null;
+        changedAt: Value;
+        current: Row;
+        status: { field: string; value: Value; isFinal: boolean } | null;
+        overwritable: boolean;
+      };
+    };
+
+const OPTIMISTIC = ${optimistic ? "true" : "false"};
+const STATUS_FIELD: string | null = ${finals.length ? JSON.stringify(statusField) : "null"};
+const FINAL_STATES: readonly string[] = ${JSON.stringify(finals)};
+
+function isFinal(row: Row): boolean {
+  return STATUS_FIELD !== null && FINAL_STATES.includes(String(row[STATUS_FIELD] ?? ""));
+}
+
+function refusal(code: "VERSION_CONFLICT" | "RECORD_FINAL", current: Row, version?: number): WriteResult {
+  return {
+    ok: false,
+    error: code,
+    message:
+      code === "RECORD_FINAL"
+        ? "This record is in a final state: its transaction is complete and it cannot be changed."
+        : "This record was changed by another user since you opened it.",
+    conflict: {
+      yourVersion: version ?? null,
+      currentVersion: typeof current.version === "number" ? current.version : null,
+      changedAt: current.updated_at ?? null,
+      current,
+      status: STATUS_FIELD
+        ? { field: STATUS_FIELD, value: current[STATUS_FIELD] ?? null, isFinal: isFinal(current) }
+        : null,
+      overwritable: code === "VERSION_CONFLICT",
+    },
+  };
+}
+
+/** The refusal a write must meet before it is attempted, if any. */
+function precondition(current: Row, version?: number): WriteResult | null {
+  if (isFinal(current)) return refusal("RECORD_FINAL", current, version);
+  if (version === undefined && OPTIMISTIC) {
+    return {
+      ok: false,
+      error: "PRECONDITION_REQUIRED",
+      message: "A write to ${Type} must name the version it was read at.",
+    };
+  }
+  if (version !== undefined && current.version !== version) {
+    return refusal("VERSION_CONFLICT", current, version);
+  }
+  return null;
+}
+
+/** The conditional write matched nothing: say why, from the row as it now is. */
+async function refusedNow(id: string, version?: number): Promise<WriteResult> {
+  const now = await getDb()
+    .selectFrom("${tableName}")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
+  if (!now) throw new NotFoundError("${Type}", id);
+  const row = now as unknown as Row;
+  return refusal(isFinal(row) ? "RECORD_FINAL" : "VERSION_CONFLICT", row, version);
+}
 `;
 }
 
@@ -414,6 +559,7 @@ import {
   delete${Type}Fn,
   get${Type}Fn,
   update${Type}Fn,
+  type WriteResult,
 } from "@/server-fns/${sfModule}";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -424,47 +570,62 @@ export const Route = createFileRoute("/_authed/${routePath}/$id")({
   component: ${Type}DetailPage,
 });
 
+/** The columns the form edits; the rest (key, version, timestamps) are the server's. */
+const EDITABLE = ${JSON.stringify(editableAttrs.map((a) => a.name))} as const;
+
+type Refusal = Extract<WriteResult, { ok: false }> & { action: "save" | "delete" };
+
 function ${Type}DetailPage() {
   const { id } = Route.useParams();
   const isNew = id === "new";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["${tableName}", id],
     queryFn: () => get${Type}Fn({ data: { id } }),
     enabled: !isNew,
   });
 
   const [form, setForm] = useState<Record<string, string>>({});
+  // The version the form was read at: every update and delete names it.
+  const [readVersion, setReadVersion] = useState<number | undefined>(undefined);
+  // A write somebody else's write overtook, or one a final state refused.
+  const [refusal, setRefusal] = useState<Refusal | null>(null);
+
+  const load = (row: Record<string, unknown>) => {
+    setForm(
+      Object.fromEntries(
+        EDITABLE.map((k) => [k, row[k] == null ? "" : String(row[k])])
+      )
+    );
+    setReadVersion(typeof row.version === "number" ? row.version : undefined);
+    setRefusal(null);
+  };
 
   useEffect(() => {
-    if (data) {
-      setForm(
-        Object.fromEntries(
-          Object.entries(data).map(([k, v]) => [k, v == null ? "" : String(v)])
-        )
-      );
-    }
+    if (data) load(data as Record<string, unknown>);
   }, [data]);
 
+  const done = () => {
+    queryClient.invalidateQueries({ queryKey: ["${tableName}"] });
+    navigate({ to: "/_authed/${routePath}/" });
+  };
+
   const saveMutation = useMutation({
-    mutationFn: () =>
-      isNew
-        ? create${Type}Fn({ data: form as never })
-        : update${Type}Fn({ data: { id, ...form } as never }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["${tableName}"] });
-      navigate({ to: "/_authed/${routePath}/" });
+    mutationFn: async (version?: number) => {
+      if (isNew) {
+        await create${Type}Fn({ data: form as never });
+        return null;
+      }
+      return update${Type}Fn({ data: { id, version, ...form } as never });
     },
+    onSuccess: (result) => (result && !result.ok ? setRefusal({ ...result, action: "save" }) : done()),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => delete${Type}Fn({ data: { id } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["${tableName}"] });
-      navigate({ to: "/_authed/${routePath}/" });
-    },
+    mutationFn: (version?: number) => delete${Type}Fn({ data: { id, version } }),
+    onSuccess: (result) => (result.ok ? done() : setRefusal({ ...result, action: "delete" })),
   });
 
   return (
@@ -477,9 +638,46 @@ function ${Type}DetailPage() {
         <CardContent className="space-y-4 pt-6">
 ${formFields}
 
+          {refusal && (
+            <div role="alert" className="rounded-md border border-destructive p-3 text-sm space-y-2">
+              <p className="font-medium">
+                {refusal.error === "RECORD_FINAL"
+                  ? "This record is closed: its transaction is complete."
+                  : refusal.error === "PRECONDITION_REQUIRED"
+                    ? "Reload this record before changing it."
+                    : refusal.action === "delete"
+                      ? "This record was changed before you deleted it."
+                      : "This record was changed while you were editing it."}
+              </p>
+              {refusal.conflict?.status && (
+                <p>
+                  Status: {String(refusal.conflict.status.value ?? "—")}
+                  {refusal.conflict.status.isFinal ? " (final)" : ""}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => refetch().then(({ data: latest }) => latest && load(latest as Record<string, unknown>))}>
+                  Refresh to latest
+                </Button>
+                {refusal.conflict?.overwritable && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      const version = refusal.conflict?.currentVersion ?? undefined;
+                      if (refusal.action === "delete") deleteMutation.mutate(version);
+                      else saveMutation.mutate(version);
+                    }}
+                  >
+                    {refusal.action === "delete" ? "Delete it anyway" : "Overwrite with my changes"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2 pt-2">
             <Button
-              onClick={() => saveMutation.mutate()}
+              onClick={() => saveMutation.mutate(readVersion)}
               disabled={saveMutation.isPending}
             >
               {saveMutation.isPending ? "Saving…" : "Save"}
@@ -495,7 +693,7 @@ ${formFields}
                 variant="destructive"
                 className="ml-auto"
                 disabled={deleteMutation.isPending}
-                onClick={() => deleteMutation.mutate()}
+                onClick={() => deleteMutation.mutate(readVersion)}
               >
                 Delete
               </Button>
@@ -525,6 +723,8 @@ function migrationFile(model: EmlModel): string {
         const def = a.type === "boolean" ? " DEFAULT FALSE" : "";
         return `  "${a.name}" ${ddlType(a)}${notNull}${uq}${def}`;
       }),
+      // The optimistic-lock counter; every write advances it.
+      '  "version" INTEGER NOT NULL DEFAULT 1',
       '  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP',
       // PostgreSQL has no ON UPDATE CURRENT_TIMESTAMP; the application sets
       // updated_at on write, as the platform's own tables do.
@@ -576,7 +776,8 @@ function kyselyTypesFile(model: EmlModel): string {
     return `  /** ${e.label ?? e.name} */
   ${tableName}: {
     ${pk}: Generated<string>;
-${rest.map((a) => `    ${a.name}${a.required ? "" : "?"}: ${tsType(a)} | null;`).join("\n")}
+${rest.map((a) => `    ${a.name}${a.required ? "" : "?"}: ${kyselyColumnType(a)} | null;`).join("\n")}
+    version: Generated<number>;
     created_at: Generated<Date>;
     updated_at: Generated<Date>;
   };`;
@@ -588,7 +789,7 @@ Paste these entries into the \`Database\` interface in \`src/lib/db/kysely-db.ts
 
 \`\`\`typescript
 // Ensure this import is present at the top of kysely-db.ts:
-// import type { Generated } from "kysely";
+// import type { ColumnType, Generated } from "kysely";
 
 // Inside the Database interface add:
 ${blocks.join("\n\n")}
@@ -639,5 +840,17 @@ ${entityLines}
   server/client boundary.
 - Client calls always pass \`{ data: input }\` — the wrapper is required.
 - \`requireAuth()\` is called at the top of every handler.
+
+## Two people, one record
+
+Every table carries a \`version\` that every write advances. The update and
+delete functions take the \`version\` the record was read at and make it a
+condition of the write: one made against a version somebody else has since
+replaced returns \`{ ok: false, error: "VERSION_CONFLICT", conflict }\` with the
+record as it now stands, and the detail page offers to refresh or to overwrite.
+An entity the model declares \`last-write-wins\` accepts a write that names no
+version; every other one returns \`PRECONDITION_REQUIRED\`. A record in a final
+state of its state machine is a completed transaction, and every update and
+delete returns \`RECORD_FINAL\`.
 `;
 }

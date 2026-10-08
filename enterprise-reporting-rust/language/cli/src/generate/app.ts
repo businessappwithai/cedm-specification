@@ -44,6 +44,7 @@ export function generateApp(model: EmlModel, opts: GenerateAppOptions): string[]
     "validate.js",
     "services.js",
     "openapi.js",
+    "concurrency.js",
     "server.js",
   ]) {
     written.push(path.join("src", f));
@@ -93,6 +94,7 @@ function toRuntimeModel(model: EmlModel) {
       tableName: e.tableName,
       primaryKey: e.primaryKey,
       timestamps: e.timestamps,
+      concurrency: e.concurrency,
       attributes: e.attributes,
     })),
     relationships: model.relationships,
@@ -182,7 +184,8 @@ function generateReadme(model: EmlModel, appName: string): string {
   const entityLines = model.entities
     .map(
       (e) =>
-        `- \`${e.name}\` → \`GET/POST /api/${collectionName(e)}\`, \`GET/PUT/DELETE /api/${collectionName(e)}/:id\``
+        `- \`${e.name}\` → \`GET/POST /api/${collectionName(e)}\`, \`GET/PUT/PATCH/DELETE /api/${collectionName(e)}/:id\`` +
+        (e.concurrency === "last-write-wins" ? " — last-write-wins" : "")
     )
     .join("\n");
   const ruleLines =
@@ -214,6 +217,23 @@ ${entityLines}
 
 System: \`GET /health\`, \`GET /openapi.json\`, \`GET /api/_meta\`.
 
+## Two people, one record
+
+Every record carries a \`version\`, and every read and write answers with it as
+an ETag (\`"v<n>"\`). An update or a delete names the version it was read at
+in \`If-Match\`. One made against a version somebody else has since replaced is
+refused with **409 \`VERSION_CONFLICT\`**, whose \`conflict\` carries the record
+as it now stands, when it changed, the columns that differ and where its
+transaction stands — so a client can refresh, or overwrite by naming the
+version the refusal reported. \`If-Match: *\` overwrites deliberately.
+
+An update or delete that names no version is **428** on every entity except
+those the model declares \`last-write-wins\`, marked above.
+
+A record in a final state of its state machine is a completed transaction:
+every update and every delete is **409 \`RECORD_FINAL\`**, whatever \`If-Match\`
+says.
+
 ## Business rules
 
 Evaluated automatically in the create/update lifecycle; the decision trace is
@@ -239,6 +259,7 @@ src/
   workflows.js   state machines
   hooks.js       lifecycle hook handlers (implement these)
   validate.js    request validation
+  concurrency.js versions, If-Match, and closed final states
   model.js       the EML model (generated)
 eml.model.json   parsed model snapshot
 \`\`\`
