@@ -23,7 +23,7 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: Business-facing invoice reference.
+        summary: The number printed on the invoice, by which customer and supplier refer to it.
         businessMeaning: Identifier communicated to customers, suppliers, tax authorities, and financial operations.
         usage: Used in documents, statements, reconciliation, collections, payables, and integrations.
         relationshipContext: Distinct from invoiceId and source order numbers.
@@ -51,35 +51,35 @@ entity:
       required: true
       values: [SALES, PURCHASE, CREDIT_NOTE, DEBIT_NOTE]
       help:
+        valueSemantics:
+          SALES: An invoice the organisation issues to a customer for goods or services supplied.
+          PURCHASE: An invoice the organisation receives from a supplier.
+          CREDIT_NOTE: A document that reduces what is owed under an earlier invoice.
+          DEBIT_NOTE: A document that increases what is owed under an earlier invoice.
         summary: Defines the commercial direction and accounting nature of the invoice document.
         businessMeaning: Determines whether the document establishes a receivable, payable, or adjustment.
         usage: Used by accounting, tax, receivables, payables, matching, and reporting.
         relationshipContext: Must agree with Customer/Supplier and source transaction relationships. A dedicated CreditNote or SupplierDebitNote is preferred for explicit financial adjustments.
         workflowRole: Controls which party, matching, tax, and settlement processes apply.
-        valueSemantics:
-          SALES: The invoice type of the invoice is sales; set it when that is what the business means for this record.
-          PURCHASE: The invoice type of the invoice is purchase; set it when that is what the business means for this record.
-          CREDIT_NOTE: The invoice type of the invoice is credit note; set it when that is what the business means for this record.
-          DEBIT_NOTE: The invoice type of the invoice is debit note; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ISSUED, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED, VOID]
       help:
+        valueSemantics:
+          DRAFT: Being prepared; not yet sent and not yet part of the receivables.
+          ISSUED: Sent or recorded; the amount is now owed and due by its due date.
+          PARTIALLY_PAID: Part of the amount has been settled by payments or credits.
+          PAID: Fully settled. A final state.
+          OVERDUE: Past its due date with an amount still outstanding.
+          CANCELLED: Withdrawn before it became effective. A final state.
+          VOID: Cancelled after issue by a controlled process that keeps the original on record. A final state.
         summary: Lifecycle state of the financial claim.
         businessMeaning: Indicates whether the claim is being prepared, outstanding, settled, overdue, cancelled, or voided.
         usage: Controls issuance, settlement, aging, cancellation, reporting, and accounting workflows.
         relationshipContext: PaymentAllocation supplies settlement evidence; CreditNote and SupplierDebitNoteApplication supply authorized adjustment evidence; Payment status alone must never determine invoice payment status.
         workflowRole: ISSUED establishes the claim; active allocations and authorized adjustment applications change settlement projection; PAID requires no remaining amount under policy; OVERDUE is time-based and may coexist with partial settlement.
-        valueSemantics:
-          DRAFT: Claim is being prepared and is not issued.
-          ISSUED: Claim is formally outstanding.
-          PARTIALLY_PAID: Active settlement evidence covers part of the amount due after authorized adjustments.
-          PAID: Active settlement evidence and authorized adjustments fully satisfy the claim under policy.
-          OVERDUE: Claim remains outstanding after its due date.
-          CANCELLED: Claim has been cancelled under authorized controls.
-          VOID: Claim has been invalidated under accounting controls.
     - name: currencyId
       type: reference
       target: Currency

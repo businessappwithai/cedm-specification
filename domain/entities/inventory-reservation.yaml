@@ -89,9 +89,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one product: a reservation commits stock of a single item.'
         summary: The product that is reserved.
         usage: Set when the reservation is made.
-        cardinalityMeaning: Exactly one product.
         workflowRole: Identifies the stock being committed.
     - name: inventoryLocation
       target: InventoryLocation

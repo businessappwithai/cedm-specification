@@ -56,14 +56,14 @@ entity:
       default: ACTIVE
       values: [ACTIVE, BLOCKED, INACTIVE]
       help:
+        valueSemantics:
+          ACTIVE: Open for receiving, storing and picking.
+          BLOCKED: Temporarily barred from movements, for example for a count or a quality hold; it can be unblocked.
+          INACTIVE: Not in use; no stock should be placed there, though it can be reactivated.
         summary: Controls whether the location can participate in normal future inventory operations.
         usage: Applies to receiving, put-away, picking, transfer, allocation, replenishment, counting and staging.
         relationshipContext: Status constrains future operations; it never deletes current balances or historical movements.
         workflowRole: Status changes trigger dependent-workflow validation before operational eligibility changes become effective.
-        valueSemantics:
-          ACTIVE: The status of the inventory location is active; set it when that is what the business means for this record.
-          BLOCKED: The status of the inventory location is blocked; set it when that is what the business means for this record.
-          INACTIVE: The status of the inventory location is inactive; set it when that is what the business means for this record.
     - name: capacity
       type: decimal
       required: false
@@ -118,7 +118,12 @@ entity:
       target: HandlingUnit
       cardinality: 0..*
       ownership: reference
-      help: {summary: Physical logistics units currently associated with this location., businessMeaning: Supports pallet/carton/tote execution without replacing stock balances., usage: "Scanning, putaway, picking and count.", cardinalityMeaning: Zero or many handling units., workflowRole: Handling-unit moves must reconcile with underlying inventory execution.}
+      help:
+        cardinalityMeaning: Any number of handling units, such as pallets or cartons, that are currently in the location.
+        summary: Physical logistics units currently associated with this location.
+        businessMeaning: Supports pallet/carton/tote execution without replacing stock balances.
+        usage: "Scanning, putaway, picking and count."
+        workflowRole: Handling-unit moves must reconcile with underlying inventory execution.
   invariants:
     - {id: INVENTORY-LOCATION-001, rule: code must be unique within its Warehouse.}
     - {id: INVENTORY-LOCATION-002, rule: capacity must be non-negative when supplied.}

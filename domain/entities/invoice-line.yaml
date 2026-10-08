@@ -55,18 +55,18 @@ entity:
       default: NOT_APPLICABLE
       values: [NOT_APPLICABLE, UNMATCHED, MATCHED, PARTIALLY_MATCHED, EXCEPTION, WAIVED]
       help:
-        summary: Procurement matching state of the invoice line.
+        summary: Whether the line has been checked against the order and receipt it bills for.
+        usage: Set by the three-way matching process; lines in EXCEPTION block payment until they are resolved or waived.
+        valueSemantics:
+          NOT_APPLICABLE: The line does not need matching, for example a sales invoice line.
+          UNMATCHED: Not yet compared with the purchase order and goods receipt.
+          MATCHED: Quantity and price agree with the order and receipt within tolerance.
+          PARTIALLY_MATCHED: Some of the line's quantity or amount agrees; the rest does not.
+          EXCEPTION: A difference outside tolerance needs a decision.
+          WAIVED: The difference was accepted by an authorised approver.
         businessMeaning: Indicates whether the line agrees with applicable purchase and receipt evidence.
-        usage: Used for accounts payable controls and reconciliation.
         relationshipContext: Independent from CreditNote and SupplierCreditNote status; a credit may correct a posted line after matching.
         workflowRole: Controls matching approval before posting.
-        valueSemantics:
-          NOT_APPLICABLE: The matching status of the invoice line is not applicable; set it when that is what the business means for this record.
-          UNMATCHED: The matching status of the invoice line is unmatched; set it when that is what the business means for this record.
-          MATCHED: The matching status of the invoice line is matched; set it when that is what the business means for this record.
-          PARTIALLY_MATCHED: The matching status of the invoice line is partially matched; set it when that is what the business means for this record.
-          EXCEPTION: The matching status of the invoice line is exception; set it when that is what the business means for this record.
-          WAIVED: The matching status of the invoice line is waived; set it when that is what the business means for this record.
   relationships:
     - name: invoice
       target: Invoice
