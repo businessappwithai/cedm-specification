@@ -1,0 +1,42 @@
+# Authored help, batch 001: Account (block style) and City (flow style).
+#
+# Applied by tools/apply_authored.py, which only adds keys an entity does not
+# already carry (under any alias), so this file can be re-applied safely.
+# Keep values quoted: an unquoted value with a comma in a flow mapping is split
+# into keys (see tools/repair_flow_text.py).
+
+Account:
+  help:
+    workflowContext: "Created when the chart of accounts is set up or extended, referenced by every journal line, invoice line and payment allocation that posts money, and retired rather than deleted once postings exist so historical ledgers still balance."
+  attributes:
+    accountId:
+      businessMeaning: "The permanent identity of one ledger account; postings, balances and reports refer to the account by this value, so it never changes even when the account is renumbered or renamed."
+    code:
+      businessMeaning: "The account number accountants quote and sort by, such as 1000 for cash at bank; it places the account in the chart of accounts and is what appears on trial balances and in integrations with the general ledger."
+    name:
+      businessMeaning: "The label finance staff recognise the account by, such as Cash at Bank or Trade Receivables, shown on statements and reports beside the code."
+    accountType:
+      businessMeaning: "Which section of the financial statements the account belongs to, and therefore whether a debit increases or decreases it and whether its balance carries forward at year end or closes to retained earnings."
+    status:
+      businessMeaning: "Whether new postings may use the account: ACTIVE accounts accept postings, INACTIVE accounts are temporarily closed to them, and RETIRED accounts keep their history but are no longer offered."
+    currencyId:
+      businessMeaning: "The currency the account is kept in; amounts posted to it are recorded or translated into this currency so its balance can be read and aggregated without conversion."
+
+City:
+  attributes:
+    cityId:
+      businessMeaning: "The permanent identity of one city in the shared reference list, so every address, site and party that names the city points at the same place."
+    code:
+      businessMeaning: "A readable key made of the country code and the city name, such as FR-PARIS, that integrations and imports can match on without knowing the internal identifier."
+    name:
+      businessMeaning: "The city's English name as people write it on addresses and look for it in a list; it is not unique on its own, because different countries have cities with the same name."
+    population:
+      businessMeaning: "The registry's population figure, used to rank and size cities in lists and analyses; it is reference information, not a current census count."
+    latitude:
+      businessMeaning: "The north-south position of the city centre in decimal degrees, used to place the city on a map and to estimate distances."
+    longitude:
+      businessMeaning: "The east-west position of the city centre in decimal degrees, used with the latitude to place the city on a map and to estimate distances."
+    timezone:
+      businessMeaning: "The IANA time zone the city keeps, which decides how appointments, deliveries and deadlines at addresses in the city are shown in local time."
+    isCapital:
+      businessMeaning: "Marks the national capital, which reference lists highlight and some regulatory and reporting rules treat as the default seat of government business."
