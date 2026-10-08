@@ -14,10 +14,18 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, FINAL, VOID]
-      help: {summary: Governance state of the Grade., businessMeaning: "Distinguishes provisional result, finalized academic evidence and voided erroneous record.", usage: "Grade approval, transcript and audit.", relationshipContext: FINAL grades are immutable historical evidence under ordinary operation., valueSemantics: {DRAFT: Result is provisional., FINAL: Result is approved/final., VOID: Record is invalidated while retained for audit.}}
+      help:
+        summary: Whether the grade is provisional, official or withdrawn.
+        usage: Set by the teacher or registrar; only FINAL grades count towards transcripts and progression.
+        valueSemantics:
+          DRAFT: Entered but not yet official; can still change.
+          FINAL: Confirmed and official; part of the student's record. A final state.
+          VOID: Withdrawn because it was entered in error or annulled; kept for audit. A final state.
+        businessMeaning: "Distinguishes provisional result, finalized academic evidence and voided erroneous record."
+        relationshipContext: FINAL grades are immutable historical evidence under ordinary operation.
   relationships:
-    - {name: student, target: EducationStudent, cardinality: "1", ownership: reference, help: {summary: Student receiving this Grade., businessMeaning: Establishes learner identity for the result., usage: "Gradebook, transcript and analytics.", cardinalityMeaning: Exactly one EducationStudent., workflowRole: Student must be eligible for the Assessment context.}}
-    - {name: assessment, target: Assessment, cardinality: "1", ownership: reference, help: {summary: Assessment producing this learner outcome., businessMeaning: "Supplies scoring scale, type and curriculum context.", usage: Grade validation and reporting., cardinalityMeaning: Exactly one Assessment., workflowRole: Score and finalization must comply with Assessment policy.}}
+    - {name: student, target: EducationStudent, cardinality: "1", ownership: reference, help: {usage: Set when the grade is entered; transcripts are produced from a student's final grades., cardinalityMeaning: "Exactly one student: a grade is one learner's result.", summary: Student receiving this Grade., businessMeaning: Establishes learner identity for the result., workflowRole: Student must be eligible for the Assessment context.}}
+    - {name: assessment, target: Assessment, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one assessment: a grade is a result for a specific evaluated activity.', summary: Assessment producing this learner outcome., businessMeaning: "Supplies scoring scale, type and curriculum context.", usage: Grade validation and reporting., workflowRole: Score and finalization must comply with Assessment policy.}}
     - {name: enrollment, target: Enrollment, cardinality: "0..1", ownership: reference, help: {summary: Enrollment establishing learner eligibility for the course or class., businessMeaning: Provides registration context for the Grade., usage: "Gradebook, transcript and eligibility checks.", cardinalityMeaning: Optional when eligibility is established elsewhere., workflowRole: Enrollment student/course context must agree with Grade and Assessment.}}
   invariants:
     - {id: GRADE-001, rule: At least one of score or gradeValue must be supplied.}

@@ -6,40 +6,47 @@ entity:
   ui: {icon: users-round}
   identity: {key: guardianId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: guardianId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the guardian role., businessMeaning: Identifies one governed education guardian relationship independently of the underlying Party., usage: "Student administration, communication, consent, billing and audit.", relationshipContext: Party supplies common identity; Guardian supplies education-specific responsibility.}}
-    - {name: guardianCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing guardian reference., businessMeaning: Operational identifier used in education administration., usage: "Search, communication and integration.", relationshipContext: Distinct from Party identifiers.}}
+    - {name: guardianId, type: uuid, required: true, immutable: true, help: {summary: "The identity of the guardian role, independent of the person's other roles.", usage: Generated on creation; consents and contacts refer to it., businessMeaning: Identifies one governed education guardian relationship independently of the underlying Party., relationshipContext: Party supplies common identity; Guardian supplies education-specific responsibility.}}
+    - {name: guardianCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The unique reference of the guardian in the school's system., usage: Assigned at admission; used in the parent portal., businessMeaning: Operational identifier used in education administration., relationshipContext: Distinct from Party identifiers.}}
     - name: relationshipType
       type: enum
       required: true
       values: [PARENT, LEGAL_GUARDIAN, CAREGIVER, SPONSOR, OTHER]
       help:
-        summary: Education relationship of the guardian to supported students.
-        businessMeaning: Guides communication, authorization and responsibility policy.
-        usage: Student administration, consent and reporting.
-        relationshipContext: Does not replace legal evidence required by local policy.
+        summary: How the guardian is related to or responsible for the student.
+        usage: Chosen when recorded; may determine consent and contact rights.
         valueSemantics:
-          PARENT: Parent relationship.
-          LEGAL_GUARDIAN: Legally recognized guardian relationship.
-          CAREGIVER: Caregiver relationship recognized by policy.
-          SPONSOR: Financial or administrative sponsor relationship.
-          OTHER: Another governed guardian relationship.
+          PARENT: A biological or adoptive parent.
+          LEGAL_GUARDIAN: A person appointed with legal responsibility for the student.
+          CAREGIVER: A person who cares for the student day to day without legal guardianship.
+          SPONSOR: A person or body that supports the student financially.
+          OTHER: Any other relationship.
+        businessMeaning: Guides communication, authorization and responsibility policy.
+        relationshipContext: Does not replace legal evidence required by local policy.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, INACTIVE]
-      help: {summary: Whether the guardian role is currently active for ordinary education processes., businessMeaning: Controls current use without deleting historical communications or authorizations., usage: "Student administration and audit.", relationshipContext: Student-specific relationship validity may be narrower than overall guardian status., valueSemantics: {ACTIVE: Role may be used under applicable policy., INACTIVE: Role is no longer ordinarily used for new actions.}}
+      help:
+        summary: Whether the guardian relationship is current.
+        usage: Set by administration.
+        valueSemantics:
+          ACTIVE: Current; the guardian may be contacted and may act.
+          INACTIVE: No longer applies; kept for history.
+        businessMeaning: Controls current use without deleting historical communications or authorizations.
+        relationshipContext: Student-specific relationship validity may be narrower than overall guardian status.
   relationships:
-    - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Party holding the guardian role., businessMeaning: Reuses common identity and contact data without duplication., usage: "Communication, authorization and audit.", cardinalityMeaning: Exactly one Party., workflowRole: Party identity changes do not rewrite historical guardian evidence.}}
-    - {name: students, target: EducationStudent, cardinality: "1..*", ownership: reference, help: {summary: Students for whom this guardian relationship applies., businessMeaning: Establishes education responsibility or communication scope., usage: "Student administration, consent, billing and communication.", cardinalityMeaning: One or more students are associated with a Guardian role., workflowRole: Student-specific authority must be evaluated according to current policy.}}
+    - {name: party, target: Party, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one party: the guardian role is held by a specific person or organisation.', businessMeaning: Reuses common identity and contact data without duplication., usage: "Communication, authorization and audit.", workflowRole: Party identity changes do not rewrite historical guardian evidence.}}
+    - {name: students, target: EducationStudent, cardinality: "1..*", ownership: reference, help: {summary: The students the guardian is responsible for., usage: Added at admission; one guardian can look after several students., cardinalityMeaning: 'At least one student: a guardian role exists only in relation to learners.', workflowRole: Determines whose records the guardian may see., businessMeaning: Establishes education responsibility or communication scope.}}
   invariants:
     - {id: GUARDIAN-001, rule: A Guardian must reference a valid Party and at least one EducationStudent.}
     - {id: GUARDIAN-002, rule: "Historical consent, communication or financial evidence is not rewritten merely because guardian status later becomes INACTIVE."}
   help:
-    summary: Represents an education guardian role without duplicating Party identity.
-    businessMeaning: Guardian defines responsibility and communication context for students; EducationStudent remains the learner identity.
-    usage: Student information systems, school communication, consent, billing, emergency contact workflows and audit.
-    relationshipContext: Party is mandatory and one Guardian may support multiple EducationStudents.
-    lifecycle: Guardian role is active or inactive while historical evidence remains attributable.
-    example: One parent Party has a Guardian role for two students and receives authorized school communications for each.
+    summary: A person who is authorised or expected to act for, support, receive communications about, or be responsible for one or more students.
+    businessMeaning: Schools deal with parents and carers as well as pupils. The guardian record states who may be contacted, who may authorise things such as trips or collections, and how they relate to the student.
+    usage: Recorded at admission and kept up to date; read by teachers and administrators when they communicate or need consent.
+    relationshipContext: A guardian is a Party linked to one or more EducationStudents.
+    lifecycle: A guardian is active while the relationship applies and inactive afterwards; history is kept.
+    example: Maria Lopez, mother and legal guardian of two students at the school.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GUARDIAN}

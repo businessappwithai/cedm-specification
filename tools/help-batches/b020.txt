@@ -1,0 +1,292 @@
+@ Grade
+a status
+s: Whether the grade is provisional, official or withdrawn.
+u: Set by the teacher or registrar; only FINAL grades count towards transcripts and progression.
+v DRAFT: Entered but not yet official; can still change.
+v FINAL: Confirmed and official; part of the student's record. A final state.
+v VOID: Withdrawn because it was entered in error or annulled; kept for audit. A final state.
+r student
+u: Set when the grade is entered; transcripts are produced from a student's final grades.
+n: Exactly one student: a grade is one learner's result.
+r assessment
+n: Exactly one assessment: a grade is a result for a specific evaluated activity.
+
+@ Guardian
+s: A person who is authorised or expected to act for, support, receive communications about, or be responsible for one or more students.
+b: Schools deal with parents and carers as well as pupils. The guardian record states who may be contacted, who may authorise things such as trips or collections, and how they relate to the student.
+u: Recorded at admission and kept up to date; read by teachers and administrators when they communicate or need consent.
+c: A guardian is a Party linked to one or more EducationStudents.
+l: A guardian is active while the relationship applies and inactive afterwards; history is kept.
+x: Maria Lopez, mother and legal guardian of two students at the school.
+a guardianId
+s: The identity of the guardian role, independent of the person's other roles.
+u: Generated on creation; consents and contacts refer to it.
+a guardianCode
+s: The unique reference of the guardian in the school's system.
+u: Assigned at admission; used in the parent portal.
+a relationshipType
+s: How the guardian is related to or responsible for the student.
+u: Chosen when recorded; may determine consent and contact rights.
+v PARENT: A biological or adoptive parent.
+v LEGAL_GUARDIAN: A person appointed with legal responsibility for the student.
+v CAREGIVER: A person who cares for the student day to day without legal guardianship.
+v SPONSOR: A person or body that supports the student financially.
+v OTHER: Any other relationship.
+a status
+s: Whether the guardian relationship is current.
+u: Set by administration.
+v ACTIVE: Current; the guardian may be contacted and may act.
+v INACTIVE: No longer applies; kept for history.
+r party
+n: Exactly one party: the guardian role is held by a specific person or organisation.
+r students
+s: The students the guardian is responsible for.
+u: Added at admission; one guardian can look after several students.
+n: At least one student: a guardian role exists only in relation to learners.
+w: Determines whose records the guardian may see.
+
+@ HealthcareEncounter
+s: A recorded interaction between a patient and a healthcare provider or facility for evaluation, treatment or service.
+b: The encounter is the unit of care. Diagnoses, procedures and orders are made within an encounter, and billing and quality reporting follow from it.
+u: Created when care is planned or begins; completed when it ends; read by clinicians, coders and billing.
+c: An encounter is for a HealthcarePatient, may be with a HealthcareProvider and Practitioners, may arise from an Appointment, and contains Diagnoses, Procedures and HealthcareOrders.
+l: An encounter is planned, in progress while care is delivered, and completed when finished; it can be cancelled if care does not take place.
+x: A 30-minute outpatient visit to a cardiology clinic on 4 March.
+a encounterId
+s: The identity of the encounter.
+u: Generated on creation; clinical entries refer to it.
+a encounterType
+s: The setting in which care is delivered.
+u: Chosen at registration; decides coding, billing and workflow.
+v OUTPATIENT: A visit without an overnight stay.
+v INPATIENT: Care with admission to a ward.
+v EMERGENCY: Unplanned urgent care.
+v VIRTUAL: Care delivered remotely by video or telephone.
+v HOME_CARE: Care delivered at the patient's home.
+v OTHER: Any other setting.
+a status
+s: Where the encounter is in its course.
+u: Updated by the provider.
+v PLANNED: Expected but not started.
+v IN_PROGRESS: Care is being delivered.
+v COMPLETED: Finished. A final state.
+v CANCELLED: Did not take place. A final state.
+a startAt
+s: When the encounter began.
+u: Recorded at check-in or start.
+a endAt
+s: When the encounter ended.
+u: Recorded at discharge or end; must not be before the start.
+a reason
+s: Why the patient was seen, in the patient's or clinician's words.
+u: Written at registration; read by the care team.
+r patient
+s: The patient who received care.
+u: Set at registration.
+n: Exactly one patient: an encounter is a particular person's episode of care.
+w: Adds the encounter to the patient's record.
+r provider
+s: The provider organisation delivering the care.
+u: Set at registration.
+n: At most one provider; some encounters are recorded before the provider is allocated.
+w: Identifies who is responsible for the care and billing.
+r diagnoses
+s: The diagnoses made during the encounter.
+u: Added by clinicians.
+n: Any number.
+w: Document why the care was needed.
+r procedures
+s: The procedures carried out.
+u: Added by clinicians.
+n: Any number.
+w: Document what was done.
+r orders
+s: The orders raised during the encounter.
+u: Added by clinicians.
+n: Any number.
+w: Drive tests, treatments and referrals.
+r practitioners
+n: Any number of practitioners who took part in the encounter.
+r appointment
+n: At most one appointment, the booking that led to the encounter.
+
+@ HealthcareOrder
+s: A clinical or operational order for a test, medication, procedure, service or other governed action within healthcare.
+b: Care is delivered through orders. An order states what is requested, when and by whom, so that laboratories, pharmacies and wards act on the same instruction.
+u: Raised by a clinician during an encounter; carried out by the relevant department; read to track progress.
+c: Each order belongs to one HealthcareEncounter.
+l: An order is drafted, becomes active when issued, completes when carried out and may be cancelled. Completed orders are not rewritten; changes are made by amendment or a new order.
+x: A request for a full blood count, issued during an outpatient visit and completed by the laboratory.
+a healthcareOrderId
+s: The identity of the order.
+u: Generated on creation.
+a healthcareOrderCode
+s: The unique reference of the order, quoted by laboratories and pharmacies.
+u: Allocated when issued.
+a status
+s: Where the order stands.
+u: Moved by the ordering and performing teams.
+v DRAFT: Being prepared; not yet sent.
+v ACTIVE: Issued and awaiting action.
+v COMPLETED: Carried out. A final state.
+v CANCELLED: Withdrawn. A final state.
+r context
+s: The encounter in which the order was raised.
+u: Set when the order is created.
+n: Exactly one encounter: an order is always part of a specific episode of care.
+w: Links the instruction to the care context.
+
+@ HealthcarePatient
+s: A person who receives, or is eligible to receive, healthcare services.
+b: The patient record is the healthcare view of a person: their medical record number and standing. It is kept separate from the party so that clinical and administrative identity can be managed and protected separately.
+u: Created at first registration; updated as the person's standing changes; read by every clinical and administrative process.
+c: A patient is a Party and has Encounters, CarePlans, Allergies and Appointments.
+l: A patient is active, may become inactive when no longer under care, and ends deceased, or merged into another record when duplicates are resolved. A merged record keeps pointing to its survivor.
+x: Patient MRN 00482913, registered at a hospital in 2021 and seen in several encounters since.
+a patientId
+s: The identity of the patient record.
+u: Generated on registration; all clinical records refer to it, so it never changes even if the medical record number is reissued.
+a partyId
+s: The party record that this patient is.
+u: Set at registration so the same person is one party across all roles.
+a medicalRecordNumber
+s: The number by which the patient's record is known inside the healthcare organisation.
+u: Allocated at first registration; unique; printed on wristbands and documents and used to find the record.
+a status
+s: The patient record's standing.
+u: Set by registration staff and clinical records; new encounters are normally created only for ACTIVE patients.
+v ACTIVE: A current patient.
+v INACTIVE: Not currently receiving care; the record is kept and can be reactivated.
+v DECEASED: The patient has died; no new care is planned. A final state.
+v MERGED: A duplicate record that has been merged into another; use the surviving record. A final state.
+a preferredLanguage
+s: The language in which the patient prefers to communicate with the care team.
+u: Asked at registration; interpreters, letters and portal content follow it.
+r party
+s: The person or party record that is the patient.
+u: Set at registration and not changed.
+n: Exactly one party: a patient is a particular person.
+w: Keeps identity details in one place across the person's roles.
+r encounters
+s: The encounters in which the patient received care.
+u: Read to see the patient's history of care.
+n: Any number over the patient's life.
+w: Each encounter adds to the clinical record.
+r carePlans
+s: The plans of care drawn up for the patient.
+u: Read by the care team to coordinate treatment.
+n: Any number of plans, one per condition or episode.
+w: Shared goals and interventions for the patient.
+r allergies
+s: The patient's recorded allergies and intolerances.
+u: Checked whenever a medicine, food or procedure is ordered.
+n: Any number, including none.
+w: A critical safety input to every order.
+r appointments
+s: The appointments booked for the patient.
+u: Read by reception and for reminders.
+n: Any number of appointments, past and future.
+w: Plan future care and measure attendance.
+
+@ HealthcareProvider
+s: A person or organisation that is authorised to provide healthcare services.
+b: Care is given by providers who must be licensed and credentialed. This record identifies each provider and its type, so that encounters, referrals and claims can name who gave care.
+u: Registered when a provider joins or contracts with the organisation; read by scheduling, billing and quality processes.
+c: A provider is a Party, may belong to an Organization, delivers Encounters and works with Practitioners and Appointments.
+l: A provider is active while authorised, can be made inactive or suspended while a licence or contract issue is resolved, and is retired when it stops providing services.
+x: City General Hospital, a hospital provider with provider number HP-001245.
+a providerId
+s: The identity of the provider record.
+u: Generated on registration; encounters and claims refer to it.
+a partyId
+s: The party that is the provider.
+u: Set at registration so the provider shares one identity with its other roles.
+a providerNumber
+s: The unique number that identifies the provider to payers and authorities.
+u: Entered at registration from the licence or payer contract; printed on claims.
+a providerType
+s: The kind of provider.
+u: Chosen at registration; decides what services it can be scheduled for and how claims are submitted.
+v PHYSICIAN: A doctor in independent practice.
+v NURSE: A nurse or nurse practitioner providing care.
+v CLINIC: An outpatient clinic or practice.
+v HOSPITAL: A hospital or inpatient facility.
+v LABORATORY: A diagnostic laboratory.
+v PHARMACY: A pharmacy dispensing medicines.
+v OTHER: Any other kind of provider.
+a status
+s: Whether the provider is currently authorised to give care.
+u: Set by credentialing staff; only ACTIVE providers can be scheduled.
+v ACTIVE: Authorised and available for scheduling.
+v INACTIVE: Not currently providing services; can return.
+v SUSPENDED: Barred while a licence, credential or conduct issue is reviewed.
+v RETIRED: No longer a provider; kept for history. A final state.
+r party
+s: The party that acts as the provider.
+u: Set at registration.
+n: Exactly one party: a provider is a specific person or organisation.
+w: Holds the provider's name and contact details.
+r organization
+s: The organisation the provider belongs to or works through.
+u: Set where the provider is part of a larger body, such as a hospital group.
+n: At most one organisation; an independent practitioner has none.
+w: Places the provider in a reporting and billing structure.
+r encounters
+s: The encounters delivered by the provider.
+u: Read for workload and quality reporting.
+n: Any number over the provider's service.
+w: Shows what care the provider has delivered.
+r practitioners
+s: The practitioners who work for or through the provider.
+u: Read to see who can be scheduled.
+n: Any number, from one in a solo practice to many in a hospital.
+w: Link clinical staff to the organisation delivering care.
+r appointments
+s: The appointments booked with the provider.
+u: Read for capacity planning and reminders.
+n: Any number of appointments, past and future.
+w: Show demand on the provider's time.
+
+@ Hotel
+s: A hospitality property that provides accommodation and related services.
+b: A hotel is the unit that sells rooms. It holds the property's identity and status and owns the rooms and reservations that make up its business.
+u: Registered when a property is opened or acquired; read by reservations, revenue management and operations.
+c: A hotel stands at a Location, is operated by an Organization, has HotelRooms and takes HotelReservations.
+l: A hotel is planned, becomes active when it opens, and is closed or retired when it stops trading. Reservations and room history are kept.
+x: Seaview Hotel, a 120-room property on the coast, open since 2018.
+a hotelId
+s: The identity of the hotel property.
+u: Generated on registration; rooms and reservations refer to it.
+a hotelCode
+s: The property code, such as SEA01, used in reservation and channel systems.
+u: Unique; assigned at registration.
+a name
+s: The name guests know the hotel by.
+u: Shown on websites, confirmations and invoices.
+a status
+s: Whether the property is trading.
+u: Set by the operator; reservations are taken only for ACTIVE hotels.
+v PLANNED: Not yet open.
+v ACTIVE: Open for business and taking reservations.
+v CLOSED: Closed to guests, for example for renovation, and expected to reopen.
+v RETIRED: Removed from the portfolio. A final state.
+r location
+s: The place where the hotel stands.
+u: Set at registration; supplies the address and map position.
+n: Exactly one location: a hotel is a physical property.
+w: Anchors distance, tax and time-zone rules.
+r organization
+s: The organisation that operates the hotel.
+u: Set at registration.
+n: At most one operator; a property being acquired may not have one yet.
+w: Determines who is accountable for the property's results.
+r rooms
+s: The rooms the hotel offers.
+u: Read for inventory and availability.
+n: At least one room: a hotel with no rooms has nothing to sell.
+w: Rooms are the inventory that reservations draw on.
+r reservations
+s: The reservations booked at the hotel.
+u: Read for occupancy and revenue.
+n: Any number over the hotel's life.
+w: Show the demand for the hotel's rooms.
