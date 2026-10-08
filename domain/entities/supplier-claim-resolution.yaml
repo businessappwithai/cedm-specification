@@ -24,21 +24,21 @@ entity:
         - CASH_RECOVERY
         - ACCEPTED_EXCEPTION
       help:
-        summary: Authorized remedy for the supplier claim.
+        summary: The remedy agreed.
+        valueSemantics:
+          NO_ACTION: Nothing further is done.
+          REPLACEMENT: The supplier sends replacement goods.
+          REPAIR: The goods are repaired.
+          RETURN: The goods are returned to the supplier.
+          CREDIT: The supplier issues a credit.
+          DEBIT_ADJUSTMENT: The buyer raises a debit adjustment.
+          PRICE_ADJUSTMENT: The price is reduced.
+          CASH_RECOVERY: The supplier pays back in cash.
+          ACCEPTED_EXCEPTION: The buyer accepts the goods as they are.
         businessMeaning: Defines what outcome was agreed without itself executing the remedy.
         usage: Routes downstream workflows and measures recovery outcomes.
         relationshipContext: RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require SupplierDebitNote; CASH_RECOVERY may require Payment.
         workflowRole: Determines required execution evidence.
-        valueSemantics:
-          NO_ACTION: The resolution type of the supplier claim resolution is no action; set it when that is what the business means for this record.
-          REPLACEMENT: The resolution type of the supplier claim resolution is replacement; set it when that is what the business means for this record.
-          REPAIR: The resolution type of the supplier claim resolution is repair; set it when that is what the business means for this record.
-          RETURN: The resolution type of the supplier claim resolution is return; set it when that is what the business means for this record.
-          CREDIT: The resolution type of the supplier claim resolution is credit; set it when that is what the business means for this record.
-          DEBIT_ADJUSTMENT: The resolution type of the supplier claim resolution is debit adjustment; set it when that is what the business means for this record.
-          PRICE_ADJUSTMENT: The resolution type of the supplier claim resolution is price adjustment; set it when that is what the business means for this record.
-          CASH_RECOVERY: The resolution type of the supplier claim resolution is cash recovery; set it when that is what the business means for this record.
-          ACCEPTED_EXCEPTION: The resolution type of the supplier claim resolution is accepted exception; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
@@ -52,19 +52,19 @@ entity:
         - FAILED
         - CANCELLED
       help:
-        summary: Lifecycle state of the resolution.
+        summary: Where the resolution is in being carried out.
+        valueSemantics:
+          DRAFT: Proposed and not yet approved.
+          APPROVED: Agreed and ready to carry out.
+          IN_EXECUTION: Being carried out.
+          PARTIALLY_EXECUTED: Some of the remedy is done.
+          EXECUTED: The remedy is fully done. A final state.
+          FAILED: Could not be carried out. A final state.
+          CANCELLED: Withdrawn. A final state.
         businessMeaning: Separates decision approval from execution and completion.
         usage: Controls downstream work and claim closure.
         relationshipContext: Resolution status does not replace SupplierClaim or downstream transaction statuses.
         workflowRole: Gates execution and confirms whether required consequences completed.
-        valueSemantics:
-          DRAFT: The status of the supplier claim resolution is draft; set it when that is what the business means for this record.
-          APPROVED: The status of the supplier claim resolution is approved; set it when that is what the business means for this record.
-          IN_EXECUTION: The status of the supplier claim resolution is in execution; set it when that is what the business means for this record.
-          PARTIALLY_EXECUTED: The status of the supplier claim resolution is partially executed; set it when that is what the business means for this record.
-          EXECUTED: The status of the supplier claim resolution is executed; set it when that is what the business means for this record.
-          FAILED: The status of the supplier claim resolution is failed; set it when that is what the business means for this record.
-          CANCELLED: The status of the supplier claim resolution is cancelled; set it when that is what the business means for this record.
     - {name: approvedAmount, type: Money, required: false, help: {summary: Monetary recovery authorized by the resolution., businessMeaning: Defines the financial amount expected from the agreed remedy., usage: Supplier recovery and reconciliation., relationshipContext: Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction., workflowRole: Provides the controlled financial target.}}
   relationships:
     - {name: supplierClaim, target: SupplierClaim, cardinality: '1', ownership: reference, help: {summary: Supplier claim being resolved., businessMeaning: Connects the remedy to the case and evidence that established the issue., usage: Claim closure and audit., workflowRole: Supplies authoritative case context.}}

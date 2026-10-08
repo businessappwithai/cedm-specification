@@ -21,16 +21,16 @@ entity:
         - INTERNAL
         - OTHER
       help:
+        valueSemantics:
+          INDIVIDUAL: A person supplying in their own name.
+          BUSINESS: A commercial company.
+          GOVERNMENT: A public body.
+          INTERNAL: Another unit of the same group.
+          OTHER: A supplier that fits no other type.
         summary: Classification of supplier relationship.
         usage: Supports onboarding compliance tax contracting and reporting.
         relationshipContext: Does not replace Party identity classification.
         workflowRole: Supplies supplier classification to procurement policy.
-        valueSemantics:
-          INDIVIDUAL: The supplier type of the supplier is individual; set it when that is what the business means for this record.
-          BUSINESS: The supplier type of the supplier is business; set it when that is what the business means for this record.
-          GOVERNMENT: The supplier type of the supplier is government; set it when that is what the business means for this record.
-          INTERNAL: The supplier type of the supplier is internal; set it when that is what the business means for this record.
-          OTHER: The supplier type of the supplier is other; set it when that is what the business means for this record.
     - name: qualificationStatus
       type: enum
       required: false
@@ -41,16 +41,16 @@ entity:
         - SUSPENDED
         - DISQUALIFIED
       help:
+        valueSemantics:
+          NOT_REVIEWED: Not yet assessed.
+          PENDING: Assessment is under way.
+          QUALIFIED: Approved to supply.
+          SUSPENDED: Approval withdrawn for a time.
+          DISQUALIFIED: Not approved to supply.
         summary: Procurement qualification state.
         usage: Controls sourcing eligibility and supplier governance.
         relationshipContext: Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment evidence.
         workflowRole: Gates new procurement commitments while historical transactions remain valid.
-        valueSemantics:
-          NOT_REVIEWED: The qualification status of the supplier is not reviewed; set it when that is what the business means for this record.
-          PENDING: The qualification status of the supplier is pending; set it when that is what the business means for this record.
-          QUALIFIED: The qualification status of the supplier is qualified; set it when that is what the business means for this record.
-          SUSPENDED: The qualification status of the supplier is suspended; set it when that is what the business means for this record.
-          DISQUALIFIED: The qualification status of the supplier is disqualified; set it when that is what the business means for this record.
     - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing.}}
     - name: status
       type: enum
@@ -62,17 +62,17 @@ entity:
         - BLOCKED
         - RETIRED
       help:
+        valueSemantics:
+          ACTIVE: Available for ordering.
+          INACTIVE: Not currently used; can be reactivated.
+          BLOCKED: Orders and payments are stopped.
+          RETIRED: No longer used; kept for history. A final state.
         summary: Supplier relationship lifecycle state.
         usage: Controls procurement eligibility.
         relationshipContext: Historical transactions remain valid after state changes.
         workflowRole: New procurement return claim-resolution and performance workflows must evaluate status.
-        valueSemantics:
-          ACTIVE: The status of the supplier is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the supplier is inactive; set it when that is what the business means for this record.
-          BLOCKED: The status of the supplier is blocked; set it when that is what the business means for this record.
-          RETIRED: The status of the supplier is retired; set it when that is what the business means for this record.
   relationships:
-    - {name: partyRole, target: PartyRole, cardinality: '1', ownership: reference, help: {summary: Common PartyRole relationship., usage: Resolves underlying party and supplier role., cardinalityMeaning: Exactly one PartyRole., workflowRole: Supplies common identity.}}
+    - {name: partyRole, target: PartyRole, cardinality: '1', ownership: reference, help: {cardinalityMeaning: "A supplier is the supplier role of exactly one party role, which links it to the party's identity.", summary: Common PartyRole relationship., usage: Resolves underlying party and supplier role., workflowRole: Supplies common identity.}}
     - {name: addresses, target: Address, cardinality: 0..*, ownership: reference, help: {summary: Supplier operational addresses., usage: Supports ordering invoicing logistics tax correspondence and returns., cardinalityMeaning: Multiple purpose-specific addresses are supported., workflowRole: Consuming workflows select the appropriate address.}}
     - {name: purchaseOrders, target: PurchaseOrder, cardinality: 0..*, ownership: reference, help: {summary: Procurement commitments issued to the supplier., usage: Supports spend fulfillment cancellation audit and performance measurement., cardinalityMeaning: Many purchase orders may exist., workflowRole: Supplier status and qualification govern new commitments.}}
     - {name: goodsReceipts, target: GoodsReceipt, cardinality: 0..*, ownership: reference, help: {summary: Accepted fulfillment records for supplier deliveries., usage: Supports quantity acceptance quality invoice matching and performance measurement., cardinalityMeaning: Many receipts may exist., workflowRole: Receipt evidence feeds matching returns and supplier scorecards.}}

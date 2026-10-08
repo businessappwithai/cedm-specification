@@ -7,7 +7,7 @@ entity:
     icon: factory
   identity: {key: supplierCreditNoteId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: supplierCreditNoteId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the supplier credit note., businessMeaning: Identifies the financial adjustment independently of its number source return claim invoice application and accounting entries., usage: Used for accounts payable reconciliation audit tax and integration., workflowRole: Stable identity across drafting approval posting application and reversal.}}
+    - {name: supplierCreditNoteId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the credit note, constant for its life.', businessMeaning: Identifies the financial adjustment independently of its number source return claim invoice application and accounting entries., usage: Used for accounts payable reconciliation audit tax and integration., workflowRole: Stable identity across drafting approval posting application and reversal.}}
     - {name: creditNoteNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier credit reference., businessMeaning: Identifies the credit document for supplier communication and financial reconciliation., usage: Used by accounts payable suppliers auditors and integrations., workflowRole: Correlates internal adjustment with external supplier documentation.}}
     - {name: creditNoteDate, type: date, required: true, help: {summary: Effective date of supplier credit adjustment., businessMeaning: Establishes financial chronology and applicable accounting/tax period., usage: Payable aging tax reporting and period control., workflowRole: Anchors recognition of adjustment.}}
     - name: status
@@ -23,19 +23,19 @@ entity:
         - CANCELLED
         - REVERSED
       help:
+        valueSemantics:
+          DRAFT: Drafted by the buyer and not yet approved.
+          APPROVED: Accepted and ready to post.
+          POSTED: Recorded in the accounts; available to apply to invoices.
+          PARTIALLY_APPLIED: Part of the credit has reduced invoices.
+          FULLY_APPLIED: The whole credit has been used. A final state.
+          CANCELLED: Withdrawn before posting. A final state.
+          REVERSED: A posted credit undone by a reversing entry. A final state.
         summary: Lifecycle state of supplier credit.
         businessMeaning: Separates preparation authorization accounting recognition and application against supplier claims.
         usage: Controls posting payable reconciliation and reversal.
         relationshipContext: Status does not change original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution history.
         workflowRole: POSTED establishes adjustment; application states reflect controlled consumption.
-        valueSemantics:
-          DRAFT: The status of the supplier credit note is draft; set it when that is what the business means for this record.
-          APPROVED: The status of the supplier credit note is approved; set it when that is what the business means for this record.
-          POSTED: The status of the supplier credit note is posted; set it when that is what the business means for this record.
-          PARTIALLY_APPLIED: The status of the supplier credit note is partially applied; set it when that is what the business means for this record.
-          FULLY_APPLIED: The status of the supplier credit note is fully applied; set it when that is what the business means for this record.
-          CANCELLED: The status of the supplier credit note is cancelled; set it when that is what the business means for this record.
-          REVERSED: The status of the supplier credit note is reversed; set it when that is what the business means for this record.
     - {name: currencyId, type: reference, target: Currency, required: true, immutableAfterPosting: true, help: {summary: Currency in which supplier credit is denominated., businessMeaning: Defines monetary denomination of adjustment., usage: Payable reconciliation accounting tax and application., workflowRole: Qualifies all credit monetary values.}}
     - {name: subtotal, type: Money, required: true, help: {summary: Credit value before applicable tax., businessMeaning: Pre-tax reduction derived from credit lines., usage: Tax calculation and reconciliation., workflowRole: Feeds total credit calculation.}}
     - {name: taxAmount, type: Money, required: true, default: {amount: 0}, help: {summary: Tax component reversed or adjusted., businessMeaning: Tax correction associated with credited value., usage: Tax reporting and accounting reconciliation., workflowRole: Contributes to total credit.}}
@@ -70,16 +70,19 @@ entity:
     attribute: status
     states: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, CANCELLED, REVERSED]
     initial: DRAFT
-    terminal: [FULLY_APPLIED, CANCELLED, REVERSED]
+    terminal:
+      - FULLY_APPLIED
+      - CANCELLED
+      - REVERSED
     transitions:
       - {from: DRAFT, to: APPROVED, action: approve}
       - {from: APPROVED, to: POSTED, action: post}
-      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
-      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: mark_fully_applied}
+      - {from: POSTED, to: PARTIALLY_APPLIED, action: apply}
+      - {from: POSTED, to: FULLY_APPLIED, action: apply}
+      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: apply}
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: POSTED, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: REVERSED, action: reverse}
       - {from: PARTIALLY_APPLIED, to: REVERSED, action: reverse}
   workflows:
     - name: FollowUpRequired
