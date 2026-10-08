@@ -15,17 +15,29 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the accounting entry., usage: "Used for posting, audit, reporting, reversal, reconciliation and integration.", relationshipContext: Identifies the accounting event independently of its source transaction and journal lines., workflowRole: "Provides the stable root reference across accounting preparation, validation, posting, reporting and reversal."}
+      help:
+        summary: The identity of the accounting entry.
+        usage: Generated on creation; ledger lines and audit refer to it.
+        relationshipContext: Identifies the accounting event independently of its source transaction and journal lines.
+        workflowRole: "Provides the stable root reference across accounting preparation, validation, posting, reporting and reversal."
     - name: entryNumber
       type: string
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Human-facing accounting journal reference., usage: "Used by accountants, auditors, reports and integrations.", relationshipContext: "Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references.", workflowRole: Identifies the accounting record in ledgers and audit trails.}
+      help:
+        summary: The sequential number of the entry in the ledger.
+        usage: Allocated from the ledger's number series; unique; quoted in audit queries.
+        relationshipContext: "Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references."
+        workflowRole: Identifies the accounting record in ledgers and audit trails.
     - name: entryDate
       type: datetime
       required: true
-      help: {summary: Accounting date at which the entry is recognized., usage: "Determines accounting period, reporting chronology and period controls.", relationshipContext: "May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date.", workflowRole: Controls the period into which the entry is posted.}
+      help:
+        summary: The accounting date of the entry.
+        usage: Set from the originating event; decides the fiscal period the entry belongs to.
+        relationshipContext: "May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date."
+        workflowRole: Controls the period into which the entry is posted.
     - name: status
       type: enum
       required: true
@@ -35,40 +47,60 @@ entity:
         - POSTED
         - REVERSED
       help:
-        summary: Accounting lifecycle state.
-        usage: Controls editing, posting, reporting and reversal permissions.
+        summary: Whether the entry has been recorded in the books.
+        usage: Moved by the posting process; only POSTED entries affect balances.
+        valueSemantics:
+          DRAFT: Prepared but not yet recorded; no effect on balances.
+          POSTED: Recorded in the ledger; it affects balances and can no longer be edited.
+          REVERSED: Cancelled by a reversing entry; the original stays on record. A final state.
         relationshipContext: Independent of Payment, Invoice, CreditNote, SupplierCreditNote, SupplierDebitNote and BankTransaction statuses.
         workflowRole: DRAFT permits preparation; POSTED establishes recognition; REVERSED preserves original history while counteracting its effect.
-        valueSemantics:
-          DRAFT: The status of the journal entry is draft; set it when that is what the business means for this record.
-          POSTED: The status of the journal entry is posted; set it when that is what the business means for this record.
-          REVERSED: The status of the journal entry is reversed; set it when that is what the business means for this record.
     - name: description
       type: string
       required: false
       maxLength: 1000
-      help: {summary: Human-readable explanation of the accounting event., usage: "Supports review, audit, reconciliation and reporting.", relationshipContext: "Complements source transaction and lines; must not be sole accounting evidence.", workflowRole: Helps accountants understand why the entry was generated.}
+      help:
+        summary: A short explanation of what the entry records.
+        usage: Written or generated at posting; shown in ledgers and drill-downs.
+        relationshipContext: "Complements source transaction and lines; must not be sole accounting evidence."
+        workflowRole: Helps accountants understand why the entry was generated.
   relationships:
     - name: lines
       target: JournalEntryLine
       cardinality: 2..*
       ownership: aggregate
-      help: {summary: Debit and credit lines making up the accounting entry., usage: "Provide accounts, amounts, dimensions and currency details.", cardinalityMeaning: At least two lines are required for valid double-entry posting., workflowRole: Lines must balance before POSTED.}
+      help:
+        cardinalityMeaning: At least two lines, because an entry has a debit and a credit side which must balance.
+        summary: Debit and credit lines making up the accounting entry.
+        usage: "Provide accounts, amounts, dimensions and currency details."
+        workflowRole: Lines must balance before POSTED.
     - name: sourceTransaction
       target: BusinessTransaction
       cardinality: 0..1
       ownership: reference
-      help: {summary: Originating business transaction whose accounting consequences are represented., usage: Provides traceability from accounting recognition to operational or financial event., cardinalityMeaning: "Optional for manual, reconciliation, opening or closing entries.", workflowRole: "Connects invoices, payments, receipts, inventory events, asset events, credit notes, supplier credits, supplier debits and other business processes to accounting."}
+      help:
+        cardinalityMeaning: At most one source transaction; entries made by hand have none.
+        summary: Originating business transaction whose accounting consequences are represented.
+        usage: Provides traceability from accounting recognition to operational or financial event.
+        workflowRole: "Connects invoices, payments, receipts, inventory events, asset events, credit notes, supplier credits, supplier debits and other business processes to accounting."
     - name: payment
       target: Payment
       cardinality: 0..1
       ownership: reference
-      help: {summary: Payment whose financial recognition is represented when applicable., usage: "Supports cash, receivable, payable, clearing, fee and settlement accounting traceability.", cardinalityMeaning: Optional because not every journal entry originates from a payment., workflowRole: A posted payment may generate accounting recognition while Payment status remains separate.}
+      help:
+        cardinalityMeaning: At most one payment, the payment that gave rise to the entry.
+        summary: Payment whose financial recognition is represented when applicable.
+        usage: "Supports cash, receivable, payable, clearing, fee and settlement accounting traceability."
+        workflowRole: A posted payment may generate accounting recognition while Payment status remains separate.
     - name: creditNote
       target: CreditNote
       cardinality: 0..1
       ownership: reference
-      help: {summary: Customer CreditNote whose financial adjustment is represented., usage: "Supports receivable, revenue, tax, inventory-related and refund-obligation accounting traceability.", cardinalityMeaning: Optional because not every journal entry represents a customer credit., workflowRole: CreditNote posting requires appropriate accounting recognition.}
+      help:
+        cardinalityMeaning: At most one credit note, the document that gave rise to the entry.
+        summary: Customer CreditNote whose financial adjustment is represented.
+        usage: "Supports receivable, revenue, tax, inventory-related and refund-obligation accounting traceability."
+        workflowRole: CreditNote posting requires appropriate accounting recognition.
     - name: supplierCreditNote
       target: SupplierCreditNote
       cardinality: 0..1
@@ -83,7 +115,11 @@ entity:
       target: Organization
       cardinality: 0..1
       ownership: reference
-      help: {summary: Organization whose books recognize the accounting entry., usage: "Supports legal-entity accounting, reporting, period control and ledger ownership.", cardinalityMeaning: Optional when organization is inherited from ledger context., workflowRole: Determines accounting boundary and applicable chart/period policies.}
+      help:
+        cardinalityMeaning: At most one organisation, the ledger owner; it defaults to the current ledger.
+        summary: Organization whose books recognize the accounting entry.
+        usage: "Supports legal-entity accounting, reporting, period control and ledger ownership."
+        workflowRole: Determines accounting boundary and applicable chart/period policies.
     - name: fiscalPeriod
       target: FiscalPeriod
       cardinality: 0..1
