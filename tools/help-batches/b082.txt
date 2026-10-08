@@ -1,0 +1,36 @@
+@ UnitOfMeasure
+a category
+v QUANTITY: A general count or quantity of items.
+v LENGTH: A distance, such as metres or inches.
+v AREA: A surface, such as square metres.
+v VOLUME: A capacity, such as litres.
+v MASS: A weight, such as kilograms or tonnes.
+v TIME: A duration, such as hours or days.
+v COUNT: A number of discrete things, such as each or dozen.
+v CURRENCY: A monetary unit used as a measure.
+v OTHER: A unit that fits no other category.
+a status
+v ACTIVE: Available for use on products and documents.
+v INACTIVE: Not offered for now; can be reactivated.
+v RETIRED: No longer used; kept for history. A final state.
+
+@ Warehouse
+r docks
+n: Any number of docks serve a warehouse, each used for loading or unloading.
+r waves
+n: Any number of waves are released over the life of a warehouse.
+
+@ WorkCenter
+a status
+v ACTIVE: Available for scheduling production.
+v INACTIVE: Not scheduled for now; can be reactivated.
+v MAINTENANCE: Out of use for servicing.
+v RETIRED: No longer used. A final state.
+
+@ YardSlot
+r tier
+n: A slot lies on exactly one tier, which is its height in the stack.
+
+@ YardTier
+r bay
+n: A tier lies in exactly one bay, which gives its position along the lane.

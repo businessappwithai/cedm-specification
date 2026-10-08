@@ -49,20 +49,20 @@ entity:
       required: true
       values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
       help:
+        valueSemantics:
+          QUANTITY: A general count or quantity of items.
+          LENGTH: A distance, such as metres or inches.
+          AREA: A surface, such as square metres.
+          VOLUME: A capacity, such as litres.
+          MASS: A weight, such as kilograms or tonnes.
+          TIME: A duration, such as hours or days.
+          COUNT: A number of discrete things, such as each or dozen.
+          CURRENCY: A monetary unit used as a measure.
+          OTHER: A unit that fits no other category.
         summary: Defines the dimensional family of the unit.
         usage: Prevents invalid conversions and supports dimensional validation.
         relationshipContext: Conversion is valid only between compatible dimensions under the applicable conversion model.
         workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
-        valueSemantics:
-          QUANTITY: The category of the unit of measure is quantity; set it when that is what the business means for this record.
-          LENGTH: The category of the unit of measure is length; set it when that is what the business means for this record.
-          AREA: The category of the unit of measure is area; set it when that is what the business means for this record.
-          VOLUME: The category of the unit of measure is volume; set it when that is what the business means for this record.
-          MASS: The category of the unit of measure is mass; set it when that is what the business means for this record.
-          TIME: The category of the unit of measure is time; set it when that is what the business means for this record.
-          COUNT: The category of the unit of measure is count; set it when that is what the business means for this record.
-          CURRENCY: The category of the unit of measure is currency; set it when that is what the business means for this record.
-          OTHER: The category of the unit of measure is other; set it when that is what the business means for this record.
     - name: conversionFactor
       type: decimal
       required: false
@@ -89,14 +89,14 @@ entity:
       default: ACTIVE
       values: [ACTIVE, INACTIVE, RETIRED]
       help:
+        valueSemantics:
+          ACTIVE: Available for use on products and documents.
+          INACTIVE: Not offered for now; can be reactivated.
+          RETIRED: No longer used; kept for history. A final state.
         summary: Controls whether the unit can be used for new transactions.
         usage: Used by master-data validation and transaction entry.
         relationshipContext: Retiring a unit must not invalidate historical quantities already recorded with that unit.
         workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
-        valueSemantics:
-          ACTIVE: The status of the unit of measure is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the unit of measure is inactive; set it when that is what the business means for this record.
-          RETIRED: The status of the unit of measure is retired; set it when that is what the business means for this record.
   relationships:
     - name: baseUnit
       target: UnitOfMeasure

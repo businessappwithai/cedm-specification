@@ -17,7 +17,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The immutable system identity of the warehouse.
+        summary: The identity of the warehouse, constant for its life.
         usage: Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse.
         relationshipContext: Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode.
     - name: locationId
@@ -101,8 +101,8 @@ entity:
       cardinality: 0..*
       ownership: aggregate
       help: {summary: Operational areas within the warehouse., businessMeaning: Groups storage and handling locations by process/control purpose., usage: "Receiving, putaway, picking, quarantine, staging and shipping.", cardinalityMeaning: Zero or many zones depending on warehouse configuration., workflowRole: Zone controls guide eligible InventoryLocations and WMS execution.}
-    - {name: docks, target: Dock, cardinality: "0..*", ownership: aggregate, help: {summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: "Dock scheduling, receiving, shipping and cross-dock.", cardinalityMeaning: Zero or many docks., workflowRole: Dock eligibility constrains shipment execution.}}
-    - {name: waves, target: Wave, cardinality: 0..*, ownership: reference, help: {summary: Warehouse work-release waves., businessMeaning: Groups executable warehouse tasks., usage: Labor and fulfillment orchestration., cardinalityMeaning: Zero or many waves., workflowRole: Wave does not itself alter inventory.}}
+    - {name: docks, target: Dock, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number of docks serve a warehouse, each used for loading or unloading.', summary: Loading and receiving resources of warehouse., businessMeaning: Provides controlled inbound/outbound execution positions., usage: "Dock scheduling, receiving, shipping and cross-dock.", workflowRole: Dock eligibility constrains shipment execution.}}
+    - {name: waves, target: Wave, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of waves are released over the life of a warehouse., summary: Warehouse work-release waves., businessMeaning: Groups executable warehouse tasks., usage: Labor and fulfillment orchestration., workflowRole: Wave does not itself alter inventory.}}
   invariants:
     - id: WAREHOUSE-001
       rule: warehouseCode must be unique within the organization's warehouse operating context.

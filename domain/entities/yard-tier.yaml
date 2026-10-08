@@ -49,9 +49,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: A tier lies in exactly one bay, which gives its position along the lane.
         summary: Places the tier within its parent YardBay and therefore within the containing block and yard.
         usage: Provides the physical addressing scope, inherited operating constraints, and relationship to other stack levels in the same bay.
-        cardinalityMeaning: Every YardTier belongs to exactly one YardBay.
         context: The bay provides horizontal context; the tier provides vertical context.
     - name: slots
       target: YardSlot

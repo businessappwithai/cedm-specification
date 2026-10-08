@@ -80,9 +80,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: A slot lies on exactly one tier, which is its height in the stack.
         summary: Places the slot within its parent YardTier and therefore determines its complete physical yard hierarchy.
         usage: Used to derive bay, block, and yard context and validate addressing and stacking rules.
-        cardinalityMeaning: Every YardSlot belongs to exactly one YardTier.
         context: Tier provides vertical context; position supplies local horizontal context; together with the parent hierarchy they identify the atomic storage address.
     - name: container
       target: Container

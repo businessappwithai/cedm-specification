@@ -1,0 +1,92 @@
+@ Warehouse
+a warehouseId
+s: The identity of the warehouse, constant for its life.
+
+@ WarehouseZone
+a warehouseZoneId
+s: The identity of the zone, constant for its life.
+r warehouse
+s: The warehouse the zone belongs to.
+n: Each zone belongs to exactly one warehouse.
+
+@ Wave
+a waveId
+s: The identity of the wave, constant for its life.
+a waveNumber
+s: The number of the wave, such as WV-2026-0412.
+r warehouse
+n: Each wave is run in one warehouse.
+r picks
+n: Any number of picking tasks are released with a wave.
+
+@ Workflow
+s: A definition of how business activities and decisions are coordinated, run by people, by the system or by both.
+b: A workflow is the agreed route a piece of work takes, such as an approval chain. Defining it once makes the process repeatable and lets each run be tracked, and a new version replaces it without disturbing runs already under way.
+u: Designed by process owners; started by events or people; read by managers to track work.
+c: A workflow may implement a business process and is made of tasks.
+l: A workflow is drafted, active while it can be started, may be suspended, and is retired when replaced. Retired is final. A version is fixed once active.
+x: The "Purchase approval" workflow routes orders over a threshold to the finance manager.
+a workflowId
+s: The identity of the workflow, constant for its life.
+u: Generated on creation; runs and tasks refer to it.
+c: Referenced by the tasks it creates.
+a code
+s: The code of the workflow, such as WF-PO-APPROVAL.
+u: Unique; used when a workflow is started.
+c: Read with the version.
+a name
+s: The name of the workflow.
+u: Shown in lists and on tasks.
+c: Read by process owners.
+a workflowVersion
+u: Increased when the workflow is changed; started runs keep their version.
+c: Read with the code.
+a executionType
+s: Who carries out the steps.
+u: Chosen when designed.
+c: Decides whether tasks go to people or run by themselves.
+v HUMAN: Steps are done by people.
+v AUTOMATED: Steps run without a person.
+v HYBRID: A mix of both.
+a status
+s: Whether the workflow can be started.
+u: Starts as DRAFT; set by process owners.
+c: Only active workflows start new runs.
+v DRAFT: Being designed.
+v ACTIVE: Available to start.
+v SUSPENDED: Temporarily not started.
+v RETIRED: Replaced or withdrawn. A final state.
+a definitionFormat
+s: The notation the definition is written in.
+u: Chosen when designed.
+c: Decides how the definition is read.
+v CEDM: Written in the CEDM notation.
+v BPMN: Written as a business process diagram.
+v STATE_MACHINE: Written as states and transitions.
+v OTHER: Written in another notation.
+a definition
+s: The definition itself: its steps, rules and routing.
+u: Edited while a draft; fixed once active.
+c: Must suit the declared format.
+r businessProcess
+s: The business process the workflow carries out.
+u: Chosen when it implements a described process.
+n: At most one process.
+t: Links the executable design to the described process.
+r tasks
+s: The tasks that make up the workflow.
+u: Read to see the steps.
+n: Any number of tasks.
+t: Tasks belong to the workflow.
+
+@ YardBay
+r block
+n: Each bay belongs to exactly one block of the yard.
+r tiers
+n: A bay has at least one tier, the stack positions for containers.
+
+@ YardBlock
+r yard
+n: Each block belongs to exactly one yard.
+r bays
+n: A block has at least one bay.
