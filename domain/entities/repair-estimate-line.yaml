@@ -110,9 +110,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: Each line belongs to exactly one estimate and is removed with it.
         summary: Identifies the RepairEstimate revision to which this detailed repair requirement belongs.
         usage: Supplies the container, estimate revision, status, disposition, currency, and approval context for the line.
-        cardinalityMeaning: Every RepairEstimateLine belongs to exactly one RepairEstimate.
         context: The parent estimate provides decision context; the line provides the technical and cost detail supporting that decision.
   invariants:
     - id: REPAIR-LINE-001

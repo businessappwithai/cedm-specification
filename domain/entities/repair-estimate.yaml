@@ -16,7 +16,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The immutable system identity of the repair estimate.
+        summary: The identity of the estimate, constant for its life.
         usage: Connects the assessment to revisions, line items, approvals, work orders, documents, analytics, and integrations.
         relationshipContext: Identifies the assessment record; Container identifies the asset and RepairEstimateLine identifies its detailed technical scope.
     - name: estimateNumber

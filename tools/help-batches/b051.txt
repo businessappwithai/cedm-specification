@@ -1,0 +1,84 @@
+@ RegulatorySubmission
+s: A formal submission to a regulatory authority to obtain an approval, authorisation or registration, or to meet a regulatory obligation.
+b: A submission is the business's record of what it filed with a regulator, when, and what came of it. Keeping the stages and the documents together proves what was submitted, shows where it stands, and keeps the questions and decision on file.
+u: Prepared by regulatory affairs; submitted to the authority; updated as the authority responds.
+c: A submission is made to one authority, may be on behalf of a sponsor, and includes documents.
+l: A submission is drafted and submitted, goes under review, and may be sent back with questions that are answered. It ends approved, rejected or withdrawn, all final.
+x: Submission RS-2026-031 asks the authority to register a new formulation; it is under review until questions arrive.
+a regulatorySubmissionId
+s: The identity of the submission, constant for its life.
+u: Generated on creation; documents and correspondence refer to it.
+c: Referenced by the documents filed with it.
+a submissionNumber
+s: The number the business gives the submission, such as RS-2026-031.
+u: Unique; quoted in correspondence with the authority.
+c: Read with the authority's own reference number if any.
+a submissionType
+s: The kind of submission, such as registration or renewal.
+u: Entered when the submission is created; chooses the documents required.
+c: Decides which authority procedures apply.
+a status
+s: Where the submission is in the authority's process.
+u: Starts as DRAFT; moved as the submission is filed and answered.
+c: Decides whether documents can still be added.
+v DRAFT: Being prepared; not yet filed.
+v SUBMITTED: Filed with the authority.
+v UNDER_REVIEW: The authority is reviewing it.
+v QUESTIONS: The authority has asked for more information.
+v APPROVED: The authority approved it. A final state.
+v REJECTED: The authority refused it. A final state.
+v WITHDRAWN: Withdrawn by the submitter before a decision. A final state.
+a submittedAt
+s: When the submission was filed with the authority.
+u: Set on filing; required once the submission is no longer a draft.
+c: Starts the review period.
+a decisionAt
+s: When the authority decided.
+u: Set when the submission is approved or rejected.
+c: Measured against the filing date to give review time.
+r authority
+s: The regulator the submission is made to.
+u: Chosen when the submission is created.
+n: Exactly one authority.
+t: Decides the rules and the format required.
+r sponsor
+s: The organisation on whose behalf the submission is made.
+u: Chosen when it differs from the submitting company.
+n: At most one sponsor.
+t: Names who holds the resulting approval.
+r documents
+s: The documents filed in support of the submission.
+u: Attached before filing and with later answers.
+n: Any number of documents.
+t: Forms the evidence the authority reviews.
+
+@ Renewal
+s: A subscription or service continuation that extends a customer's entitlement into the next term.
+b: A renewal is the decision point at the end of a term. Recording it lets the business offer, confirm and track continuation, and decide whether the customer keeps the service, without altering the billing or entitlement records that carry out the result.
+u: Created by account management ahead of the term end; read by sales, finance and support.
+c: A renewal concerns one customer and the subscription or service being continued.
+l: A renewal is drafted, becomes active while it is being worked, and completes when the new term is in place. It is cancelled if the customer does not continue.
+x: In October the "Platform Premium" renewal for a customer is drafted, confirmed in November and completed when the new term starts.
+a renewalId
+s: The identity of the renewal, constant for its life.
+u: Generated on creation; billing and entitlement records refer to it.
+a status
+s: Where the renewal is.
+u: Starts as DRAFT; moved by account management.
+v DRAFT: Being prepared; nothing is committed yet.
+v ACTIVE: Offered or confirmed and being carried out.
+v COMPLETED: The new term is in place. A final state.
+v CANCELLED: The customer did not continue. A final state.
+r customer
+s: The customer whose subscription is being renewed.
+u: Chosen when the renewal is created.
+n: At most one customer; empty until identified.
+w: Decides whom to invoice and contact.
+
+@ RepairEstimate
+a repairEstimateId
+s: The identity of the estimate, constant for its life.
+
+@ RepairEstimateLine
+r repairEstimate
+n: Each line belongs to exactly one estimate and is removed with it.
