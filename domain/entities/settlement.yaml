@@ -7,8 +7,8 @@ entity:
   identity: {key: settlementId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: settlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim settlement transaction., businessMeaning: Identifies one discharge of insurance liability independently of claim approval and payment execution., usage: "Claims payment, reconciliation, reporting and audit.", relationshipContext: InsuranceClaim supplies liability context while Payment may provide financial execution evidence.}}
-    - {name: settlementNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing settlement reference., businessMeaning: Operational identifier for claims finance and reconciliation., usage: "Search, communication and integration.", relationshipContext: Distinct from claim and payment numbers.}}
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Monetary liability discharged by this Settlement., businessMeaning: Represents settlement value attributable to the claim., usage: "Claims, reserves, accounting and reporting.", relationshipContext: Currency relationship defines denomination.}}
+    - {name: settlementNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the settlement, such as STL-3041.', businessMeaning: Operational identifier for claims finance and reconciliation., usage: "Search, communication and integration.", relationshipContext: Distinct from claim and payment numbers.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {relationshipContext: Compared with the approved claim amount and the payment made., summary: Monetary liability discharged by this Settlement., businessMeaning: Represents settlement value attributable to the claim., usage: "Claims, reserves, accounting and reporting."}}
     - name: method
       type: enum
       required: true
@@ -19,11 +19,20 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, EXECUTED, VOID]
-      help: {summary: Lifecycle state of the Settlement., businessMeaning: "Separates preparation, approval, execution and voiding.", usage: Claims finance and audit., relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable., valueSemantics: {DRAFT: Settlement is being prepared., APPROVED: Settlement is authorized., EXECUTED: Liability discharge has occurred., VOID: Draft or approved settlement was invalidated before ordinary execution.}}
+      help:
+        summary: Where the settlement is in approval and execution.
+        valueSemantics:
+          DRAFT: Being prepared; nothing is committed.
+          APPROVED: Approved and ready to be carried out.
+          EXECUTED: Paid or otherwise discharged. A final state.
+          VOID: Cancelled and of no effect. A final state.
+        businessMeaning: "Separates preparation, approval, execution and voiding."
+        usage: Claims finance and audit.
+        relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable.
   relationships:
-    - {name: claim, target: InsuranceClaim, cardinality: "1", ownership: reference, help: {summary: InsuranceClaim whose liability is settled., businessMeaning: Supplies approved claim context., usage: "Claims payment and reconciliation.", cardinalityMeaning: Exactly one InsuranceClaim., workflowRole: Settlement must not exceed approved liability except governed adjustments.}}
-    - {name: claimLines, target: ClaimLine, cardinality: "1..*", ownership: reference, help: {summary: Claim lines to which settlement is allocated., businessMeaning: Preserves line-level liability discharge traceability., usage: "Claims accounting and audit.", cardinalityMeaning: One or more ClaimLines., workflowRole: Lines must belong to the same Claim and be eligible for settlement.}}
-    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {summary: Currency of the settlement amount., businessMeaning: Makes financial value unambiguous., usage: "Claims finance and reporting.", cardinalityMeaning: Exactly one Currency., workflowRole: Conversion and accounting policy remain separately governed.}}
+    - {name: claim, target: InsuranceClaim, cardinality: "1", ownership: reference, help: {cardinalityMeaning: A settlement discharges one insurance claim; separate claims are settled separately., summary: InsuranceClaim whose liability is settled., businessMeaning: Supplies approved claim context., usage: "Claims payment and reconciliation.", workflowRole: Settlement must not exceed approved liability except governed adjustments.}}
+    - {name: claimLines, target: ClaimLine, cardinality: "1..*", ownership: reference, help: {cardinalityMeaning: At least one claim line is settled; each line is covered by the settlement., summary: Claim lines to which settlement is allocated., businessMeaning: Preserves line-level liability discharge traceability., usage: "Claims accounting and audit.", workflowRole: Lines must belong to the same Claim and be eligible for settlement.}}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {cardinalityMeaning: The amount is in exactly one currency., summary: Currency of the settlement amount., businessMeaning: Makes financial value unambiguous., usage: "Claims finance and reporting.", workflowRole: Conversion and accounting policy remain separately governed.}}
     - {name: payment, target: Payment, cardinality: "0..1", ownership: reference, help: {summary: Payment transaction executing the settlement when method is PAYMENT., businessMeaning: Separates insurance liability discharge authorization from cash movement evidence., usage: "Reconciliation and accounting.", cardinalityMeaning: Optional for non-payment settlement methods., workflowRole: EXECUTED PAYMENT settlements must reconcile to attributable Payment evidence.}}
   invariants:
     - {id: SETTLEMENT-001, rule: amount must be positive.}
