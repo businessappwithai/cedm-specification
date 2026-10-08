@@ -7,20 +7,18 @@ entity:
     icon: table
   identity: {key: departmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: departmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Department., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Department is referenced.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Department., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Department., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity.}}
+    - {name: departmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the department., usage: 'Generated on creation; people, positions and budgets refer to it.'}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the department, such as FIN-AP.', usage: Used in postings and reports; kept stable.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the department., usage: Shown in organisation charts and on documents.}}
   relationships:
-    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: Governing Organization context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Organization., workflowRole: Referenced workflows must remain compatible with governing context.}}
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation the department belongs to., cardinalityMeaning: 'Exactly one organisation: a department is part of a single organisation.', workflowRole: Places the department in the reporting structure.}}
   invariants:
     - {id: DEPARTMENT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A unit of an organisation that groups people, positions, responsibilities and work.
+    businessMeaning: Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities.
+    usage: Defined by HR and management; assigned to people and positions; used in reporting and approvals.
+    relationshipContext: A department belongs to an Organization (or one of its business units).
+    lifecycle: Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change.
+    example: The Accounts Payable department of the finance function.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DEPARTMENT}
