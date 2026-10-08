@@ -162,7 +162,7 @@ entity:
         usage: Provides physical execution traceability between maintenance workflow and yard/transport operations.
         cardinalityMeaning: Zero or many movements may be linked because a repair can require multiple relocations, staging moves, or a return-to-yard move.
         context: MaintenanceWorkOrder governs the maintenance activity; ContainerMovement governs physical movement of the container. A movement does not itself mean maintenance has started or completed.
-  - {name: serviceOrder, target: ServiceOrder, cardinality: "0..1", ownership: reference, help: {summary: Service execution order authorizing this maintenance work when maintenance is delivered as a service., businessMeaning: Separates commercial/customer service authorization from technical EAM execution evidence., usage: "Field service, depot repair, costing and audit.", cardinalityMeaning: Optional for internal or maintenance-only work., workflowRole: Status changes must reconcile without conflating ServiceOrder and MaintenanceWorkOrder lifecycles.}}
+    - {name: serviceOrder, target: ServiceOrder, cardinality: "0..1", ownership: reference, help: {summary: Service execution order authorizing this maintenance work when maintenance is delivered as a service., businessMeaning: Separates commercial/customer service authorization from technical EAM execution evidence., usage: "Field service, depot repair, costing and audit.", cardinalityMeaning: Optional for internal or maintenance-only work., workflowRole: Status changes must reconcile without conflating ServiceOrder and MaintenanceWorkOrder lifecycles.}}
 
   invariants:
     - {id: MWO-001, rule: COMPLETED status requires completedAt.}
