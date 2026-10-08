@@ -1,0 +1,14 @@
+@ ServiceLevelAgreement
+a status
+v DRAFT: Being drafted; targets are not yet applied.
+v ACTIVE: In force; cases and orders are measured against it.
+v SUSPENDED: Temporarily not applied.
+v RETIRED: Replaced or withdrawn. A final state.
+
+@ ServiceRequest
+r requester
+n: A request is raised by one requester, who is the person told of its outcome.
+r tickets
+n: Any number of tickets can be opened from a request, for example one for each affected item.
+r serviceOrders
+n: Any number of service orders can carry out the work the request asks for.
