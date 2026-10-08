@@ -1,0 +1,158 @@
+@ Trip
+s: A planned or completed journey made by one or more travellers, made up of transport segments and bookings.
+b: A trip groups the legs, travellers and bookings of one journey so the whole can be planned, booked, followed and paid for together, and so expenses and approvals attach to the journey rather than to loose tickets.
+u: Created by the traveller or a travel arranger; read by approvers, finance and travel support.
+c: A trip has one or more travellers, is made of segments and is paid for through bookings.
+l: A trip is planned, booked, in progress while travelling and completed on return. It may be cancelled before completion. Completed and cancelled are final.
+x: Trip TR-2026-077 takes two engineers from Leeds to Frankfurt by air on 9 March and back on 12 March.
+a tripId
+s: The identity of the trip, constant for its life.
+u: Generated on creation; segments and bookings refer to it.
+c: Referenced by every segment of the trip.
+a tripNumber
+s: The number of the trip, such as TR-2026-077.
+u: Unique; quoted on expense claims and approvals.
+c: Read with the name.
+a name
+s: A short description of the trip.
+u: Entered by the traveller; shown in lists.
+c: Read by approvers.
+a startDate
+s: The date the trip begins.
+u: Entered when planned.
+c: Not later than the end date.
+a endDate
+s: The date the trip ends.
+u: Must not be before the start date.
+c: Gives the length of the trip.
+a status
+s: Where the trip is.
+u: Starts as PLANNED; moved as it is booked and travelled.
+v PLANNED: Intended; nothing is booked.
+v BOOKED: Travel and accommodation are booked.
+v IN_PROGRESS: The traveller is on the journey.
+v COMPLETED: The trip is finished. A final state.
+v CANCELLED: Called off. A final state.
+r traveler
+s: The people travelling.
+u: Chosen when the trip is planned.
+n: At least one traveller.
+t: Decides who needs documents and approvals.
+r segments
+s: The legs of the journey.
+u: Added as the route is planned.
+n: Any number of segments.
+t: Segments belong to the trip and go with it.
+r bookings
+s: The bookings made for the trip.
+u: Linked as tickets and rooms are bought.
+n: Any number of bookings.
+t: Link the trip to what was spent.
+
+@ TripSegment
+s: One leg of a trip between an origin and a destination by a mode of transport.
+b: Segments give the route its detail, so each flight, train or drive can be booked, timed and followed separately, and delays can be seen on the leg where they happened.
+u: Added by the traveller or arranger; read by travel support and the traveller.
+c: A segment belongs to one trip, runs between two locations and may use a vehicle.
+l: A segment is planned, booked, in progress while travelling and completed on arrival. It may be cancelled. Completed and cancelled are final.
+x: The second leg of trip TR-2026-077 is a flight from Manchester to Frankfurt departing 07:10.
+a tripSegmentId
+s: The identity of the segment, constant for its life.
+u: Generated on creation.
+c: Referenced by bookings of the leg.
+a sequence
+s: The position of the leg in the journey.
+u: Entered in order; the trip follows the sequence.
+c: Read with the trip.
+a mode
+s: How the leg is travelled.
+u: Chosen when the leg is planned.
+c: Decides what must be booked.
+v AIR: By aircraft.
+v RAIL: By train.
+v ROAD: By car or other road vehicle.
+v SEA: By ship or ferry.
+v BUS: By bus or coach.
+v WALK: On foot.
+v OTHER: By another means.
+a departureAt
+u: Entered from the booking; arrivals are measured from it.
+c: Not later than arrival.
+a arrivalAt
+u: Entered from the booking and updated on arrival; must not be before departure.
+c: Gives the leg's duration.
+a status
+s: Where the leg is.
+u: Starts as PLANNED.
+v PLANNED: Intended; nothing is booked.
+v BOOKED: Travel is booked.
+v IN_PROGRESS: Under way.
+v COMPLETED: Arrived. A final state.
+v CANCELLED: Called off. A final state.
+r trip
+s: The trip the leg belongs to.
+u: Set when the segment is added.
+n: Exactly one trip; a leg cannot stand alone.
+t: Places the leg in the journey.
+r origin
+s: The place the leg starts from.
+u: Chosen when planned.
+n: Exactly one origin.
+t: Where the traveller begins this leg.
+r destination
+s: The place the leg ends at.
+u: Chosen when planned.
+n: Exactly one destination.
+t: Where the traveller arrives.
+r vehicle
+s: The vehicle used for the leg, if known.
+u: Chosen for owned or hired vehicles.
+n: At most one vehicle.
+t: Links the leg to the vehicle record.
+
+@ Underwriting
+a underwritingNumber
+s: The number of the underwriting case, such as UW-2026-118.
+
+@ User
+s: A digital identity for a person or system that can sign in and act within the application.
+b: A user is what the application recognises when someone signs in. It carries the sign-in name, the state of the account and the roles that decide what the identity may do, and may be linked to the person it represents.
+u: Created by administrators or through registration; read whenever access is decided and in audits.
+c: A user may represent a party, holds roles and has linked identities from sign-in providers.
+l: A user is pending until activated, active while in use, may be locked or disabled and reactivated, and is retired when it is no longer needed. Retired is final.
+x: User "priya.n" is created pending, activated after confirming an email address and given the Sales manager role.
+a userId
+s: The identity of the user, constant when the sign-in name changes.
+u: Generated on creation; roles, audit entries and sessions refer to it.
+c: Referenced by everything the user did.
+a username
+s: The name used to sign in.
+u: Unique; entered at sign in.
+c: Read with the linked party for display.
+a status
+s: Whether the account can be used.
+u: Starts as PENDING; moved by administrators and security rules.
+c: Only active users can sign in.
+v PENDING: Created and awaiting activation.
+v ACTIVE: Can sign in and act.
+v LOCKED: Blocked temporarily, for example after repeated failures.
+v DISABLED: Switched off by an administrator; can be reactivated.
+v RETIRED: Closed for good; kept for the audit trail. A final state.
+a lastLoginAt
+u: Set at each successful sign-in; reviewed to find unused accounts.
+c: Read by security reviews.
+r party
+s: The person or organisation the user represents.
+u: Linked when the identity belongs to a known party.
+n: At most one party; empty for a system account.
+t: Connects the sign-in to a real person.
+r roles
+s: The roles the user holds.
+u: Granted by administrators.
+n: Any number of roles.
+t: Together decide what the user may do.
+r identities
+s: The sign-in identities linked to the user.
+u: Added when a provider or credential is linked.
+n: Any number of identities.
+t: Belong to the user and go with it.

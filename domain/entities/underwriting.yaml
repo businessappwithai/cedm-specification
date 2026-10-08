@@ -7,7 +7,7 @@ entity:
   identity: {key: underwritingId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: underwritingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the underwriting evaluation., businessMeaning: Identifies one governed risk decision independently of later policy issuance., usage: "Insurance sales, risk, policy issuance, renewal and audit.", relationshipContext: May precede an InsurancePolicy or evaluate an existing policy renewal.}}
-    - {name: underwritingNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing underwriting reference., businessMeaning: Operational identifier for risk review and integration., usage: "Search, review and reporting.", relationshipContext: Distinct from policy number.}}
+    - {name: underwritingNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the underwriting case, such as UW-2026-118.', businessMeaning: Operational identifier for risk review and integration., usage: "Search, review and reporting.", relationshipContext: Distinct from policy number.}}
     - {name: riskScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed quantitative risk score where used., businessMeaning: Supports but does not replace explainable underwriting decision evidence., usage: "Risk segmentation and decision support.", relationshipContext: Scoring model and scale require separate policy/model governance.}}
     - name: decision
       type: enum
