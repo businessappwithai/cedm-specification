@@ -28,10 +28,17 @@ entity:
       default: DRAFT
       values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
       help:
+        valueSemantics:
+          DRAFT: Being prepared by the buyer; not yet binding.
+          APPROVED: Authorised internally and ready to send.
+          SENT: Issued to the supplier.
+          PARTIALLY_RECEIVED: Some of the ordered quantity has been received and accepted; the rest is outstanding.
+          RECEIVED: Everything required has been received and accepted.
+          CANCELLED: The remaining commitment has been withdrawn. A final state.
+          CLOSED: Receiving and invoicing are complete. A final state.
         summary: Lifecycle state of the procurement commitment.
         usage: Controls authorization, issuance, fulfillment, cancellation and closure.
         relationshipContext: PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.
-        valueSemantics: {DRAFT: Being prepared., APPROVED: Internally authorized., SENT: Communicated to Supplier., PARTIALLY_RECEIVED: Some committed quantity accepted while outstanding fulfillment remains., RECEIVED: Required fulfillment accepted under policy., CANCELLED: Remaining commitment terminated., CLOSED: Required operational and financial processing complete.}
     - name: currencyId
       type: reference
       target: Currency

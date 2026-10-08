@@ -12,40 +12,40 @@ entity:
       required: true
       immutable: true
       help:
-        summary: 'The purchase order line id of the purchase order line: an identifier the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The identity of the line, constant for its life.
+        usage: Generated on creation; receipt and invoice lines refer to it.
+        relationshipContext: Referenced when matching receipts and invoices.
     - name: lineNumber
       type: integer
       required: true
       minimum: 1
       help:
-        summary: 'The line number of the purchase order line: a whole number the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The position of the line on the order.
+        usage: Assigned in sequence; used to refer to the line in documents.
+        relationshipContext: Read with the order number to name a line.
     - name: quantity
       type: decimal
       required: true
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity of the purchase order line: a number the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity ordered, in the line's unit of measure.
+        usage: Entered when ordering; receipts are measured against it.
+        relationshipContext: Compared with received quantity to find what is outstanding.
     - name: unitPrice
       type: Money
       required: true
       help:
-        summary: 'The unit price of the purchase order line: a value the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The price for one unit, as agreed when the order was placed.
+        usage: Set from the price source; kept even if prices later change.
+        relationshipContext: Multiplied by quantity to give the line amount.
     - name: lineAmount
       type: Money
       required: true
       help:
-        summary: 'The line amount of the purchase order line: a value the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: 'The value of the line: quantity times unit price.'
+        usage: Calculated; summed into the order total.
+        relationshipContext: Matched against the invoiced amount.
     - name: receivedQuantity
       type: decimal
       required: true
@@ -53,9 +53,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The received quantity of the purchase order line: a number the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity physically received so far.
+        usage: Increased by goods receipt lines.
+        relationshipContext: Compared with accepted quantity to find rejections.
     - name: acceptedQuantity
       type: decimal
       required: true
@@ -63,9 +63,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The accepted quantity of the purchase order line: a number the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity received and accepted after inspection.
+        usage: Increased as receipts are accepted; invoicing is matched to it.
+        relationshipContext: Never more than the received quantity.
     - name: returnedQuantity
       type: decimal
       required: true
@@ -73,9 +73,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The returned quantity of the purchase order line: a number the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity sent back to the supplier.
+        usage: Increased by supplier return lines.
+        relationshipContext: Reduces the accepted quantity that is payable.
     - name: outstandingQuantity
       type: decimal
       required: true
@@ -83,9 +83,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The outstanding quantity of the purchase order line: a number the business records on it.'
-        usage: Entered or maintained when a purchase order line is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity still to be delivered.
+        usage: Calculated from ordered, received and returned; read by expediters.
+        relationshipContext: Reaches zero when the line is fully delivered.
     - name: priceSource
       type: enum
       required: false
@@ -97,17 +97,17 @@ entity:
         - MANUAL
         - OTHER
       help:
+        valueSemantics:
+          PRICE_LIST: Taken from the supplier's price list.
+          CONTRACT: Taken from a contract with the supplier.
+          SUPPLIER_AGREEMENT: Taken from a standing supplier agreement.
+          QUOTATION: Taken from an accepted supplier quotation.
+          MANUAL: Entered by the buyer.
+          OTHER: Determined some other way.
         summary: Source used to determine procurement price.
         usage: Supports audit, spend analysis and supplier negotiations.
         relationshipContext: Does not replace transaction-time unitPrice.
         workflowRole: Explains price determination.
-        valueSemantics:
-          PRICE_LIST: The price source of the purchase order line is price list; set it when that is what the business means for this record.
-          CONTRACT: The price source of the purchase order line is contract; set it when that is what the business means for this record.
-          SUPPLIER_AGREEMENT: The price source of the purchase order line is supplier agreement; set it when that is what the business means for this record.
-          QUOTATION: The price source of the purchase order line is quotation; set it when that is what the business means for this record.
-          MANUAL: The price source of the purchase order line is manual; set it when that is what the business means for this record.
-          OTHER: The price source of the purchase order line is other; set it when that is what the business means for this record.
     - name: priceDeterminedAt
       type: datetime
       required: false
@@ -117,17 +117,32 @@ entity:
       target: PurchaseOrder
       cardinality: '1'
       ownership: reference
-      help: {summary: Parent procurement commitment., businessMeaning: "Supplies supplier, organization, currency and lifecycle context.", workflowRole: Controls commitment and closure.}
+      help:
+        summary: The purchase order this line belongs to.
+        usage: Set when the line is added.
+        cardinalityMeaning: Exactly one order; a line cannot stand alone.
+        businessMeaning: "Supplies supplier, organization, currency and lifecycle context."
+        workflowRole: Controls commitment and closure.
     - name: product
       target: Product
       cardinality: '1'
       ownership: reference
-      help: {summary: Product or item being procured., businessMeaning: Identifies what was committed., workflowRole: "Must reconcile across receipt, return and invoice evidence."}
+      help:
+        summary: The product being ordered.
+        usage: Chosen when the line is entered.
+        cardinalityMeaning: Exactly one product per line.
+        businessMeaning: Identifies what was committed.
+        workflowRole: "Must reconcile across receipt, return and invoice evidence."
     - name: unitOfMeasure
       target: UnitOfMeasure
       cardinality: 0..1
       ownership: reference
-      help: {summary: Unit used to quantify the commitment., businessMeaning: Defines how quantity is interpreted., workflowRole: Must reconcile with receiving and return conversions.}
+      help:
+        summary: The unit the quantity is expressed in.
+        usage: Defaults to the product's purchasing unit.
+        cardinalityMeaning: At most one unit; empty uses the product's default.
+        businessMeaning: Defines how quantity is interpreted.
+        workflowRole: Must reconcile with receiving and return conversions.
     - name: supplierQuotationLine
       target: SupplierQuotationLine
       cardinality: 0..1
@@ -142,12 +157,22 @@ entity:
       target: GoodsReceiptLine
       cardinality: 0..*
       ownership: reference
-      help: {summary: Receipt evidence against this commitment., businessMeaning: Records actual received and accepted fulfillment., workflowRole: Supplies eligibility for later supplier returns.}
+      help:
+        summary: The receipt lines recording delivery against this line.
+        usage: Read to see what has arrived.
+        cardinalityMeaning: Any number, since a line may arrive in several deliveries.
+        businessMeaning: Records actual received and accepted fulfillment.
+        workflowRole: Supplies eligibility for later supplier returns.
     - name: invoiceLines
       target: InvoiceLine
       cardinality: 0..*
       ownership: reference
-      help: {summary: Supplier invoice lines matched to this commitment., businessMeaning: Records financial claims against the order line., workflowRole: Uses accepted receipt and original price evidence.}
+      help:
+        summary: The supplier invoice lines billing this line.
+        usage: Read for three-way matching.
+        cardinalityMeaning: Any number, as a line may be invoiced in parts.
+        businessMeaning: Records financial claims against the order line.
+        workflowRole: Uses accepted receipt and original price evidence.
     - name: supplierReturnLines
       target: SupplierReturnLine
       cardinality: 0..*
@@ -181,11 +206,11 @@ entity:
     - {id: PURCHASE-ORDER-LINE-EXE-006, rule: "Returned Quantity cannot be negative.", violatedWhen: "returned_quantity != null and returned_quantity < 0", message: "Returned Quantity cannot be negative."}
     - {id: PURCHASE-ORDER-LINE-EXE-007, rule: "Outstanding Quantity cannot be negative.", violatedWhen: "outstanding_quantity != null and outstanding_quantity < 0", message: "Outstanding Quantity cannot be negative."}
   help:
-    summary: Represents one measurable procurement commitment and its accumulated fulfillment, billing and reverse-fulfillment state.
-    businessMeaning: PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records receipt. SupplierReturnLine records subsequent reversal. InvoiceLine records supplier claim.
-    usage: Purchasing, supplier communication, receiving, inventory, supplier returns, accounts payable, budgeting and three-way matching.
-    relationshipContext: PurchaseOrder supplies supplier and commercial context; GoodsReceiptLine supplies accepted fulfillment; SupplierReturnLine supplies reverse quantity; SupplierCreditNoteLine supplies financial adjustment.
+    summary: One item ordered on a purchase order, with the quantity, price and the progress of receipt, invoicing and return.
+    businessMeaning: "The line is where the commitment is made precise: which product, how many, at what price and from what source. It keeps the price as agreed at the time and tracks what has since arrived, been accepted, returned and is still owed, so the order's completion can be judged line by line."
+    usage: Created with the order, from a requisition or quotation line; updated as goods arrive; read by receiving, accounts payable and buyers.
+    relationshipContext: A line belongs to one order and product, may come from a quotation or requisition line, and is matched by receipt, invoice and return lines.
+    lifecycle: 'A line follows its order: open until fully received, then settled. Its quantities change only through receipts and returns.'
+    example: Line 2 of PO-5120 orders 400 bolts at 0.35 each; 250 have been received and 150 are outstanding.
     workflowContext: Pricing → commitment → receipt → acceptance → InventoryMovement; if goods are returned, eligible accepted quantity → SupplierReturnLine → InventoryMovement reversal → SupplierCreditNoteLine. Historical commitment remains unchanged.
-    lifecycle: Created → approved/issued → partially/fully received → optionally partially/fully returned → billed/closed according to policy. Historical commercial evidence remains reproducible.
-    example: A line commits to 100 units, 94 are accepted, and three are later returned. receivedQuantity remains the receipt projection, acceptedQuantity remains accepted fulfillment evidence, returnedQuantity becomes three from posted return events, and the original quantity/price remain unchanged.
 specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-PURCHASE-ORDER-LINE}
