@@ -7,18 +7,16 @@ entity:
     icon: file-text
   identity: {key: consignmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: consignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Consignment., businessMeaning: Identifies one governed Consignment record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows.}}
-    - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Consignment., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity.}}
+    - {name: consignmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the consignment., usage: Generated on creation; tracking events and freight charges refer to it.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: The consignment or waybill number given to the grouping., usage: Used by the carrier and customer to track and reference the movement.}}
   relationships: []
   invariants:
     - {id: CONSIGNMENT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
-    purpose: Provide canonical implementation-neutral semantics for Consignment across enterprise applications.
-    businessMeaning: A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A grouping of goods handed to a carrier under common transport responsibility and commercial terms.
+    businessMeaning: 'A consignment is what the carrier is actually asked to move: one set of goods, from one sender, under one contract of carriage. It is the unit that is tracked, insured and billed.'
+    usage: Created when goods are tendered to a carrier; tracked until delivery; read for status, proof of delivery and freight charges.
+    relationshipContext: A consignment is carried by a Carrier and contains one or more shipments.
+    lifecycle: Changes and retries keep history and do not duplicate the commercial, physical or financial effects of the consignment.
+    example: Twelve pallets for three customers consolidated onto one truck to a regional depot under a single waybill.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONSIGNMENT}

@@ -16,34 +16,30 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the contract record associated with this Contract. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the contract.
+        usage: Generated on creation; obligations, amendments and invoices refer to the contract.
     - name: contractNumber
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of contract number for the Contract. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The number by which the contract is known in correspondence and systems.
+        usage: Allocated from a number series; unique across contracts.
     - name: title
       type: string
       required: true
       maxLength: 300
       help:
-        summary: Captures the business meaning of title for the Contract. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The descriptive title of the contract.
+        usage: Shown in lists and documents, for example Master Supply Agreement 2026.
     - name: contractType
       type: string
       required: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of contract type for the Contract. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The kind of contract, such as supply, service, licence or employment.
+        usage: Chosen at creation; drives templates, approvals and the obligations typically attached.
     - name: status
       type: enum
       required: true
@@ -58,85 +54,80 @@ entity:
         - TERMINATED
         - CANCELLED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Where the contract stands from drafting to end.
+        usage: Moved by the contract owner; obligations are enforced while the contract is ACTIVE.
         valueSemantics:
-          DRAFT: Represents the draft state or classification in the context of Contract.
-          NEGOTIATION: Represents the negotiation state or classification in the context of Contract.
-          APPROVAL: Represents the approval state or classification in the context of Contract.
-          ACTIVE: Represents the active state or classification in the context of Contract.
-          SUSPENDED: Represents the suspended state or classification in the context of Contract.
-          EXPIRED: Represents the expired state or classification in the context of Contract.
-          TERMINATED: Represents the terminated state or classification in the context of Contract.
-          CANCELLED: Represents the cancelled state or classification in the context of Contract.
+          DRAFT: Being written; not yet shared with the other party.
+          NEGOTIATION: Terms are being discussed with the other party.
+          APPROVAL: Agreed in principle and awaiting internal approval and signature.
+          ACTIVE: Signed and in force.
+          SUSPENDED: Temporarily not in effect, for example during a dispute.
+          EXPIRED: Reached its end date without renewal.
+          TERMINATED: Ended early by notice or breach.
+          CANCELLED: Withdrawn before it ever became active.
     - name: effectiveFrom
       type: date
       required: false
       help:
-        summary: Captures the business meaning of effective from for the Contract. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The date from which the contract is in force.
+        usage: Entered from the signed document; obligations and charges run from it.
     - name: effectiveTo
       type: date
       required: false
       help:
-        summary: Captures the business meaning of effective to for the Contract. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The date on which the contract ends.
+        usage: Entered from the signed document; must not be before the start date.
     - name: signedAt
       type: datetime
       required: false
       help:
-        summary: Records when the signed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: When the contract was signed by the last party.
+        usage: Recorded at signature; marks the point at which the contract became binding.
     - name: autoRenew
       type: boolean
       required: true
       default: false
       help:
-        summary: Captures the business meaning of auto renew for the Contract. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Contract records, where applicable.
-        relationshipContext: Its meaning is specific to Contract; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Whether the contract renews by itself at the end of its term.
+        usage: Set from the contract terms; renewal processes act on contracts with this on, unless notice is given.
   relationships:
     - name: parties
       target: Party
       cardinality: 2..*
       ownership: reference
       help:
-        summary: Connects Contract to Party so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Party records associated with a Contract.
-        cardinalityMeaning: The declared cardinality 2..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The parties that are bound by the contract.
+        usage: Added when the contract is drafted; read to see who owes what.
+        cardinalityMeaning: At least two parties; one party alone cannot make an agreement.
+        workflowRole: Each party is bound by the contract's obligations.
     - name: ownerOrganization
       target: Organization
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects Contract to Organization so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Organization records associated with a Contract.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The part of the organisation that owns the relationship.
+        usage: Set at creation; receives renewal reminders and answers for performance.
+        cardinalityMeaning: At most one owner.
+        workflowRole: Gives the contract an internal owner.
     - name: document
       target: Document
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects Contract to Document so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Document records associated with a Contract.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The signed document that evidences the contract.
+        usage: Attached after signature; read in case of dispute.
+        cardinalityMeaning: At most one primary document.
+        workflowRole: Provides the authoritative text.
     - name: obligations
       target: ContractObligation
       cardinality: 0..*
       ownership: aggregate
       help:
-        summary: Connects Contract to ContractObligation so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about ContractObligation records associated with a Contract.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
-    - {name: serviceContracts, target: ServiceContract, cardinality: "0..*", ownership: aggregate, help: {summary: Operational service-coverage specializations of this Contract., businessMeaning: Keeps legal/commercial agreement semantics in Contract while allowing service-specific administration., usage: "Service entitlement, SLA, renewals and audit.", cardinalityMeaning: Zero or many service specializations may exist under a Contract., workflowRole: ServiceContract terms must remain compatible with Contract lifecycle and amendments.}}
+        summary: The obligations the contract imposes.
+        usage: Read to track who must do what and by when.
+        cardinalityMeaning: Any number.
+        workflowRole: Obligations are monitored while the contract is active.
+    - {name: serviceContracts, target: ServiceContract, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number, each one covering a service the contract provides.', summary: Operational service-coverage specializations of this Contract., businessMeaning: Keeps legal/commercial agreement semantics in Contract while allowing service-specific administration., usage: "Service entitlement, SLA, renewals and audit.", workflowRole: ServiceContract terms must remain compatible with Contract lifecycle and amendments.}}
 
   invariants:
     - id: CONTRACT-001
@@ -149,31 +140,25 @@ entity:
     attribute: status
     states: [DRAFT, NEGOTIATION, APPROVAL, ACTIVE, SUSPENDED, EXPIRED, TERMINATED, CANCELLED]
     initial: DRAFT
-    terminal: [EXPIRED, TERMINATED, CANCELLED]
+    terminal:
+      - EXPIRED
+      - TERMINATED
+      - CANCELLED
     transitions:
-      - {from: DRAFT, to: APPROVAL, action: mark_approval}
+      - {from: DRAFT, to: NEGOTIATION, action: negotiate}
+      - {from: DRAFT, to: APPROVAL, action: submit_for_approval}
+      - {from: NEGOTIATION, to: APPROVAL, action: submit_for_approval}
+      - {from: APPROVAL, to: NEGOTIATION, action: return_to_negotiation}
       - {from: APPROVAL, to: ACTIVE, action: activate}
-      - {from: APPROVAL, to: NEGOTIATION, action: mark_negotiation}
-      - {from: NEGOTIATION, to: APPROVAL, action: resume}
-      - {from: ACTIVE, to: NEGOTIATION, action: mark_negotiation}
-      - {from: NEGOTIATION, to: ACTIVE, action: resume}
-      - {from: APPROVAL, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: APPROVAL, action: resume}
       - {from: ACTIVE, to: SUSPENDED, action: suspend}
       - {from: SUSPENDED, to: ACTIVE, action: resume}
-      - {from: APPROVAL, to: EXPIRED, action: expire}
       - {from: ACTIVE, to: EXPIRED, action: expire}
-      - {from: NEGOTIATION, to: EXPIRED, action: expire}
       - {from: SUSPENDED, to: EXPIRED, action: expire}
-      - {from: APPROVAL, to: TERMINATED, action: terminate}
       - {from: ACTIVE, to: TERMINATED, action: terminate}
-      - {from: NEGOTIATION, to: TERMINATED, action: terminate}
       - {from: SUSPENDED, to: TERMINATED, action: terminate}
       - {from: DRAFT, to: CANCELLED, action: cancel}
-      - {from: APPROVAL, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
       - {from: NEGOTIATION, to: CANCELLED, action: cancel}
-      - {from: SUSPENDED, to: CANCELLED, action: cancel}
+      - {from: APPROVAL, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a contract is ended"
@@ -194,12 +179,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a legal commercial entity called Contract within the CEDM business model.
-    businessMeaning: Contract is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Contract records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization, Document, ContractObligation. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical Contract record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A binding agreement between parties that fixes their rights, obligations, terms and conditions.
+    businessMeaning: A contract is the formal basis of a commercial relationship. It says who has agreed to what, for how long and on what terms, so obligations can be performed, tracked and enforced.
+    usage: Drafted and negotiated by commercial and legal teams; approved and signed; consulted throughout its life to check obligations, renewal and termination.
+    relationshipContext: A contract has at least two Parties, may be owned by an Organization, is evidenced by a Document and breaks down into ContractObligations and ServiceContracts.
+    lifecycle: A contract is drafted, negotiated, approved and becomes active when signed. It can be suspended and resumed, and ends by expiring or being terminated; one that never became active is cancelled.
+    example: A three-year supply contract between a manufacturer and a distributor, signed on 1 March and renewing automatically each year.
 specification:
   version: 0.1.0
   status: draft

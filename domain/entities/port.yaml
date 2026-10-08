@@ -11,7 +11,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the Port.
+        summary: The identity of the port, stable when its code or name is revised.
         businessMeaning: Identifies one port facility independently of its code, name or the locations it occupies.
         usage: "Referenced by berths, gates, voyages and port-call records; generated once and never changed."
         relationshipContext: Berth.port and Voyage.originPort / destinationPort resolve to this identity.

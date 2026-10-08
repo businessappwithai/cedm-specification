@@ -11,7 +11,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the ContainerVisit.
+        summary: The identity of the stay, separate from the container, which visits many times over its life.
         businessMeaning: Identifies one stay of a container in the terminal, separate from the container itself, which visits many times over its life.
         usage: "Referenced by gate events, container movements and voyage manifests that belong to the stay."
         relationshipContext: GateEvent.containerVisit and Voyage.containerVisits resolve to this identity.

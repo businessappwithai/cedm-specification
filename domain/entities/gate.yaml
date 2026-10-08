@@ -11,7 +11,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the Gate.
+        summary: The identity of the checkpoint, stable when its code or lane layout changes.
         businessMeaning: Identifies one checkpoint independently of its code or the lane layout currently in use.
         usage: "Referenced by every gate event recorded at the checkpoint."
         relationshipContext: GateEvent.gate resolves to this identity.
