@@ -35,7 +35,7 @@ entity:
     - {name: students, target: EducationStudent, cardinality: "1..*", ownership: reference, help: {summary: Students for whom this guardian relationship applies., businessMeaning: Establishes education responsibility or communication scope., usage: "Student administration, consent, billing and communication.", cardinalityMeaning: One or more students are associated with a Guardian role., workflowRole: Student-specific authority must be evaluated according to current policy.}}
   invariants:
     - {id: GUARDIAN-001, rule: A Guardian must reference a valid Party and at least one EducationStudent.}
-    - {id: GUARDIAN-002, rule: Historical consent, communication or financial evidence is not rewritten merely because guardian status later becomes INACTIVE.}
+    - {id: GUARDIAN-002, rule: "Historical consent, communication or financial evidence is not rewritten merely because guardian status later becomes INACTIVE."}
   help:
     summary: Represents an education guardian role without duplicating Party identity.
     businessMeaning: Guardian defines responsibility and communication context for students; EducationStudent remains the learner identity.

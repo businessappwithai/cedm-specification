@@ -1,0 +1,112 @@
+entity:
+  name: ContainerVisit
+  namespace: cedm.domain
+  kind: terminal_visit
+  description: One continuous stay of a Container inside a terminal, from the moment it enters custody until it leaves, gathering the gate events and movements that make up that stay.
+  ui: {icon: container}
+  identity: {key: containerVisitId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - name: containerVisitId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the ContainerVisit.
+        businessMeaning: Identifies one stay of a container in the terminal, separate from the container itself, which visits many times over its life.
+        usage: "Referenced by gate events, container movements and voyage manifests that belong to the stay."
+        relationshipContext: GateEvent.containerVisit and Voyage.containerVisits resolve to this identity.
+        requiredMeaning: Required because every stay needs its own identity to group the events of that stay.
+    - name: visitReference
+      type: string
+      required: false
+      unique: true
+      maxLength: 120
+      help:
+        summary: The terminal's own reference for the visit, such as the visit number printed on the gate receipt.
+        businessMeaning: Lets drivers, shipping lines and the terminal refer to the same stay without exchanging internal identifiers.
+        usage: "Quoted on gate receipts, appointments and integration messages."
+        relationshipContext: External gate and yard systems send this reference to attach their messages to the right stay.
+        optionalMeaning: Optional because a visit created internally may not yet have an external reference.
+    - name: arrivedAt
+      type: datetime
+      required: true
+      help:
+        summary: When the container entered the terminal and custody began.
+        businessMeaning: Starts the dwell clock that storage charges and free-time rules run against.
+        usage: "Used to calculate dwell time, storage billing and demurrage exposure."
+        relationshipContext: Normally equals the time of the inbound GateEvent or the vessel discharge that opened the visit.
+        requiredMeaning: Required because a visit cannot exist without a starting point for custody.
+    - name: departedAt
+      type: datetime
+      required: false
+      help:
+        summary: When the container left the terminal and custody ended.
+        businessMeaning: Closes the dwell clock; an empty value means the container is still in the terminal.
+        usage: "Used to close the visit, finalise storage billing and report dwell."
+        relationshipContext: Normally equals the time of the outbound GateEvent or the vessel load that closed the visit.
+        optionalMeaning: Optional because the container is still inside the terminal until it departs.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: "Where the visit stands: in progress, finished or withdrawn."
+        businessMeaning: Distinguishes containers currently in custody from completed stays and visits opened in error.
+        usage: "Filters yard inventory, dwell reports and billing runs."
+        relationshipContext: Gate events and movements stay attached to the visit whatever its status.
+        valueSemantics:
+          ACTIVE: The container is in the terminal and the visit is open.
+          COMPLETED: The container has left and the visit is closed for billing.
+          CANCELLED: The visit was opened in error or the container never arrived; no storage charges apply.
+  relationships:
+    - name: container
+      target: Container
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The container whose stay this visit records.
+        businessMeaning: Ties custody, dwell and billing to the physical container.
+        usage: "Inventory and history lookup per container."
+        cardinalityMeaning: A visit concerns exactly one container; one container has many visits over time.
+        workflowRole: A container can have only one ACTIVE visit at a time.
+    - name: gateEvents
+      target: GateEvent
+      cardinality: "0..*"
+      ownership: reference
+      help:
+        summary: The gate events that opened, closed or occurred during the visit.
+        businessMeaning: Provides the entry and exit evidence that proves custody dates.
+        usage: "Dwell calculation, dispute resolution and audit."
+        cardinalityMeaning: A visit usually has an inbound and an outbound gate event and may have more; each event belongs to at most one visit.
+        workflowRole: Verified gate events fix arrivedAt and departedAt.
+    - name: movements
+      target: ContainerMovement
+      cardinality: "0..*"
+      ownership: reference
+      help:
+        summary: The moves of the container within the terminal during the visit.
+        businessMeaning: Records every yard shift, load and discharge that happened during the stay.
+        usage: "Yard productivity, handling-charge billing and audit."
+        cardinalityMeaning: A visit includes many movements; each movement belongs to at most one visit.
+        workflowRole: Movements accumulate while the visit is ACTIVE and are frozen once it is COMPLETED.
+  invariants:
+    - {id: CONTAINER-VISIT-001, rule: "A Container can have at most one ACTIVE ContainerVisit at a time."}
+    - {id: CONTAINER-VISIT-002, rule: "departedAt must not be earlier than arrivedAt."}
+    - {id: CONTAINER-VISIT-003, rule: "A COMPLETED ContainerVisit must have a departedAt."}
+  lifecycle:
+    title: Container Visit Lifecycle
+    attribute: status
+    states: [ACTIVE, COMPLETED, CANCELLED]
+    initial: ACTIVE
+    terminal: [COMPLETED, CANCELLED]
+    transitions:
+      - {from: ACTIVE, to: COMPLETED, action: complete}
+      - {from: ACTIVE, to: CANCELLED, action: cancel}
+  help:
+    summary: Represents one continuous stay of a container in a terminal, with the events and moves that make it up.
+    businessMeaning: Container is the physical box; ContainerVisit is one stay of it in a terminal; GateEvent and ContainerMovement are the events inside the stay.
+    usage: Terminal operations, yard inventory, dwell and demurrage billing, customs and audit.
+    relationshipContext: A visit belongs to one container and collects its gate events and movements.
+    lifecycle: A visit is opened on arrival, then completed when the container leaves or cancelled if opened in error.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTAINER-VISIT}

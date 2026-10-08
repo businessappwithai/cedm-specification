@@ -35,6 +35,7 @@ registry:
     - BankLoan
     - BankReconciliation
     - BankTransaction
+    - Berth
     - BillingCycle
     - BillOfMaterial
     - BOMComponent
@@ -67,6 +68,7 @@ registry:
     - ContactPoint
     - Container
     - ContainerMovement
+    - ContainerVisit
     - Contract
     - ContractAmendment
     - ContractClause
@@ -102,6 +104,7 @@ registry:
     - Document
     - DocumentClassification
     - DocumentVersion
+    - Driver
     - EducationCourse
     - EducationProgram
     - EducationStudent
@@ -132,7 +135,10 @@ registry:
     - Forecast
     - ForeignExchangeTransaction
     - FreightCharge
+    - FuelTransaction
     - Fulfillment
+    - Gate
+    - GateEvent
     - GoodsReceipt
     - GoodsReceiptLine
     - GovernmentCase
@@ -214,6 +220,7 @@ registry:
     - Person
     - Picking
     - Policy
+    - Port
     - Position
     - Practitioner
     - Premium
@@ -291,6 +298,7 @@ registry:
     - Signature
     - SparePart
     - StateProvince
+    - Stop
     - Store
     - Study
     - Subscription
@@ -335,6 +343,8 @@ registry:
     - Variance
     - Vehicle
     - VehicleModel
+    - Vessel
+    - Voyage
     - Warehouse
     - WarehouseZone
     - Wave
@@ -345,9 +355,3 @@ registry:
     - YardBlock
     - YardSlot
     - YardTier
-  conventions:
-    identity: Globally unique UUID unless a domain-specific natural key is explicitly declared.
-    references: Entity references use target entity names and cardinality.
-    lifecycle: State transitions are expressed under lifecycle or invariants when required.
-    businessRules: Rules are expressed as invariants and remain implementation-neutral.
-    audit: System-managed timestamps and actors are declared explicitly where applicable.

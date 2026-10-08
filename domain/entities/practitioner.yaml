@@ -34,7 +34,7 @@ entity:
     - {name: encounters, target: HealthcareEncounter, cardinality: "0..*", ownership: reference, help: {summary: Healthcare encounters in which this practitioner participated., businessMeaning: Preserves actual care-delivery attribution., usage: "Clinical operations, reporting and audit.", cardinalityMeaning: Zero or many encounters., workflowRole: Historical encounter attribution remains intact after practitioner status changes.}}
   invariants:
     - {id: PRACTITIONER-001, rule: ACTIVE practitioner participation requires applicable credential and affiliation eligibility under organization policy.}
-    - {id: PRACTITIONER-002, rule: SUSPENDED, INACTIVE or RETIRED status prevents ordinary new appointments or encounters except explicitly governed exceptions.}
+    - {id: PRACTITIONER-002, rule: "SUSPENDED, INACTIVE or RETIRED status prevents ordinary new appointments or encounters except explicitly governed exceptions."}
     - {id: PRACTITIONER-003, rule: Historical appointment and encounter attribution must not be rewritten merely because practitioner affiliation or credentials later change.}
   lifecycle:
     title: Practitioner Lifecycle

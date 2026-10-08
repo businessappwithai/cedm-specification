@@ -1,0 +1,110 @@
+entity:
+  name: Gate
+  namespace: cedm.domain
+  kind: terminal_gate
+  description: A governed landside checkpoint at a Port through which containers and vehicles enter or leave under controlled procedures.
+  ui: {icon: log-in}
+  identity: {key: gateId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - name: gateId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the Gate.
+        businessMeaning: Identifies one checkpoint independently of its code or the lane layout currently in use.
+        usage: "Referenced by every gate event recorded at the checkpoint."
+        relationshipContext: GateEvent.gate resolves to this identity.
+        requiredMeaning: Required because a gate event must always say where it happened.
+    - name: gateCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 60
+      help:
+        summary: The operational code of the gate, such as the number painted on the lane or used in the terminal operating system.
+        businessMeaning: The reference gate clerks, truck drivers and integrations use to name a checkpoint.
+        usage: "Used in gate appointments, event capture and integration messages."
+        relationshipContext: Gate events carry this code when imported from external gate systems.
+        requiredMeaning: Required because external gate systems identify the checkpoint by code.
+    - name: name
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: The descriptive name of the gate.
+        businessMeaning: Helps staff recognise the checkpoint, for example Main Truck Gate or Rail Gate.
+        usage: "Shown on operations screens and reports."
+        relationshipContext: The gate code remains the operational key when the name is changed.
+        optionalMeaning: Optional because the code can serve as the display label.
+    - name: gateType
+      type: enum
+      required: true
+      default: TRUCK
+      values: [TRUCK, RAIL, PEDESTRIAN, VESSEL_SIDE]
+      help:
+        summary: The kind of traffic the gate is built and staffed to process.
+        businessMeaning: Different traffic needs different checks, so the type decides which procedures apply at the checkpoint.
+        usage: "Used to route appointments and to filter gate events by mode."
+        relationshipContext: The type constrains which subjects (container, vehicle, driver) a gate event at this gate normally carries.
+        valueSemantics:
+          TRUCK: Road haulage entry and exit with container and driver checks.
+          RAIL: Rail entry and exit for wagons and rail-borne containers.
+          PEDESTRIAN: Personnel access only, with no cargo custody transfer.
+          VESSEL_SIDE: Access from the quay side for ship-borne movements.
+    - name: status
+      type: enum
+      required: true
+      default: OPEN
+      values: [OPEN, CLOSED, RETIRED]
+      help:
+        summary: Whether the gate is accepting traffic.
+        businessMeaning: Allows a checkpoint to be closed for shifts, maintenance or incidents without losing its event history.
+        usage: "Checked when gate appointments are issued and when events are captured."
+        relationshipContext: Recorded gate events remain valid after the gate changes status.
+        valueSemantics:
+          OPEN: Accepting traffic during its operating hours.
+          CLOSED: Temporarily not accepting traffic; it can reopen.
+          RETIRED: Permanently decommissioned; kept for history only.
+  relationships:
+    - name: port
+      target: Port
+      cardinality: "1"
+      ownership: reference
+      help:
+        summary: The port to which this gate belongs.
+        businessMeaning: Places the checkpoint in a terminal operation so throughput can be reported per port.
+        usage: "Port-level gate planning and reporting."
+        cardinalityMeaning: A gate belongs to exactly one port; a port has many gates.
+        workflowRole: Closing a port stops gate activity at all of its gates.
+    - name: events
+      target: GateEvent
+      cardinality: "0..*"
+      ownership: reference
+      help:
+        summary: The entry, exit and processing events recorded at this gate.
+        businessMeaning: Preserves the custody and movement evidence captured at the checkpoint.
+        usage: "Dwell-time, throughput, security review and audit."
+        cardinalityMeaning: A gate accumulates many events; each event is recorded at exactly one gate.
+        workflowRole: Events are immutable evidence and are never moved between gates.
+  invariants:
+    - {id: GATE-001, rule: "gateCode must be unique across all Gates."}
+    - {id: GATE-002, rule: "A CLOSED or RETIRED Gate cannot record new GateEvents."}
+  lifecycle:
+    title: Gate Lifecycle
+    attribute: status
+    states: [OPEN, CLOSED, RETIRED]
+    initial: OPEN
+    terminal: [RETIRED]
+    transitions:
+      - {from: OPEN, to: CLOSED, action: close}
+      - {from: CLOSED, to: OPEN, action: reopen}
+      - {from: OPEN, to: RETIRED, action: retire}
+      - {from: CLOSED, to: RETIRED, action: retire}
+  help:
+    summary: Represents a landside checkpoint at a port through which containers and vehicles pass.
+    businessMeaning: Gate is checkpoint master data; GateEvent records what happened at it; Port provides the wider terminal context.
+    usage: Gate appointments, event capture, security, custody, throughput reporting and audit.
+    relationshipContext: Port is mandatory; events accumulate against the gate and are never reassigned.
+    lifecycle: A gate is open, may be closed and reopened, and is eventually retired.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GATE}

@@ -7,7 +7,7 @@ entity:
   identity: {key: leaveRequestId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the leave request., businessMeaning: Identifies one absence request independently of later approval or cancellation., usage: "HR workflow, attendance, payroll, reporting and audit.", relationshipContext: Remains stable across lifecycle transitions., requiredMeaning: Required.}}
-    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing leave request reference., businessMeaning: Operational identifier for employees, managers and HR., usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers., requiredMeaning: Required.}}
+    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing leave request reference., businessMeaning: "Operational identifier for employees, managers and HR.", usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers., requiredMeaning: Required.}}
     - name: leaveType
       type: enum
       required: true
@@ -27,7 +27,7 @@ entity:
         requiredMeaning: Required.
     - {name: startDate, type: date, required: true, help: {summary: First requested leave date., businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date., requiredMeaning: Required.}}
     - {name: endDate, type: date, required: true, help: {summary: Last requested leave date., businessMeaning: Closes the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
-    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: Supports hours, days or other policy-defined leave quantities., usage: "Entitlement checks and payroll.", relationshipContext: Must reconcile to date interval and policy when supplied., optionalMeaning: Optional when quantity is derived from schedule and dates.}}
+    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", usage: Entitlement checks and payroll., relationshipContext: Must reconcile to date interval and policy when supplied., optionalMeaning: Optional when quantity is derived from schedule and dates.}}
     - name: status
       type: enum
       required: true
@@ -47,14 +47,14 @@ entity:
         requiredMeaning: Required.
   relationships:
     - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee requesting leave., businessMeaning: Identifies whose absence is being authorized., usage: "Approval, scheduling, attendance and payroll.", cardinalityMeaning: Exactly one Employee., workflowRole: Employee must be eligible under applicable policy.}}
-    - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which leave is requested., businessMeaning: Supplies employer, position and effective policy context., usage: "Eligibility, payroll and reporting.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: Requested dates must overlap eligible employment.}}
+    - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which leave is requested., businessMeaning: "Supplies employer, position and effective policy context.", usage: "Eligibility, payroll and reporting.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: Requested dates must overlap eligible employment.}}
     - {name: approval, target: Approval, cardinality: "0..1", ownership: reference, help: {summary: Approval evidence governing the request decision., businessMeaning: Preserves authorization independently of mutable request presentation., usage: "Workflow, audit and compliance.", cardinalityMeaning: Optional before a decision or where policy does not require formal approval., workflowRole: APPROVED status must reconcile to required approval evidence.}}
     - {name: attendanceRecords, target: Attendance, cardinality: "0..*", ownership: reference, help: {summary: Actual attendance or absence evidence reconciled to this request., businessMeaning: Separates authorization from what actually occurred., usage: "Timekeeping, payroll and audit.", cardinalityMeaning: Zero or many records across the leave interval., workflowRole: LEAVE attendance must reconcile to employee and approved dates.}}
   invariants:
     - {id: LEAVE-REQUEST-001, rule: endDate must not precede startDate.}
     - {id: LEAVE-REQUEST-002, rule: requestedUnits must be positive when supplied.}
     - {id: LEAVE-REQUEST-003, rule: APPROVED requires applicable approval evidence whenever policy requires approval before absence or payroll effects.}
-    - {id: LEAVE-REQUEST-004, rule: Approved or rejected history is not destructively rewritten; later changes use cancellation, amendment or follow-up evidence.}
+    - {id: LEAVE-REQUEST-004, rule: "Approved or rejected history is not destructively rewritten; later changes use cancellation, amendment or follow-up evidence."}
   lifecycle:
     title: Leave Request Lifecycle
     attribute: status
