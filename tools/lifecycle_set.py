@@ -63,7 +63,7 @@ def main(argv: list[str]) -> int:
             lc["terminal"] = terminal
         with path.open("w") as h:
             yaml.dump(doc, h)
-        print(f"{name}: {len(new)} transitions, terminal={lc['terminal']}")
+        print(f"{name}: {len(new)} transitions, terminal={lc.get('terminal')}")
         return 0
     raise SystemExit(f"no entity {name}")
 

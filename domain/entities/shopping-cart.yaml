@@ -78,12 +78,14 @@ entity:
     attribute: status
     states: [ACTIVE, CHECKED_OUT, ABANDONED, EXPIRED]
     initial: ACTIVE
-    terminal: [EXPIRED]
+    terminal:
+      - CHECKED_OUT
+      - ABANDONED
+      - EXPIRED
     transitions:
-      - {from: ACTIVE, to: CHECKED_OUT, action: mark_checked_out}
-      - {from: CHECKED_OUT, to: ABANDONED, action: mark_abandoned}
-      - {from: CHECKED_OUT, to: EXPIRED, action: expire}
-      - {from: ABANDONED, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: CHECKED_OUT, action: check_out}
+      - {from: ACTIVE, to: ABANDONED, action: abandon}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
   help:
     summary: Represents a ecommerce entity called ShoppingCart within the CEDM business model.
     businessMeaning: ShoppingCart is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.

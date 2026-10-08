@@ -10,6 +10,9 @@ Checks, per entity with a `lifecycle`:
   L4 the status attribute's default is not the initial state
   L5 the attribute's `values` differ from the lifecycle's `states`
   L6 `terminal` names a state with no incoming transition (and is not initial)
+  L7 a completed state is cancelled, rejected or voided afterwards (a heuristic: the
+     names are the ones the template generator used for "undo everything")
+  L8 a state with no way out is not declared terminal (the mirror of L3 for sinks)
 """
 from __future__ import annotations
 
@@ -47,6 +50,15 @@ def lint(entity: dict) -> list[str]:
             out.append(f"L2 {s} unreachable from {initial}")
         if s not in terminal and not any(a == s for a, _ in edges):
             out.append(f"L3 {s} has no way out and is not terminal")
+    done = {"COMPLETED", "CHECKED_OUT", "PAID", "FULFILLED", "DELIVERED", "CLOSED", "SETTLED", "ARRIVED",
+            "FINAL", "CONSUMED", "GRADUATED", "POSTED"}
+    undone = {"CANCELLED", "NO_SHOW", "REJECTED", "VOID", "DENIED", "WITHDRAWN", "ABANDONED"}
+    for a, b in edges:
+        if a in done and b in undone and not (a == "POSTED" and b == "VOID"):
+            out.append(f"L7 {a} -> {b} undoes a completed state")
+    for t in terminal:
+        if t != initial and not any(b == t for _, b in edges):
+            out.append(f"L6 terminal {t} is never entered")
     attr = next((a for a in entity.get("attributes") or [] if a.get("name") == lc.get("attribute")), None)
     if attr:
         if attr.get("default") is not None and str(attr["default"]) != str(initial):
