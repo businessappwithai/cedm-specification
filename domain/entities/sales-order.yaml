@@ -12,25 +12,25 @@ entity:
       required: true
       immutable: true
       help:
-        summary: 'The sales order id of the sales order: an identifier the business records on it.'
-        usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+        summary: The identity of the order, constant for its life.
+        usage: Generated on creation; shipments and invoices refer to it.
+        relationshipContext: Referenced by every document that follows the order.
     - name: orderNumber
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: 'The order number of the sales order: a value the business records on it.'
-        usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+        summary: The number the customer sees, such as SO-10482.
+        usage: Unique; quoted on confirmations and invoices.
+        relationshipContext: Used to find the order from any following document.
     - name: orderDate
       type: datetime
       required: true
       help:
-        summary: 'The order date of the sales order: a point in time the business records on it.'
-        usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+        summary: When the order was placed.
+        usage: Set on entry; sales are reported by it.
+        relationshipContext: Compared with the requested delivery date.
     - name: status
       type: enum
       required: true
@@ -53,80 +53,80 @@ entity:
       target: Currency
       required: false
       help:
+        usage: Chosen when the order is created; all amounts are in it.
+        relationshipContext: Read with the total.
         summary: 'The currency id of the sales order: a link to another record the business records on it.'
-        usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
     - name: requestedDeliveryDate
       type: date
       required: false
       help:
+        usage: Entered from the customer's request; used to plan allocation and shipping.
+        relationshipContext: Compared with the promised and actual shipment dates.
         summary: 'The requested delivery date of the sales order: a calendar date the business records on it.'
-        usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
     - name: totalAmount
       type: decimal
       required: false
       precision: 20
       scale: 4
       help:
-        summary: 'The total amount of the sales order: a number the business records on it.'
-        usage: Entered or maintained when a sales order is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the sales order's other fields and its relationships; it is not meaningful on its own.
+        summary: The total value of the order after discounts and tax.
+        usage: Calculated from the lines.
+        relationshipContext: Matched with the invoiced amount.
   relationships:
     - name: customer
       target: Customer
       cardinality: '1'
       ownership: reference
       help:
-        summary: Links a sales order to customer, the customer it relates to.
-        usage: Chosen from the existing customer records when the sales order is created or edited.
-        cardinalityMeaning: A sales order has exactly one customer in this role.
-        context: Lets the sales order be found from, and reported with, its customer.
+        summary: The customer who placed the order.
+        usage: Chosen when the order is created.
+        cardinalityMeaning: Exactly one customer.
+        context: Decides who is shipped to and invoiced.
     - name: organization
       target: Organization
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a sales order to organization, the organization it relates to.
-        usage: Chosen from the existing organization records when the sales order is created or edited.
-        cardinalityMeaning: A sales order has at most one organization in this role.
-        context: Lets the sales order be found from, and reported with, its organization.
+        summary: The selling organisation that takes the order.
+        usage: Chosen when the business has several companies.
+        cardinalityMeaning: At most one organisation.
+        context: Decides whose accounts record the sale.
     - name: lines
       target: SalesOrderLine
       cardinality: 1..*
       ownership: aggregate
       help:
-        summary: Links a sales order to sales order line, the lines it relates to.
-        usage: Chosen from the existing sales order line records when the sales order is created or edited.
-        cardinalityMeaning: A sales order has at least one sales order line in this role.
-        context: Lets the sales order be found from, and reported with, its sales order line.
+        summary: The items ordered.
+        usage: Edited while the order is a draft.
+        cardinalityMeaning: At least one line.
+        context: The lines belong to the order.
     - name: deliveryLocation
       target: Location
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a sales order to location, the delivery location it relates to.
-        usage: Chosen from the existing location records when the sales order is created or edited.
-        cardinalityMeaning: A sales order has at most one location in this role.
-        context: Lets the sales order be found from, and reported with, its location.
+        usage: Chosen when delivery is not to the customer's default address.
+        summary: The place the goods are to be delivered.
+        cardinalityMeaning: At most one location; empty uses the customer's address.
+        context: Used by shipping.
     - name: shipments
       target: Shipment
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Links a sales order to shipment, the shipments it relates to.
-        usage: Chosen from the existing shipment records when the sales order is created or edited.
-        cardinalityMeaning: A sales order has any number of shipment in this role.
-        context: Lets the sales order be found from, and reported with, its shipment.
+        summary: The shipments made against the order.
+        usage: Read to follow delivery.
+        cardinalityMeaning: Any number, as an order may be shipped in parts.
+        context: Show how much of the order has gone.
     - name: invoices
       target: Invoice
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Links a sales order to invoice, the invoices it relates to.
-        usage: Chosen from the existing invoice records when the sales order is created or edited.
-        cardinalityMeaning: A sales order has any number of invoice in this role.
-        context: Lets the sales order be found from, and reported with, its invoice.
+        summary: The invoices raised for the order.
+        usage: Read to follow billing.
+        cardinalityMeaning: Any number, as billing may be in parts.
+        context: Show how much has been billed.
   invariants:
     - {id: SALES-ORDER-001, rule: orderNumber must be unique within its business numbering context.}
     - {id: SALES-ORDER-002, rule: A CONFIRMED or later order must contain at least one SalesOrderLine.}
@@ -196,13 +196,13 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents the commercial customer commitment from which fulfillment and financial processes derive work.
-    businessMeaning: SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment.
-    usage: Order management, allocation, inventory, warehouse execution, transportation, invoicing, customer service and revenue processes.
-    relationshipContext: Customer supplies commercial context, SalesOrderLine supplies demand detail, InventoryReservation supplies committed stock, InventoryMovement supplies stock execution, Shipment supplies transport evidence, and Invoice supplies financial claim evidence.
+    summary: A customer's firm commitment to buy specified products or services on stated commercial terms and delivery needs.
+    businessMeaning: The sales order is the contract in operational form. It fixes what was ordered, by whom, at what price and for when, and drives allocation of stock, shipment and invoicing, so everything downstream can be traced back to what the customer agreed.
+    usage: Entered by sales or placed online; confirmed by the business; read by warehouse, shipping and finance.
+    relationshipContext: An order is for one customer, has lines, may name an organisation and delivery location, and is followed by shipments and invoices.
+    lifecycle: An order is drafted and confirmed, then stock is allocated and it is fulfilled in whole or in parts. It may be cancelled. Fulfilled and cancelled are final.
+    example: Order SO-10482 for 40 units is confirmed on Monday, shipped in two parts and invoiced on delivery.
     workflowContext: Confirmed order → validation → availability check → reservation/allocation → pick/issue → Shipment → delivery/acceptance evidence → SalesOrderLine fulfillment → order status. Invoice is generated according to billing policy and remains independent evidence. Cancellation releases remaining reservations and stops new work while preserving historical downstream effects.
-    lifecycle: Draft → confirmed → allocated → partially fulfilled → fulfilled, with cancellation of remaining demand and controlled exception/recovery paths.
     propagation: Entity changes must propagate through affected dependent workflows rather than directly mutating derived states. Line fulfillment changes recalculate order status; reservation changes affect allocation state; shipment events contribute fulfillment evidence; billing changes do not independently determine fulfillment.
     concurrency: Allocation, fulfillment, cancellation and status transitions require concurrency control and idempotency to prevent double reservation, double fulfillment or contradictory terminal states.
-    example: An order for 20 units reserves 20, ships 12, and becomes PARTIALLY_FULFILLED from accepted fulfillment evidence. The remaining 8 stay executable. A cancellation then releases the remaining reservation and terminates the open demand without reversing the already accepted 12-unit fulfillment.
 specification: {version: 0.3.0, status: draft, identifier: CEDM-ENTITY-SALES-ORDER}

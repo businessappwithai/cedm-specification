@@ -15,7 +15,16 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
-      help: {summary: Governance state of routing., businessMeaning: Controls eligibility for new production release., usage: Engineering change and manufacturing control., relationshipContext: Historical orders retain prior routing evidence., valueSemantics: {DRAFT: Being prepared., ACTIVE: Eligible for production., SUSPENDED: Temporarily blocked., OBSOLETE: Superseded for new use.}}
+      help:
+        summary: Whether the process definition may be used for production.
+        valueSemantics:
+          DRAFT: Being defined; not yet usable.
+          ACTIVE: Approved for production.
+          SUSPENDED: Temporarily withdrawn from use.
+          OBSOLETE: Superseded or no longer used. A final state.
+        businessMeaning: Controls eligibility for new production release.
+        usage: Engineering change and manufacturing control.
+        relationshipContext: Historical orders retain prior routing evidence.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Output Product this routing produces., businessMeaning: Associates process definition with manufactured item., usage: Planning and production release., cardinalityMeaning: Exactly one output Product., workflowRole: Must match work-order output.}}
     - {name: operations, target: Operation, cardinality: "1..*", ownership: aggregate, help: {summary: Ordered standard process steps., businessMeaning: Defines how production is performed., usage: "Scheduling, costing, execution, and quality gates.", cardinalityMeaning: Active routing requires at least one operation., workflowRole: Operations are instantiated/executed under ManufacturingWorkOrder.}}

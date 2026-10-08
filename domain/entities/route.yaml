@@ -7,20 +7,18 @@ entity:
     icon: route
   identity: {key: routeId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Route., businessMeaning: Identifies one governed Route record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows.}}
-    - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Route., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity.}}
+    - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the route, constant for its life.', usage: Generated on creation; trips and shipments refer to it.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The short code of the route, such as R-NORTH.', usage: Used by dispatch and drivers.}}
   relationships:
-    - {name: stops, target: Stop, cardinality: "0..*", ownership: aggregate, help: {summary: Ordered operational points belonging to this Route., businessMeaning: Decomposes a journey into location-specific activities and schedule points., usage: "Routing, dispatch, ETA and reporting.", cardinalityMeaning: Zero or many Stops., workflowRole: Stop sequence must remain unique and ordered within Route.}}
+    - {name: stops, target: Stop, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number of stops, in visiting order; a route with none is not yet planned.', summary: Ordered operational points belonging to this Route., businessMeaning: Decomposes a journey into location-specific activities and schedule points., usage: "Routing, dispatch, ETA and reporting.", workflowRole: Stop sequence must remain unique and ordered within Route.}}
 
   invariants:
     - {id: ROUTE-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution.
-    purpose: Provide canonical implementation-neutral semantics for Route across enterprise applications.
-    businessMeaning: A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A planned path of transport stops used to move shipments or run a fleet.
+    businessMeaning: A route fixes the order in which stops are visited so deliveries and collections can be planned, driven and compared with what actually happened.
+    usage: Planned by logistics; used by dispatch and drivers.
+    relationshipContext: A route is made of ordered stops.
+    lifecycle: A route is planned, used, and withdrawn when no longer run. Past trips keep their route.
+    example: Route R-NORTH visits five depots in order from the warehouse each morning.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ROUTE}
