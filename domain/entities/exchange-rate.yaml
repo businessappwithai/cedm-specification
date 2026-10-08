@@ -20,7 +20,7 @@ entity:
         usage: Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations.
         relationshipContext: Identifies one rate record rather than a currency or monetary amount.
         workflowRole: Provides auditable linkage from a converted amount back to the rate used.
-    - name: fromCurrency
+    - name: fromCurrencyId
       type: reference
       target: Currency
       required: true
@@ -30,7 +30,7 @@ entity:
         usage: Identifies the source denomination of the monetary amount being converted.
         relationshipContext: Must differ from toCurrency for a meaningful exchange-rate conversion.
         workflowRole: Identifies the currency of the source Money value in an explicit conversion.
-    - name: toCurrency
+    - name: toCurrencyId
       type: reference
       target: Currency
       required: true
@@ -55,17 +55,17 @@ entity:
       required: true
       values: [SPOT, CONTRACT, DAILY, MONTHLY, ACCOUNTING, CUSTOM]
       help:
+        valueSemantics:
+          SPOT: The market rate at a moment in time.
+          CONTRACT: A rate fixed by agreement with a counterparty.
+          DAILY: The rate published for a business day.
+          MONTHLY: An average or closing rate for a month.
+          ACCOUNTING: A rate set by the finance team for ledger translation.
+          CUSTOM: Any other rate defined by policy.
         summary: Classifies the business purpose and provenance context of the exchange rate.
         usage: Used to select an appropriate rate according to transaction and accounting policy.
         relationshipContext: Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate.
         workflowRole: Controls which rate is eligible for a conversion event.
-        valueSemantics:
-          SPOT: Market or transaction-time conversion rate.
-          CONTRACT: Rate established by an agreement or commercial contract.
-          DAILY: Published daily rate for a defined business date.
-          MONTHLY: Published rate intended for a defined monthly reporting period.
-          ACCOUNTING: Rate designated by accounting policy for ledger translation or reporting.
-          CUSTOM: Controlled rate established for a specific business purpose.
     - name: effectiveAt
       type: datetime
       required: true
@@ -99,37 +99,19 @@ entity:
       default: ACTIVE
       values: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
       help:
+        valueSemantics:
+          DRAFT: Being prepared; not yet used.
+          ACTIVE: In force and usable for conversion.
+          EXPIRED: Its validity period has ended; kept for past conversions.
+          CANCELLED: Withdrawn; must not be used.
         summary: Lifecycle state of the exchange-rate record.
         usage: Used by conversion services to determine whether a rate may be applied.
         relationshipContext: Historical calculations retain the rate record even after it expires.
         workflowRole: Prevents use of draft, cancelled, or expired rates where policy does not permit them.
-        valueSemantics:
-          DRAFT: The status of the exchange rate is draft; set it when that is what the business means for this record.
-          ACTIVE: The status of the exchange rate is active; set it when that is what the business means for this record.
-          EXPIRED: The status of the exchange rate is expired; set it when that is what the business means for this record.
-          CANCELLED: The status of the exchange rate is cancelled; set it when that is what the business means for this record.
-  relationships:
-    - name: fromCurrencyRef
-      target: Currency
-      cardinality: '1'
-      ownership: reference
-      help:
-        summary: Relationship to the source currency.
-        usage: Provides navigation from a rate to its source denomination.
-        cardinalityMeaning: Exactly one source currency is required.
-        workflowRole: Establishes the source side of every conversion.
-    - name: toCurrencyRef
-      target: Currency
-      cardinality: '1'
-      ownership: reference
-      help:
-        summary: Relationship to the target currency.
-        usage: Provides navigation from a rate to its target denomination.
-        cardinalityMeaning: Exactly one target currency is required.
-        workflowRole: Establishes the target side of every conversion.
+  relationships: []
   invariants:
     - id: EXCHANGE-RATE-001
-      rule: fromCurrency and toCurrency must be different.
+      rule: fromCurrencyId and toCurrencyId must be different.
     - id: EXCHANGE-RATE-002
       rule: rate must be greater than zero.
     - id: EXCHANGE-RATE-003
