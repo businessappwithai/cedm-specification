@@ -7,12 +7,12 @@ entity:
     icon: key
   identity: {key: accessGrantId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: accessGrantId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AccessGrant., businessMeaning: Identifies one governed AccessGrant record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: accessGrantId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this particular grant of access to a user, kept even after the grant ends.", businessMeaning: Identifies one governed AccessGrant record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of AccessGrant., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether this grant is awaiting approval, currently gives access, has run its course or was withdrawn.", businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships: []
   invariants:
   - {id: ACCESS-GRANT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}

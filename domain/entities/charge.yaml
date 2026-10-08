@@ -7,12 +7,12 @@ entity:
     icon: file-text
   identity: {key: chargeId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: chargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Charge., businessMeaning: Identifies one governed Charge record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: chargeId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this billable charge through invoicing, settlement and any later adjustment.", businessMeaning: Identifies one governed Charge record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Charge., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the charge is still a draft, active and billable, completed through settlement, or cancelled.", businessMeaning: Indicates usability/execution state of Charge., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships:
   - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
   invariants:

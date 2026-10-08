@@ -12,7 +12,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the supplier return event.
+      summary: "The permanent identity of this return of goods to a supplier, kept with its history."
       businessMeaning: Identifies the reverse-procurement transaction independently of its supplier reference, receipt, shipment, inventory or financial adjustment.
       usage: Used for authorization, warehouse execution, supplier communication, accounting, audit and integration.
       relationshipContext: Distinct from returnNumber and all original PurchaseOrder, GoodsReceipt and Invoice identities.
@@ -24,7 +24,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Human-facing supplier return reference.
+      summary: "The return reference quoted to the supplier and on shipping paperwork, such as SR-2026-00317."
       businessMeaning: Operational identifier communicated to warehouse staff and the supplier.
       usage: Used for logistics, supplier communication, investigation and reconciliation.
       relationshipContext: Distinct from the original purchase order, receipt and invoice numbers.
@@ -36,7 +36,7 @@ entity:
     default: DRAFT
     values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED_BY_SUPPLIER, COMPLETED, CANCELLED, EXCEPTION]
     help:
-      summary: Lifecycle state of the supplier return.
+      summary: "Where the return stands, from draft and authorised through transit to completed, cancelled or exception."
       businessMeaning: Indicates authorization, transport, supplier receipt, completion or controlled exception.
       usage: Controls logistics, inventory and financial workflows.
       relationshipContext: Return status does not itself reverse inventory or accounts payable.
@@ -54,7 +54,7 @@ entity:
     type: datetime
     required: true
     help:
-      summary: Business timestamp for initiating the supplier return.
+      summary: "When the return to the supplier was initiated, which dates the reversal of the original receipt."
       businessMeaning: Establishes the chronology of the reverse-procurement event.
       usage: Supports logistics, audit, reporting and supplier claims.
       relationshipContext: Distinct from original receipt date and supplier acceptance date.

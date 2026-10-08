@@ -16,10 +16,11 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the inventory state projection.
+      summary: "The permanent reference for this product and location stock position, used by the movements that update it."
       usage: Used to reference and reconcile current stock state independently of movement events.
       relationshipContext: Identifies one Product/location state projection rather than a Product or location itself.
       workflowRole: Provides the current state consumed by allocation, fulfillment, replenishment and inventory control.
+      businessMeaning: "Lets stock movements, counts and reports all point to the same balance for a product at a location, so totals stay consistent."
   - name: quantityOnHand
     type: decimal
     required: true
@@ -31,6 +32,7 @@ entity:
       usage: Stock visibility, replenishment, counting, fulfillment and inventory control.
       relationshipContext: Represents physical stock and is distinct from reserved and available quantities.
       workflowRole: Derived from posted receipt, issue, transfer, return and adjustment movements.
+      businessMeaning: "How much stock is physically recorded at the location right now; stock counts are compared against it and differences become adjustments."
   - name: quantityReserved
     type: decimal
     required: true
@@ -42,6 +44,7 @@ entity:
       usage: Allocation and fulfillment planning.
       relationshipContext: Reservations normally do not change physical on-hand quantity.
       workflowRole: Derived from active reservation/release workflows and adjusted when fulfillment consumes or releases a reservation.
+      businessMeaning: "Stock already promised to confirmed orders or work, which must not be sold or issued to anyone else."
   - name: quantityAvailable
     type: decimal
     required: true
@@ -53,15 +56,17 @@ entity:
       usage: Availability checks, fulfillment, replenishment and planning.
       relationshipContext: Normally equals on-hand minus reserved before additional restrictions.
       workflowRole: Must be recalculated atomically with reservation and movement state changes.
+      businessMeaning: "What sales and planning can still promise to new orders after reservations and restrictions, so it is the figure used for availability checks."
   - name: lastUpdatedAt
     type: datetime
     required: true
     systemManaged: true
     help:
-      summary: Timestamp of the latest material projection update.
+      summary: "When the stock figures for this product and location last changed due to a receipt, issue or reservation."
       usage: Concurrency, synchronization, cache freshness, audit and integration.
       relationshipContext: Does not replace movement or reservation event timestamps.
       workflowRole: Supports stale-state detection during allocation and issue processing.
+      businessMeaning: "Tells users how fresh the stock figures are and helps reconcile them against movements posted around the same time."
   relationships:
   - name: product
     target: Product
@@ -115,7 +120,7 @@ entity:
   - {id: INVENTORY-BALANCE-008, rule: "InventoryLocation status or hierarchy changes must trigger validation of affected future movements, reservations, transfers and fulfillment workflows before the location becomes unavailable."}
   - {id: INVENTORY-BALANCE-009, rule: A posted inventory correction must be represented by an adjustment/reversal event and must not directly overwrite quantityOnHand history.}
   help:
-    summary: Current inventory state projection maintained from authoritative inventory events and reservation workflows.
+    summary: "The current stock position of one product at one storage location, showing how much is on hand, reserved and available, kept up to date from stock movements."
     businessMeaning: InventoryBalance answers the current operational question of what is on hand, reserved and available. InventoryMovement remains the historical ledger; reservation events explain commitment state.
     usage: Inventory control, warehouse management, order fulfillment, purchasing, maintenance, replenishment, planning and availability.
     relationshipContext: Product defines the stocked item, UnitOfMeasure defines quantity semantics, InventoryLocation defines where stock is held, InventoryMovement records physical/logical stock events, and reservation workflows govern committed quantity.

@@ -24,6 +24,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets quality assessments, AI models and access approvals refer to exactly this dataset, even if it is renamed."
   - name: code
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short reference data teams use in catalogues, pipelines and access requests to name the dataset unambiguously."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The plain-language name people search for in the data catalogue and see in reports, such as Customer Orders 2024."
   - name: classification
     type: enum
     required: true
@@ -70,6 +73,7 @@ entity:
         SENSITIVE: Represents the sensitive state or classification in the context of Dataset.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How sensitive the data is, from public through internal, confidential and restricted to sensitive; it decides who may be granted access, how the data must be protected and whether it may be used for AI training."
   - name: format
     type: string
     required: false
@@ -81,6 +85,7 @@ entity:
       relationshipContext: Its meaning is specific to Dataset; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The form the data is delivered in, such as CSV, Parquet or a database table, which tells consumers what tools they need to read it."
   - name: status
     type: enum
     required: true
@@ -103,6 +108,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Dataset.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells consumers whether the dataset is still being prepared, active and supported, archived for reference only, or retired and no longer to be used."
   - name: ownerOrganizationId
     type: reference
     target: Organization
@@ -114,6 +120,7 @@ entity:
       relationshipContext: This field connects Dataset to Organization. The reference establishes business context between
         the two entities and lets processes navigate from this record to the related Organization.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The organisation accountable for the dataset, who approves access requests, answers quality questions and decides when it is retired."
   relationships:
   - name: ownerOrganization
     target: Organization
@@ -157,7 +164,7 @@ entity:
       - {from: DRAFT, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a data entity called Dataset within the CEDM business model.
+    summary: "One dataset is a governed, named collection of data the business relies on for operations, reporting, analytics, research or training AI models, with an owner and a sensitivity classification."
     businessMeaning: Dataset is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -169,6 +176,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Dataset record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "A data owner registers the dataset as a draft with its classification and format, and it is activated once access and quality controls are in place; analysts, reports and AI model training then consume it, quality assessments are recorded against it, and it is archived or retired when it is no longer maintained."
 specification:
   version: 0.1.0
   status: draft

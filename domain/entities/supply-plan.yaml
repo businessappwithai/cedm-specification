@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for the plan, so its products, locations and resulting orders stay linked to the version that produced them."
   - name: planNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The number planners and managers quote when reviewing, approving or comparing plans."
   - name: planningStart
     type: date
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The first day the plan covers, from which demand and supply are balanced."
   - name: planningEnd
     type: date
     required: true
@@ -62,6 +65,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The last day the plan covers; demand beyond it is left to the next plan, and it cannot be earlier than the start."
   - name: status
     type: enum
     required: true
@@ -87,6 +91,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of SupplyPlan.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the plan can be acted on: DRAFT plans are being prepared, APPROVED ones await release, ACTIVE ones drive purchasing and production, and CLOSED or CANCELLED ones are finished."
   relationships:
   - name: organization
     target: Organization
@@ -155,7 +160,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a supply chain entity called SupplyPlan within the CEDM business model.
+    summary: "One plan for a planning horizon that balances expected demand against supply, stock and replenishment actions for chosen products and locations, so purchasing and production know what to bring in and when."
     businessMeaning: SupplyPlan is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -167,6 +172,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical SupplyPlan record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Planners draft the plan for a horizon from forecasts and stock positions, management approves it, it is activated so purchasing and production act on its replenishment proposals, and it is closed when the horizon ends or cancelled if replaced before use."
 specification:
   version: 0.1.0
   status: draft

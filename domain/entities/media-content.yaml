@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of this work, so its rights, documents and publications stay attached even when the title changes."
   - name: contentCode
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The catalogue reference editors and distributors use to identify the work, such as an episode or ISBN-style house code."
   - name: title
     type: string
     required: true
@@ -51,6 +53,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name the work is published and marketed under, which audiences, partners and catalogues recognise it by."
   - name: contentType
     type: enum
     required: true
@@ -81,6 +84,7 @@ entity:
         OTHER: Represents the other state or classification in the context of MediaContent.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What kind of work it is, such as video, audio, article, book or game, which decides the production steps, formats and rights that apply."
   - name: status
     type: enum
     required: true
@@ -106,6 +110,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of MediaContent.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the work is still in draft, produced, published, archived or retired, which tells distribution teams whether it may be offered to audiences."
   relationships:
   - name: owner
     target: Organization
@@ -151,7 +156,7 @@ entity:
       - {from: PRODUCED, to: RETIRED, action: retire}
       - {from: PUBLISHED, to: RETIRED, action: retire}
   help:
-    summary: Represents a media entity called MediaContent within the CEDM business model.
+    summary: "One media work, such as a video, article, podcast or book, that the organization creates, licenses or distributes, tracked from draft through production and publication to archiving or retirement."
     businessMeaning: MediaContent is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -163,6 +168,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical MediaContent record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "Created as a draft when a piece is commissioned, marked produced once it is finished, published to channels after rights are cleared, and later archived or retired; rights, licensing and distribution records refer to it throughout."
 specification:
   version: 0.1.0
   status: draft

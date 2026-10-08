@@ -6,16 +6,16 @@ entity:
   ui: {icon: eye}
   identity: {key: observationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: observationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Observation., businessMeaning: Identifies one primary evidence item independently of later interpretation., usage: "Research data, laboratory analysis, reproducibility and audit.", relationshipContext: Result may derive from one or more Observations., requiredMeaning: Required.}}
+    - {name: observationId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this measurement, which later results and reports cite as their primary evidence.", businessMeaning: Identifies one primary evidence item independently of later interpretation., usage: "Research data, laboratory analysis, reproducibility and audit.", relationshipContext: Result may derive from one or more Observations., requiredMeaning: Required.}}
     - {name: observedAt, type: datetime, required: true, help: {summary: Timestamp at which evidence was observed or measured., businessMeaning: Establishes scientific chronology., usage: "Time-series analysis, reproducibility and audit.", relationshipContext: May differ from record-entry time., requiredMeaning: Required.}}
-    - {name: observationType, type: string, required: true, maxLength: 160, help: {summary: Classification of the observed characteristic., businessMeaning: Defines what property or phenomenon the value represents., usage: "Analysis, validation and reporting.", relationshipContext: Unit and value semantics depend on observation type., requiredMeaning: Required.}}
-    - {name: value, type: string, required: true, maxLength: 2000, help: {summary: Recorded measured or qualitative value., businessMeaning: Primary scientific evidence as captured under applicable method., usage: "Analysis, QC and reporting.", relationshipContext: Numeric interpretation may require UnitOfMeasure and method context., requiredMeaning: Required.}}
+    - {name: observationType, type: string, required: true, maxLength: 160, help: {summary: "What property was measured or observed, such as pH, concentration, colour or cell count.", businessMeaning: Defines what property or phenomenon the value represents., usage: "Analysis, validation and reporting.", relationshipContext: Unit and value semantics depend on observation type., requiredMeaning: Required.}}
+    - {name: value, type: string, required: true, maxLength: 2000, help: {summary: "The reading or description actually recorded, such as 7.42 or slight turbidity, exactly as captured at the time.", businessMeaning: Primary scientific evidence as captured under applicable method., usage: "Analysis, QC and reporting.", relationshipContext: Numeric interpretation may require UnitOfMeasure and method context., requiredMeaning: Required.}}
     - name: status
       type: enum
       required: true
       default: RECORDED
       values: [RECORDED, VERIFIED, INVALIDATED]
-      help: {summary: Governance state of the Observation., businessMeaning: "Distinguishes captured evidence, verified evidence and explicitly invalidated evidence.", usage: "QC, analysis and audit.", relationshipContext: Invalidation preserves original evidence rather than deleting it., valueSemantics: {RECORDED: Evidence is captured., VERIFIED: Evidence passed applicable review/QC., INVALIDATED: Evidence is retained but excluded or flagged under governed reason.}, requiredMeaning: Required.}
+      help: {summary: "Whether the observation has just been recorded, has been verified by a reviewer, or has been invalidated as unusable.", businessMeaning: "Distinguishes captured evidence, verified evidence and explicitly invalidated evidence.", usage: "QC, analysis and audit.", relationshipContext: Invalidation preserves original evidence rather than deleting it., valueSemantics: {RECORDED: Evidence is captured., VERIFIED: Evidence passed applicable review/QC., INVALIDATED: Evidence is retained but excluded or flagged under governed reason.}, requiredMeaning: Required.}
   relationships:
     - {name: sample, target: Sample, cardinality: "0..1", ownership: reference, help: {summary: Sample from which the Observation originates., businessMeaning: Preserves specimen provenance., usage: "Traceability and interpretation.", cardinalityMeaning: Optional for non-sample observations., workflowRole: Sample lineage remains intact.}}
     - {name: assay, target: Assay, cardinality: "0..1", ownership: reference, help: {summary: Assay execution producing the Observation., businessMeaning: Preserves method/execution provenance., usage: "Laboratory analysis and audit.", cardinalityMeaning: Optional when captured outside an Assay., workflowRole: Completed Assay evidence retains observation identity.}}
@@ -35,9 +35,11 @@ entity:
       - {from: RECORDED, to: VERIFIED, action: verify}
       - {from: RECORDED, to: INVALIDATED, action: invalidate}
   help:
-    summary: Captures primary scientific evidence with provenance and QC state.
+    summary: "One raw scientific measurement or observation captured from a sample, assay or experiment, kept with its provenance and quality status before anyone interprets it."
     businessMeaning: Observation is raw or primary evidence; Result is a derived interpretation or summarized output.
     usage: Research, laboratories, life sciences, quality testing, analytics and audit.
     relationshipContext: Sample/Assay/Experiment provide provenance, UnitOfMeasure provides quantitative semantics, Results preserve downstream derivation.
     lifecycle: Observation is recorded, then verified or invalidated without destructive deletion.
+    workflowContext: "A scientist or instrument records the observation during an assay or experiment, a reviewer then verifies it or invalidates it if the measurement is flawed, and verified observations feed downstream results and reports, while invalidated ones stay on record as evidence instead of being deleted."
+    example: "An observation of pH 7.42 recorded from sample S-1043 during assay A-12, verified by the lab supervisor the next morning."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OBSERVATION}

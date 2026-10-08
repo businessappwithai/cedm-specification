@@ -1,0 +1,528 @@
+# Authored help, batch 101 (slice 01).
+
+AccessGrant:
+  attributes:
+    accessGrantId:
+      summary: "The permanent reference for this particular grant of access to a user, kept even after the grant ends."
+    status:
+      summary: "Shows whether this grant is awaiting approval, currently gives access, has run its course or was withdrawn."
+
+Appointment:
+  help:
+    summary: "One booked slot for a patient to receive a healthcare service at a planned time, with a chosen practitioner, provider or location, kept so clinics can plan capacity, send reminders and track attendance."
+    workflowContext: "Booked by scheduling staff or the patient, then confirmed and reminded, checked in when the patient arrives, and completed once the visit is linked to the encounter that recorded the care; cancellations and no-shows close it instead and feed capacity and attendance reporting."
+  attributes:
+    appointmentId:
+      summary: "The permanent reference for this booking, kept unchanged through confirmation, rescheduling and the visit itself."
+    appointmentNumber:
+      summary: "The booking reference quoted to the patient and front desk when confirming, changing or checking in."
+    appointmentType:
+      summary: "The kind of visit booked, such as a new consultation, follow-up or vaccination, which sets duration and preparation."
+    scheduledStartAt:
+      summary: "The date and time the patient is expected to be seen, used for reminders and lateness."
+    scheduledEndAt:
+      summary: "The date and time the booked slot is planned to finish, freeing the practitioner and room for the next patient."
+    status:
+      summary: "Shows whether the booking is scheduled, confirmed, checked in, completed, cancelled or a no-show by the patient."
+
+Assignment:
+  attributes:
+    assignmentId:
+      summary: "The permanent reference for this allocation of a task to a person, role or team, kept for the audit trail."
+    status:
+      summary: "Shows whether the allocated work is waiting to start, actively owned, finished or was cancelled before completion."
+
+BillOfMaterial:
+  help:
+    summary: "The recipe for making or assembling one product: which components go into it and in what quantities, kept so production, costing and purchasing all work from the same approved structure."
+    workflowContext: "Engineering drafts the structure and its component lines, it is released as ACTIVE for an effective date range, planning and work orders use it to calculate component demand and material issues, and it is made OBSOLETE when a new version replaces it or the product is discontinued."
+  attributes:
+    billOfMaterialId:
+      businessMeaning: "The permanent identity of one product structure version; work orders, costings and component lines point at it, so it stays the same even if the code or dates are edited."
+    code:
+      businessMeaning: "The reference engineers and planners use to find and discuss the structure, such as BOM-PUMP-200, and to exchange it with design and planning systems."
+    version:
+      businessMeaning: "Which revision of the product's recipe this is; production and costing must know the exact revision used, so a change in components creates a new version rather than altering an old one."
+    status:
+      businessMeaning: "Whether the structure may be used: DRAFT is still being prepared and cannot drive production, ACTIVE is approved for planning and work orders, and OBSOLETE is kept only for history."
+    effectiveFrom:
+      businessMeaning: "The first date on which planning and production should use this structure, letting engineering release a change in advance of the day it takes effect."
+    effectiveTo:
+      businessMeaning: "The last date the structure applies; after it, planning switches to the next version, while work orders already made against this one keep their history."
+
+Calendar:
+  attributes:
+    calendarId:
+      summary: "The permanent reference for this working calendar, used by every plan and schedule that follows it."
+    code:
+      summary: "The short key planners and integrations use to pick this calendar, such as UK-OFFICE or PLANT-2."
+    name:
+      summary: "The descriptive title users see when choosing which working days and holidays a schedule follows."
+
+Class:
+  help:
+    summary: "One scheduled run of a course for a particular term or cohort, with its own dates, instructors and enrolled students, kept so a school can enrol learners, record attendance and assess them."
+    workflowContext: "Created as a draft by the timetable or registry office from a course, opened for enrolment, moved in progress when teaching starts so attendance and assessments are recorded against it, and completed at the end of the term or cancelled if it does not run; completed classes then feed grades and transcripts."
+  attributes:
+    classId:
+      summary: "The permanent reference for this run of the course, separate from the reusable course definition."
+    classCode:
+      summary: "The section code students and staff use on timetables and enrolment forms, such as ALG1-B-2026."
+    name:
+      summary: "The title of this teaching group shown to learners, instructors and parents, such as Algebra I Section B."
+    startDate:
+      summary: "The first day of teaching for this class, which sets when attendance and enrolment cut-offs begin."
+    endDate:
+      summary: "The last planned day of teaching, after which the class is wrapped up and grades are finalised."
+    status:
+      summary: "Shows whether the class is still being set up, open for enrolment, under way, finished or cancelled."
+
+ContainerMovement:
+  help:
+    summary: "One instruction to move a specific shipping container, and the record of it happening, such as stacking, restacking, loading or leaving through the gate, kept so the yard always knows where each box is and why it moved."
+    workflowContext: "Planned by yard planning when a container arrives, is released, needs inspection or repair, or must be restacked; assigned to an equipment operator, started when handling begins and completed when the new slot or transport state is confirmed, which updates container position and feeds gate, billing and productivity reporting."
+  attributes:
+    containerMovementId:
+      summary: "The permanent reference for this single move of a container, kept as evidence after completion."
+      businessMeaning: "Identifies one move so equipment instructions, slot changes and later investigations all refer to exactly the same event, even if the movement number is reissued."
+    movementNumber:
+      summary: "The work order reference operators and planners quote when dispatching, tracking or querying this move."
+      businessMeaning: "The number shown on equipment terminals and work lists, used by drivers and supervisors to find the job and by customers or auditors to query a specific move."
+    movementType:
+      businessMeaning: "Why the box is being moved and what follows from it: a GATE_OUT means it leaves the depot and gives up its slot, a STACK or RESTACK places it in a new slot, a LOAD or DISCHARGE moves it on or off a vessel or vehicle, and INSPECTION or REPAIR_MOVE takes it to a workshop."
+    status:
+      businessMeaning: "Where the job stands: PLANNED and ASSIGNED moves are still to do, IN_PROGRESS means handling has begun, COMPLETED means the new position is confirmed, CANCELLED moves never happened and FAILED moves need recovery or replanning."
+    plannedAt:
+      summary: "The time the yard intends this move to happen, used to schedule equipment and drivers."
+      businessMeaning: "The target time planners sequence work against; comparing it with the actual start shows whether the yard is keeping up with truck appointments and vessel windows."
+    startedAt:
+      summary: "The moment the operator actually began handling the container for this move."
+      businessMeaning: "Marks when physical work began, so the yard can measure waiting time against the plan and handling time against completion."
+    completedAt:
+      businessMeaning: "When the container was confirmed in its new slot or transport state; from this moment the yard treats the box as being in its new position and the move as closed evidence."
+    priority:
+      businessMeaning: "How urgently the move should be done compared with other work; CRITICAL and HIGH moves, such as a container needed for a departing vessel, are dispatched before NORMAL and LOW housekeeping moves."
+
+CorrectiveActionVerification:
+  help:
+    summary: "One check, after a corrective or preventive action has been carried out, of whether it actually fixed the quality problem, kept as the evidence needed before the action and its nonconformance can be closed."
+  attributes:
+    correctiveActionVerificationId:
+      summary: "The permanent reference for this effectiveness check, kept as audit evidence after the decision."
+    verificationNumber:
+      summary: "The reference quality staff and auditors quote when discussing or reviewing this effectiveness check."
+    verificationDate:
+      summary: "When the evidence was reviewed to decide whether the corrective action worked as intended."
+      relationshipContext: "Falls after the implementation of the linked corrective action, and is the date quality staff cite when closing that action and the nonconformance it addresses."
+    result:
+      summary: "The verdict on whether the action fixed the problem: effective, partly effective, ineffective or not verifiable."
+    status:
+      summary: "Shows whether the check is open, being carried out, completed, reopened for more evidence or cancelled."
+      relationshipContext: "Only a completed check with an effective result lets the linked corrective action finish and the related nonconformance move toward closure; a reopened check holds both open."
+    findings:
+      summary: "What was examined and observed during the check, and why the verdict was reached."
+      relationshipContext: "Describes how the corrective action performed against the original nonconformance, for example defect rates in lots received after the fix."
+    verifiedBy:
+      relationshipContext: "The person accountable for the verdict, normally independent of whoever carried out the corrective action, so the effectiveness of the fix is not self-certified."
+
+Currency:
+  help:
+    summary: "One kind of money the business deals in, such as US dollars or euros, with its code, symbol and number of decimal places, so every price, invoice, payment and ledger amount states what money it is in."
+  attributes:
+    currencyId:
+      summary: "The permanent reference for this currency, used by every price, order, invoice and payment amount."
+      businessMeaning: "Lets every monetary amount point to one shared definition of its money, so historical transactions keep their currency even if the name or symbol is later edited."
+    code:
+      businessMeaning: "The three-letter code, such as USD or EUR, that banks, tax authorities and trading partners use; it is what appears on invoices and payment files and what exchange rates are quoted against."
+    name:
+      summary: "The full name of the money people recognise, such as US Dollar or Japanese Yen."
+      businessMeaning: "Shown wherever users choose or read a currency, so they do not have to know the three-letter code to pick the right one."
+    symbol:
+      summary: "The sign printed beside amounts on screens and documents, such as $, € or £."
+      businessMeaning: "Used to format amounts on invoices, quotes and statements in the way customers expect, while the code stays the unambiguous reference."
+    decimalPlaces:
+      businessMeaning: "How many minor units the money is normally counted in, such as two for cents or zero for yen; prices, totals and rounding on invoices and payments follow it."
+    status:
+      businessMeaning: "Whether new transactions may use the currency: ACTIVE ones can be chosen, INACTIVE ones are paused, and RETIRED ones remain only on historical orders, invoices and payments."
+
+Deposit:
+  attributes:
+    depositId:
+      summary: "The permanent reference for this deposit of funds, used on statements, interest and audit trails."
+    effectiveAt:
+      summary: "When the deposited funds count as placed with the bank for balance and interest purposes."
+
+EducationStudent:
+  help:
+    summary: "A learner known to a school or institution, from applicant through enrolled student to graduate and alumnus, kept so enrolments, attendance, grades, fees and guardians all belong to the right person."
+    workflowContext: "Created by admissions as an applicant, activated on acceptance so the registry can enrol the student in classes, used daily for attendance, grading and fee billing, possibly suspended for disciplinary or financial reasons, and finally graduated, withdrawn or moved to alumni for transcripts and alumni relations."
+  attributes:
+    studentId:
+      businessMeaning: "The permanent identity of the learner within the institution's records, so enrolments, grades and fees stay attached to the same student throughout their studies and afterwards."
+    partyId:
+      businessMeaning: "Links the student to their personal record, holding their name, contact details and date of birth once, so the same person can also appear as an employee, guardian or alumnus without duplication."
+    studentNumber:
+      businessMeaning: "The number printed on the student card and used by registry staff, teachers and the student when looking up records, submitting work or paying fees."
+    status:
+      businessMeaning: "Where the learner stands with the institution: APPLICANT has not yet started, ACTIVE may enrol and attend, SUSPENDED is temporarily barred, GRADUATED has completed the programme, WITHDRAWN left early, and ALUMNI has moved on after graduating."
+
+ERP:
+  help:
+    summary: "One business application environment, such as the group's operating company setup, holding its own organisations, parties, products, processes and documents, kept so everything recorded belongs to a clearly defined business context."
+    workflowContext: "Set up as a draft by implementation or system administrators who define its base currency, time zone and locale, activated when organisations, master data and workflows are ready for use, suspended during migrations or incidents, and retired when the business moves to another environment."
+  attributes:
+    erpId:
+      businessMeaning: "The permanent identity of the business environment; organisations, products and documents belong to it by this value, which never changes after creation."
+    code:
+      businessMeaning: "The short name administrators and integrations use to tell environments apart, such as GROUP-PROD or EU-OPS."
+    name:
+      businessMeaning: "The title users see when they sign in or switch between environments, such as Acme Group Operations."
+    description:
+      businessMeaning: "Explains which part of the business this environment serves and what it covers, helping administrators decide where new organisations or processes belong."
+    status:
+      businessMeaning: "Whether the environment may be used: DRAFT is still being set up, ACTIVE is in day-to-day use, SUSPENDED is temporarily closed to work, and RETIRED is kept only for history."
+    baseCurrencyId:
+      businessMeaning: "The money in which the environment reports by default; consolidated figures and amounts without their own currency are expressed in it."
+    timezone:
+      businessMeaning: "The local time used for business days, deadlines and cut-off times, so a day end or a due date means the same moment for everyone in the environment."
+    locale:
+      businessMeaning: "The language and regional conventions used for dates, numbers and labels, so documents and screens read naturally for the people using the environment."
+    createdAt:
+      businessMeaning: "When the environment was first set up, used by administrators and auditors to understand how long it has existed."
+    createdBy:
+      businessMeaning: "Who set up the environment, so questions about its original configuration go to the right person."
+    updatedAt:
+      businessMeaning: "When the environment's settings were last changed, helping administrators spot recent configuration changes after an issue."
+    updatedBy:
+      businessMeaning: "Who made the most recent change to the environment's settings, giving accountability for configuration changes."
+
+Filing:
+  attributes:
+    filingId:
+      summary: "The permanent reference for this submission to a court, regulator or registry, kept as proof of filing."
+    occurredAt:
+      summary: "When the document was submitted or took effect, which decides whether a deadline was met."
+
+GateEvent:
+  help:
+    summary: "One recorded pass of a container, truck or driver through a terminal gate, in or out, kept as lasting proof of when custody of the box changed hands at the terminal."
+    workflowContext: "Captured by gate clerks or automated gate systems when a truck arrives or leaves, verified against the booking, release or container visit, then used to update container custody, yard planning, demurrage and billing; a wrong entry is reversed rather than edited."
+    example: "At 09:42 on lane 3, truck AB-123-CD with driver J. Silva leaves the North Gate carrying container MSCU1234567; the OUT event is recorded, verified against the release order and closes the container's visit."
+  attributes:
+    gateEventId:
+      summary: "The permanent reference for this single gate pass, kept as custody evidence after verification."
+    occurredAt:
+      summary: "The exact time the truck or container passed the gate, which starts or ends terminal custody."
+    direction:
+      summary: "Whether the pass was an entry into the terminal, an exit, or an internal or other gate movement."
+    status:
+      summary: "Shows whether the gate pass has only been captured, has been checked and confirmed, or was reversed."
+
+HealthcareProvider:
+  help:
+    summary: "A doctor, nurse, clinic, hospital, laboratory or pharmacy authorised to deliver care, kept so appointments, encounters and practitioners are tied to an accountable, approved source of healthcare services."
+    workflowContext: "Registered by credentialing or provider-relations staff once licences are checked, used when booking appointments, recording encounters and affiliating practitioners, made inactive or suspended when credentials lapse or are under review, and retired when the provider no longer delivers services."
+  attributes:
+    providerId:
+      businessMeaning: "The permanent identity of the provider in this system, so appointments, encounters and practitioner affiliations stay linked to the same provider over time."
+    partyId:
+      businessMeaning: "Links the provider to the person or organisation behind it, holding name, address and contact details once, so a clinician can also be a patient or an employee without duplicate records."
+    providerNumber:
+      businessMeaning: "The registration or practice number used on referrals, claims and correspondence to identify the provider, often issued by a licensing body or payer."
+    providerType:
+      businessMeaning: "What kind of provider this is, such as a PHYSICIAN, HOSPITAL or PHARMACY, which decides the services it may offer, how it is scheduled and how its claims are handled."
+    status:
+      businessMeaning: "Whether the provider may currently deliver care: ACTIVE can be booked, INACTIVE is temporarily not offering services, SUSPENDED is barred pending review, and RETIRED remains only for history."
+
+IntegrationEndpoint:
+  attributes:
+    integrationEndpointId:
+      summary: "The permanent reference for this connection point to another system, used by every message sent through it."
+    occurredAt:
+      summary: "When this endpoint's setting or recorded exchange took effect, placing it in the integration history."
+
+InvoiceLine:
+  attributes:
+    invoiceLineId:
+      summary: "The permanent reference for this billed line, which later credits and adjustments point back to."
+    lineNumber:
+      summary: "The position of this line on the invoice, quoted when customers or suppliers query a charge."
+    quantity:
+      summary: "How many units of the product or service were billed on this line at the time of invoicing."
+    unitPrice:
+      summary: "The price charged per unit when the invoice was issued, regardless of later price changes."
+    discountAmount:
+      summary: "How much was taken off this line's value as a commercial discount before tax was worked out."
+    taxableAmount:
+      summary: "The value on this line that tax was calculated on, after any discount was deducted."
+    taxAmount:
+      summary: "The tax charged on this line, such as VAT or sales tax, at the rate then applicable."
+    description:
+      summary: "The wording printed on the invoice that tells the customer which goods or services were charged."
+    matchingStatus:
+      summary: "Shows whether this supplier-billed line agrees with the purchase order and goods actually received."
+    pricingEvidence:
+      relationshipContext: "Records the price source behind the line, such as the purchase order line or price list in force, so the charge can be reproduced even after the product's prices change."
+    discountEvidence:
+      relationshipContext: "Records which discount rule and version produced the line's discount, so a later change to that rule does not alter what this invoice charged."
+    taxEvidence:
+      relationshipContext: "Records which tax rules, jurisdiction and rate produced the line's tax, so returns, audits and credit notes can rely on the treatment actually applied."
+
+LegalCase:
+  help:
+    summary: "One lawsuit, arbitration or administrative proceeding brought within a wider legal matter, kept so lawyers can track the forum, filings, deadlines and outcome of that specific dispute."
+  attributes:
+    legalCaseId:
+      summary: "The permanent reference for this proceeding, used by filings, hearings and costs recorded against it."
+    occurredAt:
+      summary: "When the proceeding was started or assessed, anchoring deadlines and the history of the case."
+
+MaterialIssue:
+  help:
+    summary: "One release of component stock to a production work order, recording which product, lot and quantity went into making something, kept for costing, stock accuracy and traceability of finished goods."
+    workflowContext: "Prepared by stores or production when a work order needs its components, validated against the bill of material and available lots, posted with a matching inventory movement that reduces stock, then used for work-order costing and product genealogy; mistakes are corrected by a compensating return rather than edits."
+    example: "Issue MI-2026-0457 releases 120 kg of resin lot R-8831 from the raw-materials store to work order WO-5512 for moulded housings at 07:30, posting one inventory movement that reduces resin stock by 120 kg."
+  attributes:
+    materialIssueId:
+      summary: "The permanent reference for this release of material to production, kept for traceability."
+    issueNumber:
+      summary: "The issue slip reference stores staff and production quote when tracing what went to a work order."
+    quantity:
+      summary: "How much of the component was handed over to the work order for use in production."
+    issuedAt:
+      summary: "When the material was released to production, which sets the order of consumption for costing and traceability."
+
+Nonconformance:
+  help:
+    summary: "One recorded failure of a product, process or supplier delivery to meet its requirement, kept so the defect is contained, investigated, corrected and closed with evidence, and so supplier quality can be measured."
+  attributes:
+    nonconformanceId:
+      summary: "The permanent reference for this quality problem, used by every action and check raised against it."
+      relationshipContext: "Corrective actions, return dispositions, supplier returns and effectiveness verifications all point back to the problem through this reference."
+    number:
+      summary: "The reference quality and supplier staff quote when discussing, escalating or reporting this problem."
+      relationshipContext: "Quoted to the supplier on returns and claims and cited on corrective actions, so everyone can tie their work back to the same reported defect."
+    severity:
+      summary: "How serious the deviation is, from low to critical, which drives urgency and required evidence."
+      relationshipContext: "Decides how much containment, corrective action and verification evidence must exist before closure, and how urgently affected receipts and products are quarantined."
+    status:
+      summary: "Shows whether the problem is newly open, under review, contained, under corrective action, closed or rejected."
+      relationshipContext: "Moves to corrective action once corrective actions are raised, and can close only when those actions and their verifications are complete; rejection means no related action is required."
+    description:
+      summary: "Explains what went wrong and which requirement, specification or expected result was not met."
+      relationshipContext: "Gives the inspector, supplier and corrective-action owner a shared account of the defect found on the inspected product or received goods."
+    detectedAt:
+      summary: "When the problem was first found, which starts the clock for containment and response."
+      relationshipContext: "Usually the time of the quality inspection or goods receipt that revealed the defect, and the point from which supplier response times are measured."
+    closedAt:
+      summary: "When the problem was formally closed after all required actions and checks were completed."
+      relationshipContext: "Set only after the related corrective actions are complete and their effectiveness verifications support closure."
+
+PartyRelationship:
+  attributes:
+    partyRelationshipId:
+      summary: "The permanent reference for this link between two parties, kept even after the relationship ends."
+    code:
+      summary: "The short key used to identify this relationship in searches, imports and integrations with other systems."
+    name:
+      summary: "The readable label for the relationship, such as Employee of Acme or Supplier to Globex."
+
+Picking:
+  help:
+    summary: "One warehouse task telling a picker to take a set quantity of reserved stock from a storage location for an order, production or transfer, kept to direct, track and confirm the physical selection."
+    workflowContext: "Planned from a reservation or shipment line, released to the floor, started when a picker begins, confirmed as picked or short, moved to staging or a handling unit for packing and dispatch; exceptions such as missing stock are worked and returned to the flow, and unneeded tasks are cancelled."
+    example: "Pick task for 24 cartons of SKU 4471 from location A-03-02, reserved for shipment line SL-9012, released at 08:00 and confirmed as picked into pallet HU-5531 in staging lane S2."
+  attributes:
+    pickingId:
+      summary: "The permanent reference for this pick task, used on handheld devices and in the pick history."
+    quantity:
+      summary: "How much stock the picker is told to take from the source location for this task."
+    status:
+      summary: "Shows whether the task is planned, released, being picked, picked in full, short, cancelled or in exception."
+
+ProductAttribute:
+  help:
+    summary: "One reusable characteristic that products can be described by, such as colour, size or voltage, defined once with its type of value so catalogues, searches and product variants all use it consistently."
+    workflowContext: "Defined by product data managers when a new characteristic is needed, assigned to product categories and products, filled in with values when products are created, used by catalogue search and filtering, and, when variant-defining, to generate and distinguish product variants; changes go through review because existing variants depend on it."
+    example: "Attribute COLOUR, named Colour, holding a choice from a list of values and marked as variant-defining, so the T-shirt in Red and in Blue become separate sellable variants."
+  attributes:
+    productAttributeId:
+      summary: "The permanent reference for this product characteristic, used wherever products record a value for it."
+    code:
+      summary: "The fixed key used in imports, feeds and integrations to identify this characteristic, such as COLOUR."
+    name:
+      summary: "The label shown to shoppers and staff for this characteristic, such as Colour or Screen Size."
+    valueType:
+      summary: "What kind of value products must give for this characteristic, such as text, number, date or choice."
+    variantDefining:
+      summary: "Whether different values of this characteristic create separate sellable variants of the same product."
+
+ProjectPhase:
+  help:
+    summary: "One stage of a project, such as design, build or handover, that groups its tasks, milestones and costs, kept so managers can plan, track and sign off the project stage by stage."
+    workflowContext: "Planned by the project manager when the project plan is set up, activated when work on the stage begins and its tasks and milestones are executed, reviewed at the stage gate, and completed once required tasks and milestones are done, or cancelled if the stage is dropped."
+    lifecycle: "Starts PLANNED, becomes ACTIVE when work begins, and ends COMPLETED once its required tasks and milestones are done; a PLANNED or ACTIVE phase can be CANCELLED if the stage is dropped."
+    example: "Phase Detailed Design of the Riverside Warehouse project, active from March to May, holding the structural drawings task and the Design Approved milestone."
+  attributes:
+    projectPhaseId:
+      summary: "The permanent reference for this project stage, used by its tasks, milestones and costs."
+    name:
+      summary: "The title of the stage as the project team knows it, such as Design or Commissioning."
+    status:
+      summary: "Shows whether the stage is still planned, under way, signed off as complete or cancelled."
+
+PurchaseRequisition:
+  help:
+    workflowContext: "Raised by an employee who needs goods or services, submitted with its lines and justification, approved or rejected by budget holders, sourced by procurement through quotations or a chosen supplier, marked ordered once a purchase order covers it, and closed when the demand is satisfied; it may be cancelled before ordering."
+  attributes:
+    purchaseRequisitionId:
+      businessMeaning: "The permanent identity of the request, so approvals, quotations and the purchase order that fulfils it all trace back to the same internal demand."
+    requisitionNumber:
+      businessMeaning: "The number requesters, approvers and buyers quote when chasing, approving or converting the request, and which appears on the resulting purchase order as its source."
+    requisitionDate:
+      businessMeaning: "The day the need was formally raised, used to measure how long approval and purchasing take and to place the request in the right budget period."
+    status:
+      businessMeaning: "Where the request stands: DRAFT is still being written, SUBMITTED awaits approval, APPROVED may be sourced, REJECTED and CANCELLED go no further, ORDERED is covered by a purchase order, and CLOSED is fully satisfied."
+    justification:
+      businessMeaning: "Why the goods or services are needed, which approvers read to decide whether the spend is warranted and auditors check later."
+
+RepairEstimateLine:
+  help:
+    workflowContext: "Added by a surveyor or estimator while inspecting the damaged asset, priced with material, labour and replacement costs, revised as the estimate is negotiated, approved with its parent estimate by the owner or customer, then turned into repair work and material demand; the line stays as evidence of what was agreed."
+  attributes:
+    repairEstimateLineId:
+      businessMeaning: "The permanent identity of this repair item, so work orders, material requests and invoices created from the estimate refer back to exactly what was agreed."
+    lineNumber:
+      businessMeaning: "The item's position on the estimate, used by surveyors, customers and repair crews to discuss or approve a specific item."
+    repairCode:
+      businessMeaning: "The standard code for the repair to be done, such as straighten, patch or replace, which customers and repair shops use to agree the work and its rates."
+    damageCode:
+      businessMeaning: "The standard code for the damage found, such as dent, hole or corrosion, which justifies why the repair is needed."
+    componentCode:
+      businessMeaning: "Identifies the part of the asset affected, such as a door gasket or corner post, so the crew knows where to work."
+    materialCode:
+      businessMeaning: "Identifies the material or spare part expected to be used, so stores can reserve or order it once the estimate is approved."
+    quantity:
+      businessMeaning: "How much material, how many parts or how many units of work the repair item is expected to need, which drives material demand and cost."
+    materialAmount:
+      businessMeaning: "The estimated cost of materials for this item, which the customer is asked to approve and which is later compared with materials actually used."
+    labourAmount:
+      businessMeaning: "The estimated cost of the work hours needed for this item, quoted to the customer and compared with labour actually booked."
+    replacementAmount:
+      businessMeaning: "The estimated cost of swapping the damaged part for a new one when replacement is chosen over repair."
+    totalAmount:
+      businessMeaning: "The full estimated cost of this item, which the customer approves and which adds up into the estimate total."
+
+RiskAssessment:
+  attributes:
+    riskAssessmentId:
+      summary: "The permanent reference for this evaluation of a risk, kept as evidence when the risk is reassessed."
+    occurredAt:
+      summary: "When the risk was evaluated, so readers know how current the likelihood and impact ratings are."
+
+SamplingRule:
+  help:
+    workflowContext: "Written by quality engineers within a sampling plan, approved and activated for use, selected automatically when an inspection's lot size falls in its range to decide how many units to sample and how many failures are acceptable, and retired when the plan is revised; completed inspections keep the rule they used."
+  attributes:
+    samplingRuleId:
+      summary: "The permanent reference for this sampling rule, kept on every inspection that applied it."
+    ruleNumber:
+      summary: "The reference quality engineers use to identify this rule within its sampling plan during review."
+    status:
+      summary: "Shows whether the rule is still a draft, active for new inspections, or retired from use."
+
+Settlement:
+  help:
+    summary: "One discharge of an approved insurance claim, by payment, repair service, offset or recovery, covering one or more approved claim lines, kept so claims finance knows what was paid out and how."
+    workflowContext: "Drafted by the claims handler once claim lines are approved, approved within the handler's authority limits, executed by making the payment or arranging the service, then reconciled with the claim and the finance ledger; a settlement drafted in error is voided before execution."
+  attributes:
+    settlementId:
+      summary: "The permanent reference for this claim settlement, kept as evidence once the liability is discharged."
+    settlementNumber:
+      summary: "The settlement reference claims and finance staff quote to the claimant and on payment advice."
+    amount:
+      summary: "How much of the approved claim liability this settlement pays out or otherwise discharges."
+    method:
+      summary: "How the claim is being settled: by payment, a repair service, an offset, a recovery or otherwise."
+    status:
+      summary: "Shows whether the settlement is in draft, approved for execution, already executed or voided."
+
+Study:
+  help:
+    summary: "One organised research investigation run under an approved protocol within a research project, kept so its experiments, samples, assays, observations and results can be planned, tracked and traced back to it."
+    workflowContext: "Planned by the principal investigator within a research project, activated once its protocol is approved so experiments and assays can be run and observations recorded, suspended if safety or resource issues arise, completed when the results are in, and archived for long-term retention and regulatory inspection."
+    example: "Study ST-ONC-014, Dose-response of compound AX-77 in liver cell lines, run under protocol PRT-2026-09 within the oncology discovery project, with three experiments and twelve assays."
+  attributes:
+    studyId:
+      summary: "The permanent reference for this investigation, used by every experiment, sample and result recorded under it."
+    studyCode:
+      summary: "The short code scientists use on lab notebooks, sample labels and reports, such as ST-ONC-014."
+    title:
+      summary: "The full title describing what the investigation sets out to find, shown in reports and approvals."
+    status:
+      summary: "Shows whether the study is planned, active, suspended, completed, cancelled or archived for retention."
+
+SupplierDebitNote:
+  attributes:
+    supplierDebitNoteId:
+      summary: "The permanent reference for this debit raised against the supplier, kept after it is applied."
+    debitNoteNumber:
+      summary: "The reference quoted to the supplier and in finance when chasing or applying this debit."
+    debitNoteDate:
+      summary: "The date the debit takes effect, which places it in an accounting and tax period."
+    status:
+      summary: "Shows whether the debit is in draft, approved, posted, partly or fully applied, disputed, cancelled or reversed."
+    currencyId:
+      summary: "The currency the debit amounts are stated in, normally that of the supplier invoices it offsets."
+    subtotal:
+      summary: "The value of the debit before tax, being the sum of its debit note lines."
+      relationshipContext: "Adds up the debit note's lines and should not exceed the recovery amount approved by the linked supplier claim resolution."
+    taxAmount:
+      summary: "The tax added to the debit, recovering tax previously charged by the supplier on the original invoice."
+      relationshipContext: "Follows the tax treatment of the supplier invoices being corrected, and is recognised through the journal entries posted for the debit."
+    totalAmount:
+      summary: "The full amount, tax included, that the supplier owes back or is deducted from future payments."
+    amountRemaining:
+      summary: "How much of the posted debit has not yet been set against supplier invoices."
+      relationshipContext: "Falls as debit note applications set the debit against the supplier's invoices, and reaches zero when the debit is fully applied."
+
+TaxCode:
+  attributes:
+    taxCodeId:
+      summary: "The permanent reference for this tax code, used by every invoice line and rule that applies it."
+    status:
+      summary: "Shows whether the tax code is still a draft, active for new transactions, ended or cancelled."
+
+Ticket:
+  help:
+    summary: "One piece of service work assigned to a team or person to investigate, fix or follow up part of a customer case or request, kept so work is owned, tracked against service levels and resolved."
+    workflowContext: "Created from a service case or request, assigned to a queue or agent, worked in progress and possibly put pending while waiting for the customer or a third party, resolved when the work is done and closed once the outcome is confirmed; tickets no longer needed are cancelled."
+  attributes:
+    ticketId:
+      summary: "The permanent reference for this piece of service work, kept with its history after closure."
+    ticketNumber:
+      summary: "The ticket reference agents and customers quote when following up or escalating the work."
+    summary:
+      summary: "A one-line statement of the work to be done, shown in queues and notifications to agents."
+    priority:
+      summary: "How urgently the work must be handled, from low to urgent, which orders the queue and escalation."
+    status:
+      summary: "Shows whether the ticket is new, assigned, being worked, pending, resolved, closed or cancelled."
+
+Variance:
+  help:
+    workflowContext: "Produced during period-end reporting by comparing actual results with the budget or forecast for an organisation, reviewed by finance and budget owners who explain significant differences, then used to revise forecasts, plan corrective spending and report performance to management."
+    lifecycle: "Calculated after the period's actuals are available, recalculated if budget, forecast or actual figures change before close, and then kept as the reported comparison for that period; it never changes the underlying ledger."
+    example: "Variance MKT-Q3 shows the marketing department spent 125,000 against a budget of 100,000 in the third quarter, an unfavourable difference of 25,000 explained by an unplanned trade show."
+  attributes:
+    varianceId:
+      summary: "The permanent reference for this budget-to-actual comparison, used in reports and commentary."
+    code:
+      summary: "The short reference finance uses to pick out this comparison in reports and reviews."
+
+YardBay:
+  help:
+    workflowContext: "Set up by yard planners when a block's layout is configured, used by the yard planning process to choose slots for arriving containers and plan retrievals, blocked temporarily for maintenance or safety with existing containers relocated by container movements where needed, and closed when the lane is taken out of service."
+  attributes:
+    yardBayId:
+      summary: "The permanent reference for this storage lane, unchanged if the yard is renumbered or relaid out."

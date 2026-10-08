@@ -8,9 +8,9 @@ entity:
     icon: factory
   identity: {key: supplierId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierId, type: uuid, required: true, immutable: true, help: {summary: Immutable Supplier role identity., usage: Connects procurement purchase orders receipts invoices payments returns credits claims resolutions and supplier performance., relationshipContext: Supplier identifies the role while PartyRole and Party identify the underlying party., workflowRole: Preserves supplier traceability across procure-to-pay reverse procurement claim recovery and performance management., requiredMeaning: Required for stable supplier history.}}
-  - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true, help: {summary: PartyRole backing the Supplier specialization., usage: Navigates to common party identity and role information., relationshipContext: Supplier must not duplicate Party identity., workflowRole: Supplies shared party context to procurement and financial workflows., requiredMeaning: Required for role specialization.}}
-  - {name: supplierCode, type: string, required: true, unique: true, maxLength: 100, help: {summary: Enterprise supplier business reference., usage: Used on purchase orders receipts invoices returns credits payments claims portals reports and integrations., relationshipContext: Distinct from legal name and external registration identifiers., workflowRole: Identifies the supplier across procurement settlement recovery and performance., requiredMeaning: Required for operational recognition.}}
+  - {name: supplierId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this supplier across purchase orders, invoices and payments.", usage: Connects procurement purchase orders receipts invoices payments returns credits claims resolutions and supplier performance., relationshipContext: Supplier identifies the role while PartyRole and Party identify the underlying party., workflowRole: Preserves supplier traceability across procure-to-pay reverse procurement claim recovery and performance management., requiredMeaning: Required for stable supplier history., businessMeaning: "Lets every purchase order, receipt, invoice, payment and assessment point to exactly this supplier, even if its name or code changes."}}
+  - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true, help: {summary: "Links the supplier to the underlying party, so its name and contact details are shared.", usage: Navigates to common party identity and role information., relationshipContext: Supplier must not duplicate Party identity., workflowRole: Supplies shared party context to procurement and financial workflows., requiredMeaning: Required for role specialization., businessMeaning: "Ties the supplier role to the company or person behind it, so one organisation that is both customer and supplier keeps a single identity and set of contact details."}}
+  - {name: supplierCode, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The short vendor code buyers and accounts payable staff use to pick this supplier on documents.", usage: Used on purchase orders receipts invoices returns credits payments claims portals reports and integrations., relationshipContext: Distinct from legal name and external registration identifiers., workflowRole: Identifies the supplier across procurement settlement recovery and performance., requiredMeaning: Required for operational recognition., businessMeaning: "The vendor number quoted on purchase orders and when matching invoices, letting staff identify the supplier quickly and unambiguously."}}
   - name: supplierType
     type: enum
     required: false
@@ -21,7 +21,7 @@ entity:
     - INTERNAL
     - OTHER
     help:
-      summary: Classification of supplier relationship.
+      summary: "What kind of supplier this is, such as an individual, business, government body or internal unit."
       usage: Supports onboarding compliance tax contracting and reporting.
       relationshipContext: Does not replace Party identity classification.
       workflowRole: Supplies supplier classification to procurement policy.
@@ -32,6 +32,7 @@ entity:
         GOVERNMENT: The supplier type of the supplier is government; set it when that is what the business means for this record.
         INTERNAL: The supplier type of the supplier is internal; set it when that is what the business means for this record.
         OTHER: The supplier type of the supplier is other; set it when that is what the business means for this record.
+      businessMeaning: "Decides which tax, compliance and onboarding checks apply; for example individuals may need withholding tax and internal suppliers are settled by intercompany transfer."
   - name: qualificationStatus
     type: enum
     required: false
@@ -42,7 +43,7 @@ entity:
     - SUSPENDED
     - DISQUALIFIED
     help:
-      summary: Procurement qualification state.
+      summary: "Shows whether the supplier has been reviewed and approved to supply, or is pending, suspended or disqualified."
       usage: Controls sourcing eligibility and supplier governance.
       relationshipContext: Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment
         evidence.
@@ -58,7 +59,8 @@ entity:
           record.
         DISQUALIFIED: The qualification status of the supplier is disqualified; set it when that is what the business means
           for this record.
-  - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing., optionalMeaning: Optional.}}
+      businessMeaning: "Tells buyers whether they may place new orders: only qualified suppliers should receive purchase orders, while pending, suspended or disqualified ones need procurement review first."
+  - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: "The agreed terms that set when invoices from this supplier fall due for payment.", usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing., optionalMeaning: Optional., businessMeaning: "Sets the default due date and any early-payment discount for this supplier's invoices, which drives payment runs and cash planning."}}
   - name: status
     type: enum
     required: true
@@ -69,7 +71,7 @@ entity:
     - BLOCKED
     - RETIRED
     help:
-      summary: Supplier relationship lifecycle state.
+      summary: "Shows whether the supplier is active, inactive, blocked from transactions, or retired permanently."
       usage: Controls procurement eligibility.
       relationshipContext: Historical transactions remain valid after state changes.
       workflowRole: New procurement return claim-resolution and performance workflows must evaluate status.
@@ -79,6 +81,7 @@ entity:
         INACTIVE: The status of the supplier is inactive; set it when that is what the business means for this record.
         BLOCKED: The status of the supplier is blocked; set it when that is what the business means for this record.
         RETIRED: The status of the supplier is retired; set it when that is what the business means for this record.
+      businessMeaning: "Controls whether the supplier can be used: active suppliers can be ordered from and paid, inactive ones are dormant, blocked ones are stopped pending a problem such as a dispute, and retired ones are kept only for history."
   relationships:
   - {name: partyRole, target: PartyRole, cardinality: '1', ownership: reference, help: {summary: Common PartyRole relationship., usage: Resolves underlying party and supplier role., cardinalityMeaning: Exactly one PartyRole., workflowRole: Supplies common identity.}}
   - {name: addresses, target: Address, cardinality: 0..*, ownership: reference, help: {summary: Supplier operational addresses., usage: Supports ordering invoicing logistics tax correspondence and returns., cardinalityMeaning: Multiple purpose-specific addresses are supported., workflowRole: Consuming workflows select the appropriate address.}}

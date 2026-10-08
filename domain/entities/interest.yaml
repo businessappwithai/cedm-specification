@@ -7,8 +7,8 @@ entity:
     icon: table
   identity: {key: interestId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: interestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Interest., businessMeaning: Identifies one governed Interest record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+  - {name: interestId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this interest accrual or charge, which postings and statements refer back to.", businessMeaning: Identifies one governed Interest record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: false, help: {summary: "The moment from which this interest calculation applies, placing the charge or accrual in the correct period.", businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
   relationships: []
   invariants:
   - {id: INTEREST-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}

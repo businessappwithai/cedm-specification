@@ -6,18 +6,18 @@ entity:
   ui: {icon: badge-check}
   identity: {key: entitlementId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: entitlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service entitlement., businessMeaning: Identifies one service right independently of the contract header or service work consuming it., usage: "Coverage validation, service authorization, reporting and audit.", relationshipContext: Remains stable as consumption and status change., requiredMeaning: Required.}}
-    - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing entitlement reference., businessMeaning: Operational identifier for coverage administration., usage: "Case intake, service authorization and reporting.", relationshipContext: Distinct from Contract and ServiceContract numbers., requiredMeaning: Required.}}
+    - {name: entitlementId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this service right that service orders check and draw against.", businessMeaning: Identifies one service right independently of the contract header or service work consuming it., usage: "Coverage validation, service authorization, reporting and audit.", relationshipContext: Remains stable as consumption and status change., requiredMeaning: Required.}}
+    - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The code service agents quote to look up what this customer is entitled to receive.", businessMeaning: Operational identifier for coverage administration., usage: "Case intake, service authorization and reporting.", relationshipContext: Distinct from Contract and ServiceContract numbers., requiredMeaning: Required.}}
     - {name: effectiveFrom, type: date, required: true, help: {summary: First date the service right may be used., businessMeaning: Starts entitlement eligibility., usage: "Coverage checks and reporting.", relationshipContext: Must fall within the governing ServiceContract period., requiredMeaning: Required.}}
     - {name: effectiveTo, type: date, required: false, help: {summary: Last date the service right may be used., businessMeaning: Ends ordinary eligibility without rewriting historical consumption., usage: "Coverage checks and renewals.", relationshipContext: Must not exceed governed contract scope., optionalMeaning: Optional for open-ended rights permitted by the ServiceContract.}}
-    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context., optionalMeaning: Optional for unlimited coverage.}}
+    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: "How much covered service, such as visits or hours, the customer may consume in total.", businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context., optionalMeaning: Optional for unlimited coverage.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, EXHAUSTED, EXPIRED, TERMINATED]
       help:
-        summary: Lifecycle state controlling new entitlement use.
+        summary: "Shows whether the customer can currently use this right or it is suspended, used up or ended."
         businessMeaning: Distinguishes prepared, usable, temporarily unavailable, consumed and ended rights.
         usage: Service authorization and audit.
         relationshipContext: Historical service orders retain entitlement evidence after the right ends.
@@ -58,10 +58,11 @@ entity:
       - {from: ACTIVE, to: TERMINATED, action: terminate}
       - {from: SUSPENDED, to: TERMINATED, action: terminate}
   help:
-    summary: Represents a concrete right to covered service under a ServiceContract.
+    summary: "One customer's right to receive a defined scope of service under a service contract, with its validity period, usage limit and any covered asset or product, so service teams know what work is covered."
     businessMeaning: Entitlement answers whether a customer, asset or product scope qualifies for service; ServiceOrder records actual authorized execution.
     usage: Customer service, field service, contract service, coverage validation, billing and audit.
     relationshipContext: ServiceContract and Customer are mandatory; Asset, Product and SLA refine scope; ServiceOrders provide consumption evidence.
     lifecycle: Draft rights become active, may suspend, and end by exhaustion, expiry or termination without losing historical usage.
     example: A support contract grants ten on-site visits for one Asset; each covered ServiceOrder consumes the Entitlement until the limit is exhausted.
+    workflowContext: "An entitlement is set up as a draft when a service contract is sold, activated when the contract starts, checked and consumed as service orders are raised against it, may be suspended for non-payment, and ends as exhausted when its usage is used up, expired at its end date or terminated early."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ENTITLEMENT}

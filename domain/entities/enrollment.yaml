@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets grades, fees and class lists attach to this one registration rather than to the student generally."
   - name: enrollmentNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference the registrar, the student and the finance office quote when dealing with this registration."
   - name: enrolledAt
     type: datetime
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the student was registered, which decides admission order, fee deadlines and eligibility for the term."
   - name: status
     type: enum
     required: true
@@ -75,6 +78,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of Enrollment.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the student is pending, actively studying, has completed, has withdrawn, or the registration was cancelled."
   relationships:
   - name: student
     target: EducationStudent
@@ -155,7 +159,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents a education transaction called Enrollment within the CEDM business model.
+    summary: "A student's formal registration in a program and, where relevant, a specific course or class, kept so attendance, grades and fees are charged and recorded against the right place of study."
     businessMeaning: Enrollment is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -167,6 +171,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Enrollment record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "An enrollment is created when a student registers and may sit pending until approval or payment; it becomes active when study starts, collects grades and fees, and ends as completed with an outcome, withdrawn by the student, or cancelled, which raises a follow-up task."
 specification:
   version: 0.1.0
   status: draft

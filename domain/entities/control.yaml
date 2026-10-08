@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps risk assessments, policy mappings and audit test results attached to the same control even when its name or wording is revised."
   - name: code
     type: string
     required: true
@@ -35,6 +36,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference auditors and control owners use in risk registers, test plans and findings, such as FIN-AP-03, so everyone discusses the same safeguard."
   - name: name
     type: string
     required: true
@@ -46,6 +48,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "A short statement of what the control does, such as 'Dual approval for payments over 10,000', that owners and auditors recognise in registers and reports."
   - name: description
     type: string
     required: true
@@ -57,6 +60,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Explains how the control is performed, by whom and with what evidence, so a new owner can operate it and an auditor can test it consistently."
   - name: controlType
     type: enum
     required: true
@@ -78,6 +82,7 @@ entity:
         DIRECTIVE: Represents the directive state or classification in the context of Control.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Says how the control reduces risk: preventive controls stop a problem before it happens, detective ones find it afterwards, corrective ones fix it, and directive ones guide behaviour through rules or instructions; auditors weigh coverage by this mix."
   - name: frequency
     type: enum
     required: true
@@ -107,6 +112,7 @@ entity:
         AD_HOC: Represents the ad hoc state or classification in the context of Control.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "States how often the control must be performed, from continuous system checks to daily, monthly, annual, event-driven or ad hoc execution, which drives owner reminders and how many samples an auditor tests."
   - name: status
     type: enum
     required: true
@@ -129,6 +135,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Control.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the control is still being designed, is operating and relied on, is temporarily switched off, or has been retired; only active controls count as mitigating a risk."
   relationships:
   - name: owner
     target: Party
@@ -184,7 +191,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a governance entity called Control within the CEDM business model.
+    summary: "A safeguard the organisation operates to prevent, detect or correct a business risk, such as a dual approval on payments or a monthly bank reconciliation, kept so owners, testers and auditors know what is in place."
     businessMeaning: Control is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -196,6 +203,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Control record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Risk or compliance teams draft the control and link it to the risks it mitigates and the policies that require it, the control owner activates it and performs it at its stated frequency, auditors test it, it may be deactivated temporarily and reactivated, and it is retired when the risk or process no longer exists."
 specification:
   version: 0.1.0
   status: draft

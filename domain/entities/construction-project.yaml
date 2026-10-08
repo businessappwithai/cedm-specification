@@ -25,6 +25,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Identifies the construction-specific record so contracts, site details and handed-over assets attach to the right project."
   - name: projectId
     type: reference
     target: Project
@@ -40,6 +41,7 @@ entity:
         between the two entities and lets processes navigate from this record to the related Project.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Links to the general project that carries the budget, schedule and team, so construction details sit alongside normal project management."
   - name: projectType
     type: enum
     required: true
@@ -66,6 +68,7 @@ entity:
         OTHER: Represents the other state or classification in the context of ConstructionProject.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Classifies the work as building, infrastructure, civil, industrial, renovation or other, which drives permits, contract forms and reporting."
   - name: siteCondition
     type: string
     required: false
@@ -78,6 +81,7 @@ entity:
       relationshipContext: Its meaning is specific to ConstructionProject; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Notes what the site is like, such as ground conditions, access limits or existing structures, which affects design, cost and safety planning."
   - name: status
     type: enum
     required: true
@@ -107,6 +111,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of ConstructionProject.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows which phase the project is in, from planned through design, procurement, construction and commissioning to completed, or cancelled."
   relationships:
   - name: project
     target: Project
@@ -185,7 +190,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a construction entity called ConstructionProject within the CEDM business model.
+    summary: "A building or civil works project, such as a new warehouse or a bridge repair, tracked from planning through design, procurement and construction to commissioning, with its site, contracts and resulting assets."
     businessMeaning: ConstructionProject is a business concept with its own identity and lifecycle. It captures information
       that must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -197,6 +202,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical ConstructionProject record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "The project is planned, moves through design, procurement of contractors and materials, construction on site and commissioning, and is completed when handed over; it can be cancelled along the way, which raises a task to settle contracts and commitments that depended on it."
 specification:
   version: 0.1.0
   status: draft

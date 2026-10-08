@@ -7,15 +7,15 @@ entity:
     icon: boxes
   identity: {key: inventoryTransferId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: inventoryTransferId, type: uuid, required: true, immutable: true, help: {summary: Stable transfer identity., businessMeaning: Identifies one governed relocation independently of stock postings., usage: "Warehouse transfer, staging, replenishment and audit.", relationshipContext: Groups attributable InventoryMovement events., requiredMeaning: Required.}}
-  - {name: transferNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing transfer reference., businessMeaning: Operational identifier for relocation work., usage: Warehouse execution and reconciliation., relationshipContext: Distinct from movement numbers., requiredMeaning: Required.}}
-  - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity authorized for relocation., businessMeaning: Defines transfer demand., usage: Execution and variance reconciliation., relationshipContext: Interpreted with Product and traceability identities., requiredMeaning: Required.}}
+  - {name: inventoryTransferId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference linking this relocation instruction to the stock movements posted for it.", businessMeaning: Identifies one governed relocation independently of stock postings., usage: "Warehouse transfer, staging, replenishment and audit.", relationshipContext: Groups attributable InventoryMovement events., requiredMeaning: Required.}}
+  - {name: transferNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The transfer number warehouse staff see on work lists and scan when moving the goods.", businessMeaning: Operational identifier for relocation work., usage: Warehouse execution and reconciliation., relationshipContext: Distinct from movement numbers., requiredMeaning: Required.}}
+  - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How much of the product has been authorised to move from the source to the destination location.", businessMeaning: Defines transfer demand., usage: Execution and variance reconciliation., relationshipContext: Interpreted with Product and traceability identities., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
-    help: {summary: Transfer lifecycle state., businessMeaning: Controls warehouse execution eligibility., usage: Transfer orchestration and audit., relationshipContext: Posted movements remain immutable regardless of header state., valueSemantics: {PLANNED: Prepared but not executable., RELEASED: Authorized., IN_PROGRESS: Physical relocation underway., COMPLETED: Authorized quantity reconciled., CANCELLED: Remaining work terminated.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the move is planned, released to the floor, under way, completed or cancelled.", businessMeaning: Controls warehouse execution eligibility., usage: Transfer orchestration and audit., relationshipContext: Posted movements remain immutable regardless of header state., valueSemantics: {PLANNED: Prepared but not executable., RELEASED: Authorized., IN_PROGRESS: Physical relocation underway., COMPLETED: Authorized quantity reconciled., CANCELLED: Remaining work terminated.}, requiredMeaning: Required.}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being relocated., businessMeaning: Defines inventory item affected., usage: Validation and reconciliation., cardinalityMeaning: Exactly one Product., workflowRole: All movements must match.}}
   - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location inventory leaves., businessMeaning: Defines transfer origin., usage: Availability and warehouse execution., cardinalityMeaning: Exactly one source., workflowRole: Must differ from target and hold eligible stock.}}
@@ -80,10 +80,12 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Warehouse/inventory relocation authorization separated from stock ledger events.
+    summary: "An authorised instruction to move a quantity of a product from one stock location to another, such as from the bulk reserve to a pick face, tracked until the actual stock movements are posted."
     businessMeaning: InventoryTransfer explains why and where stock should move; InventoryMovement records what stock actually changed location.
     usage: Putaway, replenishment, staging, inter-bin relocation and controlled warehouse transfers.
     relationshipContext: Product/Lot/Serial identify stock; InventoryLocation supplies origin/destination; InventoryMovement provides authoritative physical effect.
     lifecycle: Planned → released → in progress → completed or cancelled.
     changePropagation: Release reserves/validates eligible stock where policy requires; execution updates balances only through movements.
+    workflowContext: "Inventory planners or replenishment rules create the transfer as planned, a supervisor releases it to the warehouse floor, operators start moving the goods and the stock movements are posted, and the transfer completes when posted quantities match; it can be cancelled at any point before completion."
+    example: "Transfer TR-2026-0418 moves 240 cases of bottled water, lot L-0912, from reserve rack R-14 to pick face A-03, released at 07:30 and completed by 09:10."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-TRANSFER}

@@ -20,6 +20,7 @@ entity:
       usage: Used to trace the exact internal demand through approval, sourcing, purchase-order creation, fulfillment, and reporting.
       relationshipContext: Identifies this demand line independently of the parent requisition, Product, or any later PurchaseOrderLine created from it.
       requiredMeaning: Required because each procurement demand must remain individually traceable.
+      businessMeaning: "Lets quotation requests and purchase order lines trace back to this exact internal request, so buyers and auditors can see who asked for what."
   - name: lineNumber
     type: integer
     required: true
@@ -29,6 +30,7 @@ entity:
       usage: Used by requesters, approvers, buyers, documents, and integrations to refer to a specific requested item or service.
       relationshipContext: Meaningful only within the containing requisition; it is not a global identifier.
       requiredMeaning: Required for human-readable requisition processing.
+      businessMeaning: "The line's position on the requisition, used by requesters, approvers and buyers when discussing individual items; it is unique within the requisition."
   - name: quantity
     type: decimal
     required: true
@@ -39,6 +41,7 @@ entity:
       usage: Used for approval, sourcing, supplier quotation, planning, and eventual conversion into a purchase commitment.
       relationshipContext: Quantity requires Product and UnitOfMeasure context to be meaningful and may differ from the quantity eventually ordered.
       requiredMeaning: Required because procurement demand must state the requested magnitude.
+      businessMeaning: "How much the requester needs, in the line's unit of measure; buyers source against it and approvers judge the spend from it. It must be greater than zero."
   - name: requestedDate
     type: date
     required: false
@@ -47,6 +50,7 @@ entity:
       usage: Used for prioritization, sourcing, purchasing lead-time analysis, supplier selection, and delivery planning.
       relationshipContext: This is an internal need date and is distinct from the PurchaseOrder requestedDeliveryDate, Supplier promise date, and actual receipt date.
       optionalMeaning: Optional when the requester has no fixed need-by date.
+      businessMeaning: "The date the goods or service are needed by, which buyers use to choose suppliers and delivery terms and to prioritise urgent requests."
   - name: description
     type: string
     required: true
@@ -56,6 +60,7 @@ entity:
       usage: Used by approvers and buyers to understand the demand, obtain quotations, clarify specifications, and communicate requirements to suppliers.
       relationshipContext: Description supplements Product; it must not silently replace a known Product identity when standardized master data exists.
       requiredMeaning: Required because procurement demand must remain understandable even when product master data is incomplete.
+      businessMeaning: "Explains in the requester's words exactly what is needed, including specifications the catalogue product does not capture, so the buyer orders the right thing."
   relationships:
   - name: requisition
     target: PurchaseRequisition
@@ -99,12 +104,13 @@ entity:
     rule: A requestedDate, when supplied, must represent a date on or after the requisition date unless an authorized historical correction is being recorded.
   - {id: PURCHASE-REQUISITION-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
-    summary: Represents one measurable internal procurement demand before it becomes an external supplier commitment.
+    summary: "One item an employee asks purchasing to buy on a requisition, stating what is needed, how much and by when, so buyers can source it and turn it into a purchase order line."
     businessMeaning: PurchaseRequisitionLine is where a business need becomes specific enough for procurement to source, approve, compare, and eventually order. It is demand, not yet a purchase obligation.
     usage: Used by requesters, approvers, buyers, sourcing teams, inventory planners, and procurement workflows.
     relationshipContext: PurchaseRequisition provides internal authorization context. Product and UnitOfMeasure provide meaning to the requested quantity. If approved and sourced, this demand may be transformed into one or more PurchaseOrderLines; the resulting order line is a separate commercial commitment and must retain traceability to the originating demand.
     lifecycle: A line begins as requested demand, participates in requisition review and approval, may be sourced or rejected, and may result in a purchase-order commitment. A requisition line can be partially ordered when demand is fulfilled through multiple suppliers, deliveries, or purchase orders.
     example: A depot technician requests 20 replacement door seals needed by a specified date. The line references the standardized seal Product and its unit, while the description records the equipment/application requirement. Procurement may source the demand from an approved Supplier and create a PurchaseOrderLine for the quantity actually committed.
+    workflowContext: "A requester adds the line to a purchase requisition with product, quantity, date and description, the requisition is approved, buyers may send the line out for quotation to suppliers, and the chosen supplier's purchase order line then commits the quantity actually ordered."
 specification:
   version: 0.2.0
   status: draft

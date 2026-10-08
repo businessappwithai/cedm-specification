@@ -17,6 +17,7 @@ entity:
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a product cannot be understood without its product id.'
+      businessMeaning: "The permanent identity of the product, so orders, stock balances and invoices refer to the same item even if its code, name or price change."
   - name: code
     type: string
     required: true
@@ -28,6 +29,7 @@ entity:
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a product cannot be understood without its code.'
+      businessMeaning: "The internal item number staff search and order by, unique within the business, such as P-10442."
   - name: name
     type: string
     required: true
@@ -38,6 +40,7 @@ entity:
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a product cannot be understood without its name.'
+      businessMeaning: "The name customers and staff recognise the product by, shown on orders, invoices and catalogues."
   - name: description
     type: string
     required: false
@@ -47,6 +50,7 @@ entity:
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "A fuller explanation of what the product is and its key characteristics, helping buyers, sellers and customers choose the right item."
   - name: productType
     type: enum
     required: true
@@ -64,6 +68,7 @@ entity:
         ASSET: The product type of the product is asset; set it when that is what the business means for this record.
         BUNDLE: The product type of the product is bundle; set it when that is what the business means for this record.
         OTHER: The product type of the product is other; set it when that is what the business means for this record.
+      businessMeaning: "Whether this is a physical good, material, service, subscription, asset or bundle, which decides whether it is stocked, shipped, billed once or billed repeatedly."
   - name: status
     type: enum
     required: true
@@ -80,6 +85,7 @@ entity:
         DISCONTINUED: The status of the product is discontinued; set it when that is what the business means for this record.
         BLOCKED: The status of the product is blocked; set it when that is what the business means for this record.
         RETIRED: The status of the product is retired; set it when that is what the business means for this record.
+      businessMeaning: "Whether the product may be used: DRAFT while being set up, ACTIVE for normal trading, BLOCKED temporarily, and DISCONTINUED or RETIRED when it is no longer offered for new orders."
   - name: sku
     type: string
     required: false
@@ -89,6 +95,7 @@ entity:
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The stock-keeping unit code used on shelves, barcodes and in sales channels to identify the exact sellable variant."
   - name: unitOfMeasure
     type: reference
     target: UnitOfMeasure
@@ -98,6 +105,7 @@ entity:
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The unit the product is counted, stocked and priced in, such as each, kilogram or box of 12, so quantities on orders and in stock mean the same thing."
   - name: standardPrice
     type: money
     required: false
@@ -106,6 +114,7 @@ entity:
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The default selling or list price before discounts or customer-specific pricing, used as the starting point on quotes and orders."
   - name: taxCategory
     type: string
     required: false
@@ -115,6 +124,7 @@ entity:
       usage: Entered or maintained when a product is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The tax class the product falls into, such as standard rate, reduced rate or exempt, which decides how sales tax or VAT is calculated."
   - name: createdAt
     type: datetime
     required: true
@@ -125,6 +135,7 @@ entity:
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a product cannot be understood without its created at.'
+      businessMeaning: "When the product was first set up, useful when auditing catalogue changes and new product introductions."
   - name: updatedAt
     type: datetime
     required: true
@@ -135,6 +146,7 @@ entity:
       relationshipContext: Read together with the product's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a product cannot be understood without its updated at.'
+      businessMeaning: "When the product's details were last changed, so users can tell whether a price or status is current."
   relationships:
   - name: category
     target: ProductCategory
@@ -301,7 +313,7 @@ entity:
               status: "CREATED"
               priority: "HIGH"
   help:
-    summary: Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules.
+    summary: "One item or service the business buys, sells, stocks, delivers or subscribes customers to, with its code, pricing and status, referenced by orders, inventory and invoices across the organisation."
     businessMeaning: Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts.
     usage: Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics.
     relationshipContext: Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction entities own their occurrence-specific facts.

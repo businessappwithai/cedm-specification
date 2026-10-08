@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps every enrolment and resulting qualification tied to the same program even if its title or code is updated."
   - name: code
     type: string
     required: true
@@ -37,6 +38,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The program code used on enrolment forms, timetables, transcripts and funding returns, for example BSN-2026."
   - name: name
     type: string
     required: true
@@ -49,6 +51,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The program title students see when choosing what to study and that appears on their transcript, such as 'Bachelor of Science in Nursing'."
   - name: programType
     type: enum
     required: true
@@ -75,6 +78,7 @@ entity:
         OTHER: Represents the other state or classification in the context of EducationProgram.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Says what kind of award the program leads to, from a degree or diploma to a certificate, single course or workplace training, which affects entry rules, duration and how completions are reported."
   - name: status
     type: enum
     required: true
@@ -98,6 +102,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of EducationProgram.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the program is still being designed, open for enrolment, temporarily suspended, or retired; only active programs accept new students."
   relationships:
   - name: institution
     target: Organization
@@ -133,7 +138,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a education entity called EducationProgram within the CEDM business model.
+    summary: "A structured course of study offered by an institution, such as a nursing degree or a forklift certificate, kept so students can enrol in it and earn the qualification it leads to."
     businessMeaning: EducationProgram is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -145,6 +150,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical EducationProgram record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "Academic staff draft the program under its institution, it is activated once approved so students can enrol, it may be suspended for a review or intake pause and later resumed, and it is retired when no longer offered, with past enrolments kept for transcripts."
 specification:
   version: 0.1.0
   status: draft

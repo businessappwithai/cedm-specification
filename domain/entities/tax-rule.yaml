@@ -17,6 +17,7 @@ entity:
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a tax rule cannot be understood without its tax rule id.'
+      businessMeaning: "The permanent identity of the rule, so calculated transaction tax can always show which policy produced it, even after the rule is revised."
   - name: code
     type: string
     required: true
@@ -28,6 +29,7 @@ entity:
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a tax rule cannot be understood without its code.'
+      businessMeaning: "The short reference tax and finance staff use, such as VAT-FR-STD, to select and report on the rule."
   - name: name
     type: string
     required: true
@@ -38,6 +40,7 @@ entity:
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a tax rule cannot be understood without its name.'
+      businessMeaning: "The descriptive name shown when choosing or reviewing rules, such as France standard VAT 20 percent."
   - name: rate
     type: decimal
     required: true
@@ -50,6 +53,7 @@ entity:
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a tax rule cannot be understood without its rate.'
+      businessMeaning: "The percentage applied to the taxable amount when this rule applies; it is zero or more, and zero-rated rules still record that tax was considered."
   - name: jurisdictionCode
     type: string
     required: false
@@ -59,6 +63,7 @@ entity:
       usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The code of the country, state or region whose tax law this rule implements, such as FR or US-CA, which decides where it applies."
   - name: taxType
     type: enum
     required: true
@@ -82,6 +87,7 @@ entity:
         USE: The tax type of the tax rule is use; set it when that is what the business means for this record.
         WITHHOLDING: The tax type of the tax rule is withholding; set it when that is what the business means for this record.
         OTHER: The tax type of the tax rule is other; set it when that is what the business means for this record.
+      businessMeaning: "Whether the rule is sales tax, VAT, GST, use tax or withholding, which decides how the tax is invoiced, reported and remitted."
   - name: validFrom
     type: datetime
     required: false
@@ -90,6 +96,7 @@ entity:
       usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The moment the rule starts to apply; transactions dated earlier use the rule that was valid then."
   - name: validTo
     type: datetime
     required: false
@@ -98,6 +105,7 @@ entity:
       usage: Entered or maintained when a tax rule is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the tax rule's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The moment the rule stops applying, such as when a rate changes; it cannot be earlier than the start and is left empty for an open-ended rule."
   - name: status
     type: enum
     required: true
@@ -118,6 +126,7 @@ entity:
         ACTIVE: The status of the tax rule is active; set it when that is what the business means for this record.
         INACTIVE: The status of the tax rule is inactive; set it when that is what the business means for this record.
         RETIRED: The status of the tax rule is retired; set it when that is what the business means for this record.
+      businessMeaning: "Whether the rule may be used: DRAFT while being prepared, ACTIVE for calculation, INACTIVE when paused, and RETIRED when permanently replaced."
   relationships:
   - name: jurisdiction
     target: Location
@@ -178,7 +187,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Defines reusable tax policy used to determine tax treatment and calculate tax amounts.
+    summary: "One reusable tax policy stating which rate and tax type apply in a jurisdiction to qualifying products, customers or organisations over a period, used to calculate tax on transactions consistently."
     businessMeaning: TaxRule is policy; transaction tax evidence records what tax was actually determined and charged.
     usage: Sales, procurement, invoicing, tax reporting, accounting and compliance.
     relationshipContext: Discount determination normally establishes the post-discount base. Product, Customer, Organization, Location, transaction date and jurisdiction determine TaxRule applicability. InvoiceLine or TaxLine records the resulting tax.

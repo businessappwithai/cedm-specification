@@ -6,8 +6,8 @@ entity:
   ui: {icon: users-round}
   identity: {key: guardianId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: guardianId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the guardian role., businessMeaning: Identifies one governed education guardian relationship independently of the underlying Party., usage: "Student administration, communication, consent, billing and audit.", relationshipContext: Party supplies common identity; Guardian supplies education-specific responsibility., requiredMeaning: Required.}}
-    - {name: guardianCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing guardian reference., businessMeaning: Operational identifier used in education administration., usage: "Search, communication and integration.", relationshipContext: Distinct from Party identifiers., requiredMeaning: Required.}}
+    - {name: guardianId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this guardian role, which student records and consents point to.", businessMeaning: Identifies one governed education guardian relationship independently of the underlying Party., usage: "Student administration, communication, consent, billing and audit.", relationshipContext: Party supplies common identity; Guardian supplies education-specific responsibility., requiredMeaning: Required.}}
+    - {name: guardianCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The reference school staff use for this guardian, such as G-20418, on forms and correspondence.", businessMeaning: Operational identifier used in education administration., usage: "Search, communication and integration.", relationshipContext: Distinct from Party identifiers., requiredMeaning: Required.}}
     - name: relationshipType
       type: enum
       required: true
@@ -37,10 +37,11 @@ entity:
     - {id: GUARDIAN-001, rule: A Guardian must reference a valid Party and at least one EducationStudent.}
     - {id: GUARDIAN-002, rule: "Historical consent, communication or financial evidence is not rewritten merely because guardian status later becomes INACTIVE."}
   help:
-    summary: Represents an education guardian role without duplicating Party identity.
+    summary: "One person's role as guardian of one or more students, recording that they may act for, be contacted about or hold responsibility for those students without duplicating the person's own identity details."
     businessMeaning: Guardian defines responsibility and communication context for students; EducationStudent remains the learner identity.
     usage: Student information systems, school communication, consent, billing, emergency contact workflows and audit.
     relationshipContext: Party is mandatory and one Guardian may support multiple EducationStudents.
     lifecycle: Guardian role is active or inactive while historical evidence remains attributable.
     example: One parent Party has a Guardian role for two students and receives authorized school communications for each.
+    workflowContext: "Created during student enrolment or when family circumstances change, linked to each student the person is responsible for, used by school administration for consent, communications, pick-up authorisation and billing, and made inactive when the relationship ends while past consents and communications remain attributable."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GUARDIAN}

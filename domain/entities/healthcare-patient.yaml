@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps all encounters, care plans, allergies and appointments attached to the same patient chart, even when demographic details are corrected."
   - name: partyId
     type: reference
     target: Party
@@ -39,6 +40,7 @@ entity:
         the two entities and lets processes navigate from this record to the related Party.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Connects the patient to the underlying person record, so name, address and contact details are maintained once and shared with billing, insurance and other roles that person holds."
   - name: medicalRecordNumber
     type: string
     required: true
@@ -53,6 +55,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The number clinicians, wristbands, lab orders and referral letters use to identify the patient; matching on it prevents treatment or results being filed against the wrong person."
   - name: status
     type: enum
     required: true
@@ -76,6 +79,7 @@ entity:
         MERGED: Represents the merged state or classification in the context of HealthcarePatient.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells staff whether the patient can be booked and treated: active patients are current, inactive ones have left care, merged records point to a surviving chart, and deceased patients must not receive appointments or reminders."
   - name: preferredLanguage
     type: locale
     required: false
@@ -87,6 +91,7 @@ entity:
       relationshipContext: Its meaning is specific to HealthcarePatient; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The language the patient wants to be spoken to and written to in, used to book interpreters and send letters, consent forms and instructions the patient can understand."
   relationships:
   - name: party
     target: Party
@@ -143,7 +148,7 @@ entity:
       - {from: MERGED, to: INACTIVE, action: deactivate}
       - {from: INACTIVE, to: MERGED, action: reactivate}
   help:
-    summary: Represents a industry specialization called HealthcarePatient within the CEDM business model.
+    summary: "A person registered to receive care from the healthcare provider, holding the medical record number that ties together their encounters, care plans, allergies and appointments."
     businessMeaning: HealthcarePatient is a business concept with its own identity and lifecycle. It captures information
       that must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -155,6 +160,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical HealthcarePatient record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "Registration staff create the patient from an existing person when they first book or present for care, clinicians then add encounters, care plans, allergies and appointments over time, records found to be duplicates are merged, the patient may be made inactive when they leave the practice, and the record is marked deceased when the patient dies."
 specification:
   version: 0.1.0
   status: draft

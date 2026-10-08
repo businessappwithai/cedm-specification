@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps the shipment, supporting documents and customs decisions tied to the correct declaration during clearance and later audits."
   - name: declarationNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference customs assigns or the broker uses to track the declaration, quoted on clearance documents and duty payments."
   - name: declarationType
     type: enum
     required: true
@@ -62,6 +64,7 @@ entity:
         OTHER: Represents the other state or classification in the context of TradeDeclaration.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "States whether the goods are being imported, exported, in transit, re-exported or otherwise moved, which decides the customs procedure, duties and controls that apply."
   - name: declarationDate
     type: date
     required: true
@@ -74,6 +77,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The date the declaration is lodged; it determines which duty rates and exchange rates apply and starts customs processing deadlines."
   - name: status
     type: enum
     required: true
@@ -103,6 +107,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of TradeDeclaration.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows where clearance stands, from draft through submitted, accepted, under review and released, or rejected or cancelled, so logistics know when goods can move."
   - name: customsValue
     type: decimal
     required: false
@@ -116,6 +121,7 @@ entity:
       relationshipContext: Its meaning is specific to TradeDeclaration; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The declared value of the goods that customs uses to calculate import duties and taxes, so it must match the invoice and valuation rules."
   relationships:
   - name: importer
     target: Party
@@ -216,7 +222,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a international trade entity called TradeDeclaration within the CEDM business model.
+    summary: "One customs declaration filed for goods crossing a border, stating what they are, their value and the importer or exporter, so customs can clear and release them."
     businessMeaning: TradeDeclaration is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -228,6 +234,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical TradeDeclaration record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "A trade compliance specialist or customs broker drafts the declaration from the shipment and its documents, submits it to customs, who accept it and may place it under review for inspection, then release the goods; a declaration can be rejected by customs at any stage or cancelled by the filer, and released declarations are kept as evidence for duty and audit."
 specification:
   version: 0.1.0
   status: draft

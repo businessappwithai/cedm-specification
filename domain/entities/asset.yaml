@@ -20,6 +20,7 @@ entity:
       usage: Used to connect maintenance, depreciation, movements, ownership, location, and other lifecycle records to the same physical or accountable asset.
       relationshipContext: assetId identifies the asset itself; assetNumber and serialNumber are business-facing or manufacturer identifiers and must not replace the stable CEDM identity.
       requiredMeaning: Every managed asset requires a stable identity so its operational and financial history remains continuous.
+      businessMeaning: "Guarantees that maintenance orders, depreciation entries, meters and service orders all point at the same physical resource even if its number, name or location changes."
   - name: assetNumber
     type: string
     required: true
@@ -30,6 +31,7 @@ entity:
       usage: Used by asset managers, maintenance teams, finance, warehouse operations, reports, documents, and users when referring to the asset.
       relationshipContext: It is the organization's business reference, while serialNumber may identify the manufacturer's physical equipment identity and assetId remains the immutable CEDM identity.
       requiredMeaning: Required because managed assets need a recognizable organizational identifier.
+      businessMeaning: "The tag number people stencil or label on the asset and quote on work orders, insurance schedules and the fixed-asset register; it must be unique among active assets so nobody services or depreciates the wrong item."
   - name: name
     type: string
     required: true
@@ -39,6 +41,7 @@ entity:
       usage: Supports search, maintenance screens, asset registers, reporting, and user recognition when an asset number alone is insufficient.
       relationshipContext: The name describes this asset instance and should not be confused with Product.name, which describes a reusable product definition or asset type.
       requiredMeaning: Required for practical human interpretation of the asset record.
+      businessMeaning: "Lets planners, technicians and accountants recognise the asset at a glance in lists and reports, for example 'Forklift 3 - Dock B', without memorising its number."
   - name: assetType
     type: string
     required: true
@@ -48,6 +51,7 @@ entity:
       usage: Drives asset policies, maintenance programs, depreciation treatment, reporting, authorization, and lifecycle rules.
       relationshipContext: assetType classifies the asset instance; Product can provide the standardized model or product definition from which the asset originated.
       requiredMeaning: Required because asset lifecycle and financial treatment depend on the type of resource being managed.
+      businessMeaning: "Groups assets that are managed alike, such as containers, vehicles or machines, so maintenance schedules, depreciation rules and fleet reports can be applied per kind of asset."
   - name: acquisitionDate
     type: date
     required: false
@@ -56,6 +60,7 @@ entity:
       usage: Used for capitalization, depreciation start rules, asset aging, warranty analysis, lifecycle reporting, and ownership history.
       relationshipContext: AcquisitionDate concerns the organization's acquisition event and is distinct from manufacture date, commissioning date, or first operational use.
       optionalMeaning: Optional when the asset predates the available records or acquisition occurred outside the modeled process.
+      businessMeaning: "Marks when the organisation took control of the asset, which starts depreciation, warranty periods and age-based replacement planning."
   - name: acquisitionCost
     type: money
     required: false
@@ -64,6 +69,7 @@ entity:
       usage: Used as an input to capitalization, depreciation, book-value calculations, asset valuation, and financial reporting.
       relationshipContext: Acquisition cost is an accounting/business value and should not be confused with Product price, repair cost, sale price, or current market value.
       optionalMeaning: Optional for assets whose historical cost is unavailable, immaterial, or maintained in a separate financial system.
+      businessMeaning: "The amount capitalised for the asset under accounting policy; finance depreciates it, insurers value against it and replacement decisions compare repair cost with it. It can never be negative."
   - name: status
     type: enum
     required: true
@@ -81,6 +87,7 @@ entity:
         DISPOSED: The organization has completed the disposition process and no longer treats the asset as an active managed resource.
         RETIRED: The asset has been withdrawn from operational use, while historical records may remain available for audit and analysis.
       requiredMeaning: Required because asset processes need an authoritative lifecycle state.
+      businessMeaning: "Tells everyone whether the asset can be used: planned assets are not yet in service, active ones are available, those under maintenance or held are temporarily unavailable, and disposed or retired assets must not be assigned to new work."
   - name: serialNumber
     type: string
     required: false
@@ -90,6 +97,7 @@ entity:
       usage: Used for equipment traceability, warranty, maintenance history, inspections, recalls, regulatory reporting, and physical identification.
       relationshipContext: SerialNumber identifies physical equipment supplied by a manufacturer; it is different from the organization's assetNumber and CEDM assetId.
       optionalMeaning: Optional for assets that are not individually serialized or where the serial identifier is unavailable.
+      businessMeaning: "The manufacturer's permanent identifier on the physical equipment, used for warranty claims, recalls, spare-part ordering and proving which exact unit was serviced or sold."
   relationships:
   - name: owner
     target: Organization
@@ -205,6 +213,7 @@ entity:
     relationshipContext: Product describes what the asset is as a standardized model. Asset identifies the individual resource. Location describes current operational placement. MaintenanceWorkOrder records maintenance activity. AssetDepreciation records financial measurement. Organization identifies ownership when applicable. Historical movements and transactions should preserve changes rather than overwriting the asset's identity.
     lifecycle: An asset may be planned before entering service, active during productive use, under maintenance while temporarily unavailable, held pending a business decision, disposed when ownership/control has ended, or retired when operational use has ceased. Lifecycle state should not erase history; it changes how current processes may act on the asset.
     example: A shipping container is acquired and assigned an assetNumber and serial/equipment identity. It is linked to a Product model, located at a depot, receives MaintenanceWorkOrder records during its service life, and has AssetDepreciation records for financial reporting. When its repair economics no longer justify continued use, a RepairEstimate may recommend SALE or SCRAP; the resulting disposition changes the asset lifecycle while preserving its historical record.
+    workflowContext: "Procurement or finance plans the asset and records its acquisition, operations activates it and assigns it to an owner and location, maintenance teams move it in and out of maintenance or hold through work orders and meter readings, finance books depreciation over its service life, and asset management finally disposes of or retires it while keeping its full history."
 specification:
   version: 0.2.0
   status: draft

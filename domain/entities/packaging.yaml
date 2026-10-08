@@ -7,9 +7,9 @@ entity:
     icon: database
   identity: {key: packagingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: packagingId, type: uuid, required: true, immutable: true, help: {summary: Stable packaging identity., businessMeaning: Identifies one governed pack configuration., usage: "PIM, procurement, WMS, sales and logistics.", relationshipContext: References Product and quantity/UOM semantics., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Packaging configuration code., businessMeaning: Operational identifier for pack form., usage: "Catalog, labels and integration.", relationshipContext: Unique within applicable Product context., requiredMeaning: Required.}}
-  - {name: quantityPerPackage, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Product quantity contained in one package., businessMeaning: Defines pack conversion., usage: "Ordering, storage, picking and shipping.", relationshipContext: Interpreted with UnitOfMeasure., requiredMeaning: Required.}}
+  - {name: packagingId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this packaging configuration that orders and stock records point to.", businessMeaning: Identifies one governed pack configuration., usage: "PIM, procurement, WMS, sales and logistics.", relationshipContext: References Product and quantity/UOM semantics., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 100, help: {summary: "The short code used on orders and labels to name this pack size.", businessMeaning: Operational identifier for pack form., usage: "Catalog, labels and integration.", relationshipContext: Unique within applicable Product context., requiredMeaning: Required.}}
+  - {name: quantityPerPackage, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How many units of the product one package contains, always more than zero.", businessMeaning: Defines pack conversion., usage: "Ordering, storage, picking and shipping.", relationshipContext: Interpreted with UnitOfMeasure., requiredMeaning: Required.}}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product packaged., businessMeaning: Defines package contents., usage: PIM and logistics., cardinalityMeaning: Exactly one Product., workflowRole: Product eligibility applies.}}
   - {name: productVariant, target: ProductVariant, cardinality: 0..1, ownership: reference, help: {summary: Specific variant packaged when configuration-specific., businessMeaning: Narrows packaging to one variant., usage: Commerce/WMS., cardinalityMeaning: Optional., workflowRole: Variant must belong to Product.}}
@@ -19,9 +19,11 @@ entity:
   - {id: PACKAGING-002, rule: productVariant when present must belong to product.}
   - {id: PACKAGING-003, rule: "Packaging conversion changes must not silently reinterpret historical order, receipt, inventory or shipment quantities."}
   help:
-    summary: Product packaging and pack-quantity master.
+    summary: "One way a product or product variant is packed, such as a carton of twelve or a pallet, defining how many units it holds so buying, storing, selling and shipping use the same quantities."
     businessMeaning: Packaging describes commercial/logistics containment; HandlingUnit identifies an actual pallet/carton/tote/package occurrence.
     usage: PIM, procurement, sales, WMS, shipping and labeling.
     relationshipContext: Product defines contents, UOM defines quantity semantics, HandlingUnit represents physical execution instances.
     lifecycle: Created/activated → revised/retired under controlled master-data change.
+    workflowContext: "Product management defines the packaging for a product, purchasing orders in it, warehouses receive and store stock by it, sales and shipping use it to convert package counts into units, and a change to the packaging is introduced as a new configuration so past quantities keep their meaning."
+    example: "Packaging CTN-12 for 500 ml bottled water: one carton holds 12 bottles, measured in each."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PACKAGING}

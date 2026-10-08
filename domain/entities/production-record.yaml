@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets inventory receipts, reports and corrections refer to exactly this output figure, even when several records exist for the same day."
   - name: productionDate
     type: datetime
     required: true
@@ -36,6 +37,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the output was produced; reporting relies on it to put output into the right shift, day or month."
   - name: quantity
     type: decimal
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How much product was produced or extracted, in the product's unit; it is the figure that drives output reports, stock increases and yield comparisons."
   - name: status
     type: enum
     required: true
@@ -73,6 +76,7 @@ entity:
         REJECTED: Represents the rejected state or classification in the context of ProductionRecord.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the figure is just recorded, planned for correction, verified and safe to report, or rejected as wrong; only verified records should be relied on for official output."
   relationships:
   - name: product
     target: Product
@@ -150,7 +154,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a industrial transaction called ProductionRecord within the CEDM business model.
+    summary: "One production record states how much of a product an operation produced or extracted on a given date, kept as the basis for output reporting, inventory and performance figures."
     businessMeaning: ProductionRecord is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -162,6 +166,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical ProductionRecord record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "Operators record output from a work order, plant or mine site; the record can be set back to planned for correction, is then verified by a supervisor, or rejected if the figure is wrong. Verified records feed inventory receipts, production reporting, yield analysis and royalty or cost calculations."
 specification:
   version: 0.1.0
   status: draft

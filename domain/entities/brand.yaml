@@ -7,15 +7,15 @@ entity:
     icon: list
   identity: {key: brandId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: brandId, type: uuid, required: true, immutable: true, help: {summary: Stable brand identity., businessMeaning: Identifies the brand independently of display-name changes., usage: "PIM, catalog, commerce and reporting.", relationshipContext: Referenced by Products/Variants., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed brand code., businessMeaning: Stable business/integration identifier., usage: Catalog and integration., relationshipContext: Unique in brand master., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Brand display name., businessMeaning: Customer/supplier-facing market identity., usage: "Catalog, documents, search and reporting.", relationshipContext: Presentation can change without changing brand identity., requiredMeaning: Required.}}
+  - {name: brandId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this brand, which stays the same even if the brand's display name is later changed.", businessMeaning: Identifies the brand independently of display-name changes., usage: "PIM, catalog, commerce and reporting.", relationshipContext: Referenced by Products/Variants., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The short unique brand code that catalog, purchasing and integration partners use to identify the brand reliably.", businessMeaning: Stable business/integration identifier., usage: Catalog and integration., relationshipContext: Unique in brand master., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The brand name shown to customers and suppliers on catalog pages, quotes, invoices and product reports.", businessMeaning: Customer/supplier-facing market identity., usage: "Catalog, documents, search and reporting.", relationshipContext: Presentation can change without changing brand identity., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, RETIRED]
-    help: {summary: Brand lifecycle state., businessMeaning: Controls future assignment/use., usage: Master-data governance., relationshipContext: Historical product/transaction references remain valid., valueSemantics: {ACTIVE: Eligible for new assignment., INACTIVE: Temporarily unavailable for new assignment., RETIRED: Permanently unavailable for new assignment.}, requiredMeaning: Required.}
+    help: {summary: "Whether the brand is active for new products, temporarily inactive, or retired and no longer assigned to anything new.", businessMeaning: Controls future assignment/use., usage: Master-data governance., relationshipContext: Historical product/transaction references remain valid., valueSemantics: {ACTIVE: Eligible for new assignment., INACTIVE: Temporarily unavailable for new assignment., RETIRED: Permanently unavailable for new assignment.}, requiredMeaning: Required.}
   relationships:
   - {name: products, target: Product, cardinality: 0..*, ownership: reference, help: {summary: Products marketed/manufactured under brand., businessMeaning: Connects product portfolio to market identity., usage: Catalog and reporting., cardinalityMeaning: Zero or many Products., workflowRole: Brand lifecycle affects future assignments but not historical evidence.}}
   - {name: variants, target: ProductVariant, cardinality: 0..*, ownership: reference, help: {summary: Variants explicitly associated with brand., businessMeaning: Supports variant-specific brand assignment., usage: Catalog and commerce., cardinalityMeaning: Zero or many variants., workflowRole: Variant may inherit brand from parent Product when policy allows.}}
@@ -35,10 +35,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Governed product brand reference master.
+    summary: "A brand name under which products and their variants are marketed or manufactured, kept as one shared record so catalog, purchasing, sales and service all report by the same brand."
     businessMeaning: Brand describes commercial/manufacturer identity; it is distinct from ProductCategory taxonomy and Product identity.
     usage: PIM, catalog, sourcing, sales, e-commerce, service and analytics.
     relationshipContext: Products and variants reference Brand; category remains independent classification.
     lifecycle: Active → inactive → active or retired.
     changePropagation: Lifecycle/name changes update future catalog/master usage while preserving historical references.
+    workflowContext: "Product management creates the brand when a new label is introduced, then assigns it to products and variants in the catalog; buyers, sales and service teams filter and report by it, and the brand is made inactive while it is paused or retired when it will no longer be assigned to new products."
+    example: "The brand code ACME-PRO named Acme Professional is active and assigned to a range of cordless drills and their battery-size variants."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BRAND}

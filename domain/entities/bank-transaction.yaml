@@ -21,6 +21,7 @@ entity:
       relationshipContext: Identifies external evidence and is never substituted for Payment or JournalEntry identity.
       workflowRole: Provides the root key for bank reconciliation and exception handling.
       requiredMeaning: Required for evidence traceability.
+      businessMeaning: "The internal handle for one line from a bank statement, letting treasury link it to payments and journal entries without depending on the bank's own numbering."
   - name: transactionNumber
     type: string
     required: true
@@ -32,6 +33,7 @@ entity:
       relationshipContext: Must not be assumed to equal Payment.paymentNumber.
       workflowRole: Provides a primary external reference for candidate matching.
       requiredMeaning: Required for operational traceability.
+      businessMeaning: "The number treasury staff quote when discussing or searching for this bank movement, kept unique so the same statement line is never imported twice."
   - name: transactionDate
     type: datetime
     required: true
@@ -41,15 +43,17 @@ entity:
       relationshipContext: May differ from Payment.paymentDate, Payment.valueDate, accounting posting date, and clearing date.
       workflowRole: Provides external chronology used in matching and period analysis.
       requiredMeaning: Required for bank evidence chronology.
+      businessMeaning: "When the bank booked the movement, used to sort statement lines and to match them to payments made or received around the same day."
   - name: valueDate
     type: date
     required: false
     help:
-      summary: Bank-provided economic value date for the transaction.
+      summary: "The date on which the bank actually made the funds available or charged them for interest purposes."
       usage: Supports cash availability, interest, treasury analysis, reconciliation, and accounting interpretation.
       relationshipContext: Separate from transactionDate because a bank may record and value a transaction on different dates.
       workflowRole: Provides bank-side settlement timing context.
       optionalMeaning: Optional where the bank source does not provide a distinct value date.
+      businessMeaning: "Determines when money really counts in the account balance for interest and cash positioning, which can differ from the booking date over weekends and holidays."
   - name: transactionType
     type: enum
     required: true
@@ -68,6 +72,7 @@ entity:
         INTEREST: The transaction type of the bank transaction is interest; set it when that is what the business means for this record.
         REVERSAL: The transaction type of the bank transaction is reversal; set it when that is what the business means for this record.
         OTHER: The transaction type of the bank transaction is other; set it when that is what the business means for this record.
+      businessMeaning: "Classifies the movement as money in, money out, a transfer between accounts, a bank fee, interest, a reversal or something else, which steers how it is reconciled and posted."
   - name: amount
     type: Money
     required: true
@@ -77,13 +82,14 @@ entity:
       relationshipContext: Currency is intrinsic to Money; direct comparison with Payment.amount is permitted only when currencies and applicable amount semantics match.
       workflowRole: Provides bank-side monetary evidence used to validate Payment clearing.
       requiredMeaning: Required for financial reconciliation.
+      businessMeaning: "The sum of money the bank moved, in the account's currency, which reconciliation must match exactly against the internal payment or accounting entry."
   - name: status
     type: enum
     required: true
     default: POSTED
     values: [PENDING, POSTED, REVERSED, FAILED]
     help:
-      summary: Lifecycle state of the bank-reported transaction.
+      summary: "Shows whether the bank has posted, reversed or failed this movement or it is still pending."
       usage: Controls whether the transaction is eligible as external settlement evidence.
       relationshipContext: Independent from Payment status and JournalEntry status.
       workflowRole: POSTED evidence can normally support reconciliation; REVERSED evidence must trigger corresponding correction handling.
@@ -93,6 +99,7 @@ entity:
         POSTED: The status of the bank transaction is posted; set it when that is what the business means for this record.
         REVERSED: The status of the bank transaction is reversed; set it when that is what the business means for this record.
         FAILED: The status of the bank transaction is failed; set it when that is what the business means for this record.
+      businessMeaning: "Only POSTED movements count toward the reconciled bank balance; PENDING ones are awaited, while REVERSED and FAILED ones are kept as evidence but no longer represent cash."
   - name: reference
     type: string
     required: false
@@ -103,16 +110,18 @@ entity:
       relationshipContext: It is a matching signal, not definitive proof without reconciliation controls.
       workflowRole: Provides high-value matching evidence.
       optionalMeaning: Optional when the bank supplies no usable reference.
+      businessMeaning: "The payment reference carried with the movement, such as an invoice or remittance number, which is the main clue reconciliation uses to find the matching payment."
   - name: description
     type: string
     required: false
     maxLength: 1000
     help:
-      summary: Bank-provided narrative or transaction description.
+      summary: "The narrative text the bank printed on the statement line describing this movement."
       usage: Supports reconciliation, exception investigation, and manual matching.
       relationshipContext: Descriptive evidence may be incomplete or ambiguous and must not override controlled matching rules.
       workflowRole: Provides secondary matching and investigation context.
       optionalMeaning: Optional depending on bank feed quality.
+      businessMeaning: "Gives the reconciler readable context such as the payer's name or the purpose of a fee when the reference alone does not identify the matching payment."
   - name: externalReference
     type: string
     required: false
@@ -123,6 +132,7 @@ entity:
       relationshipContext: External reference is evidence metadata and does not replace bankTransactionId.
       workflowRole: Prevents duplicate ingestion of the same external transaction.
       optionalMeaning: Optional where the source provides no stable external identifier.
+      businessMeaning: "The bank's own identifier for the movement, used to query the bank about it and to prevent duplicate imports of the same statement line."
   relationships:
   - name: account
     target: BankAccount

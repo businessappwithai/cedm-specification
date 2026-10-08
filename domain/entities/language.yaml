@@ -8,14 +8,14 @@ entity:
   referenceData: reference-data/language.yaml
   identity: {key: languageId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Language., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: Governed business code for Language., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Language., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+  - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this language, which every preference and translated content record references.", businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: "The standard language code used by systems and integrations, such as fr for French.", businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The language's English name as people pick it from a list, such as Japanese.", businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
   relationships: []
   invariants:
   - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed language reference used for localization, communication preferences, content, and reporting.
+    summary: "One human language, such as French or Japanese, kept in a shared reference list so people, documents, content and communications can state which language they use or prefer."
     purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
     businessMeaning: A governed language reference used for localization, communication preferences, content, and reporting.
     whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.

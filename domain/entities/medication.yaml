@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps every prescription linked to exactly the medication that was ordered, which is essential for patient safety and dispensing records."
   - name: productId
     type: reference
     target: Product
@@ -36,6 +37,7 @@ entity:
       relationshipContext: This field connects Medication to Product. The reference establishes business context between the
         two entities and lets processes navigate from this record to the related Product.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Connects the medication to the stocked product so the pharmacy can check inventory, purchase it and charge for it."
   - name: code
     type: string
     required: true
@@ -48,6 +50,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The drug code, often from a national formulary or coding system, that prescribing, dispensing and claims systems use to identify the medication exactly."
   - name: name
     type: string
     required: true
@@ -60,6 +63,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The drug name prescribers search for and patients see on labels, usually the generic name with an optional brand name."
   - name: strength
     type: string
     required: false
@@ -72,6 +76,7 @@ entity:
       relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The amount of active ingredient per unit, such as 500 mg; prescribers must choose the right strength to dose the patient correctly."
   - name: form
     type: string
     required: false
@@ -84,6 +89,7 @@ entity:
       relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "How the medication is given or supplied, such as tablet, capsule, syrup or injection, which affects dosing instructions and patient suitability."
   - name: status
     type: enum
     required: true
@@ -105,6 +111,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Medication.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the medication can currently be prescribed, is temporarily inactive, or has been retired, which prevents ordering of withdrawn drugs."
   relationships:
   - name: product
     target: Product
@@ -138,7 +145,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a healthcare pharmaceutical entity called Medication within the CEDM business model.
+    summary: "One medicinal product with its name, strength and dosage form, such as amoxicillin 500 mg capsules, that clinicians can prescribe and the pharmacy can dispense."
     businessMeaning: Medication is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -150,6 +157,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Medication record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Pharmacy staff add the medication to the formulary and make it active so prescribers can select it, prescriptions reference it as they are written and dispensed, and it is made inactive when temporarily unavailable or retired when withdrawn, while past prescriptions keep pointing to it."
 specification:
   version: 0.1.0
   status: draft

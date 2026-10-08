@@ -1,0 +1,478 @@
+# Authored help, batch 103 (slice 03).
+Address:
+  attributes:
+    addressId:
+      businessMeaning: "Lets every invoice, shipment and party record point at exactly this address, so a correction made here reaches all of them without retyping the address."
+    addressType:
+      businessMeaning: "Decides where the address is used: billing addresses go on invoices, shipping addresses on deliveries, registered addresses on legal filings, so picking the wrong type sends documents or goods to the wrong place."
+    line1:
+      businessMeaning: "The street, building number or post office box that a courier or postal service needs first to find the premises; without it the address cannot be delivered to."
+    line2:
+      businessMeaning: "Carries the suite, floor, unit or building name that narrows delivery inside a larger site, which couriers rely on to reach the right door."
+    line3:
+      businessMeaning: "Holds any further delivery detail such as a district, estate or c/o name that some countries need and that does not fit the first two lines."
+    cityName:
+      businessMeaning: "The town as written on the envelope, used when the city is not picked from the list or when the local spelling on mail differs from the official city name."
+    postalCode:
+      businessMeaning: "The postal or ZIP code that carriers sort by and that tax and delivery-zone rules are often keyed on, so an incorrect code can delay goods or misapply tax."
+    latitude:
+      businessMeaning: "The north-south map position of the premises, used for route planning, delivery radius checks and showing the site on a map."
+    longitude:
+      businessMeaning: "The east-west map position of the premises, used together with latitude for routing, distance calculations and map display."
+    isPrimary:
+      businessMeaning: "Marks the address chosen by default when a party has several, so new orders, invoices and letters go there unless someone picks another."
+    status:
+      businessMeaning: "Active addresses can be chosen on new orders and documents; inactive ones are kept but not offered, and retired ones are kept only as history for documents already issued."
+Assay:
+  help:
+    summary: "One run of a laboratory test procedure on one or more samples, recording what was tested, under which study or protocol, and the observations and results it produced."
+    workflowContext: "A scientist plans the assay against a study or protocol and attaches the samples, starts it when the bench work begins, records observations and results while it runs, and then closes it as completed or failed; reviewers and study reports read its results afterwards."
+    example: "Assay ASY-2026-0418, a potency ELISA run on six plasma samples under protocol PRT-112, completed with results recorded for each sample."
+  attributes:
+    assayId:
+      summary: "The permanent internal key that tells this assay run apart from every other run, even when codes repeat."
+    assayCode:
+      summary: "The short reference the lab writes on worksheets and labels to find this assay run quickly."
+    assayType:
+      summary: "The kind of test procedure performed in this run, such as potency, purity or stability testing."
+    status:
+      summary: "Shows whether the assay is still planned, currently running, finished successfully, failed or was cancelled before completion."
+Attendance:
+  help:
+    summary: "One entry recording whether an employee or student was present, absent, on leave or working remotely on a given day, with the hours worked where clocked."
+    workflowContext: "A draft entry is created from a clock-in, a class register or a leave request; once the day is captured it is recorded, a supervisor or teacher then approves or cancels it, and approved entries feed payroll and attendance reporting."
+  attributes:
+    attendanceId:
+      summary: "The internal key that singles out this one attendance entry for corrections, approvals and payroll links."
+    attendanceDate:
+      summary: "The calendar day this attendance entry covers, which payroll and timesheets group entries by."
+    attendanceType:
+      summary: "Says whether the person was present, absent, on leave, working remotely, or off for a holiday or rest day."
+    clockInAt:
+      summary: "The date and time the person started work or arrived for the day."
+    clockOutAt:
+      summary: "The date and time the person finished work or left for the day."
+    workedHours:
+      summary: "The number of hours actually worked on this day, used to calculate pay and overtime."
+    status:
+      summary: "Shows whether the entry is still a draft, has been recorded, has been approved by a supervisor, or was cancelled."
+BOMComponent:
+  help:
+    summary: "One line of a bill of material naming a part or material and how much of it is needed to make one unit of the parent product."
+    workflowContext: "Engineering adds component lines when the bill of material is designed and revises them when the product changes; planning explodes them into material requirements, and production consumes the listed quantities at the operation each line is tied to."
+  attributes:
+    bomComponentId:
+      businessMeaning: "Lets planning, costing and engineering changes refer to exactly this component line even if the same part appears more than once in the bill."
+    sequence:
+      businessMeaning: "Sets the order in which components are listed on the bill and on picking lists, so the shop floor sees them in a consistent, agreed order."
+    quantity:
+      businessMeaning: "How much of the component goes into one unit of the finished item; material planning multiplies it by the production quantity to know what to buy or pick."
+    scrapPercent:
+      businessMeaning: "The extra allowance planned for expected waste of this component, so enough material is issued to finish the run despite normal losses."
+    operationSequence:
+      businessMeaning: "Ties the component to the routing step where it is consumed, so material can be staged at the right work centre at the right time."
+CarePlan:
+  help:
+    summary: "A plan agreed for one patient setting out the care goals, the interventions to deliver them, who is responsible and when progress is reviewed."
+    workflowContext: "A clinician drafts the plan after assessing the patient, activates it once agreed with the patient and care team, records interventions and reviews against it while active, and closes it as completed when goals are met or cancelled if it is replaced or no longer appropriate."
+  attributes:
+    carePlanId:
+      summary: "The internal key that ties every intervention and review to this particular care plan."
+    carePlanCode:
+      summary: "The reference clinicians quote to find this care plan in notes, handovers and referrals."
+    status:
+      summary: "Shows whether the plan is still being drafted, is active for the patient, has been completed or was cancelled."
+Collateral:
+  attributes:
+    collateralId:
+      summary: "The internal key that identifies this pledged asset or guarantee across loan files and valuations."
+    effectiveAt:
+      summary: "The date and time from which this collateral starts securing the loan or credit exposure."
+ContractAmendment:
+  attributes:
+    contractAmendmentId:
+      summary: "The internal key that identifies this amendment so the change history of the contract can be traced."
+CostCenter:
+  help:
+    summary: "A department, team or function that the organization charges costs to, so managers can see and control what their area spends regardless of which ledger account is used."
+    workflowContext: "Finance sets up the cost centre when a new department or responsibility area is created; purchases, payroll and journal entries are then coded to it as they are posted, budgets are set against it, and management reports compare its actual spending with budget each period."
+    lifecycle: "A cost centre is opened when the responsibility area is created and stays in use while costs are charged to it; when a reorganization ends that area it is closed to new postings but kept so past costs remain reportable."
+    example: "Cost centre CC-4100 Customer Support, belonging to the UK trading company, to which support staff salaries and helpdesk software are charged."
+  attributes:
+    costCenterId:
+      summary: "The internal key that links postings, budgets and reports to this one cost centre."
+    code:
+      summary: "The short code people enter on invoices, expense claims and journals to charge costs to this centre."
+CustomerReturn:
+  attributes:
+    customerReturnId:
+      summary: "The internal key that links the return's lines, inspections, dispositions and credit notes together."
+    returnNumber:
+      summary: "The return authorization number given to the customer and written on the returned parcel."
+    status:
+      summary: "Shows where the return stands, from draft and authorized through transit, receipt and inspection to completed, cancelled or exception."
+    reasonCode:
+      summary: "Says why the customer is sending goods back, such as damaged, wrong item or no longer needed."
+    notes:
+      summary: "Free comments from staff or the customer explaining circumstances of the return that the reason code does not capture."
+DiscountRule:
+  help:
+    summary: "A reusable discount definition stating how much a qualifying price or order is reduced, either by a percentage or a fixed amount, and which rule wins when several apply."
+  attributes:
+    discountRuleId:
+      summary: "The internal key that orders and price calculations use to record which discount rule was applied."
+      businessMeaning: "Lets each discounted order line trace back to exactly the rule that reduced its price, which matters when explaining a price or auditing promotions."
+    code:
+      summary: "The short code staff and systems use to pick or quote this discount rule."
+      businessMeaning: "The handle salespeople enter or promotions reference, so it must stay stable and unique while the discount is offered."
+    name:
+      summary: "The readable name of the discount shown to staff and, where printed, to customers."
+      businessMeaning: "Tells people what the discount is for, such as a spring sale or a trade customer rebate, when they choose or review it."
+    method:
+      summary: "Says whether the discount takes off a percentage or a fixed amount of money."
+      businessMeaning: "Decides how the value is applied: a percentage scales with the price, while a fixed amount always removes the same sum."
+    value:
+      summary: "The size of the discount, either the percentage or the amount taken off."
+      businessMeaning: "The figure that actually reduces the price, so an error here directly changes what customers pay and the margin the business keeps."
+    currency:
+      businessMeaning: "For a fixed-amount discount, the currency the amount is expressed in, so it is only applied to prices in that currency."
+    priority:
+      businessMeaning: "Decides which rule is applied first, or which one wins, when more than one discount qualifies for the same price or order."
+    status:
+      businessMeaning: "Only active rules are applied to prices; drafts are still being prepared, inactive rules are paused, and retired rules are kept only to explain past discounts."
+Employee:
+  help:
+    summary: "A person employed by the organization, holding the employee number, hire and termination dates and employment status that HR, payroll and managers rely on."
+    workflowContext: "HR creates the employee record when a hire is confirmed, it is used daily for attendance, leave requests and payroll, status changes when the person goes on or returns from leave, and the record is marked terminated or retired when employment ends while history is kept."
+  attributes:
+    employeeId:
+      businessMeaning: "Lets attendance, leave, payroll and reporting all point at the same employee record without depending on names that may change."
+    partyRoleId:
+      businessMeaning: "Connects the employee to the underlying person, so the same individual can also be recognised as a customer, contact or contractor without duplicate records."
+    employeeNumber:
+      businessMeaning: "The staff number printed on payslips and badges and quoted to HR, which people use to identify an employee unambiguously."
+    hireDate:
+      businessMeaning: "The day employment started, which drives length-of-service calculations, probation periods, leave entitlement and first pay."
+    terminationDate:
+      businessMeaning: "The last day of employment, used to stop pay, calculate final settlements and remove access."
+    status:
+      businessMeaning: "Tells HR and payroll whether the person is working, on leave, or has left through termination or retirement, which decides whether they are paid and scheduled."
+Event:
+  help:
+    summary: "A record that something significant happened, such as an order being placed or a payment failing, kept so workflows, notifications, integrations and auditors can react to and trace it."
+    workflowContext: "An event is recorded the moment a business action occurs in the application or an outside system; it is then picked up by workflows, notifications and integrations that react to it, and later read by auditors and support staff tracing what happened and why."
+  attributes:
+    eventId:
+      businessMeaning: "Lets each occurrence be processed and referenced exactly once, so a notification or integration does not act on the same happening twice."
+    eventType:
+      businessMeaning: "Names what happened, such as order placed or payment failed, which decides which workflows and notifications respond to it."
+    occurredAt:
+      businessMeaning: "When the occurrence actually took place, used to put events in order and to judge whether reactions were timely."
+    source:
+      businessMeaning: "Which application, system or channel reported the occurrence, helping staff know where to look when investigating it."
+    payload:
+      businessMeaning: "The details carried with the occurrence, such as the order amount or customer, that the processes reacting to it need to do their work."
+    correlationId:
+      businessMeaning: "Groups all events that belong to the same business conversation or transaction, so the full chain can be followed end to end."
+    causationId:
+      businessMeaning: "Points to the earlier event that directly led to this one, showing cause and effect when tracing a problem."
+FiscalPeriod:
+  help:
+    summary: "One accounting period, usually a month or quarter, of an organization's financial year that controls whether transactions can still be posted, adjusted or must be treated as final."
+    workflowContext: "Finance sets up future periods with the financial calendar, opens each when it begins so journals can post, soft-closes it at month end for adjustments only, then closes it once reconciled; a period can be locked temporarily and reopened, and reporting reads balances per period."
+    example: "Period 2026-03 of Acme Ltd, running 1 March to 31 March 2026, soft-closed on 3 April while accruals are finalised."
+  attributes:
+    fiscalPeriodId:
+      summary: "The internal key that journal entries use to record which accounting period they belong to."
+    code:
+      summary: "The short label accountants use for the period, such as 2026-03 or Q1-2026."
+    startDate:
+      summary: "The first day of the accounting period; transactions dated from here onwards fall into it."
+    endDate:
+      summary: "The last day of the accounting period; transactions dated after it belong to the next period."
+    status:
+      summary: "Shows whether the period is future, open for posting, soft-closed for adjustments only, closed or temporarily locked."
+GoodsReceipt:
+  attributes:
+    goodsReceiptId:
+      summary: "The internal key that links this receipt to its lines, stock movements, invoices and supplier returns."
+    receiptNumber:
+      summary: "The receipt reference written on the delivery paperwork and quoted when matching supplier invoices."
+    receiptDate:
+      summary: "The date and time the goods or services were actually received from the supplier."
+    status:
+      summary: "Shows whether the receipt is draft, received, awaiting inspection, accepted fully or partly, rejected or cancelled."
+    receivedQuantity:
+      summary: "The total quantity physically delivered by the supplier on this receipt, before any inspection."
+    acceptedQuantity:
+      summary: "The quantity that passed inspection and can be put into stock and paid for."
+    notes:
+      summary: "Comments from the receiving team about the delivery, such as damage, shortages or late arrival."
+HotelRoom:
+  help:
+    summary: "One bookable room in a hotel, with its room number, room type, how many guests it sleeps and whether it is currently free, occupied, being cleaned or out of service."
+    workflowContext: "Hotel management sets up each room once; reservations then assign guests to it, front desk marks it occupied at check-in, housekeeping moves it through cleaning after check-out, and maintenance takes it out of service and returns it when repaired."
+  attributes:
+    hotelRoomId:
+      businessMeaning: "Lets reservations, housekeeping tasks and billing refer to exactly this room within the hotel."
+    roomNumber:
+      businessMeaning: "The number on the door that guests, front desk and housekeeping use to find the room."
+    roomType:
+      businessMeaning: "The category of room, such as double, twin or suite, that guests book and that sets the rate charged."
+    status:
+      businessMeaning: "Tells front desk whether the room can be sold right now or is occupied, reserved, being cleaned or out of service."
+    capacity:
+      businessMeaning: "The most guests the room can accommodate, which limits which bookings it can be assigned to."
+InventoryAdjustment:
+  help:
+    summary: "An authorized correction to the recorded stock of a product at a location, raised when a count or investigation shows the books differ from what is physically there."
+    workflowContext: "A stock count or investigation reveals a discrepancy, a stock controller raises the adjustment with the quantity difference and reason, it is authorized, and the matching stock movement then corrects on-hand stock so valuation and planning use the right figure."
+    example: "Adjustment ADJ-2026-0233 reducing stock of 10 mm bolts in bin A-04-02 by 40 units after cycle count CC-118 found damaged stock."
+  attributes:
+    inventoryAdjustmentId:
+      summary: "The internal key that links this adjustment to its count and the stock movement it caused."
+    adjustmentNumber:
+      summary: "The reference number warehouse and finance staff quote when reviewing or approving the stock correction."
+    quantityDelta:
+      summary: "How much stock is added or removed by the correction, positive for gains and negative for losses."
+    reasonCode:
+      summary: "Why the stock needed correcting, such as damage, theft, miscount or expiry."
+Job:
+  help:
+    summary: "A standard job definition, such as Accountant or Warehouse Operative, describing duties, qualifications and grading that individual positions are created from and people are hired into."
+    workflowContext: "HR drafts the job when a new kind of role is designed, activates it once grading and requirements are agreed, positions are then created from it and filled through hiring, and it is deactivated or retired when the organization stops using that role."
+    lifecycle: "A job starts as draft, becomes active when approved for use, can be made inactive and reactivated as needs change, and is retired from draft, active or inactive when it will no longer be used; retired jobs are kept for history."
+    example: "Job FIN-ACC-02 Senior Accountant, active, with three positions created from it in the finance department."
+  attributes:
+    jobId:
+      summary: "The internal key that positions use to point at this job definition."
+    code:
+      summary: "The short job code HR uses in grading tables, job postings and reports."
+    title:
+      summary: "The job title people see on postings, contracts and organization charts."
+    status:
+      summary: "Shows whether the job is still a draft, active for use, temporarily inactive, or retired."
+LegalMatter:
+  attributes:
+    legalMatterId:
+      summary: "The internal key that ties documents, counsel, costs and filings to this legal matter."
+    occurredAt:
+      summary: "The date and time the event giving rise to this legal matter took place."
+MediaRight:
+  help:
+    summary: "A licence or restriction stating who may use a piece of media content, in what way, in which territory and for which dates, so content is only used where the business holds the right."
+    workflowContext: "Rights staff record the right when a licence contract is agreed, it becomes active from its start date, scheduling and distribution check it before content is published, and it expires at the end date or is revoked if the agreement is terminated."
+  attributes:
+    mediaRightId:
+      businessMeaning: "Lets schedules, distribution deals and royalty reports point at exactly this licence for the content."
+    rightType:
+      businessMeaning: "What use is permitted or restricted, such as broadcast, streaming or theatrical, which decides where the content may be shown."
+    territory:
+      businessMeaning: "The countries or regions where the right applies, so content is not offered where the business is not licensed."
+    validFrom:
+      businessMeaning: "The first date the content may be used under this right; publishing earlier would breach the licence."
+    validTo:
+      businessMeaning: "The last date the content may be used under this right, after which it must be withdrawn or relicensed."
+    status:
+      businessMeaning: "Pending rights are not yet usable, active rights permit use, and expired or revoked rights mean the content must not be used under them."
+Obligation:
+  attributes:
+    obligationId:
+      summary: "The internal key that ties tracking, evidence and reminders to this specific duty."
+    occurredAt:
+      summary: "The date and time the duty arose, for example when the agreement or order took effect."
+Party:
+  help:
+    summary: "A single person or organization the business deals with, recorded once and then given roles such as customer, supplier or employee, so the same party is never duplicated across areas."
+    workflowContext: "A party is created when the business first deals with a person or organization, roles and addresses are added as relationships develop, it may be made inactive or blocked when dealings stop or a problem arises, and it is retired when no longer needed while history is kept."
+  attributes:
+    partyId:
+      summary: "The internal key that every role, address and transaction uses to point at this person or organization."
+Position:
+  help:
+    summary: "A specific seat in the organization chart, such as Finance Manager for the UK office, with its reporting line, job and dates, that a person is hired into."
+    workflowContext: "HR creates the position from a job when headcount is approved, opens it for recruitment, may freeze it during a hiring pause, marks it filled once an employee is appointed, and closes or retires it when the role is removed from the structure."
+  attributes:
+    positionId:
+      businessMeaning: "Lets employees, reporting lines and headcount plans refer to exactly this seat in the structure."
+    code:
+      businessMeaning: "The position number HR and finance use in headcount budgets and recruitment requests."
+    title:
+      businessMeaning: "The name of the role as shown on the organization chart and in job adverts."
+    status:
+      businessMeaning: "Tells HR whether the seat is open for hiring, filled, frozen during a hiring pause, closed or retired, which drives recruitment and headcount reporting."
+    effectiveFrom:
+      businessMeaning: "The date from which the position exists in the structure and can be budgeted and filled."
+    effectiveTo:
+      businessMeaning: "The date the position stops existing, after which nobody can be appointed to it."
+ProductLifecycle:
+  help:
+    summary: "A dated entry in a product's history recording that it moved to a new stage, such as active, discontinued or blocked, with the reason and when the change took effect."
+    workflowContext: "Product management records an entry whenever a product is launched, discontinued, blocked or retired; sales, purchasing and planning then read the latest effective entry to decide whether the product can be sold, bought or made, and auditors use the history to see why."
+    example: "Product SKU-55012 discontinued effective 1 July 2026 because the supplier ended production of the motor."
+  attributes:
+    productLifecycleId:
+      summary: "The internal key that identifies this one change in the product's lifecycle history."
+    effectiveAt:
+      summary: "The date and time from which the product's new stage applies to sales and purchasing."
+    lifecycleStatus:
+      summary: "The stage the product moved into, such as draft, active, discontinued, blocked or retired."
+    reason:
+      summary: "Why the product's stage was changed, for example a safety recall or a supplier ending supply."
+Project:
+  help:
+    summary: "A piece of planned work with its own objectives, budget, manager and dates, under which tasks, milestones, resources and costs are planned and tracked."
+    workflowContext: "A project is drafted with its scope, planned once budget and dates are agreed, made active when work starts, may be put on hold and resumed, is completed when the work is delivered, and closed after final costs are booked; it can be cancelled at any point before completion."
+  attributes:
+    projectId:
+      businessMeaning: "Lets tasks, timesheets, costs and milestones be charged to exactly this project."
+    projectCode:
+      businessMeaning: "The short code staff enter on timesheets and expenses to charge work to the project."
+    name:
+      businessMeaning: "The name people use to talk about the project in plans, reports and meetings."
+    description:
+      businessMeaning: "Explains the project's purpose and scope so team members and sponsors know what it is meant to deliver."
+    status:
+      businessMeaning: "Tells managers whether the project is being drafted, planned, under way, on hold, completed, cancelled or closed, which decides whether time and costs can still be charged."
+    startDate:
+      businessMeaning: "When work on the project is planned to begin, used for scheduling people and phasing budget."
+    endDate:
+      businessMeaning: "When the project is due to finish, which deadlines and resource planning are measured against."
+    budgetAmount:
+      businessMeaning: "The money approved for the project, against which actual costs are compared to spot overspending."
+QualityCharacteristic:
+  help:
+    workflowContext: "Quality engineers define the characteristic and activate it, quality plans then reference it with their own limits and methods, inspectors record measurements of it during inspections, and it is retired when no longer measured while past measurements remain."
+  attributes:
+    code:
+      summary: "The short code inspectors and quality plans use to refer to this measured property."
+    name:
+      summary: "The readable name of the property being measured, such as fill weight or surface finish."
+    status:
+      summary: "Shows whether the characteristic is still a draft, active for use in plans, or retired."
+RequestForQuotationLine:
+  help:
+    summary: "One item on a request for quotation stating what product or service and how much of it suppliers are asked to quote for, traced back to the internal purchase request."
+    workflowContext: "Buyers create the line from an approved requisition line when issuing the request for quotation, suppliers answer it with quotation lines, buyers compare those offers line by line, and the winning offer goes on to become a purchase order line."
+    example: "Line 2 of RFQ-2026-077: 500 boxes of nitrile gloves, size M, from requisition REQ-3341 line 1."
+  attributes:
+    requestForQuotationLineId:
+      summary: "The internal key that supplier offers use to say which requested item they answer."
+    lineNumber:
+      summary: "The position of this item on the request for quotation, quoted by suppliers in their replies."
+    requestedQuantity:
+      summary: "How much of the item the business is asking suppliers to quote for."
+    description:
+      summary: "A plain description of the item or service required, including any specification suppliers must meet."
+Risk:
+  help:
+    summary: "A possible event or condition that could harm the organization's objectives, recorded with its likelihood, impact, owner and the controls and treatments used to manage it."
+    workflowContext: "A risk is identified by a manager or risk team, assessed for likelihood and impact, mitigated through treatments and controls, accepted once residual risk is tolerable and closed when no longer relevant; if it actually happens at any stage it is marked materialized and reviewed."
+  attributes:
+    riskId:
+      businessMeaning: "Lets controls, treatments and risk reports refer to exactly this risk in the register."
+    code:
+      businessMeaning: "The risk register reference people quote in committee papers and audit findings."
+    name:
+      businessMeaning: "A short headline for the risk that people recognise in registers and dashboards."
+    description:
+      businessMeaning: "Explains the cause, event and possible consequences so owners understand what they are managing."
+    category:
+      businessMeaning: "Groups the risk, for example operational, financial or compliance, so related risks can be reported and owned together."
+    likelihood:
+      businessMeaning: "How probable the risk is, from rare to almost certain, which together with impact sets its priority."
+    impact:
+      businessMeaning: "How badly the organization would be affected if the risk occurred, from insignificant to severe, which drives how much effort goes into treating it."
+    status:
+      businessMeaning: "Shows how far the risk has been handled, from identified and assessed through mitigating and accepted to closed, or materialized when it has actually happened."
+Scrap:
+  help:
+    summary: "A record of material or finished product thrown away, lost or damaged during manufacturing, stating how much, why, and on which work order it happened."
+    workflowContext: "An operator or inspector records scrap on the work order when material is rejected or damaged, a nonconformance may be raised for investigation, the matching stock movement removes the quantity from inventory, and production and quality reports analyse scrap by reason."
+    example: "Scrap SCR-2026-0912: 25 machined housings from work order WO-7781, lot L2609, scrapped for out-of-tolerance bore diameter."
+  attributes:
+    scrapId:
+      summary: "The internal key that links this scrap record to its stock movement and nonconformance."
+    scrapNumber:
+      summary: "The reference number production and quality staff quote when reviewing this scrapped quantity."
+    quantity:
+      summary: "How much material or product was scrapped and removed from usable stock."
+    reasonCode:
+      summary: "Why the material was scrapped, such as machine fault, operator error or failed inspection."
+    scrappedAt:
+      summary: "The date and time the material was rejected and declared scrap."
+Shipment:
+  attributes:
+    shipmentId:
+      businessMeaning: "Lets shipment lines, tracking updates, containers and freight costs all point at exactly this movement of goods."
+    shipmentNumber:
+      businessMeaning: "The reference printed on delivery notes and quoted to customers, carriers and warehouse staff when asking about the shipment."
+    shipmentType:
+      businessMeaning: "Says whether goods are arriving, leaving, moving between sites or coming back as a return, which decides the paperwork and handling needed."
+    status:
+      summary: "Shows whether the shipment is planned, booked with a carrier, in transit, delivered, cancelled or held up by an exception."
+      businessMeaning: "Tells customer service and the warehouse where the goods are in their journey and whether anyone needs to act on a delay or problem."
+    plannedDate:
+      businessMeaning: "When the shipment is scheduled to move, used to plan dock time, labour and carrier collection."
+    actualDate:
+      businessMeaning: "When the shipment really moved or arrived, compared with the planned date to measure on-time performance."
+    trackingReference:
+      businessMeaning: "The carrier's tracking number that customers and staff use to follow the shipment on the carrier's own system."
+Subscription:
+  attributes:
+    subscriptionId:
+      summary: "The internal key that invoices, usage and entitlements use to point at this customer subscription."
+    status:
+      summary: "Shows whether the subscription is a draft, currently active, has run to completion, or was cancelled."
+SupplierQuotationLine:
+  help:
+    summary: "One priced offer from a supplier answering a single requested item, stating how much they can supply, at what unit price and by when, and whether it was awarded."
+    workflowContext: "The buyer records the line when the supplier's quotation arrives, compares it with other suppliers' offers for the same requested item, marks it accepted, partly accepted or rejected when awarding, and accepted offers are turned into purchase order lines."
+    example: "Line 2 of Medisupply quotation SQ-8812: 500 boxes of nitrile gloves at 6.40 GBP per box, promised for 14 November 2026, accepted."
+  attributes:
+    supplierQuotationLineId:
+      summary: "The internal key that purchase order lines use to trace back to the offer they came from."
+    lineNumber:
+      summary: "The position of this offer on the supplier's quotation, matching how the supplier numbered it."
+    offeredQuantity:
+      summary: "How much of the requested item the supplier is offering to deliver."
+    unitPrice:
+      summary: "The price the supplier quotes for each unit, used to compare offers and set the order price."
+    promisedDate:
+      summary: "The date the supplier promises to deliver the offered quantity by."
+    awardStatus:
+      summary: "Shows whether the offer is still pending, was accepted in full, accepted in part, or rejected."
+TaxRate:
+  help:
+    summary: "A tax percentage or amount that applies for a given tax code and jurisdiction from a set date, used to calculate the tax charged on sales and purchases."
+  attributes:
+    taxRateId:
+      summary: "The internal key that invoice and order lines use to record which tax rate was applied."
+    status:
+      summary: "Shows whether the rate is a draft, active for calculating tax, ended, or cancelled before use."
+TrackingEvent:
+  help:
+    summary: "A single dated status update about a shipment's journey, such as picked up, arrived at hub or delivered, kept unchanged as evidence of where the goods were and when."
+  attributes:
+    trackingEventId:
+      summary: "The internal key that identifies this one tracking update in the shipment's history."
+    code:
+      summary: "The status code describing what happened to the shipment, such as picked up or delivered."
+Vehicle:
+  help:
+    summary: "A truck, trailer, forklift or other piece of transport equipment the business uses to move goods, tracked with its registration, capacity, location and whether it is available."
+    workflowContext: "Fleet staff register the vehicle when it is acquired, dispatchers assign it and its drivers to movements while it is active, fuel transactions are logged against it, it is taken into maintenance or out of service when needed and returned afterwards, and retired when disposed of."
+  attributes:
+    vehicleId:
+      businessMeaning: "Lets movements, drivers and fuel transactions be recorded against exactly this vehicle."
+    registrationNumber:
+      businessMeaning: "The licence plate or equipment number used on transport documents, at gates and in roadside checks."
+    vehicleType:
+      businessMeaning: "The kind of equipment, such as truck, trailer or forklift, which decides which jobs it can be dispatched to."
+    capacity:
+      businessMeaning: "How much the vehicle can carry or lift, used by planners to avoid overloading it."
+    status:
+      businessMeaning: "Tells dispatchers whether the vehicle can be assigned now or is in maintenance, out of service or retired."
+YardSlot:
+  help:
+    workflowContext: "Yard planners set up slots when the yard layout is defined; slots are reserved for incoming containers, marked occupied when a container is placed, blocked or taken out of service for safety or repair, and freed when the container is moved out by a yard movement."

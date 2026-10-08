@@ -18,6 +18,7 @@ entity:
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory reservation cannot be understood without its inventory reservation id.'
+      businessMeaning: "The permanent handle for this commitment of stock, so picking, release and expiry can all refer to the same reservation."
   - name: quantityReserved
     type: decimal
     required: true
@@ -30,6 +31,7 @@ entity:
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory reservation cannot be understood without its quantity reserved.'
+      businessMeaning: "How much stock is set aside for the demand, which is subtracted from what other orders can promise even though nothing has physically moved."
   - name: quantityConsumed
     type: decimal
     required: true
@@ -43,6 +45,7 @@ entity:
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory reservation cannot be understood without its quantity consumed.'
+      businessMeaning: "How much of the reserved stock has actually been picked or issued to the demand, so planners can see how much is still held back."
   - name: quantityReleased
     type: decimal
     required: true
@@ -56,6 +59,7 @@ entity:
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory reservation cannot be understood without its quantity released.'
+      businessMeaning: "How much of the reservation was given back to general availability, for example after an order line was reduced; with the consumed quantity it never exceeds what was reserved."
   - name: status
     type: enum
     required: true
@@ -74,6 +78,7 @@ entity:
         CONSUMED: The status of the inventory reservation is consumed; set it when that is what the business means for this record.
         CANCELLED: The status of the inventory reservation is cancelled; set it when that is what the business means for this record.
         EXPIRED: The status of the inventory reservation is expired; set it when that is what the business means for this record.
+      businessMeaning: "Shows whether the stock is still held back (PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED) or the reservation has ended as CONSUMED, CANCELLED or EXPIRED and no longer blocks availability."
   - name: priority
     type: integer
     required: false
@@ -84,6 +89,7 @@ entity:
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
+      businessMeaning: "Decides which reservation gets stock first when there is not enough for everyone, so urgent customer orders are served before routine ones."
   - name: expiresAt
     type: datetime
     required: false
@@ -93,6 +99,7 @@ entity:
         and reports.
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
+      businessMeaning: "When the hold lapses if the stock has not been used, which stops forgotten reservations from blocking stock that others could sell."
   - name: createdAt
     type: datetime
     required: true
@@ -104,6 +111,7 @@ entity:
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory reservation cannot be understood without its created at.'
+      businessMeaning: "When the stock was first set aside, used to judge how long goods have been held and to settle first-come allocation questions."
   - name: updatedAt
     type: datetime
     required: true
@@ -115,6 +123,7 @@ entity:
       relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory reservation cannot be understood without its updated at.'
+      businessMeaning: "When the reservation last changed, which helps planners spot stale holds and audit adjustments to reserved quantities."
   relationships:
   - name: product
     target: Product

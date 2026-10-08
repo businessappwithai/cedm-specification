@@ -7,13 +7,13 @@ entity:
     icon: database
   identity: {key: handlingUnitId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable handling-unit identity., businessMeaning: Identifies one physical logistics unit independently of label changes., usage: "Receiving, putaway, picking, packing, staging and shipping.", relationshipContext: May contain product/lot/serial inventory and nested handling units., requiredMeaning: Required.}}
-  - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: Scannable operational handling-unit reference., businessMeaning: Label/barcode identifier used in physical execution., usage: WMS scanning and logistics documents., relationshipContext: Distinct from Shipment or inventory movement number., requiredMeaning: Required.}}
+  - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this physical unit through storage, picking and shipping.", businessMeaning: Identifies one physical logistics unit independently of label changes., usage: "Receiving, putaway, picking, packing, staging and shipping.", relationshipContext: May contain product/lot/serial inventory and nested handling units., requiredMeaning: Required.}}
+  - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: "The number printed on the unit's label and scanned at receiving, putaway, picking and loading.", businessMeaning: Label/barcode identifier used in physical execution., usage: WMS scanning and logistics documents., relationshipContext: Distinct from Shipment or inventory movement number., requiredMeaning: Required.}}
   - name: type
     type: enum
     required: true
     values: [PALLET, CARTON, TOTE, CAGE, DRUM, PACKAGE, OTHER]
-    help: {summary: Physical handling-unit classification., businessMeaning: Describes packaging/handling form., usage: "Capacity, equipment, packing and carrier planning.", relationshipContext: Does not determine contents by itself., valueSemantics: {PALLET: Palletized logistics unit., CARTON: Carton/box., TOTE: Reusable tote/bin., CAGE: Roll cage or similar unit., DRUM: Drum/container., PACKAGE: General package., OTHER: Governed other type.}, requiredMeaning: Required.}
+    help: {summary: "The kind of physical container, such as pallet, carton, tote, cage, drum or package.", businessMeaning: Describes packaging/handling form., usage: "Capacity, equipment, packing and carrier planning.", relationshipContext: Does not determine contents by itself., valueSemantics: {PALLET: Palletized logistics unit., CARTON: Carton/box., TOTE: Reusable tote/bin., CAGE: Roll cage or similar unit., DRUM: Drum/container., PACKAGE: General package., OTHER: Governed other type.}, requiredMeaning: Required.}
   relationships:
   - {name: inventoryLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference, help: {summary: Current warehouse location when stored., businessMeaning: Provides operational custody position., usage: "Putaway, picking and count.", cardinalityMeaning: Optional while in transit/shipped., workflowRole: Changes must reconcile to execution evidence.}}
   - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference, help: {summary: Shipment carrying the handling unit when dispatched., businessMeaning: Connects package identity to transport., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Optional before shipment assignment., workflowRole: Shipment execution controls transit state.}}
@@ -22,10 +22,12 @@ entity:
   - {id: HANDLING-UNIT-001, rule: A HandlingUnit hierarchy must be acyclic.}
   - {id: HANDLING-UNIT-002, rule: A HandlingUnit cannot simultaneously be stored at a warehouse location and confirmed as externally dispatched without governed transition evidence.}
   help:
-    summary: Physical logistics identity for grouping and moving inventory.
+    summary: "One handling unit is a single physical pallet, carton, tote, cage, drum or package with its own label, tracked as one item as it moves through the warehouse and onto shipments."
     businessMeaning: HandlingUnit represents the package/pallet/tote being handled; InventoryMovement remains authoritative for stock quantity/location.
     usage: Receiving, putaway, replenishment, picking, packing, staging, loading, shipment and tracking.
     relationshipContext: Can occupy InventoryLocation, nest inside another HandlingUnit and join Shipment.
     lifecycle: Created/received → stored/moved → picked/packed → staged/shipped → unpacked/closed or reused.
     changePropagation: Location/shipment/nesting changes must reconcile with warehouse execution and cannot silently move underlying stock.
+    workflowContext: "A handling unit is created and labelled when goods are packed or received, placed into an inventory location at putaway, picked and possibly nested inside a larger parent unit, then assigned to a shipment and loaded; scanning its number at each step updates where it is and what it holds."
+    example: "Pallet HU-00451239 holding 40 cartons of bottled water, stored in rack location A-12-03 and later loaded onto shipment SH-2025-0871."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-HANDLING-UNIT}

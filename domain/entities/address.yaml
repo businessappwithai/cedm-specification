@@ -16,6 +16,7 @@ entity:
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a address cannot be understood without its address id."
+      businessMeaning: "Lets every invoice, shipment and party record point at exactly this address, so a correction made here reaches all of them without retyping the address."
   - name: addressType
     type: enum
     required: true
@@ -33,6 +34,7 @@ entity:
         REGISTERED: The address type of the address is registered; set it when that is what the business means for this record.
         POSTAL: The address type of the address is postal; set it when that is what the business means for this record.
         OTHER: The address type of the address is other; set it when that is what the business means for this record.
+      businessMeaning: "Decides where the address is used: billing addresses go on invoices, shipping addresses on deliveries, registered addresses on legal filings, so picking the wrong type sends documents or goods to the wrong place."
   - name: line1
     type: string
     required: true
@@ -42,6 +44,7 @@ entity:
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a address cannot be understood without its line1."
+      businessMeaning: "The street, building number or post office box that a courier or postal service needs first to find the premises; without it the address cannot be delivered to."
   - name: line2
     type: string
     required: false
@@ -50,6 +53,7 @@ entity:
       summary: "The line2 of the address: a value the business records on it."
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "Carries the suite, floor, unit or building name that narrows delivery inside a larger site, which couriers rely on to reach the right door."
   - name: line3
     type: string
     required: false
@@ -58,6 +62,7 @@ entity:
       summary: "The line3 of the address: a value the business records on it."
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "Holds any further delivery detail such as a district, estate or c/o name that some countries need and that does not fit the first two lines."
   - name: cityName
     type: string
     required: false
@@ -66,6 +71,7 @@ entity:
       summary: The name of the town or locality when it is not in the list of cities.
       usage: Filled only when no city can be chosen; leave it empty when the city is picked from the list.
       relationshipContext: Stands in for the city relationship; an address states one or the other.
+      businessMeaning: "The town as written on the envelope, used when the city is not picked from the list or when the local spelling on mail differs from the official city name."
   - name: postalCode
     type: string
     required: false
@@ -74,6 +80,7 @@ entity:
       summary: "The postal code of the address: a value the business records on it."
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "The postal or ZIP code that carriers sort by and that tax and delivery-zone rules are often keyed on, so an incorrect code can delay goods or misapply tax."
   - name: latitude
     type: decimal
     required: false
@@ -83,6 +90,7 @@ entity:
       summary: "The latitude of the address: a number the business records on it."
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "The north-south map position of the premises, used for route planning, delivery radius checks and showing the site on a map."
   - name: longitude
     type: decimal
     required: false
@@ -92,6 +100,7 @@ entity:
       summary: "The longitude of the address: a number the business records on it."
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "The east-west map position of the premises, used together with latitude for routing, distance calculations and map display."
   - name: isPrimary
     type: boolean
     required: true
@@ -101,6 +110,7 @@ entity:
       usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a address cannot be understood without its is primary."
+      businessMeaning: "Marks the address chosen by default when a party has several, so new orders, invoices and letters go there unless someone picks another."
   - name: status
     type: enum
     required: true
@@ -115,6 +125,7 @@ entity:
         ACTIVE: The status of the address is active; set it when that is what the business means for this record.
         INACTIVE: The status of the address is inactive; set it when that is what the business means for this record.
         RETIRED: The status of the address is retired; set it when that is what the business means for this record.
+      businessMeaning: "Active addresses can be chosen on new orders and documents; inactive ones are kept but not offered, and retired ones are kept only as history for documents already issued."
   relationships:
   - name: country
     target: Country

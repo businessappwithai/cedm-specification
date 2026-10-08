@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the yard bay.
+      summary: "The permanent reference for this storage lane, unchanged if the yard is renumbered or relaid out."
       businessMeaning: Identifies one longitudinal storage lane within a specific YardBlock regardless of changes to layout, numbering, or operational status.
       usage: Used by yard allocation, movement planning, capacity analysis, digital-yard visualization, and integrations.
       relationshipContext: The bay inherits facility context from YardBlock and provides the parent context for YardTier records.
@@ -122,6 +122,7 @@ entity:
     lifecycle: A bay may be configured, activated, temporarily blocked, or closed. Blocking or closing a bay prevents new normal placements but does not erase current occupancy. Existing containers may require controlled relocation, and each relocation should produce an auditable ContainerMovement event.
     optimizationContext: Bay is a natural optimization unit for balancing yard density, reducing travel distance, minimizing rehandles, grouping containers by destination or dwell profile, and managing equipment workload. A good placement decision evaluates bay-level cost together with tier/slot availability, stack compatibility, container dimensions, weight, hazardous status, reefer requirements, appointment/dispatch timing, and future retrieval priority.
     example: Block B03 contains Bay 12. Bay 12 has five tiers and multiple atomic slots. A container arriving at the depot is evaluated against Bay 12's access, capacity, compatibility, and future retrieval cost before a precise YardSlot is selected. If Bay 12 becomes blocked for maintenance, existing containers remain associated with their slots while new placements are prevented until the block is resolved.
+    workflowContext: "Set up by yard planners when a block's layout is configured, used by the yard planning process to choose slots for arriving containers and plan retrievals, blocked temporarily for maintenance or safety with existing containers relocated by container movements where needed, and closed when the lane is taken out of service."
 specification:
   version: 0.2.0
   status: draft

@@ -7,13 +7,13 @@ entity:
     icon: scroll-text
   identity: {key: auditCaseId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: auditCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AuditCase., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - {name: auditCaseId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this audit case, so evidence, findings and actions always attach to the right investigation.", businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
   - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
   relationships: []
   invariants:
   - {id: AUDIT-CASE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed audit investigation or review grouping scope, evidence, findings, actions, and conclusions.
+    summary: "One audit investigation or review that gathers its agreed scope, collected evidence, findings, follow-up actions and final conclusion in a single traceable case."
     purpose: Provide durable, implementation-neutral governance semantics for AuditCase.
     businessMeaning: A governed audit investigation or review grouping scope, evidence, findings, actions, and conclusions.
     whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.

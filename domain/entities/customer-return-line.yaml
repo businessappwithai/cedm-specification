@@ -12,7 +12,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the customer return line.
+      summary: "The permanent identity of this returned quantity, which dispositions, inventory movements and credit note lines refer back to."
       businessMeaning: Identifies one returned-item detail independently of the parent return, source order line, inventory movement or credit note.
       usage: Used for quantity reconciliation, inventory posting, credit calculation and audit.
       relationshipContext: Stable bridge identity across reverse-fulfillment and financial workflows.
@@ -48,7 +48,7 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Quantity accepted for unrestricted restocking.
+      summary: "How much of the returned quantity passed inspection and was put back into sellable stock."
       businessMeaning: Represents returned goods approved to re-enter unrestricted inventory.
       usage: Drives positive InventoryMovement posting.
       relationshipContext: Must be a component of quantityReturned and is the only disposition component eligible for unrestricted stock.
@@ -61,7 +61,7 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Quantity placed into restricted or quarantine inventory.
+      summary: "How much of the returned quantity is held aside pending further inspection or a decision about its disposition."
       businessMeaning: Represents returned goods requiring further inspection or controlled handling.
       usage: Supports quality and restricted inventory workflows.
       relationshipContext: Does not increase unrestricted available inventory.
@@ -74,7 +74,7 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Quantity routed to repair or refurbishment.
+      summary: "How much of the returned quantity is being sent for repair or rework before it can be sold or returned again."
       businessMeaning: Represents goods that require a repair process before any future stock disposition.
       usage: Supports maintenance/repair work orders and inventory control.
       relationshipContext: Does not directly create unrestricted stock.
@@ -87,7 +87,7 @@ entity:
     precision: 20
     scale: 6
     help:
-      summary: Quantity approved for scrap or disposal.
+      summary: "How much of the returned quantity was judged unusable and written off rather than restocked or repaired."
       businessMeaning: Represents returned goods that will not return to saleable inventory.
       usage: Supports disposal, environmental controls and inventory adjustment.
       relationshipContext: Does not increase unrestricted available inventory.
@@ -190,7 +190,7 @@ entity:
   - {id: CUSTOMER-RETURN-LINE-009, rule: Corrections after disposition posting require compensating inventory or financial events rather than destructive mutation.}
   - {id: CUSTOMER-RETURN-LINE-010, rule: A return-based CreditNoteLine must reference this line and must not exceed approvedCreditAmount unless an explicitly authorized non-return adjustment is separately evidenced.}
   help:
-    summary: Quantity-level return evidence connecting returned goods to original fulfillment, disposition, inventory and financial adjustment.
+    summary: "One returned product quantity on a customer return, matched to the original sales order line and split by inspection into restocked, quarantined, repaired or scrapped quantities that drive inventory and credit."
     businessMeaning: CustomerReturnLine explains exactly what quantity came back and what happened to it. It does not itself move inventory or issue a credit.
     usage: Reverse logistics, quality, inventory, customer service, credit processing and audit.
     relationshipContext: SalesOrderLine identifies the original commitment; InvoiceLine identifies the financial claim; InventoryMovement records physical consequences; CreditNoteLine records the financial consequence.

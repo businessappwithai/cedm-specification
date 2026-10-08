@@ -18,6 +18,7 @@ entity:
       relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a sales order line cannot be understood without its sales order line id.'
+      businessMeaning: "Lets reservations, shipments and invoice lines trace back to exactly this commitment, so each can be reconciled against what was ordered."
   - name: lineNumber
     type: integer
     required: true
@@ -29,6 +30,7 @@ entity:
       relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a sales order line cannot be understood without its line number.'
+      businessMeaning: "The line position the customer and staff quote when discussing a particular item on the order, its delivery or its invoice."
   - name: quantity
     type: decimal
     required: true
@@ -41,6 +43,7 @@ entity:
       relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a sales order line cannot be understood without its quantity.'
+      businessMeaning: "How much the customer ordered on this line; it is the commitment the business must fulfil and the basis for pricing and invoicing."
   - name: quantityFulfilled
     type: decimal
     required: true
@@ -54,6 +57,7 @@ entity:
       relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a sales order line cannot be understood without its quantity fulfilled.'
+      businessMeaning: "How much has already been shipped or delivered; comparing it with the ordered quantity shows what is still outstanding."
   - name: quantityAllocated
     type: decimal
     required: true
@@ -67,22 +71,23 @@ entity:
       relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a sales order line cannot be understood without its quantity allocated.'
+      businessMeaning: "How much stock is reserved for this line but not yet shipped; it tells planners whether the remaining quantity is covered."
   - name: unitPrice
     type: Money
     required: true
-    help: {summary: Agreed transaction-time price per unit including currency., usage: "Order valuation, invoicing, margin, credit and reconciliation.", relationshipContext: Must align with SalesOrder currency and UnitOfMeasure pricing basis., workflowRole: Authoritative commercial price for downstream billing unless controlled repricing occurs.}
+    help: {summary: "The price per unit agreed with the customer for this line when the order was placed.", usage: "Order valuation, invoicing, margin, credit and reconciliation.", relationshipContext: Must align with SalesOrder currency and UnitOfMeasure pricing basis., workflowRole: Authoritative commercial price for downstream billing unless controlled repricing occurs., businessMeaning: "The price per unit the customer agreed to; it is preserved at order time so invoicing charges what was agreed, even if the price list later changes."}
   - name: discountAmount
     type: Money
     required: false
-    help: {summary: Approved transaction-time discount amount., usage: Reconciles net commercial value and invoice calculations., relationshipContext: Currency must match order pricing currency., workflowRole: Preserves the concession actually granted rather than relying on current DiscountRule.}
+    help: {summary: "The total reduction given on this line, taken off before tax is calculated.", usage: Reconciles net commercial value and invoice calculations., relationshipContext: Currency must match order pricing currency., workflowRole: Preserves the concession actually granted rather than relying on current DiscountRule., businessMeaning: "The reduction granted on this line; it is checked against discount authority and lowers the amount the customer is invoiced."}
   - name: taxAmount
     type: Money
     required: false
-    help: {summary: Tax determined for the order line when tax is calculated at order stage., usage: Supports order and invoice reconciliation., relationshipContext: "Determination may depend on Product, Customer, address, location, date and TaxRule.", workflowRole: Preserves tax evidence when the order commits to a tax amount.}
+    help: {summary: Tax determined for the order line when tax is calculated at order stage., usage: Supports order and invoice reconciliation., relationshipContext: "Determination may depend on Product, Customer, address, location, date and TaxRule.", workflowRole: Preserves tax evidence when the order commits to a tax amount., businessMeaning: "The tax due on this line under the rules in force when it was ordered; it is charged on the invoice and reported to tax authorities."}
   - name: lineAmount
     type: Money
     required: true
-    help: {summary: Calculated commercial value of the line., usage: "Supports order totals, invoicing, credit and reporting.", relationshipContext: "Must reconcile with pricing, discount, tax and rounding policy.", workflowRole: Financial baseline for downstream billing and reconciliation.}
+    help: {summary: "The total value of this line after quantity, price and discount, which adds into the order total.", usage: "Supports order totals, invoicing, credit and reporting.", relationshipContext: "Must reconcile with pricing, discount, tax and rounding policy.", workflowRole: Financial baseline for downstream billing and reconciliation., businessMeaning: "What this line is worth to the business; it adds into the order total, revenue forecasts and the amount invoiced as the line is fulfilled."}
   - name: priceSource
     type: enum
     required: false
@@ -113,6 +118,7 @@ entity:
         PROMOTION: The price source of the sales order line is promotion; set it when that is what the business means for this
           record.
         OTHER: The price source of the sales order line is other; set it when that is what the business means for this record.
+      businessMeaning: "Where the price came from: the price list, a contract, a customer agreement, an accepted quotation, a promotion, a manual entry or something else; it explains the price if a customer disputes it and flags manual prices for review."
   - name: priceDeterminedAt
     type: datetime
     required: false
@@ -122,6 +128,7 @@ entity:
         and reports.
       relationshipContext: Read together with the sales order line's other fields and its relationships; it is not meaningful
         on its own.
+      businessMeaning: "When the price was settled, showing which price list, promotion or quotation was in force and supporting audit of the charged price."
   relationships:
   - name: salesOrder
     target: SalesOrder

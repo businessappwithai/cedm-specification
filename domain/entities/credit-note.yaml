@@ -11,13 +11,13 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the credit note., businessMeaning: "Identifies the financial adjustment independently of its business number, original invoice, return, accounting entry, application or refund.", usage: "Used for audit, accounting, customer statements, integrations, reconciliation, tax and reversal workflows.", relationshipContext: "CreditNoteId is the stable system identity; creditNoteNumber is the business-facing reference; the original Invoice remains a separate historical claim.", workflowRole: "Root reference across preparation, approval, posting, application, reversal, reporting and refund processing.", requiredMeaning: Required.}
+    help: {summary: "Uniquely identifies this customer credit so its applications, refunds and accounting entries stay tied to it.", businessMeaning: "Identifies the financial adjustment independently of its business number, original invoice, return, accounting entry, application or refund.", usage: "Used for audit, accounting, customer statements, integrations, reconciliation, tax and reversal workflows.", relationshipContext: "CreditNoteId is the stable system identity; creditNoteNumber is the business-facing reference; the original Invoice remains a separate historical claim.", workflowRole: "Root reference across preparation, approval, posting, application, reversal, reporting and refund processing.", requiredMeaning: Required.}
   - name: creditNoteNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing reference assigned to the credit note., businessMeaning: "Identifies the adjustment in customer communication, tax documents, statements and finance operations.", usage: "Used for reconciliation, customer service, reporting, tax and integrations.", relationshipContext: Distinct from creditNoteId and original Invoice.invoiceNumber., workflowRole: Provides the human-recognizable adjustment reference throughout its lifecycle., requiredMeaning: Required.}
+    help: {summary: "The credit note number printed on the document the customer receives and quotes when using the credit.", businessMeaning: "Identifies the adjustment in customer communication, tax documents, statements and finance operations.", usage: "Used for reconciliation, customer service, reporting, tax and integrations.", relationshipContext: Distinct from creditNoteId and original Invoice.invoiceNumber., workflowRole: Provides the human-recognizable adjustment reference throughout its lifecycle., requiredMeaning: Required.}
   - name: creditNoteDate
     type: date
     required: true
@@ -28,7 +28,7 @@ entity:
     default: DRAFT
     values: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, REFUND_DUE, REFUNDED, CANCELLED, REVERSED]
     help:
-      summary: Lifecycle state of the credit adjustment.
+      summary: "Shows where the credit stands, from draft and approval through posting, application to invoices or refund, or cancellation and reversal."
       businessMeaning: Indicates preparation, authorization, accounting recognition, application to invoices, customer refund obligation, settlement, cancellation or reversal.
       usage: Controls approval, posting, application, refund and correction workflows.
       relationshipContext: CreditNote status is independent of Invoice, CustomerReturn, Payment and CreditNoteApplication status.
@@ -54,7 +54,7 @@ entity:
     type: string
     required: true
     maxLength: 100
-    help: {summary: Controlled business reason for issuing the credit., businessMeaning: Explains why customer exposure is reduced., usage: "Used for approval, policy, analytics, tax, audit and customer communication.", relationshipContext: Return reason and financial credit reason may differ., workflowRole: "Determines applicable approval, calculation, tax and posting policy.", requiredMeaning: Required.}
+    help: {summary: "The authorised reason the customer is being credited, such as returned goods, a pricing error or a service failure.", businessMeaning: Explains why customer exposure is reduced., usage: "Used for approval, policy, analytics, tax, audit and customer communication.", relationshipContext: Return reason and financial credit reason may differ., workflowRole: "Determines applicable approval, calculation, tax and posting policy.", requiredMeaning: Required.}
   - name: subtotal
     type: Money
     required: true

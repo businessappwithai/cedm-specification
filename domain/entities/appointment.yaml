@@ -6,18 +6,18 @@ entity:
   ui: {icon: calendar-clock}
   identity: {key: appointmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: appointmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the appointment., businessMeaning: Identifies one scheduled healthcare commitment independently of encounter execution., usage: "Scheduling, reminders, patient service, reporting and audit.", relationshipContext: HealthcareEncounter may later record actual care but does not replace Appointment identity., requiredMeaning: Required.}}
-    - {name: appointmentNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing appointment reference., businessMeaning: Operational identifier for scheduling and communication., usage: "Search, reminders, check-in and integration.", relationshipContext: Distinct from patient and encounter identifiers., requiredMeaning: Required.}}
-    - {name: appointmentType, type: string, required: true, maxLength: 120, help: {summary: Business classification of the scheduled healthcare service., businessMeaning: "Supports routing, duration, resource and preparation policies.", usage: "Scheduling, capacity planning and reporting.", relationshipContext: Does not itself prove what service was actually delivered., requiredMeaning: Required.}}
-    - {name: scheduledStartAt, type: datetime, required: true, help: {summary: Planned start timestamp., businessMeaning: Establishes when the scheduled service is intended to begin., usage: "Scheduling, reminders, capacity and lateness measurement.", relationshipContext: Must precede scheduledEndAt when an end is supplied., requiredMeaning: Required.}}
-    - {name: scheduledEndAt, type: datetime, required: false, help: {summary: Planned end timestamp., businessMeaning: Supports resource-capacity and duration planning., usage: "Scheduling and capacity management.", relationshipContext: Must follow scheduledStartAt., optionalMeaning: Optional when duration is not fixed at scheduling time.}}
+    - {name: appointmentId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this booking, kept unchanged through confirmation, rescheduling and the visit itself.", businessMeaning: Identifies one scheduled healthcare commitment independently of encounter execution., usage: "Scheduling, reminders, patient service, reporting and audit.", relationshipContext: HealthcareEncounter may later record actual care but does not replace Appointment identity., requiredMeaning: Required.}}
+    - {name: appointmentNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The booking reference quoted to the patient and front desk when confirming, changing or checking in.", businessMeaning: Operational identifier for scheduling and communication., usage: "Search, reminders, check-in and integration.", relationshipContext: Distinct from patient and encounter identifiers., requiredMeaning: Required.}}
+    - {name: appointmentType, type: string, required: true, maxLength: 120, help: {summary: "The kind of visit booked, such as a new consultation, follow-up or vaccination, which sets duration and preparation.", businessMeaning: "Supports routing, duration, resource and preparation policies.", usage: "Scheduling, capacity planning and reporting.", relationshipContext: Does not itself prove what service was actually delivered., requiredMeaning: Required.}}
+    - {name: scheduledStartAt, type: datetime, required: true, help: {summary: "The date and time the patient is expected to be seen, used for reminders and lateness.", businessMeaning: Establishes when the scheduled service is intended to begin., usage: "Scheduling, reminders, capacity and lateness measurement.", relationshipContext: Must precede scheduledEndAt when an end is supplied., requiredMeaning: Required.}}
+    - {name: scheduledEndAt, type: datetime, required: false, help: {summary: "The date and time the booked slot is planned to finish, freeing the practitioner and room for the next patient.", businessMeaning: Supports resource-capacity and duration planning., usage: "Scheduling and capacity management.", relationshipContext: Must follow scheduledStartAt., optionalMeaning: Optional when duration is not fixed at scheduling time.}}
     - name: status
       type: enum
       required: true
       default: SCHEDULED
       values: [SCHEDULED, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED, NO_SHOW]
       help:
-        summary: Lifecycle state of the scheduled commitment.
+        summary: "Shows whether the booking is scheduled, confirmed, checked in, completed, cancelled or a no-show by the patient."
         businessMeaning: Distinguishes planned, confirmed, arrived and final scheduling outcomes.
         usage: Scheduling, reminders, check-in, operations and reporting.
         relationshipContext: COMPLETED normally reconciles to encounter evidence when care occurred.
@@ -56,10 +56,11 @@ entity:
       - {from: SCHEDULED, to: NO_SHOW, action: mark_no_show}
       - {from: CONFIRMED, to: NO_SHOW, action: mark_no_show}
   help:
-    summary: Represents scheduled healthcare intent independently of actual care delivery.
+    summary: "One booked slot for a patient to receive a healthcare service at a planned time, with a chosen practitioner, provider or location, kept so clinics can plan capacity, send reminders and track attendance."
     businessMeaning: Appointment answers when care is planned; HealthcareEncounter records what actually occurred. Keeping them separate supports cancellations, no-shows, rescheduling and audit.
     usage: Patient scheduling, provider capacity, reminders, check-in, operational planning, reporting and integration.
     relationshipContext: HealthcarePatient is mandatory; Practitioner, HealthcareProvider and Location define planned resources; HealthcareEncounter supplies actual-care reconciliation.
     lifecycle: Appointments are scheduled, may be confirmed and checked in, and finish as completed, cancelled or no-show.
     example: A patient schedules a cardiology visit with a Practitioner; after check-in, an Encounter is created and linked when the visit occurs.
+    workflowContext: "Booked by scheduling staff or the patient, then confirmed and reminded, checked in when the patient arrives, and completed once the visit is linked to the encounter that recorded the care; cancellations and no-shows close it instead and feed capacity and attendance reporting."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-APPOINTMENT}

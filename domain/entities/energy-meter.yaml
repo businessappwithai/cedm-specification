@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of one meter, so all readings taken from it over its working life accumulate against the same device even if its customer changes."
   - name: meterNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The serial or supply-point number printed on the meter and quoted by field technicians, customers and the network operator, such as E-1145-88231."
   - name: meterType
     type: enum
     required: true
@@ -64,6 +66,7 @@ entity:
         OTHER: Represents the other state or classification in the context of EnergyMeter.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Which utility the meter measures, such as electricity, gas, water, steam or solar output, which decides the units its readings are taken in and how they are billed."
   - name: status
     type: enum
     required: true
@@ -87,6 +90,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of EnergyMeter.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the meter is PLANNED but not yet installed, ACTIVE and being read, DISCONNECTED with supply stopped, or RETIRED and removed from service."
   - name: installedAt
     type: date
     required: false
@@ -98,6 +102,7 @@ entity:
       relationshipContext: Its meaning is specific to EnergyMeter; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The date the meter was fitted at its location, which marks the start of its reading history and the first date from which consumption can be billed through it."
   relationships:
   - name: location
     target: Location
@@ -142,7 +147,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: DISCONNECTED, to: RETIRED, action: retire}
   help:
-    summary: Represents a utility entity called EnergyMeter within the CEDM business model.
+    summary: "One utility meter or metering point at a location, measuring electricity, gas, water, steam or solar consumption or production, kept so its readings can be billed to the right customer and analysed over time."
     businessMeaning: EnergyMeter is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -154,6 +159,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical EnergyMeter record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Planned when a new supply point is designed, activated once it is installed and commissioned at its location, linked to the customer being supplied, read regularly to produce meter readings for billing and consumption analysis, disconnected when supply stops, and retired when it is removed while its reading history remains."
 specification:
   version: 0.1.0
   status: draft

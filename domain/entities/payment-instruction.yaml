@@ -7,12 +7,12 @@ entity:
     icon: credit-card
   identity: {key: paymentInstructionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PaymentInstruction., businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this payment request to the bank, used to match it to the resulting payment and bank transaction.", businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of PaymentInstruction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the instruction is being prepared, is active with the bank, has been completed, or was cancelled.", businessMeaning: Indicates usability/execution state of PaymentInstruction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships:
   - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account from/to which payment is instructed., businessMeaning: Supplies treasury settlement account., usage: Payment execution., cardinalityMeaning: Exactly one BankAccount., workflowRole: Instruction does not itself prove bank settlement.}}
   - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: Payment resulting from executed instruction., businessMeaning: Connects intent to settlement transaction., usage: Treasury reconciliation., cardinalityMeaning: Optional until execution., workflowRole: Retries must not create duplicate Payment.}}

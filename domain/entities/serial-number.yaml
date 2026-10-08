@@ -7,14 +7,14 @@ entity:
     icon: database
   identity: {key: serialNumberId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: serialNumberId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the serialized unit., businessMeaning: Identifies the unit independently of its printed serial code., usage: "Inventory, service, warranty, asset, recall, and audit.", relationshipContext: One serialized identity represents one governed physical unit., requiredMeaning: Required.}}
-  - {name: serialCode, type: string, required: true, maxLength: 200, help: {summary: Business/manufacturer serial identifier., businessMeaning: Operational code used to recognize the individual unit., usage: "Scanning, receiving, picking, shipment, service, returns, and warranty.", relationshipContext: Uniqueness is governed for the Product or global namespace., requiredMeaning: Required.}}
+  - {name: serialNumberId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this individual unit, used by movements, service orders and warranty claims to point at it.", businessMeaning: Identifies the unit independently of its printed serial code., usage: "Inventory, service, warranty, asset, recall, and audit.", relationshipContext: One serialized identity represents one governed physical unit., requiredMeaning: Required.}}
+  - {name: serialCode, type: string, required: true, maxLength: 200, help: {summary: "The serial printed on the unit's label or nameplate, unique for the product, read by scanners and service technicians.", businessMeaning: Operational code used to recognize the individual unit., usage: "Scanning, receiving, picking, shipment, service, returns, and warranty.", relationshipContext: Uniqueness is governed for the Product or global namespace., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: AVAILABLE
     values: [EXPECTED, AVAILABLE, RESERVED, IN_TRANSIT, INSTALLED, CONSUMED, RETURNED, QUARANTINED, SCRAPPED, RETIRED]
-    help: {summary: Operational lifecycle state of the serialized unit., businessMeaning: Controls eligibility and custody transitions for the individual unit., usage: "Allocation, shipment, service, returns, and disposal.", relationshipContext: Status is reconciled from authoritative business and inventory events rather than freely edited., valueSemantics: {EXPECTED: Known before receipt., AVAILABLE: Eligible inventory., RESERVED: Committed to demand., IN_TRANSIT: Under logistics movement., INSTALLED: Deployed or installed., CONSUMED: Used in a process., RETURNED: Entered governed return flow., QUARANTINED: Restricted pending decision., SCRAPPED: Physically disposed as scrap., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
+    help: {summary: "Shows where this unit currently is in its life, such as available in stock, reserved, in transit, installed, quarantined or scrapped.", businessMeaning: Controls eligibility and custody transitions for the individual unit., usage: "Allocation, shipment, service, returns, and disposal.", relationshipContext: Status is reconciled from authoritative business and inventory events rather than freely edited., valueSemantics: {EXPECTED: Known before receipt., AVAILABLE: Eligible inventory., RESERVED: Committed to demand., IN_TRANSIT: Under logistics movement., INSTALLED: Deployed or installed., CONSUMED: Used in a process., RETURNED: Entered governed return flow., QUARANTINED: Restricted pending decision., SCRAPPED: Physically disposed as scrap., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product model represented by the serial., businessMeaning: Defines the standardized item type., usage: Validation and master-data context., cardinalityMeaning: Exactly one Product., workflowRole: Every serial movement must use the same Product.}}
   - {name: lot, target: Lot, cardinality: "0..1", ownership: reference, help: {summary: Lot or batch from which this serialized unit originates when applicable., businessMeaning: Connects unit identity to batch genealogy., usage: "Recall, quality, manufacturing, and provenance.", cardinalityMeaning: Optional for products not lot-controlled., workflowRole: Serial and lot provenance must remain consistent.}}
@@ -75,10 +75,12 @@ entity:
               status: "CREATED"
               priority: "HIGH"
   help:
-    summary: Unit-level identity and custody traceability for serialized products.
+    summary: "The unique identity of one individual unit of a product, tracked from receipt through stock, shipment, installation, service and disposal so that each physical item can be traced."
     businessMeaning: Product identifies the type, Lot identifies a batch, and SerialNumber identifies one physical unit.
     usage: Inventory, warehouse, logistics, manufacturing, service, maintenance, warranty, returns, recall, and asset management.
     relationshipContext: SerialNumber travels through InventoryMovement and may be associated with a Lot while preserving unique unit identity.
     lifecycle: Expected → available/reserved → in transit/installed/consumed/returned/quarantined → scrapped/retired as applicable.
     changePropagation: Status and custody changes revalidate inventory, reservation, shipment, service, return, and asset workflows; historical custody is never rewritten.
+    workflowContext: "Registered as expected when a serialised unit is ordered or produced, made available on receipt, reserved for an order, shipped, installed at a customer, and later returned, quarantined, scrapped or retired; inventory, service and warranty processes look the unit up by its serial."
+    example: "Serial SN-7Q4K-209981 of product Compressor CX-200, from lot L-2026-37, currently INSTALLED at a customer site in Rotterdam."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERIAL-NUMBER}

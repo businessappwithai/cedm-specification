@@ -37,7 +37,7 @@ entity:
     required: true
     maxLength: 200
     help:
-      summary: The human-readable name of the yard facility.
+      summary: "The name operators and hauliers know the yard by, such as Maasvlakte Empty Depot, shown on gate passes and movement instructions."
       businessMeaning: Identifies the facility in user interfaces, reports, documents, maps, and business communications.
       usage: Supports operational search and reporting where a descriptive name is preferable to a technical code.
       relationshipContext: Names the facility identified by yardId and code; it is not the technical identity and should not be used as a unique key.
@@ -107,13 +107,14 @@ entity:
       - {from: ACTIVE, to: SUSPENDED, action: suspend}
       - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
-    summary: Represents the facility-level operational boundary for container storage and handling.
+    summary: "A container yard where containers and equipment are received, stored, inspected, repaired and dispatched, organised into blocks and positions so every box can be found and moved."
     businessMeaning: Yard is the physical and operational context in which containers enter, occupy storage positions, move between positions, undergo inspection or repair, and eventually leave the facility. It is more specific than Location but broader than a YardBlock or YardSlot.
     usage: Used by container depots, terminals, inland yards, maintenance facilities, logistics operators, gate systems, yard management systems, capacity planning, and transport integrations.
     relationshipContext: Location provides geographic identity. Yard provides facility semantics. YardBlock → YardBay → YardTier → YardSlot provides progressively finer storage position. Container identifies the equipment. ContainerMovement records movement history. Yard status controls facility-level availability while slot status controls individual placement availability.
     lifecycle: A yard is planned and configured, activated for operations, potentially suspended during incidents or restrictions, and eventually closed. Suspension or closure changes what new work may be accepted but does not erase historical container, movement, inspection, repair, or gate records.
     operationalProcess: A typical flow is gate-in → equipment identification/inspection → yard allocation → placement in a compatible YardSlot → internal movement as required → inspection/repair or release → pre-dispatch staging → gate-out. Each stage should remain traceable to the yard and its physical position.
     example: A container depot operates YARD01. A truck gates in a container, the system identifies its size/type and condition, selects a compatible slot such as Block B / Bay 12 / Tier 3, records the placement, and later moves the container to a repair area. The yard remains the facility context while the slot and movement records provide precise operational history.
+    workflowContext: "Set up as planned when a facility is being prepared, activated once its location and storage blocks are ready, suspended and resumed during disruptions, and closed when it stops operating; gate-in, stacking, inspection and dispatch processes all allocate containers to an active yard."
 specification:
   version: 0.2.0
   status: draft

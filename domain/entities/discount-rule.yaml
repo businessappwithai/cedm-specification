@@ -12,51 +12,56 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the discount policy.
+      summary: "The internal key that orders and price calculations use to record which discount rule was applied."
       usage: Referenced by pricing, order, invoice, promotion, and contract workflows.
       relationshipContext: Identifies the rule rather than a discount amount applied to a specific transaction.
       workflowRole: Provides auditable policy context for a transaction-level discount.
+      businessMeaning: "Lets each discounted order line trace back to exactly the rule that reduced its price, which matters when explaining a price or auditing promotions."
   - name: code
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: Business identifier for the discount rule.
+      summary: "The short code staff and systems use to pick or quote this discount rule."
       usage: Used in configuration, pricing, order entry, promotions, contracts, and integrations.
       relationshipContext: Identifies the reusable rule, not its eventual transaction result.
       workflowRole: Allows a qualifying transaction to resolve the intended discount policy.
+      businessMeaning: "The handle salespeople enter or promotions reference, so it must stay stable and unique while the discount is offered."
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: Human-readable name of the discount rule.
+      summary: "The readable name of the discount shown to staff and, where printed, to customers."
       usage: Used by business users when configuring or reviewing pricing.
       relationshipContext: Describes the policy represented by the rule.
       workflowRole: Makes discount selection understandable during price determination.
+      businessMeaning: "Tells people what the discount is for, such as a spring sale or a trade customer rebate, when they choose or review it."
   - name: method
     type: enum
     required: true
     values: [PERCENTAGE, FIXED_AMOUNT]
     help:
-      summary: Defines how the discount is calculated.
+      summary: "Says whether the discount takes off a percentage or a fixed amount of money."
       usage: Determines whether the rule reduces an amount by a percentage or fixed monetary value.
       relationshipContext: FIXED_AMOUNT requires a currency context; PERCENTAGE is applied to an eligible monetary base.
       workflowRole: Supplies the calculation method used before tax determination and final transaction totals.
       valueSemantics:
         PERCENTAGE: The method of the discount rule is percentage; set it when that is what the business means for this record.
         FIXED_AMOUNT: The method of the discount rule is fixed amount; set it when that is what the business means for this record.
+      businessMeaning: "Decides how the value is applied: a percentage scales with the price, while a fixed amount always removes the same sum."
   - name: value
     type: decimal
     required: true
     precision: 24
     scale: 12
     help:
-      summary: Numeric discount value interpreted according to method.
+      summary: "The size of the discount, either the percentage or the amount taken off."
       usage: Used to calculate a transaction discount.
       relationshipContext: For PERCENTAGE this is a percentage; for FIXED_AMOUNT this is a monetary value whose currency must be explicitly defined.
       workflowRole: Produces the transaction-level discount amount from the eligible base.
+      businessMeaning: "The figure that actually reduces the price, so an error here directly changes what customers pay and the margin the business keeps."
   - name: currency
     type: reference
     target: Currency
@@ -66,6 +71,7 @@ entity:
       usage: Defines the denomination of a fixed discount.
       relationshipContext: Not required for percentage discounts.
       workflowRole: Enables fixed discounts to be compared with the transaction's monetary base under valid currency rules.
+      businessMeaning: "For a fixed-amount discount, the currency the amount is expressed in, so it is only applied to prices in that currency."
   - name: priority
     type: integer
     required: false
@@ -75,6 +81,7 @@ entity:
       usage: Supports deterministic discount selection or stacking policy.
       relationshipContext: Priority does not itself authorize stacking; the applicable pricing policy must define whether rules can combine.
       workflowRole: Helps resolve competing discount rules consistently.
+      businessMeaning: "Decides which rule is applied first, or which one wins, when more than one discount qualifies for the same price or order."
   - name: status
     type: enum
     required: true
@@ -90,6 +97,7 @@ entity:
         ACTIVE: The status of the discount rule is active; set it when that is what the business means for this record.
         INACTIVE: The status of the discount rule is inactive; set it when that is what the business means for this record.
         RETIRED: The status of the discount rule is retired; set it when that is what the business means for this record.
+      businessMeaning: "Only active rules are applied to prices; drafts are still being prepared, inactive rules are paused, and retired rules are kept only to explain past discounts."
   relationships:
   - name: currencyRef
     target: Currency
@@ -123,7 +131,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Defines reusable discount policy while leaving the actual applied discount as transaction evidence.
+    summary: "A reusable discount definition stating how much a qualifying price or order is reduced, either by a percentage or a fixed amount, and which rule wins when several apply."
     businessMeaning: A DiscountRule is a pricing policy; it is not the discount amount recorded on an order or invoice.
     usage: Supports customer pricing, promotions, contracts, sales orders, purchase agreements, and invoicing.
     relationshipContext: Product and pricing context determine the eligible base. DiscountRule determines the reduction. Tax rules then operate on the applicable taxable base according to jurisdiction and policy.

@@ -7,15 +7,15 @@ entity:
     icon: database
   identity: {key: routingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the routing version., businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business routing code., businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition., requiredMeaning: Required.}}
-  - {name: version, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version., requiredMeaning: Required.}}
+  - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this routing version, which work orders reference when they are issued.", businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 100, help: {summary: "The routing reference engineers and planners quote for this process, such as RT-PUMP-200.", businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition., requiredMeaning: Required.}}
+  - {name: version, type: string, required: true, maxLength: 50, help: {summary: "Which revision of the manufacturing process this routing is, such as revision C.", businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
-    help: {summary: Governance state of routing., businessMeaning: Controls eligibility for new production release., usage: Engineering change and manufacturing control., relationshipContext: Historical orders retain prior routing evidence., valueSemantics: {DRAFT: Being prepared., ACTIVE: Eligible for production., SUSPENDED: Temporarily blocked., OBSOLETE: Superseded for new use.}, requiredMeaning: Required.}
+    help: {summary: "Whether this routing version is in draft, active for production, suspended, or obsolete.", businessMeaning: Controls eligibility for new production release., usage: Engineering change and manufacturing control., relationshipContext: Historical orders retain prior routing evidence., valueSemantics: {DRAFT: Being prepared., ACTIVE: Eligible for production., SUSPENDED: Temporarily blocked., OBSOLETE: Superseded for new use.}, requiredMeaning: Required.}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Output Product this routing produces., businessMeaning: Associates process definition with manufactured item., usage: Planning and production release., cardinalityMeaning: Exactly one output Product., workflowRole: Must match work-order output.}}
   - {name: operations, target: Operation, cardinality: "1..*", ownership: aggregate, help: {summary: Ordered standard process steps., businessMeaning: Defines how production is performed., usage: "Scheduling, costing, execution, and quality gates.", cardinalityMeaning: Active routing requires at least one operation., workflowRole: Operations are instantiated/executed under ManufacturingWorkOrder.}}
@@ -37,10 +37,12 @@ entity:
       - {from: ACTIVE, to: OBSOLETE, action: mark_obsolete}
       - {from: SUSPENDED, to: OBSOLETE, action: mark_obsolete}
   help:
-    summary: Versioned definition of manufacturing process sequence.
+    summary: "One version of the step-by-step manufacturing process for a product, listing the operations in order with their work centres, so production orders know how the product is made and how long it takes."
     businessMeaning: BillOfMaterial defines what materials are required; Routing defines how the output is produced.
     usage: MRP, scheduling, costing, shop-floor execution, quality, and traceability.
     relationshipContext: Product is the output; Operations define steps; WorkCenters provide capacity; ManufacturingWorkOrder executes a selected version.
     lifecycle: Draft → active → suspended/obsolete with versioned replacement.
     changePropagation: Routing changes revalidate planned/unreleased work; released/completed work retains historical version.
+    workflowContext: "Drafted by manufacturing engineering for a product with its sequence of operations, activated so new work orders follow it for scheduling and costing, suspended while a problem is investigated, and made obsolete when a new revision replaces it, while work orders already issued keep the routing version they used."
+    example: "Routing RT-PUMP-200 revision C for the 200 litre pump: cut housing, machine impeller, assemble, pressure test and pack, five operations in sequence, active since February 2026."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ROUTING}

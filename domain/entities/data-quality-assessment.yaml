@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the DataQualityAssessment record.
+      summary: "The permanent identity of this quality assessment, kept so its findings remain traceable afterwards."
       businessMeaning: Identifies one governed DataQualityAssessment independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing Dataset context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the DataQualityAssessment.
+      summary: "The reference data stewards quote for this assessment, such as DQA-2026-031 for the customer master."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the DataQualityAssessment.
+      summary: "Whether the assessment is still being prepared, under way, completed with results, or cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related Dataset workflows but never erase historical evidence.
@@ -97,13 +97,14 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents DataQualityAssessment as a first-class governed CEDM business concept.
+    summary: "One evaluation of how fit a dataset is for use, scoring it on completeness, validity, consistency, timeliness and other declared dimensions so data owners know whether it can be trusted."
     businessMeaning: A governed assessment of Dataset quality across completeness, validity, consistency, timeliness, and other declared dimensions.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: Dataset supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A DataQualityAssessment is created for a valid Dataset, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "Raised as a draft by a data steward for a chosen dataset, activated while checks are run and findings are recorded against each quality dimension, and completed when the results are signed off and shared with data owners and consumers, or cancelled if the assessment is abandoned."
 specification:
   version: 0.1.0
   status: draft

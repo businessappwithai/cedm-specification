@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of this model, so every vehicle, part and service plan linked to it stays connected."
   - name: manufacturer
     type: string
     required: true
@@ -37,6 +38,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The maker of the vehicle, such as Toyota or Volvo, which determines warranty terms, parts sources and dealer agreements."
   - name: modelName
     type: string
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The market name customers know the model by, such as Corolla, shown on listings and invoices."
   - name: modelCode
     type: string
     required: true
@@ -64,6 +67,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The manufacturer's internal code for the model and configuration, used to order the right parts and match recalls."
   - name: modelYear
     type: integer
     required: false
@@ -75,6 +79,7 @@ entity:
       relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The model year the configuration belongs to, which affects pricing, specifications, parts compatibility and recalls."
   - name: status
     type: enum
     required: true
@@ -96,6 +101,7 @@ entity:
         DISCONTINUED: Represents the discontinued state or classification in the context of VehicleModel.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the model is announced but not yet sold, actively available, or discontinued, which decides whether new vehicles may be ordered on it."
   relationships:
   - name: product
     target: Product
@@ -128,7 +134,7 @@ entity:
       - {from: PLANNED, to: DISCONTINUED, action: discontinue}
       - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
   help:
-    summary: Represents a automotive master entity called VehicleModel within the CEDM business model.
+    summary: "One manufacturer-defined vehicle model and configuration family, such as a particular make, model and year, used to group individual vehicles for sales, parts, servicing and fleet reporting."
     businessMeaning: VehicleModel is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -140,6 +146,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical VehicleModel record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "Set up when a manufacturer announces or a dealer starts carrying a model, made active when vehicles of it can be sold or registered, referenced by each vehicle record, parts catalogue and service schedule, and discontinued when production ends."
 specification:
   version: 0.1.0
   status: draft

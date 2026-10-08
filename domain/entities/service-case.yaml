@@ -6,17 +6,17 @@ entity:
   ui: {icon: briefcase-business}
   identity: {key: serviceCaseId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service case., businessMeaning: Identifies one managed issue independently of requests or work items created beneath it., usage: "Customer service, support, reporting, audit and integration.", relationshipContext: "Remains stable while related requests, tickets and orders evolve.", requiredMeaning: Required.}}
-    - {name: caseNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing case reference., businessMeaning: Operational identifier used in customer and service communications., usage: "Search, communication, escalation, reporting and integration.", relationshipContext: "Distinct from request, ticket and service-order references.", requiredMeaning: Required.}}
-    - {name: subject, type: string, required: true, maxLength: 300, help: {summary: Concise description of the service issue., businessMeaning: Human-readable statement of why the case exists., usage: "Queues, communication, search and reporting.", relationshipContext: Detailed evidence belongs in related records or documents., requiredMeaning: Required.}}
-    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: Operational urgency of the case., businessMeaning: Guides triage and resource attention independently of SLA clocks., usage: "Queue ordering, escalation and reporting.", relationshipContext: Does not replace SLA commitments., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated business impact., URGENT: Immediate attention is required.}, requiredMeaning: Required.}}
+    - {name: serviceCaseId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this service case, which its tickets and service orders reference.", businessMeaning: Identifies one managed issue independently of requests or work items created beneath it., usage: "Customer service, support, reporting, audit and integration.", relationshipContext: "Remains stable while related requests, tickets and orders evolve.", requiredMeaning: Required.}}
+    - {name: caseNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The case reference customers and support staff quote when following up, such as CS-2026-058812.", businessMeaning: Operational identifier used in customer and service communications., usage: "Search, communication, escalation, reporting and integration.", relationshipContext: "Distinct from request, ticket and service-order references.", requiredMeaning: Required.}}
+    - {name: subject, type: string, required: true, maxLength: 300, help: {summary: "A short description of the problem being handled, such as pump leaking at site entrance.", businessMeaning: Human-readable statement of why the case exists., usage: "Queues, communication, search and reporting.", relationshipContext: Detailed evidence belongs in related records or documents., requiredMeaning: Required.}}
+    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: "How urgently the case must be handled, from low to urgent, which drives response targets.", businessMeaning: Guides triage and resource attention independently of SLA clocks., usage: "Queue ordering, escalation and reporting.", relationshipContext: Does not replace SLA commitments., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated business impact., URGENT: Immediate attention is required.}, requiredMeaning: Required.}}
     - name: status
       type: enum
       required: true
       default: OPEN
       values: [OPEN, IN_PROGRESS, PENDING, RESOLVED, CLOSED, CANCELLED]
       help:
-        summary: Lifecycle state of the case.
+        summary: "Where the case stands, from open and in progress through pending and resolved to closed."
         businessMeaning: Distinguishes active investigation, external/internal waiting, resolution and final closure.
         usage: Service workflow, SLA measurement, customer communication and reporting.
         relationshipContext: Child work can continue only when compatible with case state.
@@ -57,10 +57,11 @@ entity:
       - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
       - {from: PENDING, to: CANCELLED, action: cancel}
   help:
-    summary: Coordinates a service issue from intake through operational work and final resolution.
+    summary: "One customer or operational service issue tracked from the first report to its resolution, bringing together the requests, tickets, field service orders and communications involved so nothing is lost between teams."
     businessMeaning: ServiceCase is the durable issue aggregate; ServiceRequest captures requested service, Ticket represents operational work, and ServiceOrder authorizes execution.
     usage: Customer service, help desk, field service, service operations, escalation, analytics and audit.
     relationshipContext: Customer and requester identify who is affected, SLA and Entitlement define commitments and eligibility, while tickets and service orders provide execution evidence.
     lifecycle: Cases move from open through active or pending work to resolution and closure; cancellation remains auditable.
     example: A customer reports equipment failure; one ServiceCase coordinates the original ServiceRequest, two team Tickets and a field ServiceOrder until the issue is resolved.
+    workflowContext: "Opened when a customer or requester reports an issue, often from a service request, worked on by raising tickets and service orders under any applicable service level agreement and entitlement, placed in pending while waiting on the customer or a third party, resolved once the fix is confirmed, and closed after the resolution is accepted or cancelled if raised in error."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-CASE}

@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of one reading, so bills and consumption reports can show exactly which readings they were calculated from."
   - name: readingAt
     type: datetime
     required: true
@@ -36,6 +37,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The moment the meter was read, which places the reading in sequence with the previous one and decides which billing period its consumption falls into."
   - name: readingValue
     type: decimal
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The register value shown on the meter at that moment, in the reading's unit of measure; consumption is the difference between this and the previous reading."
   - name: readingType
     type: enum
     required: true
@@ -70,6 +73,7 @@ entity:
         CORRECTED: Represents the corrected state or classification in the context of MeterReading.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the value was ACTUAL from the meter, ESTIMATED because no reading was available, or CORRECTED to replace an earlier mistaken one, which customers and billing teams rely on when disputing a bill."
   - name: quality
     type: enum
     required: false
@@ -89,6 +93,7 @@ entity:
         SUSPECT: Represents the suspect state or classification in the context of MeterReading.
         INVALID: Represents the invalid state or classification in the context of MeterReading.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Whether the reading passed validation as GOOD, looks doubtful and needs checking as SUSPECT, or must not be used as INVALID; only good readings should drive final bills."
   relationships:
   - name: meter
     target: EnergyMeter
@@ -114,7 +119,7 @@ entity:
   - id: METER-READING-001
     rule: readingValue must not be negative unless the meter configuration permits signed values.
   help:
-    summary: Represents a utility transaction called MeterReading within the CEDM business model.
+    summary: "One value read from a utility meter at a specific moment, whether taken on site, estimated or corrected, kept so consumption can be calculated, billed and analysed between successive readings."
     businessMeaning: MeterReading is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -126,6 +131,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical MeterReading record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "Captured by a field technician, a customer submission or an automated meter feed for an active meter, validated and flagged for quality, used to calculate consumption since the previous reading for billing and analysis, and superseded by a corrected reading when an error is found rather than being overwritten."
 specification:
   version: 0.1.0
   status: draft

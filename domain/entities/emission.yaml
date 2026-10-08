@@ -24,6 +24,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of this emission entry, so a reported total can be traced back to each underlying measurement or calculation."
   - name: emissionSource
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What produced the emission, such as a boiler, delivery fleet or purchased electricity, which tells the team where reductions must be found."
   - name: emissionType
     type: enum
     required: true
@@ -57,6 +59,7 @@ entity:
         OTHER: Represents the other state or classification in the context of Emission.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the emission is direct, from purchased energy, or elsewhere in the value chain, which decides which scope total and disclosure it counts towards."
   - name: quantity
     type: decimal
     required: true
@@ -70,6 +73,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How much was released, in the stated unit, which is summed into the organization's reported footprint and compared against targets."
   - name: unitOfMeasureId
     type: reference
     target: UnitOfMeasure
@@ -82,6 +86,7 @@ entity:
         the two entities and lets processes navigate from this record to the related UnitOfMeasure.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The unit the quantity is expressed in, such as tonnes of CO2 equivalent, so amounts from different sources can be converted and added correctly."
   - name: measuredAt
     type: datetime
     required: true
@@ -93,6 +98,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the emission occurred or was measured, which places it in the correct reporting period."
   - name: sourceQuality
     type: enum
     required: false
@@ -111,6 +117,7 @@ entity:
         CALCULATED: Represents the calculated state or classification in the context of Emission.
         ESTIMATED: Represents the estimated state or classification in the context of Emission.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Whether the figure was directly measured, calculated from activity data, or estimated, which auditors use to judge how reliable the reported total is."
   relationships:
   - name: organization
     target: Organization
@@ -147,7 +154,7 @@ entity:
     rule: quantity must be zero or greater.
   - {id: EMISSION-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   help:
-    summary: Represents a sustainability entity called Emission within the CEDM business model.
+    summary: "One measured, calculated or estimated release of greenhouse gas or pollutant from a source the organization is accountable for, kept as evidence for sustainability reporting and reduction targets."
     businessMeaning: Emission is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -159,6 +166,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Emission record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Captured from meter readings, fuel and energy invoices or supplier data, classified by scope and data quality, reviewed by the sustainability team, and then aggregated into periodic carbon inventories, regulatory filings and target tracking."
 specification:
   version: 0.1.0
   status: draft

@@ -7,8 +7,8 @@ entity:
     icon: table
   identity: {key: messageId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Message., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+  - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this integration message, used to trace delivery, retries and duplicates across connected systems.", businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - {name: occurredAt, type: datetime, required: false, help: {summary: "When the business event carried by this message happened, as opposed to when it was delivered or processed.", businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
   relationships: []
   invariants:
   - {id: MESSAGE-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}

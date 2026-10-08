@@ -6,17 +6,17 @@ entity:
   ui: {icon: stethoscope}
   identity: {key: practitionerId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: practitionerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the practitioner role., businessMeaning: Identifies one governed professional healthcare role independently of the underlying Person identity., usage: "Scheduling, encounters, orders, credentialing, reporting and audit.", relationshipContext: Person supplies human identity while Practitioner supplies professional service role., requiredMeaning: Required.}}
-    - {name: practitionerCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing practitioner reference., businessMeaning: Operational identifier used by healthcare workflows and integrations., usage: "Search, scheduling, encounter documentation and reporting.", relationshipContext: Distinct from professional license numbers and Person identity., requiredMeaning: Required.}}
-    - {name: licenseNumber, type: string, required: false, maxLength: 200, help: {summary: Professional credential or license identifier when applicable., businessMeaning: Supports evidence that the practitioner is authorized under an external credentialing regime., usage: "Credentialing, compliance and reporting.", relationshipContext: Jurisdiction and credential type may require additional governed context outside this baseline entity., optionalMeaning: Optional where no license number applies or credential details are managed elsewhere.}}
-    - {name: specialty, type: string, required: false, maxLength: 200, help: {summary: Primary clinical or professional specialty., businessMeaning: Describes the practitioner's service domain for scheduling and routing., usage: "Scheduling, referral, reporting and provider directories.", relationshipContext: Does not replace formal credential or privilege evidence., optionalMeaning: Optional where specialty classification is not used.}}
+    - {name: practitionerId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this clinician's professional role, used by their appointments and recorded encounters.", businessMeaning: Identifies one governed professional healthcare role independently of the underlying Person identity., usage: "Scheduling, encounters, orders, credentialing, reporting and audit.", relationshipContext: Person supplies human identity while Practitioner supplies professional service role., requiredMeaning: Required.}}
+    - {name: practitionerCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The short staff or provider number scheduling and clinical systems use to find this clinician quickly.", businessMeaning: Operational identifier used by healthcare workflows and integrations., usage: "Search, scheduling, encounter documentation and reporting.", relationshipContext: Distinct from professional license numbers and Person identity., requiredMeaning: Required.}}
+    - {name: licenseNumber, type: string, required: false, maxLength: 200, help: {summary: "The professional licence or registration number issued by the licensing body that authorises this clinician to practise.", businessMeaning: Supports evidence that the practitioner is authorized under an external credentialing regime., usage: "Credentialing, compliance and reporting.", relationshipContext: Jurisdiction and credential type may require additional governed context outside this baseline entity., optionalMeaning: Optional where no license number applies or credential details are managed elsewhere.}}
+    - {name: specialty, type: string, required: false, maxLength: 200, help: {summary: "The clinician's main field of practice, such as cardiology or paediatrics, used for scheduling and referrals.", businessMeaning: Describes the practitioner's service domain for scheduling and routing., usage: "Scheduling, referral, reporting and provider directories.", relationshipContext: Does not replace formal credential or privilege evidence., optionalMeaning: Optional where specialty classification is not used.}}
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
       help:
-        summary: Lifecycle state controlling ordinary professional participation.
+        summary: "Whether the clinician is being set up, actively practising, suspended, inactive, or retired from practice."
         businessMeaning: Distinguishes preparation, active practice, temporary restriction, inactivity and retirement.
         usage: Scheduling, authorization, encounter validation and audit.
         relationshipContext: Historical encounters remain attributable after status changes.
@@ -53,10 +53,11 @@ entity:
       - {from: SUSPENDED, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents the professional healthcare role of a Person.
+    summary: "The professional role of a doctor, nurse or other clinician who is licensed to deliver, order or document care, linked to the person, providers, appointments and encounters."
     businessMeaning: Practitioner identifies who is professionally authorized to deliver care; HealthcareProvider supplies organizational context; Appointment schedules intended care and HealthcareEncounter records actual care.
     usage: Healthcare scheduling, provider directories, encounters, credentialing, reporting and audit.
     relationshipContext: Person is mandatory, provider affiliations define care settings, appointments represent scheduled commitments and encounters preserve actual participation.
     lifecycle: Practitioner roles become active after setup, may suspend or become inactive, and eventually retire while historical care evidence remains attributable.
     example: A physician Person holds one Practitioner record, is affiliated with two HealthcareProviders, has scheduled Appointments and is later referenced by completed HealthcareEncounters.
+    workflowContext: "Credentialing staff set up the practitioner as a draft and activate it once the licence and affiliations are verified, after which appointments can be scheduled and encounters documented; the role may be suspended while a licence issue is investigated, made inactive during leave, and finally retired, while past care records stay attributed to the practitioner."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRACTITIONER}

@@ -155,6 +155,7 @@ entity:
     geospatialSemantics: Latitude and longitude enable mapping and route calculations but are supplementary. Hierarchical addressing remains the authoritative operational structure because adjacent slots, stack relationships, and equipment access cannot be inferred reliably from coordinates alone.
     lifecycle: A slot is configured, may become active and empty, can be reserved for an expected placement, becomes occupied when a container arrives, and returns to empty after a successful departure. It can also be blocked or taken out of service without deleting its historical occupancy.
     example: Slot B03-012-04-02 is an EMPTY ground position. The yard optimizer reserves it for an inbound 40-foot container. When the container is physically placed, the slot becomes OCCUPIED and the Container.currentSlot is updated. When the container later moves to a repair area, the movement records the origin and destination and the original slot returns to EMPTY.
+    workflowContext: "Yard planners set up slots when the yard layout is defined; slots are reserved for incoming containers, marked occupied when a container is placed, blocked or taken out of service for safety or repair, and freed when the container is moved out by a yard movement."
 specification:
   version: 0.2.0
   status: draft

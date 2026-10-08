@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the sampling rule.
+      summary: "The permanent reference for this sampling rule, kept on every inspection that applied it."
       businessMeaning: Identifies one conditional sampling configuration within a SamplingPlan.
       usage: Sampling execution, audit, traceability, and integration.
       relationshipContext: The rule belongs to a SamplingPlan and determines how a qualifying inspection population is sampled.
@@ -26,7 +26,7 @@ entity:
     required: true
     maxLength: 100
     help:
-      summary: Business reference for the sampling rule.
+      summary: "The reference quality engineers use to identify this rule within its sampling plan during review."
       businessMeaning: Identifies the rule within its sampling plan for authoring, review, and audit.
       usage: Configuration, inspection execution, reporting, and integration.
       relationshipContext: Rule identity is scoped to the SamplingPlan and is distinct from actual sample records.
@@ -82,7 +82,7 @@ entity:
     default: ACTIVE
     values: [DRAFT, ACTIVE, RETIRED]
     help:
-      summary: Lifecycle state of the sampling rule.
+      summary: "Shows whether the rule is still a draft, active for new inspections, or retired from use."
       businessMeaning: Controls whether the rule can be selected for new sample executions.
       usage: Governance, authoring, and inspection execution.
       relationshipContext: Retired rules remain available for historical sample traceability.
@@ -147,6 +147,7 @@ entity:
     lifecycle: Draft → active → retired. Historical executions preserve the applicable rule.
     changePropagation: Changes affect open QualityInspections, sample selection, required measurement coverage, and final inspection evaluation. Completed inspection evidence remains governed by the rule in effect at execution.
     example: For lots of 101–500 units, an active rule may require 20 sampled units and accept the lot with no more than one failing sampled unit, with a rejection threshold of two failures.
+    workflowContext: "Written by quality engineers within a sampling plan, approved and activated for use, selected automatically when an inspection's lot size falls in its range to decide how many units to sample and how many failures are acceptable, and retired when the plan is revised; completed inspections keep the rule they used."
 specification:
   version: 0.1.0
   status: draft

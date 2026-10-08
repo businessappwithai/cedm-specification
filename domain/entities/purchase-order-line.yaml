@@ -18,6 +18,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its purchase order line id.'
+      businessMeaning: "Lets goods receipts, supplier invoices and returns match against this exact ordered item."
   - name: lineNumber
     type: integer
     required: true
@@ -29,6 +30,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its line number.'
+      businessMeaning: "The line position suppliers and buyers quote when discussing a specific item on the order, such as line 3."
   - name: quantity
     type: decimal
     required: true
@@ -41,6 +43,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its quantity.'
+      businessMeaning: "How much was ordered from the supplier; it must be above zero and is the basis for receiving and invoice matching."
   - name: unitPrice
     type: Money
     required: true
@@ -51,6 +54,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its unit price.'
+      businessMeaning: "The agreed price per unit at the time of ordering, which supplier invoices are checked against."
   - name: lineAmount
     type: Money
     required: true
@@ -61,6 +65,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its line amount.'
+      businessMeaning: "The committed spend for this line, quantity times price after any adjustments, used for budget commitment and invoice matching."
   - name: receivedQuantity
     type: decimal
     required: true
@@ -74,6 +79,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its received quantity.'
+      businessMeaning: "How much has physically arrived so far from goods receipts, before quality acceptance."
   - name: acceptedQuantity
     type: decimal
     required: true
@@ -87,6 +93,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its accepted quantity.'
+      businessMeaning: "How much of what arrived passed inspection and was accepted; it cannot exceed the received quantity and is what invoices should be paid against."
   - name: returnedQuantity
     type: decimal
     required: true
@@ -100,6 +107,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its returned quantity.'
+      businessMeaning: "How much accepted stock was sent back to the supplier, which reduces what is payable and may reopen the outstanding quantity."
   - name: outstandingQuantity
     type: decimal
     required: true
@@ -113,6 +121,7 @@ entity:
       relationshipContext: Read together with the purchase order line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a purchase order line cannot be understood without its outstanding quantity.'
+      businessMeaning: "How much the supplier still has to deliver, normally the ordered quantity less accepted plus any returns to be replaced; buyers chase suppliers on it."
   - name: priceSource
     type: enum
     required: false
@@ -124,7 +133,7 @@ entity:
     - MANUAL
     - OTHER
     help:
-      summary: Source used to determine procurement price.
+      summary: "Shows where the unit price came from, such as a price list, contract, quotation or manual entry."
       usage: Supports audit, spend analysis and supplier negotiations.
       relationshipContext: Does not replace transaction-time unitPrice.
       workflowRole: Explains price determination.
@@ -140,10 +149,11 @@ entity:
         MANUAL: The price source of the purchase order line is manual; set it when that is what the business means for this
           record.
         OTHER: The price source of the purchase order line is other; set it when that is what the business means for this record.
+      businessMeaning: "Tells approvers and auditors whether the price is backed by an agreement or quote, or was keyed in by hand and may need justification."
   - name: priceDeterminedAt
     type: datetime
     required: false
-    help: {summary: Time at which effective purchase price was determined., usage: Supports effective-dated pricing and audit., relationshipContext: Distinct from PurchaseOrder creation time., workflowRole: Anchors commercial pricing evidence.}
+    help: {summary: Time at which effective purchase price was determined., usage: Supports effective-dated pricing and audit., relationshipContext: Distinct from PurchaseOrder creation time., workflowRole: Anchors commercial pricing evidence., businessMeaning: "When the price was fixed, which proves which price list, contract or quote was valid at that moment."}
   relationships:
   - name: purchaseOrder
     target: PurchaseOrder
@@ -213,7 +223,7 @@ entity:
   - {id: PURCHASE-ORDER-LINE-EXE-006, rule: "Returned Quantity cannot be negative.", violatedWhen: "returned_quantity != null and returned_quantity < 0", message: "Returned Quantity cannot be negative."}
   - {id: PURCHASE-ORDER-LINE-EXE-007, rule: "Outstanding Quantity cannot be negative.", violatedWhen: "outstanding_quantity != null and outstanding_quantity < 0", message: "Outstanding Quantity cannot be negative."}
   help:
-    summary: Represents one measurable procurement commitment and its accumulated fulfillment, billing and reverse-fulfillment state.
+    summary: "One item ordered on a purchase order, with the product, quantity, unit and agreed price, kept so receipts, supplier invoices and returns can be matched and what is still owed by the supplier is known."
     businessMeaning: PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records receipt. SupplierReturnLine records subsequent reversal. InvoiceLine records supplier claim.
     usage: Purchasing, supplier communication, receiving, inventory, supplier returns, accounts payable, budgeting and three-way matching.
     relationshipContext: PurchaseOrder supplies supplier and commercial context; GoodsReceiptLine supplies accepted fulfillment; SupplierReturnLine supplies reverse quantity; SupplierCreditNoteLine supplies financial adjustment.

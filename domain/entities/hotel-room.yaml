@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets reservations, housekeeping tasks and billing refer to exactly this room within the hotel."
   - name: roomNumber
     type: string
     required: true
@@ -35,6 +36,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The number on the door that guests, front desk and housekeeping use to find the room."
   - name: roomType
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The category of room, such as double, twin or suite, that guests book and that sets the rate charged."
   - name: status
     type: enum
     required: true
@@ -71,6 +74,7 @@ entity:
         OUT_OF_SERVICE: Represents the out of service state or classification in the context of HotelRoom.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells front desk whether the room can be sold right now or is occupied, reserved, being cleaned or out of service."
   - name: capacity
     type: integer
     required: true
@@ -83,6 +87,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The most guests the room can accommodate, which limits which bookings it can be assigned to."
   relationships:
   - name: hotel
     target: Hotel
@@ -121,7 +126,7 @@ entity:
       - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
       - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
   help:
-    summary: Represents a hospitality asset called HotelRoom within the CEDM business model.
+    summary: "One bookable room in a hotel, with its room number, room type, how many guests it sleeps and whether it is currently free, occupied, being cleaned or out of service."
     businessMeaning: HotelRoom is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -133,6 +138,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical HotelRoom record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Hotel management sets up each room once; reservations then assign guests to it, front desk marks it occupied at check-in, housekeeping moves it through cleaning after check-out, and maintenance takes it out of service and returns it when repaired."
 specification:
   version: 0.1.0
   status: draft

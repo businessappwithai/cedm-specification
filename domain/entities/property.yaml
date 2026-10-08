@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of the property, so leases, owners and maintenance stay attached to the same asset over decades of use."
   - name: propertyCode
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The portfolio reference property managers use, such as PRP-LDN-012, to identify the property in leases, reports and valuations."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name people know the property by, such as Riverside House, used on lease documents and portfolio reports."
   - name: propertyType
     type: enum
     required: true
@@ -76,6 +79,7 @@ entity:
         OTHER: Represents the other state or classification in the context of Property.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the property is land, an office, retail, industrial, residential or warehouse space, which affects how it is leased, valued and taxed."
   - name: status
     type: enum
     required: true
@@ -102,6 +106,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Property.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the property is PLANNED, ACTIVE and in use, UNDER_CONSTRUCTION, temporarily INACTIVE, or has left the portfolio as SOLD or RETIRED."
   relationships:
   - name: location
     target: Location
@@ -165,7 +170,7 @@ entity:
       - {from: UNDER_CONSTRUCTION, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a real estate entity called Property within the CEDM business model.
+    summary: "One real estate asset, such as land, an office building, retail unit or warehouse, that the business owns, leases, develops or sells, kept to manage its use, leases and ownership."
     businessMeaning: Property is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -177,6 +182,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Property record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Registered as planned during acquisition or development, activated when it is in use, marked under construction during works, made inactive when vacant, and ends as sold or retired; leasing, facilities and asset accounting all read it."
 specification:
   version: 0.1.0
   status: draft

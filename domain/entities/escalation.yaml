@@ -7,12 +7,12 @@ entity:
     icon: activity
   identity: {key: escalationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Escalation., businessMeaning: Identifies one governed Escalation record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this escalation, linking overdue or breached work to the higher responsibility it was raised to.", businessMeaning: Identifies one governed Escalation record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of Escalation., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the escalation is waiting to be picked up, actively handled, resolved, or cancelled as unnecessary.", businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships: []
   invariants:
   - {id: ESCALATION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}

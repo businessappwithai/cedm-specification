@@ -6,8 +6,8 @@ entity:
   ui: {icon: badge-dollar-sign}
   identity: {key: compensationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: compensationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the compensation arrangement., businessMeaning: Identifies one effective-dated compensation record independently of later payroll results., usage: "HCM, payroll input, budgeting, reporting and audit.", relationshipContext: Employment identifies the working relationship; Compensation defines remuneration terms., requiredMeaning: Required.}}
-    - {name: compensationCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing compensation arrangement reference., businessMeaning: Operational identifier for compensation administration., usage: "Search, change workflow, reporting and integration.", relationshipContext: Distinct from payroll run or payment identifiers., requiredMeaning: Required.}}
+    - {name: compensationId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this set of pay terms, which payroll results point back to as their basis.", businessMeaning: Identifies one effective-dated compensation record independently of later payroll results., usage: "HCM, payroll input, budgeting, reporting and audit.", relationshipContext: Employment identifies the working relationship; Compensation defines remuneration terms., requiredMeaning: Required.}}
+    - {name: compensationCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The short reference human resources uses to find and discuss this particular pay arrangement for an employee.", businessMeaning: Operational identifier for compensation administration., usage: "Search, change workflow, reporting and integration.", relationshipContext: Distinct from payroll run or payment identifiers., requiredMeaning: Required.}}
     - name: basis
       type: enum
       required: true
@@ -25,7 +25,7 @@ entity:
           FIXED: Amount is fixed for the arrangement or covered period.
           OTHER: Another governed basis defined by policy.
         requiredMeaning: Required.
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Compensation amount under the selected basis., businessMeaning: Contractual or policy remuneration term rather than a payroll result., usage: "Payroll input, workforce cost planning and reporting.", relationshipContext: Currency relationship defines monetary denomination., requiredMeaning: Required.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: "How much the employee is entitled to under the chosen pay basis, for example per hour, per month or per year.", businessMeaning: Contractual or policy remuneration term rather than a payroll result., usage: "Payroll input, workforce cost planning and reporting.", relationshipContext: Currency relationship defines monetary denomination., requiredMeaning: Required.}}
     - {name: effectiveFrom, type: date, required: true, help: {summary: First date on which the compensation arrangement is effective., businessMeaning: Establishes temporal applicability for payroll and HR decisions., usage: "Effective-dated administration and audit.", relationshipContext: Must be compatible with the governing Employment period., requiredMeaning: Required.}}
     - {name: effectiveTo, type: date, required: false, help: {summary: Last date on which the compensation arrangement is effective., businessMeaning: Closes an arrangement without overwriting prior terms., usage: "Compensation changes, history and payroll eligibility.", relationshipContext: A successor Compensation may begin after this date., optionalMeaning: Optional while open-ended.}}
     - name: status
@@ -34,7 +34,7 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, SUPERSEDED, CANCELLED]
       help:
-        summary: Lifecycle state of the compensation arrangement.
+        summary: "Whether these pay terms are still being prepared, currently in force, replaced by newer terms, or cancelled."
         businessMeaning: Distinguishes preparation, current effectiveness, historical replacement and cancellation.
         usage: HCM workflow and payroll eligibility.
         relationshipContext: Historical payroll continues to reference the terms effective at calculation time.
@@ -66,10 +66,11 @@ entity:
       - {from: ACTIVE, to: SUPERSEDED, action: supersede}
       - {from: ACTIVE, to: CANCELLED, action: cancel}
   help:
-    summary: Governs effective-dated remuneration terms for an Employment while keeping payroll calculations and payments separate.
+    summary: "The pay terms that apply to one employment from a given date, such as an annual salary or hourly rate in a currency, kept separately from the payroll runs that pay it."
     businessMeaning: Compensation describes pay terms; Payroll calculates a period result; Payment settles an approved obligation.
     usage: HR/HCM, payroll input, workforce planning, budgeting, compensation review and audit.
     relationshipContext: Employment is mandatory, Currency defines monetary value, Position may supply job context, and Payroll preserves downstream calculation evidence.
     lifecycle: Draft terms become active and are superseded by new effective-dated terms rather than overwritten.
     example: A salary change creates a new active Compensation record while the prior record becomes historical.
+    workflowContext: "Human resources drafts the compensation terms when a person is hired, promoted or given a raise, activates them from their effective date so payroll uses them, and when new terms take over the previous record is marked superseded rather than overwritten; terms entered in error are cancelled, and payroll results keep pointing at the terms they were calculated from."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COMPENSATION}

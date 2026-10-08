@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps field plantings, farm plans and harvested products tied to the same crop even when its name or code is corrected."
   - name: code
     type: string
     required: true
@@ -35,6 +36,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short crop code agronomists and farm systems use on planting plans, field records and yield reports, for example WHT-WIN."
   - name: name
     type: string
     required: true
@@ -46,6 +48,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name growers and buyers recognise, such as 'Winter Wheat' or 'Hass Avocado', shown on field plans and harvest reports."
   - name: cropType
     type: string
     required: true
@@ -58,6 +61,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Groups crops that are managed alike, such as cereal, oilseed, vegetable or orchard fruit, so rotation planning, input recommendations and reporting can work by category."
   - name: status
     type: enum
     required: true
@@ -78,6 +82,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Crop.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the crop can be chosen for new plantings: active crops are in use, inactive ones are paused, and retired crops are kept only for historical field and yield records."
   relationships:
   - name: farms
     target: Farm
@@ -121,7 +126,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a agriculture master entity called Crop within the CEDM business model.
+    summary: "A crop or cultivated plant the farm business grows, such as winter wheat or Hass avocado, kept so fields, farms and harvested products can all refer to the same crop consistently."
     businessMeaning: Crop is a business concept with its own identity and lifecycle. It captures information that must remain
       understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -133,6 +138,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Crop record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Agronomists or farm managers set up the crop, assign it to farms and fields in the planting plan, link the products harvested from it, and later deactivate it when it is not being grown for a season or retire it when the business stops cultivating it altogether."
 specification:
   version: 0.1.0
   status: draft

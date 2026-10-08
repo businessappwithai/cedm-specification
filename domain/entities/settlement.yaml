@@ -6,20 +6,20 @@ entity:
   ui: {icon: handshake}
   identity: {key: settlementId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: settlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim settlement transaction., businessMeaning: Identifies one discharge of insurance liability independently of claim approval and payment execution., usage: "Claims payment, reconciliation, reporting and audit.", relationshipContext: InsuranceClaim supplies liability context while Payment may provide financial execution evidence., requiredMeaning: Required.}}
-    - {name: settlementNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing settlement reference., businessMeaning: Operational identifier for claims finance and reconciliation., usage: "Search, communication and integration.", relationshipContext: Distinct from claim and payment numbers., requiredMeaning: Required.}}
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Monetary liability discharged by this Settlement., businessMeaning: Represents settlement value attributable to the claim., usage: "Claims, reserves, accounting and reporting.", relationshipContext: Currency relationship defines denomination., requiredMeaning: Required.}}
+    - {name: settlementId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this claim settlement, kept as evidence once the liability is discharged.", businessMeaning: Identifies one discharge of insurance liability independently of claim approval and payment execution., usage: "Claims payment, reconciliation, reporting and audit.", relationshipContext: InsuranceClaim supplies liability context while Payment may provide financial execution evidence., requiredMeaning: Required.}}
+    - {name: settlementNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The settlement reference claims and finance staff quote to the claimant and on payment advice.", businessMeaning: Operational identifier for claims finance and reconciliation., usage: "Search, communication and integration.", relationshipContext: Distinct from claim and payment numbers., requiredMeaning: Required.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: "How much of the approved claim liability this settlement pays out or otherwise discharges.", businessMeaning: Represents settlement value attributable to the claim., usage: "Claims, reserves, accounting and reporting.", relationshipContext: Currency relationship defines denomination., requiredMeaning: Required.}}
     - name: method
       type: enum
       required: true
       values: [PAYMENT, SERVICE, OFFSET, RECOVERY, OTHER]
-      help: {summary: Method by which claim liability is discharged., businessMeaning: Distinguishes cash payment from non-cash or recovery settlement semantics., usage: "Claims operations, accounting and reporting.", relationshipContext: Payment relationship is expected when method is PAYMENT under policy., valueSemantics: {PAYMENT: Monetary payment discharges liability., SERVICE: Insurer-arranged service discharges liability., OFFSET: Liability is settled through offset., RECOVERY: Recovery transaction adjusts settlement economics., OTHER: Another governed method.}, requiredMeaning: Required.}
+      help: {summary: "How the claim is being settled: by payment, a repair service, an offset, a recovery or otherwise.", businessMeaning: Distinguishes cash payment from non-cash or recovery settlement semantics., usage: "Claims operations, accounting and reporting.", relationshipContext: Payment relationship is expected when method is PAYMENT under policy., valueSemantics: {PAYMENT: Monetary payment discharges liability., SERVICE: Insurer-arranged service discharges liability., OFFSET: Liability is settled through offset., RECOVERY: Recovery transaction adjusts settlement economics., OTHER: Another governed method.}, requiredMeaning: Required.}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, EXECUTED, VOID]
-      help: {summary: Lifecycle state of the Settlement., businessMeaning: "Separates preparation, approval, execution and voiding.", usage: Claims finance and audit., relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable., valueSemantics: {DRAFT: Settlement is being prepared., APPROVED: Settlement is authorized., EXECUTED: Liability discharge has occurred., VOID: Draft or approved settlement was invalidated before ordinary execution.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether the settlement is in draft, approved for execution, already executed or voided.", businessMeaning: "Separates preparation, approval, execution and voiding.", usage: Claims finance and audit., relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable., valueSemantics: {DRAFT: Settlement is being prepared., APPROVED: Settlement is authorized., EXECUTED: Liability discharge has occurred., VOID: Draft or approved settlement was invalidated before ordinary execution.}, requiredMeaning: Required.}
   relationships:
     - {name: claim, target: InsuranceClaim, cardinality: "1", ownership: reference, help: {summary: InsuranceClaim whose liability is settled., businessMeaning: Supplies approved claim context., usage: "Claims payment and reconciliation.", cardinalityMeaning: Exactly one InsuranceClaim., workflowRole: Settlement must not exceed approved liability except governed adjustments.}}
     - {name: claimLines, target: ClaimLine, cardinality: "1..*", ownership: reference, help: {summary: Claim lines to which settlement is allocated., businessMeaning: Preserves line-level liability discharge traceability., usage: "Claims accounting and audit.", cardinalityMeaning: One or more ClaimLines., workflowRole: Lines must belong to the same Claim and be eligible for settlement.}}
@@ -42,10 +42,11 @@ entity:
       - {from: APPROVED, to: EXECUTED, action: execute}
       - {from: APPROVED, to: VOID, action: void}
   help:
-    summary: Records the governed discharge of approved insurance claim liability.
+    summary: "One discharge of an approved insurance claim, by payment, repair service, offset or recovery, covering one or more approved claim lines, kept so claims finance knows what was paid out and how."
     businessMeaning: ClaimLine determines approved liability; Settlement allocates/discharges it; Payment records cash movement when applicable.
     usage: Insurance claims, payments, recoveries, reconciliation, accounting and audit.
     relationshipContext: Claim and ClaimLines are mandatory, Currency defines value, and Payment supplies execution evidence for monetary settlement.
     lifecycle: Settlement is drafted, approved and executed or voided, with executed transactions immutable.
     example: Two approved ClaimLines totaling 4,000 are paid through one Settlement linked to the resulting Payment transaction.
+    workflowContext: "Drafted by the claims handler once claim lines are approved, approved within the handler's authority limits, executed by making the payment or arranging the service, then reconciled with the claim and the finance ledger; a settlement drafted in error is voided before execution."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SETTLEMENT}

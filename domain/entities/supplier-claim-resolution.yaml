@@ -7,9 +7,9 @@ entity:
     icon: factory
   identity: {key: supplierClaimResolutionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierClaimResolutionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim resolution., businessMeaning: Identifies one authorized resolution decision independently of the originating claim and downstream transactions., usage: Used for approvals reconciliation audit and supplier performance., relationshipContext: SupplierClaim records the case; this record captures the agreed outcome; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment provide execution evidence., workflowRole: Stable reference across approval execution and closure., requiredMeaning: Required.}}
-  - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing resolution reference., businessMeaning: Identifies the resolution decision for operational and supplier communication., usage: Used in approvals correspondence reconciliation and audit., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity., requiredMeaning: Required.}}
-  - {name: resolutionDate, type: datetime, required: true, help: {summary: Date and time the resolution was authorized., businessMeaning: Establishes when the agreed remedy became effective., usage: SLA reporting audit and financial control., workflowRole: Anchors downstream execution., requiredMeaning: Required.}}
+  - {name: supplierClaimResolutionId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this claim resolution, which returns, credit notes and payments carrying it out point to.", businessMeaning: Identifies one authorized resolution decision independently of the originating claim and downstream transactions., usage: Used for approvals reconciliation audit and supplier performance., relationshipContext: SupplierClaim records the case; this record captures the agreed outcome; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment provide execution evidence., workflowRole: Stable reference across approval execution and closure., requiredMeaning: Required.}}
+  - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The resolution reference used in supplier correspondence and by purchasing and finance to track the agreed outcome.", businessMeaning: Identifies the resolution decision for operational and supplier communication., usage: Used in approvals correspondence reconciliation and audit., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity., requiredMeaning: Required.}}
+  - {name: resolutionDate, type: datetime, required: true, help: {summary: "When the agreed remedy for the supplier claim was authorised and became the basis for follow-up actions.", businessMeaning: Establishes when the agreed remedy became effective., usage: SLA reporting audit and financial control., workflowRole: Anchors downstream execution., requiredMeaning: Required., relationshipContext: "Dated after the supplier claim it resolves was raised, and before the supplier returns, credit notes, debit notes or payments that carry out the remedy."}}
   - name: resolutionType
     type: enum
     required: true
@@ -24,7 +24,7 @@ entity:
     - CASH_RECOVERY
     - ACCEPTED_EXCEPTION
     help:
-      summary: Authorized remedy for the supplier claim.
+      summary: "The remedy agreed with the supplier, such as replacement, repair, return, credit, price adjustment or no action."
       businessMeaning: Defines what outcome was agreed without itself executing the remedy.
       usage: Routes downstream workflows and measures recovery outcomes.
       relationshipContext: RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require
@@ -63,7 +63,7 @@ entity:
     - FAILED
     - CANCELLED
     help:
-      summary: Lifecycle state of the resolution.
+      summary: "Whether the resolution is drafted, approved, being carried out, partly or fully executed, failed, or cancelled."
       businessMeaning: Separates decision approval from execution and completion.
       usage: Controls downstream work and claim closure.
       relationshipContext: Resolution status does not replace SupplierClaim or downstream transaction statuses.
@@ -83,7 +83,7 @@ entity:
           record.
         CANCELLED: The status of the supplier claim resolution is cancelled; set it when that is what the business means for
           this record.
-  - {name: approvedAmount, type: Money, required: false, help: {summary: Monetary recovery authorized by the resolution., businessMeaning: Defines the financial amount expected from the agreed remedy., usage: Supplier recovery and reconciliation., relationshipContext: Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction., workflowRole: Provides the controlled financial target., optionalMeaning: Optional for non-financial remedies.}}
+  - {name: approvedAmount, type: Money, required: false, help: {summary: "The sum of money the business has agreed to recover from the supplier under this resolution.", businessMeaning: Defines the financial amount expected from the agreed remedy., usage: Supplier recovery and reconciliation., relationshipContext: Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction., workflowRole: Provides the controlled financial target., optionalMeaning: Optional for non-financial remedies.}}
   relationships:
   - {name: supplierClaim, target: SupplierClaim, cardinality: '1', ownership: reference, help: {summary: Supplier claim being resolved., businessMeaning: Connects the remedy to the case and evidence that established the issue., usage: Claim closure and audit., workflowRole: Supplies authoritative case context.}}
   - {name: supplierReturns, target: SupplierReturn, cardinality: 0..*, ownership: reference, help: {summary: Supplier returns executing a return remedy., businessMeaning: Identifies physical reverse-procurement transactions created by the resolution., usage: Logistics inventory and supplier reconciliation., workflowRole: Provides execution evidence for RETURN resolutions.}}

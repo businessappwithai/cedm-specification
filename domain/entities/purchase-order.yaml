@@ -11,42 +11,43 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable system identity of the purchase order., usage: "Used for procurement, receiving, invoice matching, supplier returns, audit and integrations.", relationshipContext: "Identifies the order independently of orderNumber, Supplier, lines, GoodsReceipt and SupplierReturn.", workflowRole: "Stable root reference across commitment, fulfillment, reversal and closure.", requiredMeaning: Required for procurement traceability.}
+    help: {summary: "The fixed reference for this order that receipts, invoices and returns point to.", usage: "Used for procurement, receiving, invoice matching, supplier returns, audit and integrations.", relationshipContext: "Identifies the order independently of orderNumber, Supplier, lines, GoodsReceipt and SupplierReturn.", workflowRole: "Stable root reference across commitment, fulfillment, reversal and closure.", requiredMeaning: Required for procurement traceability., businessMeaning: "Keeps goods receipts, supplier invoices and returns attached to the right commitment, even if the order number is reissued in another system."}
   - name: orderNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing procurement reference., usage: "Used by buyers, suppliers, receiving, accounts payable and integrations.", relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems., requiredMeaning: Required for operational traceability.}
+    help: {summary: "The number buyers and the supplier quote on confirmations, deliveries and invoices.", usage: "Used by buyers, suppliers, receiving, accounts payable and integrations.", relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems., requiredMeaning: Required for operational traceability., businessMeaning: "The supplier prints it on delivery notes and invoices, so it is the key used to match what arrives and what is billed against what was ordered."}
   - name: orderDate
     type: datetime
     required: true
-    help: {summary: Date and time the procurement commitment is created or issued., usage: "Supports chronology, approval, reporting and reconciliation.", relationshipContext: "Distinct from requested delivery, receipt, return, invoice and payment dates.", workflowRole: Anchors the commitment lifecycle., requiredMeaning: Required for chronology.}
+    help: {summary: Date and time the procurement commitment is created or issued., usage: "Supports chronology, approval, reporting and reconciliation.", relationshipContext: "Distinct from requested delivery, receipt, return, invoice and payment dates.", workflowRole: Anchors the commitment lifecycle., requiredMeaning: Required for chronology., businessMeaning: "When the order was placed, which starts the supplier's lead time and determines which prices and terms applied."}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
     help:
-      summary: Lifecycle state of the procurement commitment.
+      summary: "Shows whether the order is drafted, approved, sent, being received, closed or cancelled."
       usage: Controls authorization, issuance, fulfillment, cancellation and closure.
       relationshipContext: PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.
       valueSemantics: {DRAFT: Being prepared., APPROVED: Internally authorized., SENT: Communicated to Supplier., PARTIALLY_RECEIVED: Some committed quantity accepted while outstanding fulfillment remains., RECEIVED: Required fulfillment accepted under policy., CANCELLED: Remaining commitment terminated., CLOSED: Required operational and financial processing complete.}
+      businessMeaning: "Tells buyers and receiving staff what to expect: an APPROVED order may be sent, SENT and PARTIALLY_RECEIVED orders still await goods, RECEIVED ones are complete, and CANCELLED orders accept no new receipts."
   - name: currencyId
     type: reference
     target: Currency
     required: false
-    help: {summary: Currency qualifying order monetary values., usage: "Used for pricing, totals, invoice matching, supplier credit calculation and financial reporting.", relationshipContext: Qualifies amounts and does not identify Supplier or Product.}
+    help: {summary: "The currency in which the supplier will charge for this order.", usage: "Used for pricing, totals, invoice matching, supplier credit calculation and financial reporting.", relationshipContext: Qualifies amounts and does not identify Supplier or Product., businessMeaning: "Decides how prices are interpreted and converted, and which currency the supplier's invoice must be in to match the order."}
   - name: requestedDeliveryDate
     type: date
     required: false
-    help: {summary: Buyer's requested delivery or completion date., usage: Used for supplier communication and fulfillment planning., relationshipContext: "A request, not proof of actual receipt or return.", workflowRole: Supports delivery planning.}
+    help: {summary: "The date by which the buyer wants the supplier to deliver the goods.", usage: Used for supplier communication and fulfillment planning., relationshipContext: "A request, not proof of actual receipt or return.", workflowRole: Supports delivery planning., businessMeaning: "Sets the supplier's delivery target, which receiving plans around and supplier performance is measured against."}
   - name: totalAmount
     type: decimal
     required: false
     precision: 20
     scale: 4
-    help: {summary: Order-level value derived from committed lines and commercial adjustments., usage: "Used for approval, budget, supplier commitment and invoice reconciliation.", relationshipContext: Must reconcile with PurchaseOrderLine values and currencyId.}
+    help: {summary: Order-level value derived from committed lines and commercial adjustments., usage: "Used for approval, budget, supplier commitment and invoice reconciliation.", relationshipContext: Must reconcile with PurchaseOrderLine values and currencyId., businessMeaning: "The total committed spend on the order, which approval limits, budgets and invoice matching rely on; it must agree with the order lines."}
   relationships:
   - name: supplier
     target: Supplier
@@ -144,7 +145,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents the formal commercial procurement commitment between a buying organization and a Supplier.
+    summary: "One formal order sent to a supplier for goods or services, stating what is bought, at what price and when it should arrive, so receipts and supplier invoices can be checked against it."
     businessMeaning: PurchaseOrder establishes what the Supplier is expected to provide; it is not proof that goods arrived or that later returns occurred.
     usage: Purchasing, supplier management, receiving, warehouse operations, accounts payable, budgeting, inventory planning and analytics.
     relationshipContext: PurchaseRequisition represents internal demand. PurchaseOrder converts approved demand into an external commitment. PurchaseOrderLine specifies the commitment. GoodsReceipt records actual receipt and acceptance. InventoryMovement records stock effects. SupplierReturn reverses eligible fulfillment. Invoice records the supplier claim. SupplierCreditNote records authorized financial reduction. Payment settles claims.

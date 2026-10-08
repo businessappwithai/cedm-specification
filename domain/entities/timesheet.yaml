@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the Timesheet record.
+      summary: "The permanent identity of this time record, which project costs and billing entries refer back to."
       businessMeaning: Identifies one governed Timesheet independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing ProfessionalEngagement context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the Timesheet.
+      summary: "The reference staff and approvers use to find this timesheet, often naming the person and week."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the Timesheet.
+      summary: "Shows whether the timesheet is a draft, active under review, completed and approved, or cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related ProfessionalEngagement workflows but never erase historical evidence.
@@ -126,13 +126,14 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents Timesheet as a first-class governed CEDM business concept.
+    summary: "One record of hours a person reports against a professional engagement or project, used to bill clients, cost projects and pay for the work performed."
     businessMeaning: A governed record of time reported for work performed by a person against an engagement, project, task, or other accountable context.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: ProfessionalEngagement supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A Timesheet is created for a valid ProfessionalEngagement, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "Drafted by the worker as time is recorded, submitted and activated for review, completed once approved so its hours flow into project costs and client billing, or cancelled if entered in error."
 specification:
   version: 0.1.0
   status: draft

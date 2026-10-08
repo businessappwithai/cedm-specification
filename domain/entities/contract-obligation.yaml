@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of one contractual commitment, so its progress, evidence of fulfilment and any breach are always tracked against the same obligation."
   - name: code
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short reference contract managers use for the commitment, such as MSA-2026-014-OB03, so it can be cited in meetings, correspondence and compliance reports."
   - name: description
     type: string
     required: true
@@ -48,6 +50,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What exactly must be done under the contract, in plain words, such as deliver the quarterly security audit report to the customer, which tells the responsible party what fulfilment requires."
   - name: obligationType
     type: enum
     required: true
@@ -76,6 +79,7 @@ entity:
         OTHER: Represents the other state or classification in the context of ContractObligation.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the commitment is a delivery, a payment, a service, a report, a compliance condition or a performance level, which decides who monitors it and what evidence proves it was met."
   - name: status
     type: enum
     required: true
@@ -103,6 +107,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of ContractObligation.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Where the commitment stands: OPEN before work starts, IN_PROGRESS while it is being met, and then FULFILLED, BREACHED, WAIVED by agreement or CANCELLED with the contract."
   - name: dueDate
     type: date
     required: false
@@ -114,6 +119,7 @@ entity:
       relationshipContext: Its meaning is specific to ContractObligation; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The date by which the commitment must be met under the contract; reminders, escalations and breach assessments are all measured against it."
   relationships:
   - name: contract
     target: Contract
@@ -190,7 +196,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a legal commercial entity called ContractObligation within the CEDM business model.
+    summary: "One specific commitment arising from a contract, such as a delivery, payment, report or service level, assigned to a responsible party with a due date so it can be tracked until it is fulfilled, waived or breached."
     businessMeaning: ContractObligation is a business concept with its own identity and lifecycle. It captures information
       that must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -202,6 +208,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical ContractObligation record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "Created when a contract is signed or amended and its terms are broken down into individual commitments, started when the responsible party begins work, monitored against its due date, and closed as fulfilled, breached, waived by the other party or cancelled with the contract; breaches feed dispute and penalty handling."
 specification:
   version: 0.1.0
   status: draft

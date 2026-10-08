@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the vertical tier.
+      summary: "The permanent reference for this stacking level, which the container slots on that level point to."
       businessMeaning: Identifies one modeled stack level within a specific YardBay regardless of later operational status changes.
       usage: Used by yard addressing, stacking rules, capacity calculation, movement planning, visualization, and historical references.
       relationshipContext: YardBay establishes the horizontal lane; YardTier establishes the vertical level; YardSlot identifies the exact physical position.
@@ -109,6 +109,7 @@ entity:
     operationalSemantics: A higher tier generally implies greater retrieval dependency because containers beneath it can obstruct direct access. Placement algorithms therefore consider tier height together with container weight, allowable stacking, equipment reach, dwell time, expected retrieval order, hazardous/reefer rules, and rehandle cost. A tier can be structurally valid but operationally unusable because of equipment or safety restrictions.
     lifecycle: A tier can be active, temporarily blocked, or closed. Changing its status must not erase existing occupancy. If containers must be relocated, those relocations are explicit ContainerMovement events and the resulting slot state is updated separately.
     example: Bay B03-12 has tiers 1 through 5. A container at Tier 4 is above three lower stack positions. If the Tier 1 container is needed urgently, the yard optimizer may calculate one or more rehandles before retrieval. The tier model therefore directly contributes to movement cost and yard optimization.
+    workflowContext: "Yard planners define the tiers of each bay when the yard layout is configured, the yard system then uses them to choose stacking positions and calculate rehandles when containers are moved, operators block a tier temporarily when it is unsafe or under maintenance and reopen it afterwards, and a tier is closed when the stack height is permanently reduced."
 specification:
   version: 0.2.0
   status: draft

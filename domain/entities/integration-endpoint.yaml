@@ -7,8 +7,8 @@ entity:
     icon: database
   identity: {key: integrationEndpointId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of IntegrationEndpoint., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+  - {name: integrationEndpointId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this connection point to another system, used by every message sent through it.", businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - {name: occurredAt, type: datetime, required: false, help: {summary: "When this endpoint's setting or recorded exchange took effect, placing it in the integration history.", businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
   relationships: []
   invariants:
   - {id: INTEGRATION-ENDPOINT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}

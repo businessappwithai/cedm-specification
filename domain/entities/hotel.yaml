@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps all rooms and reservations attached to the right property, even when its code or name is later changed."
   - name: hotelCode
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short property code reservations staff, channel managers and booking partners use to identify the hotel unambiguously."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The property name guests see on confirmations, invoices and booking sites, and staff use to find the hotel."
   - name: status
     type: enum
     required: true
@@ -69,6 +72,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Hotel.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the hotel is still being planned, open and selling rooms, closed, or retired, which decides whether new reservations can be made."
   relationships:
   - name: location
     target: Location
@@ -122,7 +126,7 @@ entity:
       - {from: PLANNED, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a hospitality entity called Hotel within the CEDM business model.
+    summary: "One hotel property at a location, with its rooms and reservations, that the business operates, manages or books guests into for accommodation and related services."
     businessMeaning: Hotel is a business concept with its own identity and lifecycle. It captures information that must remain
       understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -134,6 +138,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Hotel record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "The hotel is set up as planned before it opens, made active so its rooms can be sold and reservations taken, and later closed when it stops trading or retired from use; existing reservations and stay history remain linked to it throughout."
 specification:
   version: 0.1.0
   status: draft

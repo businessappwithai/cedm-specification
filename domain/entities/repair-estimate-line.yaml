@@ -20,6 +20,7 @@ entity:
       usage: Used for traceability between the estimate, repair execution, material planning, analytics, and integrations.
       relationshipContext: Identifies one detailed estimate item independently of its parent RepairEstimate, line number, damage, component, or material.
       requiredMeaning: Required so every estimated repair requirement can be individually traced.
+      businessMeaning: "The permanent identity of this repair item, so work orders, material requests and invoices created from the estimate refer back to exactly what was agreed."
   - name: lineNumber
     type: integer
     required: true
@@ -29,6 +30,7 @@ entity:
       usage: Used by inspectors, repair estimators, approvers, work-order planners, documents, and reports to discuss a specific estimate item.
       relationshipContext: It is unique within the parent estimate revision rather than globally; the stable identity remains repairEstimateLineId.
       requiredMeaning: Required for human-readable estimate structure and traceability.
+      businessMeaning: "The item's position on the estimate, used by surveyors, customers and repair crews to discuss or approve a specific item."
   - name: repairCode
     type: string
     required: false
@@ -38,6 +40,7 @@ entity:
       usage: Used for maintenance coding, labor standards, repair analytics, cost estimation, vendor instructions, and historical repair analysis.
       relationshipContext: RepairCode describes the required action, while DamageCode describes the observed condition that caused the action and ComponentCode identifies the affected component.
       optionalMeaning: Optional when the repair action is still being assessed or is represented by another controlled classification.
+      businessMeaning: "The standard code for the repair to be done, such as straighten, patch or replace, which customers and repair shops use to agree the work and its rates."
   - name: damageCode
     type: string
     required: false
@@ -47,6 +50,7 @@ entity:
       usage: Used for inspection, repair estimation, damage trend analysis, customer recovery, warranty/lease assessment, and predictive maintenance models.
       relationshipContext: DamageCode explains the condition; RepairCode explains the proposed response. Keeping them separate allows the same damage type to lead to different repair or disposition decisions.
       optionalMeaning: Optional when no specific damage classification is available or the line represents a non-damage activity such as inspection or routine labor.
+      businessMeaning: "The standard code for the damage found, such as dent, hole or corrosion, which justifies why the repair is needed."
   - name: componentCode
     type: string
     required: false
@@ -56,6 +60,7 @@ entity:
       usage: Used to locate the work physically, select repair procedures, determine material requirements, analyze recurring failures, and calculate component-level costs.
       relationshipContext: ComponentCode provides the 'where' or affected part of the repair; DamageCode provides the condition and RepairCode provides the proposed action.
       optionalMeaning: Optional when the estimate line applies to the asset generally or the component is not yet identified.
+      businessMeaning: "Identifies the part of the asset affected, such as a door gasket or corner post, so the crew knows where to work."
   - name: materialCode
     type: string
     required: false
@@ -65,6 +70,7 @@ entity:
       usage: Used for material planning, inventory reservation, purchasing, supplier sourcing, costing, and maintenance execution.
       relationshipContext: MaterialCode identifies what is consumed or installed; quantity and materialAmount determine the estimated requirement and financial impact.
       optionalMeaning: Optional for labor-only, inspection-only, adjustment, or repair methods that do not require a specific material.
+      businessMeaning: "Identifies the material or spare part expected to be used, so stores can reserve or order it once the estimate is approved."
   - name: quantity
     type: decimal
     required: false
@@ -75,6 +81,7 @@ entity:
       usage: Used to calculate material requirements, expected consumption, replacement cost, inventory demand, and repair scope.
       relationshipContext: Quantity must be interpreted with MaterialCode and the applicable UnitOfMeasure; it is an estimate of required work/material, not necessarily actual consumption.
       optionalMeaning: Optional for activities where quantity is not meaningful or is represented through labor or fixed-price estimation.
+      businessMeaning: "How much material, how many parts or how many units of work the repair item is expected to need, which drives material demand and cost."
   - name: materialAmount
     type: decimal
     required: false
@@ -85,6 +92,7 @@ entity:
       usage: Used for repair-cost calculation, approval, inventory valuation, supplier comparison, and actual-versus-estimated analysis.
       relationshipContext: MaterialAmount belongs to the estimate and should not be interpreted as the actual inventory issue or supplier invoice amount.
       optionalMeaning: Optional when the line has no material component.
+      businessMeaning: "The estimated cost of materials for this item, which the customer is asked to approve and which is later compared with materials actually used."
   - name: labourAmount
     type: decimal
     required: false
@@ -95,6 +103,7 @@ entity:
       usage: Used for repair economics, approval thresholds, workforce planning, vendor quotation comparison, and variance analysis.
       relationshipContext: LabourAmount is an estimate of execution cost; actual technician time and actual labor cost belong to maintenance execution records.
       optionalMeaning: Optional for material-only or externally priced repair lines.
+      businessMeaning: "The estimated cost of the work hours needed for this item, quoted to the customer and compared with labour actually booked."
   - name: replacementAmount
     type: decimal
     required: false
@@ -105,6 +114,7 @@ entity:
       usage: Used to compare repair versus replacement economics and to support disposition decisions.
       relationshipContext: ReplacementAmount may overlap with material cost depending on the organization's costing policy, so its relationship to MaterialAmount must be governed by the estimate's calculation rules.
       optionalMeaning: Optional when replacement is not being considered.
+      businessMeaning: "The estimated cost of swapping the damaged part for a new one when replacement is chosen over repair."
   - name: totalAmount
     type: decimal
     required: false
@@ -115,6 +125,7 @@ entity:
       usage: Used to aggregate RepairEstimate cost, support approval, compare alternatives, and feed repair/disposition analytics.
       relationshipContext: It should reconcile to the applicable material, labor, replacement, discount, and other cost components according to the organization's estimate calculation policy.
       optionalMeaning: Optional while the line is incomplete or not financially valued.
+      businessMeaning: "The full estimated cost of this item, which the customer approves and which adds up into the estimate total."
   relationships:
   - name: repairEstimate
     target: RepairEstimate
@@ -146,6 +157,7 @@ entity:
     relationshipContext: RepairEstimate provides the overall decision and Container context. DamageCode describes the observed condition, ComponentCode identifies the affected area, RepairCode describes the proposed action, and MaterialCode/quantity describe expected material requirements. MaintenanceWorkOrder later converts approved repair scope into executable work; actual material consumption and labor are separate execution outcomes.
     lifecycle: Lines are created while an estimate is prepared, may be revised as inspection or pricing changes, become part of an approved scope when the parent estimate is approved, and remain historical evidence of the decision even after maintenance execution completes.
     example: An inspection finds a damaged container door gasket. A RepairEstimateLine records the damage code, affected component, proposed repair code, replacement material, quantity of one, estimated material cost, estimated labor cost, and total estimated line cost. After approval, the line can be used to create executable maintenance work and material demand.
+    workflowContext: "Added by a surveyor or estimator while inspecting the damaged asset, priced with material, labour and replacement costs, revised as the estimate is negotiated, approved with its parent estimate by the owner or customer, then turned into repair work and material demand; the line stays as evidence of what was agreed."
 specification:
   version: 0.2.0
   status: draft

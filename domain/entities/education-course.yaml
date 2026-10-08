@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for the course, keeping enrolments, classes and assessments tied to it even if the code or name changes."
   - name: courseCode
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The catalogue code students and staff use to find and register for the course, and that appears on transcripts."
   - name: name
     type: string
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The course title shown in the catalogue, timetables and transcripts, telling students what the course is about."
   - name: credits
     type: decimal
     required: false
@@ -63,6 +66,7 @@ entity:
       relationshipContext: Its meaning is specific to EducationCourse; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "How much the course counts toward a qualification, which students rely on to plan their study load and registrars use to check programme completion."
   - name: status
     type: enum
     required: true
@@ -86,6 +90,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of EducationCourse.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the course can be offered: only ACTIVE courses take new classes and enrolments, DRAFT ones are still being designed, INACTIVE ones are paused and RETIRED ones are withdrawn for good."
   relationships:
   - name: program
     target: EducationProgram
@@ -134,7 +139,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a education entity called EducationCourse within the CEDM business model.
+    summary: "One course or learning unit an institution offers, with its code, name and credit value, kept so programmes, classes, enrolments and assessments can all refer to the same course definition."
     businessMeaning: EducationCourse is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -146,6 +151,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical EducationCourse record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "Curriculum staff draft the course and activate it once approved, schedulers then create classes for it, students enrol and are assessed, and the course is deactivated when not offered for a term, reactivated later, or retired when withdrawn from the catalogue."
 specification:
   version: 0.1.0
   status: draft

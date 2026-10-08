@@ -15,17 +15,17 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the accounting entry., usage: "Used for posting, audit, reporting, reversal, reconciliation and integration.", relationshipContext: Identifies the accounting event independently of its source transaction and journal lines., workflowRole: "Provides the stable root reference across accounting preparation, validation, posting, reporting and reversal.", requiredMeaning: Required.}
+    help: {summary: "The permanent reference for this accounting entry, used by its lines, reversals and source documents to point at it.", usage: "Used for posting, audit, reporting, reversal, reconciliation and integration.", relationshipContext: Identifies the accounting event independently of its source transaction and journal lines., workflowRole: "Provides the stable root reference across accounting preparation, validation, posting, reporting and reversal.", requiredMeaning: Required., businessMeaning: "The stable identity of the entry, so audit trails, reversals and the originating invoice or payment can always find exactly this posting."}
   - name: entryNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing accounting journal reference., usage: "Used by accountants, auditors, reports and integrations.", relationshipContext: "Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references.", workflowRole: Identifies the accounting record in ledgers and audit trails., requiredMeaning: Required.}
+    help: {summary: "The journal number accountants quote when tracing a posting, such as JE-2026-004812, often in sequence per period.", usage: "Used by accountants, auditors, reports and integrations.", relationshipContext: "Distinct from source transaction numbers such as Invoice, Payment, CreditNote, SupplierCreditNote and SupplierDebitNote references.", workflowRole: Identifies the accounting record in ledgers and audit trails., requiredMeaning: Required., businessMeaning: "The number that appears on ledgers, trial balance drill-downs and audit samples; gaps or duplicates in the sequence are an audit concern."}
   - name: entryDate
     type: datetime
     required: true
-    help: {summary: Accounting date at which the entry is recognized., usage: "Determines accounting period, reporting chronology and period controls.", relationshipContext: "May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date.", workflowRole: Controls the period into which the entry is posted., requiredMeaning: Required.}
+    help: {summary: Accounting date at which the entry is recognized., usage: "Determines accounting period, reporting chronology and period controls.", relationshipContext: "May differ from originating transaction, bank value, invoice, CreditNote, SupplierCreditNote or SupplierDebitNote date.", workflowRole: Controls the period into which the entry is posted., requiredMeaning: Required., businessMeaning: "The accounting date the entry is recognised on, which decides the fiscal period whose balances it affects."}
   - name: status
     type: enum
     required: true
@@ -35,7 +35,7 @@ entity:
     - POSTED
     - REVERSED
     help:
-      summary: Accounting lifecycle state.
+      summary: "Shows whether the entry is still a draft, has been posted to the ledger, or has been reversed."
       usage: Controls editing, posting, reporting and reversal permissions.
       relationshipContext: Independent of Payment, Invoice, CreditNote, SupplierCreditNote, SupplierDebitNote and BankTransaction
         statuses.
@@ -46,11 +46,12 @@ entity:
         DRAFT: The status of the journal entry is draft; set it when that is what the business means for this record.
         POSTED: The status of the journal entry is posted; set it when that is what the business means for this record.
         REVERSED: The status of the journal entry is reversed; set it when that is what the business means for this record.
+      businessMeaning: "Only POSTED entries affect ledger balances; a DRAFT can be edited, and a posted entry is never changed but REVERSED by a new entry."
   - name: description
     type: string
     required: false
     maxLength: 1000
-    help: {summary: Human-readable explanation of the accounting event., usage: "Supports review, audit, reconciliation and reporting.", relationshipContext: "Complements source transaction and lines; must not be sole accounting evidence.", workflowRole: Helps accountants understand why the entry was generated., optionalMeaning: Optional when source and line information fully explain the event.}
+    help: {summary: "A short narrative explaining why the entry was made, such as accrual of September utilities.", usage: "Supports review, audit, reconciliation and reporting.", relationshipContext: "Complements source transaction and lines; must not be sole accounting evidence.", workflowRole: Helps accountants understand why the entry was generated., optionalMeaning: Optional when source and line information fully explain the event., businessMeaning: "The explanation reviewers and auditors read to understand the purpose of the posting without opening the source document."}
   relationships:
   - name: lines
     target: JournalEntryLine
@@ -150,7 +151,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents accounting recognition of a business event in a balanced double-entry ledger.
+    summary: "One balanced accounting entry recording the debits and credits that an invoice, payment, credit note or other business event caused in the general ledger, kept as the formal record of financial effect."
     businessMeaning: JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a claim, CreditNote records customer adjustment, SupplierCreditNote records supplier payable adjustment, SupplierDebitNote records buyer recovery, and JournalEntry records accounting recognition.
     usage: General ledger, accounts receivable, accounts payable, treasury, inventory accounting, asset accounting, tax, audit, period close and financial reporting.
     relationshipContext: sourceTransaction provides generic origin. Payment, CreditNote, SupplierCreditNote and SupplierDebitNote provide direct traceability when applicable. JournalEntryLine contains debit/credit effects. Organization provides accounting boundary.

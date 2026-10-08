@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the Allergy record.
+      summary: "The permanent internal reference that ties this allergy entry to the patient's chart and safety alerts."
       businessMeaning: Identifies one governed Allergy independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing HealthcarePatient context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the Allergy.
+      summary: "The readable reference staff quote when finding, discussing or reporting this particular allergy entry for the patient."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the Allergy.
+      summary: "Shows whether the allergy is still being documented, is active for safety checks, resolved, or cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related HealthcarePatient workflows but never erase historical evidence.
@@ -97,13 +97,14 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents Allergy as a first-class governed CEDM business concept.
+    summary: "One recorded allergy or intolerance for a specific patient, such as a penicillin reaction or a peanut allergy, kept so clinicians can avoid harmful medicines, foods and materials when treating that patient."
     businessMeaning: A governed patient allergy or intolerance record used to support clinical safety and treatment decisions.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: HealthcarePatient supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A Allergy is created for a valid HealthcarePatient, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "A clinician or intake nurse records the allergy as a draft against the patient, confirms it and activates it so it appears in medication and treatment safety checks, reviews it at later encounters, and finally marks it completed when it is resolved or cancelled when it was entered in error, while the history stays visible."
 specification:
   version: 0.1.0
   status: draft

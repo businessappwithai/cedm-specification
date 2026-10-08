@@ -6,15 +6,15 @@ entity:
   ui: {icon: id-card}
   identity: {key: driverId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: driverId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Driver role., businessMeaning: Identifies one transportation operating role independently of Person identity., usage: "Fleet operations, dispatch, compliance, fuel and audit.", relationshipContext: Person supplies common identity while Driver supplies operating authorization context., requiredMeaning: Required.}}
-    - {name: driverCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing driver reference., businessMeaning: Operational identifier for dispatch and integration., usage: "Search, scheduling, fuel and reporting.", relationshipContext: Distinct from license number and Person identifiers., requiredMeaning: Required.}}
-    - {name: licenseNumber, type: string, required: false, maxLength: 160, help: {summary: Driver license or permit reference where applicable., businessMeaning: Supports operating eligibility and compliance., usage: "Fleet compliance, dispatch and audit.", relationshipContext: Jurisdiction/class/expiry may require additional governed attributes or documents., optionalMeaning: Optional where driving authorization is managed externally or not license-based.}}
+    - {name: driverId, type: uuid, required: true, immutable: true, help: {summary: "Uniquely identifies this driver role so vehicle assignments and fuel transactions point to the right person.", businessMeaning: Identifies one transportation operating role independently of Person identity., usage: "Fleet operations, dispatch, compliance, fuel and audit.", relationshipContext: Person supplies common identity while Driver supplies operating authorization context., requiredMeaning: Required.}}
+    - {name: driverCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The short code dispatchers and fleet staff use to pick the driver on routes, logs and fuel cards.", businessMeaning: Operational identifier for dispatch and integration., usage: "Search, scheduling, fuel and reporting.", relationshipContext: Distinct from license number and Person identifiers., requiredMeaning: Required.}}
+    - {name: licenseNumber, type: string, required: false, maxLength: 160, help: {summary: "The number on the driving licence that authorises this person to operate the vehicles they are assigned.", businessMeaning: Supports operating eligibility and compliance., usage: "Fleet compliance, dispatch and audit.", relationshipContext: Jurisdiction/class/expiry may require additional governed attributes or documents., optionalMeaning: Optional where driving authorization is managed externally or not license-based.}}
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
-      help: {summary: Lifecycle state controlling ordinary driver assignment., businessMeaning: "Separates setup, active eligibility, temporary restriction, inactivity and retirement.", usage: "Dispatch, safety and compliance.", relationshipContext: Historical trips and fuel transactions retain Driver attribution., valueSemantics: {DRAFT: Role is being prepared., ACTIVE: Eligible for governed assignment., SUSPENDED: Temporarily restricted., INACTIVE: Not currently available., RETIRED: Closed to new assignment.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether the person may currently drive: draft, active, suspended, inactive or permanently retired from driving.", businessMeaning: "Separates setup, active eligibility, temporary restriction, inactivity and retirement.", usage: "Dispatch, safety and compliance.", relationshipContext: Historical trips and fuel transactions retain Driver attribution., valueSemantics: {DRAFT: Role is being prepared., ACTIVE: Eligible for governed assignment., SUSPENDED: Temporarily restricted., INACTIVE: Not currently available., RETIRED: Closed to new assignment.}, requiredMeaning: Required.}
   relationships:
     - {name: person, target: Person, cardinality: "1", ownership: reference, help: {summary: Person holding the Driver role., businessMeaning: Reuses common identity without duplicating Person data., usage: "Dispatch, contact and audit.", cardinalityMeaning: Exactly one Person., workflowRole: Identity changes do not rewrite historical Driver evidence.}}
     - {name: vehicles, target: Vehicle, cardinality: "0..*", ownership: reference, help: {summary: Vehicles currently or historically associated with the Driver under assignment policy., businessMeaning: Supports fleet responsibility and utilization context., usage: "Dispatch, compliance and reporting.", cardinalityMeaning: Zero or many Vehicles., workflowRole: Vehicle/Driver eligibility must be validated at assignment time.}}
@@ -39,9 +39,11 @@ entity:
       - {from: SUSPENDED, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents an authorized vehicle-operating role without duplicating Person identity.
+    summary: "A person authorised to drive the company's vehicles, holding a driver code and licence, kept so vehicle assignments, fuel use and safety checks are tied to someone qualified and eligible."
     businessMeaning: Driver supplies fleet-operating eligibility and attribution; Person remains the shared identity.
     usage: Fleet management, dispatch, transportation, fuel management, compliance and audit.
     relationshipContext: Person is mandatory; Vehicles define assignments and FuelTransactions preserve operating-cost evidence.
     lifecycle: Driver becomes active, may suspend or become inactive, and retires while historical operations remain attributable.
+    example: "Driver D-0142, Maria Lopez, holding commercial licence number CDL-88231774, active and assigned to delivery van VAN-07."
+    workflowContext: "A driver record is drafted when someone is put forward to drive, activated once licensing and qualification checks pass, assigned to vehicles and fuel cards, suspended if a licence or safety issue arises, made inactive while not driving, and retired when the person stops driving for good."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DRIVER}

@@ -7,10 +7,10 @@ entity:
     icon: boxes
   identity: {key: inventoryAdjustmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: inventoryAdjustmentId, type: uuid, required: true, immutable: true, help: {summary: Stable adjustment identity., businessMeaning: Identifies one approved stock correction independently of ledger posting., usage: "Cycle count, damage, reconciliation and audit.", relationshipContext: Groups adjustment evidence and movement., requiredMeaning: Required.}}
-  - {name: adjustmentNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing adjustment reference., businessMeaning: Operational/audit identifier., usage: "Approval, investigation and reconciliation.", relationshipContext: Distinct from movement number., requiredMeaning: Required.}}
-  - {name: quantityDelta, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Signed quantity correction., businessMeaning: Positive increases and negative decreases the evidenced stock position., usage: Inventory reconciliation., relationshipContext: Must be supported by reason and evidence., requiredMeaning: Required.}}
-  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: Controlled reason for correction., businessMeaning: Explains why ledger stock differs from evidenced reality., usage: "Approval, root-cause and audit.", relationshipContext: Must not be used to conceal ordinary receipts/issues., requiredMeaning: Required.}}
+  - {name: inventoryAdjustmentId, type: uuid, required: true, immutable: true, help: {summary: "The internal key that links this adjustment to its count and the stock movement it caused.", businessMeaning: Identifies one approved stock correction independently of ledger posting., usage: "Cycle count, damage, reconciliation and audit.", relationshipContext: Groups adjustment evidence and movement., requiredMeaning: Required.}}
+  - {name: adjustmentNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The reference number warehouse and finance staff quote when reviewing or approving the stock correction.", businessMeaning: Operational/audit identifier., usage: "Approval, investigation and reconciliation.", relationshipContext: Distinct from movement number., requiredMeaning: Required.}}
+  - {name: quantityDelta, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How much stock is added or removed by the correction, positive for gains and negative for losses.", businessMeaning: Positive increases and negative decreases the evidenced stock position., usage: Inventory reconciliation., relationshipContext: Must be supported by reason and evidence., requiredMeaning: Required.}}
+  - {name: reasonCode, type: string, required: true, maxLength: 100, help: {summary: "Why the stock needed correcting, such as damage, theft, miscount or expiry.", businessMeaning: Explains why ledger stock differs from evidenced reality., usage: "Approval, root-cause and audit.", relationshipContext: Must not be used to conceal ordinary receipts/issues., requiredMeaning: Required.}}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being corrected., businessMeaning: Identifies affected inventory item., usage: Reconciliation., cardinalityMeaning: Exactly one Product., workflowRole: Must match movement.}}
   - {name: inventoryLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location whose stock is corrected., businessMeaning: Defines physical/accountable stock context., usage: Count and reconciliation., cardinalityMeaning: Exactly one location., workflowRole: Must match movement.}}
@@ -22,10 +22,12 @@ entity:
   - {id: INVENTORY-ADJUSTMENT-003, rule: "Adjustment must not substitute for known receipt, issue, transfer, return or production transactions."}
   - {id: INVENTORY-ADJUSTMENT-004, rule: Posted correction is immutable; subsequent correction uses compensating adjustment.}
   help:
-    summary: Controlled discrepancy correction with explicit evidence and stock posting.
+    summary: "An authorized correction to the recorded stock of a product at a location, raised when a count or investigation shows the books differ from what is physically there."
     businessMeaning: InventoryAdjustment authorizes why stock should be corrected; InventoryMovement remains the physical ledger.
     usage: Cycle counts, reconciliation, damage/loss corrections and audited inventory control.
     relationshipContext: Usually follows InventoryCount but may use other authorized evidence.
     lifecycle: Proposed → approved → posted → immutable historical evidence.
     changePropagation: Posting updates balances and variance analytics; corrections compensate rather than rewrite.
+    workflowContext: "A stock count or investigation reveals a discrepancy, a stock controller raises the adjustment with the quantity difference and reason, it is authorized, and the matching stock movement then corrects on-hand stock so valuation and planning use the right figure."
+    example: "Adjustment ADJ-2026-0233 reducing stock of 10 mm bolts in bin A-04-02 by 40 units after cycle count CC-118 found damaged stock."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-ADJUSTMENT}

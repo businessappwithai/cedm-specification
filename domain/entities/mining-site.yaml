@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for the site, keeping production records and permits attached even if its name changes."
   - name: siteCode
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short code used in production reports, permits and logistics to identify the site."
   - name: name
     type: string
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name the site is known by among staff, regulators and the local community."
   - name: resourceType
     type: string
     required: true
@@ -63,6 +66,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What is being mined at the site, such as copper, coal or gold, which drives production measures, processing and regulatory reporting."
   - name: status
     type: enum
     required: true
@@ -88,6 +92,7 @@ entity:
         CLOSED: Represents the closed state or classification in the context of MiningSite.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows the site's stage: DEVELOPMENT and EXPLORATION before extraction, ACTIVE while producing, SUSPENDED when work is paused, and CLOSED once operations have ended."
   relationships:
   - name: location
     target: Location
@@ -134,7 +139,7 @@ entity:
       - {from: ACTIVE, to: SUSPENDED, action: suspend}
       - {from: SUSPENDED, to: ACTIVE, action: resume}
   help:
-    summary: Represents a mining entity called MiningSite within the CEDM business model.
+    summary: "One location where the company explores for or extracts minerals or other natural resources, recorded with its resource and stage so production, permits and reporting can be tied to it."
     businessMeaning: MiningSite is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -146,6 +151,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical MiningSite record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "A site is registered during development, moves into exploration to prove the resource, becomes active when extraction starts and production records are captured, may be suspended and resumed for safety, permit or market reasons, and is closed when extraction ends."
 specification:
   version: 0.1.0
   status: draft

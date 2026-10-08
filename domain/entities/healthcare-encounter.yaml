@@ -25,6 +25,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets diagnoses, procedures, orders and billing all refer to the same visit."
   - name: encounterType
     type: enum
     required: true
@@ -51,6 +52,7 @@ entity:
         OTHER: Represents the other state or classification in the context of HealthcareEncounter.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Says what kind of care setting this was, outpatient, inpatient, emergency, virtual or home care, which affects billing rules and clinical pathways."
   - name: status
     type: enum
     required: true
@@ -74,6 +76,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of HealthcareEncounter.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the visit is planned, under way, completed or cancelled, so staff know whether care is still being delivered."
   - name: startAt
     type: datetime
     required: true
@@ -86,6 +89,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the patient was first seen, used for scheduling, length-of-stay and billing."
   - name: endAt
     type: datetime
     required: false
@@ -97,6 +101,7 @@ entity:
       relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When the visit or stay ended, which closes the record for billing and length-of-stay reporting; it cannot be before the start."
   - name: reason
     type: string
     required: false
@@ -109,6 +114,7 @@ entity:
       relationshipContext: Its meaning is specific to HealthcareEncounter; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Why the patient came in, in plain words, such as chest pain or follow-up of diabetes, guiding triage and clinical review."
   relationships:
   - name: patient
     target: HealthcarePatient
@@ -215,7 +221,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents a healthcare transaction called HealthcareEncounter within the CEDM business model.
+    summary: "One visit or interaction between a patient and a provider or facility, such as a clinic appointment or hospital stay, kept so diagnoses, procedures and orders are recorded against the care given."
     businessMeaning: HealthcareEncounter is a business concept with its own identity and lifecycle. It captures information
       that must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -227,6 +233,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical HealthcareEncounter record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "An encounter is planned, often from an appointment, starts when the patient is seen, collects diagnoses, procedures and orders while in progress, and is completed when care ends or cancelled if it does not take place, which raises a follow-up task."
 specification:
   version: 0.1.0
   status: draft

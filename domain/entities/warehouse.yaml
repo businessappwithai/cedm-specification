@@ -17,10 +17,11 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable system identity of the warehouse.
+      summary: "The permanent internal key that identifies this warehouse across its locations, stock and shipments."
       usage: Used to connect inventory, receiving, picking, shipping, capacity, and operational records to the same warehouse.
       relationshipContext: Identifies the warehouse specialization independently of its physical Location and business-facing warehouseCode.
       requiredMeaning: Required because warehouse operations need one stable identity.
+      businessMeaning: "Lets inventory locations, zones, docks and stock records point to exactly this facility, even if its code or name changes."
   - name: locationId
     type: reference
     target: Location
@@ -32,6 +33,7 @@ entity:
       usage: Used for routing, delivery, tax, service coverage, mapping, and operational location management.
       relationshipContext: Warehouse specializes Location; this reference connects warehouse-specific operational semantics with the reusable CEDM location model rather than duplicating address data.
       requiredMeaning: Required because a warehouse must have a defined physical or operational location.
+      businessMeaning: "The site or address where the warehouse physically sits, used for routing deliveries, choosing the nearest warehouse and tax or customs purposes."
   - name: warehouseCode
     type: string
     required: true
@@ -42,6 +44,7 @@ entity:
       usage: Used in inventory documents, receiving, picking, shipping, integrations, labels, reports, and warehouse routing.
       relationshipContext: It is a human/system operational identifier and should not be confused with warehouseId or the Location identity.
       requiredMeaning: Required because warehouse operations need a concise stable business reference.
+      businessMeaning: "The short code staff and systems use to name the warehouse on orders, transfers and stock reports."
   - name: warehouseType
     type: enum
     required: true
@@ -58,6 +61,7 @@ entity:
         RETAIL: A warehouse or backroom operation primarily supporting retail-store or direct retail fulfillment.
         OTHER: A warehouse whose operating model is not adequately represented by the standard classifications.
       requiredMeaning: Required because operational processes depend on facility capabilities and controls.
+      businessMeaning: "What kind of facility it is: general, cold storage, bonded, distribution, retail or other; it decides which goods may be stored there, for example chilled items need cold storage and uncleared imports need a bonded warehouse."
   - name: capacity
     type: decimal
     required: false
@@ -68,6 +72,7 @@ entity:
       usage: Used for capacity planning, utilization reporting, allocation, expansion analysis, and operational constraints.
       relationshipContext: Capacity must be interpreted with the warehouse's UnitOfMeasure and storage model; a bare number does not establish whether capacity means pallets, cubic volume, container slots, weight, or another measure.
       optionalMeaning: Optional when capacity is managed at detailed InventoryLocation or slot level instead of as a warehouse aggregate.
+      businessMeaning: "How much the warehouse can hold; planners use it to judge space utilisation and decide when stock must go elsewhere."
   - name: status
     type: enum
     required: true
@@ -83,6 +88,7 @@ entity:
         SUSPENDED: Operations are temporarily restricted, for example because of maintenance, safety, regulatory, staffing, or operational conditions.
         CLOSED: The warehouse has ceased normal operations and should not receive new inventory transactions except controlled closure activities.
       requiredMeaning: Required because inventory processes need to know whether the facility can operate.
+      businessMeaning: "Whether the warehouse can be used: planned sites are not yet operating, active ones receive and ship stock, suspended ones are temporarily stopped, and closed ones take no more activity."
   relationships:
   - name: location
     target: Location
@@ -137,6 +143,7 @@ entity:
     relationshipContext: Warehouse specializes Location for inventory operations. InventoryLocation defines where stock is held inside the facility. InventoryMovement records stock events. Shipment and PurchaseOrder/SalesOrder provide inbound or outbound business context. Warehouse should not itself be used as a substitute for the current stock balance.
     lifecycle: A planned warehouse is configured before operation. Active warehouses can participate in normal inventory flows. Suspended warehouses temporarily restrict operations. Closed warehouses stop normal activity while retaining historical inventory, shipment, and transaction records for audit and reconciliation.
     example: A distribution center is represented as a Warehouse with a physical Location, warehouse code DC01, and multiple InventoryLocations for receiving, reserve storage, picking, staging, and dispatch. A PurchaseOrder receipt creates InventoryMovement into receiving, put-away transfers stock into reserve locations, and an outbound Shipment consumes stock from picking or staging locations.
+    workflowContext: "A warehouse is set up as planned while the site is prepared, with its zones, docks and inventory locations defined, and activated when it starts receiving stock; receiving, putaway, picking waves and dispatch then run within it. It can be suspended temporarily and resumed, and is closed when the site stops operating."
 specification:
   version: 0.2.0
   status: draft

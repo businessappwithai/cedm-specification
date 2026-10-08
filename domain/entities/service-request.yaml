@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps tasks, tickets, service orders and service cases connected to the one request that started them, so the full handling history can be followed."
   - name: requestNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The number given to the requester and quoted by service agents, for example SR-104522, so everyone can find and talk about the same request."
   - name: requestType
     type: string
     required: true
@@ -51,6 +53,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Classifies what is being asked for, such as repair, access request or information, which decides the routing team, the service level and the reporting category."
   - name: description
     type: string
     required: true
@@ -63,6 +66,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The requester's account of the problem or need, which triage and the assigned agent read to understand what has to be done."
   - name: priority
     type: enum
     required: true
@@ -86,6 +90,7 @@ entity:
         CRITICAL: Represents the critical state or classification in the context of ServiceRequest.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How urgently the request must be handled, from low to critical; it drives queue order, response and resolution targets under the service level agreement, and escalation."
   - name: status
     type: enum
     required: true
@@ -115,6 +120,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of ServiceRequest.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows where the request is in handling: open, triaged, assigned, in progress, resolved, closed or cancelled; requesters and managers use it to see what is waiting and on whom."
   - name: requestedAt
     type: datetime
     required: true
@@ -127,6 +133,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the request was raised; service level clocks start here and response and resolution times are measured from it."
   - name: resolvedAt
     type: datetime
     required: false
@@ -138,6 +145,7 @@ entity:
       relationshipContext: Its meaning is specific to ServiceRequest; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When the request was resolved; it must be filled once the request is resolved or closed and is used to measure resolution time against the service level."
   relationships:
   - name: requester
     target: Party
@@ -234,7 +242,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a service management entity called ServiceRequest within the CEDM business model.
+    summary: "A request from a customer, employee or other party for help, support or maintenance, such as a broken air conditioner report or a new laptop request, tracked until it is resolved and closed."
     businessMeaning: ServiceRequest is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -246,6 +254,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical ServiceRequest record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "The requester raises the request, the service desk triages it and sets its priority, assigns it to a person or team who works it through tasks, tickets or service orders, records the resolution, and closes it after confirmation; it can be cancelled any time before it is resolved."
 specification:
   version: 0.1.0
   status: draft

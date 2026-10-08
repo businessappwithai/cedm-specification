@@ -11,17 +11,17 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the verification record., businessMeaning: Identifies one independent verification event assessing an implemented corrective or preventive action., usage: Quality assurance CAPA audit supplier performance and closure evidence., relationshipContext: Distinct from CorrectiveAction and Nonconformance identities., workflowRole: Provides traceable evidence for a completion decision., requiredMeaning: Required.}
+    help: {summary: "The permanent reference for this effectiveness check, kept as audit evidence after the decision.", businessMeaning: Identifies one independent verification event assessing an implemented corrective or preventive action., usage: Quality assurance CAPA audit supplier performance and closure evidence., relationshipContext: Distinct from CorrectiveAction and Nonconformance identities., workflowRole: Provides traceable evidence for a completion decision., requiredMeaning: Required.}
   - name: verificationNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing verification reference., businessMeaning: Identifies the verification event for quality operations and audit., usage: Reporting approval audit and supplier communication., relationshipContext: Distinct from actionNumber and nonconformance number., workflowRole: Correlates verification evidence throughout closure., requiredMeaning: Required.}
+    help: {summary: "The reference quality staff and auditors quote when discussing or reviewing this effectiveness check.", businessMeaning: Identifies the verification event for quality operations and audit., usage: Reporting approval audit and supplier communication., relationshipContext: Distinct from actionNumber and nonconformance number., workflowRole: Correlates verification evidence throughout closure., requiredMeaning: Required.}
   - name: verificationDate
     type: datetime
     required: true
-    help: {summary: Date and time effectiveness verification was performed., businessMeaning: Establishes when evidence was evaluated against the intended outcome., usage: Audit SLA quality reporting and closure chronology., workflowRole: Anchors the verification event., requiredMeaning: Required.}
+    help: {summary: "When the evidence was reviewed to decide whether the corrective action worked as intended.", businessMeaning: Establishes when evidence was evaluated against the intended outcome., usage: Audit SLA quality reporting and closure chronology., workflowRole: Anchors the verification event., requiredMeaning: Required., relationshipContext: "Falls after the implementation of the linked corrective action, and is the date quality staff cite when closing that action and the nonconformance it addresses."}
   - name: result
     type: enum
     required: true
@@ -31,7 +31,7 @@ entity:
     - INEFFECTIVE
     - NOT_VERIFIABLE
     help:
-      summary: Outcome of effectiveness verification.
+      summary: "The verdict on whether the action fixed the problem: effective, partly effective, ineffective or not verifiable."
       businessMeaning: States whether the action achieved its intended quality outcome.
       usage: Controls corrective-action completion recurrence handling and escalation.
       relationshipContext: Does not rewrite original Nonconformance or CorrectiveAction evidence.
@@ -57,7 +57,7 @@ entity:
     - REOPENED
     - CANCELLED
     help:
-      summary: Lifecycle state of verification.
+      summary: "Shows whether the check is open, being carried out, completed, reopened for more evidence or cancelled."
       businessMeaning: Separates preparation evaluation completion and follow-up.
       usage: Quality governance and audit.
       workflowRole: COMPLETED records final verification evidence; REOPENED signals additional action is required.
@@ -73,16 +73,17 @@ entity:
           for this record.
         CANCELLED: The status of the corrective action verification is cancelled; set it when that is what the business means
           for this record.
+      relationshipContext: "Only a completed check with an effective result lets the linked corrective action finish and the related nonconformance move toward closure; a reopened check holds both open."
   - name: findings
     type: string
     required: true
     maxLength: 4000
-    help: {summary: Evidence and observations supporting the verification result., businessMeaning: Explains what was checked and why the result was reached., usage: Audit quality review supplier improvement and recurrence analysis., workflowRole: Supports effectiveness decision., requiredMeaning: Required.}
+    help: {summary: "What was examined and observed during the check, and why the verdict was reached.", businessMeaning: Explains what was checked and why the result was reached., usage: Audit quality review supplier improvement and recurrence analysis., workflowRole: Supports effectiveness decision., requiredMeaning: Required., relationshipContext: "Describes how the corrective action performed against the original nonconformance, for example defect rates in lots received after the fix."}
   - name: verifiedBy
     type: reference
     target: Party
     required: true
-    help: {summary: Party accountable for performing or approving effectiveness verification., businessMeaning: Establishes accountability for the verification decision., usage: Audit trail quality governance and segregation of duties., workflowRole: Provides verification authority., requiredMeaning: Required.}
+    help: {summary: Party accountable for performing or approving effectiveness verification., businessMeaning: Establishes accountability for the verification decision., usage: Audit trail quality governance and segregation of duties., workflowRole: Provides verification authority., requiredMeaning: Required., relationshipContext: "The person accountable for the verdict, normally independent of whoever carried out the corrective action, so the effectiveness of the fix is not self-certified."}
   relationships:
   - name: correctiveAction
     target: CorrectiveAction
@@ -151,7 +152,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Provides independent auditable evidence that a corrective or preventive action achieved its intended result.
+    summary: "One check, after a corrective or preventive action has been carried out, of whether it actually fixed the quality problem, kept as the evidence needed before the action and its nonconformance can be closed."
     businessMeaning: CorrectiveAction records what was done; CorrectiveActionVerification records whether it worked; Nonconformance records the original quality problem.
     usage: CAPA supplier quality compliance audit recurrence prevention and issue closure.
     relationshipContext: Verification closes the evidence loop between Nonconformance and CorrectiveAction without conflating implementation with effectiveness.

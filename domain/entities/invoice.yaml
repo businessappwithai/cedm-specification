@@ -12,7 +12,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Immutable system identity of the invoice claim.
+        summary: "The permanent identity of this invoice, which its lines, payment allocations and credit notes refer back to."
         businessMeaning: Identifies the financial claim independently of its number, lines, source order, receipts, credits, debits, or payments.
         usage: Used for financial integrations, audit, payment allocation, reconciliation, reporting, and lifecycle navigation.
         relationshipContext: InvoiceId identifies the claim; InvoiceNumber is its business-facing reference; CreditNote and supplier debit/credit applications provide later financial adjustment evidence.
@@ -24,7 +24,7 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: Business-facing invoice reference.
+        summary: "The number printed on the invoice that customers, suppliers and accountants quote when paying or querying it."
         businessMeaning: Identifier communicated to customers, suppliers, tax authorities, and financial operations.
         usage: Used in documents, statements, reconciliation, collections, payables, and integrations.
         relationshipContext: Distinct from invoiceId and source order numbers.
@@ -72,7 +72,7 @@ entity:
       default: DRAFT
       values: [DRAFT, ISSUED, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED, VOID]
       help:
-        summary: Lifecycle state of the financial claim.
+        summary: "Shows whether the invoice is a draft, issued, partly paid, paid, overdue, cancelled or voided after being issued."
         businessMeaning: Indicates whether the claim is being prepared, outstanding, settled, overdue, cancelled, or voided.
         usage: Controls issuance, settlement, aging, cancellation, reporting, and accounting workflows.
         relationshipContext: PaymentAllocation supplies settlement evidence; CreditNote and SupplierDebitNoteApplication supply authorized adjustment evidence; Payment status alone must never determine invoice payment status.
@@ -397,7 +397,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a formal financial claim and its controlled settlement and adjustment state.
+    summary: "One formal bill sent to a customer or received from a supplier, stating the goods or services, the amount owed and payment terms, and tracked until it is paid, cancelled or voided."
     businessMeaning: Invoice records what was originally claimed. Payment records money moved. PaymentAllocation records how money is applied. CreditNote, SupplierCreditNote, and SupplierDebitNote record separate authorized financial adjustments; their application entities record claim-level consumption.
     usage: Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, customer credit, supplier recovery and audit.
     relationshipContext: SalesOrder provides commercial commitment, Shipment or delivery provides fulfillment where applicable, GoodsReceipt provides accepted procurement fulfillment, Invoice provides the claim, CreditNote provides customer reduction, SupplierCreditNote provides supplier reduction, SupplierDebitNote provides buyer recovery, Payment provides settlement, and application entities connect each adjustment to the claim.

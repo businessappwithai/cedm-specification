@@ -15,19 +15,19 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the inventory event., usage: "Used for stock-ledger traceability, audit, reconciliation, integration and investigation.", relationshipContext: "Identifies the event independently of Product, location, quantity and originating transaction.", workflowRole: "Every receipt, issue, transfer, return, adjustment, reservation and release uses this identity for audit and balance reconciliation.", requiredMeaning: Required.}
+    help: {summary: "Uniquely identifies this stock movement so lots, serial numbers and source documents trace back to it.", usage: "Used for stock-ledger traceability, audit, reconciliation, integration and investigation.", relationshipContext: "Identifies the event independently of Product, location, quantity and originating transaction.", workflowRole: "Every receipt, issue, transfer, return, adjustment, reservation and release uses this identity for audit and balance reconciliation.", requiredMeaning: Required., businessMeaning: "Lets stock reports, lot traces and supplier returns point to the exact movement that changed the quantity."}
   - name: movementNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing inventory movement reference., usage: "Used by warehouse operators, inventory controllers, auditors and integrations.", relationshipContext: Distinct from Product and source transaction numbers., workflowRole: Traces stock change from execution through reconciliation., requiredMeaning: Required.}
+    help: {summary: "The reference number warehouse staff and auditors use to find this movement in stock history.", usage: "Used by warehouse operators, inventory controllers, auditors and integrations.", relationshipContext: Distinct from Product and source transaction numbers., workflowRole: Traces stock change from execution through reconciliation., requiredMeaning: Required., businessMeaning: "The document number quoted on pick lists, receiving slips and stock audits for this movement."}
   - name: movementType
     type: enum
     required: true
     values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
     help:
-      summary: Identifies inventory operation and state transition.
+      summary: "Says what kind of stock event this was, such as receipt, issue, transfer or adjustment."
       usage: Determines how on-hand, reserved, available and location balances change.
       relationshipContext: Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable.
       workflowRole: Maps business workflow outcomes to inventory ledger.
@@ -40,21 +40,22 @@ entity:
         RESERVATION: Quantity is committed to demand without physical movement.
         RELEASE: Previous reservation is removed.
       requiredMeaning: Required.
+      businessMeaning: "Decides how the quantity affects stock: a receipt adds, an issue removes, a transfer moves between two locations, a reservation holds stock and a release frees it."
   - name: quantity
     type: decimal
     required: true
     precision: 20
     scale: 6
-    help: {summary: Quantity affected by the inventory event., usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release., requiredMeaning: Required.}
+    help: {summary: "How many units of the product this movement adds, removes, moves or reserves at the location.", usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release., requiredMeaning: Required., businessMeaning: "The amount of stock affected, always above zero; the movement type decides the direction, and on-hand and available figures are built from these quantities."}
   - name: movementDate
     type: datetime
     required: true
-    help: {summary: Timestamp at which inventory event is recognized., usage: "Stock history, period-end balances, reporting, audit and reconciliation.", relationshipContext: Distinct from source order date and record creation timestamp., workflowRole: Establishes effective chronology., requiredMeaning: Required.}
+    help: {summary: "When the stock event took place, which places it correctly in the product's stock history.", usage: "Stock history, period-end balances, reporting, audit and reconciliation.", relationshipContext: Distinct from source order date and record creation timestamp., workflowRole: Establishes effective chronology., requiredMeaning: Required., businessMeaning: "Decides which stock period and valuation the movement falls into, and the order movements are applied in."}
   - name: reason
     type: string
     required: false
     maxLength: 500
-    help: {summary: Business explanation for movement., usage: "Audit, investigation, approval and reporting.", relationshipContext: Supplements movementType and source relationships., workflowRole: "Especially important for adjustments, returns and exceptions.", optionalMeaning: Optional when source context fully explains event.}
+    help: {summary: "Explains in plain words why the stock was moved, adjusted or returned on this occasion.", usage: "Audit, investigation, approval and reporting.", relationshipContext: Supplements movementType and source relationships., workflowRole: "Especially important for adjustments, returns and exceptions.", optionalMeaning: Optional when source context fully explains event., businessMeaning: "Gives auditors and stock controllers the justification, such as damaged in handling or cycle count correction, especially for adjustments."}
   relationships:
   - name: product
     target: Product
@@ -140,7 +141,7 @@ entity:
   - {id: INVENTORY-MOVEMENT-008, rule: Supplier-return inventory reduction must be posted exactly once for each executed return disposition identity; retries must be idempotent.}
   - {id: INVENTORY-MOVEMENT-009, rule: "A SupplierReturnLine cannot be marked physically completed until required attributable inventory movement posting succeeds, unless an explicit non-stock or authorized exception workflow applies."}
   help:
-    summary: Represents one auditable change to inventory state, including stock reductions caused by supplier returns.
+    summary: "One traceable stock event, such as a receipt, issue, transfer, adjustment, return, reservation or release, that changes how much of a product is held or available at a location."
     businessMeaning: InventoryMovement is the event ledger from which InventoryBalance is maintained. SupplierReturnLine is the operational authorization for supplier-return quantity; InventoryMovement is the physical stock consequence.
     usage: Receiving, warehouse execution, procurement, order fulfillment, maintenance, customer and supplier returns, stock counting, reconciliation and analytics.
     relationshipContext: Product identifies what is stocked. InventoryLocation identifies where. InventoryBalance is current state. InventoryMovement is historical event evidence. GoodsReceiptLine explains original accepted receipt. SupplierReturnLine explains later return quantity. SupplierCreditNote explains financial consequence separately.

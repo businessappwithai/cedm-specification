@@ -18,6 +18,7 @@ entity:
       relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a quotation line cannot be understood without its quotation line id.'
+      businessMeaning: "Lets the resulting sales order line and later queries trace back to exactly this offered item, even if lines are renumbered."
   - name: lineNumber
     type: integer
     required: true
@@ -29,6 +30,7 @@ entity:
       relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a quotation line cannot be understood without its line number.'
+      businessMeaning: "The line position the customer sees on the quotation and quotes back when accepting or querying particular items."
   - name: quantity
     type: decimal
     required: true
@@ -41,6 +43,7 @@ entity:
       relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a quotation line cannot be understood without its quantity.'
+      businessMeaning: "How much of the product or service is being offered; the price and amount are calculated on it and it carries into the order if accepted."
   - name: unitPrice
     type: Money
     required: true
@@ -50,6 +53,7 @@ entity:
       relationshipContext: Must be interpreted with the quotation currency and UnitOfMeasure.
       workflowRole: Price determination may source a current price rule, but the accepted quotation retains this effective price.
       requiredMeaning: Required for a financially valued quotation line.
+      businessMeaning: "The price per unit offered to the customer at the time of quoting; it is preserved so the customer is held to, and receives, the price they were quoted."
   - name: amount
     type: Money
     required: true
@@ -59,6 +63,7 @@ entity:
       relationshipContext: Currency must match unitPrice and the quotation currency under the quotation's pricing policy.
       workflowRole: Provides a reproducible quoted amount.
       requiredMeaning: Required for a financially valued quotation line.
+      businessMeaning: "The total for this line after quantity, price and discount; it is what the customer sees for the line and what adds up to the quotation total."
   - name: discountAmount
     type: Money
     required: false
@@ -68,6 +73,7 @@ entity:
       relationshipContext: Must use the quotation currency.
       workflowRole: Prevents later DiscountRule changes from rewriting an accepted quotation.
       optionalMeaning: Optional when no discount applies.
+      businessMeaning: "The reduction given on this line; sales managers review it against discount limits and it shows the customer what they are saving."
   - name: priceSource
     type: enum
     required: false
@@ -85,6 +91,7 @@ entity:
         MANUAL: The price source of the quotation line is manual; set it when that is what the business means for this record.
         PROMOTION: The price source of the quotation line is promotion; set it when that is what the business means for this record.
         OTHER: The price source of the quotation line is other; set it when that is what the business means for this record.
+      businessMeaning: "Where the price came from: the price list, a contract, a customer agreement, a promotion, a manual entry or something else; manual prices usually need approval and the source explains the price if it is later questioned."
   - name: priceDeterminedAt
     type: datetime
     required: false
@@ -94,6 +101,7 @@ entity:
       relationshipContext: Distinct from quotation creation time when pricing is recalculated or manually overridden.
       workflowRole: Provides temporal evidence for price determination.
       optionalMeaning: Optional only where the quotation process does not capture determination timing.
+      businessMeaning: "When the price was worked out, showing which price list or promotion was in force and whether the quote should be re-priced before acceptance."
   - name: description
     type: string
     required: false
@@ -102,6 +110,7 @@ entity:
       summary: "The description of the quotation line: a value the business records on it."
       usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "The wording the customer sees describing what is offered on this line, especially for services or configured items without a standard product name."
   relationships:
   - name: quotation
     target: Quotation

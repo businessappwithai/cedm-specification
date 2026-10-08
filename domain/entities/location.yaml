@@ -16,6 +16,7 @@ entity:
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a location cannot be understood without its location id."
+      businessMeaning: "The permanent identity of the place, so stock, assets, orders and child locations stay attached to it even if it is renamed or recoded."
   - name: code
     type: string
     required: true
@@ -26,6 +27,7 @@ entity:
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a location cannot be understood without its code."
+      businessMeaning: "The short site code staff and integrations use, such as WH-LYON-01, printed on documents and labels to pick the right place."
   - name: name
     type: string
     required: true
@@ -35,6 +37,7 @@ entity:
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a location cannot be understood without its name."
+      businessMeaning: "The name people recognise the place by, such as Lyon Distribution Centre, shown on screens, reports and delivery documents."
   - name: locationType
     type: enum
     required: true
@@ -55,6 +58,7 @@ entity:
         DEPOT: The location type of the location is depot; set it when that is what the business means for this record.
         VIRTUAL: The location type of the location is virtual; set it when that is what the business means for this record.
         OTHER: The location type of the location is other; set it when that is what the business means for this record.
+      businessMeaning: "What kind of place this is, such as warehouse, store, factory, yard or port, which decides which operations, like stocking or selling, may happen there."
   - name: status
     type: enum
     required: true
@@ -71,6 +75,7 @@ entity:
         INACTIVE: The status of the location is inactive; set it when that is what the business means for this record.
         CLOSED: The status of the location is closed; set it when that is what the business means for this record.
         RETIRED: The status of the location is retired; set it when that is what the business means for this record.
+      businessMeaning: "Whether the place is PLANNED, ACTIVE for operations, temporarily INACTIVE, or permanently CLOSED or RETIRED; closed and retired locations are not offered for new transactions."
   - name: addressId
     type: reference
     target: Address
@@ -79,6 +84,7 @@ entity:
       summary: "The address id of the location: a link to another record the business records on it."
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "The postal address of the place, used for deliveries, tax jurisdiction and correspondence."
   - name: parentLocationId
     type: reference
     target: Location
@@ -87,6 +93,7 @@ entity:
       summary: "The parent location id of the location: a link to another record the business records on it."
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
+      businessMeaning: "The larger place this one sits within, such as the warehouse a storage zone belongs to, which lets stock and activity roll up through the site hierarchy."
   - name: createdAt
     type: datetime
     required: true
@@ -96,6 +103,7 @@ entity:
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a location cannot be understood without its created at."
+      businessMeaning: "When the location was first set up, useful when auditing master data changes and site openings."
   - name: updatedAt
     type: datetime
     required: true
@@ -105,6 +113,7 @@ entity:
       usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
       requiredMeaning: "Required: a location cannot be understood without its updated at."
+      businessMeaning: "When the location's details were last changed, so users can tell whether an address or status is recent."
   relationships:
   - name: parentLocation
     target: Location
@@ -174,7 +183,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Core location master with hierarchical, geographic, organizational, and lifecycle context.
+    summary: "A physical or logical place where the business operates, such as a site, warehouse, store, office or port, used to anchor inventory, assets, people and transactions to where they happen."
     businessMeaning: "Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation."
     usage: Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes.
     relationshipContext: Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes.

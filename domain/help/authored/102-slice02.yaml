@@ -1,0 +1,453 @@
+# Authored help, batch 102 (slice 02).
+Activity:
+  attributes:
+    activityId:
+      summary: "The permanent identity of this call, meeting, email, visit or follow-up, which opportunities and party histories point to."
+    code:
+      summary: "The short reference sales and service staff quote when they discuss or search for this particular customer interaction."
+Approval:
+  attributes:
+    approvalId:
+      summary: "The permanent identity of this approval request or decision, used to trace which business change or task it authorised."
+    status:
+      summary: "Shows whether the approval is still pending, being worked on actively, completed with a decision, or cancelled before deciding."
+Attachment:
+  attributes:
+    attachmentId:
+      summary: "The permanent identity of this attached file, so the record it belongs to and its audit history always find the same content."
+BillingCycle:
+  help:
+    summary: "One recurring billing interval with its cutoff dates, which decides which charges fall into which billing run and when customers are invoiced for recurring services."
+  attributes:
+    billingCycleId:
+      summary: "The permanent identity of this billing interval, which subscriptions and generated charges refer to when they are billed."
+    status:
+      summary: "Shows whether the billing cycle is still a draft, active for charge generation, completed after its run, or cancelled."
+Campaign:
+  attributes:
+    campaignId:
+      summary: "The permanent identity of this marketing or outreach initiative, which responses, leads and activities are attributed to for reporting."
+    code:
+      summary: "The short campaign reference marketers put in tracking links, offer codes and reports to attribute responses to this initiative."
+Classification:
+  attributes:
+    classificationId:
+      summary: "The permanent identity of this category value, so every record classified by it keeps pointing at the same category after renaming."
+    code:
+      summary: "The stable short code for this category that reports, filters and integrations use instead of free-text descriptions."
+    name:
+      summary: "The readable label users see when they pick this category for a record or read it on a report or screen."
+Container:
+  help:
+    summary: "One physical intermodal shipping container, tracked as an equipment asset from manufacture through moves between terminals, vessels, depots and customers, repairs, leasing and its final sale or scrapping."
+    workflowContext: "Registered when the box joins the fleet; updated by every gate move, yard placement and vessel load recorded against it; sent into repair through damage surveys and repair estimates; and finally marked sold, scrapped, lost or retired when it leaves the fleet."
+  attributes:
+    containerId:
+      businessMeaning: "The permanent identity of the physical box inside the application, so moves, repair estimates and ownership history stay attached to it even if a marking is corrected."
+    containerNumber:
+      businessMeaning: "The owner prefix, serial and check digit painted on the box, such as MSKU1234565; terminals, carriers and customs identify the container by this number on every document."
+    isoCode:
+      businessMeaning: "The international size-and-type code marked on the box, such as 45G1, which tells planners and carriers its length, height and kind without inspecting it."
+    sizeCode:
+      summary: "The nominal length and height class of the container, which decides where it can be stacked and loaded."
+      businessMeaning: "Planners use it to match equipment to bookings, assign yard slots and vessel cells that fit, and price handling and storage, for example 20 foot standard versus 40 foot high cube."
+    containerType:
+      businessMeaning: "What kind of cargo the box is built for, such as dry, reefer, open top, flat rack or tank, which decides which bookings and cargo it may be offered for."
+    tareWeight:
+      businessMeaning: "The weight of the empty box; it is subtracted from the weighed gross to find cargo weight and is needed for verified gross mass declarations and stowage planning."
+    maxGrossWeight:
+      businessMeaning: "The heaviest the loaded box is certified to be; bookings and loading that would exceed it are refused because overloading is a safety and legal risk."
+    manufactureDate:
+      businessMeaning: "When the box was built, which drives its age, depreciation, inspection due dates and decisions about whether to repair, sell or retire it."
+    status:
+      businessMeaning: "Whether the box is in service, under repair, damaged, or has left the fleet by sale, scrapping, loss or retirement, which decides whether it can be offered to customers."
+    inventoryStatus:
+      businessMeaning: "The box's current availability in the depot or yard, such as empty available, laden or on hold, which equipment controllers use to decide what can be released for the next booking."
+CorrectiveAction:
+  help:
+    summary: "One authorised quality action raised to contain, correct or prevent recurrence of a nonconformance, tracked with an owner and due date until its effectiveness is verified."
+  attributes:
+    correctiveActionId:
+      summary: "The permanent identity of this quality action, which verifications, nonconformances and audits refer to over its whole life."
+    actionNumber:
+      summary: "The reference quality staff and auditors quote for this action in corrective and preventive action logs and reviews."
+    actionType:
+      summary: "Says whether the action contains immediate risk, corrects the condition, removes the root cause, or prevents recurrence elsewhere."
+    status:
+      summary: "Shows where the action stands: open, assigned, in progress, awaiting verification, completed or cancelled."
+    dueDate:
+      summary: "The date by which the owner has committed to finish the action, used to flag overdue quality work."
+    completedDate:
+      summary: "The date the action was actually finished, used to measure timeliness against the due date in quality reviews."
+CustomerReturnLine:
+  help:
+    summary: "One returned product quantity on a customer return, matched to the original sales order line and split by inspection into restocked, quarantined, repaired or scrapped quantities that drive inventory and credit."
+  attributes:
+    customerReturnLineId:
+      summary: "The permanent identity of this returned quantity, which dispositions, inventory movements and credit note lines refer back to."
+    quantityRestocked:
+      summary: "How much of the returned quantity passed inspection and was put back into sellable stock."
+    quantityQuarantined:
+      summary: "How much of the returned quantity is held aside pending further inspection or a decision about its disposition."
+    quantityToRepair:
+      summary: "How much of the returned quantity is being sent for repair or rework before it can be sold or returned again."
+    quantityScrapped:
+      summary: "How much of the returned quantity was judged unusable and written off rather than restocked or repaired."
+Diagnosis:
+  help:
+    summary: "One clinical condition or finding identified for a patient during a healthcare encounter, coded so that care plans, billing, reporting and the patient's medical history all refer to the same problem."
+    workflowContext: "Recorded by a clinician during or after an encounter's assessment, refined from suspected to confirmed or marked historical as care continues, and then used by orders, treatment plans, claims coding and clinical reporting."
+  attributes:
+    diagnosisId:
+      businessMeaning: "The permanent identity of this recorded condition, so treatment, claims and later encounters can refer to exactly this diagnosis."
+    codeSystem:
+      businessMeaning: "Which coding standard the code comes from, such as ICD-10-CM or SNOMED CT, which payers and registries need to interpret the code correctly."
+    code:
+      businessMeaning: "The standard code for the condition, such as E11.9 for type 2 diabetes without complications, which drives claims, clinical decision support and statistics."
+    description:
+      businessMeaning: "The readable wording of the condition as clinicians see it on the chart, so a reader need not decode the code."
+    diagnosisType:
+      businessMeaning: "Whether this is the main reason for the encounter, a secondary condition, only suspected, or past history, which affects billing order and how clinicians weigh it."
+    onsetDate:
+      businessMeaning: "When the condition began or was first noticed, which clinicians use to judge its course and payers use to assess pre-existing conditions."
+Emission:
+  help:
+    summary: "One measured, calculated or estimated release of greenhouse gas or pollutant from a source the organization is accountable for, kept as evidence for sustainability reporting and reduction targets."
+    workflowContext: "Captured from meter readings, fuel and energy invoices or supplier data, classified by scope and data quality, reviewed by the sustainability team, and then aggregated into periodic carbon inventories, regulatory filings and target tracking."
+  attributes:
+    emissionId:
+      businessMeaning: "The permanent identity of this emission entry, so a reported total can be traced back to each underlying measurement or calculation."
+    emissionSource:
+      businessMeaning: "What produced the emission, such as a boiler, delivery fleet or purchased electricity, which tells the team where reductions must be found."
+    emissionType:
+      businessMeaning: "Whether the emission is direct, from purchased energy, or elsewhere in the value chain, which decides which scope total and disclosure it counts towards."
+    quantity:
+      businessMeaning: "How much was released, in the stated unit, which is summed into the organization's reported footprint and compared against targets."
+    unitOfMeasureId:
+      businessMeaning: "The unit the quantity is expressed in, such as tonnes of CO2 equivalent, so amounts from different sources can be converted and added correctly."
+    measuredAt:
+      businessMeaning: "When the emission occurred or was measured, which places it in the correct reporting period."
+    sourceQuality:
+      businessMeaning: "Whether the figure was directly measured, calculated from activity data, or estimated, which auditors use to judge how reliable the reported total is."
+Escalation:
+  attributes:
+    escalationId:
+      summary: "The permanent identity of this escalation, linking overdue or breached work to the higher responsibility it was raised to."
+    status:
+      summary: "Shows whether the escalation is waiting to be picked up, actively handled, resolved, or cancelled as unnecessary."
+Finding:
+  attributes:
+    findingId:
+      summary: "The permanent identity of this audit, control or compliance observation, which remediation actions and reports trace back to."
+GoodsReceiptLine:
+  attributes:
+    unitPrice:
+      summary: "The price per unit of the received goods, carried from the purchase order line being received."
+      businessMeaning: "It values the received stock for inventory posting and is compared with the supplier invoice price during matching, so a difference shows up as a price variance to investigate."
+    goodsReceiptLineId:
+      summary: "The permanent identity of this receiving line, which inventory movements, invoice lines and supplier returns refer back to."
+    lineNumber:
+      summary: "The position of this line on the goods receipt, used when staff refer to a particular received item."
+    receivedQuantity:
+      summary: "How much of the product physically arrived at the dock against the purchase order line on this receipt."
+    acceptedQuantity:
+      summary: "How much of the received quantity passed checks and can be posted to usable stock and paid for."
+    rejectedQuantity:
+      summary: "How much of the received quantity was refused for damage, defects or mismatch and may be returned to the supplier."
+    pendingInspectionQuantity:
+      summary: "How much of the received quantity is still waiting for quality inspection before it can be accepted or rejected."
+    notes:
+      summary: "Free remarks from the receiving clerk about this line, such as damaged packaging or a partial delivery."
+HotelReservation:
+  help:
+    summary: "One booking of hotel accommodation for a guest at a particular hotel and dates, tracked from the request through check-in and check-out, or until it is cancelled or the guest fails to arrive."
+    workflowContext: "Created when a guest or travel booker requests a stay, confirmed when a room is reserved, updated at check-in when a room is assigned and at check-out when the stay is billed, or closed as cancelled or no-show; housekeeping, front desk and revenue reports consume it."
+  attributes:
+    hotelReservationId:
+      businessMeaning: "The permanent identity of this booking, so room assignments, charges and guest history stay tied to the same stay even if dates change."
+    reservationNumber:
+      businessMeaning: "The confirmation number the guest and front desk quote to find the booking, such as on a confirmation email."
+    checkIn:
+      businessMeaning: "The date the guest is due to arrive, which drives room availability, arrivals lists and when a no-show can be declared."
+    checkOut:
+      businessMeaning: "The date the guest is due to leave, which sets the number of nights charged and when the room becomes available again."
+    status:
+      businessMeaning: "Whether the stay is requested, confirmed, in house, departed, cancelled or a no-show, which the front desk and revenue team rely on to manage rooms and charges."
+    guestCount:
+      businessMeaning: "How many people will stay, which decides suitable room types, occupancy-based rates and fire safety counts."
+Interest:
+  attributes:
+    interestId:
+      summary: "The permanent identity of this interest accrual or charge, which postings and statements refer back to."
+    effectiveAt:
+      summary: "The moment from which this interest calculation applies, placing the charge or accrual in the correct period."
+Invoice:
+  help:
+    summary: "One formal bill sent to a customer or received from a supplier, stating the goods or services, the amount owed and payment terms, and tracked until it is paid, cancelled or voided."
+  attributes:
+    invoiceId:
+      summary: "The permanent identity of this invoice, which its lines, payment allocations and credit notes refer back to."
+    invoiceNumber:
+      summary: "The number printed on the invoice that customers, suppliers and accountants quote when paying or querying it."
+    status:
+      summary: "Shows whether the invoice is a draft, issued, partly paid, paid, overdue, cancelled or voided after being issued."
+LegalEntity:
+  attributes:
+    legalEntityId:
+      summary: "The permanent identity of this legally recognised organization or person, which contracts, registrations and filings refer to."
+    occurredAt:
+      summary: "The moment the recorded legal event for this entity took place, such as its incorporation or registration."
+MediaContent:
+  help:
+    summary: "One media work, such as a video, article, podcast or book, that the organization creates, licenses or distributes, tracked from draft through production and publication to archiving or retirement."
+    workflowContext: "Created as a draft when a piece is commissioned, marked produced once it is finished, published to channels after rights are cleared, and later archived or retired; rights, licensing and distribution records refer to it throughout."
+  attributes:
+    mediaContentId:
+      businessMeaning: "The permanent identity of this work, so its rights, documents and publications stay attached even when the title changes."
+    contentCode:
+      businessMeaning: "The catalogue reference editors and distributors use to identify the work, such as an episode or ISBN-style house code."
+    title:
+      businessMeaning: "The name the work is published and marketed under, which audiences, partners and catalogues recognise it by."
+    contentType:
+      businessMeaning: "What kind of work it is, such as video, audio, article, book or game, which decides the production steps, formats and rights that apply."
+    status:
+      businessMeaning: "Whether the work is still in draft, produced, published, archived or retired, which tells distribution teams whether it may be offered to audiences."
+NonprofitCampaign:
+  help:
+    summary: "One fundraising or public-interest drive run by a nonprofit organization, with its objective and target amount, used to plan appeals, attribute donations and report on results to donors and trustees."
+    workflowContext: "Planned with an objective and target, launched as active when appeals go out, credited with donations and participation while it runs, and closed as completed or cancelled before results are reported to the board and funders."
+  attributes:
+    campaignId:
+      businessMeaning: "The permanent identity of this campaign, so every gift, donor and document is credited to the same drive."
+    campaignCode:
+      businessMeaning: "The short code printed on appeal letters, donation forms and links, such as WINTER25, so incoming gifts can be attributed to the campaign."
+    name:
+      businessMeaning: "The public name supporters and staff know the campaign by, used in communications and reports."
+    objective:
+      businessMeaning: "What the campaign sets out to achieve, such as funding a new shelter, which guides messaging and how success is judged."
+    targetAmount:
+      businessMeaning: "The amount the campaign aims to raise, against which progress is tracked and reported to supporters and trustees."
+    status:
+      businessMeaning: "Whether the campaign is still planned, actively accepting support, completed or cancelled, which decides whether new gifts should be credited to it."
+PartyRole:
+  help:
+    summary: "One role that a person or organization plays for the business, such as customer, supplier, employee or carrier, with its own validity dates and status separate from the party's identity."
+  attributes:
+    partyRoleId:
+      summary: "The permanent identity of this particular role held by a party, which role-specific records refer to."
+      businessMeaning: "Lets the same party hold several roles, each tracked separately, so ending someone's supplier role does not affect them as a customer."
+    partyId:
+      businessMeaning: "Which person or organization holds this role, so all of a party's roles and history can be seen together under one identity."
+    roleType:
+      businessMeaning: "The kind of participation, such as customer, supplier, employee or carrier, which decides which processes and screens the party can take part in."
+    code:
+      summary: "The short reference for this role, such as a customer or supplier number, used on documents."
+      businessMeaning: "Staff and partners quote it on orders, invoices and correspondence to identify the party in this role, for example SUP-00412 for a supplier."
+    validFrom:
+      businessMeaning: "The date from which the party may act in this role, such as the start of a supplier agreement or employment."
+    validTo:
+      businessMeaning: "The date after which the role no longer applies; transactions after it should not be accepted for this role."
+    status:
+      summary: "Shows whether the role is currently active, temporarily inactive, or has expired for good."
+      businessMeaning: "Only active roles may be used on new transactions; an inactive role can be reactivated, while an expired one is kept only for history."
+Policy:
+  help:
+    summary: "One formally approved rule or principle governing how the business behaves or decides, such as a credit, travel or data retention policy, kept with its version and effective dates."
+    workflowContext: "Drafted by the policy owner, approved by the responsible authority, made active from its effective date, suspended or reinstated as needed, and retired when superseded; controls and documents refer to the active version when people are assessed against it."
+  attributes:
+    policyId:
+      businessMeaning: "The permanent identity of this policy version, so controls, attestations and audits refer to exactly the rules that applied."
+    code:
+      businessMeaning: "The reference used to cite the policy in procedures, training and audit reports, such as FIN-POL-007."
+    name:
+      businessMeaning: "The title staff know the policy by, such as Expense Reimbursement Policy, shown in policy libraries and acknowledgements."
+    description:
+      businessMeaning: "A plain summary of what the policy requires and whom it applies to, so readers can tell whether it concerns them."
+    policyType:
+      businessMeaning: "The area the policy governs, such as financial, security, HR or compliance, which decides who owns it and how it is reviewed."
+    version:
+      businessMeaning: "Which revision of the policy this is, so people know whether they are reading and attesting to the current wording."
+    status:
+      businessMeaning: "Whether the policy is a draft, approved, in force, suspended or retired, which decides whether people are bound by it today."
+    effectiveFrom:
+      businessMeaning: "The date from which the policy applies; behaviour before that date is judged under the previous version."
+    effectiveTo:
+      businessMeaning: "The date after which the policy no longer applies, typically when a replacement takes effect."
+ProductCategory:
+  help:
+    summary: "One node in the product taxonomy, such as Beverages or Cold Drinks, that groups products for browsing, assortment planning, purchasing, sales reporting and analytics."
+  attributes:
+    productCategoryId:
+      businessMeaning: "The permanent identity of this category, so products and child categories stay attached to it when it is renamed or moved."
+    code:
+      businessMeaning: "The short category code merchandisers and reports use, such as BEV-COLD, which stays stable when the display name changes."
+    name:
+      businessMeaning: "The label shoppers and staff see when browsing or filtering products, such as Cold Drinks."
+    description:
+      businessMeaning: "Explains which products belong in the category, helping staff classify new products consistently."
+    status:
+      businessMeaning: "Whether the category is active for new products, temporarily inactive, or retired, which controls whether it can be chosen when classifying products."
+      relationshipContext: "An inactive or retired category should not receive new products or child categories; existing products and children keep pointing at it until they are reclassified."
+ProjectTask:
+  help:
+    summary: "One piece of work within a project, with an assignee, dates, priority and progress, used to plan delivery, track who is doing what and collect costs against it."
+    workflowContext: "Created when the project plan is broken down, assigned to a person and milestone, started and updated with progress, possibly blocked and unblocked, and finally completed or cancelled; project costs and status reports read from it."
+  attributes:
+    projectTaskId:
+      businessMeaning: "The permanent identity of this task, so subtasks, costs and progress history stay linked to it."
+    taskCode:
+      businessMeaning: "The work breakdown reference the team uses to refer to the task, such as 2.3.1, and which costs and timesheets are booked to."
+    name:
+      businessMeaning: "The short description of the work that appears on plans and boards, such as Configure payroll interface."
+    status:
+      businessMeaning: "Whether the task has not started, is in progress, is blocked, or is completed or cancelled, which project managers use to spot delays."
+    priority:
+      businessMeaning: "How urgent the task is relative to others, from low to critical, which guides what the team works on first."
+    startDate:
+      businessMeaning: "When work on the task is planned or did begin, used for scheduling and resource planning."
+    dueDate:
+      businessMeaning: "When the task must be finished to keep the milestone on track; a task past this date shows as late."
+    percentComplete:
+      businessMeaning: "How far the work has progressed, used to roll up project progress and estimate remaining effort."
+Putaway:
+  help:
+    summary: "One warehouse instruction to move a quantity of received or staged product from a receiving area to an eligible storage location, tracked until the stock is in place."
+    workflowContext: "Planned after goods are received, released to warehouse staff, started when picked up from the dock, and completed when stock is placed, with the physical move recorded as an inventory transfer; exceptions such as a full location are resolved before completion."
+    example: "Move 40 cases of product SKU 10234 from Dock Door 3 staging to rack location A-12-03, released at 09:15 and completed at 09:40."
+  attributes:
+    putawayId:
+      summary: "The permanent identity of this putaway task, which the related inventory transfer and warehouse reports refer to."
+    quantity:
+      summary: "How much of the product this task directs to be moved into the target storage location."
+    status:
+      summary: "Shows whether the task is planned, released to staff, in progress, completed, cancelled or held up by an exception."
+RepairEstimate:
+  help:
+    workflowContext: "Drafted by a depot surveyor after inspecting a damaged container, submitted to the owner or lessor, approved or rejected with an approved amount and disposition, revised if scope changes, and completed when the resulting maintenance work orders are finished."
+  attributes:
+    repairEstimateId:
+      businessMeaning: "The permanent identity of this estimate, so its lines, approval and the resulting work orders all refer to the same assessment."
+    estimateNumber:
+      businessMeaning: "The reference depots and owners quote when discussing, approving or invoicing the repair, such as EST-2024-0815."
+    revision:
+      businessMeaning: "Which version of the estimate this is, so everyone knows whether an approval applies to the latest scope and cost."
+    estimateDate:
+      businessMeaning: "When the estimate was prepared, used to judge whether prices are still valid and to measure turnaround time."
+    status:
+      businessMeaning: "Whether the estimate is in draft, submitted, approved, rejected, completed or cancelled, which decides whether repair work may begin."
+    disposition:
+      businessMeaning: "What the owner has decided to do with the container, such as repair it, sell it, scrap it, lease it on or hold it."
+    estimatedRepairAmount:
+      businessMeaning: "The expected cost to repair the container, which owners compare with its sale value to decide whether repair is worthwhile."
+    estimatedSaleAmount:
+      businessMeaning: "What the container could fetch if sold as is, the alternative weighed against the repair cost."
+    approvedAmount:
+      businessMeaning: "The amount the owner has authorised for repair; work and invoices above it need further approval."
+    currencyId:
+      businessMeaning: "The currency the estimate amounts are stated in, so depots and owners in different countries read and pay the same figures."
+RiskTreatment:
+  help:
+    summary: "One planned response to an identified risk, such as reducing, accepting, transferring, avoiding or monitoring it, tracked with its owner and progress until the action is complete."
+    workflowContext: "Drafted by the risk owner after the risk is assessed, activated once agreed by management, carried out and monitored, and completed or cancelled; the parent risk is then reassessed to see whether residual risk is acceptable."
+  attributes:
+    riskTreatmentId:
+      summary: "The permanent identity of this risk response, which the parent risk and risk reports refer back to."
+    riskTreatmentCode:
+      summary: "The reference risk managers quote when discussing or reporting progress on this particular risk response."
+    status:
+      summary: "Shows whether the response is still a draft, actively being carried out, completed, or cancelled."
+Scenario:
+  help:
+    summary: "One named set of planning assumptions, such as Base Case or Downside, used to keep alternative budgets and forecasts apart without changing actual recorded transactions."
+    workflowContext: "Defined by finance planning as a draft, activated when budgeting or forecasting begins so plan figures can be entered against it, compared with actuals and other scenarios in reports, and archived once the planning cycle is closed."
+    example: "FY2026-DOWNSIDE: a forecast scenario assuming revenue 10 percent below plan and a two-month hiring freeze."
+    lifecycle: "Starts as DRAFT while assumptions are agreed, moves to ACTIVE when plan and forecast figures may be recorded against it, and ends as ARCHIVED, where it remains readable for comparison but takes no new figures."
+  attributes:
+    scenarioId:
+      summary: "The permanent identity of this planning scenario, which budget and forecast figures are recorded against."
+    code:
+      summary: "The short name planners use to pick this scenario in budgets, forecasts and comparison reports."
+    status:
+      summary: "Shows whether the scenario is still a draft, active for planning entries, or archived after the cycle."
+ShipmentLine:
+  help:
+    summary: "One product quantity carried within a shipment, recording what was planned, dispatched and delivered so orders, inventory and customer claims can be reconciled line by line."
+    workflowContext: "Created when a shipment is planned from sales or purchase order lines, updated with the dispatched quantity when goods leave and the delivered quantity on proof of delivery, and then used to close order lines, post inventory and settle shortages."
+    example: "Line 2 of shipment SH-48812: 120 units of product 50017 planned, 120 dispatched, 118 delivered, with two units reported damaged."
+  attributes:
+    shipmentLineId:
+      summary: "The permanent identity of this shipment line, which order lines and inventory movements refer back to."
+    lineNumber:
+      summary: "The position of this line on the shipment, used when carriers and staff refer to a particular item."
+    plannedQuantity:
+      summary: "How much of the product the shipment was planned to carry when it was arranged."
+    dispatchedQuantity:
+      summary: "How much of the product actually left the origin with the carrier on this shipment."
+    deliveredQuantity:
+      summary: "How much of the product the recipient confirmed as delivered, used to spot shortages in transit."
+SubscriptionPlan:
+  attributes:
+    subscriptionPlanId:
+      summary: "The permanent identity of this commercial plan, which every subscription sold on it refers to."
+    status:
+      summary: "Shows whether the plan is a draft, active for new sales, completed and closed, or cancelled before launch."
+SupplierPerformanceAssessment:
+  attributes:
+    assessmentDate:
+      relationshipContext: "Dated after the evaluation period, it marks when the purchase orders, goods receipts, quality inspections and claims for that supplier were reviewed to reach the rating."
+    periodEnd:
+      summary: "The last day of the evaluation period whose supplier evidence this assessment covers."
+      relationshipContext: "Together with the period start it decides which purchase orders, receipts, inspections, returns and claims of this supplier count towards the assessment."
+    notes:
+      summary: "The assessor's comments explaining the rating and any agreed improvement points for the supplier."
+      relationshipContext: "Often cites specific late receipts, rejected inspections, claims or corrective actions linked to this assessment to justify the rating."
+    supplierPerformanceAssessmentId:
+      summary: "The permanent identity of this supplier evaluation, which supplier governance reviews and corrective actions refer to."
+    assessmentNumber:
+      summary: "The reference procurement staff quote when sharing or discussing this evaluation with the supplier."
+    periodStart:
+      summary: "The first day of the evaluation period whose supplier evidence this assessment covers."
+    status:
+      summary: "Shows whether the assessment is a draft, in review, approved, published to the supplier, superseded or cancelled."
+    rating:
+      summary: "The overall verdict on the supplier for the period, from excellent down to unsatisfactory."
+TaxJurisdiction:
+  attributes:
+    taxJurisdictionId:
+      summary: "The permanent identity of this taxing authority, which tax rates, registrations and returns refer to."
+    status:
+      summary: "Shows whether the jurisdiction is still a draft, active for tax calculation, completed and closed, or cancelled."
+Timesheet:
+  help:
+    summary: "One record of hours a person reports against a professional engagement or project, used to bill clients, cost projects and pay for the work performed."
+    workflowContext: "Drafted by the worker as time is recorded, submitted and activated for review, completed once approved so its hours flow into project costs and client billing, or cancelled if entered in error."
+  attributes:
+    timesheetId:
+      summary: "The permanent identity of this time record, which project costs and billing entries refer back to."
+    timesheetCode:
+      summary: "The reference staff and approvers use to find this timesheet, often naming the person and week."
+    status:
+      summary: "Shows whether the timesheet is a draft, active under review, completed and approved, or cancelled."
+VehicleModel:
+  help:
+    summary: "One manufacturer-defined vehicle model and configuration family, such as a particular make, model and year, used to group individual vehicles for sales, parts, servicing and fleet reporting."
+    workflowContext: "Set up when a manufacturer announces or a dealer starts carrying a model, made active when vehicles of it can be sold or registered, referenced by each vehicle record, parts catalogue and service schedule, and discontinued when production ends."
+  attributes:
+    vehicleModelId:
+      businessMeaning: "The permanent identity of this model, so every vehicle, part and service plan linked to it stays connected."
+    manufacturer:
+      businessMeaning: "The maker of the vehicle, such as Toyota or Volvo, which determines warranty terms, parts sources and dealer agreements."
+    modelName:
+      businessMeaning: "The market name customers know the model by, such as Corolla, shown on listings and invoices."
+    modelCode:
+      businessMeaning: "The manufacturer's internal code for the model and configuration, used to order the right parts and match recalls."
+    modelYear:
+      businessMeaning: "The model year the configuration belongs to, which affects pricing, specifications, parts compatibility and recalls."
+    status:
+      businessMeaning: "Whether the model is announced but not yet sold, actively available, or discontinued, which decides whether new vehicles may be ordered on it."
+YardBlock:
+  help:
+    workflowContext: "Laid out when the yard is configured, used daily by yard planners to allocate incoming containers to its bays and slots, temporarily blocked for maintenance or congestion, and closed when the area is taken out of use."
+  attributes:
+    yardBlockId:
+      summary: "The permanent identity of this yard block, which its bays, slots and yard plans refer to."

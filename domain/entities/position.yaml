@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets employees, reporting lines and headcount plans refer to exactly this seat in the structure."
   - name: code
     type: string
     required: true
@@ -35,6 +36,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The position number HR and finance use in headcount budgets and recruitment requests."
   - name: title
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name of the role as shown on the organization chart and in job adverts."
   - name: status
     type: enum
     required: true
@@ -71,6 +74,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Position.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells HR whether the seat is open for hiring, filled, frozen during a hiring pause, closed or retired, which drives recruitment and headcount reporting."
   - name: effectiveFrom
     type: date
     required: false
@@ -81,6 +85,7 @@ entity:
       relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The date from which the position exists in the structure and can be budgeted and filled."
   - name: effectiveTo
     type: date
     required: false
@@ -91,6 +96,7 @@ entity:
       relationshipContext: Its meaning is specific to Position; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The date the position stops existing, after which nobody can be appointed to it."
   relationships:
   - name: organization
     target: Organization
@@ -142,7 +148,7 @@ entity:
       - {from: FROZEN, to: RETIRED, action: retire}
       - {from: CLOSED, to: RETIRED, action: retire}
   help:
-    summary: Represents a workforce master entity called Position within the CEDM business model.
+    summary: "A specific seat in the organization chart, such as Finance Manager for the UK office, with its reporting line, job and dates, that a person is hired into."
     businessMeaning: Position is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -154,6 +160,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Position record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "HR creates the position from a job when headcount is approved, opens it for recruitment, may freeze it during a hiring pause, marks it filled once an employee is appointed, and closes or retires it when the role is removed from the structure."
 specification:
   version: 0.1.0
   status: draft

@@ -12,7 +12,7 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the Person specialization, usage: individual identity processes, relationshipContext: Party.partyId remains canonical, workflowRole: identifies person-specific record, requiredMeaning: required for specialization traceability.}
+    help: {summary: "The permanent reference to this individual's personal details, shared by every role they hold.", usage: individual identity processes, relationshipContext: Party.partyId remains canonical, workflowRole: identifies person-specific record, requiredMeaning: required for specialization traceability., businessMeaning: "Lets employee, customer, contact and patient records all point to one individual, so personal details are corrected in one place and the person's history is never split across duplicates."}
   - name: partyId
     type: reference
     target: Party
@@ -25,35 +25,36 @@ entity:
       relationshipContext: Exactly one Person specialization may represent a Party classified as PERSON.
       workflowRole: Ensures transactions and roles use one stable person identity.
       requiredMeaning: Required to prevent duplicate identity.
+      businessMeaning: "Connects the person to their party record, which carries addresses, contact methods and the business roles they play; each party can have only one person record."
   - name: title
     type: string
     required: false
     maxLength: 50
-    help: {summary: Personal title, usage: documents and presentation, relationshipContext: presentation attribute, workflowRole: supports person display, optionalMeaning: optional.}
+    help: {summary: "The courtesy or professional title used when addressing the person, such as Dr or Ms.", usage: documents and presentation, relationshipContext: presentation attribute, workflowRole: supports person display, optionalMeaning: optional., businessMeaning: "Used in letter salutations, envelopes and formal communication so the person is addressed correctly and respectfully."}
   - name: givenName
     type: string
     required: true
     maxLength: 150
-    help: {summary: Given name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required.}
+    help: {summary: "The person's first or given name as it appears on their official documents.", usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required., businessMeaning: "Required with the family name to identify the person on contracts, payslips, invoices and identity checks, and to tell apart people with the same surname."}
   - name: middleName
     type: string
     required: false
     maxLength: 150
-    help: {summary: Middle name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, optionalMeaning: optional.}
+    help: {summary: "Any middle name or names the person has, when they choose to provide them.", usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, optionalMeaning: optional., businessMeaning: "Helps distinguish people with the same first and last names and is needed where legal documents, travel bookings or background checks require the full name."}
   - name: familyName
     type: string
     required: true
     maxLength: 150
-    help: {summary: Family name, usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required.}
+    help: {summary: "The person's surname or family name as it appears on their official documents.", usage: identity and documents, relationshipContext: intrinsic person identity, workflowRole: identification, requiredMeaning: required., businessMeaning: "Required with the given name; it is the main name used to sort and search people and must match identity documents for payroll, contracts and compliance checks."}
   - name: preferredName
     type: string
     required: false
     maxLength: 150
-    help: {summary: Preferred display name, usage: communication and UI, relationshipContext: presentation not canonical identity, workflowRole: human interaction, optionalMeaning: optional.}
+    help: {summary: "The name the person likes to be called, which may differ from their legal name.", usage: communication and UI, relationshipContext: presentation not canonical identity, workflowRole: human interaction, optionalMeaning: optional., businessMeaning: "Shown in greetings, directories and everyday communication so staff address the person as they wish, while legal documents keep using the official name."}
   - name: dateOfBirth
     type: date
     required: false
-    help: {summary: Date of birth, usage: processes requiring verified individual identity, relationshipContext: sensitive person attribute subject to access policy, workflowRole: eligibility/verification where applicable, optionalMeaning: optional.}
+    help: {summary: "The person's date of birth, used to confirm identity and calculate their age.", usage: processes requiring verified individual identity, relationshipContext: sensitive person attribute subject to access policy, workflowRole: eligibility/verification where applicable, optionalMeaning: optional., businessMeaning: "Used to confirm identity, check age rules such as minimum working age or patient dosing, and distinguish people who share a name."}
   - name: gender
     type: enum
     required: false
@@ -75,11 +76,12 @@ entity:
         NON_BINARY: The gender of the person is non binary; set it when that is what the business means for this record.
         OTHER: The gender of the person is other; set it when that is what the business means for this record.
         UNSPECIFIED: The gender of the person is unspecified; set it when that is what the business means for this record.
+      businessMeaning: "Recorded only where a process genuinely needs it, such as clinical care, statutory reporting or forms of address; the person can choose non-binary, other or unspecified."
   - name: nationalityId
     type: reference
     target: Country
     required: false
-    help: {summary: "The country whose nationality the person holds.", usage: "Chosen from the list of countries; used by identity and compliance processes.", relationshipContext: "Not Party identity; process-specific.", optionalMeaning: "Optional."}
+    help: {summary: "The country whose citizenship the person holds, used for travel, work and compliance checks.", usage: "Chosen from the list of countries; used by identity and compliance processes.", relationshipContext: "Not Party identity; process-specific.", optionalMeaning: "Optional.", businessMeaning: "Drives right-to-work and visa checks, sanctions screening, tax and regulatory reporting, and travel documentation for the person."}
   relationships:
   - name: party
     target: Party
@@ -109,7 +111,7 @@ entity:
   audit: {enabled: true}
   tags: [person, party, specialization, identity]
   help:
-    summary: Person is the individual specialization of Party, not a business role.
+    summary: "An individual human being known to the business, holding their name, birth date and nationality once, so the same person can act as customer, employee, contact or patient without duplicate records."
     businessMeaning: Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates.
     usage: Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity.
     relationshipContext: Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context.

@@ -7,27 +7,27 @@ entity:
   identity: {key: assessmentId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: assessmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the assessment definition or event., businessMeaning: Identifies one evaluated learning activity independently of individual learner grades., usage: "Assessment planning, gradebook, reporting and audit.", relationshipContext: Grade records student-specific outcomes against this Assessment., requiredMeaning: Required.}}
-    - {name: assessmentCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing assessment reference., businessMeaning: Operational identifier used by educators and integrations., usage: "Search, gradebook and reporting.", relationshipContext: Distinct from Class and Course identifiers., requiredMeaning: Required.}}
-    - {name: title, type: string, required: true, maxLength: 300, help: {summary: Human-readable title of the assessment., businessMeaning: Describes the evaluated activity to learners and educators., usage: "Portals, schedules and reports.", relationshipContext: Assessment type and Class supply further context., requiredMeaning: Required.}}
+    - {name: assessmentCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The short unique reference educators and gradebook integrations use to find this particular assessment quickly.", businessMeaning: Operational identifier used by educators and integrations., usage: "Search, gradebook and reporting.", relationshipContext: Distinct from Class and Course identifiers., requiredMeaning: Required.}}
+    - {name: title, type: string, required: true, maxLength: 300, help: {summary: "The name learners and educators see for the assessment in portals, schedules and grade reports, such as Midterm Exam.", businessMeaning: Describes the evaluated activity to learners and educators., usage: "Portals, schedules and reports.", relationshipContext: Assessment type and Class supply further context., requiredMeaning: Required.}}
     - name: assessmentType
       type: enum
       required: true
       values: [QUIZ, EXAM, ASSIGNMENT, PROJECT, PRACTICAL, ORAL, OTHER]
       help:
-        summary: Business category of the evaluated learning activity.
+        summary: "Whether the assessment is a quiz, exam, assignment, project, practical, oral evaluation or another kind, which drives weighting and reporting."
         businessMeaning: Supports policy, weighting and reporting without embedding every pedagogy rule.
         usage: Gradebook, planning and analytics.
         relationshipContext: Max score and grading policy may vary by type.
         valueSemantics: {QUIZ: Short-form evaluation., EXAM: Formal examination., ASSIGNMENT: Submitted coursework., PROJECT: Project-based evaluation., PRACTICAL: Practical or laboratory evaluation., ORAL: Oral evaluation., OTHER: Another governed assessment type.}
         requiredMeaning: Required.
-    - {name: maxScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Maximum raw score when numeric scoring applies., businessMeaning: Defines the scoring scale for learner Grade values., usage: "Grade calculation and reporting.", relationshipContext: Optional for rubric or categorical assessments., optionalMeaning: Optional when no numeric maximum applies.}}
-    - {name: dueAt, type: datetime, required: false, help: {summary: Planned submission or assessment deadline., businessMeaning: Establishes timing expectation., usage: "Scheduling, learner communication and late-policy evaluation.", relationshipContext: Must be compatible with Class delivery period under policy., optionalMeaning: Optional for unscheduled or continuously assessed work.}}
+    - {name: maxScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: "The highest raw score a learner can earn, which sets the scale every grade on this assessment is measured against.", businessMeaning: Defines the scoring scale for learner Grade values., usage: "Grade calculation and reporting.", relationshipContext: Optional for rubric or categorical assessments., optionalMeaning: Optional when no numeric maximum applies.}}
+    - {name: dueAt, type: datetime, required: false, help: {summary: "The deadline by which learners must submit or sit the assessment, used for reminders and late-submission rules.", businessMeaning: Establishes timing expectation., usage: "Scheduling, learner communication and late-policy evaluation.", relationshipContext: Must be compatible with Class delivery period under policy., optionalMeaning: Optional for unscheduled or continuously assessed work.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, PUBLISHED, CLOSED, CANCELLED]
-      help: {summary: Lifecycle state of the Assessment., businessMeaning: Controls learner visibility and grading eligibility., usage: "Assessment workflow and reporting.", relationshipContext: Grades against CLOSED assessments remain historical., valueSemantics: {DRAFT: Being prepared., PUBLISHED: Active for eligible learners., CLOSED: Assessment is complete for ordinary new grading., CANCELLED: Assessment was cancelled.}, requiredMeaning: Required.}
+      help: {summary: "Where the assessment stands: being drafted, published to learners, closed for grading, or cancelled before it was completed.", businessMeaning: Controls learner visibility and grading eligibility., usage: "Assessment workflow and reporting.", relationshipContext: Grades against CLOSED assessments remain historical., valueSemantics: {DRAFT: Being prepared., PUBLISHED: Active for eligible learners., CLOSED: Assessment is complete for ordinary new grading., CANCELLED: Assessment was cancelled.}, requiredMeaning: Required.}
   relationships:
     - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {summary: Course whose learning expectations are evaluated., businessMeaning: Supplies curriculum context., usage: "Assessment planning and reporting.", cardinalityMeaning: Exactly one EducationCourse., workflowRole: Course lifecycle constrains new assessments.}}
     - {name: class, target: Class, cardinality: "0..1", ownership: reference, help: {summary: Specific Class for which this assessment is administered., businessMeaning: Scopes assessment to one delivery instance where applicable., usage: "Gradebook and learner eligibility.", cardinalityMeaning: Optional for course-wide or reusable assessments., workflowRole: Class must deliver the same course.}}
@@ -48,10 +48,11 @@ entity:
       - {from: PUBLISHED, to: CLOSED, action: close}
       - {from: PUBLISHED, to: CANCELLED, action: cancel}
   help:
-    summary: Defines an education evaluation activity separately from student-specific results.
+    summary: "One planned evaluation such as a quiz, exam or project that a course or class uses to measure what learners have achieved, kept separately from each learner's grade."
     businessMeaning: Assessment says what is evaluated; Grade records how one EducationStudent performed.
     usage: Schools, universities, training programs, gradebooks, learner portals and analytics.
     relationshipContext: EducationCourse is mandatory, Class optionally scopes delivery, and Grades preserve individual outcomes.
     lifecycle: Assessments are drafted, published and then closed or cancelled while outcomes remain auditable.
     example: A final exam Assessment for a Class has a max score of 100 and produces one Grade per participating student.
+    workflowContext: "An educator drafts the assessment against a course and optionally a class, publishes it so learners can see and attempt it, records grades against it while it is published, and closes it once grading is finished; a drafted or published assessment that will not run is cancelled, and closed assessments remain for transcripts and reporting."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSESSMENT}

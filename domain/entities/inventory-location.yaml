@@ -18,6 +18,7 @@ entity:
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory location cannot be understood without its inventory location id.'
+      businessMeaning: "Lets stock balances, movements, reservations and handling units point to exactly this place, even if its code is relabelled."
   - name: code
     type: string
     required: true
@@ -30,6 +31,7 @@ entity:
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
       requiredMeaning: 'Required: a inventory location cannot be understood without its code.'
+      businessMeaning: "The label on the physical location, such as A-12-03, that warehouse staff scan or read when putting away, picking and counting stock."
   - name: locationType
     type: enum
     required: true
@@ -66,6 +68,7 @@ entity:
         YARD_SLOT: The location type of the inventory location is yard slot; set it when that is what the business means for
           this record.
         OTHER: The location type of the inventory location is other; set it when that is what the business means for this record.
+      businessMeaning: "What the location is used for: receiving, bin, shelf, rack, floor, pick face, staging, quarantine or yard slot; it decides which warehouse tasks may put stock there, and quarantine locations keep held stock away from picking."
   - name: status
     type: enum
     required: true
@@ -80,6 +83,7 @@ entity:
         ACTIVE: The status of the inventory location is active; set it when that is what the business means for this record.
         BLOCKED: The status of the inventory location is blocked; set it when that is what the business means for this record.
         INACTIVE: The status of the inventory location is inactive; set it when that is what the business means for this record.
+      businessMeaning: "Whether stock may be moved into or out of the location: active is usable, blocked stops new putaway and picking while a problem is resolved, and inactive takes it out of use."
   - name: capacity
     type: decimal
     required: false
@@ -91,6 +95,7 @@ entity:
         and reports.
       relationshipContext: Read together with the inventory location's other fields and its relationships; it is not meaningful
         on its own.
+      businessMeaning: "How much the location can hold; putaway planning relies on it to avoid overfilling a bin or rack."
   relationships:
   - name: warehouse
     target: Warehouse
@@ -172,7 +177,7 @@ entity:
               status: "CREATED"
               priority: "HIGH"
   help:
-    summary: Granular inventory position whose lifecycle controls future execution while preserving historical inventory state.
+    summary: "One inventory location is a specific place inside a warehouse, such as a bin, shelf, rack, pick face or staging area, where stock is received, stored, picked or held."
     businessMeaning: A location is operational infrastructure, not merely an address. Changing its status can affect receiving, put-away, reservations, picking, transfers, replenishment and shipment staging.
     usage: Receiving, warehouse execution, picking, replenishment, stock counting, transfers, reservation, fulfillment, quarantine and yard operations.
     relationshipContext: Warehouse supplies facility context. InventoryLocation supplies operational position. InventoryBalance supplies current state. InventoryMovement supplies historical event evidence. InventoryReservation supplies committed demand.

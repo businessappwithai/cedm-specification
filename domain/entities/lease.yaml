@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets payments, the property and the underlying contract all refer to this one lease."
   - name: leaseNumber
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference both lessor and lessee quote on invoices, notices and renewals."
   - name: leaseType
     type: enum
     required: true
@@ -61,6 +63,7 @@ entity:
         OTHER: Represents the other state or classification in the context of Lease.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Says whether this is an operating, finance, commercial, residential or equipment lease, which drives accounting treatment and legal terms."
   - name: startDate
     type: date
     required: true
@@ -72,6 +75,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The day the lessee's right of use and payment obligations begin."
   - name: endDate
     type: date
     required: false
@@ -82,6 +86,7 @@ entity:
       relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The day the lease term ends unless renewed or ended early; it cannot be before the start date."
   - name: status
     type: enum
     required: true
@@ -108,6 +113,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of Lease.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the lease is draft, active, suspended, expired, terminated early, or cancelled before taking effect."
   - name: periodicAmount
     type: money
     required: false
@@ -118,6 +124,7 @@ entity:
       relationshipContext: Its meaning is specific to Lease; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The rent or instalment due each period, used for billing, payment schedules and lease accounting; it cannot be negative."
   relationships:
   - name: property
     target: Property
@@ -200,7 +207,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a real estate commercial entity called Lease within the CEDM business model.
+    summary: "An agreement under which a lessor lets a lessee use a property or asset, such as an office floor or a forklift, for a period in return for regular payments."
     businessMeaning: Lease is a business concept with its own identity and lifecycle. It captures information that must remain
       understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -212,6 +219,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Lease record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "A lease is drafted from negotiated terms, activated when signed and the term starts, billed or paid each period, may be suspended and resumed, and ends by expiring at the end date, being terminated early, or being cancelled before it starts, which raises a follow-up task."
 specification:
   version: 0.1.0
   status: draft

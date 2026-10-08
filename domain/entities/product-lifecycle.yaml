@@ -7,14 +7,14 @@ entity:
     icon: package
   identity: {key: productLifecycleId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productLifecycleId, type: uuid, required: true, immutable: true, help: {summary: Stable lifecycle-event identity., businessMeaning: Identifies one governed product state transition., usage: PIM governance and audit., relationshipContext: Supplements current Product.status with historical evidence., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: true, help: {summary: Time lifecycle transition becomes effective., businessMeaning: Establishes point-in-time product eligibility., usage: "Catalog, transaction validation and audit.", relationshipContext: Historical transactions use status effective at relevant time., requiredMeaning: Required.}}
+  - {name: productLifecycleId, type: uuid, required: true, immutable: true, help: {summary: "The internal key that identifies this one change in the product's lifecycle history.", businessMeaning: Identifies one governed product state transition., usage: PIM governance and audit., relationshipContext: Supplements current Product.status with historical evidence., requiredMeaning: Required.}}
+  - {name: effectiveAt, type: datetime, required: true, help: {summary: "The date and time from which the product's new stage applies to sales and purchasing.", businessMeaning: Establishes point-in-time product eligibility., usage: "Catalog, transaction validation and audit.", relationshipContext: Historical transactions use status effective at relevant time., requiredMeaning: Required.}}
   - name: lifecycleStatus
     type: enum
     required: true
     values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
-    help: {summary: Product lifecycle state established by event., businessMeaning: Governs future product eligibility., usage: Master-data workflow., relationshipContext: Reconciles to current Product.status., valueSemantics: {DRAFT: Not yet generally usable., ACTIVE: Eligible., DISCONTINUED: No new ordinary demand., BLOCKED: Temporarily restricted., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
-  - {name: reason, type: string, required: true, maxLength: 1000, help: {summary: Business reason for transition., businessMeaning: Provides governance/audit justification., usage: Approval and downstream exception handling., relationshipContext: Does not itself reverse existing obligations., requiredMeaning: Required.}}
+    help: {summary: "The stage the product moved into, such as draft, active, discontinued, blocked or retired.", businessMeaning: Governs future product eligibility., usage: Master-data workflow., relationshipContext: Reconciles to current Product.status., valueSemantics: {DRAFT: Not yet generally usable., ACTIVE: Eligible., DISCONTINUED: No new ordinary demand., BLOCKED: Temporarily restricted., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
+  - {name: reason, type: string, required: true, maxLength: 1000, help: {summary: "Why the product's stage was changed, for example a safety recall or a supplier ending supply.", businessMeaning: Provides governance/audit justification., usage: Approval and downstream exception handling., relationshipContext: Does not itself reverse existing obligations., requiredMeaning: Required.}}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product whose lifecycle changes., businessMeaning: Supplies governed master context., usage: Eligibility and audit., cardinalityMeaning: Exactly one Product., workflowRole: Transition triggers dependency validation.}}
   invariants:
@@ -22,9 +22,11 @@ entity:
   - {id: PRODUCT-LIFECYCLE-002, rule: "Restrictive transitions require validation of open sales, procurement, inventory, manufacturing, service and fulfillment obligations."}
   - {id: PRODUCT-LIFECYCLE-003, rule: Lifecycle transition never rewrites completed historical transaction evidence.}
   help:
-    summary: Effective-dated audit trail of product eligibility changes.
+    summary: "A dated entry in a product's history recording that it moved to a new stage, such as active, discontinued or blocked, with the reason and when the change took effect."
     businessMeaning: Product.status is current state; ProductLifecycle preserves governed transition history and reason.
     usage: PIM governance, product introduction, blocking, discontinuation and retirement.
     relationshipContext: Changes propagate to open dependent workflows while historical evidence remains immutable.
     lifecycle: Append-only governed transition history for Product.
+    workflowContext: "Product management records an entry whenever a product is launched, discontinued, blocked or retired; sales, purchasing and planning then read the latest effective entry to decide whether the product can be sold, bought or made, and auditors use the history to see why."
+    example: "Product SKU-55012 discontinued effective 1 July 2026 because the supplier ended production of the motor."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-LIFECYCLE}

@@ -17,6 +17,7 @@ entity:
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a shipment cannot be understood without its shipment id.'
+      businessMeaning: "Lets shipment lines, tracking updates, containers and freight costs all point at exactly this movement of goods."
   - name: shipmentNumber
     type: string
     required: true
@@ -28,6 +29,7 @@ entity:
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
         own.
       requiredMeaning: 'Required: a shipment cannot be understood without its shipment number.'
+      businessMeaning: "The reference printed on delivery notes and quoted to customers, carriers and warehouse staff when asking about the shipment."
   - name: shipmentType
     type: enum
     required: true
@@ -47,13 +49,14 @@ entity:
         OUTBOUND: The shipment type of the shipment is outbound; set it when that is what the business means for this record.
         TRANSFER: The shipment type of the shipment is transfer; set it when that is what the business means for this record.
         RETURN: The shipment type of the shipment is return; set it when that is what the business means for this record.
+      businessMeaning: "Says whether goods are arriving, leaving, moving between sites or coming back as a return, which decides the paperwork and handling needed."
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]
     help:
-      summary: Operational execution state of the shipment.
+      summary: "Shows whether the shipment is planned, booked with a carrier, in transit, delivered, cancelled or held up by an exception."
       usage: Controls booking, dispatch, tracking, delivery, exception and cancellation actions.
       relationshipContext: Status is not inventory status and does not itself prove customer acceptance or invoice payment.
       workflowRole: Drives permitted logistics transitions and downstream fulfillment/movement workflows.
@@ -64,6 +67,7 @@ entity:
         DELIVERED: The status of the shipment is delivered; set it when that is what the business means for this record.
         CANCELLED: The status of the shipment is cancelled; set it when that is what the business means for this record.
         EXCEPTION: The status of the shipment is exception; set it when that is what the business means for this record.
+      businessMeaning: "Tells customer service and the warehouse where the goods are in their journey and whether anyone needs to act on a delay or problem."
   - name: plannedDate
     type: date
     required: false
@@ -72,6 +76,7 @@ entity:
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "When the shipment is scheduled to move, used to plan dock time, labour and carrier collection."
   - name: actualDate
     type: date
     required: false
@@ -80,6 +85,7 @@ entity:
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "When the shipment really moved or arrived, compared with the planned date to measure on-time performance."
   - name: trackingReference
     type: string
     required: false
@@ -89,6 +95,7 @@ entity:
       usage: Entered or maintained when a shipment is created or changed; shown on its form and available to search and reports.
       relationshipContext: Read together with the shipment's other fields and its relationships; it is not meaningful on its
         own.
+      businessMeaning: "The carrier's tracking number that customers and staff use to follow the shipment on the carrier's own system."
   relationships:
   - name: lines
     target: ShipmentLine

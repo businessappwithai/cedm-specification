@@ -38,7 +38,7 @@ entity:
     required: true
     values: [CURRENT, SAVINGS, LOAN, ESCROW, OTHER]
     help:
-      summary: Classification of the banking account's operational purpose.
+      summary: "Whether the account is a current, savings, loan, escrow or other kind of banking account, which shapes how it is used."
       businessMeaning: Describes how the account is intended to function in treasury and settlement processes.
       usage: Used for payment eligibility, cash reporting, treasury controls, and accounting configuration.
       relationshipContext: Account type does not determine accounting treatment by itself; ledger configuration may provide additional context.

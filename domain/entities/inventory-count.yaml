@@ -7,10 +7,10 @@ entity:
     icon: boxes
   identity: {key: inventoryCountId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: inventoryCountId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of count observation., businessMeaning: Identifies one count evidence record., usage: "Cycle count, stocktake, reconciliation and audit.", relationshipContext: May cause InventoryAdjustment after approval., requiredMeaning: Required.}}
-  - {name: countNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing count reference., businessMeaning: Operational identifier for count activity., usage: Warehouse execution and audit., relationshipContext: Distinct from adjustment reference., requiredMeaning: Required.}}
-  - {name: countedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity physically/systematically observed., businessMeaning: Evidence of stock reality at count time., usage: Variance calculation and approval., relationshipContext: Does not itself alter InventoryBalance., requiredMeaning: Required.}}
-  - {name: countedAt, type: datetime, required: true, help: {summary: Effective observation time., businessMeaning: Anchors the count against ledger chronology., usage: Cutoff and reconciliation., relationshipContext: Movements around count time require controlled cutoff treatment., requiredMeaning: Required.}}
+  - {name: inventoryCountId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this count, used by adjustments and audit trails to show which observation justified a correction.", businessMeaning: Identifies one count evidence record., usage: "Cycle count, stocktake, reconciliation and audit.", relationshipContext: May cause InventoryAdjustment after approval., requiredMeaning: Required.}}
+  - {name: countNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The count sheet or task number staff quote when reviewing or recounting this particular observation.", businessMeaning: Operational identifier for count activity., usage: Warehouse execution and audit., relationshipContext: Distinct from adjustment reference., requiredMeaning: Required.}}
+  - {name: countedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How many units were physically found at the location during this count; it can be zero but never negative.", businessMeaning: Evidence of stock reality at count time., usage: Variance calculation and approval., relationshipContext: Does not itself alter InventoryBalance., requiredMeaning: Required.}}
+  - {name: countedAt, type: datetime, required: true, help: {summary: "When the count was made, which decides which stock movements before and after are included in the comparison.", businessMeaning: Anchors the count against ledger chronology., usage: Cutoff and reconciliation., relationshipContext: Movements around count time require controlled cutoff treatment., requiredMeaning: Required.}}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product counted., businessMeaning: Identifies observed item., usage: Reconciliation., cardinalityMeaning: Exactly one Product., workflowRole: Must match stock context.}}
   - {name: inventoryLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Location counted., businessMeaning: Defines physical/accountable stock scope., usage: Cycle counting and stocktake., cardinalityMeaning: Exactly one location., workflowRole: Ledger cutoff uses this location.}}
@@ -24,10 +24,12 @@ entity:
   - {id: INVENTORY-COUNT-004, rule: Approved discrepancy correction must occur through InventoryAdjustment and InventoryMovement.}
   - {id: INVENTORY-COUNT-EXE-001, rule: "Counted Quantity cannot be negative.", violatedWhen: "counted_quantity != null and counted_quantity < 0", message: "Counted Quantity cannot be negative."}
   help:
-    summary: Physical inventory observation used for controlled reconciliation.
+    summary: "One observation of how much of a product was physically found at a stock location at a given time, kept so recorded stock can be checked against reality without changing it directly."
     businessMeaning: A count states what was observed; it does not rewrite what the ledger says happened.
     usage: Cycle count, annual stocktake, serial verification and inventory-control audit.
     relationshipContext: Product/location/lot/serial define count scope; InventoryAdjustment resolves approved variance.
     lifecycle: Planned/performed → reviewed → reconciled → closed; evidence retained.
     changePropagation: Approved variance may create adjustments; observations themselves never post inventory.
+    workflowContext: "Created during a cycle count or annual stocktake when a counter records what is on the shelf, compared with the recorded balance at the count cut-off, and where a difference is approved it drives an inventory adjustment and movement; the count itself never alters stock."
+    example: "Count CNT-2026-0918-014: 46 units of product SKU 10-4471 counted in bin A-03-02 of the Lyon warehouse on 2026-09-18 at 07:45."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-COUNT}

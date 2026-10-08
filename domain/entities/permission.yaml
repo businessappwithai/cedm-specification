@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for the permission, so role grants keep pointing to the same capability over time."
   - name: code
     type: string
     required: true
@@ -37,6 +38,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The stable code administrators and auditors use to refer to the permission in role definitions and access reviews."
   - name: resource
     type: string
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The part of the application or kind of information the permission protects, such as invoices or employee records."
   - name: action
     type: enum
     required: true
@@ -80,6 +83,7 @@ entity:
         ADMINISTER: Represents the administer state or classification in the context of Permission.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What the holder may do with the resource, from creating, reading, updating or deleting it to executing, approving, exporting or administering it."
   - name: status
     type: enum
     required: true
@@ -101,6 +105,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Permission.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the permission is in force: ACTIVE permissions grant access through roles, INACTIVE ones are paused, and RETIRED ones are withdrawn for good."
   relationships:
   - name: roles
     target: Role
@@ -124,7 +129,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a authorization entity called Permission within the CEDM business model.
+    summary: "One specific thing a user may be allowed to do, such as approving purchase orders or exporting customer data, which is granted to roles to control who can perform each action."
     businessMeaning: Permission is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -135,6 +140,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Permission record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Security administrators define a permission when a new protected action appears, attach it to roles, and users gain it through their role assignments; it can be deactivated temporarily and reactivated, and is retired when the action no longer exists."
 specification:
   version: 0.1.0
   status: draft

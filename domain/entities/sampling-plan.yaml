@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the sampling plan.
+      summary: "The permanent reference that keeps quality plans and inspections linked to this sampling definition."
       businessMeaning: Identifies one governed sampling definition independently of any inspection execution.
       usage: Sampling configuration, inspection planning, audit, reporting, and integration.
       relationshipContext: SamplingPlan may be assigned to a QualityPlan and contains SamplingRule records that determine how samples are selected.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Business code identifying the sampling plan.
+      summary: "The unique code quality staff use to select and cite this sampling plan, such as SP-RCV-01."
       businessMeaning: Provides a stable operational reference for a governed sampling definition.
       usage: Plan selection, inspection authoring, reports, and integrations.
       relationshipContext: Identifies the sampling definition rather than an individual sample or inspection.
@@ -37,7 +37,7 @@ entity:
     required: true
     maxLength: 300
     help:
-      summary: Human-readable name of the sampling plan.
+      summary: "A descriptive name explaining what the sampling plan is for, such as incoming fasteners inspection."
       businessMeaning: Explains the purpose of the sampling strategy.
       usage: Quality authoring, inspection execution, training, reporting, and audit.
       relationshipContext: Describes the overall sampling definition whose detailed rules are represented by SamplingRule.
@@ -47,7 +47,7 @@ entity:
     required: true
     values: [CENSUS, RANDOM, SYSTEMATIC, STRATIFIED, FIXED_SIZE, PERCENTAGE, ACCEPTANCE_SAMPLING]
     help:
-      summary: General method used to select inspection samples.
+      summary: "Says how samples are chosen, for example every item, random selection, a fixed size or acceptance sampling."
       businessMeaning: Defines the governed selection approach rather than leaving sampling to operator discretion.
       usage: Sampling execution, compliance, reproducibility, and audit.
       relationshipContext: SamplingRule refines the method with lot and quantity parameters.
@@ -66,7 +66,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
     help:
-      summary: Lifecycle state of the sampling plan.
+      summary: "Shows whether the plan is in draft, active for new inspections, suspended or retired."
       businessMeaning: Controls whether the sampling definition may be assigned to new governed inspections.
       usage: Governance, authoring, inspection planning, and retirement.
       relationshipContext: Retirement preserves historical inspection evidence and does not invalidate completed samples.
@@ -124,13 +124,14 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Reusable governed definition for selecting inspection samples.
+    summary: "A reusable rule set that tells inspectors how many items to sample from a lot and how to pick them, such as an acceptance sampling plan for incoming parts, so quality checks are consistent."
     businessMeaning: SamplingPlan separates the statistical or operational selection policy from the QualityInspection transaction that executes it.
     usage: Incoming inspection, supplier quality, process control, laboratory testing, compliance, acceptance sampling, and audit.
     relationshipContext: QualityPlan determines the broader quality controls; SamplingPlan defines how populations are sampled; SamplingRule defines conditional sample quantities and acceptance criteria; inspection execution records the actual selection.
     lifecycle: Draft → active → suspended/retired. Historical executions retain their governing configuration.
     changePropagation: Changes propagate to QualityPlans, open inspections, sample-selection transactions, measurement coverage, and inspection completion gating. Completed sample evidence is never silently reinterpreted.
     example: A receiving quality plan uses an acceptance-sampling SamplingPlan with different sample sizes for small, medium, and large lot-size ranges.
+    workflowContext: "Quality engineers draft the sampling plan and its sampling rules, activate it once it has at least one valid rule, attach it to quality plans used for receiving or production inspections, suspend it during a review and resume it, and retire it when superseded, keeping it for past inspection records."
 specification:
   version: 0.1.0
   status: draft

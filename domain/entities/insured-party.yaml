@@ -6,19 +6,19 @@ entity:
   ui: {icon: user-shield}
   identity: {key: insuredPartyId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: insuredPartyId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the insured-party relationship., businessMeaning: Identifies one Party-policy insurance role independently of Party identity., usage: "Policy servicing, coverage eligibility, claims and reporting.", relationshipContext: Party supplies common identity; InsurancePolicy supplies contract context., requiredMeaning: Required.}}
-    - {name: insuredPartyCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Operational reference for the insured-party relationship., businessMeaning: Supports policy administration and integration without reusing Party identifiers., usage: "Search, claims and reporting.", relationshipContext: Distinct from Party and policy numbers., requiredMeaning: Required.}}
+    - {name: insuredPartyId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference linking this covered person's role on the policy to their coverages and claims.", businessMeaning: Identifies one Party-policy insurance role independently of Party identity., usage: "Policy servicing, coverage eligibility, claims and reporting.", relationshipContext: Party supplies common identity; InsurancePolicy supplies contract context., requiredMeaning: Required.}}
+    - {name: insuredPartyCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The member or insured reference printed on cards and quoted by policy administrators and claims staff.", businessMeaning: Supports policy administration and integration without reusing Party identifiers., usage: "Search, claims and reporting.", relationshipContext: Distinct from Party and policy numbers., requiredMeaning: Required.}}
     - name: roleType
       type: enum
       required: true
       values: [INSURED, BENEFICIARY, DEPENDENT, COVERED_MEMBER, OTHER]
-      help: {summary: Insurance role played by the Party., businessMeaning: Determines coverage and claim eligibility semantics under policy terms., usage: "Policy administration, eligibility and claims.", relationshipContext: Policyholder status may be modeled separately through InsurancePolicy policyholders., valueSemantics: {INSURED: Party is directly insured., BENEFICIARY: Party may receive policy benefit., DEPENDENT: Party receives dependent coverage., COVERED_MEMBER: Party is a covered member of a group or plan., OTHER: Another governed insurance role.}, requiredMeaning: Required.}
+      help: {summary: "Says how this party is covered: as insured, beneficiary, dependent, covered member or another role.", businessMeaning: Determines coverage and claim eligibility semantics under policy terms., usage: "Policy administration, eligibility and claims.", relationshipContext: Policyholder status may be modeled separately through InsurancePolicy policyholders., valueSemantics: {INSURED: Party is directly insured., BENEFICIARY: Party may receive policy benefit., DEPENDENT: Party receives dependent coverage., COVERED_MEMBER: Party is a covered member of a group or plan., OTHER: Another governed insurance role.}, requiredMeaning: Required.}
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, SUSPENDED, ENDED]
-      help: {summary: Lifecycle state of the insured-party relationship., businessMeaning: Controls new eligibility while preserving historical claim evidence., usage: "Coverage checks, claims and policy servicing.", relationshipContext: Coverage may apply only during a subset of policy period., valueSemantics: {ACTIVE: Relationship may support eligible coverage., SUSPENDED: New ordinary eligibility is temporarily restricted., ENDED: Relationship has ended for new events.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether this party is currently covered, temporarily suspended, or no longer covered by the policy.", businessMeaning: Controls new eligibility while preserving historical claim evidence., usage: "Coverage checks, claims and policy servicing.", relationshipContext: Coverage may apply only during a subset of policy period., valueSemantics: {ACTIVE: Relationship may support eligible coverage., SUSPENDED: New ordinary eligibility is temporarily restricted., ENDED: Relationship has ended for new events.}, requiredMeaning: Required.}
   relationships:
     - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Party holding the insurance role., businessMeaning: Reuses common identity and contact data., usage: "Policy administration, claims and communication.", cardinalityMeaning: Exactly one Party., workflowRole: Party identity changes do not rewrite historical insured-role evidence.}}
     - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference, help: {summary: Policy under which this Party is insured or covered., businessMeaning: Supplies governing insurance contract context., usage: "Eligibility and claims.", cardinalityMeaning: Exactly one InsurancePolicy., workflowRole: Relationship eligibility must be compatible with policy terms.}}
@@ -40,10 +40,11 @@ entity:
       - {from: ACTIVE, to: ENDED, action: end}
       - {from: SUSPENDED, to: ENDED, action: end}
   help:
-    summary: Represents a Party's insured or beneficiary role under an InsurancePolicy.
+    summary: "A person or organisation covered under an insurance policy in a particular role, such as the main insured, a dependent child or a named beneficiary, kept to decide who may claim under which coverage."
     businessMeaning: InsuredParty separates common Party identity from policy-specific coverage eligibility.
     usage: Insurance enrollment, policy servicing, coverage validation, claims and reporting.
     relationshipContext: Party and Policy are mandatory; Coverage refines benefits and Claims preserve utilization/history.
     lifecycle: Relationship is active, may suspend, and eventually ends without losing historical eligibility evidence.
     example: A dependent Person is represented as an InsuredParty under a family policy and linked to the health Coverage applicable to that member.
+    workflowContext: "Underwriting or policy administration adds the insured party when the policy is issued or amended, links it to the coverages that apply to it, claims staff check it when a claim is lodged, it may be suspended and resumed, for example for unpaid premiums, and it is ended when the person leaves the policy, without changing past claim decisions."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INSURED-PARTY}

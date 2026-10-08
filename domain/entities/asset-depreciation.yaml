@@ -20,6 +20,7 @@ entity:
       usage: Used to trace depreciation calculations, accounting periods, revisions, reporting, and financial integrations.
       relationshipContext: Identifies the depreciation record; Asset identifies the resource being measured and the schedule's parameters determine how depreciation is calculated.
       requiredMeaning: Required so financial history can be traced without relying on calculation values.
+      businessMeaning: "Lets accountants and auditors point to exactly this depreciation schedule for the asset, so period postings and revaluations can be traced back to the schedule that produced them."
   - name: depreciationMethod
     type: enum
     required: true
@@ -34,6 +35,7 @@ entity:
         RED_BAL: Applies a declining-balance approach in which depreciation is calculated at a defined rate against an appropriate declining carrying base.
         NBVSLUNIT: Allocates depreciation based on usage units or output relative to the expected total units, appropriate where consumption rather than elapsed time drives asset value reduction.
       requiredMeaning: Required because the same asset can produce materially different book values under different accounting methods.
+      businessMeaning: "Decides how cost is spread over time: straight line spreads it evenly, remaining life spreads what is left over the remaining months, reducing balance front-loads the expense, and the net-book-value-by-units option ties expense to usage; changing it changes every future period charge."
   - name: depreciationRate
     type: decimal
     required: false
@@ -44,6 +46,7 @@ entity:
       usage: Used by declining-balance or other rate-driven calculations and for financial forecasting.
       relationshipContext: Rate is method-dependent; it must not be interpreted as a universal percentage independent of depreciationMethod.
       optionalMeaning: Optional for methods where rate is derived from useful life or usage rather than directly supplied.
+      businessMeaning: "The percentage of value written off per period under rate-based methods such as reducing balance; finance relies on it to forecast expense and it must match the accounting policy for this asset class."
   - name: salvageValue
     type: decimal
     required: false
@@ -54,6 +57,7 @@ entity:
       usage: Used to determine the depreciable base, depreciation limits, disposal analysis, and residual-value reporting.
       relationshipContext: Salvage value is an accounting assumption and is distinct from current market sale value or an estimated sale amount in a RepairEstimate.
       optionalMeaning: Optional where policy assumes zero residual value or the value is maintained elsewhere.
+      businessMeaning: "The amount the business expects to recover when the asset is sold or scrapped at the end of its life; it is excluded from depreciation, so the asset is never written down below it."
   - name: usefulLifeMonths
     type: integer
     required: false
@@ -63,6 +67,7 @@ entity:
       usage: Used for straight-line and remaining-life calculations, asset planning, forecasting, and depreciation schedules.
       relationshipContext: Useful life is an accounting assumption about consumption of economic benefit and is not necessarily the physical service life or maintenance interval.
       optionalMeaning: Optional for usage-based methods or where useful life is derived from another policy.
+      businessMeaning: "How many months the business expects to benefit from the asset; it sets the period over which cost is spread, so a shorter life means a larger charge each month."
   - name: depreciableBase
     type: decimal
     required: false
@@ -73,6 +78,7 @@ entity:
       usage: Provides the financial basis from which depreciation expense is calculated.
       relationshipContext: It is related to Asset acquisition cost and salvage value but may differ because capitalization, impairment, revaluation, or accounting adjustments can change the depreciable basis.
       optionalMeaning: Optional when the base is calculated dynamically from other financial records.
+      businessMeaning: "The amount that will be expensed over the asset's life, normally acquisition cost less salvage value; every period's depreciation is calculated from it."
   - name: accumulatedDepreciation
     type: decimal
     required: true
@@ -84,6 +90,7 @@ entity:
       usage: Used to determine carrying value, period depreciation, disposal gain or loss, and financial reporting.
       relationshipContext: It is an accumulated financial measure and should not be confused with physical wear, repair cost, or market-value reduction.
       requiredMeaning: Required with zero as the initial value so an asset with no depreciation recognized has an explicit financial state.
+      businessMeaning: "The total already written off to date; finance reconciles it to the ledger and it cannot exceed the depreciable base."
   - name: netBookValue
     type: decimal
     required: false
@@ -94,6 +101,7 @@ entity:
       usage: Used for balance-sheet reporting, disposal analysis, impairment assessment, management reporting, and asset valuation.
       relationshipContext: Net book value is an accounting measure and should not be interpreted as market sale value, repair-adjusted value, or predicted disposition value.
       optionalMeaning: Optional when carrying value is calculated on demand from the asset's accounting history rather than stored.
+      businessMeaning: "What the asset is currently worth on the books, cost less accumulated depreciation; it is reported on the balance sheet and compared with sale proceeds to work out a gain or loss on disposal."
   relationships:
   - name: asset
     target: Asset
@@ -150,6 +158,7 @@ entity:
     relationshipContext: Asset identifies the resource. AssetDepreciation supplies the accounting method and resulting financial measures. RepairEstimate may compare estimated repair cost or sale value against net book value, but those are different business concepts. MaintenanceWorkOrder captures physical work and actual maintenance execution; depreciation captures accounting consumption.
     lifecycle: A depreciation schedule begins when an asset becomes subject to the applicable accounting policy, accumulates depreciation through accounting periods or usage, may be revised after approved accounting changes, and ends or is settled when the asset is disposed, retired, fully depreciated, or otherwise removed from the relevant accounting basis.
     example: A container acquired for 10,000 units of currency has a defined salvage value and useful life. Under STRAIGHT depreciation, its depreciable base is allocated over the useful life. A RepairEstimate later evaluates a 3,000-unit repair against its net book value and expected sale value; the depreciation record provides the accounting baseline but does not determine the repair decision by itself.
+    workflowContext: "Finance sets up the depreciation record when an asset is capitalised, choosing method, useful life and salvage value; each period close then adds to accumulated depreciation and recalculates net book value, and the figures feed the fixed asset register, journal postings and the gain or loss calculated when the asset is disposed."
 specification:
   version: 0.2.0
   status: draft

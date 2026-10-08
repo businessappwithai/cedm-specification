@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps sales, stock and product ranges tied to the same store even if its name, code or owning organisation changes."
   - name: storeCode
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The store number used on tills, receipts, deliveries and sales reports, such as STR-0142, so staff and systems refer to the same outlet."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name customers and staff know the store by, such as 'Downtown Flagship', shown in store finders, reports and rotas."
   - name: status
     type: enum
     required: true
@@ -69,6 +72,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Store.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the store is still being planned, open and trading, closed, or retired; only active stores take sales and receive replenishment."
   relationships:
   - name: location
     target: Location
@@ -112,7 +116,7 @@ entity:
       - {from: PLANNED, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a retail entity called Store within the CEDM business model.
+    summary: "A retail shop or outlet where the business sells products or services to customers, such as a high-street branch or a mall kiosk, kept to manage its location, range and trading status."
     businessMeaning: Store is a business concept with its own identity and lifecycle. It captures information that must remain
       understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -124,6 +128,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Store record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Retail property or expansion teams plan the store at a location, operations activates it on opening day and assigns the products it carries, sales and stock processes run against it while it trades, and it is closed when it stops trading or retired if the plan is abandoned, with history kept for reporting."
 specification:
   version: 0.1.0
   status: draft

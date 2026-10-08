@@ -11,7 +11,7 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the supplier credit application., businessMeaning: Identifies one controlled application independently of its supplier credit and invoice., usage: "Used for payable reconciliation, audit, reversal and settlement projections.", relationshipContext: "SupplierCreditNote supplies the adjustment; Invoice supplies the payable claim; this entity records the application bridge.", workflowRole: Stable reference for applying and reversing supplier credit., requiredMeaning: Required.}
+      help: {summary: "The permanent identity of this use of supplier credit against a purchase invoice.", businessMeaning: Identifies one controlled application independently of its supplier credit and invoice., usage: "Used for payable reconciliation, audit, reversal and settlement projections.", relationshipContext: "SupplierCreditNote supplies the adjustment; Invoice supplies the payable claim; this entity records the application bridge.", workflowRole: Stable reference for applying and reversing supplier credit., requiredMeaning: Required.}
     - name: supplierCreditAmount
       type: Money
       required: true
@@ -41,7 +41,7 @@ entity:
       - REVERSED
       - CANCELLED
       help:
-        summary: Lifecycle state of the supplier credit application.
+        summary: "Whether this supplier credit application is a draft, active, reversed after a mistake, or cancelled."
         businessMeaning: Indicates whether the application currently reduces payable exposure.
         usage: Controls SupplierCreditNote and Invoice projections.
         relationshipContext: SupplierCreditNote and Invoice statuses remain independent historical facts.

@@ -7,12 +7,12 @@ entity:
     icon: file-text
   identity: {key: processInstanceId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: processInstanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessInstance., businessMeaning: Identifies one governed ProcessInstance record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: processInstanceId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference that ties every step and audit entry to this one run of the process.", businessMeaning: Identifies one governed ProcessInstance record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of ProcessInstance., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether this run of the process is waiting to start, running, completed or cancelled.", businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships: []
   invariants:
   - {id: PROCESS-INSTANCE-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}

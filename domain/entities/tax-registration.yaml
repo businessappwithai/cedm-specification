@@ -7,12 +7,12 @@ entity:
     icon: percent
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this tax registration, which invoices and tax returns point to when tax is charged.", businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxRegistration., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Whether the registration is still being applied for, currently in force, completed and ended, or cancelled.", businessMeaning: Indicates usability/execution state of TaxRegistration., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships:
   - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
   invariants:
@@ -48,7 +48,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
+    summary: "One registration of the business or a partner organization with a tax authority, such as a VAT or sales tax number, which permits it to charge, collect and report tax there."
     purpose: Provide canonical enterprise semantics for TaxRegistration while keeping planning, operational, financial and evidential responsibilities separated.
     businessMeaning: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
     whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.

@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for the farm, keeping fields, crops and ownership history attached even if its name or code changes."
   - name: farmCode
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short code agronomists and administrators use to identify the farm in plans, reports and subsidy claims."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name people know the farm by, used in everyday communication, reports and on maps."
   - name: farmType
     type: enum
     required: true
@@ -70,6 +73,7 @@ entity:
         OTHER: Represents the other state or classification in the context of Farm.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the farm grows crops, raises livestock, does both, farms fish or does something else, which decides which activities, records and regulations apply."
   - name: status
     type: enum
     required: true
@@ -92,6 +96,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Farm.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the farm is in production: ACTIVE farms are planned and reported on, PLANNED ones are not yet operating, INACTIVE ones are paused and RETIRED ones have closed."
   relationships:
   - name: location
     target: Location
@@ -147,7 +152,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a agriculture entity called Farm within the CEDM business model.
+    summary: "One agricultural operation, with its land, facilities and production, identified by code and type so its fields, crops, owners and activities can be planned and reported together."
     businessMeaning: Farm is a business concept with its own identity and lifecycle. It captures information that must remain
       understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -159,6 +164,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Farm record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "A farm is registered as planned when it is acquired or set up, activated when production begins, its fields and crops are then managed season by season, it may be made inactive while fallow or idle and reactivated, and it is retired when the operation ends."
 specification:
   version: 0.1.0
   status: draft

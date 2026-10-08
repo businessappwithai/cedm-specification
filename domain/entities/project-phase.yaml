@@ -7,13 +7,13 @@ entity:
     icon: folder-kanban
   identity: {key: projectPhaseId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: Stable phase identity., businessMeaning: Identifies one project stage., usage: "Planning, execution, costing and reporting.", relationshipContext: Belongs to one Project., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 200, help: {summary: Human-readable phase name., businessMeaning: Communicates project stage., usage: Plans and reports., relationshipContext: Unique according to project policy., requiredMeaning: Required.}}
+  - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this project stage, used by its tasks, milestones and costs.", businessMeaning: Identifies one project stage., usage: "Planning, execution, costing and reporting.", relationshipContext: Belongs to one Project., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 200, help: {summary: "The title of the stage as the project team knows it, such as Design or Commissioning.", businessMeaning: Communicates project stage., usage: Plans and reports., relationshipContext: Unique according to project policy., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Phase lifecycle state., businessMeaning: Controls phase execution., usage: Project governance., relationshipContext: Task/milestone state must reconcile., valueSemantics: {PLANNED: Not started., ACTIVE: Executing., COMPLETED: Closed successfully., CANCELLED: Terminated.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the stage is still planned, under way, signed off as complete or cancelled.", businessMeaning: Controls phase execution., usage: Project governance., relationshipContext: Task/milestone state must reconcile., valueSemantics: {PLANNED: Not started., ACTIVE: Executing., COMPLETED: Closed successfully., CANCELLED: Terminated.}, requiredMeaning: Required.}
   relationships:
   - {name: project, target: Project, cardinality: '1', ownership: reference, help: {summary: Parent Project., businessMeaning: Supplies overall scope/governance., usage: Project execution., cardinalityMeaning: Exactly one Project., workflowRole: Phase cannot outlive incompatible project state.}}
   - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., cardinalityMeaning: Zero or many tasks., workflowRole: Completion requires task reconciliation.}}
@@ -51,5 +51,5 @@ entity:
               task_type: "USER"
               status: "CREATED"
               priority: "NORMAL"
-  help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."}
+  help: {summary: "One stage of a project, such as design, build or handover, that groups its tasks, milestones and costs, kept so managers can plan, track and sign off the project stage by stage.", businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence.", workflowContext: "Planned by the project manager when the project plan is set up, activated when work on the stage begins and its tasks and milestones are executed, reviewed at the stage gate, and completed once required tasks and milestones are done, or cancelled if the stage is dropped.", lifecycle: "Starts PLANNED, becomes ACTIVE when work begins, and ends COMPLETED once its required tasks and milestones are done; a PLANNED or ACTIVE phase can be CANCELLED if the stage is dropped.", example: "Phase Detailed Design of the Riverside Warehouse project, active from March to May, holding the structural drawings task and the Design Approved milestone."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-PHASE}

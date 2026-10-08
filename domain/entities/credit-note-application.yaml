@@ -11,7 +11,7 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the credit application., businessMeaning: Identifies one controlled application independently of the CreditNote and Invoice., usage: "Used for reconciliation, audit, reversal and settlement projections.", relationshipContext: "CreditNote supplies the adjustment; Invoice supplies the claim; this entity records the application bridge.", workflowRole: Stable reference for applying and reversing customer credit., requiredMeaning: Required for traceability.}
+      help: {summary: "The permanent identity of this use of a customer credit note against an invoice.", businessMeaning: Identifies one controlled application independently of the CreditNote and Invoice., usage: "Used for reconciliation, audit, reversal and settlement projections.", relationshipContext: "CreditNote supplies the adjustment; Invoice supplies the claim; this entity records the application bridge.", workflowRole: Stable reference for applying and reversing customer credit., requiredMeaning: Required for traceability.}
     - name: creditNoteAmount
       type: Money
       required: true
@@ -30,7 +30,7 @@ entity:
       type: datetime
       required: true
       immutable: true
-      help: {summary: Timestamp when the application became effective., businessMeaning: Establishes adjustment chronology., usage: "Supports accounting periods, statements, audit and reconciliation.", relationshipContext: Distinct from CreditNoteDate and InvoiceDate., workflowRole: Determines when the Invoice credit projection changes., requiredMeaning: Required.}
+      help: {summary: "When the credit was applied to the invoice and started reducing the amount owed.", businessMeaning: Establishes adjustment chronology., usage: "Supports accounting periods, statements, audit and reconciliation.", relationshipContext: Distinct from CreditNoteDate and InvoiceDate., workflowRole: Determines when the Invoice credit projection changes., requiredMeaning: Required.}
     - name: status
       type: enum
       required: true
@@ -41,7 +41,7 @@ entity:
       - REVERSED
       - CANCELLED
       help:
-        summary: Lifecycle state of the application.
+        summary: "Whether this credit application is a draft, active, reversed after a mistake, or cancelled."
         businessMeaning: Indicates whether the application currently reduces the invoice.
         usage: Controls credit and invoice projections.
         relationshipContext: CreditNote and Invoice statuses remain independent historical facts.
@@ -59,7 +59,7 @@ entity:
       target: CreditNoteApplication
       required: false
       immutable: true
-      help: {summary: Prior application reversed by this record., businessMeaning: Links correction to the original adjustment application., usage: Supports audit and controlled reallocation., relationshipContext: Reversal is a new historical event and does not edit the original., workflowRole: Enables correction while preserving history., optionalMeaning: Optional for normal applications.}
+      help: {summary: "The earlier credit application that this record reverses, linking the correction to the original mistake.", businessMeaning: Links correction to the original adjustment application., usage: Supports audit and controlled reallocation., relationshipContext: Reversal is a new historical event and does not edit the original., workflowRole: Enables correction while preserving history., optionalMeaning: Optional for normal applications.}
   relationships:
     - name: creditNote
       target: CreditNote

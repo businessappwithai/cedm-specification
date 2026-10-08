@@ -6,16 +6,16 @@ entity:
   ui: {icon: chart-no-axes-column}
   identity: {key: resultId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: resultId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Result., businessMeaning: Identifies one derived scientific output independently of source evidence and presentation., usage: "Analysis, reporting, decisions and audit.", relationshipContext: Provenance relationships identify source Observations or execution context., requiredMeaning: Required.}}
-    - {name: resultCode, type: string, required: true, maxLength: 120, help: {summary: Business reference for the Result., businessMeaning: Supports operational identification and integration., usage: "Search, reporting and data exchange.", relationshipContext: May be unique within a Study or Assay under domain policy., requiredMeaning: Required.}}
-    - {name: resultType, type: string, required: true, maxLength: 160, help: {summary: Classification of the derived output., businessMeaning: Describes analytical or interpretive semantics., usage: "Analysis and reporting.", relationshipContext: Source observations and method define how the result can be interpreted., requiredMeaning: Required.}}
-    - {name: value, type: string, required: true, maxLength: 4000, help: {summary: Derived or interpreted result value., businessMeaning: Captures the governed scientific output., usage: "Reporting, decisions and integration.", relationshipContext: Quantitative results may additionally use UnitOfMeasure., requiredMeaning: Required.}}
+    - {name: resultId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this finding and its links to the observations behind it.", businessMeaning: Identifies one derived scientific output independently of source evidence and presentation., usage: "Analysis, reporting, decisions and audit.", relationshipContext: Provenance relationships identify source Observations or execution context., requiredMeaning: Required.}}
+    - {name: resultCode, type: string, required: true, maxLength: 120, help: {summary: "The result reference scientists cite in study reports, presentations and decision records.", businessMeaning: Supports operational identification and integration., usage: "Search, reporting and data exchange.", relationshipContext: May be unique within a Study or Assay under domain policy., requiredMeaning: Required.}}
+    - {name: resultType, type: string, required: true, maxLength: 160, help: {summary: "What kind of finding this is, such as an IC50, a mean, a pass or fail call, or a summary.", businessMeaning: Describes analytical or interpretive semantics., usage: "Analysis and reporting.", relationshipContext: Source observations and method define how the result can be interpreted., requiredMeaning: Required.}}
+    - {name: value, type: string, required: true, maxLength: 4000, help: {summary: "The finding itself as reported, read together with its unit of measure where one applies.", businessMeaning: Captures the governed scientific output., usage: "Reporting, decisions and integration.", relationshipContext: Quantitative results may additionally use UnitOfMeasure., requiredMeaning: Required.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, FINAL, INVALIDATED]
-      help: {summary: Governance state of the Result., businessMeaning: Separates provisional analysis from finalized or invalidated output., usage: "Scientific review and audit.", relationshipContext: FINAL results preserve source provenance., valueSemantics: {DRAFT: Result is provisional., FINAL: Result is approved/finalized., INVALIDATED: Result is retained but no longer considered valid.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether the result is still a draft, finalised for use, or invalidated and not to be relied on.", businessMeaning: Separates provisional analysis from finalized or invalidated output., usage: "Scientific review and audit.", relationshipContext: FINAL results preserve source provenance., valueSemantics: {DRAFT: Result is provisional., FINAL: Result is approved/finalized., INVALIDATED: Result is retained but no longer considered valid.}, requiredMeaning: Required.}
   relationships:
     - {name: study, target: Study, cardinality: "0..1", ownership: reference, help: {summary: Study to which the Result belongs., businessMeaning: Supplies investigation context., usage: "Reporting and research traceability.", cardinalityMeaning: Optional for standalone analysis., workflowRole: Study closure does not erase finalized Results.}}
     - {name: assay, target: Assay, cardinality: "0..1", ownership: reference, help: {summary: Assay contributing directly to the Result., businessMeaning: Preserves analytical execution provenance., usage: "Laboratory interpretation and audit.", cardinalityMeaning: Optional when derived at Study or Experiment level., workflowRole: Result must reconcile to source Assay evidence.}}
@@ -34,9 +34,11 @@ entity:
       - {from: DRAFT, to: FINAL, action: finalize}
       - {from: DRAFT, to: INVALIDATED, action: invalidate}
   help:
-    summary: Captures derived scientific output separately from primary observations.
+    summary: "One result is an interpreted, calculated or summarised scientific finding drawn from observations, assays or a study, recorded with its provenance so it can be finalised and relied upon."
     businessMeaning: Observation is source evidence; Result is an interpretation, calculation or summary whose lineage must remain reproducible.
     usage: Research, laboratories, life sciences, reporting, analytics, decisions and audit.
     relationshipContext: Observations are mandatory sources; Study and Assay provide execution context; UnitOfMeasure supports quantitative semantics.
     lifecycle: Result is drafted and then finalized or invalidated, with final evidence immutable.
+    workflowContext: "Scientists derive a result from one or more observations, often within an assay or study, and keep it as a draft while it is reviewed; it is then finalised for reporting and decisions, or invalidated if the underlying data proves unreliable. Study reports and downstream decisions read only finalised results."
+    example: "Result RES-2025-0193, IC50 of 4.2 micromolar for compound CMP-881 in the HepG2 cytotoxicity assay, finalised."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RESULT}

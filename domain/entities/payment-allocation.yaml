@@ -12,7 +12,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Stable identity of the settlement allocation.
+        summary: "The permanent reference for this application of a payment to an invoice, used in reconciliation and audit."
         businessMeaning: Identifies the application of payment value to a claim independently of the Payment and Invoice identities.
         usage: Used for reconciliation, audit, reversal, reallocation, and settlement projections.
         relationshipContext: Payment identifies money received or sent; Invoice identifies the claim; PaymentAllocation connects the two.
@@ -79,7 +79,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Timestamp at which the allocation became effective.
+        summary: "When this part of the payment was applied to the invoice and began counting toward settling it."
         businessMeaning: Establishes settlement chronology and supports period-sensitive reconciliation.
         usage: Used for aging, accounting period determination, audit, and dispute investigation.
         relationshipContext: Distinct from Payment creation time and bank clearing time.
@@ -91,7 +91,7 @@ entity:
       default: ACTIVE
       values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
       help:
-        summary: Lifecycle state of the allocation.
+        summary: "Whether the allocation is still a draft, actively settling the invoice, reversed by a correction, or cancelled."
         businessMeaning: Indicates whether the allocation currently affects settlement or has been reversed/cancelled.
         usage: Controls Invoice settlement projections, reconciliation, and audit.
         relationshipContext: Invoice amountSettled must be derived from active allocations rather than every historical allocation record.
@@ -108,7 +108,7 @@ entity:
       required: false
       immutable: true
       help:
-        summary: Original allocation that this record reverses.
+        summary: "Points to the earlier allocation that this record undoes when a payment was applied to the wrong invoice."
         businessMeaning: Links a correction to the settlement evidence it negates.
         usage: Supports audit, dispute resolution, reallocation, and accounting correction.
         relationshipContext: A reversal is a new historical event and does not rewrite the original allocation.
@@ -199,7 +199,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Provides the controlled bridge between a Payment event and an Invoice claim.
+    summary: "One application of all or part of a received or sent payment to a specific invoice, recording the amounts, any currency conversion and rounding, so invoices are settled transparently."
     businessMeaning: Payment says money moved; Invoice says money is owed; PaymentAllocation says exactly how much of that payment satisfies that claim.
     usage: Central to receivables, payables, collections, payment reconciliation, bank reconciliation, refunds, reallocation, and accounting.
     relationshipContext: Payment supplies source funds. Invoice supplies target obligation. Currency defines denominations. ExchangeRate converts denominations when required. Invoice derives settlement projections from active allocations.

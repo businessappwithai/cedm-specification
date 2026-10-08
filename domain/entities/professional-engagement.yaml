@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets timesheets, the contract and the delivery project all refer to this engagement."
   - name: engagementNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference staff enter on timesheets and the client sees on invoices and letters."
   - name: name
     type: string
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "A short description of the work for the client, such as FY2026 statutory audit, so staff pick the right engagement."
   - name: status
     type: enum
     required: true
@@ -75,6 +78,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of ProfessionalEngagement.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the engagement is proposed, active, on hold, completed or cancelled, which decides whether time can be booked to it."
   - name: startDate
     type: date
     required: false
@@ -86,6 +90,7 @@ entity:
       relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When work for the client begins and time may start being charged."
   - name: endDate
     type: date
     required: false
@@ -97,6 +102,7 @@ entity:
       relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When the engagement is expected to finish or did finish; it cannot be before the start date."
   relationships:
   - name: client
     target: Party
@@ -211,7 +217,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a professional services entity called ProfessionalEngagement within the CEDM business model.
+    summary: "A client engagement, such as an audit, consulting assignment or legal matter, under which professional services are planned, delivered, timed and billed, kept so all time and fees link to the client work."
     businessMeaning: ProfessionalEngagement is a business concept with its own identity and lifecycle. It captures information
       that must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -223,6 +229,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical ProfessionalEngagement record represents one identifiable business occurrence or master-data object
       that can be referenced by related CEDM processes.
+    workflowContext: "An engagement is proposed to the client and approved, which raises a decision task; once active, staff record timesheets against it and it is billed; it may be put on hold and resumed, and ends as completed when the work is delivered or cancelled if it does not proceed."
 specification:
   version: 0.1.0
   status: draft

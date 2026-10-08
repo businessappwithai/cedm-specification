@@ -12,28 +12,30 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the supplier credit line.
+      summary: "The permanent internal key that identifies this credit line within the supplier's credit note."
       businessMeaning: Identifies one component of a supplier financial adjustment.
       usage: Used for reconciliation, accounting, tax and audit.
       workflowRole: Stable reference for posting and reversal.
       requiredMeaning: Required for traceability.
+      relationshipContext: "Belongs to exactly one supplier credit note and may point to the original invoice line and a supplier return line, letting payables trace each credit back to the purchase it corrects."
   - name: lineNumber
     type: integer
     required: true
     minimum: 1
     help:
-      summary: Sequence number within the supplier credit note.
+      summary: "The position of this line on the supplier's credit note, matching the line the supplier printed."
       businessMeaning: Provides deterministic document ordering.
       usage: Used in credit documents and reconciliation.
       workflowRole: Identifies the line during approval and posting.
       requiredMeaning: Required for deterministic document structure.
+      relationshipContext: "Numbers the line within its parent supplier credit note, so it must be unique on that credit note and is used to match the supplier's document line for line."
   - name: quantity
     type: decimal
     required: false
     precision: 20
     scale: 6
     help:
-      summary: Quantity to which the supplier credit relates.
+      summary: "How many units the supplier is crediting, such as goods returned or short-delivered."
       businessMeaning: Connects the financial adjustment to a returned or otherwise adjusted quantity.
       usage: Supports quantity/value reconciliation.
       relationshipContext: Must reconcile with eligible SupplierReturnLine quantity where return-originated.
@@ -48,6 +50,7 @@ entity:
       usage: Supports audit and reproducible credit calculation.
       workflowRole: Feeds gross credit calculation.
       optionalMeaning: Optional when the adjustment is not quantity-based.
+      relationshipContext: "Should normally equal the price on the referenced invoice line, so the credit reverses exactly what was charged; any difference is a price correction that payables reviews."
   - name: grossAmount
     type: Money
     required: true
@@ -57,6 +60,7 @@ entity:
       usage: Supports calculation and reconciliation.
       workflowRole: Feeds net taxable credit calculation.
       requiredMeaning: Required for financial calculation.
+      relationshipContext: "Comes from this line's quantity and unit price and, with the other lines, makes up the gross total of the parent supplier credit note."
   - name: discountAmount
     type: Money
     required: true
@@ -67,25 +71,28 @@ entity:
       usage: Supports reproducibility and reconciliation.
       workflowRole: Reduces the applicable credit base.
       requiredMeaning: Required, including zero.
+      relationshipContext: "Reverses the share of discount that applied on the original invoice line, so the credit does not refund more than was actually paid."
   - name: taxableAmount
     type: Money
     required: true
     help:
-      summary: Taxable base of the supplier credit line.
+      summary: "The part of this credit on which purchase tax is reversed, after any discount."
       businessMeaning: Amount to which applicable tax reversal or adjustment applies.
       usage: Supports tax and accounting reconciliation.
       workflowRole: Feeds tax calculation.
       requiredMeaning: Required for deterministic tax treatment.
+      relationshipContext: "Derived from the gross and discount amounts on this line and used with the original invoice line's tax treatment to calculate the tax to reverse."
   - name: taxAmount
     type: Money
     required: true
     default: {amount: 0}
     help:
-      summary: Tax component of the supplier credit line.
+      summary: "The purchase tax being credited back on this line, reducing the tax previously claimed."
       businessMeaning: Reverses or adjusts tax associated with the credited amount.
       usage: Supports tax reporting and accounting.
       workflowRole: Contributes to line total.
       requiredMeaning: Required, including zero.
+      relationshipContext: "Mirrors the tax charged on the referenced invoice line for the credited portion and rolls up into the tax total of the parent supplier credit note."
   - name: netAmount
     type: Money
     required: true
@@ -95,6 +102,7 @@ entity:
       usage: Feeds SupplierCreditNote totals and payable reconciliation.
       workflowRole: Authoritative line contribution to the credit.
       requiredMeaning: Required.
+      relationshipContext: "The line's final credit value that adds into the parent supplier credit note total and ultimately reduces the amount owed to the supplier."
   relationships:
   - name: supplierCreditNote
     target: SupplierCreditNote
@@ -134,10 +142,11 @@ entity:
   - {id: SUPPLIER-CREDIT-NOTE-LINE-EXE-005, rule: "Taxable Amount cannot be negative.", violatedWhen: "taxable_amount != null and taxable_amount < 0", message: "Taxable Amount cannot be negative."}
   - {id: SUPPLIER-CREDIT-NOTE-LINE-EXE-006, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   help:
-    summary: Provides the auditable quantity, value, discount and tax detail behind a supplier payable adjustment.
+    summary: "One supplier credit note line records a single item or amount a supplier is crediting back, with the quantity, price, discount and tax used to reduce what the business owes."
     businessMeaning: It is the financial mirror of an original supplier invoice line for the credited portion, not a replacement of that line.
     usage: Accounts payable, tax, supplier reconciliation, audit and accounting.
     relationshipContext: SupplierReturnLine explains the physical cause; InvoiceLine explains the original financial claim; SupplierCreditNoteLine explains the approved financial reduction.
     workflowContext: Identify eligible invoice evidence → determine credited quantity/value → apply original pricing and tax evidence → calculate credit → approve → post to SupplierCreditNote.
     example: Three units originally invoiced at EUR 100 are returned. The line preserves quantity 3 and original price EUR 100, applies the applicable historical discount/tax treatment, and contributes the resulting amount to the supplier credit note.
+    lifecycle: "The line has no status of its own; it follows its parent supplier credit note, so it can be edited while the credit note is a draft, is locked once the credit note is approved or posted, and is reversed only by reversing the whole credit note."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-CREDIT-NOTE-LINE}

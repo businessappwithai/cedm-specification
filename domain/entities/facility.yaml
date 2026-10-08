@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of one site or building, so assets housed there and service requests raised about it all point at the same place over time."
   - name: facilityCode
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short site code staff and systems use, such as LON-HQ or PLT-03, printed on asset tags and quoted when raising service requests."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name people know the site by, such as Riverside Distribution Centre, shown on maps, directories, service requests and facility reports."
   - name: facilityType
     type: enum
     required: true
@@ -74,6 +77,7 @@ entity:
         OTHER: Represents the other state or classification in the context of Facility.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What kind of place it is, such as an office, plant, warehouse or campus, which shapes which maintenance regimes, safety rules and services apply to it."
   - name: status
     type: enum
     required: true
@@ -96,6 +100,7 @@ entity:
         CLOSED: Represents the closed state or classification in the context of Facility.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the site is PLANNED but not yet open, ACTIVE and operating, INACTIVE and temporarily unused, or CLOSED and no longer occupied."
   relationships:
   - name: location
     target: Location
@@ -149,7 +154,7 @@ entity:
       - {from: ACTIVE, to: INACTIVE, action: deactivate}
       - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
-    summary: Represents a facilities entity called Facility within the CEDM business model.
+    summary: "One physical site, building, campus, office, plant or warehouse that the organisation operates, recorded so its assets, maintenance and service requests can be managed against the place where they happen."
     businessMeaning: Facility is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -161,6 +166,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Facility record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Planned when a new site is being acquired or built, activated once it opens for operations, used as the home for assets and the target of service and maintenance requests, made inactive when temporarily unused, reactivated when needed again, and closed when the organisation leaves it."
 specification:
   version: 0.1.0
   status: draft

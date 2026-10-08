@@ -49,6 +49,7 @@ entity:
         CURRENCY_STANDARD: The scale policy of the money is currency standard; set it when that is what the business means for this record.
         TRANSACTION_DEFINED: The scale policy of the money is transaction defined; set it when that is what the business means for this record.
         ACCOUNTING_DEFINED: The scale policy of the money is accounting defined; set it when that is what the business means for this record.
+      businessMeaning: "Decides how many decimal places the amount is kept to and how it is rounded: the currency's normal precision, such as two places for dollars, a precision set by the transaction, such as four places for a unit price, or one set by accounting rules, so totals agree across invoices, payments and the books."
   invariants:
   - id: MONEY-001
     rule: currencyId is required for every Money value.
@@ -62,7 +63,7 @@ entity:
     rule: Historical Money values must preserve their original currency and recorded amount even if Currency master data is later retired or its display metadata changes.
   - {id: MONEY-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   help:
-    summary: Canonical CEDM value object for an amount paired with its monetary denomination.
+    summary: "An amount of money together with the currency it is expressed in, such as 120.50 euros, used wherever prices, taxes, invoice totals and payments are recorded so amounts are never read without their currency."
     businessMeaning: Money provides the minimum semantic structure required to represent a financial amount safely. It does not determine whether the amount is a price, tax, discount, invoice total, payment, or accounting value; the containing field provides that business meaning.
     usage: Used throughout commercial, procurement, invoicing, payment, banking, treasury, tax, and accounting domains.
     relationshipContext: Money references Currency and is embedded by financial fields on transactional entities. It must not replace specialized entities such as Payment, Invoice, or JournalEntry because those entities carry business lifecycle and workflow semantics.

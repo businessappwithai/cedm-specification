@@ -20,6 +20,7 @@ entity:
       usage: Used as the stable technical-to-business key across yard, movement, repair, inventory, shipment, interchange, leasing, and reporting processes.
       relationshipContext: ContainerMovement, YardSlot, RepairEstimate, Shipment, and Location use this identity to preserve one continuous asset history even as the container changes place, condition, owner, or commercial use.
       requiredMeaning: Required because every event and transaction involving equipment must resolve to one unambiguous physical asset.
+      businessMeaning: "The permanent identity of the physical box inside the application, so moves, repair estimates and ownership history stay attached to it even if a marking is corrected."
   - name: containerNumber
     type: string
     required: true
@@ -30,6 +31,7 @@ entity:
       usage: Used by carriers, terminals, depots, customs, gate operations, interchange messages, shipping documents, and customers to identify the equipment.
       relationshipContext: It is the operational identifier of the same asset represented internally by containerId; it must remain stable across movements and commercial events.
       requiredMeaning: Required because logistics actors normally identify equipment by its container number.
+      businessMeaning: "The owner prefix, serial and check digit painted on the box, such as MSKU1234565; terminals, carriers and customs identify the container by this number on every document."
   - name: isoCode
     type: string
     required: false
@@ -39,15 +41,17 @@ entity:
       usage: Used for transport compatibility, yard allocation, vessel planning, depot handling, interchange, and equipment classification.
       relationshipContext: Complements containerNumber and informs physical compatibility; it is not itself the container's identity.
       optionalMeaning: Optional only while standardized classification is unavailable; operations requiring equipment compatibility should resolve it before execution.
+      businessMeaning: "The international size-and-type code marked on the box, such as 45G1, which tells planners and carriers its length, height and kind without inspecting it."
   - name: sizeCode
     type: string
     required: false
     maxLength: 20
     help:
-      summary: The operational size classification of the container.
+      summary: "The nominal length and height class of the container, which decides where it can be stacked and loaded."
       usage: Used for slot allocation, transport planning, pricing, capacity calculations, and TEU reporting.
       relationshipContext: Size influences physical placement and transport constraints and should remain consistent with the authoritative equipment classification.
       optionalMeaning: Optional when derived from isoCode or an equipment master.
+      businessMeaning: "Planners use it to match equipment to bookings, assign yard slots and vessel cells that fit, and price handling and storage, for example 20 foot standard versus 40 foot high cube."
   - name: containerType
     type: string
     required: false
@@ -57,6 +61,7 @@ entity:
       usage: Drives handling, power, inspection, safety, maintenance, shipment compatibility, and yard-placement rules.
       relationshipContext: Type determines operational capabilities and restrictions but does not replace Product or equipment-master classification where standardized definitions exist.
       optionalMeaning: Optional when maintained by a controlled equipment master.
+      businessMeaning: "What kind of cargo the box is built for, such as dry, reefer, open top, flat rack or tank, which decides which bookings and cargo it may be offered for."
   - name: tareWeight
     type: decimal
     required: false
@@ -67,6 +72,7 @@ entity:
       usage: Combined with cargo weight for gross-weight calculations, transport compliance, loading decisions, and interchange.
       relationshipContext: It is an equipment characteristic and should be interpreted with the applicable unit of measure and weighing source.
       optionalMeaning: Optional when authoritative equipment specifications provide the value dynamically.
+      businessMeaning: "The weight of the empty box; it is subtracted from the weighed gross to find cargo weight and is needed for verified gross mass declarations and stowage planning."
   - name: maxGrossWeight
     type: decimal
     required: false
@@ -77,6 +83,7 @@ entity:
       usage: Used for loading, transport planning, safety, vessel/rail/road compliance, and handling decisions.
       relationshipContext: Must be evaluated with tare weight, cargo weight, transport-mode limits, and regulatory constraints.
       optionalMeaning: Optional when maintained by an authoritative equipment specification.
+      businessMeaning: "The heaviest the loaded box is certified to be; bookings and loading that would exceed it are refused because overloading is a safety and legal risk."
   - name: manufactureDate
     type: date
     required: false
@@ -85,6 +92,7 @@ entity:
       usage: Used for equipment age, inspection, maintenance, depreciation, leasing, resale, and retirement analysis.
       relationshipContext: Commonly combined with acquisition, depreciation, repair, and disposition history to understand economic and operational life.
       optionalMeaning: Optional when provenance is incomplete, but its absence limits age-dependent analytics.
+      businessMeaning: "When the box was built, which drives its age, depreciation, inspection due dates and decisions about whether to repair, sell or retire it."
   - name: status
     type: enum
     required: true
@@ -103,6 +111,7 @@ entity:
         LOST: Equipment cannot currently be located and requires investigation or recovery.
         RETIRED: Equipment has permanently left normal operational service without necessarily being sold or scrapped.
       requiredMeaning: Required because equipment availability decisions depend on an explicit lifecycle state.
+      businessMeaning: "Whether the box is in service, under repair, damaged, or has left the fleet by sale, scrapping, loss or retirement, which decides whether it can be offered to customers."
   - name: inventoryStatus
     type: string
     required: false
@@ -112,6 +121,7 @@ entity:
       usage: Supports fleet availability, ownership/lease reporting, depot inventory, and disposition workflows.
       relationshipContext: Inventory classification is distinct from physical condition and lifecycle status and should not be used as a substitute for status.
       optionalMeaning: Optional where a dedicated equipment-inventory model supplies the classification.
+      businessMeaning: "The box's current availability in the depot or yard, such as empty available, laden or on hold, which equipment controllers use to decide what can be released for the next booking."
   relationships:
   - name: owner
     target: Party
@@ -189,12 +199,13 @@ entity:
       - {from: IN_REPAIR, to: RETIRED, action: retire}
       - {from: DAMAGED, to: RETIRED, action: retire}
   help:
-    summary: Represents a reusable intermodal freight container as a continuously identifiable physical logistics asset.
+    summary: "One physical intermodal shipping container, tracked as an equipment asset from manufacture through moves between terminals, vessels, depots and customers, repairs, leasing and its final sale or scrapping."
     businessMeaning: Container is the equipment anchor connecting transport, depot, terminal, yard, maintenance, leasing, ownership, inventory, shipment, interchange, and commercial disposition processes.
     usage: Used for gate events, yard placement, movement tracking, shipment assignment, inspection, repair, inventory, leasing, sale, scrap, and asset reporting.
     relationshipContext: Party provides ownership context; Location provides present geographic context; YardSlot provides exact yard position; ContainerMovement provides chronological movement; RepairEstimate provides repair/disposition assessment. These concepts must remain separate because they represent different business facts.
     lifecycle: A container can move from active service to damaged or repair state and eventually return to service, be sold, scrapped, lost, or retired. Lifecycle transitions should be tied to the corresponding operational, maintenance, commercial, or exception process.
     example: A 40-foot dry container enters a depot, is assigned to YardSlot B03-012-04-02, moves to a repair area after damage, receives a RepairEstimate, returns to ACTIVE service, and later leaves the depot for a customer. The same containerId and containerNumber remain attached throughout the lifecycle while its location, slot, movement history, condition, and commercial context change.
+    workflowContext: "Registered when the box joins the fleet; updated by every gate move, yard placement and vessel load recorded against it; sent into repair through damage surveys and repair estimates; and finally marked sold, scrapped, lost or retired when it leaves the fleet."
 specification:
   version: 0.2.0
   status: draft

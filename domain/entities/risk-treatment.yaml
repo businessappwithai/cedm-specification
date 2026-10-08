@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the RiskTreatment record.
+      summary: "The permanent identity of this risk response, which the parent risk and risk reports refer back to."
       businessMeaning: Identifies one governed RiskTreatment independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing Risk context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the RiskTreatment.
+      summary: "The reference risk managers quote when discussing or reporting progress on this particular risk response."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the RiskTreatment.
+      summary: "Shows whether the response is still a draft, actively being carried out, completed, or cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
@@ -97,13 +97,14 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents RiskTreatment as a first-class governed CEDM business concept.
+    summary: "One planned response to an identified risk, such as reducing, accepting, transferring, avoiding or monitoring it, tracked with its owner and progress until the action is complete."
     businessMeaning: A governed treatment or response planned and executed to modify, accept, transfer, avoid, or monitor a Risk.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: Risk supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A RiskTreatment is created for a valid Risk, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "Drafted by the risk owner after the risk is assessed, activated once agreed by management, carried out and monitored, and completed or cancelled; the parent risk is then reassessed to see whether residual risk is acceptable."
 specification:
   version: 0.1.0
   status: draft

@@ -11,13 +11,13 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Stable identity of the payment event., businessMeaning: "Identifies the financial movement independently of its business reference, allocations, bank evidence, accounting entries or credit settlement purpose.", usage: "Reconciliation, allocation, accounting, audit, integration and reversal.", relationshipContext: Identity remains stable when allocations are reversed or a refund/settlement is associated with a credit note., workflowRole: "Root reference across preparation, authorization, posting, clearing and reversal.", requiredMeaning: Required.}
+      help: {summary: "The permanent internal key that identifies this payment through approval, posting, clearing and allocation.", businessMeaning: "Identifies the financial movement independently of its business reference, allocations, bank evidence, accounting entries or credit settlement purpose.", usage: "Reconciliation, allocation, accounting, audit, integration and reversal.", relationshipContext: Identity remains stable when allocations are reversed or a refund/settlement is associated with a credit note., workflowRole: "Root reference across preparation, authorization, posting, clearing and reversal.", requiredMeaning: Required.}
     - name: paymentNumber
       type: string
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Business-facing payment reference., businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries.", usage: "Finance, counterparties, integrations and reconciliation.", relationshipContext: Distinct from paymentId and bank transaction identifiers., workflowRole: Correlates internal payment evidence with operational and external references., requiredMeaning: Required.}
+      help: {summary: "The payment reference quoted on remittance advice and used by staff when reconciling or querying it.", businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries.", usage: "Finance, counterparties, integrations and reconciliation.", relationshipContext: Distinct from paymentId and bank transaction identifiers., workflowRole: Correlates internal payment evidence with operational and external references., requiredMeaning: Required.}
     - name: paymentDate
       type: datetime
       required: true
@@ -51,7 +51,7 @@ entity:
       - VOID
       - REVERSED
       help:
-        summary: Lifecycle state of the payment event.
+        summary: "Shows whether the payment is a draft, approved, posted, cleared by the bank, voided, or reversed."
         businessMeaning: Indicates authorization, internal recognition, external clearing, invalidation or reversal.
         usage: Controls execution, reconciliation, reporting and correction.
         relationshipContext: Independent of Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses.
@@ -68,13 +68,13 @@ entity:
     - name: amount
       type: Money
       required: true
-      help: {summary: Total monetary value of the payment event., businessMeaning: "Represents money received or disbursed, not the amount allocated to one claim or credit.", usage: "Cash position, allocation validation, accounting and reconciliation.", relationshipContext: "PaymentAllocation distributes receipt payments; a credit-settlement payment settles an explicit customer or supplier credit obligation.", workflowRole: Provides source monetary amount., requiredMeaning: Required.}
+      help: {summary: "How much money was received or paid out in this payment, in its stated currency.", businessMeaning: "Represents money received or disbursed, not the amount allocated to one claim or credit.", usage: "Cash position, allocation validation, accounting and reconciliation.", relationshipContext: "PaymentAllocation distributes receipt payments; a credit-settlement payment settles an explicit customer or supplier credit obligation.", workflowRole: Provides source monetary amount., requiredMeaning: Required.}
     - name: currencyId
       type: reference
       target: Currency
       required: true
       immutableAfterPosting: true
-      help: {summary: Currency denomination of the payment., businessMeaning: Defines interpretation of payment amount., usage: "Allocation, exchange-rate selection, bank reconciliation, accounting and reporting.", relationshipContext: May differ from invoice or credit currency only with explicit ExchangeRate evidence., workflowRole: Establishes source currency., requiredMeaning: Required.}
+      help: {summary: "The currency in which the money actually moved, such as euros or US dollars.", businessMeaning: Defines interpretation of payment amount., usage: "Allocation, exchange-rate selection, bank reconciliation, accounting and reporting.", relationshipContext: May differ from invoice or credit currency only with explicit ExchangeRate evidence., workflowRole: Establishes source currency., requiredMeaning: Required.}
     - name: paymentMethod
       type: enum
       required: true
@@ -109,7 +109,7 @@ entity:
       type: string
       required: false
       maxLength: 250
-      help: {summary: "External remittance, bank, processor or instrument reference.", businessMeaning: Connects internal payment evidence to external settlement identifier., usage: "Bank reconciliation, remittance matching, gateway reconciliation and audit.", relationshipContext: Does not replace allocations or credit identities., workflowRole: Helps resolve external evidence., optionalMeaning: Optional.}
+      help: {summary: "The bank's or payment provider's own reference, used to match this payment against bank statements.", businessMeaning: Connects internal payment evidence to external settlement identifier., usage: "Bank reconciliation, remittance matching, gateway reconciliation and audit.", relationshipContext: Does not replace allocations or credit identities., workflowRole: Helps resolve external evidence., optionalMeaning: Optional.}
   relationships:
     - name: payer
       target: Party

@@ -7,8 +7,8 @@ entity:
     icon: route
   identity: {key: routeId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Route., businessMeaning: Identifies one governed Route record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Route., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - {name: routeId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this planned transport path, which shipments, dispatches and stops point at when they follow it.", businessMeaning: Identifies one governed Route record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The short route code dispatchers and drivers use, such as R-NORTH-07, to identify the planned path and its stops.", businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships:
   - {name: stops, target: Stop, cardinality: "0..*", ownership: aggregate, help: {summary: Ordered operational points belonging to this Route., businessMeaning: Decomposes a journey into location-specific activities and schedule points., usage: "Routing, dispatch, ETA and reporting.", cardinalityMeaning: Zero or many Stops., workflowRole: Stop sequence must remain unique and ordered within Route.}}
 

@@ -12,7 +12,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The stable internal identity of the party.
+        summary: "The internal key that every role, address and transaction uses to point at this person or organization."
         businessMeaning: Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships.
         usage: Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations.
         relationshipContext: PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity.
@@ -187,10 +187,11 @@ entity:
               status: "CREATED"
               priority: "HIGH"
   help:
-    summary: The foundational CEDM business concept for an identifiable person or organization participating in business.
+    summary: "A single person or organization the business deals with, recorded once and then given roles such as customer, supplier or employee, so the same party is never duplicated across areas."
     businessMeaning: Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities.
     usage: Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit.
     relationshipContext: Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters.
     lifecycle: Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid.
     example: One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
+    workflowContext: "A party is created when the business first deals with a person or organization, roles and addresses are added as relationships develop, it may be made inactive or blocked when dealings stop or a problem arises, and it is retired when no longer needed while history is kept."
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PARTY}

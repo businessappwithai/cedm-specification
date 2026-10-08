@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the research sample.
+      summary: "The fixed reference for this specimen that experiments, assays and derived samples point to."
       businessMeaning: Identifies one specimen or material sample independently of experiments, compounds, storage locations, and observations.
       usage: Chain of custody, experiment execution, laboratory tracking, reporting, audit, and integration.
       relationshipContext: Connects Sample to Experiment, Compound, parent/derived samples, and related scientific evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business identifier for the sample.
+      summary: "The unique label printed on the tube or container that identifies this specimen in the lab."
       businessMeaning: Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting.
       usage: Labels, searches, laboratory workflows, reports, integrations, and audit.
       relationshipContext: Identifies the Sample rather than the Experiment or Compound associated with it.
@@ -37,7 +37,7 @@ entity:
     required: true
     values: [SPECIMEN, ALIQUOT, COMPOUND, MATERIAL, BIOLOGICAL, CHEMICAL, ENVIRONMENTAL, CONTROL, REFERENCE, OTHER]
     help:
-      summary: Classification of the scientific sample.
+      summary: "The kind of specimen, such as an aliquot, biological, chemical or control sample."
       businessMeaning: Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules.
       usage: Laboratory routing, protocol selection, reporting, safety, and analytics.
       relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
@@ -59,7 +59,7 @@ entity:
     default: AVAILABLE
     values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
     help:
-      summary: Lifecycle state of the sample.
+      summary: "Shows where the specimen is in its life, from planned and collected to consumed or disposed."
       businessMeaning: Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically.
       usage: Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal.
       relationshipContext: Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations.
@@ -100,7 +100,7 @@ entity:
     target: UnitOfMeasure
     required: false
     help:
-      summary: Unit in which sample quantity is expressed.
+      summary: "The unit in which the remaining amount of this specimen is measured, such as millilitres."
       businessMeaning: Gives dimensional meaning to the sample quantity.
       usage: Quantity comparison, conversion, reporting, and audit.
       relationshipContext: Required when quantity is dimensional; changes to unit definitions must not silently reinterpret historical sample evidence.
@@ -216,13 +216,14 @@ entity:
               status: "CREATED"
               priority: "HIGH"
   help:
-    summary: First-class research specimen and sample entity for life-sciences and scientific workflows.
+    summary: "One physical or logical specimen, aliquot or material portion collected or prepared for research, tracked from collection to disposal so every experiment and result can be traced to it."
     businessMeaning: Sample closes the research traceability graph between Compound and Experiment while keeping scientific specimens separate from quality-control InspectionSample. Sample represents research material; InspectionSample represents a selection event within a QualityInspection.
     usage: Life sciences, drug discovery, laboratory research, scientific experiments, compound studies, specimen management, chain of custody, reporting, and audit.
     relationshipContext: Compound supplies investigated substance context; Experiment supplies research execution context; parentSample and derivedSamples preserve lineage; UnitOfMeasure supplies quantity semantics. It is intentionally distinct from InspectionSample.
     lifecycle: Planned/collected/received → available → in use → consumed/disposed/archived, with quarantine or loss as controlled exceptional states.
     changePropagation: Changes to sample status, quantity, unit, lineage, Compound association, or Experiment participation must revalidate open research workflows while preserving completed historical evidence.
     example: A compound stock specimen is received as Sample S-100, split into aliquot Sample S-101, and S-101 is used by Experiment E-42. Both the Compound association and parent-sample lineage remain traceable after the experiment completes.
+    workflowContext: "A sample is planned, collected and received at the lab, made available, used in experiments and assays, possibly divided into derived samples, quarantined and released when its integrity is in doubt, and ends as consumed, disposed of or lost; used samples may be archived before their final consumption."
 specification:
   version: 0.1.0
   status: draft

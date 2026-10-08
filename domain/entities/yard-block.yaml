@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the yard block.
+      summary: "The permanent identity of this yard block, which its bays, slots and yard plans refer to."
       businessMeaning: Identifies one storage-area subdivision within a specific Yard regardless of later changes to layout, capacity, or operating rules.
       usage: Used by yard allocation, planning, reporting, navigation, movement planning, and integrations to address an area above bay level.
       relationshipContext: The block belongs to one Yard and contains YardBays; its identity is therefore part of the physical hierarchy but remains stable across configuration changes.
@@ -119,6 +119,7 @@ entity:
     operationalSemantics: Block-level rules can constrain all subordinate locations. A placement algorithm should evaluate block status before bay/tier/slot capacity, compatibility, accessibility, safety, and movement cost. A block can also be a useful optimization unit for balancing density, minimizing rehandles, separating container classes, and controlling traffic.
     lifecycle: A block may be configured before the yard opens, activated for operations, temporarily blocked, or closed. Blocking does not automatically mean that containers disappear or move; existing occupancy must be preserved and any required relocation should be represented by explicit ContainerMovement events.
     example: A depot operates Block B03 for export dry containers. B03 contains bays B03-01 through B03-20. Each bay contains tiers and atomic slots. When a container arrives, the yard-planning process evaluates B03 and its subordinate locations for compatibility, availability, travel distance, rehandle impact, and operational rules before assigning a precise slot.
+    workflowContext: "Laid out when the yard is configured, used daily by yard planners to allocate incoming containers to its bays and slots, temporarily blocked for maintenance or congestion, and closed when the area is taken out of use."
 specification:
   version: 0.2.0
   status: draft

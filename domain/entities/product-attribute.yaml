@@ -7,23 +7,25 @@ entity:
     icon: package
   identity: {key: productAttributeId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productAttributeId, type: uuid, required: true, immutable: true, help: {summary: Stable attribute-definition identity., businessMeaning: Identifies a reusable product characteristic independently of labels., usage: "PIM, variant configuration, search and integration.", relationshipContext: Attribute values are interpreted against this definition., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed attribute code., businessMeaning: Stable business/integration identifier., usage: PIM schemas and APIs., relationshipContext: Unique across governed attribute namespace., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable attribute name., businessMeaning: Explains characteristic to users., usage: "Forms, catalog and search.", relationshipContext: Presentation metadata for stable definition., requiredMeaning: Required.}}
+  - {name: productAttributeId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this product characteristic, used wherever products record a value for it.", businessMeaning: Identifies a reusable product characteristic independently of labels., usage: "PIM, variant configuration, search and integration.", relationshipContext: Attribute values are interpreted against this definition., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The fixed key used in imports, feeds and integrations to identify this characteristic, such as COLOUR.", businessMeaning: Stable business/integration identifier., usage: PIM schemas and APIs., relationshipContext: Unique across governed attribute namespace., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The label shown to shoppers and staff for this characteristic, such as Colour or Screen Size.", businessMeaning: Explains characteristic to users., usage: "Forms, catalog and search.", relationshipContext: Presentation metadata for stable definition., requiredMeaning: Required.}}
   - name: valueType
     type: enum
     required: true
     values: [STRING, INTEGER, DECIMAL, BOOLEAN, DATE, DATETIME, ENUM, REFERENCE]
-    help: {summary: Permitted value representation., businessMeaning: Controls how values are validated/interpreted., usage: PIM validation and UI generation., relationshipContext: ENUM/REFERENCE require governed supporting semantics., valueSemantics: {STRING: Text value., INTEGER: Whole number., DECIMAL: Numeric decimal., BOOLEAN: True/false., DATE: Calendar date., DATETIME: Timestamp., ENUM: Controlled choice., REFERENCE: Reference to governed master.}, requiredMeaning: Required.}
-  - {name: variantDefining, type: boolean, required: true, default: false, help: {summary: Whether attribute participates in variant uniqueness., businessMeaning: Distinguishes configuration options from descriptive attributes., usage: Variant generation and validation., relationshipContext: Variant-defining values form a unique configuration under Product., requiredMeaning: Required.}}
+    help: {summary: "What kind of value products must give for this characteristic, such as text, number, date or choice.", businessMeaning: Controls how values are validated/interpreted., usage: PIM validation and UI generation., relationshipContext: ENUM/REFERENCE require governed supporting semantics., valueSemantics: {STRING: Text value., INTEGER: Whole number., DECIMAL: Numeric decimal., BOOLEAN: True/false., DATE: Calendar date., DATETIME: Timestamp., ENUM: Controlled choice., REFERENCE: Reference to governed master.}, requiredMeaning: Required.}
+  - {name: variantDefining, type: boolean, required: true, default: false, help: {summary: "Whether different values of this characteristic create separate sellable variants of the same product.", businessMeaning: Distinguishes configuration options from descriptive attributes., usage: Variant generation and validation., relationshipContext: Variant-defining values form a unique configuration under Product., requiredMeaning: Required.}}
   invariants:
   - {id: PRODUCT-ATTRIBUTE-001, rule: code must be unique.}
   - {id: PRODUCT-ATTRIBUTE-002, rule: Attribute values must conform to valueType and governed constraints.}
   - {id: PRODUCT-ATTRIBUTE-003, rule: Changes to variant-defining semantics require impact analysis of existing ProductVariants and historical transaction evidence.}
   help:
-    summary: Reusable semantic definition of a product characteristic.
+    summary: "One reusable characteristic that products can be described by, such as colour, size or voltage, defined once with its type of value so catalogues, searches and product variants all use it consistently."
     businessMeaning: ProductAttribute defines what a characteristic means; product/variant data supplies its value.
     usage: PIM, catalog, configuration, search, procurement, sales and integration.
     relationshipContext: Supports Product and ProductVariant without replacing category, brand or quality characteristics.
     lifecycle: Governed definition evolves through controlled version/change management.
+    workflowContext: "Defined by product data managers when a new characteristic is needed, assigned to product categories and products, filled in with values when products are created, used by catalogue search and filtering, and, when variant-defining, to generate and distinguish product variants; changes go through review because existing variants depend on it."
+    example: "Attribute COLOUR, named Colour, holding a choice from a list of values and marked as variant-defining, so the T-shirt in Red and in Blue become separate sellable variants."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-ATTRIBUTE}

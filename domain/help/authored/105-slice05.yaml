@@ -1,0 +1,486 @@
+# Authored help, batch 105 (slice 05).
+AIEvaluation:
+  help:
+    summary: "One structured assessment of an AI model against agreed quality, safety, performance or business criteria, kept so the organisation can show how and when the model was judged fit for use."
+    workflowContext: "Drafted by the model owner or governance team when an evaluation is planned, activated while tests and reviews are run against the governing AI model, then completed with its findings or cancelled; completed evaluations are consulted at deployment approval, audit and periodic model review and are corrected only through a follow-up evaluation."
+  attributes:
+    aIEvaluationId:
+      summary: "The permanent reference that ties this evaluation to its findings, approvals and audit trail even if its code changes."
+    aIEvaluationCode:
+      summary: "The short reference reviewers and governance boards quote when discussing this particular evaluation run, such as EVAL-2026-014."
+    status:
+      summary: "Shows whether the evaluation is still being planned, is under way, has been completed with findings, or was cancelled."
+
+AssetAcquisition:
+  attributes:
+    assetAcquisitionId:
+      summary: "The permanent reference for this acquisition event, used to trace the capitalised asset back to how and when it was obtained."
+    effectiveAt:
+      summary: "The date and time from which the acquisition takes effect for the asset, which drives when depreciation and ownership start."
+
+AuditEvent:
+  attributes:
+    auditEventId:
+      summary: "The permanent reference for this piece of audit evidence, quoted by auditors and investigators when they cite exactly what happened."
+
+BudgetLine:
+  help:
+    summary: "One planned amount of money in a budget, allocated to a specific combination of account, cost centre and profit centre, so spending and results can later be compared against the plan."
+    workflowContext: "Created by budget owners while the parent budget is being drafted, adjusted during review and submission, frozen when the budget is approved, and afterwards read by budget-versus-actual and variance reports; once approved it changes only through a governed budget revision, never by editing actual accounting."
+    example: "FY2027 Operating Budget, account 6200 Travel, cost centre CC-410 Field Sales: 85,000.00 EUR."
+    lifecycle: "A line has no status of its own and follows its budget: it is freely editable while the budget is DRAFT, locked once the budget is SUBMITTED and APPROVED, used for control while the budget is ACTIVE, and kept unchanged as history when the budget is SUPERSEDED or CLOSED."
+  attributes:
+    budgetLineId:
+      summary: "The permanent reference for this one budget allocation, used by variance reports and revisions to point at it."
+    amount:
+      summary: "The planned spending or income target allocated to this combination of account and responsibility centre; it cannot be negative."
+
+CashPosition:
+  help:
+    summary: "A snapshot of how much cash a bank account holds, can spend and is expected to hold at a given moment, taken so treasury can decide on funding, investment and payment runs."
+    workflowContext: "Calculated by treasury at a cut-off time from bank statements, bank transactions and internal payment evidence, reviewed in the daily cash meeting to plan transfers, borrowing or investment, and kept as a reproducible record; later bank reconciliations produce a new position rather than altering this one."
+    example: "Operating account at Deutsche Bank, as of 2026-10-08 09:00 CET: ledger balance 1,240,500.00 EUR, available 1,180,000.00 EUR, forecast 965,300.00 EUR."
+  attributes:
+    cashPositionId:
+      summary: "The permanent reference for this cash snapshot, so treasury decisions can cite exactly which position they relied on."
+    asOf:
+      summary: "The cut-off moment the position describes; only bank and payment evidence up to this time is included in the figures."
+    availableBalance:
+      summary: "The cash that can actually be spent or transferred right now, after holds, restrictions and uncleared items are taken out."
+    forecastBalance:
+      summary: "The balance treasury expects once scheduled payments and expected receipts in the forecast horizon have settled."
+
+ComplianceRequirement:
+  attributes:
+    complianceRequirementId:
+      summary: "The permanent reference for this legal, regulatory or policy obligation, used to link the controls and evidence that demonstrate compliance with it."
+
+ContractLine:
+  attributes:
+    contractLineId:
+      summary: "The permanent reference for this specific obligation, price or scope line within its contract, used by billing and fulfilment to refer to it."
+
+Coverage:
+  help:
+    summary: "One specific insured risk or benefit within an insurance policy, with its own limit, deductible and effective status, used to decide whether and how much a claim pays."
+    workflowContext: "Drafted by underwriting when a policy is quoted or endorsed, activated when the policy is bound, suspended and resumed when cover is paused, and finally expired or cancelled; claims handling reads the coverage that applied at the loss date to settle claim lines."
+  attributes:
+    coverageId:
+      summary: "The permanent reference for this piece of cover, which claim lines and endorsements point at when they apply it."
+    coverageCode:
+      summary: "The short code underwriters and claims handlers use to name the type of cover, such as FIRE-BLDG or THEFT-CONTENTS."
+    description:
+      summary: "A plain-language explanation of what risk or benefit this cover protects against and any notable conditions attached."
+    status:
+      summary: "Shows whether this cover is still being drafted, currently in force, temporarily suspended, expired or cancelled."
+
+CustomsDeclaration:
+  help:
+    summary: "A declaration of goods, their value and trade details lodged with a customs authority so a shipment can be imported, exported or moved in transit legally."
+    workflowContext: "Prepared in draft by the declarant or broker from shipment and commercial documents, submitted to the customs authority, accepted, possibly held under inspection, and finally cleared, rejected or cancelled; logistics releases the shipment on clearance and finance uses the declared value for duty and tax."
+  attributes:
+    customsDeclarationId:
+      businessMeaning: "The permanent internal identity of this declaration, so supporting documents, the shipment and later duty payments all point at the same filing even if it is resubmitted under a new authority number."
+    declarationNumber:
+      businessMeaning: "The reference the customs authority issued or accepted for this filing; brokers, carriers and auditors quote it when tracing clearance, duties paid and any inspection."
+    declarationType:
+      businessMeaning: "Whether goods are being imported, exported, passed through in transit or brought in temporarily, which decides the customs procedure, the duties owed and the documents required."
+    status:
+      businessMeaning: "Where the filing stands with customs: DRAFT while being prepared, SUBMITTED and ACCEPTED once lodged, UNDER_INSPECTION while goods are checked, and CLEARED, REJECTED or CANCELLED at the end; only a cleared declaration lets the goods move."
+    declaredValue:
+      businessMeaning: "The customs value stated for the goods, on which duties and import taxes are calculated; it must be zero or more and is checked against invoices during inspection."
+    currencyId:
+      businessMeaning: "The currency in which the declared value is stated, which customs converts at its official rate to assess duty."
+    declarationDate:
+      businessMeaning: "The date the declaration was lodged, which fixes the tariff rates and exchange rate that apply and starts the clock for customs deadlines."
+
+DocumentClassification:
+  help:
+    summary: "A governed label such as Confidential or Regulatory Record that is assigned to documents to decide how long they are kept, who may see them and which rules protect them."
+  attributes:
+    documentClassificationId:
+      summary: "The permanent reference for this classification, which documents carry to inherit its retention and access rules."
+
+EnergyAsset:
+  help:
+    summary: "A physical piece of energy equipment, such as a turbine, transformer, battery or meter, that the organisation generates, transmits, stores or uses energy with and must operate and maintain."
+    workflowContext: "Registered as planned during project development, activated at commissioning, moved into maintenance and back while work orders are carried out, and decommissioned at end of life; operations, maintenance planning and capacity reporting read it throughout."
+  attributes:
+    energyAssetId:
+      businessMeaning: "The permanent identity of the asset, so maintenance work orders, readings and performance history stay attached to the same equipment through moves and renaming."
+    assetCode:
+      businessMeaning: "The tag engineers see on the equipment and in drawings, such as WTG-07 or TX-SUB3-02, used in the field and in work orders to identify exactly which unit is meant."
+    assetType:
+      businessMeaning: "What kind of equipment this is, such as wind turbine, solar inverter or battery storage, which decides its maintenance regime and how its capacity is reported."
+    capacity:
+      businessMeaning: "The rated output or storage the asset can deliver, used in capacity planning, grid commitments and performance comparisons; it cannot be negative."
+    status:
+      businessMeaning: "Whether the asset is still PLANNED, ACTIVE and available to the network, out of service for MAINTENANCE, or permanently DECOMMISSIONED; dispatch and planning count only active assets."
+
+Experiment:
+  help:
+    summary: "One controlled scientific investigation run to test a hypothesis, compound, treatment or process, recording what was tried, when, and with which samples and assays, so results can be trusted and repeated."
+    workflowContext: "Planned by a scientist under a project, study or protocol, marked running when work starts, then completed, failed or cancelled; completed experiments feed observations and assay results into analysis and are archived once the findings are reported."
+  attributes:
+    experimentId:
+      businessMeaning: "The permanent identity of the experiment, so samples, assays and observations recorded against it remain traceable even if its code or title change."
+    experimentCode:
+      businessMeaning: "The reference scientists write in lab notebooks and on sample labels, such as EXP-2026-0412, to tie physical work and data back to this experiment."
+    title:
+      businessMeaning: "The short descriptive name colleagues use to recognise the experiment in lists, reports and review meetings."
+    objective:
+      businessMeaning: "The question or hypothesis the experiment is designed to answer; reviewers judge whether results are conclusive against this statement."
+    status:
+      businessMeaning: "Where the experiment stands: PLANNED, RUNNING, then COMPLETED, FAILED or CANCELLED, and ARCHIVED once its completed findings are filed; only completed experiments count as evidence."
+    startedAt:
+      businessMeaning: "When bench or field work actually began, used to reconstruct the timeline of the investigation and to check sample stability windows."
+    completedAt:
+      businessMeaning: "When the experiment was finished; it is required once the experiment is completed and cannot be earlier than the start."
+
+FoodBatch:
+  help:
+    summary: "One traceable batch of a food or beverage product made or received under controlled conditions, kept so the business can release, recall or trace exactly the units affected by a quality issue."
+    workflowContext: "Planned when production or receipt is scheduled, released after quality inspection, quarantined and re-released if a concern arises, then consumed, rejected or expired; recall and traceability queries start from the batch."
+  attributes:
+    foodBatchId:
+      businessMeaning: "The permanent identity of the batch, so inspections, shipments and recalls all point at the same lot of product."
+    batchNumber:
+      businessMeaning: "The lot code printed on packaging and shipping documents; customers, regulators and the recall team use it to identify affected product."
+    productionDate:
+      businessMeaning: "The date the batch was made or packed, from which shelf life is calculated and which recall investigations use to bound affected output."
+    expiryDate:
+      businessMeaning: "The use-by or best-before date after which the batch may no longer be sold or used; it cannot precede the production date and triggers expiry of remaining stock."
+    status:
+      businessMeaning: "Whether the batch is PLANNED, RELEASED for sale or use, QUARANTINED pending investigation, or finished as CONSUMED, REJECTED or EXPIRED; only released stock may be shipped."
+
+Grade:
+  help:
+    summary: "The result one student received on one assessment, holding the score and the grade awarded, kept as academic evidence for gradebooks, transcripts and progression decisions."
+    workflowContext: "Entered as a draft by the instructor while marking, finalized once the result is confirmed and published to the student and transcript, or voided if it was recorded in error; corrections to a final grade go through a governed amendment rather than overwriting it."
+  attributes:
+    gradeId:
+      summary: "The permanent reference for this student's result, quoted in transcripts, appeals and grade-change requests."
+    gradeValue:
+      summary: "The grade awarded to the student for this assessment, such as A-, Pass or Distinction, as shown on the transcript."
+    status:
+      summary: "Shows whether the grade is still a draft, has been finalized as official, or has been voided."
+
+Identity:
+  help:
+    summary: "One way a user proves who they are, such as a password, single sign-on account, API key or certificate, kept so access can be granted, suspended and revoked per credential."
+    workflowContext: "Issued when a user is onboarded or links a new sign-in method, suspended and resumed during investigations or leave, and finally revoked by security or expired at its end date; access reviews and sign-in checks read it on every authentication."
+  attributes:
+    identityId:
+      businessMeaning: "The permanent identity of this credential, so sign-in logs and access reviews can tell exactly which of a user's credentials was used."
+    identityType:
+      businessMeaning: "The kind of credential, such as password, SSO, OAuth, API key, certificate or biometric, which decides how it is verified, rotated and how strongly it is trusted."
+    externalSubject:
+      businessMeaning: "The identifier the identity provider or issuer uses for this user, such as an SSO subject or certificate serial, used to match an incoming sign-in to the right user."
+    status:
+      businessMeaning: "Whether the credential may be used: ACTIVE allows sign-in, SUSPENDED blocks it temporarily, and REVOKED or EXPIRED end it permanently."
+    issuedAt:
+      businessMeaning: "When the credential was created or granted, used in access reviews and to enforce rotation periods."
+    expiresAt:
+      businessMeaning: "When the credential stops being valid and must be renewed; it cannot be earlier than the issue time, and sign-ins after it are refused."
+
+InventoryCount:
+  help:
+    summary: "One observation of how much of a product was physically found at a stock location at a given time, kept so recorded stock can be checked against reality without changing it directly."
+    workflowContext: "Created during a cycle count or annual stocktake when a counter records what is on the shelf, compared with the recorded balance at the count cut-off, and where a difference is approved it drives an inventory adjustment and movement; the count itself never alters stock."
+    example: "Count CNT-2026-0918-014: 46 units of product SKU 10-4471 counted in bin A-03-02 of the Lyon warehouse on 2026-09-18 at 07:45."
+  attributes:
+    inventoryCountId:
+      summary: "The permanent reference for this count, used by adjustments and audit trails to show which observation justified a correction."
+    countNumber:
+      summary: "The count sheet or task number staff quote when reviewing or recounting this particular observation."
+    countedQuantity:
+      summary: "How many units were physically found at the location during this count; it can be zero but never negative."
+    countedAt:
+      summary: "When the count was made, which decides which stock movements before and after are included in the comparison."
+
+JournalEntry:
+  help:
+    summary: "One balanced accounting entry recording the debits and credits that an invoice, payment, credit note or other business event caused in the general ledger, kept as the formal record of financial effect."
+  attributes:
+    journalEntryId:
+      summary: "The permanent reference for this accounting entry, used by its lines, reversals and source documents to point at it."
+      businessMeaning: "The stable identity of the entry, so audit trails, reversals and the originating invoice or payment can always find exactly this posting."
+    entryNumber:
+      summary: "The journal number accountants quote when tracing a posting, such as JE-2026-004812, often in sequence per period."
+      businessMeaning: "The number that appears on ledgers, trial balance drill-downs and audit samples; gaps or duplicates in the sequence are an audit concern."
+    entryDate:
+      businessMeaning: "The accounting date the entry is recognised on, which decides the fiscal period whose balances it affects."
+    status:
+      summary: "Shows whether the entry is still a draft, has been posted to the ledger, or has been reversed."
+      businessMeaning: "Only POSTED entries affect ledger balances; a DRAFT can be edited, and a posted entry is never changed but REVERSED by a new entry."
+    description:
+      summary: "A short narrative explaining why the entry was made, such as accrual of September utilities."
+      businessMeaning: "The explanation reviewers and auditors read to understand the purpose of the posting without opening the source document."
+
+Location:
+  help:
+    summary: "A physical or logical place where the business operates, such as a site, warehouse, store, office or port, used to anchor inventory, assets, people and transactions to where they happen."
+  attributes:
+    locationId:
+      businessMeaning: "The permanent identity of the place, so stock, assets, orders and child locations stay attached to it even if it is renamed or recoded."
+    code:
+      businessMeaning: "The short site code staff and integrations use, such as WH-LYON-01, printed on documents and labels to pick the right place."
+    name:
+      businessMeaning: "The name people recognise the place by, such as Lyon Distribution Centre, shown on screens, reports and delivery documents."
+    locationType:
+      businessMeaning: "What kind of place this is, such as warehouse, store, factory, yard or port, which decides which operations, like stocking or selling, may happen there."
+    status:
+      businessMeaning: "Whether the place is PLANNED, ACTIVE for operations, temporarily INACTIVE, or permanently CLOSED or RETIRED; closed and retired locations are not offered for new transactions."
+    addressId:
+      businessMeaning: "The postal address of the place, used for deliveries, tax jurisdiction and correspondence."
+    parentLocationId:
+      businessMeaning: "The larger place this one sits within, such as the warehouse a storage zone belongs to, which lets stock and activity roll up through the site hierarchy."
+    createdAt:
+      businessMeaning: "When the location was first set up, useful when auditing master data changes and site openings."
+    updatedAt:
+      businessMeaning: "When the location's details were last changed, so users can tell whether an address or status is recent."
+
+Message:
+  attributes:
+    messageId:
+      summary: "The permanent reference for this integration message, used to trace delivery, retries and duplicates across connected systems."
+    occurredAt:
+      summary: "When the business event carried by this message happened, as opposed to when it was delivered or processed."
+
+Operation:
+  help:
+    summary: "One step in a manufacturing routing, saying what work is done, at which work centre, in what order and how long it should take, used to plan, schedule and cost production."
+    workflowContext: "Defined by manufacturing engineering when a routing is created or revised, sequenced with the other steps, then used by production planning to schedule work orders and by costing to calculate standard labour and machine time; changes follow the routing's version control."
+    example: "Routing RT-PUMP-200, operation 30 Machine impeller housing at work centre CNC-02, 18.5 standard minutes, with quality plan QP-HSG-01."
+  attributes:
+    operationId:
+      summary: "The permanent reference for this routing step, which work orders and time bookings point at when the step is performed."
+    sequence:
+      summary: "The position of this step within its routing, deciding the order in which production carries out the work."
+    name:
+      summary: "The short description of the work done in this step, such as Weld frame or Final inspection, shown on shop-floor documents."
+    standardMinutes:
+      summary: "The expected time to perform this step under normal conditions, used for scheduling capacity and calculating standard cost."
+
+PaymentInstruction:
+  attributes:
+    paymentInstructionId:
+      summary: "The permanent reference for this payment request to the bank, used to match it to the resulting payment and bank transaction."
+    status:
+      summary: "Shows whether the instruction is being prepared, is active with the bank, has been completed, or was cancelled."
+
+Premium:
+  help:
+    summary: "One amount the policyholder owes for insurance cover under a policy, such as an annual premium or a monthly instalment, tracked from assessment through invoicing to payment or waiver."
+    workflowContext: "Drafted when a policy is issued, renewed or endorsed, assessed as due on its schedule, invoiced to the insured party, and finally marked paid when settlement is reconciled, or waived or cancelled; finance and policy administration both read it for billing and arrears."
+  attributes:
+    premiumId:
+      summary: "The permanent reference for this premium amount, used by invoices, payments and arrears reports to point at it."
+    premiumNumber:
+      summary: "The reference billing staff and policyholders quote for this instalment, such as PRM-POL88213-03."
+    amount:
+      summary: "How much premium is owed for this instalment or period under the policy; it can never be negative."
+    dueDate:
+      summary: "The date by which the policyholder must pay this premium before it is treated as overdue."
+    status:
+      summary: "Shows whether the premium is drafted, due, invoiced, paid, waived or cancelled in the billing cycle."
+
+Product:
+  help:
+    summary: "One item or service the business buys, sells, stocks, delivers or subscribes customers to, with its code, pricing and status, referenced by orders, inventory and invoices across the organisation."
+  attributes:
+    productId:
+      businessMeaning: "The permanent identity of the product, so orders, stock balances and invoices refer to the same item even if its code, name or price change."
+    code:
+      businessMeaning: "The internal item number staff search and order by, unique within the business, such as P-10442."
+    name:
+      businessMeaning: "The name customers and staff recognise the product by, shown on orders, invoices and catalogues."
+    description:
+      businessMeaning: "A fuller explanation of what the product is and its key characteristics, helping buyers, sellers and customers choose the right item."
+    productType:
+      businessMeaning: "Whether this is a physical good, material, service, subscription, asset or bundle, which decides whether it is stocked, shipped, billed once or billed repeatedly."
+    status:
+      businessMeaning: "Whether the product may be used: DRAFT while being set up, ACTIVE for normal trading, BLOCKED temporarily, and DISCONTINUED or RETIRED when it is no longer offered for new orders."
+    sku:
+      businessMeaning: "The stock-keeping unit code used on shelves, barcodes and in sales channels to identify the exact sellable variant."
+    unitOfMeasure:
+      businessMeaning: "The unit the product is counted, stocked and priced in, such as each, kilogram or box of 12, so quantities on orders and in stock mean the same thing."
+    standardPrice:
+      businessMeaning: "The default selling or list price before discounts or customer-specific pricing, used as the starting point on quotes and orders."
+    taxCategory:
+      businessMeaning: "The tax class the product falls into, such as standard rate, reduced rate or exempt, which decides how sales tax or VAT is calculated."
+    createdAt:
+      businessMeaning: "When the product was first set up, useful when auditing catalogue changes and new product introductions."
+    updatedAt:
+      businessMeaning: "When the product's details were last changed, so users can tell whether a price or status is current."
+
+Property:
+  help:
+    summary: "One real estate asset, such as land, an office building, retail unit or warehouse, that the business owns, leases, develops or sells, kept to manage its use, leases and ownership."
+    workflowContext: "Registered as planned during acquisition or development, activated when it is in use, marked under construction during works, made inactive when vacant, and ends as sold or retired; leasing, facilities and asset accounting all read it."
+  attributes:
+    propertyId:
+      businessMeaning: "The permanent identity of the property, so leases, owners and maintenance stay attached to the same asset over decades of use."
+    propertyCode:
+      businessMeaning: "The portfolio reference property managers use, such as PRP-LDN-012, to identify the property in leases, reports and valuations."
+    name:
+      businessMeaning: "The name people know the property by, such as Riverside House, used on lease documents and portfolio reports."
+    propertyType:
+      businessMeaning: "Whether the property is land, an office, retail, industrial, residential or warehouse space, which affects how it is leased, valued and taxed."
+    status:
+      businessMeaning: "Whether the property is PLANNED, ACTIVE and in use, UNDER_CONSTRUCTION, temporarily INACTIVE, or has left the portfolio as SOLD or RETIRED."
+
+QualityMeasurement:
+  help:
+    summary: "One value or observation recorded during a quality inspection for a specific characteristic, such as a diameter or colour, kept with its limits and result as evidence that the product met specification."
+  attributes:
+    qualityMeasurementId:
+      summary: "The permanent reference for this recorded measurement, cited when an inspection result or nonconformance is investigated."
+    measurementNumber:
+      summary: "The sequence or reference number of this reading within its inspection, used by inspectors to identify it on the record."
+    measuredValue:
+      summary: "The numeric reading taken for the characteristic, compared against the lower and upper limits to decide pass or fail."
+    measuredText:
+      summary: "The observed result when it is a description rather than a number, such as No visible scratches or colour matches standard."
+    measuredAt:
+      summary: "When the reading was taken, which helps relate the result to production time, shift and equipment condition."
+    notes:
+      summary: "Remarks from the inspector about this reading, such as conditions, retests or anything unusual observed during measurement."
+
+ResearchProject:
+  help:
+    summary: "A structured research initiative with stated objectives, a team, protocols and a set of experiments, kept to organise scientific work, resources and outcomes under one programme."
+    workflowContext: "Proposed as planned, activated once funding and team are approved, suspended and resumed as priorities shift, then completed when objectives are met or cancelled, and archived after results are reported; experiments, studies and documents are organised under it throughout."
+  attributes:
+    researchProjectId:
+      businessMeaning: "The permanent identity of the project, so experiments, studies and documents stay grouped under it even if its title changes."
+    projectCode:
+      businessMeaning: "The reference used in grant applications, lab notebooks and cost allocation, such as RP-ONC-2026-03, to tie work and spending to this project."
+    title:
+      businessMeaning: "The name colleagues, funders and reviewers recognise the project by in portfolio lists and reports."
+    objective:
+      businessMeaning: "What the project sets out to discover or deliver; progress reviews and the decision to complete or cancel are judged against it."
+    status:
+      businessMeaning: "Where the project stands: PLANNED, ACTIVE, SUSPENDED, COMPLETED, CANCELLED, or ARCHIVED once completed work is filed; only active projects should receive new experiments."
+
+Route:
+  attributes:
+    routeId:
+      summary: "The permanent reference for this planned transport path, which shipments, dispatches and stops point at when they follow it."
+    code:
+      summary: "The short route code dispatchers and drivers use, such as R-NORTH-07, to identify the planned path and its stops."
+
+SerialNumber:
+  help:
+    summary: "The unique identity of one individual unit of a product, tracked from receipt through stock, shipment, installation, service and disposal so that each physical item can be traced."
+    workflowContext: "Registered as expected when a serialised unit is ordered or produced, made available on receipt, reserved for an order, shipped, installed at a customer, and later returned, quarantined, scrapped or retired; inventory, service and warranty processes look the unit up by its serial."
+    example: "Serial SN-7Q4K-209981 of product Compressor CX-200, from lot L-2026-37, currently INSTALLED at a customer site in Rotterdam."
+  attributes:
+    serialNumberId:
+      summary: "The permanent reference for this individual unit, used by movements, service orders and warranty claims to point at it."
+    serialCode:
+      summary: "The serial printed on the unit's label or nameplate, unique for the product, read by scanners and service technicians."
+    status:
+      summary: "Shows where this unit currently is in its life, such as available in stock, reserved, in transit, installed, quarantined or scrapped."
+
+ShoppingCart:
+  help:
+    summary: "The temporary collection of products a shopper has picked before checking out, kept to let them build an order across visits and to measure abandoned purchases."
+    workflowContext: "Opened when a shopper first adds an item, updated as lines are added or removed while active, closed as checked out when the order is placed, and later marked abandoned or expired; marketing uses abandoned carts for reminders and analytics."
+  attributes:
+    shoppingCartId:
+      businessMeaning: "The permanent identity of the cart, so its lines, the shopper's session and the resulting order all refer to the same basket."
+    status:
+      businessMeaning: "Whether the cart is ACTIVE and can still be changed, CHECKED_OUT into an order and frozen, ABANDONED by the shopper, or EXPIRED and no longer usable."
+    createdAt:
+      businessMeaning: "When the shopper started the cart, used to measure how long people take to decide and to time reminder emails."
+    expiresAt:
+      businessMeaning: "When the cart and its reserved prices lapse if the shopper has not checked out, after which it is expired."
+
+SupplierClaim:
+  attributes:
+    supplierClaimId:
+      summary: "The permanent reference for this claim against a supplier, used by returns, credit notes and resolutions linked to it."
+    claimNumber:
+      summary: "The claim reference shared with the supplier and quoted in correspondence, such as SC-2026-0331."
+    claimDate:
+      summary: "When the claim was raised against the supplier, which starts response deadlines and warranty time limits."
+    status:
+      summary: "Shows how far the claim has progressed, from draft and open through review and acceptance to resolution, closure, rejection or cancellation."
+    claimType:
+      summary: "What the claim is about, such as damaged goods, shortage, wrong item, quality defect or warranty failure."
+    resolutionCode:
+      summary: "How the claim was settled with the supplier, such as replacement, repair, return, credit or rejection."
+    notes:
+      summary: "Free-text remarks about the claim, such as investigation findings, supplier responses or agreed next steps."
+
+SupplierReturnLine:
+  help:
+    lifecycle: "A line has no status of its own and follows its supplier return: it is prepared while the return is DRAFT, fixed once AUTHORIZED, moves with the goods while IN_TRANSIT and RECEIVED_BY_SUPPLIER, and is settled when the return is COMPLETED, CANCELLED or held as an EXCEPTION; any credit arrives through linked supplier credit note lines."
+  attributes:
+    supplierReturnLineId:
+      summary: "The permanent reference for this returned quantity, used by inventory movements and supplier credit note lines to point at it."
+
+TaxRule:
+  help:
+    summary: "One reusable tax policy stating which rate and tax type apply in a jurisdiction to qualifying products, customers or organisations over a period, used to calculate tax on transactions consistently."
+  attributes:
+    taxRuleId:
+      businessMeaning: "The permanent identity of the rule, so calculated transaction tax can always show which policy produced it, even after the rule is revised."
+    code:
+      businessMeaning: "The short reference tax and finance staff use, such as VAT-FR-STD, to select and report on the rule."
+    name:
+      businessMeaning: "The descriptive name shown when choosing or reviewing rules, such as France standard VAT 20 percent."
+    rate:
+      businessMeaning: "The percentage applied to the taxable amount when this rule applies; it is zero or more, and zero-rated rules still record that tax was considered."
+    jurisdictionCode:
+      businessMeaning: "The code of the country, state or region whose tax law this rule implements, such as FR or US-CA, which decides where it applies."
+    taxType:
+      businessMeaning: "Whether the rule is sales tax, VAT, GST, use tax or withholding, which decides how the tax is invoiced, reported and remitted."
+    validFrom:
+      businessMeaning: "The moment the rule starts to apply; transactions dated earlier use the rule that was valid then."
+    validTo:
+      businessMeaning: "The moment the rule stops applying, such as when a rate changes; it cannot be earlier than the start and is left empty for an open-ended rule."
+    status:
+      businessMeaning: "Whether the rule may be used: DRAFT while being prepared, ACTIVE for calculation, INACTIVE when paused, and RETIRED when permanently replaced."
+
+TripSegment:
+  help:
+    summary: "One leg of a trip between an origin and destination by a single means of transport, such as a flight or train ride, kept to book, track and report each part of a journey."
+    workflowContext: "Planned when the itinerary is drafted, booked once tickets or transport are confirmed, marked in progress on departure and completed on arrival, or cancelled at any point before completion; travel management and expense reporting read the segments of each trip in sequence."
+  attributes:
+    tripSegmentId:
+      businessMeaning: "The permanent identity of this leg, so bookings, tickets and expenses stay attached to the right part of the journey."
+    sequence:
+      businessMeaning: "The order of this leg within the trip, used to present the itinerary and check that each leg starts where the previous one ended."
+    mode:
+      businessMeaning: "How the traveller moves on this leg, such as air, rail, road or sea, which affects booking channel, cost policy and emissions reporting."
+    departureAt:
+      businessMeaning: "The scheduled departure time of the leg, used to plan connections and notify the traveller."
+    arrivalAt:
+      businessMeaning: "The scheduled arrival time of the leg; it cannot precede departure and is used to check connection times and plan the next leg."
+    status:
+      businessMeaning: "Whether the leg is PLANNED, BOOKED, IN_PROGRESS, COMPLETED or CANCELLED; only booked legs count as confirmed travel."
+
+Voyage:
+  help:
+    summary: "One journey a vessel makes between ports on a planned schedule, used to plan container loading, berth allocation and terminal operations and to track progress against the schedule."
+    workflowContext: "Planned by the shipping line or terminal when the vessel schedule is published, started when the vessel departs, completed on arrival at its final port or cancelled; berth planning and container visits are organised around it, and completed voyages remain as operational history."
+    example: "Voyage 047E of vessel MSC Aurora, Rotterdam to New York, planned departure 2026-10-14 18:00 UTC, status PLANNED."
+  attributes:
+    voyageId:
+      summary: "The permanent reference for this voyage, used by berth allocations and container visits to point at the same sailing."
+    voyageNumber:
+      summary: "The voyage number published by the carrier and quoted on bookings and bills of lading, such as 047E."
+    plannedDepartureAt:
+      summary: "When the vessel is scheduled to leave its origin port, used for cargo cut-offs and berth planning."
+    status:
+      summary: "Shows whether the voyage is still planned, under way, completed or cancelled."
+
+Yard:
+  help:
+    summary: "A container yard where containers and equipment are received, stored, inspected, repaired and dispatched, organised into blocks and positions so every box can be found and moved."
+    workflowContext: "Set up as planned when a facility is being prepared, activated once its location and storage blocks are ready, suspended and resumed during disruptions, and closed when it stops operating; gate-in, stacking, inspection and dispatch processes all allocate containers to an active yard."
+  attributes:
+    name:
+      summary: "The name operators and hauliers know the yard by, such as Maasvlakte Empty Depot, shown on gate passes and movement instructions."

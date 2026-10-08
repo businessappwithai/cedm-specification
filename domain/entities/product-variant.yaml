@@ -7,15 +7,15 @@ entity:
     icon: package
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of variant., businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code., requiredMeaning: Required.}}
-  - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
+  - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this specific product version, which stays the same even if its stock-keeping unit changes.", businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The business code that identifies this variant in the catalog and in integrations with sales channels.", businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code., requiredMeaning: Required.}}
+  - {name: sku, type: string, required: false, maxLength: 100, help: {summary: "The stock-keeping unit printed on labels and scanned in the warehouse to count and pick this exact variant.", businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
-    help: {summary: Variant lifecycle state., businessMeaning: Controls future eligibility of this configuration., usage: Catalog and transaction validation., relationshipContext: Parent Product restrictions also apply., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible for governed use., BLOCKED: Temporarily prohibited., DISCONTINUED: No longer offered for new demand., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
+    help: {summary: "Whether the variant is in preparation, active for sale, temporarily blocked, discontinued, or retired altogether.", businessMeaning: Controls future eligibility of this configuration., usage: Catalog and transaction validation., relationshipContext: Parent Product restrictions also apply., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible for governed use., BLOCKED: Temporarily prohibited., DISCONTINUED: No longer offered for new demand., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, inverse: variants, help: {summary: Parent product family., businessMeaning: Supplies shared identity and semantics., usage: Catalog and master-data inheritance., cardinalityMeaning: Exactly one parent Product., workflowRole: Parent restrictions propagate to variant eligibility.}}
   - {name: brand, target: Brand, cardinality: 0..1, ownership: reference, help: {summary: Brand associated with variant where different or explicit., businessMeaning: Provides market identity., usage: Catalog and commerce., cardinalityMeaning: Optional; may inherit parent brand., workflowRole: Brand retirement affects future presentation/eligibility policy.}}
@@ -60,10 +60,12 @@ entity:
               status: "CREATED"
               priority: "HIGH"
   help:
-    summary: Governed product-family variation for configuration-specific commercial and operational use.
+    summary: "One specific version of a product, such as a particular size and colour, with its own code and stock-keeping unit so it can be sold, bought and stocked separately."
     businessMeaning: Product defines the family/item concept; ProductVariant identifies a specific option combination such as size, color, grade or pack configuration.
     usage: PIM, catalog, e-commerce, sales, procurement, inventory and manufacturing.
     relationshipContext: Variant inherits/shared semantics from Product while allowing configuration-specific identity and SKU.
     lifecycle: Draft → active → blocked/discontinued → retired.
     changePropagation: Status/configuration changes revalidate open variant-specific demand and supply while preserving historical transactions.
+    workflowContext: "Product management creates the variant as a draft under its parent product, activates it so it can be ordered, purchased and stocked, may block it temporarily for a quality or supply issue, and discontinues or retires it when it is no longer offered, while past orders and stock history remain linked."
+    example: "Variant TSHIRT-CLASSIC-BLU-M with stock-keeping unit 400123-M of the Classic T-Shirt product, in blue, size medium, under the Acme brand."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-VARIANT}

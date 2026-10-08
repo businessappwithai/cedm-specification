@@ -6,14 +6,14 @@ entity:
   ui: {icon: calendar-off}
   identity: {key: leaveRequestId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the leave request., businessMeaning: Identifies one absence request independently of later approval or cancellation., usage: "HR workflow, attendance, payroll, reporting and audit.", relationshipContext: Remains stable across lifecycle transitions., requiredMeaning: Required.}}
-    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing leave request reference., businessMeaning: "Operational identifier for employees, managers and HR.", usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers., requiredMeaning: Required.}}
+    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this absence request, used by approvals, attendance and payroll.", businessMeaning: Identifies one absence request independently of later approval or cancellation., usage: "HR workflow, attendance, payroll, reporting and audit.", relationshipContext: Remains stable across lifecycle transitions., requiredMeaning: Required.}}
+    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The number the employee and manager quote when discussing this particular absence request.", businessMeaning: "Operational identifier for employees, managers and HR.", usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers., requiredMeaning: Required.}}
     - name: leaveType
       type: enum
       required: true
       values: [ANNUAL, SICK, PARENTAL, UNPAID, COMPENSATORY, OTHER]
       help:
-        summary: Business category of requested absence.
+        summary: "The kind of absence requested, such as annual, sick, parental or unpaid leave."
         businessMeaning: Determines policy, entitlement and payroll treatment without embedding jurisdiction-specific rules.
         usage: Leave policy, payroll, reporting and entitlement checks.
         relationshipContext: Approval and payroll effects depend on organization policy and Employment context.
@@ -25,8 +25,8 @@ entity:
           COMPENSATORY: Leave granted in exchange for qualifying extra work or policy credit.
           OTHER: Another governed leave category.
         requiredMeaning: Required.
-    - {name: startDate, type: date, required: true, help: {summary: First requested leave date., businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date., requiredMeaning: Required.}}
-    - {name: endDate, type: date, required: true, help: {summary: Last requested leave date., businessMeaning: Closes the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
+    - {name: startDate, type: date, required: true, help: {summary: "The first day the employee will be away from work under this request.", businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date., requiredMeaning: Required.}}
+    - {name: endDate, type: date, required: true, help: {summary: "The last day the employee will be away before returning to work.", businessMeaning: Closes the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
     - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", usage: Entitlement checks and payroll., relationshipContext: Must reconcile to date interval and policy when supplied., optionalMeaning: Optional when quantity is derived from schedule and dates.}}
     - name: status
       type: enum
@@ -34,7 +34,7 @@ entity:
       default: DRAFT
       values: [DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED]
       help:
-        summary: Workflow state of the leave request.
+        summary: "Shows whether the request is a draft, awaiting a decision, approved, rejected or cancelled."
         businessMeaning: Distinguishes preparation, review and final authorization outcomes.
         usage: Employee self-service, manager approval, attendance and payroll.
         relationshipContext: APPROVED authorization may drive attendance and payroll but does not itself record actual absence.
@@ -68,10 +68,11 @@ entity:
       - {from: SUBMITTED, to: REJECTED, action: reject}
       - {from: SUBMITTED, to: CANCELLED, action: cancel}
   help:
-    summary: Captures an auditable employee absence request and its approval outcome.
+    summary: "One employee's request to be absent for a stated period and type of leave, kept with its approval outcome so attendance, payroll and leave balances reflect only agreed absences."
     businessMeaning: LeaveRequest is the authorization transaction; Attendance records actual work or absence evidence and Payroll applies financial consequences.
     usage: Employee self-service, manager approval, HR operations, scheduling, attendance, payroll and reporting.
     relationshipContext: Employee is mandatory; Employment supplies policy context; Approval records authorization; Attendance reconciles actual absence.
     lifecycle: Draft requests are submitted and then approved, rejected or cancelled; final outcomes remain historical evidence.
     example: An employee requests three annual-leave days and approved Attendance records later reconcile the actual absence.
+    workflowContext: "The employee drafts and submits the request, a manager approves or rejects it, an approved request updates attendance and payroll for the dates covered, and the employee can cancel a request before it is decided; decided history is kept for audit."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEAVE-REQUEST}

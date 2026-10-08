@@ -6,17 +6,17 @@ entity:
   ui: {icon: ticket-check}
   identity: {key: ticketId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: ticketId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the ticket., businessMeaning: Identifies one operational service work item independently of its parent case or request., usage: "Queues, assignment, escalation, reporting and audit.", relationshipContext: Remains stable across reassignment and status changes., requiredMeaning: Required.}}
-    - {name: ticketNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing ticket reference., businessMeaning: Operational identifier used by service teams and integrations., usage: "Search, communication, escalation and reporting.", relationshipContext: Distinct from case and request numbers., requiredMeaning: Required.}}
-    - {name: summary, type: string, required: true, maxLength: 500, help: {summary: Concise statement of the work to perform., businessMeaning: Defines the operational responsibility represented by the ticket., usage: "Queues, handoffs and reporting.", relationshipContext: Parent case or request provides broader business context., requiredMeaning: Required.}}
-    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: Operational urgency of ticket work., businessMeaning: Guides queue ordering and escalation., usage: "Assignment, escalation and reporting.", relationshipContext: May inherit from but need not equal parent case priority., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated urgency., URGENT: Immediate attention.}, requiredMeaning: Required.}}
+    - {name: ticketId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this piece of service work, kept with its history after closure.", businessMeaning: Identifies one operational service work item independently of its parent case or request., usage: "Queues, assignment, escalation, reporting and audit.", relationshipContext: Remains stable across reassignment and status changes., requiredMeaning: Required.}}
+    - {name: ticketNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The ticket reference agents and customers quote when following up or escalating the work.", businessMeaning: Operational identifier used by service teams and integrations., usage: "Search, communication, escalation and reporting.", relationshipContext: Distinct from case and request numbers., requiredMeaning: Required.}}
+    - {name: summary, type: string, required: true, maxLength: 500, help: {summary: "A one-line statement of the work to be done, shown in queues and notifications to agents.", businessMeaning: Defines the operational responsibility represented by the ticket., usage: "Queues, handoffs and reporting.", relationshipContext: Parent case or request provides broader business context., requiredMeaning: Required.}}
+    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: "How urgently the work must be handled, from low to urgent, which orders the queue and escalation.", businessMeaning: Guides queue ordering and escalation., usage: "Assignment, escalation and reporting.", relationshipContext: May inherit from but need not equal parent case priority., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated urgency., URGENT: Immediate attention.}, requiredMeaning: Required.}}
     - name: status
       type: enum
       required: true
       default: NEW
       values: [NEW, ASSIGNED, IN_PROGRESS, PENDING, RESOLVED, CLOSED, CANCELLED]
       help:
-        summary: Lifecycle state of ticket execution.
+        summary: "Shows whether the ticket is new, assigned, being worked, pending, resolved, closed or cancelled."
         businessMeaning: Records whether work awaits assignment, is active, waits on a dependency, or is complete.
         usage: Service operations, queues, SLA and audit.
         relationshipContext: Parent case and request remain separate aggregates.
@@ -57,10 +57,11 @@ entity:
       - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
       - {from: PENDING, to: CANCELLED, action: cancel}
   help:
-    summary: Represents assignable operational work within service management.
+    summary: "One piece of service work assigned to a team or person to investigate, fix or follow up part of a customer case or request, kept so work is owned, tracked against service levels and resolved."
     businessMeaning: Ticket is a team work item, not the durable customer issue or the commercial execution authorization.
     usage: Help desk, customer service, technical support, escalation, queue management and audit.
     relationshipContext: ServiceCase or ServiceRequest provides business context, Party provides responsibility, and SLA may govern timing.
     lifecycle: New tickets are assigned, worked, may pend, and finish through resolved-to-closed or cancellation.
     example: A ServiceCase creates separate network and billing Tickets so each team can own work while the case remains one customer issue.
+    workflowContext: "Created from a service case or request, assigned to a queue or agent, worked in progress and possibly put pending while waiting for the customer or a third party, resolved when the work is done and closed once the outcome is confirmed; tickets no longer needed are cancelled."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TICKET}

@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets planners and the orders released from the plan refer to this specific planned quantity."
   - name: planningDate
     type: date
     required: true
@@ -36,6 +37,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The date by which the supply is needed at the location, which drives order release lead times."
   - name: plannedQuantity
     type: decimal
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How much of the product the plan says should be supplied to the location by that date; it cannot be negative."
   - name: safetyStockQuantity
     type: decimal
     required: false
@@ -63,6 +66,7 @@ entity:
       relationshipContext: Its meaning is specific to SupplyPlanLine; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The buffer stock to keep on hand against demand spikes or late deliveries, which raises the planned quantity when stock falls below it."
   - name: status
     type: enum
     required: true
@@ -86,6 +90,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of SupplyPlanLine.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the line is still only planned, released into orders, fulfilled by arriving supply, or cancelled."
   relationships:
   - name: supplyPlan
     target: SupplyPlan
@@ -153,7 +158,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a supply chain entity called SupplyPlanLine within the CEDM business model.
+    summary: "One planned quantity of a product for a location and date within a supply plan, kept so planners know what must be bought, made or moved, and when, to meet demand and safety stock."
     businessMeaning: SupplyPlanLine is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -165,6 +170,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical SupplyPlanLine record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "Planning runs create lines from forecasts and stock positions as planned; planners review and release them into purchase, production or transfer orders; a line is fulfilled when supply arrives and can be cancelled if demand changes, which raises a follow-up task."
 specification:
   version: 0.1.0
   status: draft

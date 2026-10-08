@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of one prescription, so every dispensing and administration of the medicine can be traced to the instruction that authorised it."
   - name: prescriptionNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The prescription reference quoted by pharmacists, nurses and the prescriber, such as RX-2026-118204, printed on the prescription and dispensing labels."
   - name: dosage
     type: string
     required: false
@@ -50,6 +52,7 @@ entity:
       relationshipContext: Its meaning is specific to Prescription; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "How much of the medicine to give each time, such as 500 mg or two tablets, which pharmacists check against safe limits before dispensing."
   - name: frequency
     type: string
     required: false
@@ -62,6 +65,7 @@ entity:
       relationshipContext: Its meaning is specific to Prescription; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "How often the dose is to be given, such as twice daily or every eight hours, which drives the administration schedule and the quantity dispensed."
   - name: route
     type: string
     required: false
@@ -74,6 +78,7 @@ entity:
       relationshipContext: Its meaning is specific to Prescription; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "How the medicine enters the body, such as by mouth, intravenously or applied to the skin, which affects the form dispensed and how staff administer it."
   - name: startDate
     type: date
     required: false
@@ -85,6 +90,7 @@ entity:
       relationshipContext: Its meaning is specific to Prescription; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The first day the patient should receive the medicine; doses are not dispensed or administered before it."
   - name: endDate
     type: date
     required: false
@@ -96,6 +102,7 @@ entity:
       relationshipContext: Its meaning is specific to Prescription; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The last day of the course of treatment, after which the prescription should be completed or reviewed for renewal."
   - name: status
     type: enum
     required: true
@@ -121,6 +128,7 @@ entity:
         DISCONTINUED: Represents the discontinued state or classification in the context of Prescription.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the prescription is a DRAFT not yet in force, ACTIVE and may be dispensed, COMPLETED at the end of the course, DISCONTINUED by the prescriber, or CANCELLED before taking effect."
   relationships:
   - name: patient
     target: HealthcarePatient
@@ -206,7 +214,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents a healthcare transaction called Prescription within the CEDM business model.
+    summary: "One authorised instruction from a prescriber for a patient to take a medication or therapy at a stated dosage, frequency and route over a defined period, kept for safe treatment and dispensing."
     businessMeaning: Prescription is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -218,6 +226,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Prescription record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "Written as a draft by the prescriber for a patient and medication, activated once signed so it can be dispensed and administered, reviewed during the course of treatment, and ended as completed when the course finishes, discontinued when the prescriber stops it early, or cancelled if it should never take effect."
 specification:
   version: 0.1.0
   status: draft

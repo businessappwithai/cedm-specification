@@ -20,6 +20,7 @@ entity:
       usage: Used to trace approvals, requisition lines, sourcing decisions, resulting purchase orders, and audit history.
       relationshipContext: Identifies the requisition itself; it is different from the business requisitionNumber and from any PurchaseOrder created later.
       requiredMeaning: Required because procurement demand must remain traceable independently of downstream purchasing documents.
+      businessMeaning: "The permanent identity of the request, so approvals, quotations and the purchase order that fulfils it all trace back to the same internal demand."
   - name: requisitionNumber
     type: string
     required: true
@@ -30,6 +31,7 @@ entity:
       usage: Used in approval forms, sourcing communication, procurement reports, and links between internal demand and downstream purchase orders.
       relationshipContext: It identifies the internal request, not the supplier's response or the eventual PurchaseOrder number.
       requiredMeaning: Required for operational and approval traceability.
+      businessMeaning: "The number requesters, approvers and buyers quote when chasing, approving or converting the request, and which appears on the resulting purchase order as its source."
   - name: requisitionDate
     type: date
     required: true
@@ -38,6 +40,7 @@ entity:
       usage: Used for demand aging, approval turnaround, budgeting, sourcing analysis, and procurement planning.
       relationshipContext: It represents internal demand creation and is distinct from PurchaseOrder.orderDate, supplier confirmation, and actual receipt.
       requiredMeaning: Required so procurement demand has a defined point in time.
+      businessMeaning: "The day the need was formally raised, used to measure how long approval and purchasing take and to place the request in the right budget period."
   - name: status
     type: enum
     required: true
@@ -56,6 +59,7 @@ entity:
         CLOSED: The requisition lifecycle is complete and no further procurement action is required.
         CANCELLED: The request has been intentionally withdrawn before completion.
       requiredMeaning: Required because procurement workflows need an authoritative demand state.
+      businessMeaning: "Where the request stands: DRAFT is still being written, SUBMITTED awaits approval, APPROVED may be sourced, REJECTED and CANCELLED go no further, ORDERED is covered by a purchase order, and CLOSED is fully satisfied."
   - name: justification
     type: string
     required: false
@@ -65,6 +69,7 @@ entity:
       usage: Used by approvers to evaluate necessity, budget owners to validate spend, and procurement teams to understand sourcing context.
       relationshipContext: Justification explains the reason for demand; it does not replace line-level product, quantity, delivery, or commercial information.
       optionalMeaning: Optional when organizational policy does not require a written justification for the particular request.
+      businessMeaning: "Why the goods or services are needed, which approvers read to decide whether the spend is warranted and auditors check later."
   relationships:
   - name: requester
     target: Party
@@ -177,6 +182,7 @@ entity:
     relationshipContext: PurchaseRequisition connects requester, organization, requested lines, and optional preferred supplier. Once approved, procurement may source the demand and create a PurchaseOrder. The resulting order establishes supplier commitments; receipts and InventoryMovement record physical fulfillment; invoices and payments handle financial settlement.
     lifecycle: Demand starts as DRAFT, is SUBMITTED for review, may be APPROVED or REJECTED, and becomes ORDERED when an authorized procurement commitment satisfies it. CLOSED indicates completion of the requisition process; CANCELLED terminates the demand without creating further obligations.
     example: A depot maintenance team discovers that 200 replacement components are required for upcoming repairs. A technician creates a PurchaseRequisition with the required Product lines and quantities, provides a justification, and submits it. After approval, procurement sources the items and creates a PurchaseOrder for the selected Supplier. The requisition remains the evidence of internal demand while the purchase order becomes the external commercial commitment.
+    workflowContext: "Raised by an employee who needs goods or services, submitted with its lines and justification, approved or rejected by budget holders, sourced by procurement through quotations or a chosen supplier, marked ordered once a purchase order covers it, and closed when the demand is satisfied; it may be cancelled before ordering."
 specification:
   version: 0.2.0
   status: draft

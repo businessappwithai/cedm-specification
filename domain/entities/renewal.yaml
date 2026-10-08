@@ -7,12 +7,12 @@ entity:
     icon: table
   identity: {key: renewalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Renewal., businessMeaning: Identifies one governed Renewal record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference linking this renewal to the customer and the term it extends.", businessMeaning: Identifies one governed Renewal record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Renewal., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the renewal is being prepared, in effect, completed or cancelled before taking effect.", businessMeaning: Indicates usability/execution state of Renewal., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships:
   - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
   invariants:
@@ -48,7 +48,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
+    summary: "One renewal of a customer's subscription or service agreement into a new term, such as a yearly software licence renewal, kept so continuation, pricing and entitlement for the next term are tracked."
     purpose: Provide canonical enterprise semantics for Renewal while keeping planning, operational, financial and evidential responsibilities separated.
     businessMeaning: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
     whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.

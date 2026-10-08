@@ -7,16 +7,16 @@ entity:
     icon: database
   identity: {key: workCenterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the manufacturing resource., businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing work-center code., businessMeaning: Operational identifier used in manufacturing plans and execution., usage: "Scheduling, dispatching, reporting, and integration.", relationshipContext: Unique within its manufacturing context., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Descriptive work-center name., businessMeaning: Communicates the resource function to planners and operators., usage: Planning and execution UI/reporting., relationshipContext: Complements the stable code., requiredMeaning: Required.}}
-  - {name: capacityPerHour, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Nominal output or processing capacity per hour., businessMeaning: Planning assumption for finite or rough-cut scheduling., usage: Capacity planning and schedule feasibility., relationshipContext: Actual execution is captured separately., optionalMeaning: Optional when capacity is not quantity-based.}}
+  - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this production resource that routing operations are assigned to.", businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The short code planners and operators use to name this resource on schedules.", businessMeaning: Operational identifier used in manufacturing plans and execution., usage: "Scheduling, dispatching, reporting, and integration.", relationshipContext: Unique within its manufacturing context., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The descriptive name of the machine or line as known on the shop floor.", businessMeaning: Communicates the resource function to planners and operators., usage: Planning and execution UI/reporting., relationshipContext: Complements the stable code., requiredMeaning: Required.}}
+  - {name: capacityPerHour, type: decimal, required: false, precision: 20, scale: 6, help: {summary: "How many units the work center can produce in one hour of running time.", businessMeaning: Planning assumption for finite or rough-cut scheduling., usage: Capacity planning and schedule feasibility., relationshipContext: Actual execution is captured separately., optionalMeaning: Optional when capacity is not quantity-based.}}
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
-    help: {summary: Operational eligibility of the work center., businessMeaning: Controls whether new work may be scheduled or executed., usage: Scheduling and maintenance coordination., relationshipContext: Existing historical operations remain valid., valueSemantics: {ACTIVE: Available subject to capacity., INACTIVE: Temporarily unavailable., MAINTENANCE: Unavailable due to maintenance., RETIRED: Permanently unavailable for new work.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the work center can take new production or is inactive, in maintenance or retired.", businessMeaning: Controls whether new work may be scheduled or executed., usage: Scheduling and maintenance coordination., relationshipContext: Existing historical operations remain valid., valueSemantics: {ACTIVE: Available subject to capacity., INACTIVE: Temporarily unavailable., MAINTENANCE: Unavailable due to maintenance., RETIRED: Permanently unavailable for new work.}, requiredMeaning: Required.}
   relationships:
   - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Physical or organizational location of the resource., businessMeaning: Places manufacturing capacity within the operating network., usage: "Scheduling, material staging, and reporting.", cardinalityMeaning: Optional for virtual or pooled resources., workflowRole: Location eligibility constrains execution.}}
   - {name: routingOperations, target: Operation, cardinality: 0..*, ownership: reference, help: {summary: Standard operations assigned to this resource., businessMeaning: Defines where process steps are normally performed., usage: Routing and capacity planning., cardinalityMeaning: Many operation definitions may use a work center., workflowRole: Routing assignment feeds production execution.}}
@@ -38,10 +38,12 @@ entity:
       - {from: INACTIVE, to: RETIRED, action: retire}
       - {from: MAINTENANCE, to: RETIRED, action: retire}
   help:
-    summary: Manufacturing capacity resource used by routing and execution.
+    summary: "One machine, production line or group of resources on the shop floor where manufacturing operations are scheduled and performed, with its hourly capacity so planners can load work realistically."
     businessMeaning: WorkCenter represents where or by which resource an Operation is performed.
     usage: Manufacturing planning, scheduling, dispatch, costing, maintenance coordination, and analytics.
     relationshipContext: Operation defines work; Routing sequences work; ManufacturingWorkOrder executes it.
     lifecycle: Active → temporarily unavailable/maintenance → active or retired.
     changePropagation: Capacity/status changes revalidate affected schedules and unreleased work without rewriting completed execution.
+    workflowContext: "Engineering sets up the work center and assigns routing operations to it, production planning schedules work against its capacity, operators execute the operations there, and it is taken into maintenance, made inactive or retired when it cannot accept new work."
+    example: "Work center WC-CNC-03, CNC Milling Cell 3 in the Plant 2 machining hall, capacity 40 parts per hour, status ACTIVE."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-WORK-CENTER}

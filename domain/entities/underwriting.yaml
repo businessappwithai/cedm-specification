@@ -6,9 +6,9 @@ entity:
   ui: {icon: scan-search}
   identity: {key: underwritingId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: underwritingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the underwriting evaluation., businessMeaning: Identifies one governed risk decision independently of later policy issuance., usage: "Insurance sales, risk, policy issuance, renewal and audit.", relationshipContext: May precede an InsurancePolicy or evaluate an existing policy renewal., requiredMeaning: Required.}}
-    - {name: underwritingNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing underwriting reference., businessMeaning: Operational identifier for risk review and integration., usage: "Search, review and reporting.", relationshipContext: Distinct from policy number., requiredMeaning: Required.}}
-    - {name: riskScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed quantitative risk score where used., businessMeaning: Supports but does not replace explainable underwriting decision evidence., usage: "Risk segmentation and decision support.", relationshipContext: Scoring model and scale require separate policy/model governance., optionalMeaning: Optional for qualitative underwriting.}}
+    - {name: underwritingId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this underwriting case and its decision for audit.", businessMeaning: Identifies one governed risk decision independently of later policy issuance., usage: "Insurance sales, risk, policy issuance, renewal and audit.", relationshipContext: May precede an InsurancePolicy or evaluate an existing policy renewal., requiredMeaning: Required.}}
+    - {name: underwritingNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The case reference underwriters, brokers and applicants quote when discussing this evaluation.", businessMeaning: Operational identifier for risk review and integration., usage: "Search, review and reporting.", relationshipContext: Distinct from policy number., requiredMeaning: Required.}}
+    - {name: riskScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: "The underwriter's numeric rating of the applicant's risk, which shapes acceptance and premium.", businessMeaning: Supports but does not replace explainable underwriting decision evidence., usage: "Risk segmentation and decision support.", relationshipContext: Scoring model and scale require separate policy/model governance., optionalMeaning: Optional for qualitative underwriting.}}
     - name: decision
       type: enum
       required: false
@@ -19,7 +19,7 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, IN_REVIEW, DECIDED, WITHDRAWN]
-      help: {summary: Lifecycle state of the underwriting evaluation., businessMeaning: "Separates preparation, active risk review, decision and withdrawal.", usage: "Workflow, issuance gating and audit.", relationshipContext: DECIDED requires a recorded decision., valueSemantics: {DRAFT: Evaluation is being prepared., IN_REVIEW: Risk evidence is under review., DECIDED: Governed underwriting decision is final for this evaluation., WITHDRAWN: Evaluation was withdrawn.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether the case is a draft, in review, decided, or withdrawn before a decision.", businessMeaning: "Separates preparation, active risk review, decision and withdrawal.", usage: "Workflow, issuance gating and audit.", relationshipContext: DECIDED requires a recorded decision., valueSemantics: {DRAFT: Evaluation is being prepared., IN_REVIEW: Risk evidence is under review., DECIDED: Governed underwriting decision is final for this evaluation., WITHDRAWN: Evaluation was withdrawn.}, requiredMeaning: Required.}
   relationships:
     - {name: applicant, target: Party, cardinality: "1", ownership: reference, help: {summary: Party whose proposed insurance risk is evaluated., businessMeaning: Establishes applicant or insured context., usage: "Underwriting, communication and audit.", cardinalityMeaning: Exactly one Party in this baseline evaluation., workflowRole: Applicant identity must remain traceable into issued policy relationships.}}
     - {name: policy, target: InsurancePolicy, cardinality: "0..1", ownership: reference, help: {summary: Policy resulting from or being renewed by this underwriting evaluation., businessMeaning: Preserves decision-to-policy provenance., usage: "Issuance, renewal and audit.", cardinalityMeaning: Optional before issuance or when risk is declined., workflowRole: Issued terms must reconcile to approved underwriting decision.}}
@@ -40,10 +40,11 @@ entity:
       - {from: IN_REVIEW, to: DECIDED, action: decide}
       - {from: IN_REVIEW, to: WITHDRAWN, action: withdraw}
   help:
-    summary: Records the governed risk evaluation and decision behind insurance issuance or renewal.
+    summary: "One underwriting record is the evaluation of an applicant's insurance risk and the decision on whether, and on what terms, a proposed or renewing policy may be accepted."
     businessMeaning: Underwriting explains why a risk was accepted, modified, referred or declined; InsurancePolicy records the resulting contract when issued.
     usage: Insurance new business, renewal, pricing, risk governance, compliance and audit.
     relationshipContext: Applicant is mandatory, RiskAssessment may supply structured evidence, and InsurancePolicy preserves the resulting contract linkage.
     lifecycle: Underwriting moves from draft to active review and ends with a decision or withdrawal.
     example: A commercial applicant undergoes risk review, receives ACCEPT_WITH_TERMS, and the issued InsurancePolicy links back to that Underwriting record.
+    workflowContext: "An underwriting case is opened as a draft for an applicant, often with a risk assessment, then submitted for review by an underwriter who scores the risk and reaches a decision; the decision sets the terms on which the insurance policy is issued or renewed. The case can be withdrawn before or during review if the applicant drops out."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-UNDERWRITING}

@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the inspection sample record.
+      summary: "The permanent internal key that identifies this sample and links it to its quality measurements."
       businessMeaning: Identifies one executed sample selection independently of the inspection and measurements performed on it.
       usage: Traceability, audit, sample reconciliation, quality analytics, and integration.
       relationshipContext: Connects the actual selected sample to QualityInspection and the SamplingRule that governed its selection.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Human-facing identifier for the selected inspection sample.
+      summary: "The sample reference written on the label and quoted by inspectors and laboratory staff."
       businessMeaning: Provides an operational reference for labeling, handling, testing, and audit.
       usage: Inspection execution, laboratory handling, reports, and traceability.
       relationshipContext: Identifies the executed sample rather than the sampling policy or parent inspection.
@@ -47,7 +47,7 @@ entity:
     precision: 30
     scale: 12
     help:
-      summary: Quantity represented by the selected sample.
+      summary: "How many units or how much material was drawn from the inspected goods for this sample."
       businessMeaning: States how much material or how many units the sample represents under its unit of measure.
       usage: Sample reconciliation, measurement scope, inventory traceability, and audit.
       relationshipContext: Must reconcile with the eligible inspection population and sample-selection rule.
@@ -68,7 +68,7 @@ entity:
     default: SELECTED
     values: [SELECTED, IN_TESTING, TESTED, REJECTED, DISPOSED, CANCELLED]
     help:
-      summary: Lifecycle state of the selected sample.
+      summary: "Shows whether the sample is selected, in testing, tested, rejected, disposed of, or cancelled."
       businessMeaning: Shows whether the sample is awaiting testing, being tested, has completed testing, or has been otherwise dispositioned.
       usage: Sample handling, measurement gating, chain of custody, and audit.
       relationshipContext: Sample status is distinct from overall QualityInspection status and does not independently determine product disposition.
@@ -196,7 +196,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Execution record of the actual sample selected for a governed quality inspection.
+    summary: "One inspection sample is a set of units or specimens drawn from goods under quality inspection, following the sampling plan, so that measurements can be taken and traced back."
     businessMeaning: InspectionSample separates sampling policy from the physical or logical sample actually selected. SamplingPlan and SamplingRule define how selection should occur; InspectionSample records what was actually selected; QualityMeasurement records observations from it.
     usage: Incoming inspection, supplier quality, acceptance sampling, laboratory testing, process quality, chain of custody, compliance, and audit.
     relationshipContext: QualityInspection is the parent execution; SamplingPlan and SamplingRule define selection policy; Product and UnitOfMeasure identify population semantics; QualityMeasurement records test evidence; Nonconformance and disposition consume resulting quality decisions.

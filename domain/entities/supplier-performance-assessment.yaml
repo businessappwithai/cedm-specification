@@ -11,25 +11,25 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the supplier performance assessment., businessMeaning: Identifies one governed evaluation of supplier performance for a defined period and scope., usage: "Supplier governance, sourcing decisions, improvement plans, audit and reporting.", relationshipContext: "Distinct from Supplier identity, PurchaseOrder transactions, SupplierClaim cases and individual quality inspections.", workflowRole: "Stable reference across calculation, review, approval and follow-up.", requiredMeaning: Required.}
+    help: {summary: "The permanent identity of this supplier evaluation, which supplier governance reviews and corrective actions refer to.", businessMeaning: Identifies one governed evaluation of supplier performance for a defined period and scope., usage: "Supplier governance, sourcing decisions, improvement plans, audit and reporting.", relationshipContext: "Distinct from Supplier identity, PurchaseOrder transactions, SupplierClaim cases and individual quality inspections.", workflowRole: "Stable reference across calculation, review, approval and follow-up.", requiredMeaning: Required.}
   - name: assessmentNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing assessment reference., businessMeaning: Identifies the performance evaluation for operational and supplier communication., usage: "Review meetings, supplier scorecards, audit and reporting.", relationshipContext: "Distinct from supplierCode, claimNumber and purchase order numbers.", workflowRole: Correlates evidence and decisions throughout the assessment lifecycle., requiredMeaning: Required.}
+    help: {summary: "The reference procurement staff quote when sharing or discussing this evaluation with the supplier.", businessMeaning: Identifies the performance evaluation for operational and supplier communication., usage: "Review meetings, supplier scorecards, audit and reporting.", relationshipContext: "Distinct from supplierCode, claimNumber and purchase order numbers.", workflowRole: Correlates evidence and decisions throughout the assessment lifecycle., requiredMeaning: Required.}
   - name: assessmentDate
     type: date
     required: true
-    help: {summary: Date on which the assessment is formally recorded., businessMeaning: Establishes the governance point at which the evaluated performance becomes an assessment record., usage: "Supplier reviews, audit, reporting and decision chronology.", workflowRole: Anchors approval and follow-up actions., requiredMeaning: Required.}
+    help: {summary: Date on which the assessment is formally recorded., businessMeaning: Establishes the governance point at which the evaluated performance becomes an assessment record., usage: "Supplier reviews, audit, reporting and decision chronology.", workflowRole: Anchors approval and follow-up actions., requiredMeaning: Required., relationshipContext: "Dated after the evaluation period, it marks when the purchase orders, goods receipts, quality inspections and claims for that supplier were reviewed to reach the rating."}
   - name: periodStart
     type: date
     required: true
-    help: {summary: Beginning of the performance evaluation period., businessMeaning: Defines the historical window from which performance evidence is evaluated., usage: "Score calculation, supplier comparison and trend reporting.", relationshipContext: Evidence transactions must fall within or be explicitly associated with this evaluation scope., workflowRole: Establishes assessment boundaries., requiredMeaning: Required.}
+    help: {summary: "The first day of the evaluation period whose supplier evidence this assessment covers.", businessMeaning: Defines the historical window from which performance evidence is evaluated., usage: "Score calculation, supplier comparison and trend reporting.", relationshipContext: Evidence transactions must fall within or be explicitly associated with this evaluation scope., workflowRole: Establishes assessment boundaries., requiredMeaning: Required.}
   - name: periodEnd
     type: date
     required: true
-    help: {summary: End of the performance evaluation period., businessMeaning: Defines the closing boundary of the performance evidence window., usage: "Score calculation, reporting and supplier review.", workflowRole: Completes the assessment scope., requiredMeaning: Required.}
+    help: {summary: "The last day of the evaluation period whose supplier evidence this assessment covers.", businessMeaning: Defines the closing boundary of the performance evidence window., usage: "Score calculation, reporting and supplier review.", workflowRole: Completes the assessment scope., requiredMeaning: Required., relationshipContext: "Together with the period start it decides which purchase orders, receipts, inspections, returns and claims of this supplier count towards the assessment."}
   - name: status
     type: enum
     required: true
@@ -42,7 +42,7 @@ entity:
     - SUPERSEDED
     - CANCELLED
     help:
-      summary: Lifecycle state of the supplier performance assessment.
+      summary: "Shows whether the assessment is a draft, in review, approved, published to the supplier, superseded or cancelled."
       businessMeaning: Separates calculation, review, approval, publication and replacement of scorecard results.
       usage: Controls whether the assessment may be changed or consumed by supplier governance.
       relationshipContext: Does not change the status of Supplier, PurchaseOrder, GoodsReceipt, Invoice or SupplierClaim records.
@@ -78,7 +78,7 @@ entity:
     - NEEDS_IMPROVEMENT
     - UNSATISFACTORY
     help:
-      summary: Interpreted supplier performance rating.
+      summary: "The overall verdict on the supplier for the period, from excellent down to unsatisfactory."
       businessMeaning: Converts the approved score or governed assessment criteria into a business-facing performance category.
       usage: Supplier segmentation, review cadence and improvement decisions.
       relationshipContext: Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or
@@ -100,7 +100,7 @@ entity:
     type: string
     required: false
     maxLength: 4000
-    help: {summary: Qualitative context supporting the assessment., businessMeaning: "Records material observations, explanations or agreed context that structured scores do not capture.", usage: "Supplier review, audit and improvement planning.", workflowRole: Supplements but does not replace measurable evidence., optionalMeaning: Optional.}
+    help: {summary: "The assessor's comments explaining the rating and any agreed improvement points for the supplier.", businessMeaning: "Records material observations, explanations or agreed context that structured scores do not capture.", usage: "Supplier review, audit and improvement planning.", workflowRole: Supplements but does not replace measurable evidence., optionalMeaning: Optional., relationshipContext: "Often cites specific late receipts, rejected inspections, claims or corrective actions linked to this assessment to justify the rating."}
   relationships:
   - name: supplier
     target: Supplier

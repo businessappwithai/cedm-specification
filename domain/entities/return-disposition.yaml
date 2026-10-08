@@ -11,7 +11,7 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the return disposition decision., businessMeaning: "Identifies one controlled disposition event independently of the return, inspection and resulting inventory or financial effects.", usage: "Used for reverse logistics, inventory, quality, audit and reconciliation.", relationshipContext: "CustomerReturn or SupplierReturn supplies the returned-material context; QualityInspection may supply quality evidence; InventoryMovement records physical consequence.", workflowRole: Carries the disposition decision into execution and completion., requiredMeaning: Required.}
+    help: {summary: "The permanent reference linking this decision to its return, inspection and resulting stock movements.", businessMeaning: "Identifies one controlled disposition event independently of the return, inspection and resulting inventory or financial effects.", usage: "Used for reverse logistics, inventory, quality, audit and reconciliation.", relationshipContext: "CustomerReturn or SupplierReturn supplies the returned-material context; QualityInspection may supply quality evidence; InventoryMovement records physical consequence.", workflowRole: Carries the disposition decision into execution and completion., requiredMeaning: Required.}
   - name: dispositionCode
     type: enum
     required: true
@@ -26,7 +26,7 @@ entity:
     - ACCEPT
     - CONDITIONAL_RELEASE
     help:
-      summary: Controlled operational outcome selected for returned material.
+      summary: "Says what will happen to the returned goods, such as restock, quarantine, repair or scrap."
       businessMeaning: Defines what should happen to the returned quantity.
       usage: Drives warehouse execution, quality containment and eligibility for inventory availability.
       relationshipContext: The code is a decision, not the inventory transaction itself and not a CreditNote or SupplierCreditNote.
@@ -55,11 +55,11 @@ entity:
     type: datetime
     required: true
     immutable: true
-    help: {summary: Timestamp when the disposition became effective., businessMeaning: Establishes chronology for the physical return decision., usage: "Supports audit, warehouse processing, SLA measurement and reconciliation.", relationshipContext: "Distinct from returnDate, receiptDate and financial adjustment dates.", workflowRole: Anchors execution of the disposition., requiredMeaning: Required.}
+    help: {summary: "When this decision about the returned goods took effect, for audit and stock timing.", businessMeaning: Establishes chronology for the physical return decision., usage: "Supports audit, warehouse processing, SLA measurement and reconciliation.", relationshipContext: "Distinct from returnDate, receiptDate and financial adjustment dates.", workflowRole: Anchors execution of the disposition., requiredMeaning: Required.}
   - name: quantity
     type: decimal
     required: true
-    help: {summary: Quantity covered by this disposition., businessMeaning: States how much returned material receives this outcome., usage: Supports partial dispositions and inventory execution., relationshipContext: Must reconcile with the related return line quantity and its UnitOfMeasure., workflowRole: Controls the quantity eligible for the resulting InventoryMovement., requiredMeaning: Required and must be positive.}
+    help: {summary: "How many of the returned units this particular decision applies to on the return.", businessMeaning: States how much returned material receives this outcome., usage: Supports partial dispositions and inventory execution., relationshipContext: Must reconcile with the related return line quantity and its UnitOfMeasure., workflowRole: Controls the quantity eligible for the resulting InventoryMovement., requiredMeaning: Required and must be positive.}
   - name: status
     type: enum
     required: true
@@ -71,7 +71,7 @@ entity:
     - CANCELLED
     - EXCEPTION
     help:
-      summary: Lifecycle state of the disposition decision.
+      summary: "Shows whether the decision is drafted, authorised, carried out, in exception or cancelled."
       businessMeaning: Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed.
       usage: Controls whether downstream inventory execution is permitted.
       relationshipContext: Does not replace CustomerReturn, SupplierReturn or QualityInspection status.
@@ -88,7 +88,7 @@ entity:
     type: string
     required: false
     maxLength: 100
-    help: {summary: Business reason supporting the selected disposition., businessMeaning: Explains why the returned quantity received the selected operational outcome., usage: "Used for quality analysis, supplier/customer disputes and reporting.", relationshipContext: May derive from return reason or inspection evidence but remains disposition-specific., workflowRole: Supports authorization and exception handling., optionalMeaning: Optional when another controlled reason source is sufficient.}
+    help: {summary: "Explains why the returned goods received this outcome, such as damaged packaging or a defect.", businessMeaning: Explains why the returned quantity received the selected operational outcome., usage: "Used for quality analysis, supplier/customer disputes and reporting.", relationshipContext: May derive from return reason or inspection evidence but remains disposition-specific., workflowRole: Supports authorization and exception handling., optionalMeaning: Optional when another controlled reason source is sufficient.}
   relationships:
   - name: customerReturn
     target: CustomerReturn

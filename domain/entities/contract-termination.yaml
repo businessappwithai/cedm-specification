@@ -7,14 +7,14 @@ entity:
     icon: file-check
   identity: {key: contractTerminationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractTermination., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
+  - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: "Uniquely identifies this termination event so the ended contract and its consequences can be traced later.", businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
   - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
   relationships:
   - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
   invariants:
   - {id: CONTRACT-TERMINATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed event ending a Contract or selected obligations under authorized termination terms.
+    summary: "A recorded decision to end a contract, or some of its obligations, under the agreed termination terms, kept as evidence of when and why the obligations stopped."
     purpose: Provide durable, implementation-neutral governance semantics for ContractTermination.
     businessMeaning: A governed event ending a Contract or selected obligations under authorized termination terms.
     whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.

@@ -12,7 +12,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the customer return.
+      summary: "The internal key that links the return's lines, inspections, dispositions and credit notes together."
       businessMeaning: Identifies the reverse-fulfillment event independently of its number, lines, shipment, invoice or credit note.
       usage: Used for reverse logistics, inventory, financial adjustment, audit and integration.
       relationshipContext: Stable root identity for CustomerReturnLine and downstream CreditNote evidence.
@@ -24,7 +24,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Business-facing customer return reference.
+      summary: "The return authorization number given to the customer and written on the returned parcel."
       businessMeaning: Identifies the return for customer service, warehouse and finance operations.
       usage: Used in return authorization, transport, receiving, inspection, credit and audit.
       relationshipContext: Distinct from customerReturnId, Shipment and CreditNote numbers.
@@ -36,7 +36,7 @@ entity:
     default: DRAFT
     values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
     help:
-      summary: Lifecycle state of the authorized customer return.
+      summary: "Shows where the return stands, from draft and authorized through transit, receipt and inspection to completed, cancelled or exception."
       businessMeaning: Controls progression through transport, receipt, inspection, disposition, inventory and financial adjustment.
       usage: Controls return processing and completion decisions.
       relationshipContext: Return status does not itself change inventory or invoice balances.
@@ -66,7 +66,7 @@ entity:
     required: false
     maxLength: 100
     help:
-      summary: Business reason supplied for the customer return.
+      summary: "Says why the customer is sending goods back, such as damaged, wrong item or no longer needed."
       businessMeaning: Explains why goods or services are being returned.
       usage: Used for approval, quality, analytics, warranty and customer service.
       relationshipContext: May differ from the financial CreditNote.reasonCode.
@@ -77,7 +77,7 @@ entity:
     required: false
     maxLength: 2000
     help:
-      summary: Additional operational context for the return.
+      summary: "Free comments from staff or the customer explaining circumstances of the return that the reason code does not capture."
       businessMeaning: Captures information not represented by structured return fields.
       usage: Supports warehouse, customer service and audit review.
       relationshipContext: Notes supplement but do not replace structured evidence.

@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets project tasks and progress reports refer to this checkpoint."
   - name: code
     type: string
     required: true
@@ -34,6 +35,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short reference used in plans and status reports, such as M3."
   - name: name
     type: string
     required: true
@@ -45,6 +47,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Says in plain words what has to be achieved, such as User acceptance sign-off."
   - name: targetDate
     type: date
     required: true
@@ -56,6 +59,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The date the project committed to reach this checkpoint, against which on-time delivery is judged."
   - name: status
     type: enum
     required: true
@@ -80,6 +84,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of Milestone.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the milestone is planned, at risk, achieved, missed or cancelled, which drives project health reporting."
   relationships:
   - name: project
     target: Project
@@ -135,7 +140,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a project management entity called Milestone within the CEDM business model.
+    summary: "A key checkpoint in a project, such as design sign-off or go-live, with a target date, kept so managers can see whether the project is on track and what tasks lead up to it."
     businessMeaning: Milestone is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -147,6 +152,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Milestone record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Milestones are set when the project plan is made, are monitored as their tasks progress, can be flagged at risk, are marked achieved or missed against the target date, and can be cancelled if scope changes, which raises a follow-up task."
 specification:
   version: 0.1.0
   status: draft

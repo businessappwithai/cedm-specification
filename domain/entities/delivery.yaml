@@ -7,8 +7,8 @@ entity:
     icon: truck
   identity: {key: deliveryId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Delivery., businessMeaning: Identifies one governed Delivery record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Delivery., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this handover of shipped goods at the destination.", businessMeaning: Identifies one governed Delivery record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The delivery code people quote when confirming or querying this particular handover of goods.", businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships:
   - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., cardinalityMeaning: Exactly one Shipment., workflowRole: Event must not silently rewrite prior shipment evidence.}}
   invariants:

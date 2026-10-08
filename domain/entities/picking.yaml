@@ -7,14 +7,14 @@ entity:
     icon: file-text
   identity: {key: pickingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: Stable pick-task identity., businessMeaning: Identifies one directed inventory-selection action., usage: WMS execution and audit., relationshipContext: Links reservation/source stock to staging/fulfillment., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed to pick., businessMeaning: Defines execution demand., usage: Pick confirmation and variance., relationshipContext: Must reconcile with reservation and inventory events., requiredMeaning: Required.}}
+  - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this pick task, used on handheld devices and in the pick history.", businessMeaning: Identifies one directed inventory-selection action., usage: WMS execution and audit., relationshipContext: Links reservation/source stock to staging/fulfillment., requiredMeaning: Required.}}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How much stock the picker is told to take from the source location for this task.", businessMeaning: Defines execution demand., usage: Pick confirmation and variance., relationshipContext: Must reconcile with reservation and inventory events., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
-    help: {summary: Picking execution state., businessMeaning: Controls warehouse task progression., usage: Wave/pick orchestration., relationshipContext: "PICKED is warehouse evidence, not shipment delivery.", valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being picked., PICKED: Required quantity confirmed., SHORT: Quantity short., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the task is planned, released, being picked, picked in full, short, cancelled or in exception.", businessMeaning: Controls warehouse task progression., usage: Wave/pick orchestration., relationshipContext: "PICKED is warehouse evidence, not shipment delivery.", valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being picked., PICKED: Required quantity confirmed., SHORT: Quantity short., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
   relationships:
   - {name: reservation, target: InventoryReservation, cardinality: 0..1, ownership: reference, help: {summary: Inventory commitment supplying pick demand., businessMeaning: Prevents picking unallocated demand where reservation is required., usage: Fulfillment., cardinalityMeaning: Optional under non-reservation workflows., workflowRole: Consumption must reconcile.}}
   - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Storage position picked from., businessMeaning: Defines source custody., usage: WMS execution., cardinalityMeaning: Exactly one source., workflowRole: Must hold eligible stock.}}
@@ -89,9 +89,11 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Warehouse inventory-selection task for authorized demand.
+    summary: "One warehouse task telling a picker to take a set quantity of reserved stock from a storage location for an order, production or transfer, kept to direct, track and confirm the physical selection."
     businessMeaning: Picking selects/handles committed stock; inventory and fulfillment ledgers remain authoritative separately.
     usage: Sales fulfillment, production staging, transfer and service demand.
     relationshipContext: Reservation supplies commitment; InventoryLocation supplies source; ShipmentLine may supply outbound demand.
     lifecycle: Planned → released → in progress → picked/short, cancelled or exception.
+    workflowContext: "Planned from a reservation or shipment line, released to the floor, started when a picker begins, confirmed as picked or short, moved to staging or a handling unit for packing and dispatch; exceptions such as missing stock are worked and returned to the flow, and unneeded tasks are cancelled."
+    example: "Pick task for 24 cartons of SKU 4471 from location A-03-02, reserved for shipment line SL-9012, released at 08:00 and confirmed as picked into pallet HU-5531 in staging lane S2."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PICKING}

@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of the learner within the institution's records, so enrolments, grades and fees stay attached to the same student throughout their studies and afterwards."
   - name: partyId
     type: reference
     target: Party
@@ -38,6 +39,7 @@ entity:
         the two entities and lets processes navigate from this record to the related Party.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Links the student to their personal record, holding their name, contact details and date of birth once, so the same person can also appear as an employee, guardian or alumnus without duplication."
   - name: studentNumber
     type: string
     required: true
@@ -52,6 +54,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The number printed on the student card and used by registry staff, teachers and the student when looking up records, submitting work or paying fees."
   - name: status
     type: enum
     required: true
@@ -79,6 +82,7 @@ entity:
         ALUMNI: Represents the alumni state or classification in the context of EducationStudent.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Where the learner stands with the institution: APPLICANT has not yet started, ACTIVE may enrol and attend, SUSPENDED is temporarily barred, GRADUATED has completed the programme, WITHDRAWN left early, and ALUMNI has moved on after graduating."
   relationships:
   - name: party
     target: Party
@@ -138,7 +142,7 @@ entity:
       - {from: ALUMNI, to: WITHDRAWN, action: withdraw}
       - {from: SUSPENDED, to: WITHDRAWN, action: withdraw}
   help:
-    summary: Represents a education entity called EducationStudent within the CEDM business model.
+    summary: "A learner known to a school or institution, from applicant through enrolled student to graduate and alumnus, kept so enrolments, attendance, grades, fees and guardians all belong to the right person."
     businessMeaning: EducationStudent is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -150,6 +154,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical EducationStudent record represents one identifiable business occurrence or master-data object that
       can be referenced by related CEDM processes.
+    workflowContext: "Created by admissions as an applicant, activated on acceptance so the registry can enrol the student in classes, used daily for attendance, grading and fee billing, possibly suspended for disciplinary or financial reasons, and finally graduated, withdrawn or moved to alumni for transcripts and alumni relations."
 specification:
   version: 0.1.0
   status: draft

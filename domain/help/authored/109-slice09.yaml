@@ -1,0 +1,502 @@
+# Authored help, batch 109 (slice 09).
+Aircraft:
+  help:
+    summary: "One aircraft the organization operates or manages, tracked by registration, type and serial number so its availability, location and maintenance history can be controlled across its service life."
+    workflowContext: "Fleet planning registers the aircraft as PLANNED, operations activates it for service, maintenance planning moves it into MAINTENANCE and raises maintenance work orders, airworthiness control grounds it when it cannot fly, and fleet management finally retires it while keeping its history for audit."
+  attributes:
+    aircraftId:
+      businessMeaning: "The permanent internal handle for this aircraft, which stays the same even if the aircraft is re-registered, so work orders and history stay attached to the right airframe."
+    registrationNumber:
+      businessMeaning: "The tail number issued by the aviation authority; operations, flight planning and regulators use it to identify the aircraft in day-to-day work and official records."
+    aircraftType:
+      businessMeaning: "The make and model of the aircraft, which decides which crews are qualified to fly it, which maintenance programme applies and which spare parts fit it."
+    serialNumber:
+      businessMeaning: "The manufacturer's serial number of the airframe, which identifies the physical aircraft for warranty, airworthiness directives and ownership records regardless of its current registration."
+    status:
+      businessMeaning: "Tells planners whether the aircraft can be scheduled: only ACTIVE aircraft fly, MAINTENANCE and GROUNDED aircraft are unavailable, PLANNED ones are not yet in service and RETIRED ones have left the fleet."
+AssetTransfer:
+  attributes:
+    assetTransferId:
+      summary: "The unique reference for this single transfer of an asset's custody, location or responsible organization."
+    effectiveAt:
+      summary: "The date and time from which the asset is officially held by its new location, owner or custodian."
+BankTransaction:
+  attributes:
+    bankTransactionId:
+      businessMeaning: "The internal handle for one line from a bank statement, letting treasury link it to payments and journal entries without depending on the bank's own numbering."
+    transactionNumber:
+      businessMeaning: "The number treasury staff quote when discussing or searching for this bank movement, kept unique so the same statement line is never imported twice."
+    transactionDate:
+      businessMeaning: "When the bank booked the movement, used to sort statement lines and to match them to payments made or received around the same day."
+    valueDate:
+      summary: "The date on which the bank actually made the funds available or charged them for interest purposes."
+      businessMeaning: "Determines when money really counts in the account balance for interest and cash positioning, which can differ from the booking date over weekends and holidays."
+    transactionType:
+      businessMeaning: "Classifies the movement as money in, money out, a transfer between accounts, a bank fee, interest, a reversal or something else, which steers how it is reconciled and posted."
+    amount:
+      businessMeaning: "The sum of money the bank moved, in the account's currency, which reconciliation must match exactly against the internal payment or accounting entry."
+    status:
+      summary: "Shows whether the bank has posted, reversed or failed this movement or it is still pending."
+      businessMeaning: "Only POSTED movements count toward the reconciled bank balance; PENDING ones are awaited, while REVERSED and FAILED ones are kept as evidence but no longer represent cash."
+    reference:
+      businessMeaning: "The payment reference carried with the movement, such as an invoice or remittance number, which is the main clue reconciliation uses to find the matching payment."
+    description:
+      summary: "The narrative text the bank printed on the statement line describing this movement."
+      businessMeaning: "Gives the reconciler readable context such as the payer's name or the purpose of a fee when the reference alone does not identify the matching payment."
+    externalReference:
+      businessMeaning: "The bank's own identifier for the movement, used to query the bank about it and to prevent duplicate imports of the same statement line."
+BusinessTransaction:
+  help:
+    summary: "One recorded business event, such as an order, transfer or adjustment, that commits the organization to something or changes a business position, kept with its parties, products, amount and approval state."
+    workflowContext: "A user drafts the transaction, opens it for processing, a responsible approver approves it, it is posted so that its effects take hold, and it is completed when fulfilled; it can be cancelled before posting, and a posted transaction is undone only by a reversal."
+  attributes:
+    transactionId:
+      businessMeaning: "The permanent internal handle for this transaction, so linked documents, parties and reversals always point to the same record."
+    transactionNumber:
+      businessMeaning: "The number people quote to find and discuss the transaction, unique within its type so no two transactions of the same kind are confused."
+    transactionType:
+      businessMeaning: "Says what kind of business event this is, which decides the rules, approvals and accounting treatment that apply to it."
+    transactionDate:
+      businessMeaning: "When the business event took place, used for reporting periods, ageing and deciding which period its effects belong to."
+    status:
+      businessMeaning: "Shows how far the transaction has progressed from DRAFT through OPEN, APPROVED and POSTED to COMPLETED, or whether it was CANCELLED or REVERSED; once POSTED it can only be corrected by reversal."
+    currencyId:
+      businessMeaning: "The currency in which the transaction's amount is expressed, needed to convert and consolidate it with transactions in other currencies."
+    totalAmount:
+      businessMeaning: "The overall value of the transaction, which managers rely on for approval limits, reporting and financial impact; it is not negative unless the transaction type allows it."
+    referenceNumber:
+      businessMeaning: "An outside reference such as a customer order or supplier document number, which lets staff tie the transaction back to the paperwork that triggered it."
+    createdAt:
+      businessMeaning: "When the transaction was first entered, which supports audit trails and measuring how long transactions take to process."
+    updatedAt:
+      businessMeaning: "When the transaction was last changed, which tells reviewers whether they are looking at the latest version and supports audit of edits."
+City:
+  attributes:
+    cityId:
+      summary: "The fixed reference for this city that addresses and other records point to."
+    name:
+      summary: "The everyday name of the city as people write it in addresses and reports."
+    population:
+      summary: "The approximate number of people living in the city, from the published geographic source."
+    latitude:
+      summary: "How far north or south of the equator the city lies, in degrees, for mapping."
+    longitude:
+      summary: "How far east or west of the prime meridian the city lies, in degrees, for mapping."
+    isCapital:
+      summary: "Marks whether this city is the national capital of its country, as published by the source."
+ContactPoint:
+  attributes:
+    contactPointId:
+      summary: "The fixed reference for this contact channel, so messages and history stay attached to it."
+    code:
+      summary: "A short stable code that identifies this contact channel for the party it belongs to."
+    name:
+      summary: "A readable label for the contact channel, such as main office phone or billing email."
+Contract:
+  help:
+    summary: "One binding agreement between two or more parties, recording its type, term, signature and renewal so the organization knows what it has committed to and when the commitment applies."
+    workflowContext: "The contract is drafted, negotiated with the counterparties, sent for internal approval, signed and activated, may be suspended during disputes, and ends by expiring at its end date, being terminated early or being cancelled before it took effect; obligations and service contracts hang off it throughout."
+  attributes:
+    contractId:
+      businessMeaning: "The permanent internal handle for the agreement, so obligations, documents and service contracts stay attached to it through renewals and amendments."
+    contractNumber:
+      businessMeaning: "The number legal, procurement and sales staff quote when referring to the agreement in correspondence, invoices and disputes."
+    title:
+      businessMeaning: "A short descriptive name that tells people at a glance what the agreement covers, such as the supply of packaging materials for 2026."
+    contractType:
+      businessMeaning: "The kind of agreement, such as supply, service, lease or licence, which decides which templates, approvals and obligations apply."
+    status:
+      businessMeaning: "Shows where the agreement stands, from DRAFT and NEGOTIATION through APPROVAL to ACTIVE or SUSPENDED, and whether it ended by EXPIRED, TERMINATED or CANCELLED; only an ACTIVE contract binds the parties now."
+    effectiveFrom:
+      businessMeaning: "The first day the parties' rights and obligations apply; work or deliveries before this date are not covered by the agreement."
+    effectiveTo:
+      businessMeaning: "The last day the agreement applies, used to plan renewals and to stop billing or service after the term; it cannot be earlier than the start date."
+    signedAt:
+      businessMeaning: "When the agreement was signed, which is the evidence that the parties accepted it and often starts notice or cooling-off periods."
+    autoRenew:
+      businessMeaning: "Says whether the agreement continues automatically into a new term unless someone gives notice, so contract owners know whether they must act before the end date."
+Credit:
+  attributes:
+    creditId:
+      summary: "The fixed reference for this customer credit, used when applying it against charges."
+    status:
+      summary: "Shows whether the credit is still a draft, available to use, fully used or cancelled."
+Delivery:
+  attributes:
+    deliveryId:
+      summary: "The fixed reference for this handover of shipped goods at the destination."
+    code:
+      summary: "The delivery code people quote when confirming or querying this particular handover of goods."
+EducationCourse:
+  help:
+    summary: "One course or learning unit an institution offers, with its code, name and credit value, kept so programmes, classes, enrolments and assessments can all refer to the same course definition."
+    workflowContext: "Curriculum staff draft the course and activate it once approved, schedulers then create classes for it, students enrol and are assessed, and the course is deactivated when not offered for a term, reactivated later, or retired when withdrawn from the catalogue."
+  attributes:
+    courseId:
+      businessMeaning: "The permanent internal handle for the course, keeping enrolments, classes and assessments tied to it even if the code or name changes."
+    courseCode:
+      businessMeaning: "The catalogue code students and staff use to find and register for the course, and that appears on transcripts."
+    name:
+      businessMeaning: "The course title shown in the catalogue, timetables and transcripts, telling students what the course is about."
+    credits:
+      businessMeaning: "How much the course counts toward a qualification, which students rely on to plan their study load and registrars use to check programme completion."
+    status:
+      businessMeaning: "Shows whether the course can be offered: only ACTIVE courses take new classes and enrolments, DRAFT ones are still being designed, INACTIVE ones are paused and RETIRED ones are withdrawn for good."
+Entitlement:
+  help:
+    summary: "One customer's right to receive a defined scope of service under a service contract, with its validity period, usage limit and any covered asset or product, so service teams know what work is covered."
+    workflowContext: "An entitlement is set up as a draft when a service contract is sold, activated when the contract starts, checked and consumed as service orders are raised against it, may be suspended for non-payment, and ends as exhausted when its usage is used up, expired at its end date or terminated early."
+  attributes:
+    entitlementId:
+      summary: "The fixed reference for this service right that service orders check and draw against."
+    entitlementCode:
+      summary: "The code service agents quote to look up what this customer is entitled to receive."
+    usageLimit:
+      summary: "How much covered service, such as visits or hours, the customer may consume in total."
+    status:
+      summary: "Shows whether the customer can currently use this right or it is suspended, used up or ended."
+Farm:
+  help:
+    summary: "One agricultural operation, with its land, facilities and production, identified by code and type so its fields, crops, owners and activities can be planned and reported together."
+    workflowContext: "A farm is registered as planned when it is acquired or set up, activated when production begins, its fields and crops are then managed season by season, it may be made inactive while fallow or idle and reactivated, and it is retired when the operation ends."
+  attributes:
+    farmId:
+      businessMeaning: "The permanent internal handle for the farm, keeping fields, crops and ownership history attached even if its name or code changes."
+    farmCode:
+      businessMeaning: "The short code agronomists and administrators use to identify the farm in plans, reports and subsidy claims."
+    name:
+      businessMeaning: "The name people know the farm by, used in everyday communication, reports and on maps."
+    farmType:
+      businessMeaning: "Whether the farm grows crops, raises livestock, does both, farms fish or does something else, which decides which activities, records and regulations apply."
+    status:
+      businessMeaning: "Shows whether the farm is in production: ACTIVE farms are planned and reported on, PLANNED ones are not yet operating, INACTIVE ones are paused and RETIRED ones have closed."
+FuelTransaction:
+  help:
+    summary: "One fill-up or energy charge supplied to a fleet vehicle, recording how much was taken, what it cost, where and when, and by which driver, for fuel cost control and fraud checks."
+    workflowContext: "The transaction is recorded from a fuel card feed or a driver's entry, fleet administrators verify it against the vehicle, driver and odometer reading, and verified transactions feed cost reporting and payment; an incorrect one is reversed rather than edited."
+    example: "Transaction FT-2026-004512: 62.5 litres of diesel for van KX-21-PLM at a highway station on 3 March 2026 at 07:42, costing 98.13 EUR, odometer 84,210 km, status VERIFIED."
+  attributes:
+    fuelTransactionId:
+      summary: "The fixed reference for this fill-up, used when verifying, paying or reversing it."
+    transactionNumber:
+      summary: "The number from the fuel card statement or receipt that identifies this fill-up."
+    quantity:
+      summary: "How much fuel or energy was put into the vehicle, in the stated unit."
+    totalAmount:
+      summary: "The total price charged for this fill-up, which feeds the vehicle's running costs."
+    occurredAt:
+      summary: "The date and time the vehicle was actually fuelled or charged at the station."
+    status:
+      summary: "Shows whether this fill-up is only recorded, has been verified, or was reversed as wrong."
+HealthcareOrder:
+  help:
+    summary: "One clinical or operational order placed during a patient encounter, such as a lab test, medication, procedure or service, kept so the request can be carried out, tracked and audited."
+    workflowContext: "A clinician drafts the order during an encounter, activates it so the lab, pharmacy or department can act on it, the performing team completes it when the work is done, and an order that is no longer needed is cancelled; completed orders are corrected only by follow-up orders."
+  attributes:
+    healthcareOrderId:
+      summary: "The fixed reference for this clinical order, used by the teams who carry it out."
+    healthcareOrderCode:
+      summary: "The order code staff quote when checking on or acting on this clinical request."
+    status:
+      summary: "Shows whether the order is still a draft, active for action, completed or cancelled."
+InsurancePolicy:
+  help:
+    summary: "One insurance policy issued by an insurer to one or more policyholders, recording its type, cover period and premium so coverage, claims and premium billing can be managed against it."
+    workflowContext: "A policy starts as a quote, is activated when the policyholder accepts and pays, underwriting and coverages are attached, premiums are billed and claims are made during its term, it may be suspended and resumed, and it ends as expired at the end of the term or cancelled early."
+  attributes:
+    insurancePolicyId:
+      businessMeaning: "The permanent internal handle for the policy, keeping claims, coverages and premiums attached across renewals and endorsements."
+    policyNumber:
+      businessMeaning: "The number the policyholder and the insurer's staff quote when asking about cover, paying premiums or making a claim."
+    policyType:
+      businessMeaning: "The line of insurance, such as motor, home, life or liability, which decides which coverages, rules and claims handling apply."
+    effectiveFrom:
+      businessMeaning: "The first day the insured is covered; a loss before this date is not covered by the policy."
+    effectiveTo:
+      businessMeaning: "The last day of cover, after which claims are not accepted unless the policy is renewed; it cannot be earlier than the start date."
+    premium:
+      businessMeaning: "The price the policyholder pays for the cover, which drives premium billing and the insurer's revenue."
+    status:
+      businessMeaning: "Shows whether the policy currently provides cover: only ACTIVE policies pay claims, QUOTED ones are offers not yet taken up, SUSPENDED ones are paused, and EXPIRED or CANCELLED ones have ended."
+InventoryReservation:
+  attributes:
+    inventoryReservationId:
+      businessMeaning: "The permanent handle for this commitment of stock, so picking, release and expiry can all refer to the same reservation."
+    quantityReserved:
+      businessMeaning: "How much stock is set aside for the demand, which is subtracted from what other orders can promise even though nothing has physically moved."
+    quantityConsumed:
+      businessMeaning: "How much of the reserved stock has actually been picked or issued to the demand, so planners can see how much is still held back."
+    quantityReleased:
+      businessMeaning: "How much of the reservation was given back to general availability, for example after an order line was reduced; with the consumed quantity it never exceeds what was reserved."
+    status:
+      businessMeaning: "Shows whether the stock is still held back (PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED) or the reservation has ended as CONSUMED, CANCELLED or EXPIRED and no longer blocks availability."
+    priority:
+      businessMeaning: "Decides which reservation gets stock first when there is not enough for everyone, so urgent customer orders are served before routine ones."
+    expiresAt:
+      businessMeaning: "When the hold lapses if the stock has not been used, which stops forgotten reservations from blocking stock that others could sell."
+    createdAt:
+      businessMeaning: "When the stock was first set aside, used to judge how long goods have been held and to settle first-come allocation questions."
+    updatedAt:
+      businessMeaning: "When the reservation last changed, which helps planners spot stale holds and audit adjustments to reserved quantities."
+LeaveRequest:
+  help:
+    summary: "One employee's request to be absent for a stated period and type of leave, kept with its approval outcome so attendance, payroll and leave balances reflect only agreed absences."
+    workflowContext: "The employee drafts and submits the request, a manager approves or rejects it, an approved request updates attendance and payroll for the dates covered, and the employee can cancel a request before it is decided; decided history is kept for audit."
+  attributes:
+    leaveRequestId:
+      summary: "The fixed reference for this absence request, used by approvals, attendance and payroll."
+    requestNumber:
+      summary: "The number the employee and manager quote when discussing this particular absence request."
+    leaveType:
+      summary: "The kind of absence requested, such as annual, sick, parental or unpaid leave."
+    startDate:
+      summary: "The first day the employee will be away from work under this request."
+    endDate:
+      summary: "The last day the employee will be away before returning to work."
+    status:
+      summary: "Shows whether the request is a draft, awaiting a decision, approved, rejected or cancelled."
+MaintenanceWorkOrder:
+  help:
+    workflowContext: "A work order is planned from a maintenance plan, repair estimate or service order, opened when the work is confirmed, assigned to a technician or crew, started and completed with a completion time, and can be put on hold and resumed at any active step or cancelled if no longer needed."
+  attributes:
+    maintenanceWorkOrderId:
+      businessMeaning: "The permanent internal handle for the job, keeping labour, parts and history attached to it from planning to completion."
+    workOrderNumber:
+      businessMeaning: "The number technicians, planners and supervisors quote when assigning, reporting on or closing the job."
+    workType:
+      businessMeaning: "Whether the job is an inspection, planned preventive work, a correction, a repair or an emergency, which drives how it is scheduled, approved and costed."
+    status:
+      businessMeaning: "Shows where the job stands, from PLANNED and OPEN through ASSIGNED and IN_PROGRESS to COMPLETED, or whether it is ON_HOLD or CANCELLED; a COMPLETED job must carry its completion time."
+    priority:
+      businessMeaning: "How urgently the job must be done, from LOW to CRITICAL, which decides its place in the schedule and whether other work is pushed back."
+    requestedAt:
+      businessMeaning: "When the need for the work was raised, the starting point for measuring response times; scheduling and completion cannot come before it."
+    scheduledAt:
+      businessMeaning: "When the work is planned to take place, which technicians and operations use to arrange access to the asset and downtime."
+    completedAt:
+      businessMeaning: "When the work was actually finished, which closes the job, returns the asset to service and is used to measure turnaround time."
+    description:
+      businessMeaning: "The instructions or problem description telling the technician what is wrong and what needs to be done."
+MiningSite:
+  help:
+    summary: "One location where the company explores for or extracts minerals or other natural resources, recorded with its resource and stage so production, permits and reporting can be tied to it."
+    workflowContext: "A site is registered during development, moves into exploration to prove the resource, becomes active when extraction starts and production records are captured, may be suspended and resumed for safety, permit or market reasons, and is closed when extraction ends."
+  attributes:
+    miningSiteId:
+      businessMeaning: "The permanent internal handle for the site, keeping production records and permits attached even if its name changes."
+    siteCode:
+      businessMeaning: "The short code used in production reports, permits and logistics to identify the site."
+    name:
+      businessMeaning: "The name the site is known by among staff, regulators and the local community."
+    resourceType:
+      businessMeaning: "What is being mined at the site, such as copper, coal or gold, which drives production measures, processing and regulatory reporting."
+    status:
+      businessMeaning: "Shows the site's stage: DEVELOPMENT and EXPLORATION before extraction, ACTIVE while producing, SUSPENDED when work is paused, and CLOSED once operations have ended."
+Packaging:
+  help:
+    summary: "One way a product or product variant is packed, such as a carton of twelve or a pallet, defining how many units it holds so buying, storing, selling and shipping use the same quantities."
+    workflowContext: "Product management defines the packaging for a product, purchasing orders in it, warehouses receive and store stock by it, sales and shipping use it to convert package counts into units, and a change to the packaging is introduced as a new configuration so past quantities keep their meaning."
+    example: "Packaging CTN-12 for 500 ml bottled water: one carton holds 12 bottles, measured in each."
+  attributes:
+    packagingId:
+      summary: "The fixed reference for this packaging configuration that orders and stock records point to."
+    code:
+      summary: "The short code used on orders and labels to name this pack size."
+    quantityPerPackage:
+      summary: "How many units of the product one package contains, always more than zero."
+Permission:
+  help:
+    summary: "One specific thing a user may be allowed to do, such as approving purchase orders or exporting customer data, which is granted to roles to control who can perform each action."
+    workflowContext: "Security administrators define a permission when a new protected action appears, attach it to roles, and users gain it through their role assignments; it can be deactivated temporarily and reactivated, and is retired when the action no longer exists."
+  attributes:
+    permissionId:
+      businessMeaning: "The permanent internal handle for the permission, so role grants keep pointing to the same capability over time."
+    code:
+      businessMeaning: "The stable code administrators and auditors use to refer to the permission in role definitions and access reviews."
+    resource:
+      businessMeaning: "The part of the application or kind of information the permission protects, such as invoices or employee records."
+    action:
+      businessMeaning: "What the holder may do with the resource, from creating, reading, updating or deleting it to executing, approving, exporting or administering it."
+    status:
+      businessMeaning: "Shows whether the permission is in force: ACTIVE permissions grant access through roles, INACTIVE ones are paused, and RETIRED ones are withdrawn for good."
+ProcessDefinition:
+  attributes:
+    processDefinitionId:
+      summary: "The fixed reference for this version of the business process that running instances follow."
+    status:
+      summary: "Shows whether this process version is pending, in use, completed or cancelled."
+ProfitCenter:
+  help:
+    workflowContext: "Controlling sets up a profit center for a business unit or product line, revenue and cost postings are tagged with it during normal operations, management reporting then reads profitability by profit center, and it is closed to new postings when the business area is reorganized."
+    lifecycle: "A profit center is created and approved by controlling, stays in use for tagging revenue and cost for as long as the business area exists, and is then closed to new postings while its history remains available for reporting."
+    example: "Profit center PC-RET-EU for the European retail business of Example Holdings, collecting store revenue and costs across all European legal entities."
+  attributes:
+    profitCenterId:
+      summary: "The fixed reference for this profit center that revenue and cost entries are tagged with."
+    code:
+      summary: "The short code finance uses to tag postings and run reports for this profit center."
+PurchaseOrder:
+  help:
+    summary: "One formal order sent to a supplier for goods or services, stating what is bought, at what price and when it should arrive, so receipts and supplier invoices can be checked against it."
+  attributes:
+    purchaseOrderId:
+      summary: "The fixed reference for this order that receipts, invoices and returns point to."
+      businessMeaning: "Keeps goods receipts, supplier invoices and returns attached to the right commitment, even if the order number is reissued in another system."
+    orderNumber:
+      summary: "The number buyers and the supplier quote on confirmations, deliveries and invoices."
+      businessMeaning: "The supplier prints it on delivery notes and invoices, so it is the key used to match what arrives and what is billed against what was ordered."
+    orderDate:
+      businessMeaning: "When the order was placed, which starts the supplier's lead time and determines which prices and terms applied."
+    status:
+      summary: "Shows whether the order is drafted, approved, sent, being received, closed or cancelled."
+      businessMeaning: "Tells buyers and receiving staff what to expect: an APPROVED order may be sent, SENT and PARTIALLY_RECEIVED orders still await goods, RECEIVED ones are complete, and CANCELLED orders accept no new receipts."
+    currencyId:
+      summary: "The currency in which the supplier will charge for this order."
+      businessMeaning: "Decides how prices are interpreted and converted, and which currency the supplier's invoice must be in to match the order."
+    requestedDeliveryDate:
+      summary: "The date by which the buyer wants the supplier to deliver the goods."
+      businessMeaning: "Sets the supplier's delivery target, which receiving plans around and supplier performance is measured against."
+    totalAmount:
+      businessMeaning: "The total committed spend on the order, which approval limits, budgets and invoice matching rely on; it must agree with the order lines."
+RegulatorySubmission:
+  help:
+    summary: "One formal filing made to a regulatory authority to obtain an approval, registration or authorization, or to meet a reporting obligation, tracked from preparation through the authority's decision."
+    workflowContext: "Regulatory affairs prepares the submission and its documents as a draft, submits it to the authority, which reviews it and may raise questions that the sponsor answers, and the authority then approves or rejects it; the sponsor can withdraw it before a decision."
+  attributes:
+    regulatorySubmissionId:
+      businessMeaning: "The permanent internal handle for the filing, keeping documents and correspondence with the authority attached to it."
+    submissionNumber:
+      businessMeaning: "The number used with the authority to identify the filing in letters, portals and follow-up questions."
+    submissionType:
+      businessMeaning: "The kind of filing, such as a new application, variation, renewal or periodic report, which decides the required content and the authority's review timelines."
+    status:
+      businessMeaning: "Shows where the filing stands with the authority, from DRAFT and SUBMITTED through UNDER_REVIEW and QUESTIONS to APPROVED, REJECTED or WITHDRAWN, telling the team whether action is needed."
+    submittedAt:
+      businessMeaning: "When the filing was lodged with the authority, which starts official review clocks and must be present once the submission has been sent."
+    decisionAt:
+      businessMeaning: "When the authority issued its decision, which determines when an approved product or activity may begin and is kept as compliance evidence."
+RetailSale:
+  help:
+    summary: "One sale rung up at a store's point of sale, with its receipt number, lines, payments and total, kept so takings, stock and customer refunds can be reconciled."
+    workflowContext: "The cashier opens the sale and scans the items, the customer pays, and the sale is completed; a sale can be voided at the till, and a sale returned by the customer is refunded, with store takings and stock reports reading the outcome."
+  attributes:
+    retailSaleId:
+      businessMeaning: "The permanent internal handle for the sale, keeping its lines and payments together for refunds and audits."
+    receiptNumber:
+      businessMeaning: "The number printed on the customer's receipt, which staff use to look up the sale for returns, refunds and complaints."
+    saleDate:
+      businessMeaning: "When the sale took place, which decides the trading day it counts toward and the return period for the customer."
+    status:
+      businessMeaning: "Shows the sale's outcome: OPEN while being rung up, COMPLETED when it counts toward takings, VOIDED when cancelled at the till, and REFUNDED when the money was given back."
+    totalAmount:
+      businessMeaning: "The amount the customer was charged for the sale, which cash-up and takings reports reconcile against the payments received; it is never negative."
+    currencyId:
+      businessMeaning: "The currency the customer paid in, needed to total the store's takings and convert them for group reporting."
+Sample:
+  help:
+    summary: "One physical or logical specimen, aliquot or material portion collected or prepared for research, tracked from collection to disposal so every experiment and result can be traced to it."
+    workflowContext: "A sample is planned, collected and received at the lab, made available, used in experiments and assays, possibly divided into derived samples, quarantined and released when its integrity is in doubt, and ends as consumed, disposed of or lost; used samples may be archived before their final consumption."
+  attributes:
+    sampleId:
+      summary: "The fixed reference for this specimen that experiments, assays and derived samples point to."
+    sampleCode:
+      summary: "The unique label printed on the tube or container that identifies this specimen in the lab."
+    sampleType:
+      summary: "The kind of specimen, such as an aliquot, biological, chemical or control sample."
+    status:
+      summary: "Shows where the specimen is in its life, from planned and collected to consumed or disposed."
+    unitOfMeasure:
+      summary: "The unit in which the remaining amount of this specimen is measured, such as millilitres."
+ServiceOrder:
+  help:
+    workflowContext: "A service order is drafted from a service request, case or contract, approved once entitlement is confirmed, scheduled with a technician and start time, carried out and completed, and can be cancelled before work finishes; completed orders are kept unchanged as service history."
+  attributes:
+    serviceOrderId:
+      summary: "The fixed reference for this authorized service job that visits and work orders point to."
+    serviceOrderNumber:
+      summary: "The number the customer and technicians quote when scheduling or asking about this service job."
+    description:
+      summary: "What service work is to be done for the customer, written so the technician understands the job."
+    scheduledStartAt:
+      summary: "The date and time the technician is booked to start the service work."
+    status:
+      summary: "Shows whether the job is drafted, approved, scheduled, in progress, completed or cancelled."
+Stop:
+  help:
+    summary: "One planned point along a transport route, in sequence, where a vehicle is due to arrive and depart to pick up, deliver, serve, refuel or rest, so drivers and dispatchers share the same itinerary."
+    workflowContext: "Route planners add the stops to a route in order with planned arrival and departure times, dispatch hands the route to the driver, the stops guide pickups and deliveries during execution, and actual times are compared against the plan afterwards."
+    lifecycle: "A stop is planned when the route is built, may be resequenced or retimed while the route is still being planned, is followed by the driver during the trip, and remains afterwards as the planned reference for that route."
+  attributes:
+    stopId:
+      summary: "The fixed reference for this point on the route that loads and deliveries are tied to."
+    stopType:
+      summary: "What happens at this stop, such as pickup, delivery, service, refuelling or a driver break."
+    plannedArrivalAt:
+      summary: "When the vehicle is expected to reach this stop according to the route plan."
+    plannedDepartureAt:
+      summary: "When the vehicle is expected to leave this stop, never before its planned arrival."
+SupplierDebitNoteApplication:
+  attributes:
+    appliedAt:
+      summary: "The date and time the debit note was set off against the supplier's invoice."
+      relationshipContext: "Marks when the amount from the supplier debit note started reducing what is owed on the linked supplier invoice, using the linked exchange rate when currencies differ."
+    supplierDebitNoteApplicationId:
+      summary: "The fixed reference for this set-off of a debit note against one supplier invoice."
+    status:
+      summary: "Shows whether this set-off is a draft, in effect, reversed or cancelled."
+    reversalOfApplicationId:
+      summary: "Points to the earlier set-off that this record reverses, when it is a reversal."
+SupplyPlan:
+  help:
+    summary: "One plan for a planning horizon that balances expected demand against supply, stock and replenishment actions for chosen products and locations, so purchasing and production know what to bring in and when."
+    workflowContext: "Planners draft the plan for a horizon from forecasts and stock positions, management approves it, it is activated so purchasing and production act on its replenishment proposals, and it is closed when the horizon ends or cancelled if replaced before use."
+  attributes:
+    supplyPlanId:
+      businessMeaning: "The permanent internal handle for the plan, so its products, locations and resulting orders stay linked to the version that produced them."
+    planNumber:
+      businessMeaning: "The number planners and managers quote when reviewing, approving or comparing plans."
+    planningStart:
+      businessMeaning: "The first day the plan covers, from which demand and supply are balanced."
+    planningEnd:
+      businessMeaning: "The last day the plan covers; demand beyond it is left to the next plan, and it cannot be earlier than the start."
+    status:
+      businessMeaning: "Shows whether the plan can be acted on: DRAFT plans are being prepared, APPROVED ones await release, ACTIVE ones drive purchasing and production, and CLOSED or CANCELLED ones are finished."
+TelecomSubscription:
+  help:
+    summary: "One customer's subscription to a telecommunications service or plan, with its number, start and end dates and status, so the operator knows what to provide, bill and support."
+    workflowContext: "Sales or self-service creates the subscription as pending, provisioning activates the service, billing charges for it while active, it may be suspended for non-payment or at the customer's request and resumed, and it ends when the customer cancels or the term expires."
+  attributes:
+    telecomSubscriptionId:
+      businessMeaning: "The permanent internal handle for the subscription, keeping usage, billing and support history attached across plan changes."
+    subscriptionNumber:
+      businessMeaning: "The number the customer and support agents quote when asking about the service, changing the plan or querying a bill."
+    status:
+      businessMeaning: "Shows whether the service is live and billable: ACTIVE subscriptions are provided and charged, PENDING ones await provisioning, SUSPENDED ones are paused, and CANCELLED or EXPIRED ones have ended."
+    startDate:
+      businessMeaning: "The day the service began, from which billing starts and any minimum contract term is counted."
+    endDate:
+      businessMeaning: "The day the service stops or the term ends, after which no charges apply; it cannot be earlier than the start date."
+UsageRecord:
+  help:
+    summary: "One measured usage event or period total, such as minutes, gigabytes or transactions consumed by a customer, kept unchanged as the basis for usage-based entitlements and billing."
+  attributes:
+    usageRecordId:
+      summary: "The fixed reference for this usage measurement that billing and entitlement checks rely on."
+    status:
+      summary: "Shows whether this usage is a draft, being counted, completed for billing or cancelled."
+WorkCenter:
+  help:
+    summary: "One machine, production line or group of resources on the shop floor where manufacturing operations are scheduled and performed, with its hourly capacity so planners can load work realistically."
+    workflowContext: "Engineering sets up the work center and assigns routing operations to it, production planning schedules work against its capacity, operators execute the operations there, and it is taken into maintenance, made inactive or retired when it cannot accept new work."
+    example: "Work center WC-CNC-03, CNC Milling Cell 3 in the Plant 2 machining hall, capacity 40 parts per hour, status ACTIVE."
+  attributes:
+    workCenterId:
+      summary: "The fixed reference for this production resource that routing operations are assigned to."
+    code:
+      summary: "The short code planners and operators use to name this resource on schedules."
+    name:
+      summary: "The descriptive name of the machine or line as known on the shop floor."
+    capacityPerHour:
+      summary: "How many units the work center can produce in one hour of running time."
+    status:
+      summary: "Shows whether the work center can take new production or is inactive, in maintenance or retired."

@@ -16,11 +16,12 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the payment-term policy.
+      summary: "The permanent identity of this payment term, which customers, suppliers, orders and invoices reference."
       usage: Referenced by Customer, Supplier, SalesOrder, PurchaseOrder, Invoice, and applicable contracts.
       relationshipContext: Identifies the policy definition, not a particular invoice due date or payment event.
       workflowRole: Provides reusable settlement timing rules that are copied or resolved into transaction-level due-date calculations.
       requiredMeaning: Required for traceable commercial terms.
+      businessMeaning: "Identifies one settlement policy permanently, so every invoice and order that used it can show which rules decided its due date even after the term is retired."
   - name: code
     type: string
     required: true
@@ -32,16 +33,18 @@ entity:
       relationshipContext: Code identifies the reusable policy; it is not itself a due date.
       workflowRole: Provides a selectable default during commercial transaction creation.
       requiredMeaning: Required for operational identification.
+      businessMeaning: "The short code buyers, sellers and integrations use to select the policy, such as NET30 or DUE_ON_RECEIPT, printed on orders and invoices."
   - name: name
     type: string
     required: true
     maxLength: 150
     help:
-      summary: Human-readable name of the settlement-timing policy.
+      summary: "The plain name of this payment policy, such as Net 30 days, shown on invoices."
       usage: Used in configuration, forms, documents, reporting, and user selection.
       relationshipContext: Describes the policy represented by code and paymentTermId.
       workflowRole: Makes commercial settlement conditions understandable during order, procurement, and billing processes.
       requiredMeaning: Required for usable master data.
+      businessMeaning: "The wording customers and suppliers read on documents to understand when payment is expected, such as Net 30 days from invoice date."
   - name: dueDays
     type: integer
     required: true
@@ -52,6 +55,7 @@ entity:
       relationshipContext: Must be interpreted with dueDateBasis; it is not necessarily calculated from order date.
       workflowRole: Converts a transaction's defined due-date basis into a scheduled due date.
       requiredMeaning: Required for terms based on a day offset, including zero days.
+      businessMeaning: "How many days after the starting event payment falls due, such as 30; the invoice due date and overdue reminders are calculated from it."
   - name: dueDateBasis
     type: enum
     required: true
@@ -69,6 +73,7 @@ entity:
         MONTH_END: Due date is calculated according to month-end terms and the configured day-offset interpretation.
         CUSTOM: A transaction or agreement-specific rule supplies the due-date basis and calculation.
       requiredMeaning: Required because dueDays has no complete business meaning without a basis.
+      businessMeaning: "Which event starts the payment clock, such as the invoice date, delivery date, receipt date or month end, which can move a due date by weeks for the same number of days."
   - name: discountDays
     type: integer
     required: false
@@ -79,6 +84,7 @@ entity:
       relationshipContext: Applies only when an early-payment discount rate or amount is also defined.
       workflowRole: Establishes the time window for discounted settlement.
       optionalMeaning: Optional when no early-payment discount is offered.
+      businessMeaning: "How many days the payer has to settle early and earn the discount, such as 10, after which the full amount is owed."
   - name: discountPercent
     type: decimal
     required: false
@@ -92,6 +98,7 @@ entity:
       relationshipContext: Must be interpreted together with discountDays and the applicable transaction amount.
       workflowRole: Allows Payment scheduling and Invoice terms to determine whether early settlement qualifies for discount.
       optionalMeaning: Optional when no percentage discount applies.
+      businessMeaning: "The percentage taken off the amount when it is paid within the discount window, such as 2, which treasury weighs against the cost of paying early."
   - name: graceDays
     type: integer
     required: false
@@ -102,6 +109,7 @@ entity:
       relationshipContext: Grace period does not necessarily change the contractual due date; it changes the operational escalation threshold.
       workflowRole: Separates contractual due date from collection or escalation timing.
       optionalMeaning: Optional when no grace period applies.
+      businessMeaning: "Extra days tolerated after the due date before the obligation is treated as overdue for reminders, late fees or credit holds."
   - name: description
     type: string
     required: false
@@ -111,6 +119,7 @@ entity:
       usage: Used in configuration, audit, transaction review, and user guidance.
       relationshipContext: Supplements structured rules and must not be the sole source for due-date calculation.
       optionalMeaning: Optional where structured attributes fully describe the policy.
+      businessMeaning: "A plain explanation of how the term works in practice, such as 2 percent off if paid within 10 days, otherwise due in 30, for staff choosing a term or answering a customer's question."
   - name: status
     type: enum
     required: true
@@ -126,6 +135,7 @@ entity:
         INACTIVE: Temporarily unavailable for new selection.
         RETIRED: No longer available for new selection while historical references remain valid.
       requiredMeaning: Required for master-data eligibility.
+      businessMeaning: "Whether the term may be chosen for new orders and invoices: ACTIVE terms are offered, INACTIVE terms are temporarily withheld, and RETIRED terms remain only on historical documents."
   relationships:
   - name: customers
     target: Customer

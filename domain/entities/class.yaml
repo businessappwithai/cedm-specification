@@ -6,18 +6,18 @@ entity:
   ui: {icon: school}
   identity: {key: classId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the class offering., businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., usage: "Scheduling, enrollment, attendance, assessment and reporting.", relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance., requiredMeaning: Required.}}
-    - {name: classCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing class or section reference., businessMeaning: Operational code for one course offering., usage: "Schedules, registers, search and integration.", relationshipContext: Distinct from EducationCourse code., requiredMeaning: Required.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of the class offering., businessMeaning: Identifies the teaching group to learners and staff., usage: "Schedules, portals and reports.", relationshipContext: May derive from course name plus section or term., requiredMeaning: Required.}}
-    - {name: startDate, type: date, required: false, help: {summary: First planned date of the class offering., businessMeaning: Establishes delivery period., usage: "Scheduling, enrollment eligibility and reporting.", relationshipContext: Must not follow endDate., optionalMeaning: Optional while schedule is provisional.}}
-    - {name: endDate, type: date, required: false, help: {summary: Last planned date of the class offering., businessMeaning: Closes the delivery period., usage: "Scheduling and reporting.", relationshipContext: Must not precede startDate., optionalMeaning: Optional while schedule is provisional.}}
+    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this run of the course, separate from the reusable course definition.", businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., usage: "Scheduling, enrollment, attendance, assessment and reporting.", relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance., requiredMeaning: Required.}}
+    - {name: classCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The section code students and staff use on timetables and enrolment forms, such as ALG1-B-2026.", businessMeaning: Operational code for one course offering., usage: "Schedules, registers, search and integration.", relationshipContext: Distinct from EducationCourse code., requiredMeaning: Required.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The title of this teaching group shown to learners, instructors and parents, such as Algebra I Section B.", businessMeaning: Identifies the teaching group to learners and staff., usage: "Schedules, portals and reports.", relationshipContext: May derive from course name plus section or term., requiredMeaning: Required.}}
+    - {name: startDate, type: date, required: false, help: {summary: "The first day of teaching for this class, which sets when attendance and enrolment cut-offs begin.", businessMeaning: Establishes delivery period., usage: "Scheduling, enrollment eligibility and reporting.", relationshipContext: Must not follow endDate., optionalMeaning: Optional while schedule is provisional.}}
+    - {name: endDate, type: date, required: false, help: {summary: "The last planned day of teaching, after which the class is wrapped up and grades are finalised.", businessMeaning: Closes the delivery period., usage: "Scheduling and reporting.", relationshipContext: Must not precede startDate., optionalMeaning: Optional while schedule is provisional.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
       help:
-        summary: Lifecycle state of the class offering.
+        summary: "Shows whether the class is still being set up, open for enrolment, under way, finished or cancelled."
         businessMeaning: Controls enrollment and delivery progression.
         usage: Scheduling, enrollment, attendance and reporting.
         relationshipContext: Completed class history remains immutable evidence.
@@ -51,10 +51,11 @@ entity:
       - {from: IN_PROGRESS, to: COMPLETED, action: complete}
       - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
   help:
-    summary: Represents one scheduled delivery instance of an EducationCourse.
+    summary: "One scheduled run of a course for a particular term or cohort, with its own dates, instructors and enrolled students, kept so a school can enrol learners, record attendance and assess them."
     businessMeaning: EducationCourse defines what is taught; Class defines when and to whom one offering is delivered.
     usage: School and education scheduling, enrollment, attendance, assessment, portals and reporting.
     relationshipContext: Course is mandatory; instructors and enrollments define participants; Attendance and Assessment preserve delivery evidence.
     lifecycle: Class moves from draft to open to in-progress and then completion or cancellation.
     example: Algebra I is the EducationCourse; Algebra I Section B for the 2026 term is a Class with its own students, attendance and assessments.
+    workflowContext: "Created as a draft by the timetable or registry office from a course, opened for enrolment, moved in progress when teaching starts so attendance and assessments are recorded against it, and completed at the end of the term or cancelled if it does not run; completed classes then feed grades and transcripts."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CLASS}

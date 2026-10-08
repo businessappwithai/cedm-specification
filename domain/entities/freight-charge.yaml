@@ -7,8 +7,8 @@ entity:
     icon: table
   identity: {key: freightChargeId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: freightChargeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of FreightCharge., businessMeaning: Identifies one governed FreightCharge record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for FreightCharge., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - {name: freightChargeId, type: uuid, required: true, immutable: true, help: {summary: "Uniquely identifies this transport charge so it can be matched to its shipment and carrier invoice.", businessMeaning: Identifies one governed FreightCharge record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The charge code that says what the freight charge is for, such as base freight, fuel surcharge or detention.", businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships:
   - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Shipment receiving freight charge., businessMeaning: Attributes logistics cost., usage: Freight audit and settlement., cardinalityMeaning: Optional when charge is at load/consignment level., workflowRole: Charge does not itself post payment or journal.}}
   invariants:

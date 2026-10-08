@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the ResourceAssignment record.
+      summary: "The permanent identity of this project assignment, which time and cost records can reference."
       businessMeaning: Identifies one governed ResourceAssignment independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing Project context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the ResourceAssignment.
+      summary: "The reference project managers use for this assignment, such as PRJ-0412-RA07, in staffing plans."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the ResourceAssignment.
+      summary: "Whether the assignment is still being planned, active on the project, completed, or cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related Project workflows but never erase historical evidence.
@@ -115,13 +115,14 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents ResourceAssignment as a first-class governed CEDM business concept.
+    summary: "One assignment of a person, role or other resource to a project, stating what they are responsible for and how much of their time or capacity is allocated, so project staffing and workload can be planned."
     businessMeaning: A governed assignment of a person, role, or resource to a Project with defined responsibility and allocation.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: Project supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A ResourceAssignment is created for a valid Project, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "Drafted by the project manager when planning staffing, activated once the resource is confirmed and starts work on the project, used in capacity planning, time reporting and cost tracking, and completed when the work finishes or cancelled if the resource is no longer needed."
 specification:
   version: 0.1.0
   status: draft

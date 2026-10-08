@@ -12,7 +12,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of the supplier return line.
+      summary: "The permanent reference for this returned quantity, used by inventory movements and supplier credit note lines to point at it."
       businessMeaning: Identifies one quantity-level reverse-procurement instruction.
       usage: Used for inventory, supplier credit, quality, reconciliation and audit.
       relationshipContext: Distinct from the original PurchaseOrderLine and GoodsReceiptLine identities.
@@ -152,4 +152,5 @@ entity:
     workflowContext: Validate eligible receipt quantity → inspect where required → authorize return → execute physical return → post InventoryMovement → assess supplier credit → post SupplierCreditNoteLine.
     changePropagation: Changes to receipt eligibility, inspection result, product, UOM or approved credit affecting an open line trigger revalidation of dependent return, inventory and financial workflows.
     example: Three defective units from a five-unit accepted receipt are returned. QualityInspection records the failed result and return disposition, this line records quantityReturned=3, inventory is reduced by three through an attributable movement, and any approved supplier credit is calculated from the original invoice evidence.
+    lifecycle: "A line has no status of its own and follows its supplier return: it is prepared while the return is DRAFT, fixed once AUTHORIZED, moves with the goods while IN_TRANSIT and RECEIVED_BY_SUPPLIER, and is settled when the return is COMPLETED, CANCELLED or held as an EXCEPTION; any credit arrives through linked supplier credit note lines."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUPPLIER-RETURN-LINE}

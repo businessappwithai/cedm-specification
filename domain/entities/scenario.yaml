@@ -7,13 +7,13 @@ entity:
     icon: list
   identity: {key: scenarioId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: scenarioId, type: uuid, required: true, immutable: true, help: {summary: Stable scenario identity., businessMeaning: Identifies one planning assumption set., usage: Budget/forecast comparison., relationshipContext: Referenced by planning artifacts., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Scenario business code., businessMeaning: Identifies baseline/upside/downside or named case., usage: Planning and reports., relationshipContext: Does not identify actual ledger., requiredMeaning: Required.}}
+  - {name: scenarioId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this planning scenario, which budget and forecast figures are recorded against.", businessMeaning: Identifies one planning assumption set., usage: Budget/forecast comparison., relationshipContext: Referenced by planning artifacts., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The short name planners use to pick this scenario in budgets, forecasts and comparison reports.", businessMeaning: Identifies baseline/upside/downside or named case., usage: Planning and reports., relationshipContext: Does not identify actual ledger., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, ARCHIVED]
-    help: {summary: Scenario lifecycle., businessMeaning: Controls new planning use., usage: Planning governance., relationshipContext: Historical plans retain scenario reference., valueSemantics: {DRAFT: Being prepared., ACTIVE: Available for plans., ARCHIVED: Closed to new normal use.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the scenario is still a draft, active for planning entries, or archived after the cycle.", businessMeaning: Controls new planning use., usage: Planning governance., relationshipContext: Historical plans retain scenario reference., valueSemantics: {DRAFT: Being prepared., ACTIVE: Available for plans., ARCHIVED: Closed to new normal use.}, requiredMeaning: Required.}
   invariants:
   - {id: SCENARIO-001, rule: Scenario assumptions must not directly mutate actual transactions or accounting.}
   lifecycle:
@@ -25,5 +25,5 @@ entity:
     transitions:
       - {from: DRAFT, to: ACTIVE, action: activate}
       - {from: ACTIVE, to: ARCHIVED, action: archive}
-  help: {summary: Alternative planning assumption context., businessMeaning: Separates hypothetical plans from actual outcomes., usage: "Budgeting, forecasting and sensitivity analysis.", relationshipContext: Budget and Forecast may reference it.}
+  help: {summary: "One named set of planning assumptions, such as Base Case or Downside, used to keep alternative budgets and forecasts apart without changing actual recorded transactions.", businessMeaning: Separates hypothetical plans from actual outcomes., usage: "Budgeting, forecasting and sensitivity analysis.", relationshipContext: Budget and Forecast may reference it., workflowContext: "Defined by finance planning as a draft, activated when budgeting or forecasting begins so plan figures can be entered against it, compared with actuals and other scenarios in reports, and archived once the planning cycle is closed.", example: "FY2026-DOWNSIDE: a forecast scenario assuming revenue 10 percent below plan and a two-month hiring freeze.", lifecycle: "Starts as DRAFT while assumptions are agreed, moves to ACTIVE when plan and forecast figures may be recorded against it, and ends as ARCHIVED, where it remains readable for comparison but takes no new figures."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SCENARIO}

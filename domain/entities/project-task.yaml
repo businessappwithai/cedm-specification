@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of this task, so subtasks, costs and progress history stay linked to it."
   - name: taskCode
     type: string
     required: true
@@ -37,6 +38,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The work breakdown reference the team uses to refer to the task, such as 2.3.1, and which costs and timesheets are booked to."
   - name: name
     type: string
     required: true
@@ -49,6 +51,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short description of the work that appears on plans and boards, such as Configure payroll interface."
   - name: status
     type: enum
     required: true
@@ -74,6 +77,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of ProjectTask.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the task has not started, is in progress, is blocked, or is completed or cancelled, which project managers use to spot delays."
   - name: priority
     type: enum
     required: true
@@ -97,6 +101,7 @@ entity:
         CRITICAL: Represents the critical state or classification in the context of ProjectTask.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How urgent the task is relative to others, from low to critical, which guides what the team works on first."
   - name: startDate
     type: date
     required: false
@@ -108,6 +113,7 @@ entity:
       relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When work on the task is planned or did begin, used for scheduling and resource planning."
   - name: dueDate
     type: date
     required: false
@@ -119,6 +125,7 @@ entity:
       relationshipContext: Its meaning is specific to ProjectTask; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When the task must be finished to keep the milestone on track; a task past this date shows as late."
   - name: percentComplete
     type: decimal
     required: true
@@ -134,6 +141,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How far the work has progressed, used to roll up project progress and estimate remaining effort."
   relationships:
   - name: project
     target: Project
@@ -243,7 +251,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a project management entity called ProjectTask within the CEDM business model.
+    summary: "One piece of work within a project, with an assignee, dates, priority and progress, used to plan delivery, track who is doing what and collect costs against it."
     businessMeaning: ProjectTask is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -255,6 +263,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical ProjectTask record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Created when the project plan is broken down, assigned to a person and milestone, started and updated with progress, possibly blocked and unblocked, and finally completed or cancelled; project costs and status reports read from it."
 specification:
   version: 0.1.0
   status: draft

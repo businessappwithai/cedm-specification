@@ -7,12 +7,12 @@ entity:
     icon: table
   identity: {key: approvalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: approvalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Approval., businessMeaning: Identifies one governed Approval record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
+  - {name: approvalId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this approval request or decision, used to trace which business change or task it authorised.", businessMeaning: Identifies one governed Approval record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of Approval., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the approval is still pending, being worked on actively, completed with a decision, or cancelled before deciding.", businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships: []
   invariants:
   - {id: APPROVAL-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}

@@ -11,7 +11,7 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the supplier debit application., businessMeaning: Identifies one application of a supplier debit to a payable claim., usage: "Used for reconciliation, audit, supplier statements and integration.", relationshipContext: "Distinct from SupplierDebitNote, Invoice and Payment identities.", workflowRole: "Stable identity across creation, activation, reversal and cancellation.", requiredMeaning: Required.}
+    help: {summary: "The fixed reference for this set-off of a debit note against one supplier invoice.", businessMeaning: Identifies one application of a supplier debit to a payable claim., usage: "Used for reconciliation, audit, supplier statements and integration.", relationshipContext: "Distinct from SupplierDebitNote, Invoice and Payment identities.", workflowRole: "Stable identity across creation, activation, reversal and cancellation.", requiredMeaning: Required.}
   - name: supplierDebitAmount
     type: Money
     required: true
@@ -30,7 +30,7 @@ entity:
     type: datetime
     required: true
     immutable: true
-    help: {summary: Time the debit application became effective., businessMeaning: Establishes settlement chronology., usage: "Period control, audit, supplier statements and reconciliation.", workflowRole: Anchors the application event., requiredMeaning: Required.}
+    help: {summary: "The date and time the debit note was set off against the supplier's invoice.", businessMeaning: Establishes settlement chronology., usage: "Period control, audit, supplier statements and reconciliation.", workflowRole: Anchors the application event., requiredMeaning: Required., relationshipContext: "Marks when the amount from the supplier debit note started reducing what is owed on the linked supplier invoice, using the linked exchange rate when currencies differ."}
   - name: status
     type: enum
     required: true
@@ -41,7 +41,7 @@ entity:
     - REVERSED
     - CANCELLED
     help:
-      summary: Lifecycle state of the debit application.
+      summary: "Shows whether this set-off is a draft, in effect, reversed or cancelled."
       businessMeaning: Separates preparation from effective application and later reversal.
       usage: Controls payable projections and remaining debit balance.
       relationshipContext: Application status does not replace SupplierDebitNote or Invoice status.
@@ -61,7 +61,7 @@ entity:
     target: SupplierDebitNoteApplication
     required: false
     immutable: true
-    help: {summary: Prior application being reversed., businessMeaning: Provides explicit lineage for a corrective reversal., usage: "Audit, reconciliation and error correction.", relationshipContext: Reversal is a new event and does not mutate the original application., workflowRole: Links compensating evidence to the prior application., optionalMeaning: Required when status is REVERSED under the reversal model.}
+    help: {summary: "Points to the earlier set-off that this record reverses, when it is a reversal.", businessMeaning: Provides explicit lineage for a corrective reversal., usage: "Audit, reconciliation and error correction.", relationshipContext: Reversal is a new event and does not mutate the original application., workflowRole: Links compensating evidence to the prior application., optionalMeaning: Required when status is REVERSED under the reversal model.}
   relationships:
   - {name: supplierDebitNote, target: SupplierDebitNote, cardinality: '1', ownership: reference, help: {summary: Posted supplier debit being applied., businessMeaning: Identifies the source financial adjustment., usage: Remaining-balance and audit reconciliation., workflowRole: Supplies available debit amount and supplier context.}}
   - {name: invoice, target: Invoice, cardinality: "1", ownership: reference, help: {summary: Supplier payable invoice receiving the debit application., businessMeaning: Identifies the eligible original payable claim whose outstanding exposure is reduced., usage: "Accounts payable, reconciliation and supplier statements.", workflowRole: Supplies target claim and currency context.}}

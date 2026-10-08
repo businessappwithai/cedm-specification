@@ -12,11 +12,12 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Immutable identity of this specific role relationship.
+      summary: "The permanent identity of this particular role held by a party, which role-specific records refer to."
       usage: Referenced by specialized entities and transactions requiring the party in a defined business capacity.
       relationshipContext: Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId.
       workflowRole: Provides the stable role reference used throughout the role lifecycle.
       requiredMeaning: Required for independent role traceability.
+      businessMeaning: "Lets the same party hold several roles, each tracked separately, so ending someone's supplier role does not affect them as a customer."
   - name: partyId
     type: reference
     target: Party
@@ -28,6 +29,7 @@ entity:
       relationshipContext: One Party may have multiple PartyRoles simultaneously or historically.
       workflowRole: Connects role-specific processing back to the canonical identity.
       requiredMeaning: Required because a role cannot exist without a participant.
+      businessMeaning: "Which person or organization holds this role, so all of a party's roles and history can be seen together under one identity."
   - name: roleType
     type: enum
     required: true
@@ -49,15 +51,17 @@ entity:
         OWNER: The role type of the party role is owner; set it when that is what the business means for this record.
         INVESTOR: The role type of the party role is investor; set it when that is what the business means for this record.
         OTHER: The role type of the party role is other; set it when that is what the business means for this record.
+      businessMeaning: "The kind of participation, such as customer, supplier, employee or carrier, which decides which processes and screens the party can take part in."
   - name: code
     type: string
     required: false
     maxLength: 100
     help:
-      summary: Optional business-context identifier for this role instance.
+      summary: "The short reference for this role, such as a customer or supplier number, used on documents."
       usage: Supports operational search, integrations, reports, and legacy references.
       relationshipContext: Identifies the role instance and must not replace Party or specialized role identifiers.
       optionalMeaning: Optional when partyRoleId is sufficient.
+      businessMeaning: "Staff and partners quote it on orders, invoices and correspondence to identify the party in this role, for example SUP-00412 for a supplier."
   - name: validFrom
     type: date
     required: false
@@ -67,6 +71,7 @@ entity:
       relationshipContext: Works with validTo and status; ending a role does not delete Party identity or other roles.
       workflowRole: Prevents premature use of a newly established role.
       optionalMeaning: Optional for immediately effective roles.
+      businessMeaning: "The date from which the party may act in this role, such as the start of a supplier agreement or employment."
   - name: validTo
     type: date
     required: false
@@ -76,13 +81,14 @@ entity:
       relationshipContext: Historical transactions may continue referencing the role after validTo.
       workflowRole: Prevents new use after role expiration while preserving historical attribution.
       optionalMeaning: Optional for open-ended roles.
+      businessMeaning: "The date after which the role no longer applies; transactions after it should not be accepted for this role."
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [ACTIVE, INACTIVE, EXPIRED]
     help:
-      summary: Operational lifecycle of the PartyRole relationship.
+      summary: "Shows whether the role is currently active, temporarily inactive, or has expired for good."
       usage: Controls whether the role can normally participate in new transactions, assignments, or authorizations.
       relationshipContext: Role status is independent of Party.status and other PartyRole statuses.
       workflowRole: ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.
@@ -91,6 +97,7 @@ entity:
         ACTIVE: The status of the party role is active; set it when that is what the business means for this record.
         INACTIVE: The status of the party role is inactive; set it when that is what the business means for this record.
         EXPIRED: The status of the party role is expired; set it when that is what the business means for this record.
+      businessMeaning: "Only active roles may be used on new transactions; an inactive role can be reactivated, while an expired one is kept only for history."
   relationships:
   - name: party
     target: Party
@@ -157,7 +164,7 @@ entity:
       - {from: ACTIVE, to: EXPIRED, action: expire}
       - {from: INACTIVE, to: EXPIRED, action: expire}
   help:
-    summary: The bridge between stable Party identity and contextual business participation.
+    summary: "One role that a person or organization plays for the business, such as customer, supplier, employee or carrier, with its own validity dates and status separate from the party's identity."
     businessMeaning: Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior.
     usage: Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management.
     relationshipContext: Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed.

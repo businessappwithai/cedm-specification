@@ -7,16 +7,16 @@ entity:
     icon: flask-conical
   identity: {key: testMethodId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: testMethodId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the governed test method., businessMeaning: Identifies one reusable procedure independently of plans and measurements., usage: "Quality planning, laboratory execution, audit, and integration.", relationshipContext: Referenced by quality configurations and test evidence., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of the test method., businessMeaning: Human-readable controlled identifier for the procedure., usage: "Authoring, execution, reporting, and integration.", relationshipContext: Remains stable within its governed version., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable test-method name., businessMeaning: States the procedure understood by quality and laboratory personnel., usage: "Instructions, forms, reports, and training.", relationshipContext: Complements the controlled code., requiredMeaning: Required.}}
-  - {name: instructions, type: string, required: false, maxLength: 10000, help: {summary: Governed execution instructions., businessMeaning: Describes how evidence must be produced., usage: "Laboratory and inspection execution, reproducibility, and audit.", relationshipContext: May be supplemented by controlled external procedures., optionalMeaning: Optional when instructions are maintained in a linked governed document.}}
+  - {name: testMethodId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference that keeps quality plans and measurements linked to this test procedure.", businessMeaning: Identifies one reusable procedure independently of plans and measurements., usage: "Quality planning, laboratory execution, audit, and integration.", relationshipContext: Referenced by quality configurations and test evidence., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The unique code quality staff use to select and cite this test procedure, such as TM-0042.", businessMeaning: Human-readable controlled identifier for the procedure., usage: "Authoring, execution, reporting, and integration.", relationshipContext: Remains stable within its governed version., requiredMeaning: Required.}}
+  - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The name laboratory and quality staff know this test procedure by, such as Tensile Strength Test.", businessMeaning: States the procedure understood by quality and laboratory personnel., usage: "Instructions, forms, reports, and training.", relationshipContext: Complements the controlled code., requiredMeaning: Required.}}
+  - {name: instructions, type: string, required: false, maxLength: 10000, help: {summary: "Step-by-step directions for performing the test so results are produced the same way each time.", businessMeaning: Describes how evidence must be produced., usage: "Laboratory and inspection execution, reproducibility, and audit.", relationshipContext: May be supplemented by controlled external procedures., optionalMeaning: Optional when instructions are maintained in a linked governed document.}}
   - name: status
     type: enum
     required: true
     default: DRAFT
     values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
-    help: {summary: Lifecycle state of the method., businessMeaning: Controls whether the procedure may be selected for new governed work., usage: Method governance and execution gating., relationshipContext: Historical evidence retains the method/version used., valueSemantics: {DRAFT: Being authored and not normally executable., ACTIVE: Approved for governed use., SUSPENDED: Temporarily unavailable for new use., RETIRED: No longer selected for new work but retained historically.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the method is in draft, approved for use, suspended, or retired from new work.", businessMeaning: Controls whether the procedure may be selected for new governed work., usage: Method governance and execution gating., relationshipContext: Historical evidence retains the method/version used., valueSemantics: {DRAFT: Being authored and not normally executable., ACTIVE: Approved for governed use., SUSPENDED: Temporarily unavailable for new use., RETIRED: No longer selected for new work but retained historically.}, requiredMeaning: Required.}
   relationships:
   - {name: qualityPlanCharacteristics, target: QualityPlanCharacteristic, cardinality: 0..*, ownership: reference, help: {summary: Plan-specific requirements using this method., businessMeaning: Shows where the reusable procedure is mandated., usage: Impact analysis and execution., cardinalityMeaning: A method may govern zero or many plan characteristics., context: Plan configuration supplies limits and requiredness.}}
   - {name: measurements, target: QualityMeasurement, cardinality: "0..*", ownership: reference, help: {summary: Historical observations produced using this method., businessMeaning: Links procedure definition to resulting evidence., usage: "Reproducibility, audit, analytics, and investigations.", cardinalityMeaning: A method may produce many measurements., context: Measurement preserves execution evidence.}}
@@ -39,10 +39,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Reusable governed procedure for producing quality evidence.
+    summary: "A standard procedure for carrying out a quality test, such as a tensile strength test or a moisture content analysis, kept so inspectors and laboratories measure the same way every time."
     businessMeaning: TestMethod separates how an observation is produced from what QualityCharacteristic is observed and what QualityPlanCharacteristic criteria apply.
     usage: Quality planning, laboratory testing, incoming inspection, compliance, training, audit, and analytics.
     relationshipContext: QualityPlanCharacteristic selects the method; QualityMeasurement records evidence produced under it.
     lifecycle: Draft → active → suspended/retired under controlled change.
     changePropagation: Method lifecycle or semantic changes revalidate affected open configurations and inspections while completed evidence remains historically stable.
+    workflowContext: "Quality or laboratory staff draft the method and its instructions, activate it after approval so it can be assigned to quality plan characteristics and used for measurements, suspend it when a problem is found and resume it once fixed, and retire it when replaced, keeping it for past results."
+    example: "Method TM-0042 'Moisture Content by Oven Drying': dry a 10 g sample at 105 C for 4 hours and report percentage weight loss; status active."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TEST-METHOD}

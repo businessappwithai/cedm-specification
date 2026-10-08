@@ -11,13 +11,13 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of the inspection record., businessMeaning: "Identifies one inspection event independently of the item, receipt, return, result or corrective action.", usage: "Quality traceability, audit, reporting and integrations.", relationshipContext: Root of the inspection execution graph including sampling and measurement evidence., workflowRole: "Stable reference through planning, sampling, execution, result and disposition.", requiredMeaning: Required.}
+    help: {summary: "The permanent reference for this inspection, which its samples, measurements and certificates all point back to.", businessMeaning: "Identifies one inspection event independently of the item, receipt, return, result or corrective action.", usage: "Quality traceability, audit, reporting and integrations.", relationshipContext: Root of the inspection execution graph including sampling and measurement evidence., workflowRole: "Stable reference through planning, sampling, execution, result and disposition.", requiredMeaning: Required.}
   - name: inspectionNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Business-facing inspection reference., businessMeaning: Identifies the inspection in quality operations and audit., usage: "Quality records, supplier disputes and reporting.", relationshipContext: Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber., workflowRole: Provides human-recognizable traceability., requiredMeaning: Required.}
+    help: {summary: "The inspection reference quality staff use on labels, reports and audits to identify this particular check.", businessMeaning: Identifies the inspection in quality operations and audit., usage: "Quality records, supplier disputes and reporting.", relationshipContext: Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber., workflowRole: Provides human-recognizable traceability., requiredMeaning: Required.}
   - name: inspectionDate
     type: datetime
     required: true
@@ -34,7 +34,7 @@ entity:
     - CONDITIONAL
     - CANCELLED
     help:
-      summary: Lifecycle state of inspection.
+      summary: "Where the inspection stands: open, in progress, passed, failed, conditionally accepted, or cancelled before completion."
       businessMeaning: Indicates whether inspection is pending, executing, completed with a result, or cancelled.
       usage: Controls release and disposition workflows.
       relationshipContext: Inspection status is independent of sample status, receipt/return status, and inventory state.
@@ -58,7 +58,7 @@ entity:
     - CONDITIONAL
     - NOT_TESTED
     help:
-      summary: Overall outcome of inspection or test.
+      summary: "The overall verdict of the inspection: pass, fail, conditional acceptance, or not tested at all."
       businessMeaning: Records whether the inspected scope satisfies applicable requirements after evaluating relevant samples,
         measurements and other evidence.
       usage: Drives acceptance, rejection, quarantine, return, repair or release decisions.
@@ -86,7 +86,7 @@ entity:
     - SCRAP
     - CONDITIONAL_RELEASE
     help:
-      summary: Controlled operational disposition resulting from inspection.
+      summary: "What happens to the inspected goods next, such as release, quarantine, return to supplier, rework or scrap."
       businessMeaning: Defines what happens to inspected material after quality evaluation.
       usage: Controls inventory availability, supplier return, repair, scrap and release processes.
       relationshipContext: RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until
@@ -111,7 +111,7 @@ entity:
     type: string
     required: false
     maxLength: 4000
-    help: {summary: Inspection observations and supporting context., businessMeaning: Records qualitative evidence not represented by structured measurements., usage: "Quality review, supplier disputes and audit.", relationshipContext: "Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence.", workflowRole: Supports disposition decisions., optionalMeaning: Optional.}
+    help: {summary: "The inspector's written observations and context that the structured measurements do not capture on their own.", businessMeaning: Records qualitative evidence not represented by structured measurements., usage: "Quality review, supplier disputes and audit.", relationshipContext: "Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence.", workflowRole: Supports disposition decisions., optionalMeaning: Optional.}
   relationships:
   - name: qualityPlan
     target: QualityPlan

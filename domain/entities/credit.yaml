@@ -7,12 +7,12 @@ entity:
     icon: credit-card
   identity: {key: creditId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: creditId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Credit., businessMeaning: Identifies one governed Credit record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: creditId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this customer credit, used when applying it against charges.", businessMeaning: Identifies one governed Credit record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Credit., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the credit is still a draft, available to use, fully used or cancelled.", businessMeaning: Indicates usability/execution state of Credit., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships:
   - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
   invariants:

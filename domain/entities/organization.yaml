@@ -13,11 +13,12 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the Organization specialization.
+      summary: "Uniquely identifies this organisation record so its addresses, locations and hierarchy stay linked to it."
       usage: Used to navigate organizational identity details from the underlying Party.
       relationshipContext: Party.partyId remains the canonical party identity; organizationId identifies the specialization record.
       workflowRole: Provides stable reference for organization-specific information.
       requiredMeaning: Required for specialization traceability.
+      businessMeaning: "Lets customers, suppliers, sites and child units all point to the same organisation even if its name changes."
   - name: partyId
     type: reference
     target: Party
@@ -30,6 +31,7 @@ entity:
       relationshipContext: One Party may have exactly one Organization specialization when partyType is ORGANIZATION.
       workflowRole: Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization.
       requiredMeaning: Required to prevent duplicate party identity.
+      businessMeaning: "Ties the organisation to its party record, through which it takes on roles like customer, supplier or employer."
   - name: code
     type: string
     required: true
@@ -40,16 +42,18 @@ entity:
       relationshipContext: Code is not the canonical Party identity and uniqueness is governed by organization scope.
       workflowRole: Provides operational reference for organization hierarchy and business context.
       requiredMeaning: Required where the organization participates in governed operational processes.
+      businessMeaning: "The short internal reference people use for the organisation in lists and reports, such as ACME-UK."
   - name: name
     type: string
     required: true
     maxLength: 200
     help:
-      summary: Common organizational name used in business operations.
+      summary: "The everyday name people use for this organisation in screens, documents and conversations."
       usage: Used in search, forms, reports, documents, and transactions.
       relationshipContext: LegalName may differ and provides formal legal identity.
       workflowRole: Provides human-readable organizational identification.
       requiredMeaning: Required for operational recognition.
+      businessMeaning: "The name shown in lookups and on documents so users recognise which organisation they are dealing with."
   - name: organizationType
     type: enum
     required: true
@@ -69,13 +73,14 @@ entity:
         BRANCH: The organization type of the organization is branch; set it when that is what the business means for this record.
         SUBSIDIARY: The organization type of the organization is subsidiary; set it when that is what the business means for this record.
         OTHER: The organization type of the organization is other; set it when that is what the business means for this record.
+      businessMeaning: "Says what kind of body this is, enterprise, company, business unit, division, department, branch or subsidiary, which shapes the organisation hierarchy and reporting."
   - name: status
     type: enum
     required: true
     default: ACTIVE
     values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
     help:
-      summary: Lifecycle of the organizational specialization.
+      summary: "Shows whether this organisation is still being set up, in use, inactive or retired."
       usage: Controls whether the organization can normally be selected as an organizational context.
       relationshipContext: Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity.
       workflowRole: Governs organizational use while preserving historical relationships.
@@ -85,26 +90,29 @@ entity:
         ACTIVE: The status of the organization is active; set it when that is what the business means for this record.
         INACTIVE: The status of the organization is inactive; set it when that is what the business means for this record.
         RETIRED: The status of the organization is retired; set it when that is what the business means for this record.
+      businessMeaning: "Signals whether the organisation can be used in new work; it does not by itself authorise transactions, which also depend on its party and roles."
   - name: legalName
     type: string
     required: false
     maxLength: 300
     help:
-      summary: Formal legal name of the organization.
+      summary: "The full registered name of the organisation as it appears on contracts and official filings."
       usage: Used for contracts, invoices, tax, regulatory reporting, and legal documentation.
       relationshipContext: LegalName is distinct from the operational name.
       workflowRole: Supplies legal presentation and compliance context.
       optionalMeaning: Optional when the organization is not a legal entity or the information is not yet known.
+      businessMeaning: "The name that must appear on invoices, contracts and tax documents, which may differ from the trading name."
   - name: registrationNumber
     type: string
     required: false
     maxLength: 100
     help:
-      summary: Registration identifier assigned by a competent authority.
+      summary: "The official company or charity registration number issued by the relevant registry."
       usage: Used for legal verification, compliance, tax, and integrations.
       relationshipContext: Registration number identifies the organization in an external legal system, not in CEDM.
       workflowRole: Supports identity verification and compliance controls.
       optionalMeaning: Optional for organizational units without separate registration.
+      businessMeaning: "Used to verify the organisation's legal identity during onboarding, credit checks and compliance reviews."
   - name: taxIdentifier
     type: string
     required: false
@@ -115,28 +123,29 @@ entity:
       relationshipContext: Tax identity may vary by jurisdiction and should not replace Party identity.
       workflowRole: Supports tax-rule applicability and statutory reporting.
       optionalMeaning: Optional when no tax identifier applies or is known.
+      businessMeaning: "The VAT or tax number used on invoices and tax returns, and checked when trading with the organisation."
   - name: createdAt
     type: datetime
     required: true
     systemManaged: true
-    help: {summary: CEDM creation timestamp, usage: audit and synchronization, relationshipContext: record lifecycle only, requiredMeaning: required for traceability.}
+    help: {summary: "When this organisation was first entered, showing how long it has been on record.", usage: audit and synchronization, relationshipContext: record lifecycle only, requiredMeaning: required for traceability., businessMeaning: "Supports audit of master-data changes and shows when the organisation was first known to the business."}
   - name: createdBy
     type: reference
     target: Party
     required: false
     systemManaged: true
-    help: {summary: Actor that created the record, usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when source cannot identify actor.}
+    help: {summary: "The user who first entered this organisation, so questions about the setup go to them.", usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when source cannot identify actor., businessMeaning: "Gives accountability for master-data entry, which matters because organisation records drive trading and reporting."}
   - name: updatedAt
     type: datetime
     required: true
     systemManaged: true
-    help: {summary: Latest CEDM modification timestamp, usage: synchronization and audit, relationshipContext: record modification only, requiredMeaning: required for change tracking.}
+    help: {summary: "When this organisation's details were last changed, showing how current the record is.", usage: synchronization and audit, relationshipContext: record modification only, requiredMeaning: required for change tracking., businessMeaning: "Helps reviewers spot recent changes to names, registration or hierarchy that may need checking."}
   - name: updatedBy
     type: reference
     target: Party
     required: false
     systemManaged: true
-    help: {summary: Actor responsible for latest modification, usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when unavailable.}
+    help: {summary: "The user who last changed this organisation's details, for audit and follow-up questions.", usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when unavailable., businessMeaning: "Gives accountability for the latest master-data change, since such changes must be traceable."}
   relationships:
   - name: party
     target: Party

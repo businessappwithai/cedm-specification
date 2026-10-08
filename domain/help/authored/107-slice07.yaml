@@ -1,0 +1,474 @@
+# Authored help, batch 107 (slice 07).
+AIPolicy:
+  help:
+    summary: "One AI policy is a governed rulebook for a specific AI model, stating what the model may be used for, which approvals and controls apply, and where its use is forbidden."
+    workflowContext: "A governance or risk team drafts the policy against the AI model it governs, reviewers agree its constraints, and it is activated before the model is used in production; teams consult it when approving predictions or new uses, and it is completed when superseded or cancelled if it never takes effect."
+  attributes:
+    aIPolicyId:
+      summary: "The permanent internal key that distinguishes this AI policy from every other policy, even if its code changes."
+    aIPolicyCode:
+      summary: "The short business code people quote when citing this policy in approvals, model reviews and audit findings."
+    status:
+      summary: "Shows whether the policy is still a draft, actively governing its model, completed, or cancelled."
+AssetDepreciation:
+  help:
+    workflowContext: "Finance sets up the depreciation record when an asset is capitalised, choosing method, useful life and salvage value; each period close then adds to accumulated depreciation and recalculates net book value, and the figures feed the fixed asset register, journal postings and the gain or loss calculated when the asset is disposed."
+  attributes:
+    assetDepreciationId:
+      businessMeaning: "Lets accountants and auditors point to exactly this depreciation schedule for the asset, so period postings and revaluations can be traced back to the schedule that produced them."
+    depreciationMethod:
+      businessMeaning: "Decides how cost is spread over time: straight line spreads it evenly, remaining life spreads what is left over the remaining months, reducing balance front-loads the expense, and the net-book-value-by-units option ties expense to usage; changing it changes every future period charge."
+    depreciationRate:
+      businessMeaning: "The percentage of value written off per period under rate-based methods such as reducing balance; finance relies on it to forecast expense and it must match the accounting policy for this asset class."
+    salvageValue:
+      businessMeaning: "The amount the business expects to recover when the asset is sold or scrapped at the end of its life; it is excluded from depreciation, so the asset is never written down below it."
+    usefulLifeMonths:
+      businessMeaning: "How many months the business expects to benefit from the asset; it sets the period over which cost is spread, so a shorter life means a larger charge each month."
+    depreciableBase:
+      businessMeaning: "The amount that will be expensed over the asset's life, normally acquisition cost less salvage value; every period's depreciation is calculated from it."
+    accumulatedDepreciation:
+      businessMeaning: "The total already written off to date; finance reconciles it to the ledger and it cannot exceed the depreciable base."
+    netBookValue:
+      businessMeaning: "What the asset is currently worth on the books, cost less accumulated depreciation; it is reported on the balance sheet and compared with sale proceeds to work out a gain or loss on disposal."
+BankLoan:
+  help:
+    summary: "One bank loan is a credit facility under which a lender advances money to a borrower, recording the principal, interest rate, term and repayment standing the business must track."
+    workflowContext: "The loan starts as an application, is approved by the lender and becomes active when funds are drawn; treasury monitors repayments and flags it delinquent when payments are missed, records it as paid off once the balance is cleared, and accounting and reporting read it for interest accruals, debt schedules and covenant checks."
+  attributes:
+    loanId:
+      businessMeaning: "Ties every repayment, interest accrual and statement to this one facility, even if the lender reissues the loan number."
+    loanNumber:
+      businessMeaning: "The reference the lender uses on statements and correspondence; treasury quotes it when reconciling repayments and talking to the bank."
+    principalAmount:
+      businessMeaning: "The amount originally borrowed, in the loan currency; interest is charged on it and the repayment schedule is built to return it in full by maturity."
+    interestRate:
+      businessMeaning: "The annual rate the lender charges on the outstanding balance; it drives interest expense, cash flow forecasts and comparisons with other financing options."
+    startDate:
+      businessMeaning: "The date funds are drawn and interest begins to accrue; repayment schedules count from it."
+    maturityDate:
+      businessMeaning: "The date by which the loan must be repaid in full; treasury plans refinancing or final repayment around it and it decides whether the debt is reported as current or long-term."
+    status:
+      businessMeaning: "Tells treasury and risk whether the loan is still an application, approved, active and performing, delinquent on payments, paid off, defaulted, or cancelled, which decides whether repayments are expected and whether escalation is needed."
+BusinessEvent:
+  attributes:
+    businessEventId:
+      summary: "The unique key of this event notice, used to recognise duplicates when the same fact is published or received twice."
+    occurredAt:
+      summary: "The moment the business fact actually happened, which may be earlier than when it was recorded or published."
+Charge:
+  attributes:
+    chargeId:
+      summary: "The permanent internal key that identifies this billable charge through invoicing, settlement and any later adjustment."
+    status:
+      summary: "Shows whether the charge is still a draft, active and billable, completed through settlement, or cancelled."
+Consignment:
+  attributes:
+    consignmentId:
+      summary: "The permanent internal key that identifies this consignment from tender to the carrier through to delivery."
+    code:
+      summary: "The consignment reference quoted to the carrier and on transport documents when tracking or querying the shipment group."
+ContractRenewal:
+  attributes:
+    contractRenewalId:
+      summary: "The permanent internal key that identifies this renewal of the contract, separately from earlier and later renewals."
+CreditNoteLine:
+  help:
+    summary: "One credit note line records a single item or amount being credited back to a customer, tied to the original invoice line and any returned goods that justify it."
+  attributes:
+    creditNoteLineId:
+      summary: "The permanent internal key that identifies this particular credit line within its credit note."
+    lineNumber:
+      summary: "The position of this line on the credit note, as printed and quoted by customers and accounts staff."
+    subtotal:
+      summary: "The credit amount for this line before tax, calculated from quantity and price at the time of the original sale."
+    taxableAmount:
+      summary: "The portion of this line's credit on which tax is reversed, which can differ from the subtotal when part is exempt."
+Dataset:
+  help:
+    summary: "One dataset is a governed, named collection of data the business relies on for operations, reporting, analytics, research or training AI models, with an owner and a sensitivity classification."
+    workflowContext: "A data owner registers the dataset as a draft with its classification and format, and it is activated once access and quality controls are in place; analysts, reports and AI model training then consume it, quality assessments are recorded against it, and it is archived or retired when it is no longer maintained."
+  attributes:
+    datasetId:
+      businessMeaning: "Lets quality assessments, AI models and access approvals refer to exactly this dataset, even if it is renamed."
+    code:
+      businessMeaning: "The short reference data teams use in catalogues, pipelines and access requests to name the dataset unambiguously."
+    name:
+      businessMeaning: "The plain-language name people search for in the data catalogue and see in reports, such as Customer Orders 2024."
+    classification:
+      businessMeaning: "How sensitive the data is, from public through internal, confidential and restricted to sensitive; it decides who may be granted access, how the data must be protected and whether it may be used for AI training."
+    format:
+      businessMeaning: "The form the data is delivered in, such as CSV, Parquet or a database table, which tells consumers what tools they need to read it."
+    status:
+      businessMeaning: "Tells consumers whether the dataset is still being prepared, active and supported, archived for reference only, or retired and no longer to be used."
+    ownerOrganizationId:
+      businessMeaning: "The organisation accountable for the dataset, who approves access requests, answers quality questions and decides when it is retired."
+Document:
+  help:
+    summary: "One document is a business record such as a letter, certificate, report or form that communicates or evidences something the business did, with its own number, version and issue status."
+    workflowContext: "A document is created as a draft, issued to the parties it concerns, and approved where sign-off is required; it is then kept as evidence and archived at the end of its retention use, or cancelled if it is withdrawn before approval. Other processes attach it to parties, locations and transactions as supporting evidence."
+  attributes:
+    documentId:
+      businessMeaning: "Lets transactions, parties and audits link to exactly this document and version, even when several documents share a title."
+    documentNumber:
+      businessMeaning: "The reference printed on the document that recipients quote back when querying or citing it."
+    documentType:
+      businessMeaning: "The kind of document, such as certificate, report or letter, which decides how it is filed, who must approve it and how long it is kept."
+    documentDate:
+      businessMeaning: "The date the document speaks for, as printed on it; people rely on it to know which period or event the document evidences."
+    status:
+      businessMeaning: "Tells users whether the document is still a draft, has been issued, has been approved, was cancelled, or has been archived, and therefore whether it can still be changed or relied upon."
+    title:
+      businessMeaning: "The heading people recognise the document by when searching or reviewing a list, such as Annual Safety Inspection Report."
+    description:
+      businessMeaning: "A short explanation of what the document covers and why it exists, so a reader can judge its relevance without opening it."
+    version:
+      businessMeaning: "Which revision this is; readers check it to be sure they are working from the latest approved wording."
+    issuedAt:
+      businessMeaning: "When the document was formally released to its recipients; deadlines and validity periods often count from this moment."
+    createdAt:
+      businessMeaning: "When the document record was first started, useful for tracking how long drafts take to issue."
+    updatedAt:
+      businessMeaning: "When the document was last changed, helping reviewers notice recent edits before relying on it."
+EnergyTariff:
+  help:
+    summary: "One energy tariff is a utility provider's price schedule for consumption, demand or connection charges, valid for a stated period and used to calculate bills and compare supply options."
+    workflowContext: "The tariff is entered as a draft from the provider's published rates, activated from its effective date, and used by billing and cost forecasting to price meter readings; it expires when its validity ends or is retired if replaced early, while past bills keep referring to it."
+  attributes:
+    tariffId:
+      businessMeaning: "Lets bills and cost calculations point to exactly this tariff version, even when the provider reuses a tariff name."
+    tariffCode:
+      businessMeaning: "The provider's or the business's short code for the tariff, quoted on bills and contracts to identify which rates apply."
+    name:
+      businessMeaning: "The recognisable tariff name, such as Business Time-of-Use 2025, used when choosing or comparing tariffs."
+    effectiveFrom:
+      businessMeaning: "The first day these rates apply; consumption before it is priced under the previous tariff."
+    effectiveTo:
+      businessMeaning: "The last day these rates apply; after it a different tariff must be used, and billing relies on it to split periods correctly."
+    status:
+      businessMeaning: "Shows whether the tariff is still being set up, active and usable for billing, expired at the end of its validity, or retired and withdrawn."
+Failure:
+  attributes:
+    failureId:
+      summary: "The permanent internal key that identifies this recorded failure for reliability analysis and linked maintenance work."
+    effectiveAt:
+      summary: "When the failure took effect on the equipment, used to measure downtime and time between failures."
+ForeignExchangeTransaction:
+  attributes:
+    foreignExchangeTransactionId:
+      summary: "The permanent internal key that identifies this currency exchange deal through confirmation, settlement and accounting."
+    effectiveAt:
+      summary: "When the exchange takes effect, which governs the rate period and the accounting date of the deal."
+HandlingUnit:
+  help:
+    summary: "One handling unit is a single physical pallet, carton, tote, cage, drum or package with its own label, tracked as one item as it moves through the warehouse and onto shipments."
+    workflowContext: "A handling unit is created and labelled when goods are packed or received, placed into an inventory location at putaway, picked and possibly nested inside a larger parent unit, then assigned to a shipment and loaded; scanning its number at each step updates where it is and what it holds."
+    example: "Pallet HU-00451239 holding 40 cartons of bottled water, stored in rack location A-12-03 and later loaded onto shipment SH-2025-0871."
+  attributes:
+    handlingUnitId:
+      summary: "The permanent internal key that identifies this physical unit through storage, picking and shipping."
+    handlingUnitNumber:
+      summary: "The number printed on the unit's label and scanned at receiving, putaway, picking and loading."
+    type:
+      summary: "The kind of physical container, such as pallet, carton, tote, cage, drum or package."
+InspectionSample:
+  help:
+    summary: "One inspection sample is a set of units or specimens drawn from goods under quality inspection, following the sampling plan, so that measurements can be taken and traced back."
+  attributes:
+    inspectionSampleId:
+      summary: "The permanent internal key that identifies this sample and links it to its quality measurements."
+    sampleNumber:
+      summary: "The sample reference written on the label and quoted by inspectors and laboratory staff."
+    quantity:
+      summary: "How many units or how much material was drawn from the inspected goods for this sample."
+    status:
+      summary: "Shows whether the sample is selected, in testing, tested, rejected, disposed of, or cancelled."
+InventoryLocation:
+  help:
+    summary: "One inventory location is a specific place inside a warehouse, such as a bin, shelf, rack, pick face or staging area, where stock is received, stored, picked or held."
+  attributes:
+    inventoryLocationId:
+      businessMeaning: "Lets stock balances, movements, reservations and handling units point to exactly this place, even if its code is relabelled."
+    code:
+      businessMeaning: "The label on the physical location, such as A-12-03, that warehouse staff scan or read when putting away, picking and counting stock."
+    locationType:
+      businessMeaning: "What the location is used for: receiving, bin, shelf, rack, floor, pick face, staging, quarantine or yard slot; it decides which warehouse tasks may put stock there, and quarantine locations keep held stock away from picking."
+    status:
+      businessMeaning: "Whether stock may be moved into or out of the location: active is usable, blocked stops new putaway and picking while a problem is resolved, and inactive takes it out of use."
+    capacity:
+      businessMeaning: "How much the location can hold; putaway planning relies on it to avoid overfilling a bin or rack."
+Lead:
+  help:
+    summary: "One lead is a prospective customer or sales opportunity that has come to the business's attention but has not yet been qualified, kept so sales can follow up and track conversion."
+    workflowContext: "Marketing or sales records the lead as new from a campaign, enquiry or referral, a salesperson works it while qualifying, and it is qualified or disqualified; a promising lead is converted into a customer and opportunity, and any lead that goes cold is marked lost. Pipeline reporting and campaign analysis read the leads throughout."
+  attributes:
+    leadId:
+      businessMeaning: "Lets activities, conversions and campaign reports refer to exactly this lead, even if the same person enquires again."
+    leadNumber:
+      businessMeaning: "The reference salespeople quote when assigning, discussing or reporting on the lead."
+    status:
+      businessMeaning: "Where the lead stands in qualification: new, being qualified, qualified, disqualified, converted into a customer or opportunity, or lost; salespeople use it to prioritise follow-up and managers use it to measure conversion."
+    source:
+      businessMeaning: "Where the lead came from, such as a trade show, web form or referral; marketing relies on it to judge which channels produce business."
+    estimatedValue:
+      businessMeaning: "The rough revenue the lead could bring if won; sales uses it to prioritise effort and forecast the pipeline."
+    createdAt:
+      businessMeaning: "When the lead was first recorded; it is used to measure response times and how long leads take to convert."
+Lot:
+  help:
+    summary: "One lot is a batch of a single product made or received together with shared production, quality and expiry characteristics, tracked so any quantity can be traced back to its origin."
+    workflowContext: "A lot is created at production or receipt and starts active; quality may place it on hold or in quarantine, then release it for use, and every stock movement and balance carries the lot so recalls can find it. It ends as consumed, expired or rejected, and released lots are closed once fully used."
+    example: "Lot L-2025-0412 of paracetamol 500 mg tablets, manufactured 12 April 2025, expiring 30 April 2028, currently released."
+  attributes:
+    lotId:
+      summary: "The permanent internal key that identifies this batch across all its stock balances and movements."
+    lotNumber:
+      summary: "The batch number printed on packaging and quoted in recalls, complaints and quality records."
+    manufacturedAt:
+      summary: "When this batch was produced, used for shelf-life calculation and traceability back to production records."
+    expiresAt:
+      summary: "When the batch may no longer be sold or used, driving first-expiry-first-out picking and expiry holds."
+    status:
+      summary: "Shows whether the lot is active, on hold, quarantined, released, expired, rejected, consumed or closed."
+Meter:
+  help:
+    workflowContext: "A meter is set up as a draft against an asset or location with its unit of measure and activated once readings begin; each new reading updates the last reading value and time, which maintenance plans use to trigger usage-based work and billing uses to charge consumption. It can be taken out of service and returned, and is retired when removed."
+  attributes:
+    meterId:
+      summary: "The permanent internal key that identifies this measuring point across all its readings and maintenance triggers."
+    meterCode:
+      summary: "The code on the meter or its tag that technicians quote when entering readings in the field."
+    meterType:
+      summary: "What the meter measures, such as running hours, distance, cycles, energy, volume, pressure or temperature."
+    status:
+      summary: "Shows whether the meter is being set up, active, out of service, or retired from use."
+    lastReadingValue:
+      summary: "The most recent figure read from the meter, in its unit, used to judge usage since the last reading."
+    lastReadingAt:
+      summary: "When the most recent reading was taken, showing how up to date the meter's figures are."
+OrganizationMembership:
+  attributes:
+    organizationMembershipId:
+      summary: "The permanent internal key that identifies this person's membership of the organisation, separate from other memberships."
+    status:
+      summary: "Shows whether the membership is pending, active, completed at its natural end, or cancelled."
+Payment:
+  attributes:
+    paymentId:
+      summary: "The permanent internal key that identifies this payment through approval, posting, clearing and allocation."
+    paymentNumber:
+      summary: "The payment reference quoted on remittance advice and used by staff when reconciling or querying it."
+    status:
+      summary: "Shows whether the payment is a draft, approved, posted, cleared by the bank, voided, or reversed."
+    amount:
+      summary: "How much money was received or paid out in this payment, in its stated currency."
+    currencyId:
+      summary: "The currency in which the money actually moved, such as euros or US dollars."
+    externalReference:
+      summary: "The bank's or payment provider's own reference, used to match this payment against bank statements."
+Pricing:
+  attributes:
+    pricingId:
+      summary: "The permanent internal key that identifies this pricing definition wherever quotations and orders apply it."
+    code:
+      summary: "The short code sales and pricing staff use to pick or cite this pricing definition."
+ProductionRecord:
+  help:
+    summary: "One production record states how much of a product an operation produced or extracted on a given date, kept as the basis for output reporting, inventory and performance figures."
+    workflowContext: "Operators record output from a work order, plant or mine site; the record can be set back to planned for correction, is then verified by a supervisor, or rejected if the figure is wrong. Verified records feed inventory receipts, production reporting, yield analysis and royalty or cost calculations."
+  attributes:
+    productionRecordId:
+      businessMeaning: "Lets inventory receipts, reports and corrections refer to exactly this output figure, even when several records exist for the same day."
+    productionDate:
+      businessMeaning: "When the output was produced; reporting relies on it to put output into the right shift, day or month."
+    quantity:
+      businessMeaning: "How much product was produced or extracted, in the product's unit; it is the figure that drives output reports, stock increases and yield comparisons."
+    status:
+      businessMeaning: "Whether the figure is just recorded, planned for correction, verified and safe to report, or rejected as wrong; only verified records should be relied on for official output."
+Protocol:
+  help:
+    summary: "One protocol is an approved scientific procedure setting out the objectives, methods, measurements and controls that studies and experiments must follow so their results are valid and comparable."
+    workflowContext: "Scientists draft the protocol, reviewers approve it, and studies and experiments are then run under it with supporting documents attached; it can be suspended while issues are investigated and resumed, and is retired when replaced, while past studies keep their link to the version they used."
+    example: "Protocol PRT-ONC-014, Dose-Ranging Cytotoxicity Assay in HepG2 Cells, approved for use in the oncology research project."
+  attributes:
+    protocolId:
+      summary: "The permanent internal key that identifies this protocol across every study and experiment run under it."
+    protocolCode:
+      summary: "The protocol reference scientists cite in study plans, lab notebooks and regulatory submissions."
+    title:
+      summary: "The descriptive name of the procedure that scientists recognise when choosing a protocol."
+QuotationLine:
+  attributes:
+    quotationLineId:
+      businessMeaning: "Lets the resulting sales order line and later queries trace back to exactly this offered item, even if lines are renumbered."
+    lineNumber:
+      businessMeaning: "The line position the customer sees on the quotation and quotes back when accepting or querying particular items."
+    quantity:
+      businessMeaning: "How much of the product or service is being offered; the price and amount are calculated on it and it carries into the order if accepted."
+    unitPrice:
+      businessMeaning: "The price per unit offered to the customer at the time of quoting; it is preserved so the customer is held to, and receives, the price they were quoted."
+    amount:
+      businessMeaning: "The total for this line after quantity, price and discount; it is what the customer sees for the line and what adds up to the quotation total."
+    discountAmount:
+      businessMeaning: "The reduction given on this line; sales managers review it against discount limits and it shows the customer what they are saving."
+    priceSource:
+      businessMeaning: "Where the price came from: the price list, a contract, a customer agreement, a promotion, a manual entry or something else; manual prices usually need approval and the source explains the price if it is later questioned."
+    priceDeterminedAt:
+      businessMeaning: "When the price was worked out, showing which price list or promotion was in force and whether the quote should be re-priced before acceptance."
+    description:
+      businessMeaning: "The wording the customer sees describing what is offered on this line, especially for services or configured items without a standard product name."
+Result:
+  help:
+    summary: "One result is an interpreted, calculated or summarised scientific finding drawn from observations, assays or a study, recorded with its provenance so it can be finalised and relied upon."
+    workflowContext: "Scientists derive a result from one or more observations, often within an assay or study, and keep it as a draft while it is reviewed; it is then finalised for reporting and decisions, or invalidated if the underlying data proves unreliable. Study reports and downstream decisions read only finalised results."
+    example: "Result RES-2025-0193, IC50 of 4.2 micromolar for compound CMP-881 in the HepG2 cytotoxicity assay, finalised."
+  attributes:
+    resultId:
+      summary: "The permanent internal key that identifies this finding and its links to the observations behind it."
+    resultCode:
+      summary: "The result reference scientists cite in study reports, presentations and decision records."
+    resultType:
+      summary: "What kind of finding this is, such as an IC50, a mean, a pass or fail call, or a summary."
+    value:
+      summary: "The finding itself as reported, read together with its unit of measure where one applies."
+    status:
+      summary: "Shows whether the result is still a draft, finalised for use, or invalidated and not to be relied on."
+SalesOrderLine:
+  attributes:
+    salesOrderLineId:
+      businessMeaning: "Lets reservations, shipments and invoice lines trace back to exactly this commitment, so each can be reconciled against what was ordered."
+    lineNumber:
+      businessMeaning: "The line position the customer and staff quote when discussing a particular item on the order, its delivery or its invoice."
+    quantity:
+      businessMeaning: "How much the customer ordered on this line; it is the commitment the business must fulfil and the basis for pricing and invoicing."
+    quantityFulfilled:
+      businessMeaning: "How much has already been shipped or delivered; comparing it with the ordered quantity shows what is still outstanding."
+    quantityAllocated:
+      businessMeaning: "How much stock is reserved for this line but not yet shipped; it tells planners whether the remaining quantity is covered."
+    unitPrice:
+      summary: "The price per unit agreed with the customer for this line when the order was placed."
+      businessMeaning: "The price per unit the customer agreed to; it is preserved at order time so invoicing charges what was agreed, even if the price list later changes."
+    discountAmount:
+      summary: "The total reduction given on this line, taken off before tax is calculated."
+      businessMeaning: "The reduction granted on this line; it is checked against discount authority and lowers the amount the customer is invoiced."
+    taxAmount:
+      businessMeaning: "The tax due on this line under the rules in force when it was ordered; it is charged on the invoice and reported to tax authorities."
+    lineAmount:
+      summary: "The total value of this line after quantity, price and discount, which adds into the order total."
+      businessMeaning: "What this line is worth to the business; it adds into the order total, revenue forecasts and the amount invoiced as the line is fulfilled."
+    priceSource:
+      businessMeaning: "Where the price came from: the price list, a contract, a customer agreement, an accepted quotation, a promotion, a manual entry or something else; it explains the price if a customer disputes it and flags manual prices for review."
+    priceDeterminedAt:
+      businessMeaning: "When the price was settled, showing which price list, promotion or quotation was in force and supporting audit of the charged price."
+ServiceContract:
+  help:
+    summary: "One service contract defines the service coverage a customer is entitled to under an underlying contract, including the covered period, service levels and entitlements that service teams honour."
+    workflowContext: "The service contract is drafted from the signed contract and activated when coverage starts; service orders and entitlement checks read it to decide what work is covered and at what service level. It may be suspended, for example for non-payment, and resumed, and ends by expiring at its end date or being terminated early."
+  attributes:
+    serviceContractId:
+      summary: "The permanent internal key that identifies this service agreement across its service orders and entitlements."
+    serviceContractNumber:
+      summary: "The contract reference customers and service agents quote when requesting or checking covered service."
+    effectiveFrom:
+      summary: "The first day the customer is covered for service under this contract."
+    effectiveTo:
+      summary: "The last day of coverage, after which service is no longer included unless the contract is renewed."
+    status:
+      summary: "Shows whether the contract is a draft, active, suspended, expired at its end, or terminated early."
+SparePart:
+  help:
+    summary: "One spare part record marks a product as an approved maintenance part, showing which equipment it fits and how critical it is, so stores can keep the right parts on hand."
+  attributes:
+    sparePartId:
+      summary: "The permanent internal key that identifies this spare part designation in maintenance planning and work orders."
+    criticality:
+      summary: "How serious a shortage of this part would be, from low to critical, guiding how much stock is kept."
+SupplierCreditNoteLine:
+  help:
+    summary: "One supplier credit note line records a single item or amount a supplier is crediting back, with the quantity, price, discount and tax used to reduce what the business owes."
+    lifecycle: "The line has no status of its own; it follows its parent supplier credit note, so it can be edited while the credit note is a draft, is locked once the credit note is approved or posted, and is reversed only by reversing the whole credit note."
+  attributes:
+    supplierCreditNoteLineId:
+      summary: "The permanent internal key that identifies this credit line within the supplier's credit note."
+      relationshipContext: "Belongs to exactly one supplier credit note and may point to the original invoice line and a supplier return line, letting payables trace each credit back to the purchase it corrects."
+    lineNumber:
+      summary: "The position of this line on the supplier's credit note, matching the line the supplier printed."
+      relationshipContext: "Numbers the line within its parent supplier credit note, so it must be unique on that credit note and is used to match the supplier's document line for line."
+    quantity:
+      summary: "How many units the supplier is crediting, such as goods returned or short-delivered."
+    unitPrice:
+      relationshipContext: "Should normally equal the price on the referenced invoice line, so the credit reverses exactly what was charged; any difference is a price correction that payables reviews."
+    grossAmount:
+      relationshipContext: "Comes from this line's quantity and unit price and, with the other lines, makes up the gross total of the parent supplier credit note."
+    discountAmount:
+      relationshipContext: "Reverses the share of discount that applied on the original invoice line, so the credit does not refund more than was actually paid."
+    taxableAmount:
+      summary: "The part of this credit on which purchase tax is reversed, after any discount."
+      relationshipContext: "Derived from the gross and discount amounts on this line and used with the original invoice line's tax treatment to calculate the tax to reverse."
+    taxAmount:
+      summary: "The purchase tax being credited back on this line, reducing the tax previously claimed."
+      relationshipContext: "Mirrors the tax charged on the referenced invoice line for the credited portion and rolls up into the tax total of the parent supplier credit note."
+    netAmount:
+      relationshipContext: "The line's final credit value that adds into the parent supplier credit note total and ultimately reduces the amount owed to the supplier."
+Supplier:
+  attributes:
+    supplierId:
+      summary: "The permanent internal key that identifies this supplier across purchase orders, invoices and payments."
+      businessMeaning: "Lets every purchase order, receipt, invoice, payment and assessment point to exactly this supplier, even if its name or code changes."
+    partyRoleId:
+      summary: "Links the supplier to the underlying party, so its name and contact details are shared."
+      businessMeaning: "Ties the supplier role to the company or person behind it, so one organisation that is both customer and supplier keeps a single identity and set of contact details."
+    supplierCode:
+      summary: "The short vendor code buyers and accounts payable staff use to pick this supplier on documents."
+      businessMeaning: "The vendor number quoted on purchase orders and when matching invoices, letting staff identify the supplier quickly and unambiguously."
+    supplierType:
+      summary: "What kind of supplier this is, such as an individual, business, government body or internal unit."
+      businessMeaning: "Decides which tax, compliance and onboarding checks apply; for example individuals may need withholding tax and internal suppliers are settled by intercompany transfer."
+    qualificationStatus:
+      summary: "Shows whether the supplier has been reviewed and approved to supply, or is pending, suspended or disqualified."
+      businessMeaning: "Tells buyers whether they may place new orders: only qualified suppliers should receive purchase orders, while pending, suspended or disqualified ones need procurement review first."
+    paymentTerms:
+      summary: "The agreed terms that set when invoices from this supplier fall due for payment."
+      businessMeaning: "Sets the default due date and any early-payment discount for this supplier's invoices, which drives payment runs and cash planning."
+    status:
+      summary: "Shows whether the supplier is active, inactive, blocked from transactions, or retired permanently."
+      businessMeaning: "Controls whether the supplier can be used: active suppliers can be ordered from and paid, inactive ones are dormant, blocked ones are stopped pending a problem such as a dispute, and retired ones are kept only for history."
+Team:
+  help:
+    summary: "One team is a named working group within an organisation to which people, work and ownership are assigned, so the business knows who is accountable for what."
+  attributes:
+    teamId:
+      summary: "The permanent internal key that identifies this team wherever work or ownership is assigned to it."
+    code:
+      summary: "The short team code used in assignments, routing rules and reports to name the team."
+    name:
+      summary: "The team's everyday name as people know it, such as Field Service North."
+Underwriting:
+  help:
+    summary: "One underwriting record is the evaluation of an applicant's insurance risk and the decision on whether, and on what terms, a proposed or renewing policy may be accepted."
+    workflowContext: "An underwriting case is opened as a draft for an applicant, often with a risk assessment, then submitted for review by an underwriter who scores the risk and reaches a decision; the decision sets the terms on which the insurance policy is issued or renewed. The case can be withdrawn before or during review if the applicant drops out."
+  attributes:
+    underwritingId:
+      summary: "The permanent internal key that identifies this underwriting case and its decision for audit."
+    underwritingNumber:
+      summary: "The case reference underwriters, brokers and applicants quote when discussing this evaluation."
+    riskScore:
+      summary: "The underwriter's numeric rating of the applicant's risk, which shapes acceptance and premium."
+    status:
+      summary: "Shows whether the case is a draft, in review, decided, or withdrawn before a decision."
+Warehouse:
+  help:
+    workflowContext: "A warehouse is set up as planned while the site is prepared, with its zones, docks and inventory locations defined, and activated when it starts receiving stock; receiving, putaway, picking waves and dispatch then run within it. It can be suspended temporarily and resumed, and is closed when the site stops operating."
+  attributes:
+    warehouseId:
+      summary: "The permanent internal key that identifies this warehouse across its locations, stock and shipments."
+      businessMeaning: "Lets inventory locations, zones, docks and stock records point to exactly this facility, even if its code or name changes."
+    locationId:
+      businessMeaning: "The site or address where the warehouse physically sits, used for routing deliveries, choosing the nearest warehouse and tax or customs purposes."
+    warehouseCode:
+      businessMeaning: "The short code staff and systems use to name the warehouse on orders, transfers and stock reports."
+    warehouseType:
+      businessMeaning: "What kind of facility it is: general, cold storage, bonded, distribution, retail or other; it decides which goods may be stored there, for example chilled items need cold storage and uncleared imports need a bonded warehouse."
+    capacity:
+      businessMeaning: "How much the warehouse can hold; planners use it to judge space utilisation and decide when stock must go elsewhere."
+    status:
+      businessMeaning: "Whether the warehouse can be used: planned sites are not yet operating, active ones receive and ship stock, suspended ones are temporarily stopped, and closed ones take no more activity."

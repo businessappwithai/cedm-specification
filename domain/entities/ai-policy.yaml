@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the AIPolicy record.
+      summary: "The permanent internal key that distinguishes this AI policy from every other policy, even if its code changes."
       businessMeaning: Identifies one governed AIPolicy independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing AIModel context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the AIPolicy.
+      summary: "The short business code people quote when citing this policy in approvals, model reviews and audit findings."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the AIPolicy.
+      summary: "Shows whether the policy is still a draft, actively governing its model, completed, or cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
@@ -97,13 +97,14 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents AIPolicy as a first-class governed CEDM business concept.
+    summary: "One AI policy is a governed rulebook for a specific AI model, stating what the model may be used for, which approvals and controls apply, and where its use is forbidden."
     businessMeaning: A governed policy defining constraints, approvals, controls, and permitted use for AI models and predictions.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: AIModel supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A AIPolicy is created for a valid AIModel, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "A governance or risk team drafts the policy against the AI model it governs, reviewers agree its constraints, and it is activated before the model is used in production; teams consult it when approving predictions or new uses, and it is completed when superseded or cancelled if it never takes effect."
 specification:
   version: 0.1.0
   status: draft

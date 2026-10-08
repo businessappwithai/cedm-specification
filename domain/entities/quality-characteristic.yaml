@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 100
     help:
-      summary: Business code identifying the quality characteristic.
+      summary: "The short code inspectors and quality plans use to refer to this measured property."
       businessMeaning: Provides a stable human-readable identifier such as WEIGHT, TEMPERATURE, LENGTH, or APPEARANCE.
       usage: Used in quality plans, measurements, reports, integrations, and validation rules.
       relationshipContext: The code identifies the characteristic, while QualityPlanCharacteristic determines how that characteristic is controlled in a particular plan.
@@ -37,7 +37,7 @@ entity:
     required: true
     maxLength: 300
     help:
-      summary: Human-readable name of the quality characteristic.
+      summary: "The readable name of the property being measured, such as fill weight or surface finish."
       businessMeaning: States what property the characteristic represents in language understandable to quality personnel and other users.
       usage: Used in quality-plan authoring, inspection screens, reports, analytics, and training.
       relationshipContext: Complements code and provides the business-facing meaning of measurements referencing this characteristic.
@@ -74,7 +74,7 @@ entity:
     default: ACTIVE
     values: [DRAFT, ACTIVE, RETIRED]
     help:
-      summary: Lifecycle state of the reusable characteristic definition.
+      summary: "Shows whether the characteristic is still a draft, active for use in plans, or retired."
       businessMeaning: Controls whether the characteristic may be newly assigned to quality plans and used for new measurements.
       usage: Governance, authoring, validation, and retirement control.
       relationshipContext: Retiring a characteristic does not erase historical QualityMeasurement evidence or historical plan configurations.
@@ -147,6 +147,7 @@ entity:
     lifecycle: Draft → active → retired. Retirement preserves historical references and evidence.
     changePropagation: Changes to meaning, type, or lifecycle require impact analysis across QualityPlanCharacteristic, QualityPlan, open QualityInspection, QualityMeasurement, Nonconformance, and reporting workflows. Historical completed evidence must retain the definition applicable when it was captured.
     example: A WEIGHT characteristic has dataType DECIMAL. One QualityPlanCharacteristic may require 9.8–10.2 kg while another plan may require 9.5–10.5 kg; both use the same reusable QualityCharacteristic.
+    workflowContext: "Quality engineers define the characteristic and activate it, quality plans then reference it with their own limits and methods, inspectors record measurements of it during inspections, and it is retired when no longer measured while past measurements remain."
 specification:
   version: 0.1.0
   status: draft

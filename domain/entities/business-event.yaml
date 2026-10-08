@@ -7,8 +7,8 @@ entity:
     icon: activity
   identity: {key: businessEventId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessEvent., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+  - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: "The unique key of this event notice, used to recognise duplicates when the same fact is published or received twice.", businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
+  - {name: occurredAt, type: datetime, required: false, help: {summary: "The moment the business fact actually happened, which may be earlier than when it was recorded or published.", businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
   relationships: []
   invariants:
   - {id: BUSINESS-EVENT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}

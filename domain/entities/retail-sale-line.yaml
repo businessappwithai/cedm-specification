@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets returns and refunds point back to the exact item that was sold."
   - name: quantity
     type: decimal
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "How many units the customer bought on this line; it must be above zero and reduces stock."
   - name: unitPrice
     type: decimal
     required: true
@@ -52,6 +54,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The shelf or till price per unit at the moment of sale, before line discounts."
   - name: discountAmount
     type: decimal
     required: false
@@ -65,6 +68,7 @@ entity:
       relationshipContext: Its meaning is specific to RetailSaleLine; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "How much was taken off this line by promotions, coupons or staff discounts, used for margin and promotion analysis."
   - name: taxAmount
     type: decimal
     required: false
@@ -78,6 +82,7 @@ entity:
       relationshipContext: Its meaning is specific to RetailSaleLine; it must be interpreted with the entity's relationships,
         lifecycle, and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The sales tax or VAT charged on this line, which feeds tax returns."
   - name: lineAmount
     type: decimal
     required: true
@@ -92,6 +97,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "What the customer pays for this line after discounts, the figure that rolls up into the receipt total."
   relationships:
   - name: sale
     target: RetailSale
@@ -132,7 +138,7 @@ entity:
   - {id: RETAIL-SALE-LINE-EXE-004, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
   - {id: RETAIL-SALE-LINE-EXE-005, rule: "Line Amount cannot be negative.", violatedWhen: "line_amount != null and line_amount < 0", message: "Line Amount cannot be negative."}
   help:
-    summary: Represents a retail transaction line called RetailSaleLine within the CEDM business model.
+    summary: "One product or service line on a retail sale or till receipt, with quantity, price, discount and tax, kept so takings, stock and margins can be reconciled item by item."
     businessMeaning: RetailSaleLine is a business concept with its own identity and lifecycle. It captures information that
       must remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -144,6 +150,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical RetailSaleLine record represents one identifiable business occurrence or master-data object that can
       be referenced by related CEDM processes.
+    workflowContext: "A line is added when an item is scanned or keyed at the till, priced and discounted under current promotions, taxed, and closed with the sale; it then updates stock, sales reporting and any later return of that item."
 specification:
   version: 0.1.0
   status: draft

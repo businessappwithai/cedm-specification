@@ -16,7 +16,7 @@ entity:
     required: true
     immutable: true
     help:
-      summary: Stable identity of the CarePlan record.
+      summary: "The internal key that ties every intervention and review to this particular care plan."
       businessMeaning: Identifies one governed CarePlan independently of related records and later lifecycle changes.
       usage: Referencing, workflow execution, reporting, audit, and integration.
       relationshipContext: Connects this record to its governing HealthcarePatient context and downstream evidence.
@@ -27,7 +27,7 @@ entity:
     unique: true
     maxLength: 120
     help:
-      summary: Human-readable business reference for the CarePlan.
+      summary: "The reference clinicians quote to find this care plan in notes, handovers and referrals."
       businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
       usage: Creation, review, search, workflow, reporting, and audit.
       relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
@@ -38,7 +38,7 @@ entity:
     default: DRAFT
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     help:
-      summary: Lifecycle state of the CarePlan.
+      summary: "Shows whether the plan is still being drafted, is active for the patient, has been completed or was cancelled."
       businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
       usage: Workflow gating, governance, reporting, and audit.
       relationshipContext: Status changes can affect related HealthcarePatient workflows but never erase historical evidence.
@@ -97,13 +97,14 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents CarePlan as a first-class governed CEDM business concept.
+    summary: "A plan agreed for one patient setting out the care goals, the interventions to deliver them, who is responsible and when progress is reviewed."
     businessMeaning: A governed plan of care defining goals, interventions, responsibilities, and follow-up for a patient.
     usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
     relationshipContext: HealthcarePatient supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
     lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
     changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
     example: A CarePlan is created for a valid HealthcarePatient, progresses through its governed lifecycle, and remains traceable after completion.
+    workflowContext: "A clinician drafts the plan after assessing the patient, activates it once agreed with the patient and care team, records interventions and reviews against it while active, and closes it as completed when goals are met or cancelled if it is replaced or no longer appropriate."
 specification:
   version: 0.1.0
   status: draft

@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets tasks, timesheets, costs and milestones be charged to exactly this project."
   - name: projectCode
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short code staff enter on timesheets and expenses to charge work to the project."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name people use to talk about the project in plans, reports and meetings."
   - name: description
     type: string
     required: false
@@ -57,6 +60,7 @@ entity:
       relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Explains the project's purpose and scope so team members and sponsors know what it is meant to deliver."
   - name: status
     type: enum
     required: true
@@ -85,6 +89,7 @@ entity:
         CLOSED: Represents the closed state or classification in the context of Project.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells managers whether the project is being drafted, planned, under way, on hold, completed, cancelled or closed, which decides whether time and costs can still be charged."
   - name: startDate
     type: date
     required: false
@@ -95,6 +100,7 @@ entity:
       relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When work on the project is planned to begin, used for scheduling people and phasing budget."
   - name: endDate
     type: date
     required: false
@@ -105,6 +111,7 @@ entity:
       relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When the project is due to finish, which deadlines and resource planning are measured against."
   - name: budgetAmount
     type: decimal
     required: false
@@ -117,6 +124,7 @@ entity:
       relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The money approved for the project, against which actual costs are compared to spot overspending."
   relationships:
   - name: ownerOrganization
     target: Organization
@@ -241,7 +249,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a project management entity called Project within the CEDM business model.
+    summary: "A piece of planned work with its own objectives, budget, manager and dates, under which tasks, milestones, resources and costs are planned and tracked."
     businessMeaning: Project is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -253,6 +261,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Project record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "A project is drafted with its scope, planned once budget and dates are agreed, made active when work starts, may be put on hold and resumed, is completed when the work is delivered, and closed after final costs are booked; it can be cancelled at any point before completion."
 specification:
   version: 0.1.0
   status: draft

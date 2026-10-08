@@ -24,6 +24,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for the sale, keeping its lines and payments together for refunds and audits."
   - name: receiptNumber
     type: string
     required: true
@@ -38,6 +39,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The number printed on the customer's receipt, which staff use to look up the sale for returns, refunds and complaints."
   - name: saleDate
     type: datetime
     required: true
@@ -50,6 +52,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the sale took place, which decides the trading day it counts toward and the return period for the customer."
   - name: status
     type: enum
     required: true
@@ -73,6 +76,7 @@ entity:
         REFUNDED: Represents the refunded state or classification in the context of RetailSale.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows the sale's outcome: OPEN while being rung up, COMPLETED when it counts toward takings, VOIDED when cancelled at the till, and REFUNDED when the money was given back."
   - name: totalAmount
     type: decimal
     required: true
@@ -87,6 +91,7 @@ entity:
         lifecycle, and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The amount the customer was charged for the sale, which cash-up and takings reports reconcile against the payments received; it is never negative."
   - name: currencyId
     type: reference
     target: Currency
@@ -100,6 +105,7 @@ entity:
         the two entities and lets processes navigate from this record to the related Currency.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The currency the customer paid in, needed to total the store's takings and convert them for group reporting."
   relationships:
   - name: store
     target: Store
@@ -175,7 +181,7 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents a retail transaction called RetailSale within the CEDM business model.
+    summary: "One sale rung up at a store's point of sale, with its receipt number, lines, payments and total, kept so takings, stock and customer refunds can be reconciled."
     businessMeaning: RetailSale is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -187,6 +193,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical RetailSale record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "The cashier opens the sale and scans the items, the customer pays, and the sale is completed; a sale can be voided at the till, and a sale returned by the customer is refunded, with store takings and stock reports reading the outcome."
 specification:
   version: 0.1.0
   status: draft

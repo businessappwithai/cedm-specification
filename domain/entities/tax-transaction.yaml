@@ -7,12 +7,12 @@ entity:
     icon: percent
   identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxTransaction., businessMeaning: Identifies one governed TaxTransaction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
+  - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this tax consequence, kept for tax returns and audit trails.", businessMeaning: Identifies one governed TaxTransaction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxTransaction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    help: {summary: "Whether this tax record is a draft, active, completed for reporting, or cancelled.", businessMeaning: Indicates usability/execution state of TaxTransaction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
   relationships:
   - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
   invariants:

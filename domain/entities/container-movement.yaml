@@ -16,20 +16,22 @@ entity:
     required: true
     immutable: true
     help:
-      summary: The immutable identity of the movement record.
+      summary: "The permanent reference for this single move of a container, kept as evidence after completion."
       usage: Used to trace planning, dispatch, execution, completion, exceptions, integrations, and audit history for one movement.
       relationshipContext: Identifies the movement event/instruction; Container identifies the equipment and sourceSlot/targetSlot identify physical positions.
       requiredMeaning: Required because every movement must remain independently traceable.
+      businessMeaning: "Identifies one move so equipment instructions, slot changes and later investigations all refer to exactly the same event, even if the movement number is reissued."
   - name: movementNumber
     type: string
     required: true
     unique: true
     maxLength: 100
     help:
-      summary: The human-facing operational reference for the movement.
+      summary: "The work order reference operators and planners quote when dispatching, tracking or querying this move."
       usage: Used by planners, operators, dispatchers, supervisors, gate teams, and external systems.
       relationshipContext: It identifies the operational work item and is distinct from containerNumber and containerMovementId.
       requiredMeaning: Required for human and integration traceability.
+      businessMeaning: "The number shown on equipment terminals and work lists, used by drivers and supervisors to find the job and by customers or auditors to query a specific move."
   - name: movementType
     type: enum
     required: true
@@ -51,6 +53,7 @@ entity:
         INSPECTION: Positions equipment for inspection or survey.
         REPAIR_MOVE: Moves equipment to or from a repair/workshop area.
       requiredMeaning: Required because the movement type determines physical and business rules.
+      businessMeaning: "Why the box is being moved and what follows from it: a GATE_OUT means it leaves the depot and gives up its slot, a STACK or RESTACK places it in a new slot, a LOAD or DISCHARGE moves it on or off a vessel or vehicle, and INSPECTION or REPAIR_MOVE takes it to a workshop."
   - name: status
     type: enum
     required: true
@@ -68,22 +71,25 @@ entity:
         CANCELLED: The movement will not be executed under this instruction.
         FAILED: Execution was attempted or initiated but did not complete successfully and requires recovery or replanning.
       requiredMeaning: Required for controlled operational execution.
+      businessMeaning: "Where the job stands: PLANNED and ASSIGNED moves are still to do, IN_PROGRESS means handling has begun, COMPLETED means the new position is confirmed, CANCELLED moves never happened and FAILED moves need recovery or replanning."
   - name: plannedAt
     type: datetime
     required: false
     help:
-      summary: The planned execution time for the movement.
+      summary: "The time the yard intends this move to happen, used to schedule equipment and drivers."
       usage: Supports yard sequencing, appointment coordination, crane/tractor scheduling, congestion management, and optimization.
       relationshipContext: A planning timestamp is not evidence that movement occurred.
       optionalMeaning: Optional until a schedule is established.
+      businessMeaning: "The target time planners sequence work against; comparing it with the actual start shows whether the yard is keeping up with truck appointments and vessel windows."
   - name: startedAt
     type: datetime
     required: false
     help:
-      summary: The timestamp when physical execution actually began.
+      summary: "The moment the operator actually began handling the container for this move."
       usage: Supports productivity, equipment utilization, delay analysis, turnaround measurement, and audit.
       relationshipContext: Represents actual execution and is distinct from plannedAt.
       optionalMeaning: Optional before execution or when supplied by an external execution system.
+      businessMeaning: "Marks when physical work began, so the yard can measure waiting time against the plan and handling time against completion."
   - name: completedAt
     type: datetime
     required: false
@@ -92,6 +98,7 @@ entity:
       usage: Establishes completion chronology, move duration, resulting position/state, and operational metrics.
       relationshipContext: For yard movements, completion should correspond to confirmed target-slot occupancy or source-slot release; for external movements it should correspond to the appropriate transport state.
       optionalMeaning: Optional until completion.
+      businessMeaning: "When the container was confirmed in its new slot or transport state; from this moment the yard treats the box as being in its new position and the move as closed evidence."
   - name: priority
     type: enum
     required: true
@@ -107,6 +114,7 @@ entity:
         HIGH: Receives preferential scheduling because delay may affect downstream activity.
         CRITICAL: Requires protected or immediate execution because delay may materially affect safety, vessel operations, gate commitments, customer commitments, or another critical process.
       requiredMeaning: Required for consistent competing-work prioritization.
+      businessMeaning: "How urgently the move should be done compared with other work; CRITICAL and HIGH moves, such as a container needed for a departing vessel, are dispatched before NORMAL and LOW housekeeping moves."
   relationships:
   - name: container
     target: Container
@@ -236,13 +244,14 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents one traceable physical or operational movement of one shipping container.
+    summary: "One instruction to move a specific shipping container, and the record of it happening, such as stacking, restacking, loading or leaving through the gate, kept so the yard always knows where each box is and why it moved."
     businessMeaning: ContainerMovement is the execution-level event connecting the Container asset to yard positions, transport states, operators, and the business process that caused the move. It is deliberately separate from Container, which represents the asset, and YardSlot, which represents a physical storage position.
     usage: Used by yard management, terminal/depot operations, gate management, vessel operations, repair operations, dispatch, equipment optimization, safety, audit, and movement analytics.
     relationshipContext: Container answers what asset moved. SourceSlot and targetSlot answer where it moved. MovementType explains the physical purpose. RelatedTransaction explains why it was needed. AssignedTo identifies execution responsibility. Container.currentLocation/currentSlot represent present state; ContainerMovement preserves historical chronology.
     lifecycle: A movement is planned, optionally assigned, started when physical handling begins, and completed only when the resulting position or transport state is confirmed. Cancellation prevents execution. Failure records unsuccessful execution and triggers recovery or replanning. Completed movements remain immutable historical events.
     operationalSemantics: A yard system should reserve a target slot before executing a placement movement, validate container compatibility and stack constraints, atomically release the source and occupy the target when completion is confirmed, and update the container's present position. Optimization may create restack movements whose purpose is to reduce future rehandles rather than fulfill a customer transaction.
     example: Container C123 is in B12-08-02 and must leave the depot on an outbound truck. A GATE_OUT movement records the source slot, planned time, priority, and related release transaction. After the container crosses the gate, the movement becomes COMPLETED and the container no longer has an active yard slot. The movement remains immutable evidence of the physical departure.
+    workflowContext: "Planned by yard planning when a container arrives, is released, needs inspection or repair, or must be restacked; assigned to an equipment operator, started when handling begins and completed when the new slot or transport state is confirmed, which updates container position and feeds gate, billing and productivity reporting."
 specification:
   version: 0.2.0
   status: draft

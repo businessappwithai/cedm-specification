@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Ties every repayment, interest accrual and statement to this one facility, even if the lender reissues the loan number."
   - name: loanNumber
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference the lender uses on statements and correspondence; treasury quotes it when reconciling repayments and talking to the bank."
   - name: principalAmount
     type: decimal
     required: true
@@ -49,6 +51,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The amount originally borrowed, in the loan currency; interest is charged on it and the repayment schedule is built to return it in full by maturity."
   - name: interestRate
     type: decimal
     required: true
@@ -62,6 +65,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The annual rate the lender charges on the outstanding balance; it drives interest expense, cash flow forecasts and comparisons with other financing options."
   - name: startDate
     type: date
     required: true
@@ -73,6 +77,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The date funds are drawn and interest begins to accrue; repayment schedules count from it."
   - name: maturityDate
     type: date
     required: true
@@ -84,6 +89,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The date by which the loan must be repaid in full; treasury plans refinancing or final repayment around it and it decides whether the debt is reported as current or long-term."
   - name: status
     type: enum
     required: true
@@ -112,6 +118,7 @@ entity:
         CANCELLED: Represents the cancelled state or classification in the context of BankLoan.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells treasury and risk whether the loan is still an application, approved, active and performing, delinquent on payments, paid off, defaulted, or cancelled, which decides whether repayments are expected and whether escalation is needed."
   relationships:
   - name: borrower
     target: Party
@@ -187,7 +194,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a banking entity called BankLoan within the CEDM business model.
+    summary: "One bank loan is a credit facility under which a lender advances money to a borrower, recording the principal, interest rate, term and repayment standing the business must track."
     businessMeaning: BankLoan is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -199,6 +206,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical BankLoan record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "The loan starts as an application, is approved by the lender and becomes active when funds are drawn; treasury monitors repayments and flags it delinquent when payments are missed, records it as paid off once the balance is cleared, and accounting and reporting read it for interest accruals, debt schedules and covenant checks."
 specification:
   version: 0.1.0
   status: draft

@@ -6,16 +6,16 @@ entity:
   ui: {icon: route}
   identity: {key: voyageId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: voyageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Voyage., businessMeaning: Identifies one maritime journey independently of the Vessel master., usage: "Shipping, port planning, container tracking and audit.", relationshipContext: Vessel performs many Voyages., requiredMeaning: Required.}}
-    - {name: voyageNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Operational voyage reference., businessMeaning: "Human/integration identifier used by carriers, ports and customers.", usage: "Booking, schedules, tracking and reporting.", relationshipContext: Stable for the modeled journey occurrence., requiredMeaning: Required.}}
-    - {name: plannedDepartureAt, type: datetime, required: false, help: {summary: Planned departure timestamp., businessMeaning: "Supports berth, yard and cargo scheduling.", usage: Port planning and ETA management., relationshipContext: Actual tracking remains separate evidence., optionalMeaning: Optional before schedule finalization.}}
+    - {name: voyageId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this voyage, used by berth allocations and container visits to point at the same sailing.", businessMeaning: Identifies one maritime journey independently of the Vessel master., usage: "Shipping, port planning, container tracking and audit.", relationshipContext: Vessel performs many Voyages., requiredMeaning: Required.}}
+    - {name: voyageNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The voyage number published by the carrier and quoted on bookings and bills of lading, such as 047E.", businessMeaning: "Human/integration identifier used by carriers, ports and customers.", usage: "Booking, schedules, tracking and reporting.", relationshipContext: Stable for the modeled journey occurrence., requiredMeaning: Required.}}
+    - {name: plannedDepartureAt, type: datetime, required: false, help: {summary: "When the vessel is scheduled to leave its origin port, used for cargo cut-offs and berth planning.", businessMeaning: "Supports berth, yard and cargo scheduling.", usage: Port planning and ETA management., relationshipContext: Actual tracking remains separate evidence., optionalMeaning: Optional before schedule finalization.}}
     - {name: plannedArrivalAt, type: datetime, required: false, help: {summary: Planned arrival timestamp at destination or principal port., businessMeaning: Supports downstream terminal planning., usage: "ETA, berth and yard planning.", relationshipContext: Must follow plannedDepartureAt when both are supplied., optionalMeaning: Optional while route is provisional.}}
     - name: status
       type: enum
       required: true
       default: PLANNED
       values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Lifecycle state of the Voyage., businessMeaning: Controls planning and execution progression., usage: "Shipping operations and reporting.", relationshipContext: Completed voyage history is immutable., valueSemantics: {PLANNED: Journey is scheduled., ACTIVE: Voyage is underway., COMPLETED: Journey completed., CANCELLED: Journey was cancelled.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether the voyage is still planned, under way, completed or cancelled.", businessMeaning: Controls planning and execution progression., usage: "Shipping operations and reporting.", relationshipContext: Completed voyage history is immutable., valueSemantics: {PLANNED: Journey is scheduled., ACTIVE: Voyage is underway., COMPLETED: Journey completed., CANCELLED: Journey was cancelled.}, requiredMeaning: Required.}
   relationships:
     - {name: vessel, target: Vessel, cardinality: "1", ownership: reference, help: {summary: Vessel performing the Voyage., businessMeaning: Establishes maritime transport resource., usage: "Shipping operations and reporting.", cardinalityMeaning: Exactly one Vessel., workflowRole: Vessel must be eligible when Voyage begins.}}
     - {name: originPort, target: Port, cardinality: "0..1", ownership: reference, help: {summary: Principal origin Port., businessMeaning: Establishes planned maritime journey start., usage: "Scheduling and reporting.", cardinalityMeaning: Optional for complex multi-port voyage representation., workflowRole: Port schedule must reconcile to voyage plan.}}
@@ -37,9 +37,11 @@ entity:
       - {from: ACTIVE, to: COMPLETED, action: complete}
       - {from: ACTIVE, to: CANCELLED, action: cancel}
   help:
-    summary: Represents one maritime journey used by shipping and terminal operations.
+    summary: "One journey a vessel makes between ports on a planned schedule, used to plan container loading, berth allocation and terminal operations and to track progress against the schedule."
     businessMeaning: Vessel is the resource; Voyage is the journey; Port/Berth provide terminal context; ContainerVisit ties cargo presence to the journey.
     usage: Maritime logistics, port scheduling, container terminals, tracking, reporting and audit.
     relationshipContext: Vessel is mandatory; Ports, Berths and ContainerVisits provide operational context.
     lifecycle: Voyage is planned, becomes active and completes or is cancelled with history retained.
+    workflowContext: "Planned by the shipping line or terminal when the vessel schedule is published, started when the vessel departs, completed on arrival at its final port or cancelled; berth planning and container visits are organised around it, and completed voyages remain as operational history."
+    example: "Voyage 047E of vessel MSC Aurora, Rotterdam to New York, planned departure 2026-10-14 18:00 UTC, status PLANNED."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VOYAGE}

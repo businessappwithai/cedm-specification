@@ -6,17 +6,17 @@ entity:
   ui: {icon: clipboard-check}
   identity: {key: serviceOrderId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service execution order., businessMeaning: Identifies one authorization to perform service work., usage: "Service operations, field service, billing, reporting and audit.", relationshipContext: "Distinct from request, case and maintenance work-order identities.", requiredMeaning: Required.}}
-    - {name: serviceOrderNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing service order reference., businessMeaning: Operational identifier used for scheduling and execution., usage: "Dispatch, customer communication, billing and integration.", relationshipContext: Stable across execution status changes., requiredMeaning: Required.}}
-    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: Scope of authorized service work., businessMeaning: States what work the service provider is authorized to perform., usage: "Scheduling, execution, customer communication and audit.", relationshipContext: "Product, Asset and related request or case provide structured context.", requiredMeaning: Required.}}
-    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: Planned start of service execution., businessMeaning: Scheduling commitment rather than actual work evidence., usage: "Dispatch and customer communication.", relationshipContext: May be governed by SLA and availability., optionalMeaning: Optional before scheduling.}}
+    - {name: serviceOrderId, type: uuid, required: true, immutable: true, help: {summary: "The fixed reference for this authorized service job that visits and work orders point to.", businessMeaning: Identifies one authorization to perform service work., usage: "Service operations, field service, billing, reporting and audit.", relationshipContext: "Distinct from request, case and maintenance work-order identities.", requiredMeaning: Required.}}
+    - {name: serviceOrderNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The number the customer and technicians quote when scheduling or asking about this service job.", businessMeaning: Operational identifier used for scheduling and execution., usage: "Dispatch, customer communication, billing and integration.", relationshipContext: Stable across execution status changes., requiredMeaning: Required.}}
+    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: "What service work is to be done for the customer, written so the technician understands the job.", businessMeaning: States what work the service provider is authorized to perform., usage: "Scheduling, execution, customer communication and audit.", relationshipContext: "Product, Asset and related request or case provide structured context.", requiredMeaning: Required.}}
+    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: "The date and time the technician is booked to start the service work.", businessMeaning: Scheduling commitment rather than actual work evidence., usage: "Dispatch and customer communication.", relationshipContext: May be governed by SLA and availability., optionalMeaning: Optional before scheduling.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED]
       help:
-        summary: Lifecycle state of the service order.
+        summary: "Shows whether the job is drafted, approved, scheduled, in progress, completed or cancelled."
         businessMeaning: Controls authorization, scheduling and execution progression.
         usage: Dispatch, execution, billing eligibility and audit.
         relationshipContext: Completion does not erase related case or maintenance evidence.
@@ -65,4 +65,5 @@ entity:
     relationshipContext: Customer, Asset and Product define scope while ServiceContract, Entitlement and SLA govern coverage and commitments.
     lifecycle: Orders progress from draft authorization through scheduling and execution to completion or cancellation.
     example: An entitled customer case creates a ServiceOrder for an on-site repair, which in turn links to the technical MaintenanceWorkOrder.
+    workflowContext: "A service order is drafted from a service request, case or contract, approved once entitlement is confirmed, scheduled with a technician and start time, carried out and completed, and can be cancelled before work finishes; completed orders are kept unchanged as service history."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-ORDER}

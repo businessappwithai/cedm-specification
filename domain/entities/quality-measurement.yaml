@@ -11,13 +11,13 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Stable identity of one quality measurement., businessMeaning: Identifies one observation independently of its inspection and characteristic., usage: "Traceability, audit, analytics and integrations.", relationshipContext: Distinct from QualityInspection and the measured Product., workflowRole: Stable reference from capture through review., requiredMeaning: Required.}
+    help: {summary: "The permanent reference for this recorded measurement, cited when an inspection result or nonconformance is investigated.", businessMeaning: Identifies one observation independently of its inspection and characteristic., usage: "Traceability, audit, analytics and integrations.", relationshipContext: Distinct from QualityInspection and the measured Product., workflowRole: Stable reference from capture through review., requiredMeaning: Required.}
   - name: measurementNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing measurement reference., businessMeaning: Provides an operational identifier for one observation., usage: "Inspection review, audit and integration.", relationshipContext: Distinct from the parent inspection number., workflowRole: Supports individual observation traceability., requiredMeaning: Required.}
+    help: {summary: "The sequence or reference number of this reading within its inspection, used by inspectors to identify it on the record.", businessMeaning: Provides an operational identifier for one observation., usage: "Inspection review, audit and integration.", relationshipContext: Distinct from the parent inspection number., workflowRole: Supports individual observation traceability., requiredMeaning: Required.}
   - name: characteristicCode
     type: string
     required: true
@@ -28,12 +28,12 @@ entity:
     required: false
     precision: 30
     scale: 12
-    help: {summary: Numeric value observed during inspection., businessMeaning: Records the factual quantitative observation before evaluation., usage: "Acceptance evaluation, trend analysis and audit.", relationshipContext: Requires a compatible unit for dimensional characteristics., workflowRole: Supplies evidence used against configured acceptance criteria., optionalMeaning: Optional for categorical characteristics.}
+    help: {summary: "The numeric reading taken for the characteristic, compared against the lower and upper limits to decide pass or fail.", businessMeaning: Records the factual quantitative observation before evaluation., usage: "Acceptance evaluation, trend analysis and audit.", relationshipContext: Requires a compatible unit for dimensional characteristics., workflowRole: Supplies evidence used against configured acceptance criteria., optionalMeaning: Optional for categorical characteristics.}
   - name: measuredText
     type: string
     required: false
     maxLength: 1000
-    help: {summary: Categorical or textual observation., businessMeaning: "Records observations such as color, grade, appearance or classification.", usage: Quality evaluation where numeric measurement is inappropriate., relationshipContext: Used instead of measuredValue for categorical characteristics., workflowRole: Supplies structured qualitative evidence., optionalMeaning: Optional for numeric characteristics.}
+    help: {summary: "The observed result when it is a description rather than a number, such as No visible scratches or colour matches standard.", businessMeaning: "Records observations such as color, grade, appearance or classification.", usage: Quality evaluation where numeric measurement is inappropriate., relationshipContext: Used instead of measuredValue for categorical characteristics., workflowRole: Supplies structured qualitative evidence., optionalMeaning: Optional for numeric characteristics.}
   - name: unitOfMeasure
     type: reference
     target: UnitOfMeasure
@@ -76,7 +76,7 @@ entity:
   - name: measuredAt
     type: datetime
     required: true
-    help: {summary: Time when the observation was captured., businessMeaning: Establishes chronology of the measured fact., usage: "Traceability, sampling, compliance and audit.", relationshipContext: Distinct from QualityInspection.inspectionDate., workflowRole: Preserves temporal measurement evidence., requiredMeaning: Required.}
+    help: {summary: "When the reading was taken, which helps relate the result to production time, shift and equipment condition.", businessMeaning: Establishes chronology of the measured fact., usage: "Traceability, sampling, compliance and audit.", relationshipContext: Distinct from QualityInspection.inspectionDate., workflowRole: Preserves temporal measurement evidence., requiredMeaning: Required.}
   - name: method
     type: string
     required: false
@@ -86,7 +86,7 @@ entity:
     type: string
     required: false
     maxLength: 2000
-    help: {summary: Supporting context for the observation., businessMeaning: Captures anomalies or conditions not represented structurally., usage: Review and audit., relationshipContext: Complements measured values and result without replacing them., workflowRole: Provides supporting evidence., optionalMeaning: Optional.}
+    help: {summary: "Remarks from the inspector about this reading, such as conditions, retests or anything unusual observed during measurement.", businessMeaning: Captures anomalies or conditions not represented structurally., usage: Review and audit., relationshipContext: Complements measured values and result without replacing them., workflowRole: Provides supporting evidence., optionalMeaning: Optional.}
   relationships:
   - {name: qualityInspection, target: QualityInspection, cardinality: '1', ownership: reference, help: {summary: Inspection during which the measurement was captured., businessMeaning: Provides the governing inspection context., usage: Quality traceability and aggregate evaluation., workflowRole: Parent inspection controls measurement lifecycle.}}
   - {name: inspectionSample, target: InspectionSample, cardinality: "0..1", ownership: reference, help: {summary: Exact governed inspection sample from which this observation was produced when sample-specific testing applies., businessMeaning: Preserves provenance from SamplingPlan and SamplingRule execution through selected material to the resulting observation., usage: "Sample-level traceability, laboratory chain of custody, acceptance sampling, audit, and reproducibility.", cardinalityMeaning: A measurement references zero or one InspectionSample because non-sampled or population-level observations may not have a sample record., workflowRole: "When populated, the sample must belong to the same QualityInspection and the measurement must satisfy the characteristic controls applicable to that sample."}}
@@ -110,7 +110,7 @@ entity:
   - {id: QUALITY-MEASUREMENT-010, rule: Measurement capture and evaluation must be idempotent and must not create duplicate observations on retry.}
   - {id: QUALITY-MEASUREMENT-011, rule: "Historical lowerLimit, upperLimit, characteristicCode, and method snapshots must not be silently rewritten when the governing QualityPlanCharacteristic changes."}
   help:
-    summary: Structured auditable evidence for one quality characteristic observed during a QualityInspection.
+    summary: "One value or observation recorded during a quality inspection for a specific characteristic, such as a diameter or colour, kept with its limits and result as evidence that the product met specification."
     businessMeaning: QualityMeasurement separates the factual observation from the inspection-level conclusion while retaining the exact plan configuration used for evaluation.
     usage: Incoming inspection, supplier quality, laboratory testing, dimensional checks, sampling, process quality, compliance, nonconformance and corrective-action verification.
     relationshipContext: QualityInspection is the execution context; InspectionSample supplies exact sample provenance when sampling applies; QualityPlanCharacteristic supplies authoritative plan-specific requirements; QualityCharacteristic supplies reusable meaning; QualityPlan supplies the parent definition; Product identifies material; UnitOfMeasure supplies dimensional semantics; Nonconformance may consume failed evidence.

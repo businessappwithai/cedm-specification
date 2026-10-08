@@ -7,14 +7,14 @@ entity:
     icon: file-text
   identity: {key: packingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: Stable packing-task identity., businessMeaning: Identifies one governed packaging execution., usage: "Fulfillment, labeling, shipment preparation and audit.", relationshipContext: Links picked goods to handling unit and shipment., requiredMeaning: Required.}}
-  - {name: packedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity confirmed packed., businessMeaning: Measures goods prepared for transport., usage: Shipment readiness and reconciliation., relationshipContext: Must not exceed eligible picked quantity., requiredMeaning: Required.}}
+  - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference linking this packing job to its picking, handling unit and shipment records.", businessMeaning: Identifies one governed packaging execution., usage: "Fulfillment, labeling, shipment preparation and audit.", relationshipContext: Links picked goods to handling unit and shipment., requiredMeaning: Required.}}
+  - {name: packedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How many units the packer confirmed were actually placed into the handling unit for shipment.", businessMeaning: Measures goods prepared for transport., usage: Shipment readiness and reconciliation., relationshipContext: Must not exceed eligible picked quantity., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, IN_PROGRESS, PACKED, CANCELLED, EXCEPTION]
-    help: {summary: Packing task state., businessMeaning: Controls packaging workflow., usage: WMS and shipping readiness., relationshipContext: PACKED is not dispatch/delivery evidence., valueSemantics: {PLANNED: Awaiting work., IN_PROGRESS: Packaging underway., PACKED: Confirmed complete., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the packing job is planned, under way, packed, held in exception, or cancelled.", businessMeaning: Controls packaging workflow., usage: WMS and shipping readiness., relationshipContext: PACKED is not dispatch/delivery evidence., valueSemantics: {PLANNED: Awaiting work., IN_PROGRESS: Packaging underway., PACKED: Confirmed complete., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
   relationships:
   - {name: picking, target: Picking, cardinality: 0..1, ownership: reference, help: {summary: Pick task supplying goods., businessMeaning: Preserves pick-to-pack provenance., usage: Fulfillment reconciliation., cardinalityMeaning: Optional for packing not driven by a single pick., workflowRole: Packed quantity cannot exceed eligible picked quantity.}}
   - {name: handlingUnit, target: HandlingUnit, cardinality: "1", ownership: reference, help: {summary: Package/pallet/tote receiving packed goods., businessMeaning: Establishes physical logistics identity., usage: "Labels, staging, loading and tracking.", cardinalityMeaning: Exactly one target handling unit per packing record., workflowRole: Contents/custody remain traceable.}}
@@ -80,9 +80,11 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Warehouse packaging execution between picking and shipping.
+    summary: "A warehouse packing job that puts picked goods into cartons, pallets or other handling units and prepares them for shipment, recording exactly what quantity, lot and serial went into which package."
     businessMeaning: Packing establishes physical package composition/readiness; Shipment and InventoryMovement separately govern transport and stock effects.
     usage: Fulfillment, package labeling, staging, carrier handoff and traceability.
     relationshipContext: Picking supplies goods; HandlingUnit identifies package; Shipment/ShipmentLine supply transport context.
     lifecycle: Planned → in progress → packed, cancelled or exception.
+    workflowContext: "After picking, the packing task is planned against a handling unit and shipment, a packer starts it and confirms quantities, the task is marked packed and handed to shipping; problems such as damage or a short pick put it into exception until resolved, and the task can be cancelled if the shipment is withdrawn."
+    example: "Packing task for shipment SH-88213: 36 units of SKU 40-1177 packed into carton HU-000452, started 14:05 and marked packed at 14:20."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PACKING}

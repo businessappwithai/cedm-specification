@@ -24,6 +24,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Keeps every task created by this process definition linked back to it, so anyone can see which process and version produced a piece of work."
   - name: code
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The short reference process owners and administrators use to find and cite the workflow, such as PO-APPROVAL."
   - name: name
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The name people know the process by, such as 'Purchase Order Approval', shown in process lists and on the tasks it creates."
   - name: version
     type: string
     required: true
@@ -60,6 +63,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Identifies which edition of the process this is; once activated a version is frozen, so running work always follows the rules it started under and changes come as a new version."
   - name: executionType
     type: enum
     required: true
@@ -79,6 +83,7 @@ entity:
         HYBRID: Represents the hybrid state or classification in the context of Workflow.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Says who carries out the process: people only, the system automatically, or a mix of both, which affects how tasks are assigned and monitored."
   - name: status
     type: enum
     required: true
@@ -101,6 +106,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Workflow.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Shows whether the process is being designed, in use for new work, temporarily suspended, or retired; only active workflows start new runs."
   - name: definitionFormat
     type: enum
     required: false
@@ -121,6 +127,7 @@ entity:
         STATE_MACHINE: Represents the state machine state or classification in the context of Workflow.
         OTHER: Represents the other state or classification in the context of Workflow.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "Says in which notation the process steps are described, such as BPMN or a state machine, so the right tool or engine can read and run it."
   - name: definition
     type: object
     required: false
@@ -132,6 +139,7 @@ entity:
       relationshipContext: Its meaning is specific to Workflow; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The actual description of the process steps, decisions and routes that the workflow engine follows; it must be valid for the stated format before the workflow can be activated."
   relationships:
   - name: businessProcess
     target: BusinessProcess
@@ -172,7 +180,7 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a process definition entity called Workflow within the CEDM business model.
+    summary: "A defined business process, such as purchase approval or employee onboarding, describing the steps, decisions and tasks to follow and whether people, the system or both carry them out."
     businessMeaning: Workflow is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -184,6 +192,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Workflow record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Process owners draft the workflow and its definition, activate a version once the definition is valid so tasks are generated from it, suspend it to stop new runs during a problem or review and resume it afterwards, and retire it when replaced; a changed process becomes a new version rather than editing an active one."
 specification:
   version: 0.1.0
   status: draft

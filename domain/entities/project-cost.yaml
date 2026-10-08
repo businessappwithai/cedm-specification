@@ -6,14 +6,14 @@ entity:
   ui: {icon: receipt-text}
   identity: {key: projectCostId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: projectCostId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the project cost event., businessMeaning: Identifies one cost attribution independently of later posting or correction., usage: "Project control, billing, accounting reconciliation and audit.", relationshipContext: Remains stable across lifecycle transitions and correction evidence., requiredMeaning: Required.}}
-    - {name: costNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing project cost reference., businessMeaning: Operational identifier for tracing cost evidence., usage: "Search, approval, reporting, reconciliation and integration.", relationshipContext: Distinct from JournalEntry or Invoice references., requiredMeaning: Required.}}
+    - {name: projectCostId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference that links this project cost to its source document and accounting entry.", businessMeaning: Identifies one cost attribution independently of later posting or correction., usage: "Project control, billing, accounting reconciliation and audit.", relationshipContext: Remains stable across lifecycle transitions and correction evidence., requiredMeaning: Required.}}
+    - {name: costNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The reference project and finance staff quote when tracing or querying this particular project cost.", businessMeaning: Operational identifier for tracing cost evidence., usage: "Search, approval, reporting, reconciliation and integration.", relationshipContext: Distinct from JournalEntry or Invoice references., requiredMeaning: Required.}}
     - name: costType
       type: enum
       required: true
       values: [LABOR, MATERIAL, EXPENSE, SERVICE, OVERHEAD, OTHER]
       help:
-        summary: Business classification of the attributed cost.
+        summary: "Says what kind of cost this is: labour, material, expense, service, overhead or other."
         businessMeaning: Explains the operational source of project cost without replacing accounting classification.
         usage: Project reporting, profitability, budgeting and analysis.
         relationshipContext: Accounting treatment is represented by linked journal evidence when posted.
@@ -25,7 +25,7 @@ entity:
           OVERHEAD: Allocated indirect cost.
           OTHER: Governed cost outside the standard categories.
         requiredMeaning: Required.
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Monetary amount attributed to the project., businessMeaning: Operational project cost value before or alongside accounting posting., usage: "Budget control, project margin, billing and reconciliation.", relationshipContext: Currency is supplied by the required Currency relationship., requiredMeaning: Required.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: "How much money this cost adds to the project's spending, in the cost's currency.", businessMeaning: Operational project cost value before or alongside accounting posting., usage: "Budget control, project margin, billing and reconciliation.", relationshipContext: Currency is supplied by the required Currency relationship., requiredMeaning: Required.}}
     - {name: incurredDate, type: date, required: true, help: {summary: Date on which the project cost was economically incurred., businessMeaning: Establishes project-period attribution independently of accounting posting date., usage: "Project reporting, accrual analysis and budget control.", relationshipContext: May differ from JournalEntry posting date or Invoice date., requiredMeaning: Required.}}
     - name: status
       type: enum
@@ -33,7 +33,7 @@ entity:
       default: DRAFT
       values: [DRAFT, APPROVED, POSTED, REVERSED, CANCELLED]
       help:
-        summary: Lifecycle state of the project cost event.
+        summary: "Shows whether the cost is drafted, approved, posted to the accounts, reversed or cancelled."
         businessMeaning: Distinguishes preparation, approval, accounting reconciliation and corrective states.
         usage: Workflow control, project reporting and audit.
         relationshipContext: POSTED normally requires attributable accounting evidence; reversal does not delete the original cost.
@@ -69,10 +69,11 @@ entity:
       - {from: APPROVED, to: CANCELLED, action: cancel}
       - {from: POSTED, to: REVERSED, action: reverse}
   help:
-    summary: Represents auditable project cost attribution while keeping operational project control distinct from financial posting.
+    summary: "One cost charged to a project, such as approved timesheet hours, purchased materials or a travel expense, kept so project managers can track spending against budget before and after it reaches the accounts."
     businessMeaning: ProjectCost answers what economic cost belongs to a Project and optionally a ProjectTask. JournalEntryLine remains the accounting record.
     usage: Project accounting, professional services, budgeting, profitability, billing, financial reconciliation and audit.
     relationshipContext: Project is mandatory; ProjectTask, Timesheet and InvoiceLine explain origin; Currency defines monetary semantics; JournalEntryLine provides posting evidence.
     lifecycle: Costs are prepared, approved, posted and retained; posted costs are corrected through reversal evidence rather than destructive history edits.
     example: An approved Timesheet generates a labor ProjectCost and later accounting reconciles it to a JournalEntryLine.
+    workflowContext: "A cost is drafted from a timesheet, supplier invoice line or expense against the project and task, the project manager approves it, finance posts it to the accounts and links the journal line, and a posted cost found to be wrong is reversed; a draft or approved cost can be cancelled instead."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-COST}

@@ -1,0 +1,442 @@
+# Authored help, batch 106 (slice 06).
+AIModel:
+  help:
+    summary: "One machine-learning or AI model the organisation trains, validates and runs to produce predictions, classifications, recommendations or generated content, kept so its purpose, risk and approval are governed before and while it is used."
+    workflowContext: "Registered as a draft when a team proposes a model, moved through training and validation while evaluations are recorded, approved under the applicable AI policy, deployed to produce predictions, suspended if it misbehaves, and finally retired while its evaluations and predictions remain traceable to it."
+  attributes:
+    aiModelId:
+      businessMeaning: "The permanent identity of one model; every evaluation and prediction it produced points at this value, so a decision made by the model can always be traced back to exactly which model made it."
+    code:
+      businessMeaning: "The short reference data scientists, risk reviewers and integrations use for the model, such as CHURN-CLS, so it can be named consistently in deployment pipelines, audit findings and reports."
+    name:
+      businessMeaning: "The plain name business owners recognise the model by, such as Customer Churn Classifier, shown in model inventories, approval requests and reports on model performance."
+    modelType:
+      businessMeaning: "What kind of answer the model gives, such as a classification, a forecast, a recommendation or generated content, which tells reviewers which evaluation measures and controls apply to it."
+    version:
+      businessMeaning: "Which release of the model this record describes, such as 2.3.0, so evaluations, approvals and predictions can be tied to the exact trained version rather than to the model in general."
+    status:
+      businessMeaning: "Where the model stands in its governed life: DRAFT and TRAINING models are still being built, VALIDATION models are under review, APPROVED models may be deployed, DEPLOYED models are producing results, SUSPENDED models are stopped pending investigation, and RETIRED models are no longer used."
+    purpose:
+      businessMeaning: "The business decision or task the model supports, such as flagging invoices likely to be paid late, which reviewers use to judge whether its use is appropriate and proportionate to its risk."
+    riskLevel:
+      businessMeaning: "How much harm a wrong or biased result could cause, from LOW to CRITICAL; higher levels demand stricter validation, human oversight and approval before the model may be deployed."
+
+AssetClass:
+  help:
+    summary: "One governed category of assets, such as vehicles or IT equipment, that supplies the default accounting treatment, depreciation rules, lifecycle and controls applied to every asset placed in it."
+  attributes:
+    assetClassId:
+      summary: "The permanent identity of this asset category, referenced by every asset assigned to it."
+    effectiveAt:
+      summary: "The moment from which this asset class and its accounting and depreciation defaults apply."
+
+BankAccount:
+  attributes:
+    accountType:
+      summary: "Whether the account is a current, savings, loan, escrow or other kind of banking account, which shapes how it is used."
+
+Budget:
+  help:
+    summary: "One version of an organisation's financial plan for a period and scenario, setting the approved or proposed amounts by account and dimension against which actual spending and income are controlled and compared."
+    workflowContext: "Prepared as a draft by finance with its budget lines, submitted for approval, approved by management, activated as the control baseline for the period, used in variance reporting against actual postings, and finally closed when the planning cycle ends or superseded by a revised version."
+    example: "FY2027-OPEX-V2, the second version of the 2027 operating expense budget for the UK subsidiary under the baseline scenario, approved in December and active from 1 January with lines for salaries, rent and travel by cost centre."
+  attributes:
+    budgetId:
+      summary: "The permanent identity of this budget version, which its budget lines and variance reports reference."
+    code:
+      summary: "The budget reference finance staff quote in planning and reporting, such as FY2027-OPEX-V2."
+    status:
+      summary: "Where this budget stands in drafting, approval, active control use, supersession or closure."
+
+CertificateOfAnalysis:
+  help:
+    summary: "One formal certificate stating the quality results for a product, lot, receipt or shipment, issued to customers or kept from suppliers as evidence that the material meets its specification."
+    workflowContext: "Drafted from completed quality inspections and their measurements for a product, receipt or shipment, approved by quality assurance, issued to the customer or filed against the receipt, and later superseded by a corrected certificate or voided if it should never have been issued, while the underlying inspection evidence remains unchanged."
+    example: "Certificate COA-2026-04417 for lot 24B-118 of citric acid on shipment SH-55120, drawn from two quality inspections showing assay 99.8 percent and moisture 0.2 percent, approved by the QA manager and issued on 3 March 2026."
+  attributes:
+    certificateOfAnalysisId:
+      summary: "The permanent identity of this certificate, kept even when a corrected certificate supersedes it."
+    certificateNumber:
+      summary: "The certificate reference printed on the document and quoted by customers and auditors, such as COA-2026-04417."
+    issuedAt:
+      summary: "When the certificate was formally issued, after which its content may no longer be edited."
+    status:
+      summary: "Whether the certificate is a draft, approved, issued, superseded by a correction, or void."
+
+Compound:
+  help:
+    summary: "One chemical or biological substance the organisation is investigating, recorded once so every experiment and sample involving it can be tied to the same substance throughout its scientific and development history."
+    workflowContext: "Registered as a candidate when chemists first propose or synthesise the substance, taken into development and research as experiments are run and samples are prepared, approved once it meets its development goals, or discontinued at any stage while its experiments and samples remain on record."
+  attributes:
+    compoundId:
+      businessMeaning: "The permanent identity of one substance; experiments and samples point at it, so results gathered over years of research all accumulate against the same compound."
+    compoundCode:
+      businessMeaning: "The registry number scientists quote in lab notebooks, sample labels and reports, such as CPD-004512, which identifies the substance unambiguously even before it has a chosen name."
+    name:
+      businessMeaning: "The name researchers use for the substance, whether a chemical name, a project nickname or a proposed drug name, shown in searches, reports and on experiment records."
+    molecularFormula:
+      businessMeaning: "The elements and counts of atoms that make up one molecule of the substance, such as C9H8O4, which chemists use to confirm identity and to calculate quantities."
+    molecularWeight:
+      businessMeaning: "The mass of one mole of the substance in grams per mole, used to convert between weighed amounts and molar quantities when preparing samples and doses."
+    status:
+      businessMeaning: "How far the substance has progressed: CANDIDATE when first proposed, DEVELOPMENT and RESEARCH while it is being investigated, APPROVED once it meets its goals, and DISCONTINUED when work on it stops."
+
+ContractObligation:
+  help:
+    summary: "One specific commitment arising from a contract, such as a delivery, payment, report or service level, assigned to a responsible party with a due date so it can be tracked until it is fulfilled, waived or breached."
+    workflowContext: "Created when a contract is signed or amended and its terms are broken down into individual commitments, started when the responsible party begins work, monitored against its due date, and closed as fulfilled, breached, waived by the other party or cancelled with the contract; breaches feed dispute and penalty handling."
+  attributes:
+    contractObligationId:
+      businessMeaning: "The permanent identity of one contractual commitment, so its progress, evidence of fulfilment and any breach are always tracked against the same obligation."
+    code:
+      businessMeaning: "The short reference contract managers use for the commitment, such as MSA-2026-014-OB03, so it can be cited in meetings, correspondence and compliance reports."
+    description:
+      businessMeaning: "What exactly must be done under the contract, in plain words, such as deliver the quarterly security audit report to the customer, which tells the responsible party what fulfilment requires."
+    obligationType:
+      businessMeaning: "Whether the commitment is a delivery, a payment, a service, a report, a compliance condition or a performance level, which decides who monitors it and what evidence proves it was met."
+    status:
+      businessMeaning: "Where the commitment stands: OPEN before work starts, IN_PROGRESS while it is being met, and then FULFILLED, BREACHED, WAIVED by agreement or CANCELLED with the contract."
+    dueDate:
+      businessMeaning: "The date by which the commitment must be met under the contract; reminders, escalations and breach assessments are all measured against it."
+
+CreditNoteApplication:
+  attributes:
+    creditNoteApplicationId:
+      summary: "The permanent identity of this use of a customer credit note against an invoice."
+    appliedAt:
+      summary: "When the credit was applied to the invoice and started reducing the amount owed."
+    status:
+      summary: "Whether this credit application is a draft, active, reversed after a mistake, or cancelled."
+    reversalOfApplicationId:
+      summary: "The earlier credit application that this record reverses, linking the correction to the original mistake."
+
+DataQualityAssessment:
+  help:
+    summary: "One evaluation of how fit a dataset is for use, scoring it on completeness, validity, consistency, timeliness and other declared dimensions so data owners know whether it can be trusted."
+    workflowContext: "Raised as a draft by a data steward for a chosen dataset, activated while checks are run and findings are recorded against each quality dimension, and completed when the results are signed off and shared with data owners and consumers, or cancelled if the assessment is abandoned."
+  attributes:
+    dataQualityAssessmentId:
+      summary: "The permanent identity of this quality assessment, kept so its findings remain traceable afterwards."
+    dataQualityAssessmentCode:
+      summary: "The reference data stewards quote for this assessment, such as DQA-2026-031 for the customer master."
+    status:
+      summary: "Whether the assessment is still being prepared, under way, completed with results, or cancelled."
+
+DocumentVersion:
+  attributes:
+    documentVersionId:
+      summary: "The permanent identity of this exact version of the document, which signatures and approvals cite."
+
+EnergyMeter:
+  help:
+    summary: "One utility meter or metering point at a location, measuring electricity, gas, water, steam or solar consumption or production, kept so its readings can be billed to the right customer and analysed over time."
+    workflowContext: "Planned when a new supply point is designed, activated once it is installed and commissioned at its location, linked to the customer being supplied, read regularly to produce meter readings for billing and consumption analysis, disconnected when supply stops, and retired when it is removed while its reading history remains."
+  attributes:
+    energyMeterId:
+      businessMeaning: "The permanent identity of one meter, so all readings taken from it over its working life accumulate against the same device even if its customer changes."
+    meterNumber:
+      businessMeaning: "The serial or supply-point number printed on the meter and quoted by field technicians, customers and the network operator, such as E-1145-88231."
+    meterType:
+      businessMeaning: "Which utility the meter measures, such as electricity, gas, water, steam or solar output, which decides the units its readings are taken in and how they are billed."
+    status:
+      businessMeaning: "Whether the meter is PLANNED but not yet installed, ACTIVE and being read, DISCONNECTED with supply stopped, or RETIRED and removed from service."
+    installedAt:
+      businessMeaning: "The date the meter was fitted at its location, which marks the start of its reading history and the first date from which consumption can be billed through it."
+
+Facility:
+  help:
+    summary: "One physical site, building, campus, office, plant or warehouse that the organisation operates, recorded so its assets, maintenance and service requests can be managed against the place where they happen."
+    workflowContext: "Planned when a new site is being acquired or built, activated once it opens for operations, used as the home for assets and the target of service and maintenance requests, made inactive when temporarily unused, reactivated when needed again, and closed when the organisation leaves it."
+  attributes:
+    facilityId:
+      businessMeaning: "The permanent identity of one site or building, so assets housed there and service requests raised about it all point at the same place over time."
+    facilityCode:
+      businessMeaning: "The short site code staff and systems use, such as LON-HQ or PLT-03, printed on asset tags and quoted when raising service requests."
+    name:
+      businessMeaning: "The name people know the site by, such as Riverside Distribution Centre, shown on maps, directories, service requests and facility reports."
+    facilityType:
+      businessMeaning: "What kind of place it is, such as an office, plant, warehouse or campus, which shapes which maintenance regimes, safety rules and services apply to it."
+    status:
+      businessMeaning: "Whether the site is PLANNED but not yet open, ACTIVE and operating, INACTIVE and temporarily unused, or CLOSED and no longer occupied."
+
+Forecast:
+  help:
+    workflowContext: "Prepared by financial planning for an organisation, often under a chosen scenario and for a fiscal period, refreshed as new as-of information arrives, compared with the approved budget and with actual results in forecast-versus-actual reporting, and replaced by a newer version rather than edited once it has been relied on."
+    example: "Q3-2026-ROLLING, the rolling forecast for the European division prepared on 15 July 2026 under the downside scenario, projecting revenue of 42.6 million for the remainder of the fiscal year."
+    lifecycle: "A forecast is prepared, reviewed and published as a version for a particular as-of date; when assumptions change a new version is created rather than rewriting the old one, so earlier forecasts remain available for comparison and none of them ever changes actual accounting results."
+  attributes:
+    forecastId:
+      summary: "The permanent identity of this forecast version, kept for comparison with later versions."
+    code:
+      summary: "The reference planners use for this forecast version, such as Q3-2026-ROLLING, in reports and comparisons."
+
+Guardian:
+  help:
+    summary: "One person's role as guardian of one or more students, recording that they may act for, be contacted about or hold responsibility for those students without duplicating the person's own identity details."
+    workflowContext: "Created during student enrolment or when family circumstances change, linked to each student the person is responsible for, used by school administration for consent, communications, pick-up authorisation and billing, and made inactive when the relationship ends while past consents and communications remain attributable."
+  attributes:
+    guardianId:
+      summary: "The permanent identity of this guardian role, which student records and consents point to."
+    guardianCode:
+      summary: "The reference school staff use for this guardian, such as G-20418, on forms and correspondence."
+
+Incident:
+  attributes:
+    incidentId:
+      summary: "The permanent identity of this incident, used to link its response, analysis and losses."
+    occurredAt:
+      summary: "When the incident actually happened, which may be earlier than when it was reported."
+
+InventoryItem:
+  help:
+    workflowContext: "Set up as a draft when a product is first to be stocked, with its stocking unit and replenishment levels, activated so receipts, issues and transfers can move it, used by planning to trigger reorders against safety stock and reorder point, blocked temporarily for quality or audit reasons, and discontinued when it is no longer stocked while its movement history remains."
+  attributes:
+    inventoryItemId:
+      summary: "The permanent identity of this stock-control profile, referenced by every balance and movement."
+    itemCode:
+      summary: "The item code warehouse staff scan and quote when receiving, picking and counting this stock."
+    safetyStockQuantity:
+      summary: "The minimum quantity kept on hand as a buffer against late deliveries or unexpected demand."
+    allowNegativeInventory:
+      summary: "Whether stock may be issued before its receipt is recorded, letting the balance briefly go below zero."
+
+Language:
+  help:
+    summary: "One human language, such as French or Japanese, kept in a shared reference list so people, documents, content and communications can state which language they use or prefer."
+  attributes:
+    languageId:
+      summary: "The permanent identity of this language, which every preference and translated content record references."
+    code:
+      summary: "The standard language code used by systems and integrations, such as fr for French."
+    name:
+      summary: "The language's English name as people pick it from a list, such as Japanese."
+
+LossEvent:
+  attributes:
+    lossEventId:
+      summary: "The permanent identity of this realised loss, linking it to its cause and any recoveries."
+    occurredAt:
+      summary: "When the loss actually happened, which decides the reporting period it belongs to."
+
+MeterReading:
+  help:
+    summary: "One value read from a utility meter at a specific moment, whether taken on site, estimated or corrected, kept so consumption can be calculated, billed and analysed between successive readings."
+    workflowContext: "Captured by a field technician, a customer submission or an automated meter feed for an active meter, validated and flagged for quality, used to calculate consumption since the previous reading for billing and analysis, and superseded by a corrected reading when an error is found rather than being overwritten."
+  attributes:
+    meterReadingId:
+      businessMeaning: "The permanent identity of one reading, so bills and consumption reports can show exactly which readings they were calculated from."
+    readingAt:
+      businessMeaning: "The moment the meter was read, which places the reading in sequence with the previous one and decides which billing period its consumption falls into."
+    readingValue:
+      businessMeaning: "The register value shown on the meter at that moment, in the reading's unit of measure; consumption is the difference between this and the previous reading."
+    readingType:
+      businessMeaning: "Whether the value was ACTUAL from the meter, ESTIMATED because no reading was available, or CORRECTED to replace an earlier mistaken one, which customers and billing teams rely on when disputing a bill."
+    quality:
+      businessMeaning: "Whether the reading passed validation as GOOD, looks doubtful and needs checking as SUSPECT, or must not be used as INVALID; only good readings should drive final bills."
+
+Opportunity:
+  help:
+    summary: "One qualified chance to win business from a customer, tracked with its sales stage, expected value, probability and close date so sales teams can manage the pipeline and forecast revenue."
+    workflowContext: "Created when a lead is qualified, assigned to a sales owner, moved through discovery, proposal and negotiation as the deal develops, with probability and expected value updated along the way, and finally marked won, which leads to a sales order, or lost, which is kept for win-loss analysis."
+  attributes:
+    opportunityId:
+      businessMeaning: "The permanent identity of one potential deal, so activities, quotes and the eventual sales order all trace back to the same opportunity."
+    opportunityNumber:
+      businessMeaning: "The deal reference sales staff quote in meetings, quotes and pipeline reports, such as OPP-2026-0871."
+    name:
+      businessMeaning: "The short title the sales team uses for the deal, such as Acme Corp - 500 seat renewal, shown in pipeline views and forecasts."
+    stage:
+      businessMeaning: "How far the deal has progressed, from QUALIFICATION through DISCOVERY, PROPOSAL and NEGOTIATION to WON or LOST, which drives pipeline reporting and what the sales owner should do next."
+    probability:
+      businessMeaning: "The estimated chance, as a percentage, that the deal will be won; multiplied by the expected value it gives the weighted figure used in revenue forecasts."
+    expectedValue:
+      businessMeaning: "The revenue the deal is expected to bring if won, which sales managers sum across the pipeline to forecast bookings and set priorities."
+    expectedCloseDate:
+      businessMeaning: "The date the sales owner expects the deal to be decided, which places it in a forecast period and flags it as overdue when that date passes."
+
+PaymentTerm:
+  attributes:
+    paymentTermId:
+      summary: "The permanent identity of this payment term, which customers, suppliers, orders and invoices reference."
+      businessMeaning: "Identifies one settlement policy permanently, so every invoice and order that used it can show which rules decided its due date even after the term is retired."
+    code:
+      businessMeaning: "The short code buyers, sellers and integrations use to select the policy, such as NET30 or DUE_ON_RECEIPT, printed on orders and invoices."
+    name:
+      summary: "The plain name of this payment policy, such as Net 30 days, shown on invoices."
+      businessMeaning: "The wording customers and suppliers read on documents to understand when payment is expected, such as Net 30 days from invoice date."
+    dueDays:
+      businessMeaning: "How many days after the starting event payment falls due, such as 30; the invoice due date and overdue reminders are calculated from it."
+    dueDateBasis:
+      businessMeaning: "Which event starts the payment clock, such as the invoice date, delivery date, receipt date or month end, which can move a due date by weeks for the same number of days."
+    discountDays:
+      businessMeaning: "How many days the payer has to settle early and earn the discount, such as 10, after which the full amount is owed."
+    discountPercent:
+      businessMeaning: "The percentage taken off the amount when it is paid within the discount window, such as 2, which treasury weighs against the cost of paying early."
+    graceDays:
+      businessMeaning: "Extra days tolerated after the due date before the obligation is treated as overdue for reminders, late fees or credit holds."
+    description:
+      businessMeaning: "A plain explanation of how the term works in practice, such as 2 percent off if paid within 10 days, otherwise due in 30, for staff choosing a term or answering a customer's question."
+    status:
+      businessMeaning: "Whether the term may be chosen for new orders and invoices: ACTIVE terms are offered, INACTIVE terms are temporarily withheld, and RETIRED terms remain only on historical documents."
+
+Prescription:
+  help:
+    summary: "One authorised instruction from a prescriber for a patient to take a medication or therapy at a stated dosage, frequency and route over a defined period, kept for safe treatment and dispensing."
+    workflowContext: "Written as a draft by the prescriber for a patient and medication, activated once signed so it can be dispensed and administered, reviewed during the course of treatment, and ended as completed when the course finishes, discontinued when the prescriber stops it early, or cancelled if it should never take effect."
+  attributes:
+    prescriptionId:
+      businessMeaning: "The permanent identity of one prescription, so every dispensing and administration of the medicine can be traced to the instruction that authorised it."
+    prescriptionNumber:
+      businessMeaning: "The prescription reference quoted by pharmacists, nurses and the prescriber, such as RX-2026-118204, printed on the prescription and dispensing labels."
+    dosage:
+      businessMeaning: "How much of the medicine to give each time, such as 500 mg or two tablets, which pharmacists check against safe limits before dispensing."
+    frequency:
+      businessMeaning: "How often the dose is to be given, such as twice daily or every eight hours, which drives the administration schedule and the quantity dispensed."
+    route:
+      businessMeaning: "How the medicine enters the body, such as by mouth, intravenously or applied to the skin, which affects the form dispensed and how staff administer it."
+    startDate:
+      businessMeaning: "The first day the patient should receive the medicine; doses are not dispensed or administered before it."
+    endDate:
+      businessMeaning: "The last day of the course of treatment, after which the prescription should be completed or reviewed for renewal."
+    status:
+      businessMeaning: "Whether the prescription is a DRAFT not yet in force, ACTIVE and may be dispensed, COMPLETED at the end of the course, DISCONTINUED by the prescriber, or CANCELLED before taking effect."
+
+ProductionReceipt:
+  help:
+    summary: "One record of finished output accepted from a manufacturing work order into stock, stating the quantity received, when, and which lot or serial numbers it carries, so inventory and product genealogy stay traceable."
+    workflowContext: "Prepared when operators report output against a manufacturing work order, checked against any required quality inspection and quantity limits, received to post an inventory movement that increases stock and records lot or serial genealogy, and then kept unchanged as evidence; corrections are made by new transactions rather than edits."
+    example: "Receipt PR-2026-07731 records 480 bottles of 500 ml hand sanitiser from work order WO-11872 into lot HS-2611, received at 14:20 on 12 June 2026 after the batch passed its quality inspection."
+  attributes:
+    productionReceiptId:
+      summary: "The permanent identity of this output receipt, kept as evidence after stock is updated."
+    receiptNumber:
+      summary: "The receipt reference production and warehouse staff quote for this output, such as PR-2026-07731."
+    quantity:
+      summary: "How much accepted finished output from the work order was received into stock."
+    receivedAt:
+      summary: "When the finished output was received into stock, which dates the resulting inventory increase."
+
+Prospect:
+  attributes:
+    prospectId:
+      summary: "The permanent identity of this potential customer, kept when it later becomes a lead."
+    code:
+      summary: "The reference sales and marketing staff use for this potential customer in campaigns and lists."
+
+QualityPlan:
+  help:
+    summary: "One defined approach to checking a product or process, listing the characteristics to inspect, sampling rules and acceptance criteria, so every inspection of that product is carried out the same agreed way."
+    workflowContext: "Drafted by quality engineering for a product or process, activated once its characteristics and sampling plans are agreed, applied by every quality inspection that checks that product, suspended while a revision is investigated, and retired when replaced, with past inspections keeping the plan they followed."
+  attributes:
+    qualityPlanId:
+      summary: "The permanent identity of this quality plan, which every inspection carried out under it references."
+    code:
+      summary: "The plan reference quality staff quote on inspection sheets and procedures, such as QP-INC-RESIN-01."
+    name:
+      summary: "The plain name of the plan, such as Incoming Inspection for Resin Pellets, shown to inspectors."
+    status:
+      summary: "Whether the plan is being drafted, active for inspections, suspended pending review, or retired."
+
+ResourceAssignment:
+  help:
+    summary: "One assignment of a person, role or other resource to a project, stating what they are responsible for and how much of their time or capacity is allocated, so project staffing and workload can be planned."
+    workflowContext: "Drafted by the project manager when planning staffing, activated once the resource is confirmed and starts work on the project, used in capacity planning, time reporting and cost tracking, and completed when the work finishes or cancelled if the resource is no longer needed."
+  attributes:
+    resourceAssignmentId:
+      summary: "The permanent identity of this project assignment, which time and cost records can reference."
+    resourceAssignmentCode:
+      summary: "The reference project managers use for this assignment, such as PRJ-0412-RA07, in staffing plans."
+    status:
+      summary: "Whether the assignment is still being planned, active on the project, completed, or cancelled."
+
+Routing:
+  help:
+    summary: "One version of the step-by-step manufacturing process for a product, listing the operations in order with their work centres, so production orders know how the product is made and how long it takes."
+    workflowContext: "Drafted by manufacturing engineering for a product with its sequence of operations, activated so new work orders follow it for scheduling and costing, suspended while a problem is investigated, and made obsolete when a new revision replaces it, while work orders already issued keep the routing version they used."
+    example: "Routing RT-PUMP-200 revision C for the 200 litre pump: cut housing, machine impeller, assemble, pressure test and pack, five operations in sequence, active since February 2026."
+  attributes:
+    routingId:
+      summary: "The permanent identity of this routing version, which work orders reference when they are issued."
+    code:
+      summary: "The routing reference engineers and planners quote for this process, such as RT-PUMP-200."
+    version:
+      summary: "Which revision of the manufacturing process this routing is, such as revision C."
+    status:
+      summary: "Whether this routing version is in draft, active for production, suspended, or obsolete."
+
+ServiceCase:
+  help:
+    summary: "One customer or operational service issue tracked from the first report to its resolution, bringing together the requests, tickets, field service orders and communications involved so nothing is lost between teams."
+    workflowContext: "Opened when a customer or requester reports an issue, often from a service request, worked on by raising tickets and service orders under any applicable service level agreement and entitlement, placed in pending while waiting on the customer or a third party, resolved once the fix is confirmed, and closed after the resolution is accepted or cancelled if raised in error."
+  attributes:
+    serviceCaseId:
+      summary: "The permanent identity of this service case, which its tickets and service orders reference."
+    caseNumber:
+      summary: "The case reference customers and support staff quote when following up, such as CS-2026-058812."
+    subject:
+      summary: "A short description of the problem being handled, such as pump leaking at site entrance."
+    priority:
+      summary: "How urgently the case must be handled, from low to urgent, which drives response targets."
+    status:
+      summary: "Where the case stands, from open and in progress through pending and resolved to closed."
+
+Signature:
+  attributes:
+    signatureId:
+      summary: "The permanent identity of this signature, kept as evidence of who signed what and when."
+
+SupplierCreditNoteApplication:
+  attributes:
+    supplierCreditNoteApplicationId:
+      summary: "The permanent identity of this use of supplier credit against a purchase invoice."
+    status:
+      summary: "Whether this supplier credit application is a draft, active, reversed after a mistake, or cancelled."
+
+SupplierReturn:
+  attributes:
+    supplierReturnId:
+      summary: "The permanent identity of this return of goods to a supplier, kept with its history."
+    returnNumber:
+      summary: "The return reference quoted to the supplier and on shipping paperwork, such as SR-2026-00317."
+    status:
+      summary: "Where the return stands, from draft and authorised through transit to completed, cancelled or exception."
+    returnDate:
+      summary: "When the return to the supplier was initiated, which dates the reversal of the original receipt."
+
+TaxTransaction:
+  attributes:
+    taxTransactionId:
+      summary: "The permanent identity of this tax consequence, kept for tax returns and audit trails."
+    status:
+      summary: "Whether this tax record is a draft, active, completed for reporting, or cancelled."
+
+Trip:
+  help:
+    summary: "One journey made by one or more travellers, from planning through booking to travel and return, grouping its transport segments and bookings so travel can be organised, approved and its costs tracked."
+    workflowContext: "Planned when a traveller or travel coordinator requests a journey, booked once transport and accommodation bookings are confirmed, started when the travellers depart, completed when they return and expenses can be reconciled against the bookings, or cancelled at any point before completion."
+  attributes:
+    tripId:
+      businessMeaning: "The permanent identity of one journey, so its segments, bookings and later expense claims all trace back to the same trip."
+    tripNumber:
+      businessMeaning: "The trip reference travellers, travel agents and finance staff quote, such as TRP-2026-1093, on bookings, approvals and expense claims."
+    name:
+      businessMeaning: "The short title travellers recognise the trip by, such as Berlin sales conference, shown in itineraries, approval requests and travel reports."
+    startDate:
+      businessMeaning: "The day the journey begins, used to schedule bookings, check travel approval in advance and apply the right travel policy and rates."
+    endDate:
+      businessMeaning: "The day the travellers are due back, which bounds accommodation bookings and the period expenses are claimed against."
+    status:
+      businessMeaning: "Where the trip stands: PLANNED while being arranged, BOOKED once reservations are confirmed, IN_PROGRESS while travelling, COMPLETED after return, or CANCELLED."
+
+WarehouseZone:
+  help:
+    summary: "One area within a warehouse, such as receiving, picking, cold storage or quarantine, that groups storage locations sharing a purpose or handling rules so goods are put away and picked in the right place."
+    workflowContext: "Configured by warehouse management when a warehouse is laid out or reorganised, with storage locations assigned to it, used by put-away, picking, replenishment and quarantine processes to direct goods to suitable locations, restricted when an area is temporarily limited, and retired when the layout changes while past transactions keep their zone."
+    example: "Zone COLD-A in the Leeds distribution centre, a cold-storage zone held between 2 and 8 degrees containing 120 pallet locations for chilled pharmaceuticals."
+  attributes:
+    warehouseZoneId:
+      summary: "The permanent identity of this warehouse area, which its storage locations and movements reference."
+    zoneCode:
+      summary: "The zone code shown on signage and scanned by warehouse staff, such as COLD-A."
+    zoneType:
+      summary: "What the area is used for, such as receiving, picking, cold storage or quarantine."

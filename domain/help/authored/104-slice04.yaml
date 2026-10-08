@@ -1,0 +1,476 @@
+# Authored help, batch 104 (slice 04).
+Agreement:
+  attributes:
+    agreementId:
+      summary: "The permanent reference that tells everyone they are looking at the same agreement, even after its terms or parties are relabelled."
+    occurredAt:
+      summary: "The date and time the agreement took effect or was concluded, which anchors when its rights and duties began."
+Assessment:
+  help:
+    summary: "One planned evaluation such as a quiz, exam or project that a course or class uses to measure what learners have achieved, kept separately from each learner's grade."
+    workflowContext: "An educator drafts the assessment against a course and optionally a class, publishes it so learners can see and attempt it, records grades against it while it is published, and closes it once grading is finished; a drafted or published assessment that will not run is cancelled, and closed assessments remain for transcripts and reporting."
+  attributes:
+    assessmentCode:
+      summary: "The short unique reference educators and gradebook integrations use to find this particular assessment quickly."
+    title:
+      summary: "The name learners and educators see for the assessment in portals, schedules and grade reports, such as Midterm Exam."
+    assessmentType:
+      summary: "Whether the assessment is a quiz, exam, assignment, project, practical, oral evaluation or another kind, which drives weighting and reporting."
+    maxScore:
+      summary: "The highest raw score a learner can earn, which sets the scale every grade on this assessment is measured against."
+    dueAt:
+      summary: "The deadline by which learners must submit or sit the assessment, used for reminders and late-submission rules."
+    status:
+      summary: "Where the assessment stands: being drafted, published to learners, closed for grading, or cancelled before it was completed."
+AuditCase:
+  help:
+    summary: "One audit investigation or review that gathers its agreed scope, collected evidence, findings, follow-up actions and final conclusion in a single traceable case."
+  attributes:
+    auditCaseId:
+      summary: "The permanent reference for this audit case, so evidence, findings and actions always attach to the right investigation."
+Brand:
+  help:
+    summary: "A brand name under which products and their variants are marketed or manufactured, kept as one shared record so catalog, purchasing, sales and service all report by the same brand."
+    workflowContext: "Product management creates the brand when a new label is introduced, then assigns it to products and variants in the catalog; buyers, sales and service teams filter and report by it, and the brand is made inactive while it is paused or retired when it will no longer be assigned to new products."
+    example: "The brand code ACME-PRO named Acme Professional is active and assigned to a range of cordless drills and their battery-size variants."
+  attributes:
+    brandId:
+      summary: "The permanent reference for this brand, which stays the same even if the brand's display name is later changed."
+    code:
+      summary: "The short unique brand code that catalog, purchasing and integration partners use to identify the brand reliably."
+    name:
+      summary: "The brand name shown to customers and suppliers on catalog pages, quotes, invoices and product reports."
+    status:
+      summary: "Whether the brand is active for new products, temporarily inactive, or retired and no longer assigned to anything new."
+Carrier:
+  help:
+    summary: "A transport company engaged to move the business's shipments, consignments or loads, linked to the party record that holds its legal and contact details."
+  attributes:
+    carrierId:
+      summary: "The permanent reference for this carrier, used to link every shipment and load it is assigned to transport."
+    code:
+      summary: "The short reference, often a standard carrier code, that dispatchers and partner systems use to identify the transport company."
+Compensation:
+  help:
+    summary: "The pay terms that apply to one employment from a given date, such as an annual salary or hourly rate in a currency, kept separately from the payroll runs that pay it."
+    workflowContext: "Human resources drafts the compensation terms when a person is hired, promoted or given a raise, activates them from their effective date so payroll uses them, and when new terms take over the previous record is marked superseded rather than overwritten; terms entered in error are cancelled, and payroll results keep pointing at the terms they were calculated from."
+  attributes:
+    compensationId:
+      summary: "The permanent reference for this set of pay terms, which payroll results point back to as their basis."
+    compensationCode:
+      summary: "The short reference human resources uses to find and discuss this particular pay arrangement for an employee."
+    amount:
+      summary: "How much the employee is entitled to under the chosen pay basis, for example per hour, per month or per year."
+    status:
+      summary: "Whether these pay terms are still being prepared, currently in force, replaced by newer terms, or cancelled."
+ContractClause:
+  attributes:
+    contractClauseId:
+      summary: "The permanent reference for this clause, so obligations and amendments always point to the exact contract wording."
+Country:
+  attributes:
+    countryId:
+      summary: "The permanent reference for this country, which every address, state, city and tax record uses to point at it."
+      businessMeaning: "Lets addresses, tax registrations, trade documents and reports all refer to one agreed country entry, so renaming a country never breaks the records that use it."
+    code:
+      businessMeaning: "The two-letter code is the standard way partners, banks, carriers and tax authorities identify a country, so it is what forms, imports and exports rely on."
+    alpha3:
+      businessMeaning: "Some customs, travel and statistical systems require the three-letter code, so it is kept to exchange data with them without manual translation."
+    numericCode:
+      businessMeaning: "The numeric code identifies the country independently of language or alphabet, which customs declarations and statistical reporting frequently require."
+    name:
+      summary: "The country's everyday English name as shown on addresses, drop-down lists, invoices and reports."
+      businessMeaning: "Gives people a recognisable label for the country while the codes do the exact matching, so users pick the right country without memorising codes."
+    phoneCode:
+      businessMeaning: "Used to format and validate international phone numbers for contacts in this country, so calls and text messages reach them correctly."
+Customer:
+  help:
+    summary: "One buyer relationship with a person or organization, holding the commercial terms such as credit limit, payment terms and status that govern how the business sells to them."
+  attributes:
+    customerId:
+      summary: "The permanent reference for this customer relationship, used by its orders, invoices, payments and service cases."
+      businessMeaning: "Keeps the whole sales and service history tied to one customer even when the customer's code, name or status changes over time."
+    partyRoleId:
+      summary: "Points to the underlying person or organization that is acting as this customer in the relationship."
+      businessMeaning: "Lets one party be a customer and also a supplier or employee without duplicating its name, addresses and identity details."
+    customerCode:
+      summary: "The short customer number staff quote on orders, invoices, statements and phone calls to find the account."
+      businessMeaning: "Gives sales, billing and support a quick, unique way to look up the account and is often printed on customer documents."
+    customerType:
+      summary: "Whether the customer is an individual consumer, a business, a government body, an internal unit or something else."
+      businessMeaning: "Drives which pricing, tax treatment, credit checks and approval rules apply, since a government buyer or internal unit is handled differently from a consumer."
+    creditStatus:
+      summary: "The current credit decision for the customer: not yet reviewed, approved, placed on hold, or blocked from credit."
+      businessMeaning: "Credit control uses it to decide whether new orders can ship on account; on hold or blocked customers have orders stopped until the issue is resolved."
+    creditLimit:
+      summary: "The most the customer may owe at any time on open invoices and unshipped orders before sales are held."
+      businessMeaning: "Caps the business's financial exposure to this customer; orders that would push the outstanding balance over it are flagged for credit review."
+    paymentTerms:
+      summary: "The default payment terms, such as net thirty days, applied to this customer's invoices unless overridden."
+      businessMeaning: "Determines when each invoice falls due, which drives dunning, cash forecasting and any early-payment discounts offered to the customer."
+    status:
+      summary: "Whether the relationship is active for new business, inactive, blocked from trading, or retired for good."
+      businessMeaning: "Controls whether new orders and contracts can be created for the customer, while past orders and invoices stay visible whatever the status."
+Dock:
+  help:
+    summary: "One physical loading door or bay at a warehouse where trucks are received, loaded or cross-docked, used to schedule and track dock work."
+    workflowContext: "Warehouse management sets up each dock with its type and nearby staging area; transport planners and yard staff then book inbound receipts and outbound shipments onto eligible docks, workers scan the dock code during unloading and loading, and the dock's history remains available for productivity and appointment reporting after it is retired."
+    example: "Dock D-07 at the Rotterdam distribution centre is an outbound door with staging lane S-07 directly behind it for pallets awaiting loading."
+  attributes:
+    dockId:
+      summary: "The permanent reference for this loading door, which every appointment and loading task scheduled at it points to."
+    dockCode:
+      summary: "The door number painted at the bay and scanned by workers, such as D-07, to confirm where work happens."
+    dockType:
+      summary: "Whether the door is used for receiving, shipping, both directions, or cross-docking goods straight from inbound to outbound."
+Employment:
+  help:
+    summary: "One period during which a person works for an organization, with its employment type, start and end dates, position and status, and the history of pay, leave and attendance under it."
+    workflowContext: "Human resources creates the employment as pending when an offer is accepted, activates it on the start date so pay, leave and attendance can be recorded, may suspend and later reactivate it during a disciplinary or extended absence, and terminates it when the person leaves, after which it stays as the record of service."
+  attributes:
+    employmentId:
+      businessMeaning: "Ties all pay terms, leave requests and attendance records to the right period of work, which matters when the same person is rehired later."
+    employmentType:
+      businessMeaning: "Determines which policies apply, such as benefits eligibility, working-hour expectations, notice periods and overtime rules for full-time, part-time, contract, temporary or intern staff."
+    startDate:
+      businessMeaning: "The first day the person works under this employment; payroll, leave accrual, probation periods and length-of-service calculations all start from it."
+    endDate:
+      businessMeaning: "The last day of the employment; it drives final pay, ends benefit coverage and system access, and is left empty while the employment is open-ended."
+    status:
+      businessMeaning: "Shows whether the employment is waiting to start, currently active, suspended or terminated, which decides whether pay and new leave requests are processed."
+ExchangeRate:
+  attributes:
+    exchangeRateId:
+      businessMeaning: "Lets invoices, payment allocations and accounting entries record exactly which rate they used, so historical conversions can be audited and never silently recalculated."
+    fromCurrency:
+      summary: "The currency an amount is converted from when this rate is applied, such as euros."
+      businessMeaning: "Together with the target currency it defines the direction of the conversion, so the rate is never applied the wrong way round."
+    toCurrency:
+      summary: "The currency an amount is converted into when this rate is applied, such as US dollars."
+      businessMeaning: "Identifies the currency the converted result is expressed in, for example the invoice currency a foreign payment must be matched against."
+    rate:
+      businessMeaning: "The number of target-currency units one unit of the source currency buys; multiplying an amount by it gives the converted value used in settlement or accounting."
+    rateType:
+      businessMeaning: "Separates spot, contracted, daily, monthly, accounting and custom rates, so each process picks the rate its policy requires rather than whichever was loaded last."
+    effectiveAt:
+      businessMeaning: "The moment from which the rate may be used; transactions dated earlier must use a previous rate, which keeps conversions consistent with their dates."
+    expiresAt:
+      businessMeaning: "After this moment the rate should no longer be chosen for new conversions; transactions that already used it keep it."
+    source:
+      businessMeaning: "Records who published the rate, such as a central bank, a market data provider or the treasury desk, so auditors can trace where the number came from."
+    status:
+      summary: "Whether the rate is still a draft, active for conversions, expired, or cancelled and must not be used."
+      businessMeaning: "Only active rates are offered for new conversions; expired and cancelled rates remain on record because past transactions still refer to them."
+Flight:
+  help:
+    summary: "One scheduled air service from an origin to a destination, operated by an airline with a flight number and departure and arrival times, used to book and track travel."
+    workflowContext: "The flight is created when the schedule is published, travel bookings reference it while it is scheduled, it moves to boarding and departed on the day, and is marked arrived on landing; delays are flagged as they become known, and a flight that will not operate can be cancelled at any point before completion."
+  attributes:
+    flightId:
+      businessMeaning: "Keeps bookings, itineraries and status updates attached to the correct flight even when the same flight number operates on many different days."
+    flightNumber:
+      businessMeaning: "The airline's published flight designator, such as BA117, which travellers, agents and airport systems use to identify the service."
+    departureAt:
+      businessMeaning: "When the flight leaves its origin; it drives check-in deadlines, connection planning and traveller notifications."
+    arrivalAt:
+      businessMeaning: "When the flight reaches its destination; ground transport, hotel check-ins and onward connections are planned around it."
+    status:
+      businessMeaning: "Tells travellers and agents whether the flight is scheduled, boarding, departed, arrived, delayed or cancelled, so they can rebook or adjust plans in time."
+GovernmentCase:
+  help:
+    summary: "One matter handled by a public agency, such as a permit application, benefit claim, request or investigation, tracked from intake through review to decision and closure."
+    workflowContext: "A case starts as a draft when an applicant or officer begins it, is opened when formally lodged with the agency, moves under review while caseworkers complete tasks and examine documents, and is then approved and later closed, or denied; a case may be cancelled at any point before closure if it is withdrawn."
+  attributes:
+    governmentCaseId:
+      businessMeaning: "Keeps every task, document and decision tied to the correct case throughout what can be a long review process."
+    caseNumber:
+      businessMeaning: "The reference the agency gives the applicant and quotes on letters and calls, so either side can find the case quickly."
+    caseType:
+      businessMeaning: "States what kind of matter this is, such as a building permit or housing benefit, which decides the rules, forms and team that handle it."
+    status:
+      businessMeaning: "Shows the applicant and the agency where the case stands, from draft through open, under review, approved or denied, closed or cancelled."
+    openedAt:
+      businessMeaning: "When the case was formally lodged; statutory response deadlines and service-level measures are counted from this moment."
+    closedAt:
+      businessMeaning: "When the agency finished with the case; it ends deadline tracking and is used to measure how long cases take to resolve."
+Hotel:
+  help:
+    summary: "One hotel property at a location, with its rooms and reservations, that the business operates, manages or books guests into for accommodation and related services."
+    workflowContext: "The hotel is set up as planned before it opens, made active so its rooms can be sold and reservations taken, and later closed when it stops trading or retired from use; existing reservations and stay history remain linked to it throughout."
+  attributes:
+    hotelId:
+      businessMeaning: "Keeps all rooms and reservations attached to the right property, even when its code or name is later changed."
+    hotelCode:
+      businessMeaning: "The short property code reservations staff, channel managers and booking partners use to identify the hotel unambiguously."
+    name:
+      businessMeaning: "The property name guests see on confirmations, invoices and booking sites, and staff use to find the hotel."
+    status:
+      businessMeaning: "Shows whether the hotel is still being planned, open and selling rooms, closed, or retired, which decides whether new reservations can be made."
+InventoryBalance:
+  help:
+    summary: "The current stock position of one product at one storage location, showing how much is on hand, reserved and available, kept up to date from stock movements."
+  attributes:
+    inventoryBalanceId:
+      summary: "The permanent reference for this product and location stock position, used by the movements that update it."
+      businessMeaning: "Lets stock movements, counts and reports all point to the same balance for a product at a location, so totals stay consistent."
+    quantityOnHand:
+      businessMeaning: "How much stock is physically recorded at the location right now; stock counts are compared against it and differences become adjustments."
+    quantityReserved:
+      businessMeaning: "Stock already promised to confirmed orders or work, which must not be sold or issued to anyone else."
+    quantityAvailable:
+      businessMeaning: "What sales and planning can still promise to new orders after reservations and restrictions, so it is the figure used for availability checks."
+    lastUpdatedAt:
+      summary: "When the stock figures for this product and location last changed due to a receipt, issue or reservation."
+      businessMeaning: "Tells users how fresh the stock figures are and helps reconcile them against movements posted around the same time."
+JournalEntryLine:
+  help:
+    summary: "One debit or credit posting to a single ledger account within a journal entry; together the lines of an entry must balance so the books stay in agreement."
+    workflowContext: "Lines are created when an accountant or an automated posting such as an invoice or payment builds a journal entry, they are reviewed with the entry before it is posted, and once posted they feed account balances, the trial balance and financial statements; corrections are made with reversing entries rather than by editing posted lines."
+  attributes:
+    journalEntryLineId:
+      businessMeaning: "Lets auditors and reconciliations point to one exact posting within an entry when tracing a balance back to its source."
+    lineNumber:
+      businessMeaning: "Gives the lines a fixed order within the entry so reviewers and auditors can refer to them, such as line 3 of the entry."
+    debitAmount:
+      businessMeaning: "The amount added to the account on the debit side; total debits on an entry must equal total credits before it can be posted."
+    creditAmount:
+      businessMeaning: "The amount added to the account on the credit side; it balances the debits on the other lines of the same entry."
+    description:
+      businessMeaning: "Explains what the posting is for, such as the supplier or expense involved, so anyone reading the ledger understands the line without opening the source document."
+Load:
+  attributes:
+    loadId:
+      summary: "The permanent reference for this load, which shipments, handling units and transport tasks assigned to it point to."
+    code:
+      summary: "The load number dispatchers, drivers and carriers quote to identify this group of goods travelling together."
+Medication:
+  help:
+    summary: "One medicinal product with its name, strength and dosage form, such as amoxicillin 500 mg capsules, that clinicians can prescribe and the pharmacy can dispense."
+    workflowContext: "Pharmacy staff add the medication to the formulary and make it active so prescribers can select it, prescriptions reference it as they are written and dispensed, and it is made inactive when temporarily unavailable or retired when withdrawn, while past prescriptions keep pointing to it."
+  attributes:
+    medicationId:
+      businessMeaning: "Keeps every prescription linked to exactly the medication that was ordered, which is essential for patient safety and dispensing records."
+    productId:
+      businessMeaning: "Connects the medication to the stocked product so the pharmacy can check inventory, purchase it and charge for it."
+    code:
+      businessMeaning: "The drug code, often from a national formulary or coding system, that prescribing, dispensing and claims systems use to identify the medication exactly."
+    name:
+      businessMeaning: "The drug name prescribers search for and patients see on labels, usually the generic name with an optional brand name."
+    strength:
+      businessMeaning: "The amount of active ingredient per unit, such as 500 mg; prescribers must choose the right strength to dose the patient correctly."
+    form:
+      businessMeaning: "How the medication is given or supplied, such as tablet, capsule, syrup or injection, which affects dosing instructions and patient suitability."
+    status:
+      businessMeaning: "Shows whether the medication can currently be prescribed, is temporarily inactive, or has been retired, which prevents ordering of withdrawn drugs."
+Observation:
+  help:
+    summary: "One raw scientific measurement or observation captured from a sample, assay or experiment, kept with its provenance and quality status before anyone interprets it."
+    workflowContext: "A scientist or instrument records the observation during an assay or experiment, a reviewer then verifies it or invalidates it if the measurement is flawed, and verified observations feed downstream results and reports, while invalidated ones stay on record as evidence instead of being deleted."
+    example: "An observation of pH 7.42 recorded from sample S-1043 during assay A-12, verified by the lab supervisor the next morning."
+  attributes:
+    observationId:
+      summary: "The permanent reference for this measurement, which later results and reports cite as their primary evidence."
+    observationType:
+      summary: "What property was measured or observed, such as pH, concentration, colour or cell count."
+    value:
+      summary: "The reading or description actually recorded, such as 7.42 or slight turbidity, exactly as captured at the time."
+    status:
+      summary: "Whether the observation has just been recorded, has been verified by a reviewer, or has been invalidated as unusable."
+PaymentAllocation:
+  help:
+    summary: "One application of all or part of a received or sent payment to a specific invoice, recording the amounts, any currency conversion and rounding, so invoices are settled transparently."
+  attributes:
+    paymentAllocationId:
+      summary: "The permanent reference for this application of a payment to an invoice, used in reconciliation and audit."
+    allocatedAt:
+      summary: "When this part of the payment was applied to the invoice and began counting toward settling it."
+    status:
+      summary: "Whether the allocation is still a draft, actively settling the invoice, reversed by a correction, or cancelled."
+    reversalOfAllocationId:
+      summary: "Points to the earlier allocation that this record undoes when a payment was applied to the wrong invoice."
+Practitioner:
+  help:
+    summary: "The professional role of a doctor, nurse or other clinician who is licensed to deliver, order or document care, linked to the person, providers, appointments and encounters."
+    workflowContext: "Credentialing staff set up the practitioner as a draft and activate it once the licence and affiliations are verified, after which appointments can be scheduled and encounters documented; the role may be suspended while a licence issue is investigated, made inactive during leave, and finally retired, while past care records stay attributed to the practitioner."
+  attributes:
+    practitionerId:
+      summary: "The permanent reference for this clinician's professional role, used by their appointments and recorded encounters."
+    practitionerCode:
+      summary: "The short staff or provider number scheduling and clinical systems use to find this clinician quickly."
+    licenseNumber:
+      summary: "The professional licence or registration number issued by the licensing body that authorises this clinician to practise."
+    specialty:
+      summary: "The clinician's main field of practice, such as cardiology or paediatrics, used for scheduling and referrals."
+    status:
+      summary: "Whether the clinician is being set up, actively practising, suspended, inactive, or retired from practice."
+ProductVariant:
+  help:
+    summary: "One specific version of a product, such as a particular size and colour, with its own code and stock-keeping unit so it can be sold, bought and stocked separately."
+    workflowContext: "Product management creates the variant as a draft under its parent product, activates it so it can be ordered, purchased and stocked, may block it temporarily for a quality or supply issue, and discontinues or retires it when it is no longer offered, while past orders and stock history remain linked."
+    example: "Variant TSHIRT-CLASSIC-BLU-M with stock-keeping unit 400123-M of the Classic T-Shirt product, in blue, size medium, under the Acme brand."
+  attributes:
+    productVariantId:
+      summary: "The permanent reference for this specific product version, which stays the same even if its stock-keeping unit changes."
+    code:
+      summary: "The business code that identifies this variant in the catalog and in integrations with sales channels."
+    sku:
+      summary: "The stock-keeping unit printed on labels and scanned in the warehouse to count and pick this exact variant."
+    status:
+      summary: "Whether the variant is in preparation, active for sale, temporarily blocked, discontinued, or retired altogether."
+Promotion:
+  attributes:
+    promotionId:
+      summary: "The permanent reference for this promotional offer, which orders and price calculations record when the offer applies."
+    code:
+      summary: "The promotion code that marketing publishes and customers or cashiers enter to apply the offer."
+QualityInspection:
+  attributes:
+    qualityInspectionId:
+      summary: "The permanent reference for this inspection, which its samples, measurements and certificates all point back to."
+    inspectionNumber:
+      summary: "The inspection reference quality staff use on labels, reports and audits to identify this particular check."
+    status:
+      summary: "Where the inspection stands: open, in progress, passed, failed, conditionally accepted, or cancelled before completion."
+    result:
+      summary: "The overall verdict of the inspection: pass, fail, conditional acceptance, or not tested at all."
+    disposition:
+      summary: "What happens to the inspected goods next, such as release, quarantine, return to supplier, rework or scrap."
+    notes:
+      summary: "The inspector's written observations and context that the structured measurements do not capture on their own."
+RequestForQuotation:
+  help:
+    summary: "One formal invitation sent to selected suppliers asking them to quote price and delivery for approved purchase requisitions, so offers can be compared before ordering."
+    workflowContext: "A buyer drafts the request from approved purchase requisitions and selects suppliers, issues it so suppliers can submit quotations by the due date, closes it when the response window ends, evaluates the quotations and awards it, after which purchase orders are raised from the winning offer; a request that is no longer needed is cancelled."
+    example: "RFQ-2026-0142 issued on 2 March to three suppliers for 500 steel brackets, with responses due by 16 March and awarded to the lowest compliant bid."
+  attributes:
+    requestForQuotationId:
+      summary: "The permanent reference for this sourcing request, which supplier quotations and resulting purchase orders point to."
+    rfqNumber:
+      summary: "The request number buyers and suppliers quote in correspondence and on their quotations, such as RFQ-2026-0142."
+    issuedAt:
+      summary: "When the request was formally sent to suppliers, which starts the window for them to respond."
+    responseDueAt:
+      summary: "The deadline by which suppliers must submit their quotations to be considered in the comparison."
+    status:
+      summary: "Whether the request is being drafted, issued to suppliers, closed for responses, awarded, or cancelled."
+Role:
+  help:
+    summary: "A named job function such as Accounts Payable Clerk that bundles the permissions a person needs, so access is granted by assigning roles instead of individual rights."
+    workflowContext: "An administrator drafts the role and attaches its permissions, activates it once approved so it can be assigned to users, reviews assignments during periodic access reviews, may deactivate it temporarily, and retires it when the job function no longer exists, after which it cannot be assigned again."
+  attributes:
+    roleId:
+      businessMeaning: "Keeps user assignments and permission grants attached to the right role even when its name or description is changed."
+    code:
+      businessMeaning: "The short role code used in access requests, audit reports and integrations with identity systems, so the role is referred to consistently."
+    name:
+      businessMeaning: "The role title administrators and managers see when granting or reviewing access, so it should describe the job function plainly."
+    description:
+      businessMeaning: "Explains what responsibilities the role covers and who should hold it, which helps managers approve the right access during requests and reviews."
+    status:
+      businessMeaning: "Controls whether the role can be assigned: only active roles can be granted, while inactive and retired roles are kept for audit history."
+SecurityIncident:
+  help:
+    summary: "One recorded security event, such as a phishing compromise, data leak or system outage, tracked from detection through investigation and containment to resolution and closure."
+    workflowContext: "An incident is opened when someone reports it or monitoring detects it, assigned to an investigator who works on it, contained to stop further damage and investigated further if needed, then marked resolved once the cause is fixed and closed after the post-incident review, with any related risk updated."
+  attributes:
+    securityIncidentId:
+      businessMeaning: "Keeps evidence, actions and communications tied to the correct incident during and after the investigation."
+    incidentNumber:
+      businessMeaning: "The reference the security team and management quote in reports, tickets and regulator notifications to identify the incident."
+    incidentType:
+      businessMeaning: "Classifies the incident, such as malware, phishing, unauthorised access or data loss, which decides the response playbook and who must be notified."
+    severity:
+      businessMeaning: "Ranks the incident from low to critical, which sets response urgency, escalation and whether executives or regulators must be informed."
+    status:
+      businessMeaning: "Shows whether the incident is newly opened, being investigated, contained, resolved or closed, so everyone knows what response work is still outstanding."
+    detectedAt:
+      businessMeaning: "When the incident was first noticed; regulatory notification deadlines and response-time measures are counted from it."
+    resolvedAt:
+      businessMeaning: "When the incident was fixed; the time between detection and resolution is a key measure of the security team's performance."
+ShoppingCartLine:
+  help:
+    summary: "One product a shopper has placed in an online shopping cart, with the quantity wanted and the price shown at that moment, before the order is placed."
+    workflowContext: "A line is created when the shopper adds a product to the cart, changes as they adjust the quantity or the price is refreshed, is removed if they delete the item, and is turned into an order line at checkout; abandoned carts and their lines feed remarketing and conversion reports."
+  attributes:
+    shoppingCartLineId:
+      businessMeaning: "Lets the shopper change or remove exactly this item in the cart, and lets checkout carry it across into the order."
+    quantity:
+      businessMeaning: "How many units the shopper wants; it is checked against available stock and multiplied by the unit price for the cart total."
+    unitPrice:
+      businessMeaning: "The price per unit the shopper was shown when adding the item; it is rechecked at checkout so the customer is charged the correct current price."
+SupplierClaimResolution:
+  attributes:
+    resolutionDate:
+      summary: "When the agreed remedy for the supplier claim was authorised and became the basis for follow-up actions."
+      relationshipContext: "Dated after the supplier claim it resolves was raised, and before the supplier returns, credit notes, debit notes or payments that carry out the remedy."
+    supplierClaimResolutionId:
+      summary: "The permanent reference for this claim resolution, which returns, credit notes and payments carrying it out point to."
+    resolutionNumber:
+      summary: "The resolution reference used in supplier correspondence and by purchasing and finance to track the agreed outcome."
+    resolutionType:
+      summary: "The remedy agreed with the supplier, such as replacement, repair, return, credit, price adjustment or no action."
+    status:
+      summary: "Whether the resolution is drafted, approved, being carried out, partly or fully executed, failed, or cancelled."
+    approvedAmount:
+      summary: "The sum of money the business has agreed to recover from the supplier under this resolution."
+SupplierQuotation:
+  help:
+    summary: "One supplier's priced offer in response to a request for quotation, recording its lines, total amount, validity and evaluation status so buyers can compare and award it."
+    workflowContext: "The quotation is recorded when the supplier submits it against an issued request, buyers place it under review and compare it with other offers, then accept or reject it; an accepted quotation becomes the basis for purchase orders, while offers can also expire after their validity date or be withdrawn by the supplier."
+    example: "Quotation Q-88213 from Northern Steel for RFQ-2026-0142 offers 500 steel brackets for EUR 4,250 in total, valid until 30 April, with delivery in three weeks."
+  attributes:
+    supplierQuotationId:
+      summary: "The permanent reference for this supplier offer, which purchase orders raised from it point back to."
+    quotationNumber:
+      summary: "The supplier's own quote number, quoted by buyers when asking questions or placing the resulting order."
+    totalAmount:
+      summary: "The total price the supplier offers for all quoted lines, used to compare this offer with competing bids."
+    status:
+      summary: "Whether the offer has been received, is under review, was accepted or rejected, has expired, or was withdrawn."
+TaxRegistration:
+  help:
+    summary: "One registration of the business or a partner organization with a tax authority, such as a VAT or sales tax number, which permits it to charge, collect and report tax there."
+  attributes:
+    taxRegistrationId:
+      summary: "The permanent reference for this tax registration, which invoices and tax returns point to when tax is charged."
+    status:
+      summary: "Whether the registration is still being applied for, currently in force, completed and ended, or cancelled."
+TradeDeclaration:
+  help:
+    summary: "One customs declaration filed for goods crossing a border, stating what they are, their value and the importer or exporter, so customs can clear and release them."
+    workflowContext: "A trade compliance specialist or customs broker drafts the declaration from the shipment and its documents, submits it to customs, who accept it and may place it under review for inspection, then release the goods; a declaration can be rejected by customs at any stage or cancelled by the filer, and released declarations are kept as evidence for duty and audit."
+  attributes:
+    tradeDeclarationId:
+      businessMeaning: "Keeps the shipment, supporting documents and customs decisions tied to the correct declaration during clearance and later audits."
+    declarationNumber:
+      businessMeaning: "The reference customs assigns or the broker uses to track the declaration, quoted on clearance documents and duty payments."
+    declarationType:
+      businessMeaning: "States whether the goods are being imported, exported, in transit, re-exported or otherwise moved, which decides the customs procedure, duties and controls that apply."
+    declarationDate:
+      businessMeaning: "The date the declaration is lodged; it determines which duty rates and exchange rates apply and starts customs processing deadlines."
+    status:
+      businessMeaning: "Shows where clearance stands, from draft through submitted, accepted, under review and released, or rejected or cancelled, so logistics know when goods can move."
+    customsValue:
+      businessMeaning: "The declared value of the goods that customs uses to calculate import duties and taxes, so it must match the invoice and valuation rules."
+Vessel:
+  help:
+    summary: "One ship used to carry cargo, containers or passengers between ports, kept as a lasting record with its identity, owner, operator and voyage history."
+    workflowContext: "Shipping operations register the vessel with its IMO number, owner and operator, assign it to voyages while it is active, mark it inactive or out of service during dry-dock or repairs so it is not scheduled, return it to active afterwards, and retire it when it is sold or scrapped, keeping its voyage history."
+    example: "The container ship Nordic Star, vessel code NSTAR, IMO 9321483, operated by Blue Ocean Lines and currently active on the Rotterdam to Singapore service."
+  attributes:
+    vesselId:
+      summary: "The permanent reference for this ship, which every voyage and port call it makes points to."
+    vesselCode:
+      summary: "The short code port and shipping systems use to identify the ship in schedules and messages."
+    name:
+      summary: "The ship's registered name as it appears on schedules, bills of lading and port documents."
+    imoNumber:
+      summary: "The seven-digit International Maritime Organization number that identifies the ship for its whole life, even after renaming."
+    status:
+      summary: "Whether the ship is active for voyages, inactive, out of service for repairs, or permanently retired."
+YardTier:
+  help:
+    workflowContext: "Yard planners define the tiers of each bay when the yard layout is configured, the yard system then uses them to choose stacking positions and calculate rehandles when containers are moved, operators block a tier temporarily when it is unsafe or under maintenance and reopen it afterwards, and a tier is closed when the stack height is permanently reduced."
+  attributes:
+    yardTierId:
+      summary: "The permanent reference for this stacking level, which the container slots on that level point to."

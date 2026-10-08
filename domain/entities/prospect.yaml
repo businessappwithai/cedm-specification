@@ -7,8 +7,8 @@ entity:
     icon: database
   identity: {key: prospectId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Prospect., businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Prospect., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this potential customer, kept when it later becomes a lead.", businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The reference sales and marketing staff use for this potential customer in campaigns and lists.", businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships:
   - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Party represented by prospect., businessMeaning: Supplies canonical person/organization identity., usage: CRM qualification and deduplication., cardinalityMeaning: Exactly one Party., workflowRole: Qualification may create Lead without duplicating Party.}}
   invariants:

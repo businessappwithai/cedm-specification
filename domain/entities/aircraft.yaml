@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent internal handle for this aircraft, which stays the same even if the aircraft is re-registered, so work orders and history stay attached to the right airframe."
   - name: registrationNumber
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The tail number issued by the aviation authority; operations, flight planning and regulators use it to identify the aircraft in day-to-day work and official records."
   - name: aircraftType
     type: string
     required: true
@@ -48,6 +50,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The make and model of the aircraft, which decides which crews are qualified to fly it, which maintenance programme applies and which spare parts fit it."
   - name: serialNumber
     type: string
     required: false
@@ -60,6 +63,7 @@ entity:
       relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The manufacturer's serial number of the airframe, which identifies the physical aircraft for warranty, airworthiness directives and ownership records regardless of its current registration."
   - name: status
     type: enum
     required: true
@@ -84,6 +88,7 @@ entity:
         RETIRED: Represents the retired state or classification in the context of Aircraft.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells planners whether the aircraft can be scheduled: only ACTIVE aircraft fly, MAINTENANCE and GROUNDED aircraft are unavailable, PLANNED ones are not yet in service and RETIRED ones have left the fleet."
   relationships:
   - name: organization
     target: Organization
@@ -132,7 +137,7 @@ entity:
       - {from: MAINTENANCE, to: RETIRED, action: retire}
       - {from: GROUNDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a aerospace asset called Aircraft within the CEDM business model.
+    summary: "One aircraft the organization operates or manages, tracked by registration, type and serial number so its availability, location and maintenance history can be controlled across its service life."
     businessMeaning: Aircraft is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -144,6 +149,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Aircraft record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "Fleet planning registers the aircraft as PLANNED, operations activates it for service, maintenance planning moves it into MAINTENANCE and raises maintenance work orders, airworthiness control grounds it when it cannot fly, and fleet management finally retires it while keeping its history for audit."
 specification:
   version: 0.1.0
   status: draft

@@ -15,13 +15,13 @@ entity:
     type: uuid
     required: true
     immutable: true
-    help: {summary: Immutable identity of the corrective action., businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification.", usage: "CAPA, quality audit, supplier improvement and compliance.", relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities., workflowRole: "Stable reference through assignment, execution, verification and closure.", requiredMeaning: Required.}
+    help: {summary: "The permanent identity of this quality action, which verifications, nonconformances and audits refer to over its whole life.", businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification.", usage: "CAPA, quality audit, supplier improvement and compliance.", relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities., workflowRole: "Stable reference through assignment, execution, verification and closure.", requiredMeaning: Required.}
   - name: actionNumber
     type: string
     required: true
     unique: true
     maxLength: 100
-    help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle., requiredMeaning: Required.}
+    help: {summary: "The reference quality staff and auditors quote for this action in corrective and preventive action logs and reviews.", businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle., requiredMeaning: Required.}
   - name: actionType
     type: enum
     required: true
@@ -31,7 +31,7 @@ entity:
     - CORRECTIVE
     - PREVENTIVE
     help:
-      summary: Classification of the quality action.
+      summary: "Says whether the action contains immediate risk, corrects the condition, removes the root cause, or prevents recurrence elsewhere."
       businessMeaning: Distinguishes immediate containment, correction of an existing condition, root-cause corrective action,
         and preventive action.
       usage: Determines evidence expectations, routing and effectiveness criteria.
@@ -65,7 +65,7 @@ entity:
     - COMPLETED
     - CANCELLED
     help:
-      summary: Lifecycle state of the action.
+      summary: "Shows where the action stands: open, assigned, in progress, awaiting verification, completed or cancelled."
       businessMeaning: Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or
         cancelled.
       usage: Controls execution and closure.
@@ -84,11 +84,11 @@ entity:
   - name: dueDate
     type: date
     required: false
-    help: {summary: Target date for action implementation., businessMeaning: Defines when the responsible party is expected to complete implementation., usage: "Work planning, escalation, SLA reporting and quality governance.", relationshipContext: Distinct from completedDate and verificationDate., workflowRole: Supports overdue detection and escalation., optionalMeaning: Optional when policy does not require a target date.}
+    help: {summary: "The date by which the owner has committed to finish the action, used to flag overdue quality work.", businessMeaning: Defines when the responsible party is expected to complete implementation., usage: "Work planning, escalation, SLA reporting and quality governance.", relationshipContext: Distinct from completedDate and verificationDate., workflowRole: Supports overdue detection and escalation., optionalMeaning: Optional when policy does not require a target date.}
   - name: completedDate
     type: date
     required: false
-    help: {summary: Date implementation was formally completed., businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification.", usage: "CAPA metrics, audit and chronology.", relationshipContext: Does not replace verification evidence where effectiveness is required., workflowRole: Required when status is COMPLETED., optionalMeaning: Optional until completion.}
+    help: {summary: "The date the action was actually finished, used to measure timeliness against the due date in quality reviews.", businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification.", usage: "CAPA metrics, audit and chronology.", relationshipContext: Does not replace verification evidence where effectiveness is required., workflowRole: Required when status is COMPLETED., optionalMeaning: Optional until completion.}
   relationships:
   - name: nonconformance
     target: Nonconformance
@@ -147,7 +147,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a controlled quality action from assignment through implementation and independent effectiveness verification.
+    summary: "One authorised quality action raised to contain, correct or prevent recurrence of a nonconformance, tracked with an owner and due date until its effectiveness is verified."
     businessMeaning: Nonconformance records the problem; CorrectiveAction records what is done to contain, correct or prevent it; CorrectiveActionVerification records whether the action worked.
     usage: CAPA, supplier quality, compliance, audit, recurrence prevention and quality improvement.
     relationshipContext: The action connects Nonconformance with responsible Party and one or more CorrectiveActionVerification records. Physical and financial consequences remain represented by their own transactions.

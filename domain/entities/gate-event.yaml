@@ -6,19 +6,19 @@ entity:
   ui: {icon: log-in}
   identity: {key: gateEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: gateEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Gate event., businessMeaning: Identifies one terminal entry/exit occurrence independently of current container or vehicle state., usage: "Terminal operations, custody, billing, security and audit.", relationshipContext: Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects., requiredMeaning: Required.}}
-    - {name: occurredAt, type: datetime, required: true, help: {summary: Timestamp of the gate occurrence., businessMeaning: Establishes custody and terminal chronology., usage: "Tracking, dwell, security and audit.", relationshipContext: Must preserve source event time independently of ingestion time., requiredMeaning: Required.}}
+    - {name: gateEventId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this single gate pass, kept as custody evidence after verification.", businessMeaning: Identifies one terminal entry/exit occurrence independently of current container or vehicle state., usage: "Terminal operations, custody, billing, security and audit.", relationshipContext: Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects., requiredMeaning: Required.}}
+    - {name: occurredAt, type: datetime, required: true, help: {summary: "The exact time the truck or container passed the gate, which starts or ends terminal custody.", businessMeaning: Establishes custody and terminal chronology., usage: "Tracking, dwell, security and audit.", relationshipContext: Must preserve source event time independently of ingestion time., requiredMeaning: Required.}}
     - name: direction
       type: enum
       required: true
       values: [IN, OUT, INTERNAL, OTHER]
-      help: {summary: Direction or category of gate movement., businessMeaning: "Determines whether the event represents entry, exit or another gate-controlled movement.", usage: "Custody, yard inventory and reporting.", relationshipContext: ContainerVisit/Movement must reconcile to direction., valueSemantics: {IN: Entry into controlled area., OUT: Exit from controlled area., INTERNAL: Internal gate-controlled transition., OTHER: Another governed gate direction.}, requiredMeaning: Required.}
+      help: {summary: "Whether the pass was an entry into the terminal, an exit, or an internal or other gate movement.", businessMeaning: "Determines whether the event represents entry, exit or another gate-controlled movement.", usage: "Custody, yard inventory and reporting.", relationshipContext: ContainerVisit/Movement must reconcile to direction., valueSemantics: {IN: Entry into controlled area., OUT: Exit from controlled area., INTERNAL: Internal gate-controlled transition., OTHER: Another governed gate direction.}, requiredMeaning: Required.}
     - name: status
       type: enum
       required: true
       default: RECORDED
       values: [RECORDED, VERIFIED, REVERSED]
-      help: {summary: Governance state of the GateEvent., businessMeaning: "Distinguishes captured, verified and explicitly reversed events.", usage: Terminal reconciliation and audit., relationshipContext: Reversal preserves original evidence., valueSemantics: {RECORDED: Event captured., VERIFIED: Event validated., REVERSED: Event effect explicitly reversed.}, requiredMeaning: Required.}
+      help: {summary: "Shows whether the gate pass has only been captured, has been checked and confirmed, or was reversed.", businessMeaning: "Distinguishes captured, verified and explicitly reversed events.", usage: Terminal reconciliation and audit., relationshipContext: Reversal preserves original evidence., valueSemantics: {RECORDED: Event captured., VERIFIED: Event validated., REVERSED: Event effect explicitly reversed.}, requiredMeaning: Required.}
   relationships:
     - {name: gate, target: Gate, cardinality: "1", ownership: reference, help: {summary: Terminal Gate where the event occurred., businessMeaning: Supplies checkpoint context., usage: "Operations, security and reporting.", cardinalityMeaning: Exactly one Gate., workflowRole: Gate must be operational at event time except governed exceptions.}}
     - {name: container, target: Container, cardinality: "0..1", ownership: reference, help: {summary: Container processed by the GateEvent., businessMeaning: Preserves container custody and terminal presence evidence., usage: "Container tracking and yard operations.", cardinalityMeaning: Optional for vehicle-only or non-container events., workflowRole: ContainerVisit/Movement direction must reconcile.}}
@@ -39,9 +39,11 @@ entity:
       - {from: RECORDED, to: VERIFIED, action: verify}
       - {from: RECORDED, to: REVERSED, action: reverse}
   help:
-    summary: Preserves immutable terminal gate entry/exit evidence.
+    summary: "One recorded pass of a container, truck or driver through a terminal gate, in or out, kept as lasting proof of when custody of the box changed hands at the terminal."
     businessMeaning: Gate is checkpoint master data; GateEvent records what happened; ContainerVisit and Movement summarize broader operational state/history.
     usage: Container terminals, ports, yards, security, custody, billing, tracking and audit.
     relationshipContext: Gate is mandatory; Container, Vehicle, Driver and ContainerVisit identify event subjects and context.
     lifecycle: Event is recorded, then verified or reversed with original evidence retained.
+    workflowContext: "Captured by gate clerks or automated gate systems when a truck arrives or leaves, verified against the booking, release or container visit, then used to update container custody, yard planning, demurrage and billing; a wrong entry is reversed rather than edited."
+    example: "At 09:42 on lane 3, truck AB-123-CD with driver J. Silva leaves the North Gate carrying container MSCU1234567; the OUT event is recorded, verified against the release order and closes the container's visit."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GATE-EVENT}

@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Lets transactions, parties and audits link to exactly this document and version, even when several documents share a title."
   - name: documentNumber
     type: string
     required: true
@@ -35,6 +36,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The reference printed on the document that recipients quote back when querying or citing it."
   - name: documentType
     type: string
     required: true
@@ -47,6 +49,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The kind of document, such as certificate, report or letter, which decides how it is filed, who must approve it and how long it is kept."
   - name: documentDate
     type: date
     required: true
@@ -58,6 +61,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The date the document speaks for, as printed on it; people rely on it to know which period or event the document evidences."
   - name: status
     type: enum
     required: true
@@ -82,6 +86,7 @@ entity:
         ARCHIVED: Represents the archived state or classification in the context of Document.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Tells users whether the document is still a draft, has been issued, has been approved, was cancelled, or has been archived, and therefore whether it can still be changed or relied upon."
   - name: title
     type: string
     required: false
@@ -93,6 +98,7 @@ entity:
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The heading people recognise the document by when searching or reviewing a list, such as Annual Safety Inspection Report."
   - name: description
     type: string
     required: false
@@ -103,6 +109,7 @@ entity:
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "A short explanation of what the document covers and why it exists, so a reader can judge its relevance without opening it."
   - name: version
     type: integer
     required: true
@@ -116,6 +123,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Which revision this is; readers check it to be sure they are working from the latest approved wording."
   - name: issuedAt
     type: datetime
     required: false
@@ -126,6 +134,7 @@ entity:
       relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "When the document was formally released to its recipients; deadlines and validity periods often count from this moment."
   - name: createdAt
     type: datetime
     required: true
@@ -138,6 +147,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the document record was first started, useful for tracking how long drafts take to issue."
   - name: updatedAt
     type: datetime
     required: true
@@ -150,6 +160,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "When the document was last changed, helping reviewers notice recent edits before relying on it."
   relationships:
   - name: owner
     target: Organization
@@ -221,7 +232,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a core business entity called Document within the CEDM business model.
+    summary: "One document is a business record such as a letter, certificate, report or form that communicates or evidences something the business did, with its own number, version and issue status."
     businessMeaning: Document is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -233,6 +244,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical Document record represents one identifiable business occurrence or master-data object that can be referenced
       by related CEDM processes.
+    workflowContext: "A document is created as a draft, issued to the parties it concerns, and approved where sign-off is required; it is then kept as evidence and archived at the end of its retention use, or cancelled if it is withdrawn before approval. Other processes attach it to parties, locations and transactions as supporting evidence."
 specification:
   version: 0.1.0
   status: draft

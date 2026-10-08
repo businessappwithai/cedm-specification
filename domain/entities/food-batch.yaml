@@ -23,6 +23,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The permanent identity of the batch, so inspections, shipments and recalls all point at the same lot of product."
   - name: batchNumber
     type: string
     required: true
@@ -36,6 +37,7 @@ entity:
         and business rules rather than as an isolated technical value.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "The lot code printed on packaging and shipping documents; customers, regulators and the recall team use it to identify affected product."
   - name: productionDate
     type: date
     required: false
@@ -46,6 +48,7 @@ entity:
       relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The date the batch was made or packed, from which shelf life is calculated and which recall investigations use to bound affected output."
   - name: expiryDate
     type: date
     required: false
@@ -56,6 +59,7 @@ entity:
       relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
         and business rules rather than as an isolated technical value.
       optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+      businessMeaning: "The use-by or best-before date after which the batch may no longer be sold or used; it cannot precede the production date and triggers expiry of remaining stock."
   - name: status
     type: enum
     required: true
@@ -82,6 +86,7 @@ entity:
         CONSUMED: Represents the consumed state or classification in the context of FoodBatch.
       requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
         this value.
+      businessMeaning: "Whether the batch is PLANNED, RELEASED for sale or use, QUARANTINED pending investigation, or finished as CONSUMED, REJECTED or EXPIRED; only released stock may be shipped."
   relationships:
   - name: product
     target: Product
@@ -170,7 +175,7 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a food industry entity called FoodBatch within the CEDM business model.
+    summary: "One traceable batch of a food or beverage product made or received under controlled conditions, kept so the business can release, recall or trace exactly the units affected by a quality issue."
     businessMeaning: FoodBatch is a business concept with its own identity and lifecycle. It captures information that must
       remain understandable independently of a database, API, or user interface.
     usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
@@ -182,6 +187,7 @@ entity:
       preserve the declared business meaning and relationships.
     example: A typical FoodBatch record represents one identifiable business occurrence or master-data object that can be
       referenced by related CEDM processes.
+    workflowContext: "Planned when production or receipt is scheduled, released after quality inspection, quarantined and re-released if a concern arises, then consumed, rejected or expired; recall and traceability queries start from the batch."
 specification:
   version: 0.1.0
   status: draft

@@ -7,16 +7,16 @@ entity:
     icon: database
   identity: {key: fiscalPeriodId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context., requiredMeaning: Required.}}
-  - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate., requiredMeaning: Required.}}
-  - {name: endDate, type: date, required: true, help: {summary: Last accounting date in period., businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
+  - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: "The internal key that journal entries use to record which accounting period they belong to.", businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period., requiredMeaning: Required.}}
+  - {name: code, type: string, required: true, maxLength: 50, help: {summary: "The short label accountants use for the period, such as 2026-03 or Q1-2026.", businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context., requiredMeaning: Required.}}
+  - {name: startDate, type: date, required: true, help: {summary: "The first day of the accounting period; transactions dated from here onwards fall into it.", businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate., requiredMeaning: Required.}}
+  - {name: endDate, type: date, required: true, help: {summary: "The last day of the accounting period; transactions dated after it belong to the next period.", businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: OPEN
     values: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
-    help: {summary: Posting-control state., businessMeaning: Governs permitted accounting recognition and correction., usage: Journal validation and close., relationshipContext: Historical posted entries remain immutable., valueSemantics: {FUTURE: Not yet normally postable., OPEN: Normal posting allowed., SOFT_CLOSED: Restricted adjustment posting only., CLOSED: Ordinary posting prohibited., LOCKED: Administratively locked against posting/reopen without exceptional governance.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the period is future, open for posting, soft-closed for adjustments only, closed or temporarily locked.", businessMeaning: Governs permitted accounting recognition and correction., usage: Journal validation and close., relationshipContext: Historical posted entries remain immutable., valueSemantics: {FUTURE: Not yet normally postable., OPEN: Normal posting allowed., SOFT_CLOSED: Restricted adjustment posting only., CLOSED: Ordinary posting prohibited., LOCKED: Administratively locked against posting/reopen without exceptional governance.}, requiredMeaning: Required.}
   relationships:
   - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Accounting organization owning period., businessMeaning: Establishes books/control boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal organization must match.}}
   - {name: journalEntries, target: JournalEntry, cardinality: "0..*", ownership: reference, help: {summary: Accounting entries recognized in period., businessMeaning: Provides posting chronology., usage: "Close, reporting and audit.", cardinalityMeaning: Zero or many entries., workflowRole: Posted entry date must fall within boundaries and allowed state.}}
@@ -39,10 +39,12 @@ entity:
       - {from: OPEN, to: LOCKED, action: lock}
       - {from: LOCKED, to: OPEN, action: unlock}
   help:
-    summary: Accounting-period control for posting, close and reporting.
+    summary: "One accounting period, usually a month or quarter, of an organization's financial year that controls whether transactions can still be posted, adjusted or must be treated as final."
     businessMeaning: FiscalPeriod determines whether an accounting date is currently eligible for recognition; it does not replace JournalEntry.
     usage: General ledger, AP, AR, treasury, assets, inventory accounting, tax and financial close.
     relationshipContext: Organization defines books; JournalEntry carries accounting date; period state controls posting eligibility.
     lifecycle: Future → open → soft closed → closed → locked, with governed reopen where policy permits.
     changePropagation: Closing/reopening immediately revalidates pending postings and close processes while preserving already posted history.
+    workflowContext: "Finance sets up future periods with the financial calendar, opens each when it begins so journals can post, soft-closes it at month end for adjustments only, then closes it once reconciled; a period can be locked temporarily and reopened, and reporting reads balances per period."
+    example: "Period 2026-03 of Acme Ltd, running 1 March to 31 March 2026, soft-closed on 3 April while accruals are finalised."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FISCAL-PERIOD}

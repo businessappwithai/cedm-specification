@@ -6,17 +6,17 @@ entity:
   ui: {icon: file-badge}
   identity: {key: serviceContractId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceContractId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service-contract specialization., businessMeaning: Identifies operational service coverage independently of the generic Contract identity., usage: "Service operations, entitlement, billing, reporting and audit.", relationshipContext: Required Contract relationship supplies the legal/commercial agreement., requiredMeaning: Required.}}
-    - {name: serviceContractNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing service contract reference., businessMeaning: Operational identifier for service coverage administration., usage: "Customer service, renewals, entitlement and reporting.", relationshipContext: May differ from generic Contract number., requiredMeaning: Required.}}
-    - {name: effectiveFrom, type: date, required: true, help: {summary: First date service coverage is effective., businessMeaning: Starts entitlement and service-policy applicability., usage: "Coverage validation, renewal and reporting.", relationshipContext: Must be compatible with the governing Contract., requiredMeaning: Required.}}
-    - {name: effectiveTo, type: date, required: false, help: {summary: Last date of service coverage., businessMeaning: Ends ordinary service entitlement under this specialization., usage: "Coverage validation and renewal.", relationshipContext: Must not precede effectiveFrom and normally cannot exceed governing Contract scope., optionalMeaning: Optional for open-ended coverage.}}
+    - {name: serviceContractId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this service agreement across its service orders and entitlements.", businessMeaning: Identifies operational service coverage independently of the generic Contract identity., usage: "Service operations, entitlement, billing, reporting and audit.", relationshipContext: Required Contract relationship supplies the legal/commercial agreement., requiredMeaning: Required.}}
+    - {name: serviceContractNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The contract reference customers and service agents quote when requesting or checking covered service.", businessMeaning: Operational identifier for service coverage administration., usage: "Customer service, renewals, entitlement and reporting.", relationshipContext: May differ from generic Contract number., requiredMeaning: Required.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: "The first day the customer is covered for service under this contract.", businessMeaning: Starts entitlement and service-policy applicability., usage: "Coverage validation, renewal and reporting.", relationshipContext: Must be compatible with the governing Contract., requiredMeaning: Required.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: "The last day of coverage, after which service is no longer included unless the contract is renewed.", businessMeaning: Ends ordinary service entitlement under this specialization., usage: "Coverage validation and renewal.", relationshipContext: Must not precede effectiveFrom and normally cannot exceed governing Contract scope., optionalMeaning: Optional for open-ended coverage.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, TERMINATED]
       help:
-        summary: Lifecycle state of service coverage.
+        summary: "Shows whether the contract is a draft, active, suspended, expired at its end, or terminated early."
         businessMeaning: Controls eligibility for new service work while preserving historical coverage decisions.
         usage: Entitlement, service authorization, renewal and audit.
         relationshipContext: Generic Contract lifecycle remains separately authoritative for legal agreement status.
@@ -53,10 +53,11 @@ entity:
       - {from: ACTIVE, to: TERMINATED, action: terminate}
       - {from: SUSPENDED, to: TERMINATED, action: terminate}
   help:
-    summary: Adds service-specific operational coverage to a generic Contract.
+    summary: "One service contract defines the service coverage a customer is entitled to under an underlying contract, including the covered period, service levels and entitlements that service teams honour."
     businessMeaning: Contract remains the legal agreement; ServiceContract defines service administration, SLA applicability and entitlement scope.
     usage: Customer service, field service, renewals, entitlement, billing, compliance and audit.
     relationshipContext: Contract is mandatory, Customer is the service beneficiary, SLAs provide measurable commitments and Entitlements define concrete rights.
     lifecycle: Draft coverage becomes active, may suspend, and eventually expires or terminates while historical service authorization remains reproducible.
     example: A three-year equipment-support Contract has a ServiceContract with a four-hour SLA and separate Entitlements for each covered Asset.
+    workflowContext: "The service contract is drafted from the signed contract and activated when coverage starts; service orders and entitlement checks read it to decide what work is covered and at what service level. It may be suspended, for example for non-payment, and resumed, and ends by expiring at its end date or being terminated early."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SERVICE-CONTRACT}

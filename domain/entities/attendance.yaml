@@ -6,14 +6,14 @@ entity:
   ui: {icon: clock-3}
   identity: {key: attendanceId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of attendance evidence., businessMeaning: Identifies one attendance record independently of later approval or correction., usage: "Timekeeping, payroll, scheduling, reporting and audit.", relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact., requiredMeaning: Required.}}
-    - {name: attendanceDate, type: date, required: true, help: {summary: Business date to which attendance evidence applies., businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., usage: "Timekeeping, payroll and reporting.", relationshipContext: Must align with applicable Employment and work schedule., requiredMeaning: Required.}}
+    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: "The internal key that singles out this one attendance entry for corrections, approvals and payroll links.", businessMeaning: Identifies one attendance record independently of later approval or correction., usage: "Timekeeping, payroll, scheduling, reporting and audit.", relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact., requiredMeaning: Required.}}
+    - {name: attendanceDate, type: date, required: true, help: {summary: "The calendar day this attendance entry covers, which payroll and timesheets group entries by.", businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., usage: "Timekeeping, payroll and reporting.", relationshipContext: Must align with applicable Employment and work schedule., requiredMeaning: Required.}}
     - name: attendanceType
       type: enum
       required: true
       values: [PRESENT, ABSENT, LEAVE, REMOTE, HOLIDAY, OFF_DAY, OTHER]
       help:
-        summary: Business interpretation of the attendance record.
+        summary: "Says whether the person was present, absent, on leave, working remotely, or off for a holiday or rest day."
         businessMeaning: Distinguishes work presence and governed non-work categories.
         usage: Timekeeping, scheduling, payroll and reporting.
         relationshipContext: LEAVE should reconcile to an approved LeaveRequest where policy requires one.
@@ -26,16 +26,16 @@ entity:
           OFF_DAY: Scheduled non-working day.
           OTHER: Another governed attendance classification.
         requiredMeaning: Required.
-    - {name: clockInAt, type: datetime, required: false, help: {summary: Recorded start timestamp for worked time., businessMeaning: Timekeeping evidence used when interval capture applies., usage: "Attendance, overtime and payroll.", relationshipContext: Must not be after clockOutAt when both are supplied., optionalMeaning: Optional for day-status-only or summarized time.}}
-    - {name: clockOutAt, type: datetime, required: false, help: {summary: Recorded end timestamp for worked time., businessMeaning: Completes a captured work interval., usage: "Attendance, overtime and payroll.", relationshipContext: Must not precede clockInAt when both are supplied., optionalMeaning: Optional while a shift is open or for summarized attendance.}}
-    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed worked-time quantity., businessMeaning: Summarized hours attributable to attendance evidence., usage: "Payroll, utilization and reporting.", relationshipContext: Should reconcile to captured intervals and policy when available., optionalMeaning: Optional when derived downstream.}}
+    - {name: clockInAt, type: datetime, required: false, help: {summary: "The date and time the person started work or arrived for the day.", businessMeaning: Timekeeping evidence used when interval capture applies., usage: "Attendance, overtime and payroll.", relationshipContext: Must not be after clockOutAt when both are supplied., optionalMeaning: Optional for day-status-only or summarized time.}}
+    - {name: clockOutAt, type: datetime, required: false, help: {summary: "The date and time the person finished work or left for the day.", businessMeaning: Completes a captured work interval., usage: "Attendance, overtime and payroll.", relationshipContext: Must not precede clockInAt when both are supplied., optionalMeaning: Optional while a shift is open or for summarized attendance.}}
+    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: "The number of hours actually worked on this day, used to calculate pay and overtime.", businessMeaning: Summarized hours attributable to attendance evidence., usage: "Payroll, utilization and reporting.", relationshipContext: Should reconcile to captured intervals and policy when available., optionalMeaning: Optional when derived downstream.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, RECORDED, APPROVED, CANCELLED]
       help:
-        summary: Governance state of attendance evidence.
+        summary: "Shows whether the entry is still a draft, has been recorded, has been approved by a supervisor, or was cancelled."
         businessMeaning: Separates provisional capture from approved payroll-eligible evidence.
         usage: Supervisor review, payroll gating and audit.
         relationshipContext: APPROVED evidence is historical and corrected through follow-up records.
@@ -71,10 +71,11 @@ entity:
       - {from: RECORDED, to: APPROVED, action: approve}
       - {from: RECORDED, to: CANCELLED, action: cancel}
   help:
-    summary: Represents auditable evidence of presence, participation, work or absence across employment and education contexts.
+    summary: "One entry recording whether an employee or student was present, absent, on leave or working remotely on a given day, with the hours worked where clocked."
     businessMeaning: Attendance records what actually happened. In HCM, LeaveRequest authorizes absence and Payroll calculates financial consequences; in Education, Class and Enrollment context explain expected participation.
     usage: HR/HCM, education, timekeeping, class registers, scheduling, payroll, workforce or learner analytics and audit.
     relationshipContext: Employee or EducationStudent identifies the attendance subject. Employment and LeaveRequest provide HCM context; Class and Enrollment-related policy provide education context; Payroll may reference approved HCM evidence.
     lifecycle: Attendance is drafted or recorded, approved for governed downstream use, or cancelled while remaining auditable.
     example: A worker's approved daily attendance becomes payroll input and any later correction is represented by explicit corrective evidence.
+    workflowContext: "A draft entry is created from a clock-in, a class register or a leave request; once the day is captured it is recorded, a supervisor or teacher then approves or cancels it, and approved entries feed payroll and attendance reporting."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ATTENDANCE}

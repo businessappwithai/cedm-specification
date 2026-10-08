@@ -7,13 +7,13 @@ entity:
     icon: database
   identity: {key: dockId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: Stable dock identity., businessMeaning: Identifies one loading/receiving resource., usage: "Appointment, staging, loading and receiving.", relationshipContext: Belongs to one Warehouse., requiredMeaning: Required.}}
-  - {name: dockCode, type: string, required: true, maxLength: 100, help: {summary: Operational dock code., businessMeaning: Human/scanner identifier for the physical position., usage: Yard and warehouse execution., relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
+  - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this loading door, which every appointment and loading task scheduled at it points to.", businessMeaning: Identifies one loading/receiving resource., usage: "Appointment, staging, loading and receiving.", relationshipContext: Belongs to one Warehouse., requiredMeaning: Required.}}
+  - {name: dockCode, type: string, required: true, maxLength: 100, help: {summary: "The door number painted at the bay and scanned by workers, such as D-07, to confirm where work happens.", businessMeaning: Human/scanner identifier for the physical position., usage: Yard and warehouse execution., relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
   - name: dockType
     type: enum
     required: true
     values: [INBOUND, OUTBOUND, BIDIRECTIONAL, CROSS_DOCK]
-    help: {summary: Allowed dock operating purpose., businessMeaning: Controls eligible receiving/shipping work., usage: Scheduling and execution., relationshipContext: Warehouse policy may add constraints., valueSemantics: {INBOUND: Receiving-focused., OUTBOUND: Shipping-focused., BIDIRECTIONAL: Supports both directions., CROSS_DOCK: Supports direct inbound-to-outbound flow.}, requiredMeaning: Required.}
+    help: {summary: "Whether the door is used for receiving, shipping, both directions, or cross-docking goods straight from inbound to outbound.", businessMeaning: Controls eligible receiving/shipping work., usage: Scheduling and execution., relationshipContext: Warehouse policy may add constraints., valueSemantics: {INBOUND: Receiving-focused., OUTBOUND: Shipping-focused., BIDIRECTIONAL: Supports both directions., CROSS_DOCK: Supports direct inbound-to-outbound flow.}, requiredMeaning: Required.}
   relationships:
   - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: Parent warehouse., businessMeaning: Supplies facility context., usage: Dock scheduling and control., cardinalityMeaning: Exactly one Warehouse., workflowRole: Warehouse status constrains dock use.}}
   - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: Default inventory staging position associated with dock., businessMeaning: Connects loading resource to stock-control location., usage: Receiving and shipping staging., cardinalityMeaning: Optional., workflowRole: Physical stock changes still require InventoryMovement.}}
@@ -21,9 +21,11 @@ entity:
   - {id: DOCK-001, rule: dockCode must be unique within Warehouse.}
   - {id: DOCK-002, rule: Shipment direction must be compatible with dockType unless explicitly excepted.}
   help:
-    summary: Warehouse loading/receiving execution resource.
+    summary: "One physical loading door or bay at a warehouse where trucks are received, loaded or cross-docked, used to schedule and track dock work."
     businessMeaning: Dock is a physical process resource, not an inventory location unless separately represented by stagingLocation.
     usage: Inbound, outbound, cross-dock, appointment, staging and loading workflows.
     relationshipContext: Warehouse owns operational context; InventoryLocation supplies stock-control context; Shipment supplies transport work.
     lifecycle: Configured → active/restricted → retired with historical execution retained.
+    workflowContext: "Warehouse management sets up each dock with its type and nearby staging area; transport planners and yard staff then book inbound receipts and outbound shipments onto eligible docks, workers scan the dock code during unloading and loading, and the dock's history remains available for productivity and appointment reporting after it is retired."
+    example: "Dock D-07 at the Rotterdam distribution centre is an outbound door with staging lane S-07 directly behind it for pallets awaiting loading."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCK}

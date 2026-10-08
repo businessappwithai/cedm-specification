@@ -6,9 +6,9 @@ entity:
   ui: {icon: scroll-text}
   identity: {key: protocolId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: protocolId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the research protocol., businessMeaning: Identifies one governed procedure definition independently of executions., usage: "Research planning, study execution, audit and reproducibility.", relationshipContext: Studies and Experiments execute against a Protocol version., requiredMeaning: Required.}}
-    - {name: protocolCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing protocol reference., businessMeaning: Operational identifier for scientific and regulatory traceability., usage: "Search, documents, integrations and audit.", relationshipContext: Distinct from Study and Experiment identifiers., requiredMeaning: Required.}}
-    - {name: title, type: string, required: true, maxLength: 500, help: {summary: Human-readable title of the protocol., businessMeaning: States the research procedure or objective to users., usage: "Planning, review and reporting.", relationshipContext: Detailed methods remain in protocol content or Documents., requiredMeaning: Required.}}
+    - {name: protocolId, type: uuid, required: true, immutable: true, help: {summary: "The permanent internal key that identifies this protocol across every study and experiment run under it.", businessMeaning: Identifies one governed procedure definition independently of executions., usage: "Research planning, study execution, audit and reproducibility.", relationshipContext: Studies and Experiments execute against a Protocol version., requiredMeaning: Required.}}
+    - {name: protocolCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The protocol reference scientists cite in study plans, lab notebooks and regulatory submissions.", businessMeaning: Operational identifier for scientific and regulatory traceability., usage: "Search, documents, integrations and audit.", relationshipContext: Distinct from Study and Experiment identifiers., requiredMeaning: Required.}}
+    - {name: title, type: string, required: true, maxLength: 500, help: {summary: "The descriptive name of the procedure that scientists recognise when choosing a protocol.", businessMeaning: States the research procedure or objective to users., usage: "Planning, review and reporting.", relationshipContext: Detailed methods remain in protocol content or Documents., requiredMeaning: Required.}}
     - name: status
       type: enum
       required: true
@@ -37,9 +37,11 @@ entity:
       - {from: APPROVED, to: RETIRED, action: retire}
       - {from: SUSPENDED, to: RETIRED, action: retire}
   help:
-    summary: Defines governed scientific methods separately from their executions and results.
+    summary: "One protocol is an approved scientific procedure setting out the objectives, methods, measurements and controls that studies and experiments must follow so their results are valid and comparable."
     businessMeaning: Protocol states how research should be performed; Study and Experiment represent organized execution; observations and results record evidence.
     usage: Research, laboratories, life sciences, clinical/preclinical operations, reproducibility and audit.
     relationshipContext: ResearchProject may govern the protocol; Studies and Experiments consume it; Documents preserve detailed methods and approvals.
     lifecycle: Draft methods are approved, may suspend, and retire while historical execution remains tied to the applied version.
+    workflowContext: "Scientists draft the protocol, reviewers approve it, and studies and experiments are then run under it with supporting documents attached; it can be suspended while issues are investigated and resumed, and is retired when replaced, while past studies keep their link to the version they used."
+    example: "Protocol PRT-ONC-014, Dose-Ranging Cytotoxicity Assay in HepG2 Cells, approved for use in the oncology research project."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROTOCOL}

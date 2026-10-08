@@ -7,8 +7,8 @@ entity:
     icon: file-text
   identity: {key: loadId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: loadId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Load., businessMeaning: Identifies one governed Load record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Load., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+  - {name: loadId, type: uuid, required: true, immutable: true, help: {summary: "The permanent reference for this load, which shipments, handling units and transport tasks assigned to it point to.", businessMeaning: Identifies one governed Load record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
+  - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The load number dispatchers, drivers and carriers quote to identify this group of goods travelling together.", businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
   relationships: []
   invariants:
   - {id: LOAD-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}

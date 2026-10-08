@@ -7,14 +7,14 @@ entity:
     icon: file-text
   identity: {key: putawayId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: putawayId, type: uuid, required: true, immutable: true, help: {summary: Stable putaway-task identity., businessMeaning: Identifies one directed storage action., usage: Receiving and WMS execution., relationshipContext: Connects source staging to target storage., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed for storage., businessMeaning: Defines task execution quantity., usage: Putaway confirmation and variance., relationshipContext: Must reconcile with transfer/movement., requiredMeaning: Required.}}
+  - {name: putawayId, type: uuid, required: true, immutable: true, help: {summary: "The permanent identity of this putaway task, which the related inventory transfer and warehouse reports refer to.", businessMeaning: Identifies one directed storage action., usage: Receiving and WMS execution., relationshipContext: Connects source staging to target storage., requiredMeaning: Required.}}
+  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: "How much of the product this task directs to be moved into the target storage location.", businessMeaning: Defines task execution quantity., usage: Putaway confirmation and variance., relationshipContext: Must reconcile with transfer/movement., requiredMeaning: Required.}}
   - name: status
     type: enum
     required: true
     default: PLANNED
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
-    help: {summary: Putaway task state., businessMeaning: Controls executable storage work., usage: WMS orchestration., relationshipContext: Completion alone does not alter stock without inventory posting., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being executed., COMPLETED: Confirmed and reconciled., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    help: {summary: "Shows whether the task is planned, released to staff, in progress, completed, cancelled or held up by an exception.", businessMeaning: Controls executable storage work., usage: WMS orchestration., relationshipContext: Completion alone does not alter stock without inventory posting., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being executed., COMPLETED: Confirmed and reconciled., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
   relationships:
   - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., cardinalityMeaning: Exactly one Product., workflowRole: Must match transfer.}}
   - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Receiving/staging origin., businessMeaning: Current controlled position., usage: Execution., cardinalityMeaning: Exactly one source., workflowRole: Must contain eligible stock.}}
@@ -100,9 +100,11 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Directed inbound/staging-to-storage warehouse task.
+    summary: "One warehouse instruction to move a quantity of received or staged product from a receiving area to an eligible storage location, tracked until the stock is in place."
     businessMeaning: Putaway says where stock should be stored; InventoryTransfer/InventoryMovement prove physical relocation.
     usage: Receiving, cross-dock exceptions, replenishment and storage optimization.
     relationshipContext: InventoryLocation/Zone define eligibility; HandlingUnit supports physical execution.
     lifecycle: Planned → released → in progress → completed, cancelled or exception.
+    workflowContext: "Planned after goods are received, released to warehouse staff, started when picked up from the dock, and completed when stock is placed, with the physical move recorded as an inventory transfer; exceptions such as a full location are resolved before completion."
+    example: "Move 40 cases of product SKU 10234 from Dock Door 3 staging to rack location A-12-03, released at 09:15 and completed at 09:40."
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PUTAWAY}
