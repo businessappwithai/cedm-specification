@@ -46,6 +46,7 @@ where
 {
     boot_request::<App, _, _>(|request, ctx| async move {
         seed_once(&ctx).await;
+        restore_administrator(&ctx).await;
         let token = login(&request).await;
         clear_test_rules(&ctx).await;
         callback(request, ctx, token).await;
@@ -94,6 +95,30 @@ async fn clear_test_rules(ctx: &AppContext) {
          WHERE is_model_managed = TRUE AND is_active = FALSE",
     ] {
         let _ = ctx.db.execute_unprepared(statement).await;
+    }
+}
+
+/// Put the seeded administrator back the way `ensure_admin` left it.
+///
+/// `requests::rbac` suspends accounts and edits roles to prove the guards hold,
+/// and a test that fails an assertion never reaches its own cleanup. If the one
+/// it left behind was the administrator — deactivated, locked, or holding a
+/// role that lost its master flag — every later test would fail at sign-in for
+/// a reason none of them names. So the account every suite signs in as is
+/// restored on entry, and the accounts that suite creates are removed.
+async fn restore_administrator(ctx: &AppContext) {
+    use sea_orm::ConnectionTrait;
+    for statement in [
+        format!(
+            "UPDATE sys_user SET is_active = TRUE, is_locked = FALSE, login_failure_count = 0 \
+             WHERE email = '{ADMIN_EMAIL}'"
+        ),
+        "UPDATE sys_role SET is_master_role = TRUE, is_active = TRUE WHERE name = 'Administrator'"
+            .to_string(),
+        "DELETE FROM users WHERE email LIKE 'rbac-account-%@example.test'".to_string(),
+        "DELETE FROM sys_user WHERE email LIKE 'rbac-account-%@example.test'".to_string(),
+    ] {
+        let _ = ctx.db.execute_unprepared(&statement).await;
     }
 }
 

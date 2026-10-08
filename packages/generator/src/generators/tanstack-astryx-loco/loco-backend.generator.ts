@@ -285,6 +285,7 @@ const RENDERED_FILES: Array<{ tpl: string; out: string }> = [
   { tpl: "src/openapi.rs.hbs", out: "src/openapi.rs" },
   { tpl: "src/controllers/mod.rs.hbs", out: "src/controllers/mod.rs" },
   { tpl: "src/controllers/auth.rs.hbs", out: "src/controllers/auth.rs" },
+  { tpl: "src/controllers/accounts.rs.hbs", out: "src/controllers/accounts.rs" },
   { tpl: "src/controllers/bus.rs.hbs", out: "src/controllers/bus.rs" },
   { tpl: "src/controllers/sys.rs.hbs", out: "src/controllers/sys.rs" },
   { tpl: "src/controllers/audit.rs.hbs", out: "src/controllers/audit.rs" },

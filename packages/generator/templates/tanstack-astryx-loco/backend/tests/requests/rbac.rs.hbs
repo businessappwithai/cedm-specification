@@ -694,3 +694,325 @@ async fn the_dashboard_scope_agrees_with_the_request_guard() {
     })
     .await;
 }
+
+// ---------------------------------------------------------------------------
+// Accounts
+// ---------------------------------------------------------------------------
+
+/// The password every account this suite creates is given.
+const ACCOUNT_PASSWORD: &str = "Sufficiently-Long-Passw0rd";
+
+/// A unique address in the pattern `support::restore_administrator` removes on
+/// entry, so an account a failed test left behind does not outlive the next.
+fn account_email() -> String {
+    format!("rbac-account-{}@example.test", Uuid::new_v4().simple())
+}
+
+/// Create an account through the API as `token`, holding `roles`.
+async fn create_account(request: &TestServer, token: &str, email: &str, roles: &[Uuid]) -> Value {
+    let created = request
+        .post("/api/accounts")
+        .add_header("authorization", bearer(token))
+        .json(&json!({
+            "email": email,
+            "name": "RBAC Account",
+            "password": ACCOUNT_PASSWORD,
+            "roles": roles,
+        }))
+        .await;
+    assert_eq!(
+        created.status_code(),
+        201,
+        "the administrator could not create an account: {}",
+        created.text()
+    );
+    created.json::<Value>()
+}
+
+async fn sign_in(request: &TestServer, email: &str, password: &str) -> (u16, Value) {
+    let response = request
+        .post("/api/auth/login")
+        .json(&json!({ "email": email, "password": password }))
+        .await;
+    let status = response.status_code().as_u16();
+    let body = response.json::<Value>();
+    (status, body)
+}
+
+async fn me_status(request: &TestServer, token: &str) -> u16 {
+    request
+        .get("/api/auth/me")
+        .add_header("authorization", bearer(token))
+        .await
+        .status_code()
+        .as_u16()
+}
+
+/// `PUT /api/accounts/{id}` as `token`: the status and the body text.
+async fn put_as(request: &TestServer, token: &str, id: &str, body: Value) -> (u16, String) {
+    let response = request
+        .put(&format!("/api/accounts/{id}"))
+        .add_header("authorization", bearer(token))
+        .json(&body)
+        .await;
+    (response.status_code().as_u16(), response.text())
+}
+
+fn account_id(account: &Value) -> String {
+    account["id"].as_str().expect("an account carries its id").to_string()
+}
+
+async fn administrator_role(pool: &PgPool) -> Uuid {
+    sqlx::query_scalar("SELECT sys_role_id FROM sys_role WHERE name = 'Administrator'")
+        .fetch_one(pool)
+        .await
+        .expect("the seed creates an Administrator role")
+}
+
+/// The account register is the master role's, reads included.
+///
+/// `/api/sys/users` is open because the dictionary is; this is not, because it
+/// says who can sign in and who is locked out. An account with a `sys_user`
+/// and no role is the plainest non-master caller there is.
+#[tokio::test]
+#[serial]
+async fn accounts_are_refused_to_a_caller_without_the_master_role() {
+    support::with_app(|request, _ctx, admin_token| async move {
+        let email = account_email();
+        create_account(&request, &admin_token, &email, &[]).await;
+        let (status, body) = sign_in(&request, &email, ACCOUNT_PASSWORD).await;
+        assert_eq!(status, 200, "a new account could not sign in: {body}");
+        let token = body["token"].as_str().expect("a token").to_string();
+
+        for (verb, route) in [
+            ("GET", "/api/accounts"),
+            ("GET", "/api/accounts/roles"),
+            ("POST", "/api/accounts"),
+            ("POST", "/api/accounts/roles"),
+        ] {
+            let response = match verb {
+                "POST" => {
+                    request
+                        .post(route)
+                        .add_header("authorization", bearer(&token))
+                        .json(&json!({
+                            "email": account_email(),
+                            "name": "Escalation",
+                            "password": ACCOUNT_PASSWORD,
+                            "isMasterRole": true,
+                        }))
+                        .await
+                }
+                _ => request.get(route).add_header("authorization", bearer(&token)).await,
+            };
+            assert_eq!(
+                response.status_code(),
+                403,
+                "{verb} {route} served a caller without the master role: {}",
+                response.text()
+            );
+        }
+    })
+    .await;
+}
+
+/// Locked and inactive are enforced at sign-in *and* on a token already issued.
+///
+/// The second half is the one that matters: JWTs are stateless, so before
+/// `find_by_claims_key` read the account's standing, suspending someone did
+/// nothing to the session they already had.
+#[tokio::test]
+#[serial]
+async fn a_suspended_account_cannot_sign_in_and_its_token_stops_working() {
+    support::with_app(|request, _ctx, admin_token| async move {
+        let email = account_email();
+        let account = create_account(&request, &admin_token, &email, &[]).await;
+        let id = account_id(&account);
+        let (status, body) = sign_in(&request, &email, ACCOUNT_PASSWORD).await;
+        assert_eq!(status, 200, "a new account could not sign in: {body}");
+        let token = body["token"].as_str().expect("a token").to_string();
+        assert_eq!(me_status(&request, &token).await, 200);
+
+        // Locked.
+        let (status, text) = put_as(&request, &admin_token, &id, json!({ "isLocked": true })).await;
+        assert_eq!(status, 200, "{text}");
+        assert_eq!(me_status(&request, &token).await, 401, "a locked account's token still works");
+        assert_eq!(sign_in(&request, &email, ACCOUNT_PASSWORD).await.0, 403);
+        // A wrong password is still the anonymous 401: the lock is only
+        // reported to someone who proved they know the password.
+        assert_eq!(sign_in(&request, &email, "not-the-password").await.0, 401);
+
+        let (status, text) = put_as(&request, &admin_token, &id, json!({ "isLocked": false })).await;
+        assert_eq!(status, 200, "{text}");
+        assert_eq!(me_status(&request, &token).await, 200, "unlocking must restore the session");
+
+        // Inactive.
+        let deactivated = request
+            .post(&format!("/api/accounts/{id}/deactivate"))
+            .add_header("authorization", bearer(&admin_token))
+            .await;
+        assert_eq!(deactivated.status_code(), 200, "{}", deactivated.text());
+        assert_eq!(deactivated.json::<Value>()["isActive"], json!(false));
+        assert_eq!(me_status(&request, &token).await, 401, "a deactivated account's token still works");
+        assert_eq!(sign_in(&request, &email, ACCOUNT_PASSWORD).await.0, 403);
+
+        // Reactivated, with a new password.
+        let (status, text) = put_as(&request, &admin_token, &id, json!({ "isActive": true })).await;
+        assert_eq!(status, 200, "{text}");
+        let reset = request
+            .post(&format!("/api/accounts/{id}/reset-password"))
+            .add_header("authorization", bearer(&admin_token))
+            .json(&json!({ "password": "A-Different-Passw0rd" }))
+            .await;
+        assert_eq!(reset.status_code(), 200, "{}", reset.text());
+        assert_eq!(sign_in(&request, &email, ACCOUNT_PASSWORD).await.0, 401);
+        assert_eq!(sign_in(&request, &email, "A-Different-Passw0rd").await.0, 200);
+
+        // Deleted: both halves of the account go.
+        let deleted = request
+            .delete(&format!("/api/accounts/{id}"))
+            .add_header("authorization", bearer(&admin_token))
+            .await;
+        assert_eq!(deleted.status_code(), 204, "{}", deleted.text());
+        assert_eq!(sign_in(&request, &email, "A-Different-Passw0rd").await.0, 401);
+        assert_eq!(me_status(&request, &token).await, 401);
+    })
+    .await;
+}
+
+/// Roles set through the account reach the gates: granting the master role
+/// makes a master, and revoking it unmakes one.
+#[tokio::test]
+#[serial]
+async fn roles_granted_through_an_account_are_the_roles_the_gates_read() {
+    support::with_app(|request, ctx, admin_token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        let administrator = administrator_role(pool).await;
+        let email = account_email();
+        let account = create_account(&request, &admin_token, &email, &[administrator]).await;
+        assert_eq!(account["isMaster"], json!(true), "{account}");
+        let id = account_id(&account);
+
+        let token = sign_in(&request, &email, ACCOUNT_PASSWORD).await.1["token"]
+            .as_str()
+            .expect("a token")
+            .to_string();
+        let listed = request
+            .get("/api/accounts")
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(listed.status_code(), 200, "a granted master was refused: {}", listed.text());
+
+        let revoked = request
+            .put(&format!("/api/accounts/{id}"))
+            .add_header("authorization", bearer(&admin_token))
+            .json(&json!({ "roles": [] }))
+            .await;
+        assert_eq!(revoked.status_code(), 200, "{}", revoked.text());
+        assert_eq!(revoked.json::<Value>()["isMaster"], json!(false));
+        let refused = request
+            .get("/api/accounts")
+            .add_header("authorization", bearer(&token))
+            .await;
+        assert_eq!(refused.status_code(), 403, "a revoked master kept its access");
+    })
+    .await;
+}
+
+/// Nobody can remove the last administrator, by any route.
+///
+/// The guard is asked of the state a write would commit, so it is tested
+/// through writes that reach that state differently: clearing the master flag
+/// on the role, deleting the role, and the same through the generic
+/// `/api/sys/roles` the dictionary screens use. The administrator suspending
+/// itself is refused for its own reason, before the guard is reached.
+#[tokio::test]
+#[serial]
+async fn the_last_administrator_cannot_be_removed() {
+    support::with_app(|request, ctx, admin_token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        let administrator = administrator_role(pool).await;
+
+        let me = request
+            .get("/api/auth/me")
+            .add_header("authorization", bearer(&admin_token))
+            .await
+            .json::<Value>();
+        let my_id = me["user"]["sysUserId"].as_str().expect("the admin is linked").to_string();
+
+        for (path, body) in [
+            (format!("/api/accounts/{my_id}"), json!({ "isActive": false })),
+            (format!("/api/accounts/{my_id}"), json!({ "isLocked": true })),
+        ] {
+            let refused = request
+                .put(&path)
+                .add_header("authorization", bearer(&admin_token))
+                .json(&body)
+                .await;
+            assert_eq!(refused.status_code(), 400, "an administrator suspended itself: {body}");
+        }
+
+        // Another master account that does not depend on the Administrator
+        // role would make every removal below legal. The seed declares none;
+        // a model that does is not this test's to judge.
+        let (others,): (i64,) = sqlx::query_as(
+            r"SELECT COUNT(*)
+                FROM sys_user_roles ur
+                JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+               WHERE r.is_master_role AND r.sys_role_id <> $1",
+        )
+        .bind(administrator)
+        .fetch_one(pool)
+        .await
+        .expect("counting other master roles");
+        if others > 0 {
+            return;
+        }
+
+        let cleared = request
+            .put(&format!("/api/accounts/roles/{administrator}"))
+            .add_header("authorization", bearer(&admin_token))
+            .json(&json!({ "isMasterRole": false }))
+            .await;
+        assert_eq!(cleared.status_code(), 409, "{}", cleared.text());
+
+        let deleted = request
+            .delete(&format!("/api/accounts/roles/{administrator}"))
+            .add_header("authorization", bearer(&admin_token))
+            .await;
+        assert_eq!(deleted.status_code(), 409, "{}", deleted.text());
+
+        let through_sys = request
+            .patch(&format!("/api/sys/roles/{administrator}"))
+            .add_header("authorization", bearer(&admin_token))
+            .json(&json!({ "is_master_role": false }))
+            .await;
+        assert_eq!(
+            through_sys.status_code(),
+            409,
+            "the generic dictionary write went around the guard: {}",
+            through_sys.text()
+        );
+
+        // Nothing was half-applied.
+        let (still_master,): (bool,) =
+            sqlx::query_as("SELECT is_master_role FROM sys_role WHERE sys_role_id = $1")
+                .bind(administrator)
+                .fetch_one(pool)
+                .await
+                .expect("reading the Administrator role");
+        assert!(still_master, "a refused write left the Administrator role without its flag");
+        assert_eq!(me_status(&request, &admin_token).await, 200);
+
+        // With a second administrator standing, removing one is ordinary.
+        let email = account_email();
+        let second = create_account(&request, &admin_token, &email, &[administrator]).await;
+        let second_id = account_id(&second);
+        let deactivated = request
+            .post(&format!("/api/accounts/{second_id}/deactivate"))
+            .add_header("authorization", bearer(&admin_token))
+            .await;
+        assert_eq!(deactivated.status_code(), 200, "{}", deactivated.text());
+    })
+    .await;
+}

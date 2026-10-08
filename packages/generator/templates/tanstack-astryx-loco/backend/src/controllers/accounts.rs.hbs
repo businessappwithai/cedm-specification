@@ -1,0 +1,940 @@
+//! Accounts and roles: who may sign in, and what they hold.
+//!
+//! Generated: {{now}}
+//! Project: {{project.name}}
+//!
+//! **Two rows make one account.** `users` is the credential store Loco's JWT
+//! auth reads (decision D1), and `sys_user` is the Application Dictionary's
+//! identity, which carries the roles every authorisation gate reads. The link is
+//! `users.sys_user_id`. Before this controller the only ways to make the pair
+//! were the `ensure_admin` and `seed_access` tasks, or `/api/auth/register`
+//! followed by hand-written SQL to link the result — so an administrator could
+//! see accounts in the running application and change none of them. Every write
+//! here keeps the two rows in step inside one transaction.
+//!
+//! **Master role only, reads included.** The generic `/api/sys/users` read is
+//! open because the dictionary is; this one is not, because it answers a
+//! different question — who can sign in, whether they are locked, when they
+//! last did — and that is an account register, not metadata.
+//!
+//! **Nobody can remove the last administrator.** Every write that can change
+//! who administers the application runs under `authz::lock_accounts` and ends
+//! with `authz::require_an_administrator`, asked of the state the transaction
+//! would commit. It is checked after the write rather than predicted before it,
+//! because the ways to lose the last administrator are more than anyone lists:
+//! deactivate the account, lock it, delete it, revoke its role, or clear the
+//! master flag on the role itself. The generic `/api/sys` writes to the same
+//! three tables pass through the same check.
+//!
+//! **Active and Locked are enforced where they are read.** `/api/auth/login`
+//! refuses both, and `users::Model::find_by_claims_key` refuses both on every
+//! request that carries a token — so suspending an account here ends its
+//! session on its next request rather than when its token expires.
+
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
+};
+use loco_rs::prelude::*;
+use serde::Deserialize;
+use serde_json::{json, Value};
+use sqlx::AssertSqlSafe;
+use uuid::Uuid;
+
+use crate::errors::{AppError, AppResult};
+use crate::models::_entities::users;
+use crate::services::authz;
+
+/// `sys_user.password_hash` is NOT NULL but is not a credential: the password
+/// lives in `users`, once. `!` is the `/etc/shadow` spelling of "no login
+/// here", the same value `ensure_admin` and `seed_access` write.
+const SYS_USER_PASSWORD_DISABLED: &str = "!";
+
+/// The shortest password an administrator may set — the same bar
+/// `/api/auth/register` and `/api/auth/change-password` hold.
+const MIN_PASSWORD_LEN: usize = 8;
+
+/// What `created_by` / `updated_by` record for a write made here.
+fn actor(user: &users::Model) -> String {
+    user.email.clone()
+}
+
+/// Every handler's first line: a master-role caller, or nothing.
+async fn require_account_admin(
+    pool: &sqlx::PgPool,
+    user: &users::Model,
+) -> AppResult<authz::Principal> {
+    let principal = authz::principal(pool, user).await?;
+    if principal.is_master {
+        return Ok(principal);
+    }
+    Err(AppError::Forbidden(
+        "managing accounts and roles requires the master role".to_string(),
+    ))
+}
+
+/// One account as the screens read it.
+///
+/// Built in SQL so a list is one round trip, roles included. `hasLogin` is
+/// false for a dictionary user with no credential row — one the model's seed
+/// described but nobody gave a password — and is what the screen offers
+/// "set a password" against.
+const ACCOUNT_JSON: &str = r"
+    json_build_object(
+        'id',                su.sys_user_id,
+        'email',             su.email,
+        'name',              su.name,
+        'description',       su.description,
+        'isActive',          su.is_active,
+        'isLocked',          su.is_locked,
+        'isSystemUser',      su.is_system_user,
+        'loginDate',         su.login_date,
+        'loginFailureCount', su.login_failure_count,
+        'hasLogin',          EXISTS (SELECT 1 FROM users u WHERE u.sys_user_id = su.sys_user_id),
+        'isMaster',          EXISTS (
+                                 SELECT 1
+                                   FROM sys_user_roles ur
+                                   JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+                                  WHERE ur.sys_user_id = su.sys_user_id
+                                    AND COALESCE(ur.is_active, true) = true
+                                    AND COALESCE(r.is_master_role, false) = true),
+        'roles',             COALESCE((
+                                 SELECT json_agg(json_build_object(
+                                            'id', r.sys_role_id,
+                                            'name', r.name,
+                                            'isMasterRole', r.is_master_role)
+                                          ORDER BY r.name)
+                                   FROM sys_user_roles ur
+                                   JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+                                  WHERE ur.sys_user_id = su.sys_user_id
+                                    AND COALESCE(ur.is_active, true) = true), '[]'::json),
+        'createdAt',         su.created_at,
+        'updatedAt',         su.updated_at
+    )";
+
+/// One role as the screens read it, with how many accounts hold it.
+const ROLE_JSON: &str = r"
+    json_build_object(
+        'id',           r.sys_role_id,
+        'name',         r.name,
+        'description',  r.description,
+        'isMasterRole', r.is_master_role,
+        'isActive',     r.is_active,
+        'userCount',    (SELECT COUNT(*)
+                           FROM sys_user_roles ur
+                          WHERE ur.sys_role_id = r.sys_role_id
+                            AND COALESCE(ur.is_active, true) = true),
+        'createdAt',    r.created_at,
+        'updatedAt',    r.updated_at
+    )";
+
+async fn account_json(conn: &mut sqlx::PgConnection, id: Uuid) -> AppResult<Value> {
+    let row: Option<(Value,)> = sqlx::query_as(AssertSqlSafe(format!(
+        "SELECT {ACCOUNT_JSON} FROM sys_user su WHERE su.sys_user_id = $1"
+    )))
+    .bind(id)
+    .fetch_optional(conn)
+    .await?;
+    row.map(|(account,)| account)
+        .ok_or_else(|| AppError::NotFound(format!("account {id} not found")))
+}
+
+async fn role_json(conn: &mut sqlx::PgConnection, id: Uuid) -> AppResult<Value> {
+    let row: Option<(Value,)> = sqlx::query_as(AssertSqlSafe(format!(
+        "SELECT {ROLE_JSON} FROM sys_role r WHERE r.sys_role_id = $1"
+    )))
+    .bind(id)
+    .fetch_optional(conn)
+    .await?;
+    row.map(|(role,)| role)
+        .ok_or_else(|| AppError::NotFound(format!("role {id} not found")))
+}
+
+/// Tell "absent" from "null": `description: null` clears the column, while a
+/// body that leaves `description` out leaves it alone.
+fn present<'de, D>(deserializer: D) -> Result<Option<Option<String>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Option::<String>::deserialize(deserializer).map(Some)
+}
+
+fn parse_id(id: &str, what: &str) -> AppResult<Uuid> {
+    Uuid::parse_str(id).map_err(|_| AppError::NotFound(format!("{what} {id} not found")))
+}
+
+fn invalid(errors: Vec<String>) -> AppResult<()> {
+    if errors.is_empty() {
+        return Ok(());
+    }
+    Err(AppError::Validation {
+        message: "Validation failed".to_string(),
+        errors,
+    })
+}
+
+fn check_email(email: &str, errors: &mut Vec<String>) {
+    let email = email.trim();
+    if email.is_empty() || !email.contains('@') {
+        errors.push("email must be a valid address".to_string());
+    }
+}
+
+fn check_password(password: &str, errors: &mut Vec<String>) {
+    if password.chars().count() < MIN_PASSWORD_LEN {
+        errors.push(format!("password must be at least {MIN_PASSWORD_LEN} characters"));
+    }
+}
+
+/// An administrator may not suspend or delete the account they are using.
+///
+/// The last-administrator guard already stops the case that cannot be undone;
+/// this stops the one that is merely confusing — the screen that answers
+/// "saved" and then signs its own user out.
+fn refuse_self(principal: &authz::Principal, id: Uuid, what: &str) -> AppResult<()> {
+    if principal.sys_user_id == Some(id) {
+        return Err(AppError::BadRequest(format!(
+            "You cannot {what} your own account."
+        )));
+    }
+    Ok(())
+}
+
+/// Every role id named exists. Unknown ids are a 400 naming them, not a
+/// foreign-key 409 naming nothing.
+async fn check_roles(conn: &mut sqlx::PgConnection, roles: &[Uuid]) -> AppResult<()> {
+    if roles.is_empty() {
+        return Ok(());
+    }
+    let known: Vec<Uuid> =
+        sqlx::query_scalar("SELECT sys_role_id FROM sys_role WHERE sys_role_id = ANY($1)")
+            .bind(roles)
+            .fetch_all(conn)
+            .await?;
+    let missing: Vec<String> = roles
+        .iter()
+        .filter(|id| !known.contains(id))
+        .map(|id| format!("no role with id {id}"))
+        .collect();
+    invalid(missing)
+}
+
+/// Make the account hold exactly `roles`, and make the first its default.
+async fn set_roles(
+    conn: &mut sqlx::PgConnection,
+    sys_user_id: Uuid,
+    roles: &[Uuid],
+    actor: &str,
+) -> AppResult<()> {
+    sqlx::query("DELETE FROM sys_user_roles WHERE sys_user_id = $1 AND NOT (sys_role_id = ANY($2))")
+        .bind(sys_user_id)
+        .bind(roles)
+        .execute(&mut *conn)
+        .await?;
+    for role in roles {
+        // A grant that exists but was deactivated is a grant the administrator
+        // just asked for again, so it is switched back on rather than skipped.
+        sqlx::query(
+            r"INSERT INTO sys_user_roles (
+                   sys_user_roles_id, sys_user_id, sys_role_id,
+                   entity_type, is_active, created_by, updated_by, created_at, updated_at)
+               VALUES (gen_random_uuid(), $1, $2, 'U', TRUE, $3, $3, NOW(), NOW())
+               ON CONFLICT (sys_user_id, sys_role_id) DO UPDATE
+                   SET is_active = TRUE, updated_by = EXCLUDED.updated_by, updated_at = NOW()",
+        )
+        .bind(sys_user_id)
+        .bind(role)
+        .bind(actor)
+        .execute(&mut *conn)
+        .await?;
+    }
+    sqlx::query("UPDATE sys_user SET default_sys_role_id = $2 WHERE sys_user_id = $1")
+        .bind(sys_user_id)
+        .bind(roles.first())
+        .execute(&mut *conn)
+        .await?;
+    Ok(())
+}
+
+/// Is this address taken by another account, in either half of the pair?
+async fn email_taken(
+    conn: &mut sqlx::PgConnection,
+    email: &str,
+    except: Option<Uuid>,
+) -> AppResult<bool> {
+    let (taken,): (bool,) = sqlx::query_as(
+        r"SELECT EXISTS (SELECT 1 FROM sys_user
+                          WHERE lower(email) = $1
+                            AND sys_user_id IS DISTINCT FROM $2)
+              OR EXISTS (SELECT 1 FROM users
+                          WHERE lower(email) = $1
+                            AND sys_user_id IS DISTINCT FROM $2)",
+    )
+    .bind(email)
+    .bind(except)
+    .fetch_one(conn)
+    .await?;
+    Ok(taken)
+}
+
+fn email_conflict() -> AppError {
+    AppError::Conflict("An account with that email already exists".to_string())
+}
+
+// ---------------------------------------------------------------------------
+// Accounts
+// ---------------------------------------------------------------------------
+
+#[utoipa::path(
+    get, path = "/api/accounts", tag = "accounts",
+    security(("bearer" = [])),
+    responses(
+        (status = 200, description = "`{ data: [account] }` — every account, with its roles, newest login state and whether it can sign in"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+    ),
+)]
+pub async fn list(
+    auth: auth::JWTWithUser<users::Model>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+
+    let rows: Vec<(Value,)> = sqlx::query_as(AssertSqlSafe(format!(
+        "SELECT {ACCOUNT_JSON} FROM sys_user su ORDER BY lower(su.email)"
+    )))
+    .fetch_all(pool)
+    .await?;
+    let data: Vec<Value> = rows.into_iter().map(|(account,)| account).collect();
+    Ok(Json(json!({ "data": data, "meta": { "total": data.len() } })).into_response())
+}
+
+#[utoipa::path(
+    get, path = "/api/accounts/{id}", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_user_id`")),
+    responses(
+        (status = 200, description = "The account"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such account"),
+    ),
+)]
+pub async fn get_one(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "account")?;
+    let mut conn = pool.acquire().await?;
+    Ok(Json(account_json(&mut conn, id).await?).into_response())
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateAccount {
+    pub email: String,
+    pub name: String,
+    pub password: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub roles: Vec<Uuid>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
+}
+
+#[utoipa::path(
+    post, path = "/api/accounts", tag = "accounts",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ email, name, password, description?, roles?: [roleId], isActive? }`"),
+    responses(
+        (status = 201, description = "The account, able to sign in at once"),
+        (status = 400, description = "Invalid payload, or a role that does not exist"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 409, description = "That email is already in use"),
+    ),
+)]
+pub async fn create(
+    auth: auth::JWTWithUser<users::Model>,
+    State(ctx): State<AppContext>,
+    Json(body): Json<CreateAccount>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+
+    let email = body.email.trim().to_lowercase();
+    let name = body.name.trim().to_string();
+    let mut errors = Vec::new();
+    check_email(&email, &mut errors);
+    check_password(&body.password, &mut errors);
+    if name.is_empty() {
+        errors.push("name is required".to_string());
+    }
+    invalid(errors)?;
+
+    let hashed = loco_rs::hash::hash_password(&body.password)
+        .map_err(|err| AppError::Internal(anyhow::anyhow!("hashing a password: {err}")))?;
+    let actor = actor(&auth.user);
+
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    check_roles(&mut txn, &body.roles).await?;
+    if email_taken(&mut txn, &email, None).await? {
+        return Err(email_conflict());
+    }
+
+    let (sys_user_id,): (Uuid,) = sqlx::query_as(
+        r"INSERT INTO sys_user (
+               sys_user_id, name, email, password_hash, description,
+               is_system_user, is_sales_rep, login_failure_count, is_locked,
+               is_account_verified, entity_type, is_active,
+               created_by, updated_by, created_at, updated_at)
+           VALUES (gen_random_uuid(), $1, $2, $3, $4,
+                   FALSE, FALSE, 0, FALSE,
+                   TRUE, 'U', $5,
+                   $6, $6, NOW(), NOW())
+           RETURNING sys_user_id",
+    )
+    .bind(&name)
+    .bind(&email)
+    .bind(SYS_USER_PASSWORD_DISABLED)
+    .bind(body.description.as_deref())
+    .bind(body.is_active.unwrap_or(true))
+    .bind(&actor)
+    .fetch_one(&mut *txn)
+    .await?;
+
+    sqlx::query(
+        r"INSERT INTO users (pid, email, password, api_key, name, sys_user_id)
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)",
+    )
+    .bind(&email)
+    .bind(&hashed)
+    .bind(format!("lo-{}", Uuid::new_v4()))
+    .bind(&name)
+    .bind(sys_user_id)
+    .execute(&mut *txn)
+    .await?;
+
+    set_roles(&mut txn, sys_user_id, &body.roles, &actor).await?;
+    let account = account_json(&mut txn, sys_user_id).await?;
+    txn.commit().await?;
+
+    Ok((StatusCode::CREATED, Json(account)).into_response())
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateAccount {
+    #[serde(default)]
+    pub email: Option<String>,
+    #[serde(default)]
+    pub name: Option<String>,
+    /// `null` clears it; absent leaves it.
+    #[serde(default, deserialize_with = "present")]
+    pub description: Option<Option<String>>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
+    #[serde(default)]
+    pub is_locked: Option<bool>,
+    /// The complete set of roles the account should hold. Absent leaves them.
+    #[serde(default)]
+    pub roles: Option<Vec<Uuid>>,
+}
+
+#[utoipa::path(
+    put, path = "/api/accounts/{id}", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_user_id`")),
+    request_body(content = serde_json::Value, description = "Any of `{ email, name, description, isActive, isLocked, roles: [roleId] }`; `roles` replaces the set. Unlocking also clears the failure count"),
+    responses(
+        (status = 200, description = "The account as it now stands"),
+        (status = 400, description = "Invalid payload, a role that does not exist, or suspending your own account"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such account"),
+        (status = 409, description = "That email is in use, or the change would leave no active administrator"),
+    ),
+)]
+pub async fn update(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+    Json(body): Json<UpdateAccount>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    let principal = require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "account")?;
+
+    if body.is_active == Some(false) {
+        refuse_self(&principal, id, "deactivate")?;
+    }
+    if body.is_locked == Some(true) {
+        refuse_self(&principal, id, "lock")?;
+    }
+
+    let email = body.email.as_deref().map(|e| e.trim().to_lowercase());
+    let name = body.name.as_deref().map(|n| n.trim().to_string());
+    let mut errors = Vec::new();
+    if let Some(email) = &email {
+        check_email(email, &mut errors);
+    }
+    if name.as_deref() == Some("") {
+        errors.push("name cannot be empty".to_string());
+    }
+    invalid(errors)?;
+
+    let actor = actor(&auth.user);
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    // 404 before anything is written.
+    account_json(&mut txn, id).await?;
+
+    if let Some(email) = &email {
+        if email_taken(&mut txn, email, Some(id)).await? {
+            return Err(email_conflict());
+        }
+    }
+    if let Some(roles) = &body.roles {
+        check_roles(&mut txn, roles).await?;
+    }
+
+    sqlx::query(
+        r"UPDATE sys_user
+             SET email               = COALESCE($2, email),
+                 name                = COALESCE($3, name),
+                 description         = CASE WHEN $4 THEN $5 ELSE description END,
+                 is_active           = COALESCE($6, is_active),
+                 is_locked           = COALESCE($7, is_locked),
+                 login_failure_count = CASE WHEN $7 = false THEN 0 ELSE login_failure_count END,
+                 updated_by          = $8,
+                 updated_at          = NOW()
+           WHERE sys_user_id = $1",
+    )
+    .bind(id)
+    .bind(email.as_deref())
+    .bind(name.as_deref())
+    .bind(body.description.is_some())
+    .bind(body.description.clone().flatten())
+    .bind(body.is_active)
+    .bind(body.is_locked)
+    .bind(&actor)
+    .execute(&mut *txn)
+    .await?;
+
+    // The credential row signs in by email, so it has to follow.
+    sqlx::query(
+        r"UPDATE users
+             SET email = COALESCE($2, email),
+                 name  = COALESCE($3, name),
+                 updated_at = NOW()
+           WHERE sys_user_id = $1",
+    )
+    .bind(id)
+    .bind(email.as_deref())
+    .bind(name.as_deref())
+    .execute(&mut *txn)
+    .await?;
+
+    if let Some(roles) = &body.roles {
+        set_roles(&mut txn, id, roles, &actor).await?;
+    }
+
+    authz::require_an_administrator(&mut txn).await?;
+    let account = account_json(&mut txn, id).await?;
+    txn.commit().await?;
+    Ok(Json(account).into_response())
+}
+
+#[utoipa::path(
+    post, path = "/api/accounts/{id}/deactivate", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_user_id`")),
+    responses(
+        (status = 200, description = "The account, now inactive: it cannot sign in, and any token it holds stops working"),
+        (status = 400, description = "Deactivating your own account"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such account"),
+        (status = 409, description = "It is the last active administrator"),
+    ),
+)]
+pub async fn deactivate(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    let principal = require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "account")?;
+    refuse_self(&principal, id, "deactivate")?;
+
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    let updated = sqlx::query(
+        "UPDATE sys_user SET is_active = FALSE, updated_by = $2, updated_at = NOW()
+          WHERE sys_user_id = $1",
+    )
+    .bind(id)
+    .bind(actor(&auth.user))
+    .execute(&mut *txn)
+    .await?;
+    if updated.rows_affected() == 0 {
+        return Err(AppError::NotFound(format!("account {id} not found")));
+    }
+    authz::require_an_administrator(&mut txn).await?;
+    let account = account_json(&mut txn, id).await?;
+    txn.commit().await?;
+    Ok(Json(account).into_response())
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResetPassword {
+    pub password: String,
+}
+
+#[utoipa::path(
+    post, path = "/api/accounts/{id}/reset-password", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_user_id`")),
+    request_body(content = serde_json::Value, description = "`{ password }` — also unlocks the account and clears its failure count; gives a dictionary user with no login one"),
+    responses(
+        (status = 200, description = "The account"),
+        (status = 400, description = "Password too short"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such account"),
+    ),
+)]
+pub async fn reset_password(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+    Json(body): Json<ResetPassword>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "account")?;
+    let mut errors = Vec::new();
+    check_password(&body.password, &mut errors);
+    invalid(errors)?;
+
+    let hashed = loco_rs::hash::hash_password(&body.password)
+        .map_err(|err| AppError::Internal(anyhow::anyhow!("hashing a password: {err}")))?;
+
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    let found: Option<(String, String)> = sqlx::query_as(
+        r"UPDATE sys_user
+             SET is_locked = FALSE, login_failure_count = 0,
+                 updated_by = $2, updated_at = NOW()
+           WHERE sys_user_id = $1
+       RETURNING email, name",
+    )
+    .bind(id)
+    .bind(actor(&auth.user))
+    .fetch_optional(&mut *txn)
+    .await?;
+    let Some((email, name)) = found else {
+        return Err(AppError::NotFound(format!("account {id} not found")));
+    };
+
+    // A reset is how a dictionary user the seed described — one with no
+    // credential row — is given a login, so the row is created if missing.
+    let changed = sqlx::query("UPDATE users SET password = $2, updated_at = NOW() WHERE sys_user_id = $1")
+        .bind(id)
+        .bind(&hashed)
+        .execute(&mut *txn)
+        .await?;
+    if changed.rows_affected() == 0 {
+        if email_taken(&mut txn, &email.to_lowercase(), Some(id)).await? {
+            return Err(email_conflict());
+        }
+        sqlx::query(
+            r"INSERT INTO users (pid, email, password, api_key, name, sys_user_id)
+               VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)",
+        )
+        .bind(email.to_lowercase())
+        .bind(&hashed)
+        .bind(format!("lo-{}", Uuid::new_v4()))
+        .bind(&name)
+        .bind(id)
+        .execute(&mut *txn)
+        .await?;
+    }
+
+    let account = account_json(&mut txn, id).await?;
+    txn.commit().await?;
+    Ok(Json(account).into_response())
+}
+
+#[utoipa::path(
+    delete, path = "/api/accounts/{id}", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_user_id`")),
+    responses(
+        (status = 204, description = "Deleted — the login and the dictionary user both"),
+        (status = 400, description = "Deleting your own account"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such account"),
+        (status = 409, description = "It is the last active administrator, or records still point at it — deactivate it instead"),
+    ),
+)]
+pub async fn remove(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    let principal = require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "account")?;
+    refuse_self(&principal, id, "delete")?;
+
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    sqlx::query("DELETE FROM users WHERE sys_user_id = $1")
+        .bind(id)
+        .execute(&mut *txn)
+        .await?;
+    // `sys_user_roles` cascades. A foreign key from elsewhere that does not is
+    // a 409 through `From<sqlx::Error>` — the account has history, and
+    // deactivating it is the answer rather than deleting what points at it.
+    let deleted = sqlx::query("DELETE FROM sys_user WHERE sys_user_id = $1")
+        .bind(id)
+        .execute(&mut *txn)
+        .await?;
+    if deleted.rows_affected() == 0 {
+        return Err(AppError::NotFound(format!("account {id} not found")));
+    }
+    authz::require_an_administrator(&mut txn).await?;
+    txn.commit().await?;
+    Ok(StatusCode::NO_CONTENT.into_response())
+}
+
+// ---------------------------------------------------------------------------
+// Roles
+// ---------------------------------------------------------------------------
+
+#[utoipa::path(
+    get, path = "/api/accounts/roles", tag = "accounts",
+    security(("bearer" = [])),
+    responses(
+        (status = 200, description = "`{ data: [role] }` — every role, with how many accounts hold it"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+    ),
+)]
+pub async fn list_roles(
+    auth: auth::JWTWithUser<users::Model>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+    let rows: Vec<(Value,)> = sqlx::query_as(AssertSqlSafe(format!(
+        "SELECT {ROLE_JSON} FROM sys_role r ORDER BY r.name"
+    )))
+    .fetch_all(pool)
+    .await?;
+    let data: Vec<Value> = rows.into_iter().map(|(role,)| role).collect();
+    Ok(Json(json!({ "data": data, "meta": { "total": data.len() } })).into_response())
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RoleBody {
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default, deserialize_with = "present")]
+    pub description: Option<Option<String>>,
+    #[serde(default)]
+    pub is_master_role: Option<bool>,
+    #[serde(default)]
+    pub is_active: Option<bool>,
+}
+
+#[utoipa::path(
+    post, path = "/api/accounts/roles", tag = "accounts",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ name, description?, isMasterRole?, isActive? }`"),
+    responses(
+        (status = 201, description = "The role. It reaches no window until it is granted one"),
+        (status = 400, description = "No name"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 409, description = "A role with that name exists"),
+    ),
+)]
+pub async fn create_role(
+    auth: auth::JWTWithUser<users::Model>,
+    State(ctx): State<AppContext>,
+    Json(body): Json<RoleBody>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+    let name = body.name.as_deref().map(str::trim).unwrap_or_default().to_string();
+    if name.is_empty() {
+        invalid(vec!["name is required".to_string()])?;
+    }
+
+    let mut txn = pool.begin().await?;
+    let (taken,): (bool,) =
+        sqlx::query_as("SELECT EXISTS (SELECT 1 FROM sys_role WHERE lower(name) = lower($1))")
+            .bind(&name)
+            .fetch_one(&mut *txn)
+            .await?;
+    if taken {
+        return Err(AppError::Conflict("A role with that name already exists".to_string()));
+    }
+    let (role_id,): (Uuid,) = sqlx::query_as(
+        r"INSERT INTO sys_role (
+               sys_role_id, name, description, user_level, is_master_role,
+               is_can_export, is_can_report, is_personal_lock, is_personal_access,
+               max_query_records, is_show_accounting,
+               entity_type, is_active, created_by, updated_by, created_at, updated_at)
+           VALUES (gen_random_uuid(), $1, $2, 'U', $3,
+                   TRUE, TRUE, FALSE, FALSE, 0, FALSE,
+                   'U', $4, $5, $5, NOW(), NOW())
+           RETURNING sys_role_id",
+    )
+    .bind(&name)
+    .bind(body.description.clone().flatten())
+    .bind(body.is_master_role.unwrap_or(false))
+    .bind(body.is_active.unwrap_or(true))
+    .bind(actor(&auth.user))
+    .fetch_one(&mut *txn)
+    .await?;
+    let role = role_json(&mut txn, role_id).await?;
+    txn.commit().await?;
+    Ok((StatusCode::CREATED, Json(role)).into_response())
+}
+
+#[utoipa::path(
+    put, path = "/api/accounts/roles/{id}", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_role_id`")),
+    request_body(content = serde_json::Value, description = "Any of `{ name, description, isMasterRole, isActive }`. Renaming a role detaches it from access rules written against the old name"),
+    responses(
+        (status = 200, description = "The role as it now stands"),
+        (status = 400, description = "Empty name"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such role"),
+        (status = 409, description = "The name is taken, or the change would leave no active administrator"),
+    ),
+)]
+pub async fn update_role(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+    Json(body): Json<RoleBody>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "role")?;
+    let name = body.name.as_deref().map(|n| n.trim().to_string());
+    if name.as_deref() == Some("") {
+        invalid(vec!["name cannot be empty".to_string()])?;
+    }
+
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    role_json(&mut txn, id).await?;
+    if let Some(name) = &name {
+        let (taken,): (bool,) = sqlx::query_as(
+            "SELECT EXISTS (SELECT 1 FROM sys_role WHERE lower(name) = lower($1) AND sys_role_id <> $2)",
+        )
+        .bind(name)
+        .bind(id)
+        .fetch_one(&mut *txn)
+        .await?;
+        if taken {
+            return Err(AppError::Conflict("A role with that name already exists".to_string()));
+        }
+    }
+    sqlx::query(
+        r"UPDATE sys_role
+             SET name           = COALESCE($2, name),
+                 description    = CASE WHEN $3 THEN $4 ELSE description END,
+                 is_master_role = COALESCE($5, is_master_role),
+                 is_active      = COALESCE($6, is_active),
+                 updated_by     = $7,
+                 updated_at     = NOW()
+           WHERE sys_role_id = $1",
+    )
+    .bind(id)
+    .bind(name.as_deref())
+    .bind(body.description.is_some())
+    .bind(body.description.clone().flatten())
+    .bind(body.is_master_role)
+    .bind(body.is_active)
+    .bind(actor(&auth.user))
+    .execute(&mut *txn)
+    .await?;
+    authz::require_an_administrator(&mut txn).await?;
+    let role = role_json(&mut txn, id).await?;
+    txn.commit().await?;
+    Ok(Json(role).into_response())
+}
+
+#[utoipa::path(
+    delete, path = "/api/accounts/roles/{id}", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "`sys_role_id`")),
+    responses(
+        (status = 204, description = "Deleted, with every grant of it"),
+        (status = 401, description = "No token"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such role"),
+        (status = 409, description = "The change would leave no active administrator"),
+    ),
+)]
+pub async fn remove_role(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<String>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    require_account_admin(pool, &auth.user).await?;
+    let id = parse_id(&id, "role")?;
+
+    let mut txn = pool.begin().await?;
+    authz::lock_accounts(&mut txn).await?;
+    // `default_sys_role_id` is ON DELETE SET NULL and the grants cascade, so
+    // the role leaves nothing dangling behind it.
+    let deleted = sqlx::query("DELETE FROM sys_role WHERE sys_role_id = $1")
+        .bind(id)
+        .execute(&mut *txn)
+        .await?;
+    if deleted.rows_affected() == 0 {
+        return Err(AppError::NotFound(format!("role {id} not found")));
+    }
+    authz::require_an_administrator(&mut txn).await?;
+    txn.commit().await?;
+    Ok(StatusCode::NO_CONTENT.into_response())
+}
+
+pub fn routes() -> Routes {
+    Routes::new()
+        .prefix("accounts")
+        .add("/", get(list))
+        .add("/", post(create))
+        // Static before parameter at the same depth: matchit prefers `/roles`
+        // over `/{id}`, so the role routes are reachable.
+        .add("/roles", get(list_roles))
+        .add("/roles", post(create_role))
+        .add("/roles/{id}", put(update_role))
+        .add("/roles/{id}", delete(remove_role))
+        .add("/{id}", get(get_one))
+        .add("/{id}", put(update))
+        .add("/{id}", delete(remove))
+        .add("/{id}/deactivate", post(deactivate))
+        .add("/{id}/reset-password", post(reset_password))
+}

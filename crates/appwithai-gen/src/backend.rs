@@ -155,6 +155,10 @@ const RENDERED_FILES: &[(&str, &str)] = &[
     ("src/openapi.rs.hbs", "src/openapi.rs"),
     ("src/controllers/mod.rs.hbs", "src/controllers/mod.rs"),
     ("src/controllers/auth.rs.hbs", "src/controllers/auth.rs"),
+    (
+        "src/controllers/accounts.rs.hbs",
+        "src/controllers/accounts.rs",
+    ),
     ("src/controllers/bus.rs.hbs", "src/controllers/bus.rs"),
     ("src/controllers/sys.rs.hbs", "src/controllers/sys.rs"),
     ("src/controllers/audit.rs.hbs", "src/controllers/audit.rs"),

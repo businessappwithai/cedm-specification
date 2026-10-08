@@ -40,6 +40,11 @@ const GUARDED_ROUTES: &[(&str, &str)] = &[
     // listing of the application scoped to one account — guarded like the data
     // it points at, not like the dictionary metadata it is built from.
     ("GET", "/api/me/dashboard"),
+    // An account register: who can sign in, who is locked, who is master.
+    ("GET", "/api/accounts"),
+    ("GET", "/api/accounts/roles"),
+    ("GET", "/api/accounts/00000000-0000-4000-8000-000000000000"),
+    ("CREATE_ACCOUNT", "/api/accounts"),
     ("CREATE_WORKFLOW", "/api/workflow-definitions"),
     // The NL endpoint reads business data on the caller's behalf, so it is
     // guarded like the rest. Its JWT extractor runs before the add-on's
@@ -91,6 +96,17 @@ async fn guarded_routes_refuse_an_anonymous_caller() {
         for (verb, route) in GUARDED_ROUTES {
             let response = match *verb {
                 "CREATE_WORKFLOW" => request.post(route).json(&valid_definition()).await,
+                // A valid account, so a 2xx can only mean the guard is missing.
+                "CREATE_ACCOUNT" => {
+                    request
+                        .post(route)
+                        .json(&serde_json::json!({
+                            "email": "anonymous-probe@example.test",
+                            "name": "Anonymous Probe",
+                            "password": "Sufficiently-Long-Passw0rd",
+                        }))
+                        .await
+                }
                 // Same reasoning as `valid_definition`: a body that would
                 // otherwise be rejected for its shape proves nothing about the
                 // guard, so send one the handler would accept.
