@@ -21,24 +21,28 @@ entity:
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Human-facing inventory movement reference., usage: "Used by warehouse operators, inventory controllers, auditors and integrations.", relationshipContext: Distinct from Product and source transaction numbers., workflowRole: Traces stock change from execution through reconciliation.}
+      help:
+        summary: The document number of the stock movement.
+        usage: Allocated from a number series; unique; printed on goods documents and used in audits.
+        relationshipContext: Distinct from Product and source transaction numbers.
+        workflowRole: Traces stock change from execution through reconciliation.
     - name: movementType
       type: enum
       required: true
       values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
       help:
+        valueSemantics:
+          RECEIPT: Stock arrives, for example from a supplier or production.
+          ISSUE: Stock leaves, for example to a customer or to production.
+          TRANSFER: Stock moves from one location to another.
+          ADJUSTMENT: Quantity is corrected after a count or an investigation.
+          RETURN: Stock comes back from a customer or is returned to a supplier.
+          RESERVATION: Stock is set aside for a demand without moving.
+          RELEASE: A reservation is withdrawn and the stock becomes available again.
         summary: Identifies inventory operation and state transition.
         usage: Determines how on-hand, reserved, available and location balances change.
         relationshipContext: Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable.
         workflowRole: Maps business workflow outcomes to inventory ledger.
-        valueSemantics:
-          RECEIPT: Accepted inbound quantity becomes inventory at a target location.
-          ISSUE: Quantity leaves available inventory for shipment, consumption, maintenance, production or authorized outbound use.
-          TRANSFER: Quantity moves between inventory locations.
-          ADJUSTMENT: Quantity is corrected through approved reconciliation.
-          RETURN: Previously controlled quantity is returned or otherwise processed under return semantics.
-          RESERVATION: Quantity is committed to demand without physical movement.
-          RELEASE: Previous reservation is removed.
     - name: quantity
       type: decimal
       required: true

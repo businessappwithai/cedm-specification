@@ -12,18 +12,16 @@ entity:
       required: true
       immutable: true
       help:
-        summary: 'The inventory reservation id of the inventory reservation: an identifier the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: The identity of the reservation.
+        usage: Generated on creation; picks and issues refer to it.
     - name: quantityReserved
       type: decimal
       required: true
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity reserved of the inventory reservation: a number the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity that is set aside.
+        usage: Set when the reservation is made; it reduces the available quantity of the balance.
     - name: quantityConsumed
       type: decimal
       required: true
@@ -31,9 +29,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity consumed of the inventory reservation: a number the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity of the reservation that has been issued.
+        usage: Increases as picks are confirmed; never more than the quantity reserved.
     - name: quantityReleased
       type: decimal
       required: true
@@ -41,94 +38,88 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: 'The quantity released of the inventory reservation: a number the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: The quantity of the reservation that has been given back to availability.
+        usage: Increases when part of the demand is cancelled or the reservation expires.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED, CONSUMED, CANCELLED, EXPIRED]
       help:
-        summary: "The status of the inventory reservation: a value the business records on it."
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: How much of the reservation is still holding stock.
+        usage: Moved by order management and picking.
         valueSemantics:
-          PENDING: The status of the inventory reservation is pending; set it when that is what the business means for this record.
-          ACTIVE: The status of the inventory reservation is active; set it when that is what the business means for this record.
-          PARTIALLY_CONSUMED: The status of the inventory reservation is partially consumed; set it when that is what the business means for this record.
-          RELEASED: The status of the inventory reservation is released; set it when that is what the business means for this record.
-          CONSUMED: The status of the inventory reservation is consumed; set it when that is what the business means for this record.
-          CANCELLED: The status of the inventory reservation is cancelled; set it when that is what the business means for this record.
-          EXPIRED: The status of the inventory reservation is expired; set it when that is what the business means for this record.
+          PENDING: Requested but not yet holding stock.
+          ACTIVE: Holding stock for its demand.
+          PARTIALLY_CONSUMED: Part of the stock has been issued; the rest is still held.
+          RELEASED: The remaining stock has been given back to availability. A final state.
+          CONSUMED: All the reserved stock has been issued. A final state.
+          CANCELLED: Withdrawn before it held stock. A final state.
+          EXPIRED: Lapsed because the demand was not fulfilled in time. A final state.
     - name: priority
       type: integer
       required: false
       default: 100
       help:
-        summary: 'The priority of the inventory reservation: a whole number the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: The reservation's priority when stock is short.
+        usage: Lower numbers are served first; defaults to 100.
     - name: expiresAt
       type: datetime
       required: false
       help:
-        summary: 'The expires at of the inventory reservation: a point in time the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: When the reservation lapses if it has not been used.
+        usage: Set by the order promise; expired reservations return stock to availability.
     - name: createdAt
       type: datetime
       required: true
       systemManaged: true
       help:
-        summary: 'The created at of the inventory reservation: a point in time the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: When the reservation was made.
+        usage: Set by the system.
     - name: updatedAt
       type: datetime
       required: true
       systemManaged: true
       help:
-        summary: 'The updated at of the inventory reservation: a point in time the business records on it.'
-        usage: Entered or maintained when a inventory reservation is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the inventory reservation's other fields and its relationships; it is not meaningful on its own.
+        summary: When the reservation was last changed.
+        usage: Set by the system on every change.
   relationships:
     - name: product
       target: Product
       cardinality: '1'
       ownership: reference
       help:
-        summary: Links a inventory reservation to product, the product it relates to.
-        usage: Chosen from the existing product records when the inventory reservation is created or edited.
-        cardinalityMeaning: A inventory reservation has exactly one product in this role.
-        context: Lets the inventory reservation be found from, and reported with, its product.
+        summary: The product that is reserved.
+        usage: Set when the reservation is made.
+        cardinalityMeaning: Exactly one product.
+        workflowRole: Identifies the stock being committed.
     - name: inventoryLocation
       target: InventoryLocation
       cardinality: '1'
       ownership: reference
       help:
-        summary: Links a inventory reservation to inventory location, the inventory location it relates to.
-        usage: Chosen from the existing inventory location records when the inventory reservation is created or edited.
-        cardinalityMeaning: A inventory reservation has exactly one inventory location in this role.
-        context: Lets the inventory reservation be found from, and reported with, its inventory location.
+        summary: The location from which stock is reserved.
+        usage: Chosen by the allocation process.
+        cardinalityMeaning: Exactly one location, since stock is committed at a specific place.
+        workflowRole: Tells pickers where to go.
     - name: salesOrderLine
       target: SalesOrderLine
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Links a inventory reservation to sales order line, the sales order line it relates to.
-        usage: Chosen from the existing sales order line records when the inventory reservation is created or edited.
-        cardinalityMeaning: A inventory reservation has at most one sales order line in this role.
-        context: Lets the inventory reservation be found from, and reported with, its sales order line.
+        summary: The sales order line that the reservation serves.
+        usage: Set where the demand is a customer order.
+        cardinalityMeaning: At most one order line; reservations may serve other demands such as production.
+        workflowRole: Ties the commitment to the promise made to the customer.
     - name: inventoryBalance
       target: InventoryBalance
       cardinality: '1'
       ownership: reference
       help:
-        summary: Links a inventory reservation to inventory balance, the inventory balance it relates to.
-        usage: Chosen from the existing inventory balance records when the inventory reservation is created or edited.
-        cardinalityMeaning: A inventory reservation has exactly one inventory balance in this role.
-        context: Lets the inventory reservation be found from, and reported with, its inventory balance.
+        summary: The stock balance from which the reservation draws.
+        usage: Set when the reservation is made; its reserved quantity is increased.
+        cardinalityMeaning: 'Exactly one balance: the reservation commits a particular pool of stock.'
+        workflowRole: Keeps available quantity correct.
   invariants:
     - {id: INVENTORY-RESERVATION-001, rule: quantityReserved must be greater than zero when a reservation is created.}
     - {id: INVENTORY-RESERVATION-002, rule: quantityConsumed plus quantityReleased must not exceed quantityReserved.}
@@ -145,19 +136,22 @@ entity:
     attribute: status
     states: [PENDING, ACTIVE, PARTIALLY_CONSUMED, RELEASED, CONSUMED, CANCELLED, EXPIRED]
     initial: PENDING
-    terminal: [CONSUMED, CANCELLED, EXPIRED]
+    terminal:
+      - RELEASED
+      - CONSUMED
+      - CANCELLED
+      - EXPIRED
     transitions:
       - {from: PENDING, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: PARTIALLY_CONSUMED, action: mark_partially_consumed}
-      - {from: PARTIALLY_CONSUMED, to: RELEASED, action: release}
-      - {from: RELEASED, to: CONSUMED, action: consume}
       - {from: PENDING, to: CANCELLED, action: cancel}
+      - {from: PENDING, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: PARTIALLY_CONSUMED, action: consume_part}
+      - {from: ACTIVE, to: CONSUMED, action: consume}
+      - {from: PARTIALLY_CONSUMED, to: CONSUMED, action: consume}
+      - {from: ACTIVE, to: RELEASED, action: release}
+      - {from: PARTIALLY_CONSUMED, to: RELEASED, action: release}
       - {from: ACTIVE, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_CONSUMED, to: CANCELLED, action: cancel}
-      - {from: RELEASED, to: CANCELLED, action: cancel}
       - {from: ACTIVE, to: EXPIRED, action: expire}
-      - {from: PARTIALLY_CONSUMED, to: EXPIRED, action: expire}
-      - {from: RELEASED, to: EXPIRED, action: expire}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a inventory reservation is ended"
@@ -178,12 +172,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Controls the commitment of available inventory to demand while separating reservation state from physical stock movement.
-    businessMeaning: Reservation means stock is committed, not physically moved. Physical movement occurs only when an authorized fulfillment or inventory movement workflow posts it.
-    usage: Sales fulfillment, maintenance demand, allocation, picking, replenishment, production and inventory control.
-    relationshipContext: Product identifies stock, InventoryLocation identifies where it is reserved, InventoryBalance supplies available state, and SalesOrderLine supplies one possible demand source.
+    summary: An authorised commitment of available stock to a demand, which does not change the physical quantity on hand.
+    businessMeaning: Promising stock to a customer or job must not depend on luck. A reservation sets the quantity aside so the same units are not promised twice, while the stock stays where it is until it is picked.
+    usage: Created when an order or job is committed; consumed when the stock is issued; released or expired when the demand goes away; read by order promising and picking.
+    relationshipContext: A reservation is for a Product at an InventoryLocation, held against an InventoryBalance, and usually serves a SalesOrderLine.
+    lifecycle: A reservation is pending until confirmed, active while it holds stock, and then partly or fully consumed as goods are issued, or released if the demand goes away. Unused reservations are cancelled or expire.
+    example: 20 units of item A-200 reserved at the main warehouse for sales order line SO-20413/2 until Friday.
     workflowContext: Demand approved → availability checked → reservation created → InventoryBalance reserved/available updated → pick/issue/fulfillment → reservation consumed and InventoryMovement posted. Cancellation/expiry releases reserved quantity. Master or location changes trigger revalidation.
-    lifecycle: Pending → Active → Partially consumed → Consumed, or Active → Released/Cancelled/Expired. Terminal states preserve history.
     concurrency: Reservation creation, increase, consumption and release require transactional concurrency control so available inventory cannot be reserved twice.
-    example: 100 units are available. A SalesOrderLine reserves 30, making 70 available. Picking consumes 10 reserved units and posts the corresponding issue movement; the reservation has 20 remaining. If the location is blocked, the reservation must be transferred or released before the stock can be considered available elsewhere.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-INVENTORY-RESERVATION}

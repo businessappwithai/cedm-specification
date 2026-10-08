@@ -1,0 +1,192 @@
+@ InventoryItem
+a itemCode
+s: The stock-keeping code under which the product is managed in inventory.
+u: Assigned when the item is set up and unique; used by the warehouse and in replenishment and count documents.
+a status
+s: Whether the product may currently be stocked and moved.
+u: Set by inventory control; movements are allowed only for ACTIVE items.
+v DRAFT: Being set up; not yet stocked.
+v ACTIVE: Available for stocking and movements.
+v BLOCKED: Temporarily barred from movements, for example pending a quality issue; it can be unblocked.
+v DISCONTINUED: No longer stocked; the item is kept for history. A final state.
+r product
+s: The product this inventory profile governs.
+u: Set when the item is created.
+n: Exactly one product: the profile says how that product is stocked.
+w: Separates how a product is described from how it is stocked.
+r stockingUom
+s: The unit of measure in which the product is counted and stocked.
+u: Set when the item is created; all quantities for the item are expressed in it.
+n: Exactly one stocking unit, so that every quantity is unambiguous.
+w: Other units are converted to this one for balances.
+r movements
+u: Read to explain the item's stock history.
+n: Any number of movements, all in the stocking unit once converted.
+
+@ InventoryLocation
+a inventoryLocationId
+s: The identity of the stock location, independent of its code.
+u: Generated on creation; balances, movements and reservations refer to it.
+a code
+s: The code of the position, such as A-03-02 for aisle, rack and level.
+u: Unique; printed on labels and scanned during putaway, picking and counts.
+a locationType
+s: What kind of stock-holding position this is.
+u: Chosen when the location is created; decides which processes may use it.
+v RECEIVING: Where goods wait after arrival, before putaway.
+v BIN: A small storage compartment.
+v SHELF: A shelf position.
+v RACK: A pallet rack position.
+v FLOOR: A position on the floor, such as block stacking.
+v PICK: A forward position from which orders are picked.
+v STAGING: Where orders are gathered before loading.
+v QUARANTINE: Where stock is held apart pending a quality decision.
+v YARD_SLOT: A slot in the outside yard.
+v OTHER: Any other kind of position.
+a capacity
+s: How much the location can hold.
+u: Set from the physical layout; putaway checks it before assigning stock.
+r warehouse
+s: The warehouse the location is in.
+u: Set when the location is created.
+n: Exactly one warehouse: a position exists in a single building.
+w: Places the location in a site's layout.
+r inventoryBalances
+u: Read to see what is stored at the location.
+n: Any number of balances, one for each product held there.
+r inventoryMovements
+u: Read to see everything that has been received, moved or issued at the location.
+n: Any number of movements over the location's life.
+r openReservations
+u: Read to see how much stock at the location is already committed.
+n: Any number of reservations that have not yet been consumed or released.
+
+@ InventoryMovement
+a movementNumber
+s: The document number of the stock movement.
+u: Allocated from a number series; unique; printed on goods documents and used in audits.
+a movementType
+v RECEIPT: Stock arrives, for example from a supplier or production.
+v ISSUE: Stock leaves, for example to a customer or to production.
+v TRANSFER: Stock moves from one location to another.
+v ADJUSTMENT: Quantity is corrected after a count or an investigation.
+v RETURN: Stock comes back from a customer or is returned to a supplier.
+v RESERVATION: Stock is set aside for a demand without moving.
+v RELEASE: A reservation is withdrawn and the stock becomes available again.
+
+@ InventoryReservation
+s: An authorised commitment of available stock to a demand, which does not change the physical quantity on hand.
+b: Promising stock to a customer or job must not depend on luck. A reservation sets the quantity aside so the same units are not promised twice, while the stock stays where it is until it is picked.
+u: Created when an order or job is committed; consumed when the stock is issued; released or expired when the demand goes away; read by order promising and picking.
+c: A reservation is for a Product at an InventoryLocation, held against an InventoryBalance, and usually serves a SalesOrderLine.
+l: A reservation is pending until confirmed, active while it holds stock, and then partly or fully consumed as goods are issued, or released if the demand goes away. Unused reservations are cancelled or expire.
+x: 20 units of item A-200 reserved at the main warehouse for sales order line SO-20413/2 until Friday.
+a inventoryReservationId
+s: The identity of the reservation.
+u: Generated on creation; picks and issues refer to it.
+a quantityReserved
+s: The quantity that is set aside.
+u: Set when the reservation is made; it reduces the available quantity of the balance.
+a quantityConsumed
+s: The quantity of the reservation that has been issued.
+u: Increases as picks are confirmed; never more than the quantity reserved.
+a quantityReleased
+s: The quantity of the reservation that has been given back to availability.
+u: Increases when part of the demand is cancelled or the reservation expires.
+a status
+s: How much of the reservation is still holding stock.
+u: Moved by order management and picking.
+v PENDING: Requested but not yet holding stock.
+v ACTIVE: Holding stock for its demand.
+v PARTIALLY_CONSUMED: Part of the stock has been issued; the rest is still held.
+v RELEASED: The remaining stock has been given back to availability. A final state.
+v CONSUMED: All the reserved stock has been issued. A final state.
+v CANCELLED: Withdrawn before it held stock. A final state.
+v EXPIRED: Lapsed because the demand was not fulfilled in time. A final state.
+a priority
+s: The reservation's priority when stock is short.
+u: Lower numbers are served first; defaults to 100.
+a expiresAt
+s: When the reservation lapses if it has not been used.
+u: Set by the order promise; expired reservations return stock to availability.
+a createdAt
+s: When the reservation was made.
+u: Set by the system.
+a updatedAt
+s: When the reservation was last changed.
+u: Set by the system on every change.
+r product
+s: The product that is reserved.
+u: Set when the reservation is made.
+n: Exactly one product.
+w: Identifies the stock being committed.
+r inventoryLocation
+s: The location from which stock is reserved.
+u: Chosen by the allocation process.
+n: Exactly one location, since stock is committed at a specific place.
+w: Tells pickers where to go.
+r salesOrderLine
+s: The sales order line that the reservation serves.
+u: Set where the demand is a customer order.
+n: At most one order line; reservations may serve other demands such as production.
+w: Ties the commitment to the promise made to the customer.
+r inventoryBalance
+s: The stock balance from which the reservation draws.
+u: Set when the reservation is made; its reserved quantity is increased.
+n: Exactly one balance: the reservation commits a particular pool of stock.
+w: Keeps available quantity correct.
+
+@ InventoryTransfer
+s: An authorisation to move stock from one location to another, with the actual stock change carried out by movements.
+b: Moving stock between places is routine but risky; goods can go missing in transit. A transfer states what should move, from where to where, and its progress, so both ends can reconcile.
+u: Planned by inventory control or replenishment; released to the warehouse; completed when received; read by warehouse staff and planners.
+c: A transfer is for a Product between two InventoryLocations, may name a Lot or SerialNumbers and is carried out by InventoryMovements.
+l: A transfer is planned, released for work, in progress while goods move, and completed when received. It can be cancelled before completion.
+x: Transfer of 200 cartons of item A-200 from the main warehouse to the east depot.
+a inventoryTransferId
+s: The identity of the transfer.
+u: Generated on creation; movements refer to it.
+a transferNumber
+s: The document number of the transfer.
+u: Allocated from a number series; unique; printed on the transfer order.
+a requestedQuantity
+s: The quantity that is to be moved.
+u: Set when planned; the movements carry out the quantity actually moved.
+a status
+s: How far the transfer has progressed.
+u: Moved by the warehouse.
+v PLANNED: Requested and not yet released.
+v RELEASED: Released to the warehouse for execution.
+v IN_PROGRESS: Goods are moving.
+v COMPLETED: Received at the target. A final state.
+v CANCELLED: Withdrawn. A final state.
+r product
+s: The product that is moved.
+u: Set when planned.
+n: Exactly one product per transfer.
+w: Identifies the stock to move.
+r sourceLocation
+s: The location the stock leaves.
+u: Set when planned.
+n: Exactly one source location.
+w: Determines where stock is picked.
+r targetLocation
+s: The location the stock goes to.
+u: Set when planned.
+n: Exactly one target location.
+w: Determines where stock is put away.
+r lot
+s: The lot being moved, if the product is lot-controlled.
+u: Chosen when the lot matters.
+n: At most one lot.
+w: Keeps traceability across the move.
+r serialNumbers
+s: The serialised units being moved.
+u: Entered for serialised products.
+n: Any number of serial numbers.
+w: Keeps unit-level traceability across the move.
+r inventoryMovements
+s: The movements that carried out the transfer.
+u: Read to see what has actually moved.
+n: Any number, normally an issue at the source and a receipt at the target.
+w: Complete the transfer in the stock ledger.
