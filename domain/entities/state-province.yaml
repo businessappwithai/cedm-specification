@@ -8,7 +8,7 @@ entity:
   referenceData: reference-data/state-province.yaml
   identity: {key: stateProvinceId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: stateProvinceId, type: uuid, required: true, immutable: true, help: {summary: "Stable identity of StateProvince.", usage: "Cross-domain reference, integration and audit.", relationshipContext: "Used wherever this StateProvince is referenced."}}
+    - {name: stateProvinceId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the state or province, constant for its life.', usage: Generated on load; addresses refer to it., relationshipContext: Referenced by addresses and cities.}}
     - {name: code, type: string, required: true, unique: true, maxLength: 10, help: {summary: "The ISO 3166-2 code, the country code and the division's own, such as US-CA.", usage: "Search, integration and reporting.", relationshipContext: "Unique; begins with the code of the country it belongs to."}}
     - {name: name, type: string, required: true, maxLength: 200, help: {summary: "The division's name in English.", usage: "Shown in lists and on addresses.", relationshipContext: "Does not replace the code as the stable key."}}
     - {name: subdivisionType, type: string, maxLength: 100, required: false, help: {summary: "What the registry calls the division in its country: State, Province, Region, Territory and so on.", usage: "Labelling the field for users of that country.", relationshipContext: "Describes this division only."}}
@@ -18,12 +18,11 @@ entity:
   invariants:
     - {id: STATE-PROVINCE-001, rule: "A state or province belongs to exactly one country, and its code begins with that country's code."}
   help:
-    summary: "A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry."
-    purpose: "Give every application the same governed list, so a place or code means one thing across the enterprise."
-    businessMeaning: "A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry."
+    summary: A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry.
+    businessMeaning: States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region.
+    usage: Maintained as reference data; chosen in addresses; read by tax, shipping and reports.
+    relationshipContext: A state or province belongs to one country and contains cities.
+    lifecycle: Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history.
+    example: '"California" belongs to the United States and contains cities such as Los Angeles.'
     whenUsed: "Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes."
-    howItRelates: "Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country)."
-    lifecycleUsage: "Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it."
-    commonProcesses: "Address capture, party onboarding, tax and trade determination, reporting."
-    commonExamples: "A shipping address in a named city, state and country."
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-STATE-PROVINCE}

@@ -16,9 +16,9 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the shopping cart record associated with this ShoppingCart. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ShoppingCart records, where applicable.
-        relationshipContext: Its meaning is specific to ShoppingCart; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the cart, constant for its life.
+        usage: Generated on creation; lines and the resulting order refer to it.
+        relationshipContext: Referenced by each cart line.
     - name: status
       type: enum
       required: true
@@ -29,47 +29,47 @@ entity:
         - ABANDONED
         - EXPIRED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ShoppingCart records, where applicable.
-        relationshipContext: Its meaning is specific to ShoppingCart; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Where the cart is.
+        usage: Starts as ACTIVE; changed by checkout and by timeouts.
+        relationshipContext: Only an active cart can be edited.
         valueSemantics:
-          ACTIVE: Represents the active state or classification in the context of ShoppingCart.
-          CHECKED_OUT: Represents the checked out state or classification in the context of ShoppingCart.
-          ABANDONED: Represents the abandoned state or classification in the context of ShoppingCart.
-          EXPIRED: Represents the expired state or classification in the context of ShoppingCart.
+          ACTIVE: Open and being filled.
+          CHECKED_OUT: Turned into an order; no longer editable. A final state.
+          ABANDONED: Left without buying. A final state.
+          EXPIRED: Timed out. A final state.
     - name: createdAt
       type: datetime
       required: true
       help:
-        summary: The system-managed timestamp recording when the record was created. It supports auditability, chronology, and operational reporting.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ShoppingCart records, where applicable.
-        relationshipContext: Its meaning is specific to ShoppingCart; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: When the cart was started.
+        usage: Set automatically; used to measure cart age.
+        relationshipContext: Compared with the expiry time.
     - name: expiresAt
       type: datetime
       required: false
       help:
+        usage: Set when the cart is created; the cart expires if it is still active then.
+        relationshipContext: Read by the clean-up process.
         summary: Records when the expires event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ShoppingCart records, where applicable.
-        relationshipContext: Its meaning is specific to ShoppingCart; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
   relationships:
     - name: customer
       target: Customer
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects ShoppingCart to Customer so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Customer records associated with a ShoppingCart.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The customer the cart belongs to, if known.
+        usage: Set when the shopper signs in.
+        cardinalityMeaning: At most one customer; empty for a guest.
+        context: Lets the cart follow the shopper across devices.
     - name: lines
       target: ShoppingCartLine
       cardinality: 0..*
       ownership: aggregate
       help:
-        summary: Connects ShoppingCart to ShoppingCartLine so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about ShoppingCartLine records associated with a ShoppingCart.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The products in the cart.
+        usage: Edited as the shopper adds and removes items.
+        cardinalityMeaning: Any number of lines, none for an empty cart.
+        context: The lines belong to the cart and go with it.
   invariants:
     - id: CART-001
       rule: a CHECKED_OUT cart cannot be modified.
@@ -87,12 +87,12 @@ entity:
       - {from: ACTIVE, to: ABANDONED, action: abandon}
       - {from: ACTIVE, to: EXPIRED, action: expire}
   help:
-    summary: Represents a ecommerce entity called ShoppingCart within the CEDM business model.
-    businessMeaning: ShoppingCart is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate ShoppingCart records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Customer, ShoppingCartLine. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical ShoppingCart record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A temporary collection of products a shopper has chosen before checkout.
+    businessMeaning: The cart holds a shopper's intended purchase until they pay, leave or time out. Keeping it lets the shopper return to it, lets the business see abandoned baskets, and gives checkout the exact selection to turn into an order.
+    usage: Created when a shopper adds the first item; updated as items change; read at checkout and in abandonment reports.
+    relationshipContext: A cart may belong to a known customer and contains lines for the chosen products.
+    lifecycle: A cart is active while the shopper browses. It ends checked out when an order is placed, abandoned when the shopper leaves, or expired when it times out. All three are final; a checked-out cart can no longer change.
+    example: A shopper adds two items on Monday, never checks out and the cart expires after thirty days.
 specification:
   version: 0.1.0
   status: draft

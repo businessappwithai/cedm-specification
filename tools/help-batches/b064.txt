@@ -1,0 +1,107 @@
+@ ShoppingCart
+s: A temporary collection of products a shopper has chosen before checkout.
+b: The cart holds a shopper's intended purchase until they pay, leave or time out. Keeping it lets the shopper return to it, lets the business see abandoned baskets, and gives checkout the exact selection to turn into an order.
+u: Created when a shopper adds the first item; updated as items change; read at checkout and in abandonment reports.
+c: A cart may belong to a known customer and contains lines for the chosen products.
+l: A cart is active while the shopper browses. It ends checked out when an order is placed, abandoned when the shopper leaves, or expired when it times out. All three are final; a checked-out cart can no longer change.
+x: A shopper adds two items on Monday, never checks out and the cart expires after thirty days.
+a shoppingCartId
+s: The identity of the cart, constant for its life.
+u: Generated on creation; lines and the resulting order refer to it.
+c: Referenced by each cart line.
+a status
+s: Where the cart is.
+u: Starts as ACTIVE; changed by checkout and by timeouts.
+c: Only an active cart can be edited.
+v ACTIVE: Open and being filled.
+v CHECKED_OUT: Turned into an order; no longer editable. A final state.
+v ABANDONED: Left without buying. A final state.
+v EXPIRED: Timed out. A final state.
+a createdAt
+s: When the cart was started.
+u: Set automatically; used to measure cart age.
+c: Compared with the expiry time.
+a expiresAt
+u: Set when the cart is created; the cart expires if it is still active then.
+c: Read by the clean-up process.
+r customer
+s: The customer the cart belongs to, if known.
+u: Set when the shopper signs in.
+n: At most one customer; empty for a guest.
+t: Lets the cart follow the shopper across devices.
+r lines
+s: The products in the cart.
+u: Edited as the shopper adds and removes items.
+n: Any number of lines, none for an empty cart.
+t: The lines belong to the cart and go with it.
+
+@ ShoppingCartLine
+s: A product and quantity a shopper has put in a cart.
+b: A line records one choice in the cart with the price shown at the time, so checkout can place the order the shopper saw.
+u: Added when the shopper chooses an item; changed or removed freely until checkout.
+c: A line belongs to one cart and refers to one product.
+l: A line exists while the cart is active and is carried into the order at checkout.
+x: Two units of a desk lamp at 24.00 each.
+a shoppingCartLineId
+s: The identity of the line, constant for its life.
+u: Generated on creation.
+c: Referenced when the line becomes an order line.
+a quantity
+s: How many units the shopper wants.
+u: Entered by the shopper; must be greater than zero.
+c: Multiplied by the unit price for the line total.
+a unitPrice
+s: The price for one unit as shown in the cart.
+u: Set when the item is added; must not be negative.
+c: Re-checked at checkout.
+r cart
+s: The cart the line belongs to.
+u: Set when the line is added.
+n: Exactly one cart.
+t: A line cannot exist outside a cart.
+r product
+s: The product chosen.
+u: Chosen by the shopper.
+n: Exactly one product per line.
+t: Shows what to charge and ship.
+
+@ Signature
+s: Evidence that a named signatory signed a specific document, version or business transaction.
+b: A signature record proves who approved what and when. Kept as fixed evidence, it supports contracts, approvals and audits, and a correction is a new record rather than an edit.
+u: Created when a person signs; read by legal, compliance and audit.
+c: A signature relates to the document or transaction signed and to the signatory.
+l: A signature is recorded once and stands as evidence. It can be superseded by a later record, never changed.
+x: The sales director signs version 3 of a supply contract on 14 May.
+a signatureId
+s: The identity of the signature record, constant for its life.
+u: Generated on creation; documents refer to it.
+c: Referenced by the signed document.
+a effectiveAt
+s: The date and time the signature took effect.
+u: Set when signed; legal effect is measured from it.
+c: Compared with the document's effective date.
+
+@ SparePart
+a criticality
+v LOW: Failure of the equipment without it is tolerable.
+v MEDIUM: Its absence slows maintenance.
+v HIGH: Its absence causes significant downtime.
+v CRITICAL: Its absence stops operations; stock must be held.
+r product
+n: Each spare part designation is for exactly one product.
+r equipment
+n: Any number of equipment items use the part.
+r maintenanceWorkOrders
+n: Any number of maintenance work orders may use the part.
+
+@ StateProvince
+s: A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry.
+b: States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region.
+u: Maintained as reference data; chosen in addresses; read by tax, shipping and reports.
+c: A state or province belongs to one country and contains cities.
+l: Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history.
+x: "California" belongs to the United States and contains cities such as Los Angeles.
+a stateProvinceId
+s: The identity of the state or province, constant for its life.
+u: Generated on load; addresses refer to it.
+c: Referenced by addresses and cities.
