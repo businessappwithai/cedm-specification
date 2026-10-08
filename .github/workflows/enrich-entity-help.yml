@@ -1,19 +1,41 @@
-name: Enrich CEDM Entity Help
+name: CEDM Entity Help
+
+# Checks that every entity and field carries the help the contract in
+# specification/help-semantics.yaml asks for, and that the authored help in
+# domain/help/authored/ is applied to the library.
+#
+# This workflow used to generate help itself and push the result. Its scripts
+# rewrote every help block from templates through a YAML round trip, so each
+# run replaced authored text with boilerplate and rewrapped every folded line
+# in the library. Help is now written by hand in domain/help/authored/ and
+# applied with tools/apply_authored.py; this workflow only checks.
 
 on:
   push:
     paths:
       - 'domain/entities/**/*.yaml'
-      - 'tools/enrich_entity_help.py'
-      - 'tools/enrich_domain_specific_help.py'
-      - 'schema/cedm-entity.schema.yaml'
+      - 'domain/help/**'
+      - 'specification/help-semantics.yaml'
+      - 'specification/dictionary-mapping.yaml'
+      - 'tools/apply_authored.py'
+      - 'tools/validate_help.py'
+      - '.github/workflows/enrich-entity-help.yml'
+  pull_request:
+    paths:
+      - 'domain/entities/**/*.yaml'
+      - 'domain/help/**'
+      - 'specification/help-semantics.yaml'
+      - 'specification/dictionary-mapping.yaml'
+      - 'tools/apply_authored.py'
+      - 'tools/validate_help.py'
+      - '.github/workflows/enrich-entity-help.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  enrich-help:
+  help:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,20 +46,7 @@ jobs:
           python-version: '3.x'
       - name: Install YAML parser
         run: python -m pip install pyyaml
-      - name: Enrich generic semantic help
-        run: python tools/enrich_entity_help.py
-      - name: Apply domain-specific semantic help
-        run: python tools/enrich_domain_specific_help.py
-      - name: Validate YAML and help coverage
+      - name: Authored help is applied
+        run: python tools/apply_authored.py --check
+      - name: Help coverage
         run: python tools/validate_help.py
-      - name: Commit semantic help
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add domain/entities/*.yaml
-          if git diff --cached --quiet; then
-            echo 'No entity help changes required.'
-            exit 0
-          fi
-          git commit -m 'docs: enrich all CEDM entities and fields with domain help [skip ci]'
-          git push
