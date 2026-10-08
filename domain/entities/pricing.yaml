@@ -7,18 +7,16 @@ entity:
     icon: tag
   identity: {key: pricingId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: pricingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Pricing., businessMeaning: Identifies one governed Pricing record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows.}}
-    - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Pricing., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity.}}
+    - {name: pricingId, type: uuid, required: true, immutable: true, help: {summary: The identity of the pricing definition., usage: Generated on creation; price lists and quotes refer to it.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The reference of the pricing definition, such as LIST-EU-2026.', usage: Assigned by pricing managers; used to select the pricing.}}
   relationships: []
   invariants:
     - {id: PRICING-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed pricing definition or decision context establishing base prices and applicability conditions before discounts, promotions, quotations, or orders.
-    purpose: Provide canonical implementation-neutral semantics for Pricing across enterprise applications.
-    businessMeaning: A governed pricing definition or decision context establishing base prices and applicability conditions before discounts, promotions, quotations, or orders.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A pricing definition or decision context that establishes base prices and the conditions under which they apply, before discounts, promotions, quotes or orders.
+    businessMeaning: 'Price is not a single number: it depends on product, customer, quantity and date. A pricing definition holds those conditions so orders and quotes can find the right base price and explain it.'
+    usage: Maintained by pricing managers; looked up when quotes and orders are priced.
+    relationshipContext: Quotes, orders and discount rules start from the base price that this definition gives.
+    lifecycle: Changes and retries preserve historical evidence and do not duplicate commercial effects.
+    example: The 2026 list price for the product family in the European market.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PRICING}

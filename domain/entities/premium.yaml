@@ -6,20 +6,31 @@ entity:
   ui: {icon: banknote}
   identity: {key: premiumId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: premiumId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the premium obligation., businessMeaning: Identifies one policy premium assessment or installment independently of billing and payment records., usage: "Policy billing, collections, accounting and audit.", relationshipContext: InsurancePolicy defines why the premium is owed.}}
-    - {name: premiumNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing premium obligation reference., businessMeaning: Operational identifier for policy billing and reconciliation., usage: "Search, billing and integration.", relationshipContext: Distinct from policy and invoice numbers.}}
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Monetary amount of the premium obligation., businessMeaning: Premium value due under policy terms., usage: "Billing, collections and reporting.", relationshipContext: Currency relationship defines denomination.}}
-    - {name: dueDate, type: date, required: false, help: {summary: Date premium payment is expected., businessMeaning: Supports policy billing and delinquency decisions., usage: "Collections, reminders and policy servicing.", relationshipContext: Invoice payment terms may become authoritative after formal billing.}}
+    - {name: premiumId, type: uuid, required: true, immutable: true, help: {summary: The identity of the premium record., usage: Generated when the premium is assessed; invoices and payments refer to it., businessMeaning: Identifies one policy premium assessment or installment independently of billing and payment records., relationshipContext: InsurancePolicy defines why the premium is owed.}}
+    - {name: premiumNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the premium notice, quoted to the policyholder.', usage: Allocated from a number series; unique., businessMeaning: Operational identifier for policy billing and reconciliation., relationshipContext: Distinct from policy and invoice numbers.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: The premium amount due for the period., usage: Calculated from the policy's rating; not negative., relationshipContext: "Expressed in the premium's currency; the invoice, if one is raised, repeats it.", businessMeaning: Premium value due under policy terms.}}
+    - {name: dueDate, type: date, required: false, help: {summary: The date by which the premium must be paid., usage: Set from the billing schedule; reminders and lapse rules run from it., businessMeaning: Supports policy billing and delinquency decisions., relationshipContext: Invoice payment terms may become authoritative after formal billing.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, DUE, INVOICED, PAID, WAIVED, CANCELLED]
-      help: {summary: Lifecycle state of the premium obligation., businessMeaning: "Distinguishes preparation, due, billed, settled, waived and cancelled states.", usage: "Policy billing, servicing and audit.", relationshipContext: PAID must reconcile to financial settlement evidence., valueSemantics: {DRAFT: Premium is being prepared., DUE: Premium obligation is active., INVOICED: Premium has been represented in a financial claim., PAID: Obligation is settled., WAIVED: Premium was formally waived., CANCELLED: Obligation was cancelled.}}
+      help:
+        summary: Where the premium stands.
+        usage: Moved by policy billing and finance.
+        valueSemantics:
+          DRAFT: Calculated but not yet due.
+          DUE: Payable now.
+          INVOICED: Included on an invoice to the policyholder.
+          PAID: Received. A final state.
+          WAIVED: Excused by the insurer. A final state.
+          CANCELLED: Withdrawn, for example because the policy was cancelled. A final state.
+        businessMeaning: "Distinguishes preparation, due, billed, settled, waived and cancelled states."
+        relationshipContext: PAID must reconcile to financial settlement evidence.
   relationships:
-    - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference, help: {summary: InsurancePolicy giving rise to this Premium., businessMeaning: Supplies contractual basis and coverage period., usage: "Policy billing and reconciliation.", cardinalityMeaning: Exactly one InsurancePolicy., workflowRole: Premium must be compatible with policy terms.}}
-    - {name: insuredParty, target: InsuredParty, cardinality: "0..1", ownership: reference, help: {summary: Insured party specifically associated with this premium when member-level pricing applies., businessMeaning: Supports member-specific pricing without making all premiums party-specific., usage: "Group/health billing and reporting.", cardinalityMeaning: Optional for policy-level premiums., workflowRole: InsuredParty must belong to the same Policy.}}
-    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {summary: Currency of the premium amount., businessMeaning: Makes monetary obligation unambiguous., usage: "Billing, accounting and reporting.", cardinalityMeaning: Exactly one Currency., workflowRole: Historical premium currency does not change after assessment.}}
+    - {name: policy, target: InsurancePolicy, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one policy: a premium is the price of the cover under a specific policy.', summary: InsurancePolicy giving rise to this Premium., businessMeaning: Supplies contractual basis and coverage period., usage: "Policy billing and reconciliation.", workflowRole: Premium must be compatible with policy terms.}}
+    - {name: insuredParty, target: InsuredParty, cardinality: "0..1", ownership: reference, help: {summary: 'The insured party the premium is charged for, where cover is priced per person.', usage: Set for group and family policies., cardinalityMeaning: At most one insured party., workflowRole: Lets a premium be traced to the person it covers., businessMeaning: Supports member-specific pricing without making all premiums party-specific.}}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one currency, so the amount is unambiguous.', summary: Currency of the premium amount., businessMeaning: Makes monetary obligation unambiguous., usage: "Billing, accounting and reporting.", workflowRole: Historical premium currency does not change after assessment.}}
     - {name: invoice, target: Invoice, cardinality: "0..1", ownership: reference, help: {summary: Financial claim representing this premium., businessMeaning: Separates insurance premium assessment from accounts-receivable evidence., usage: "Billing, collection and accounting reconciliation.", cardinalityMeaning: Optional before invoicing or when aggregated billing applies., workflowRole: INVOICED and PAID states must reconcile to financial evidence under policy.}}
   invariants:
     - {id: PREMIUM-001, rule: amount must not be negative.}
