@@ -40,6 +40,7 @@ entities:
         type: string
   - name: InvoiceLine
     parent: Invoice
+    concurrency: last-write-wins
     attributes:
       - name: id
         type: string
@@ -131,6 +132,24 @@ describe("renderManual", () => {
     // application against.
     expect(html).toContain("draft");
     expect(html).toContain("paid");
+  });
+
+  it("says what happens when two people edit one record, per entity", () => {
+    const html = manual();
+    const section = (id: string) =>
+      html.slice(
+        html.indexOf(`id="entity-${id}"`),
+        html.indexOf("</section>", html.indexOf(`id="entity-${id}"`))
+      );
+    expect(section("invoice")).toContain("chooses to refresh or to overwrite");
+    expect(section("invoice")).toContain("A deletion is checked the same way");
+    expect(section("invoice-line")).toContain("last-write-wins");
+  });
+
+  it("says a final state closes the record", () => {
+    const section = manual().slice(manual().indexOf('id="entity-invoice"'));
+    expect(section).toContain("completed transaction");
+    expect(section).toContain("every deletion of it");
   });
 
   it("renders no template artefacts", () => {

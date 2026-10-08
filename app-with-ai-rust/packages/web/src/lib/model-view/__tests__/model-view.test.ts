@@ -20,9 +20,7 @@ const document = read.document;
 const views = modelViews(document);
 /** The 1-based line of the first occurrence of `needle` at or after `from`. */
 const lineOf = (needle: string, from = 1) =>
-  text
-    .split("\n")
-    .findIndex((line, index) => index + 1 >= from && line.includes(needle)) + 1;
+  text.split("\n").findIndex((line, index) => index + 1 >= from && line.includes(needle)) + 1;
 /** The top-level `entities:` key; categories write `entities:` too, indented. */
 const ENTITIES = text.split("\n").indexOf("entities:") + 1;
 
@@ -36,7 +34,10 @@ describe("modelViews", () => {
       hookFlow: document.hookFlows?.length ?? 0,
     };
     for (const [kind, count] of Object.entries(counts)) {
-      expect(views.filter((view) => view.kind === kind), kind).toHaveLength(count);
+      expect(
+        views.filter((view) => view.kind === kind),
+        kind
+      ).toHaveLength(count);
     }
     expect(counts.stateMachine + counts.saga + counts.rule + counts.hookFlow).toBeGreaterThan(3);
   });
@@ -54,7 +55,10 @@ describe("modelViews", () => {
   it("tags a line item with its parent and marks the relationship that owns it", () => {
     // drug-discovery declares no line item; crm does.
     const crm = readModelYaml(
-      readFileSync(path.resolve(__dirname, "../../../../../../language/yaml/examples/crm.eml.yaml"), "utf-8")
+      readFileSync(
+        path.resolve(__dirname, "../../../../../../language/yaml/examples/crm.eml.yaml"),
+        "utf-8"
+      )
     ).document;
     if (!crm) throw new Error("crm.eml.yaml does not read");
     const child = crm.entities.find((entity) => entity.parent);
@@ -64,6 +68,11 @@ describe("modelViews", () => {
       `line item of ${child?.parent}`
     );
     expect(erd?.edges.some((edge) => edge.ownership)).toBe(true);
+    // The exception to optimistic locking is tagged; the default is not.
+    expect(erd?.nodes.find((node) => node.label === "Activity")?.tags).toContain("last-write-wins");
+    expect(erd?.nodes.find((node) => node.label === "Account")?.tags).not.toContain(
+      "last-write-wins"
+    );
   });
 
   it("draws a state machine from its initial marker through every declared transition", () => {
@@ -164,7 +173,10 @@ describe("layoutView", () => {
     for (const [index, a] of nodes.entries()) {
       for (const b of nodes.slice(index + 1)) {
         const apart =
-          a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y;
+          a.x + a.width <= b.x ||
+          b.x + b.width <= a.x ||
+          a.y + a.height <= b.y ||
+          b.y + b.height <= a.y;
         expect(apart, `${a.node.label} overlaps ${b.node.label}`).toBe(true);
       }
     }

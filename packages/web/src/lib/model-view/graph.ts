@@ -250,6 +250,8 @@ function entityView(document: ModelDocument): ModelView {
     const category = categoryOf.get(entity.name);
     if (category) tags.push(category);
     if (entity.parent) tags.push(`line item of ${entity.parent}`);
+    // Optimistic is the default and says nothing; the exception is worth a tag.
+    if (entity.concurrency === "last-write-wins") tags.push("last-write-wins");
     return {
       id: `entity:${entity.name}`,
       kind: "entity",
