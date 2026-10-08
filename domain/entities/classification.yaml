@@ -7,19 +7,17 @@ entity:
     icon: layers
   identity: {key: classificationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: classificationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Classification., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Classification is referenced.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Classification., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Classification., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity.}}
+    - {name: classificationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the classification value., usage: Generated on creation; classified records refer to it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The stable code of the classification, such as ENTERPRISE.', usage: 'Assigned by the steward; used in rules and integrations, so it should not change.'}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The display name of the classification., usage: Shown in pick-lists and reports; can be reworded without changing the code.}}
   relationships: []
   invariants:
     - {id: CLASSIFICATION-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A reusable classification scheme or category value that classifies records consistently instead of by free-text labels.
+    businessMeaning: 'Free-text categories drift: one person writes "Premium", another "premium". A classification gives the organisation one agreed list, so reporting, rules and searches group things the same way.'
+    usage: Maintained by data stewards; chosen by users on the records they classify; read by reports and rules that group by category.
+    relationshipContext: Many kinds of record can point at a classification, which is what lets different domains share one vocabulary.
+    lifecycle: Code and identity stay stable, and history is never silently rewritten when a classification is renamed or retired.
+    example: Customer segment "Enterprise", used to group accounts in sales reports and pricing rules.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CLASSIFICATION}
