@@ -89,9 +89,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: Every service is held by a single customer, who is billed and contacted about it.
         summary: The customer who holds the service.
         usage: Chosen when ordered.
-        cardinalityMeaning: Exactly one customer.
         context: Decides who is billed and supported.
     - name: product
       target: Product
