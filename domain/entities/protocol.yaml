@@ -14,15 +14,15 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, SUSPENDED, RETIRED]
-      help: {summary: Lifecycle state controlling use for new research execution., businessMeaning: Separates preparation, approved use, temporary suspension and retirement., usage: "Research governance and audit.", relationshipContext: Historical executions retain the protocol version applied., valueSemantics: {DRAFT: Being prepared., APPROVED: Eligible for governed execution., SUSPENDED: Temporarily unavailable for new execution., RETIRED: Closed to new execution.}, requiredMeaning: Required.}
+      help: {summary: Lifecycle state controlling use for new research execution., businessMeaning: "Separates preparation, approved use, temporary suspension and retirement.", usage: Research governance and audit., relationshipContext: Historical executions retain the protocol version applied., valueSemantics: {DRAFT: Being prepared., APPROVED: Eligible for governed execution., SUSPENDED: Temporarily unavailable for new execution., RETIRED: Closed to new execution.}, requiredMeaning: Required.}
   relationships:
     - {name: project, target: ResearchProject, cardinality: "0..1", ownership: reference, help: {summary: Research project governing this Protocol., businessMeaning: Supplies program context and accountability., usage: "Portfolio, governance and reporting.", cardinalityMeaning: Optional for reusable protocols., workflowRole: Project state constrains new protocol use.}}
     - {name: studies, target: Study, cardinality: "0..*", ownership: reference, help: {summary: Studies governed by this Protocol., businessMeaning: Connects procedure definition to organized research executions., usage: "Study planning, reproducibility and audit.", cardinalityMeaning: Zero or many Studies., workflowRole: Each Study retains the protocol/version used.}}
     - {name: experiments, target: Experiment, cardinality: "0..*", ownership: reference, help: {summary: Experiments directly governed by this Protocol., businessMeaning: Connects methods to executable scientific work., usage: "Experiment planning, reproducibility and audit.", cardinalityMeaning: Zero or many Experiments., workflowRole: Execution cannot silently switch protocol after evidence is captured.}}
-    - {name: documents, target: Document, cardinality: "0..*", ownership: reference, help: {summary: Documents containing protocol methods, approvals or amendments., businessMeaning: Preserves rich content and governance evidence outside the entity header., usage: "Research governance and audit.", cardinalityMeaning: Zero or many Documents., workflowRole: Approved versions and amendments remain traceable.}}
+    - {name: documents, target: Document, cardinality: "0..*", ownership: reference, help: {summary: "Documents containing protocol methods, approvals or amendments.", businessMeaning: Preserves rich content and governance evidence outside the entity header., usage: Research governance and audit., cardinalityMeaning: Zero or many Documents., workflowRole: Approved versions and amendments remain traceable.}}
   invariants:
     - {id: PROTOCOL-001, rule: APPROVED Protocol must have sufficient governed method and approval evidence for its intended research use.}
-    - {id: PROTOCOL-002, rule: Protocol amendments must preserve the version applied to existing Studies, Experiments, Assays and observations.}
+    - {id: PROTOCOL-002, rule: "Protocol amendments must preserve the version applied to existing Studies, Experiments, Assays and observations."}
   lifecycle:
     title: Protocol Lifecycle
     attribute: status
