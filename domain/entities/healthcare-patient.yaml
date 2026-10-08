@@ -135,13 +135,14 @@ entity:
     attribute: status
     states: [ACTIVE, INACTIVE, DECEASED, MERGED]
     initial: ACTIVE
+    terminal: [DECEASED, MERGED]
     transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
       - {from: ACTIVE, to: DECEASED, action: mark_deceased}
-      - {from: DECEASED, to: MERGED, action: mark_merged}
-      - {from: DECEASED, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: DECEASED, action: reactivate}
-      - {from: MERGED, to: INACTIVE, action: deactivate}
-      - {from: INACTIVE, to: MERGED, action: reactivate}
+      - {from: INACTIVE, to: DECEASED, action: mark_deceased}
+      - {from: ACTIVE, to: MERGED, action: mark_merged}
+      - {from: INACTIVE, to: MERGED, action: mark_merged}
   help:
     summary: Represents a industry specialization called HealthcarePatient within the CEDM business model.
     businessMeaning: HealthcarePatient is a business concept with its own identity and lifecycle. It captures information

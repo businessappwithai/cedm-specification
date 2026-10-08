@@ -117,7 +117,9 @@ entity:
     initial: ACTIVE
     transitions:
       - {from: ACTIVE, to: FALLOW, action: mark_fallow}
+      - {from: FALLOW, to: ACTIVE, action: resume_cultivation}
       - {from: FALLOW, to: INACTIVE, action: deactivate}
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
       - {from: INACTIVE, to: FALLOW, action: reactivate}
   help:
     summary: Represents a agriculture entity called FarmField within the CEDM business model.

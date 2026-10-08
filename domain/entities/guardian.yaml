@@ -43,4 +43,12 @@ entity:
     relationshipContext: Party is mandatory and one Guardian may support multiple EducationStudents.
     lifecycle: Guardian role is active or inactive while historical evidence remains attributable.
     example: One parent Party has a Guardian role for two students and receives authorized school communications for each.
+  lifecycle:
+    title: Guardian Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GUARDIAN}

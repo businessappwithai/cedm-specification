@@ -116,16 +116,15 @@ entity:
     states: [EMPTY, OCCUPIED, RESERVED, BLOCKED, OUT_OF_SERVICE]
     initial: EMPTY
     transitions:
+      - {from: EMPTY, to: RESERVED, action: reserve}
+      - {from: RESERVED, to: EMPTY, action: release_reservation}
       - {from: EMPTY, to: OCCUPIED, action: mark_occupied}
-      - {from: OCCUPIED, to: RESERVED, action: reserve}
-      - {from: OCCUPIED, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: OCCUPIED, action: unblock}
-      - {from: RESERVED, to: BLOCKED, action: block}
-      - {from: BLOCKED, to: RESERVED, action: unblock}
-      - {from: OCCUPIED, to: OUT_OF_SERVICE, action: mark_out_of_service}
-      - {from: OUT_OF_SERVICE, to: OCCUPIED, action: return_to_service}
-      - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
-      - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
+      - {from: RESERVED, to: OCCUPIED, action: mark_occupied}
+      - {from: OCCUPIED, to: EMPTY, action: vacate}
+      - {from: EMPTY, to: BLOCKED, action: block}
+      - {from: BLOCKED, to: EMPTY, action: unblock}
+      - {from: EMPTY, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: EMPTY, action: return_to_service}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a yard slot is stopped"

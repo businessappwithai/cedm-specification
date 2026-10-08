@@ -110,16 +110,15 @@ entity:
     states: [AVAILABLE, OCCUPIED, RESERVED, CLEANING, OUT_OF_SERVICE]
     initial: AVAILABLE
     transitions:
-      - {from: AVAILABLE, to: OCCUPIED, action: mark_occupied}
-      - {from: OCCUPIED, to: RESERVED, action: reserve}
-      - {from: OCCUPIED, to: CLEANING, action: mark_cleaning}
-      - {from: CLEANING, to: OCCUPIED, action: finish_cleaning}
-      - {from: RESERVED, to: CLEANING, action: mark_cleaning}
-      - {from: CLEANING, to: RESERVED, action: finish_cleaning}
-      - {from: OCCUPIED, to: OUT_OF_SERVICE, action: mark_out_of_service}
-      - {from: OUT_OF_SERVICE, to: OCCUPIED, action: return_to_service}
-      - {from: RESERVED, to: OUT_OF_SERVICE, action: mark_out_of_service}
-      - {from: OUT_OF_SERVICE, to: RESERVED, action: return_to_service}
+      - {from: AVAILABLE, to: RESERVED, action: reserve}
+      - {from: RESERVED, to: AVAILABLE, action: release_reservation}
+      - {from: AVAILABLE, to: OCCUPIED, action: check_in}
+      - {from: RESERVED, to: OCCUPIED, action: check_in}
+      - {from: OCCUPIED, to: CLEANING, action: check_out}
+      - {from: CLEANING, to: AVAILABLE, action: finish_cleaning}
+      - {from: AVAILABLE, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: CLEANING, to: OUT_OF_SERVICE, action: mark_out_of_service}
+      - {from: OUT_OF_SERVICE, to: AVAILABLE, action: return_to_service}
   help:
     summary: Represents a hospitality asset called HotelRoom within the CEDM business model.
     businessMeaning: HotelRoom is a business concept with its own identity and lifecycle. It captures information that must
