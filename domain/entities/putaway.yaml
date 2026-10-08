@@ -14,13 +14,24 @@ entity:
       required: true
       default: PLANNED
       values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
-      help: {summary: Putaway task state., businessMeaning: Controls executable storage work., usage: WMS orchestration., relationshipContext: Completion alone does not alter stock without inventory posting., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being executed., COMPLETED: Confirmed and reconciled., CANCELLED: Terminated., EXCEPTION: Requires resolution.}}
+      help:
+        valueSemantics:
+          PLANNED: Proposed.
+          RELEASED: Released to the warehouse floor for a worker to carry out.
+          IN_PROGRESS: Being executed.
+          COMPLETED: Confirmed and reconciled.
+          CANCELLED: Withdrawn before the stock was moved. A final state.
+          EXCEPTION: Could not be completed as planned, for example the target was full; needs a decision.
+        summary: Putaway task state.
+        businessMeaning: Controls executable storage work.
+        usage: WMS orchestration.
+        relationshipContext: Completion alone does not alter stock without inventory posting.
   relationships:
-    - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., cardinalityMeaning: Exactly one Product., workflowRole: Must match transfer.}}
-    - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Receiving/staging origin., businessMeaning: Current controlled position., usage: Execution., cardinalityMeaning: Exactly one source., workflowRole: Must contain eligible stock.}}
+    - {name: product, target: Product, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each putaway moves one product; a mixed pallet is split into one putaway per product., summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., workflowRole: Must match transfer.}}
+    - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'The stock comes from a single source location, such as the receiving dock.', summary: Receiving/staging origin., businessMeaning: Current controlled position., usage: Execution., workflowRole: Must contain eligible stock.}}
     - {name: targetLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Directed storage destination., businessMeaning: Selected eligible storage position., usage: Putaway optimization., cardinalityMeaning: Exactly one target., workflowRole: Zone/location constraints must be satisfied.}}
     - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Physical pallet/carton/tote moved as unit., businessMeaning: Supports scan-based execution., usage: WMS mobility., cardinalityMeaning: Optional for loose stock., workflowRole: Handling-unit location must reconcile.}}
-    - {name: inventoryTransfer, target: InventoryTransfer, cardinality: '1', ownership: reference, help: {summary: Inventory relocation authorization/execution associated with putaway., businessMeaning: Separates warehouse task from stock ledger., usage: Reconciliation., cardinalityMeaning: Exactly one governed transfer., workflowRole: Completed task must reconcile to posted movement.}}
+    - {name: inventoryTransfer, target: InventoryTransfer, cardinality: '1', ownership: reference, help: {usage: Read to reconcile the putaway with the stock movement that physically relocated the goods., summary: Inventory relocation authorization/execution associated with putaway., businessMeaning: Separates warehouse task from stock ledger., cardinalityMeaning: Exactly one governed transfer., workflowRole: Completed task must reconcile to posted movement.}}
   invariants:
     - {id: PUTAWAY-001, rule: quantity must be greater than zero and source/target must differ.}
     - {id: PUTAWAY-002, rule: "Target must satisfy WarehouseZone, product, quality, capacity and handling constraints."}

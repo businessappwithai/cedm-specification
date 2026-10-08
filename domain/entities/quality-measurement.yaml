@@ -60,16 +60,16 @@ entity:
         - CONDITIONAL
         - NOT_EVALUATED
       help:
+        valueSemantics:
+          PASS: The measured value is within its limits.
+          FAIL: The measured value is outside its limits.
+          CONDITIONAL: Within tolerance only under a stated condition.
+          NOT_EVALUATED: The result of the quality measurement is not evaluated; set it when that is what the business means for this record.
         summary: Evaluation of this measurement against its governing criterion.
         businessMeaning: States whether the individual observation satisfies the applicable requirement.
         usage: Inspection completion, nonconformance and analytics.
         relationshipContext: Contributes evidence to QualityInspection.result but does not replace it.
         workflowRole: Supplies structured evidence for the overall inspection decision.
-        valueSemantics:
-          PASS: The result of the quality measurement is pass; set it when that is what the business means for this record.
-          FAIL: The result of the quality measurement is fail; set it when that is what the business means for this record.
-          CONDITIONAL: The result of the quality measurement is conditional; set it when that is what the business means for this record.
-          NOT_EVALUATED: The result of the quality measurement is not evaluated; set it when that is what the business means for this record.
     - name: measuredAt
       type: datetime
       required: true
