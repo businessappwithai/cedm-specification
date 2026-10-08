@@ -1,0 +1,41 @@
+entity:
+  name: Gate
+  namespace: cedm.domain
+  kind: terminal_gate
+  description: A governed checkpoint through which vehicles and containers enter or leave a Port terminal.
+  ui: {icon: door-open}
+  identity: {key: gateId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: gateId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Gate., businessMeaning: Identifies one terminal gate independently of its labels., usage: "Operations, integration, reporting and audit.", relationshipContext: Referenced by related terminal and maritime entities., requiredMeaning: Required.}}
+    - {name: gateCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing gate reference., businessMeaning: Operational code used by gate teams and integrations., usage: "Gate operations and communication.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: name, type: string, required: false, maxLength: 120, help: {summary: Human-readable gate name., businessMeaning: Supports operational recognition., usage: "Gate screens and reports.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional where another reference identifies the record.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, RESTRICTED, CLOSED]
+      help: {summary: Operational state of the Gate., businessMeaning: Controls whether new operations may rely on the Gate., usage: "Planning, safety and reporting.", relationshipContext: Historical references remain valid after status changes., valueSemantics: {ACTIVE: Available under normal rules., RESTRICTED: Available only under constraints., CLOSED: Permanently closed.}, requiredMeaning: Required.}
+  relationships:
+    - {name: port, target: Port, cardinality: "1", ownership: reference, help: {summary: Port served by this Gate., businessMeaning: Establishes terminal ownership of the checkpoint., usage: "Gate operations and reporting.", cardinalityMeaning: Exactly one Port., workflowRole: Gate events occur within this Port.}}
+    - {name: gateEvents, target: GateEvent, cardinality: "0..*", ownership: reference, help: {summary: Gate events recorded at this Gate., businessMeaning: Preserves entry and exit evidence for the checkpoint., usage: "Security, custody and reporting.", cardinalityMeaning: Zero or many GateEvents., workflowRole: Events are immutable evidence once verified.}}
+  invariants:
+    - {id: GATE-001, rule: CLOSED Gate cannot record new GateEvents.}
+    - {id: GATE-002, rule: Historical GateEvents remain auditable after Gate status changes.}
+  lifecycle:
+    title: Gate Lifecycle
+    attribute: status
+    states: [ACTIVE, RESTRICTED, CLOSED]
+    initial: ACTIVE
+    terminal: [CLOSED]
+    transitions:
+      - {from: ACTIVE, to: RESTRICTED, action: restrict}
+      - {from: RESTRICTED, to: ACTIVE, action: restore}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: RESTRICTED, to: CLOSED, action: close}
+  help:
+    summary: Represents a terminal access checkpoint.
+    businessMeaning: Gate is checkpoint master data; GateEvent records what happened there.
+    usage: Gate operations, security, custody evidence and audit.
+    relationshipContext: Port is mandatory; GateEvents preserve history.
+    lifecycle: Gate is active, may be restricted and eventually closed.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-GATE}

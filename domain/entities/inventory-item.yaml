@@ -36,7 +36,7 @@ entity:
   invariants:
     - {id: INVENTORY-ITEM-001, rule: safetyStockQuantity and reorderPointQuantity must be non-negative when supplied.}
     - {id: INVENTORY-ITEM-002, rule: An ACTIVE InventoryItem must reference an eligible Product and valid stocking UnitOfMeasure.}
-    - {id: INVENTORY-ITEM-003, rule: BLOCKED or DISCONTINUED prevents new ordinary stock transactions except governed correction, return, disposal or reconciliation flows.}
+    - {id: INVENTORY-ITEM-003, rule: "BLOCKED or DISCONTINUED prevents new ordinary stock transactions except governed correction, return, disposal or reconciliation flows."}
     - {id: INVENTORY-ITEM-004, rule: Historical InventoryMovement and InventoryBalance evidence must not be rewritten because InventoryItem policy changes.}
   lifecycle:
     title: Inventory Item Lifecycle

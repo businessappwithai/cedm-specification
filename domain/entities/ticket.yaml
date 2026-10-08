@@ -3,7 +3,7 @@ entity:
   namespace: cedm.domain
   kind: service_work_item
   description: A governed operational service work item assigned to a queue or responsible party to investigate, communicate, resolve, or coordinate a ServiceCase or ServiceRequest.
-  ui: {icon: ticket-check}
+  ui: {icon: ticket}
   identity: {key: ticketId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: ticketId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the ticket., businessMeaning: Identifies one operational service work item independently of its parent case or request., usage: "Queues, assignment, escalation, reporting and audit.", relationshipContext: Remains stable across reassignment and status changes., requiredMeaning: Required.}}
