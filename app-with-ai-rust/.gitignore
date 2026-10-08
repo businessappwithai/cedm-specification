@@ -16,6 +16,9 @@ coverage/
 !packages/**/__tests__/*.spec.ts
 !generated-projects/**/*.test.ts
 !generated-projects/**/*.spec.ts
+# The chat's own suites: unit, security and end to end. The rule above kept
+# them out of every commit while they ran and passed locally.
+!chat-deepseek/tests/**/*.test.ts
 
 # Generated projects runtime artifacts
 packages/web/generated-projects/
