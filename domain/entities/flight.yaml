@@ -73,9 +73,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one destination: a flight is a single leg that ends at one airport.'
         summary: The place the flight arrives at.
         usage: Chosen when scheduled.
-        cardinalityMeaning: Exactly one destination.
         workflowRole: Determines arrival handling and connections.
     - name: carrier
       target: Organization

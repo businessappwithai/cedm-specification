@@ -1,0 +1,157 @@
+@ Flight
+r destination
+n: Exactly one destination: a flight is a single leg that ends at one airport.
+
+@ FuelTransaction
+a fuelTransactionId
+s: The identity of the fuel transaction, separate from the card or receipt number.
+u: Generated when the fill-up is recorded; verification and payment refer to it.
+a transactionNumber
+s: The reference of the fill-up as printed on the receipt or fuel-card statement.
+u: Entered or imported with the transaction; unique, which prevents the same fill-up being recorded twice.
+a status
+s: Whether the fuel transaction has been checked against its evidence.
+u: Set by fleet administration after comparing it with the receipt and vehicle data.
+v RECORDED: Captured, not yet checked.
+v VERIFIED: Checked against the receipt and vehicle; costs may be allocated. A final state.
+v REVERSED: Cancelled because it was wrong or duplicated; the original stays on record. A final state.
+r vehicle
+n: Exactly one vehicle: fuel is always put into a particular vehicle, which is what makes consumption trackable.
+r unitOfMeasure
+n: Exactly one unit, such as litres or kilowatt-hours, so the quantity has a meaning.
+
+@ Fulfillment
+s: A record that connects sales demand to the steps that satisfy it: reservation, picking, packing, shipping, delivery and completion.
+b: A customer order is only done when the goods arrive. Fulfilment ties together the warehouse and transport steps that happen between the order and the delivery, so progress can be seen in one place.
+u: Opened when an order is released for fulfilment; updated as each step completes; read by customer service and warehouse supervisors.
+c: Fulfilment follows the sales demand and links to the reservations, shipments and deliveries that carry it out.
+l: Changes and retries preserve history and do not duplicate commercial, physical or financial effects.
+x: Fulfilment F-20413 for order SO-20413: reserved, picked and packed on Tuesday, shipped Wednesday and delivered Thursday.
+a fulfillmentId
+s: The identity of the fulfilment record.
+u: Generated when fulfilment starts; the steps refer to it.
+a code
+s: The reference by which the fulfilment is tracked, often derived from the order number.
+u: Used by customer service when answering "where is my order".
+
+@ GateEvent
+a gateEventId
+s: The identity of this gate occurrence.
+u: Generated on capture; verification, reversal and visit records refer to it.
+a status
+s: Whether the recorded gate event has been checked.
+u: Set by gate supervision or reconciliation.
+v RECORDED: Captured at the gate, not yet checked.
+v VERIFIED: Checked and accepted as evidence. A final state.
+v REVERSED: Withdrawn because it was recorded in error; a follow-up event carries the correction. A final state.
+r gate
+n: Exactly one gate: every occurrence is recorded at a specific checkpoint.
+
+@ GoodsReceipt
+s: A record that goods or services ordered on a purchase order have arrived, with evidence of what was received, accepted and rejected.
+b: Receiving is the moment a purchase becomes real. The goods receipt says what physically arrived against the order, what passed inspection and what did not, so stock, supplier payment and returns can all rely on it.
+u: Created at the dock when a delivery arrives; inspected; accepted or rejected; read by purchasing, warehouse and accounts payable.
+c: A receipt answers a PurchaseOrder from a Supplier, has GoodsReceiptLines, creates InventoryMovements, supports Invoice matching and may lead to SupplierReturns.
+l: A receipt is drafted, received, may be sent for inspection, and is accepted, partly accepted or rejected, or cancelled before receipt is confirmed.
+x: Receipt R-5531: 100 of 120 ordered cartons received on Monday; 98 accepted and 2 rejected as damaged.
+a goodsReceiptId
+s: The identity of the goods receipt.
+u: Generated on creation; stock movements and invoices refer to it.
+a receiptNumber
+s: The receipt number printed on the delivery note and used in the warehouse.
+u: Allocated from a number series; unique.
+a receiptDate
+s: The date and time the goods arrived.
+u: Recorded at the dock; determines stock availability and supplier performance.
+a status
+s: How far receipt and inspection have progressed.
+u: Moved by warehouse and quality staff.
+v DRAFT: Being prepared before the delivery is confirmed.
+v RECEIVED: Delivery confirmed and counted.
+v INSPECTION_PENDING: Held until a quality inspection is done.
+v ACCEPTED: All received quantity accepted into stock. A final state.
+v PARTIALLY_ACCEPTED: Some accepted, the rest rejected. A final state.
+v REJECTED: Refused entirely and returned or held. A final state.
+v CANCELLED: Withdrawn before confirmation. A final state.
+a receivedQuantity
+s: The total quantity counted at receipt.
+u: Calculated from the lines.
+a acceptedQuantity
+s: The total quantity accepted into stock.
+u: Calculated from the lines; never more than the received quantity.
+a notes
+s: Remarks about the delivery, such as damage or discrepancies.
+u: Free text written by the receiving clerk.
+r purchaseOrder
+s: The purchase order the delivery answers.
+u: Selected at receiving.
+w: Receipts close the order's open quantities.
+r supplier
+s: The supplier that delivered the goods.
+u: Set from the purchase order.
+w: Supplier performance is measured on receipts.
+r lines
+n: At least one line, one for each product received.
+r inventoryMovements
+s: The stock movements created by accepting the goods.
+u: Read to trace received goods into inventory.
+w: Accepting the receipt posts the stock.
+r invoices
+s: The supplier invoices that bill for this receipt.
+u: Used in three-way matching.
+w: An invoice is payable only for received quantities.
+r supplierReturns
+n: Any number of returns of rejected or defective goods to the supplier.
+
+@ GovernmentCase
+s: A case for an application, request, investigation, benefit, permit or other public-service matter.
+b: A public body handles matters one by one. A case collects everything about a matter in one place, from who applied to how it was decided, so each decision can be explained and appealed.
+u: Opened when a matter is received; worked by caseworkers; decided and closed; read by applicants, caseworkers and auditors.
+c: A case has applicants (Parties), is handled by an agency Organization, and has Tasks and Documents.
+l: A case is drafted, opened on submission, under review while caseworkers assess it, and ends approved and closed, denied or cancelled.
+x: Building permit application 2026-04112, submitted by a homeowner and approved after review.
+a governmentCaseId
+s: The identity of the case.
+u: Generated on creation.
+a caseNumber
+s: The reference number of the case, quoted in all correspondence.
+u: Allocated on submission; unique.
+a caseType
+s: The kind of matter, such as permit, benefit claim or inspection.
+u: Chosen at submission; decides the workflow and the documents required.
+a status
+s: Where the case stands.
+u: Moved by caseworkers.
+v DRAFT: Being prepared by or for the applicant.
+v OPEN: Submitted and awaiting review.
+v UNDER_REVIEW: Being assessed.
+v APPROVED: The matter was decided in the applicant's favour.
+v DENIED: The matter was refused. A final state.
+v CLOSED: Completed after approval. A final state.
+v CANCELLED: Withdrawn before a decision. A final state.
+a openedAt
+s: When the case was opened.
+u: Set on submission; statutory deadlines run from it.
+a closedAt
+s: When the case was closed.
+u: Set on closure; must not be before the opening date.
+r applicant
+s: The people or organisations that applied.
+u: Added at submission.
+n: Any number of applicants, including a family or joint applicants.
+w: Identify who the decision is for.
+r agency
+s: The agency responsible for the case.
+u: Set at submission.
+n: Exactly one agency: a single body is accountable for the decision.
+w: Determines which rules apply.
+r tasks
+s: The tasks carried out in handling the case.
+u: Created by the workflow or caseworker.
+n: Any number.
+w: Record the work done.
+r documents
+s: The documents supplied or issued.
+u: Added during handling.
+n: Any number.
+w: Form the evidence on which the decision is based.
