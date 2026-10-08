@@ -420,3 +420,123 @@ async fn nobody_deletes_or_deactivates_their_own_account() {
     })
     .await;
 }
+
+#[tokio::test]
+#[serial]
+async fn roles_can_be_defined_renamed_and_listed_but_not_duplicated() {
+    support::with_app(|request, ctx, token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        let name = format!("Accounts Suite {}", Uuid::new_v4().simple());
+        let created = request
+            .post("/api/accounts/roles")
+            .add_header("authorization", bearer(&token))
+            .json(&json!({ "name": name, "description": "made by the accounts suite" }))
+            .await;
+        assert_eq!(created.status_code(), 201, "{}", created.text());
+        let role = created.json::<Value>();
+        let id = role["id"].as_str().expect("an id").to_string();
+        assert_eq!(role["isMasterRole"], false);
+        assert_eq!(role["userCount"], 0);
+
+        let duplicate = request
+            .post("/api/accounts/roles")
+            .add_header("authorization", bearer(&token))
+            .json(&json!({ "name": name }))
+            .await;
+        assert_eq!(duplicate.status_code(), 409);
+
+        let renamed = request
+            .patch(&format!("/api/accounts/roles/{id}"))
+            .add_header("authorization", bearer(&token))
+            .json(&json!({ "name": format!("{name} (renamed)") }))
+            .await;
+        assert_eq!(renamed.status_code(), 200, "{}", renamed.text());
+
+        let listed = request
+            .get("/api/accounts/roles")
+            .add_header("authorization", bearer(&token))
+            .await
+            .json::<Value>();
+        assert!(
+            listed["data"].as_array().is_some_and(|rows| rows.iter().any(|r| r["id"] == id)),
+            "the new role is missing from the list"
+        );
+
+        // Counted once an account holds it.
+        let email = unique_email();
+        let account = create(
+            &request,
+            &token,
+            json!({ "name": "Role Holder", "email": email, "password": PASSWORD, "roleIds": [id] }),
+        )
+        .await;
+        assert_eq!(account.status_code(), 201, "{}", account.text());
+        let held = request
+            .get("/api/accounts/roles")
+            .add_header("authorization", bearer(&token))
+            .await
+            .json::<Value>();
+        let count = held["data"]
+            .as_array()
+            .and_then(|rows| rows.iter().find(|r| r["id"] == id))
+            .map(|r| r["userCount"].clone());
+        assert_eq!(count, Some(json!(1)));
+        remove(&request, &token, account.json::<Value>()["id"].as_str().expect("an id")).await;
+
+        // An account naming a role that does not exist is told so.
+        let missing = create(
+            &request,
+            &token,
+            json!({ "name": "Nobody", "email": unique_email(), "password": PASSWORD, "roleIds": [Uuid::new_v4()] }),
+        )
+        .await;
+        assert_eq!(missing.status_code(), 400);
+
+        let _ = sqlx::query("DELETE FROM sys_role WHERE sys_role_id = $1")
+            .bind(Uuid::parse_str(&id).expect("a uuid"))
+            .execute(pool)
+            .await;
+    })
+    .await;
+}
+
+#[tokio::test]
+#[serial]
+async fn the_last_master_role_cannot_be_demoted_or_deactivated() {
+    support::with_app(|request, ctx, token| async move {
+        let pool = ctx.db.get_postgres_connection_pool();
+        let masters: Vec<Uuid> = sqlx::query_scalar(
+            "SELECT sys_role_id FROM sys_role WHERE is_master_role AND is_active",
+        )
+        .fetch_all(pool)
+        .await
+        .expect("listing master roles");
+
+        // Demote them one at a time. Every one but the last that gives any
+        // administrator their power may go; the last may not.
+        let mut statuses = Vec::new();
+        for id in &masters {
+            let response = request
+                .patch(&format!("/api/accounts/roles/{id}"))
+                .add_header("authorization", bearer(&token))
+                .json(&json!({ "isMasterRole": false }))
+                .await;
+            statuses.push(response.status_code().as_u16());
+        }
+        let standing: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sys_role WHERE is_master_role AND is_active",
+        )
+        .fetch_one(pool)
+        .await
+        .expect("counting master roles");
+        sqlx::query("UPDATE sys_role SET is_master_role = TRUE, is_active = TRUE WHERE sys_role_id = ANY($1)")
+            .bind(&masters)
+            .execute(pool)
+            .await
+            .expect("restoring the master roles");
+
+        assert_eq!(statuses.last(), Some(&409), "the last master role was demoted: {statuses:?}");
+        assert!(standing >= 1, "no master role was left standing");
+    })
+    .await;
+}

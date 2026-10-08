@@ -142,7 +142,8 @@ pub async fn principal(pool: &PgPool, user: &users::Model) -> AppResult<Principa
              -- granted: a JWT cannot be revoked, so this is where disabled
              -- takes effect on a token that is still valid.
              AND COALESCE(su.is_active, false) = true
-             AND COALESCE(su.is_locked, false) = false",
+             AND COALESCE(su.is_locked, false) = false
+             AND COALESCE(r.is_active, true) = true",
     )
     .bind(sys_user_id)
     .fetch_all(pool)
@@ -211,10 +212,18 @@ pub async fn table_access(
         r"SELECT bool_and(COALESCE(a.is_read_only, false))
             FROM sys_access     a
             JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+            JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+            JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
             JOIN sys_tab        tb ON tb.sys_window_id = a.sys_window_id
             JOIN sys_table      t  ON t.sys_table_id  = tb.sys_table_id
            WHERE ur.sys_user_id = $1
              AND t.table_name   = $2
+             -- The grant counts only while the grant, the role and the account
+             -- are all switched on; deactivating any of them withdraws it.
+             AND COALESCE(ur.is_active, true) = true
+             AND COALESCE(sr.is_active, true) = true
+             AND COALESCE(su.is_active, false) = true
+             AND COALESCE(su.is_locked, false) = false
              AND COALESCE(a.is_active,  true)  = true
              AND COALESCE(a.is_exclude, false) = false",
     )
@@ -352,10 +361,16 @@ pub async fn readable_tables(
             r"SELECT t.table_name
                 FROM sys_access     a
                 JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+                JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+                JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
                 JOIN sys_tab        tb ON tb.sys_window_id = a.sys_window_id
                 JOIN sys_table      t  ON t.sys_table_id  = tb.sys_table_id
                WHERE ur.sys_user_id = $1
                  AND t.table_name = ANY($2)
+                 AND COALESCE(ur.is_active, true) = true
+                 AND COALESCE(sr.is_active, true) = true
+                 AND COALESCE(su.is_active, false) = true
+                 AND COALESCE(su.is_locked, false) = false
                  AND COALESCE(a.is_active,  true)  = true
                  AND COALESCE(a.is_exclude, false) = false
                GROUP BY t.table_name",

@@ -698,6 +698,30 @@ Things to know before editing it:
   stay open deliberately: the frontend builds its navigation from the dictionary
   before anyone signs in. The gates are the two `requests::rbac` tests; no other
   suite can see this, because they all sign in as the master-role administrator.
+- **An account is two rows, and `/api/accounts` writes them together.** `users`
+  is the credential store Loco's JWT reads; `sys_user` is the identity every
+  access check reads; `users.sys_user_id` joins them. `/api/sys/users` writes one
+  half and cannot hash a password, so a user made through it either cannot sign
+  in or reaches nothing. `controllers/accounts.rs` creates, edits, deactivates,
+  locks, resets and deletes the pair in one transaction (master role only), and
+  `/api/accounts/roles` does the same for roles.
+  Three rules hold it together. **The last administrator cannot be removed:**
+  each mutation runs under an advisory lock and, *after* applying itself, counts
+  active master accounts — zero rolls it back with a 409 — which is what keeps
+  it correct for a change that touches several things at once, and covers a role
+  being demoted as well as an account being deleted. **Nobody deactivates, locks
+  or deletes their own account**, and a built-in (`is_system_user`) account is
+  deactivated, never deleted. **Disabled means disabled on a token already
+  issued:** a JWT cannot be revoked, so `authz::principal`, `table_access`,
+  `readable_tables` and `me::granted_windows` all require the grant, the role
+  *and* the account to be switched on, `/api/auth/login` refuses a disabled
+  account exactly as it refuses a wrong password (no oracle for the address), and
+  `/api/auth/me` answers 401. Those four queries must stay in step — the access
+  gate once consulted none of the three flags, so deactivating an account removed
+  its menu and left the data open. Failed logins are deliberately not counted
+  toward a lock: guessing passwords must not be able to lock the administrator
+  out. The gates are `requests/accounts.rs`, and
+  `rbac::deactivating_an_account_or_its_role_withdraws_its_access`.
 - **`/api/bus/*`, `/api/audit/*`, `/api/rules/*`, all of `/api/workflow*`, and
   the `sys` write verbs require a JWT.** `sys` reads are open, because the
   frontend builds its navigation from the dictionary before anyone logs in;

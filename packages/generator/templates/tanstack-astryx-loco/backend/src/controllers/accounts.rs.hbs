@@ -125,6 +125,26 @@ pub struct ResetPasswordParams {
     pub password: String,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CreateRoleParams {
+    pub name: String,
+    pub description: Option<String>,
+    #[serde(default)]
+    pub is_master_role: bool,
+    #[serde(default = "default_true")]
+    pub is_active: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateRoleParams {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub is_master_role: Option<bool>,
+    pub is_active: Option<bool>,
+}
+
 const fn default_true() -> bool {
     true
 }
@@ -764,11 +784,226 @@ pub async fn remove(
     Ok(Json(json!({ "success": true })).into_response())
 }
 
+const ROLE_SELECT: &str = r"
+    SELECT r.sys_role_id,
+           r.name,
+           r.description,
+           COALESCE(r.is_master_role, false) AS is_master_role,
+           COALESCE(r.is_active, false)      AS is_active,
+           (SELECT COUNT(*) FROM sys_user_roles ur
+             WHERE ur.sys_role_id = r.sys_role_id
+               AND COALESCE(ur.is_active, true) = true) AS user_count
+      FROM sys_role r";
+
+fn role_json(row: &sqlx::postgres::PgRow) -> AppResult<Value> {
+    Ok(json!({
+        "id": row.try_get::<Uuid, _>("sys_role_id")?,
+        "name": row.try_get::<String, _>("name")?,
+        "description": row.try_get::<Option<String>, _>("description")?,
+        "isMasterRole": row.try_get::<bool, _>("is_master_role")?,
+        "isActive": row.try_get::<bool, _>("is_active")?,
+        "userCount": row.try_get::<i64, _>("user_count")?,
+    }))
+}
+
+async fn load_role(conn: &mut PgConnection, id: Uuid) -> AppResult<Option<Value>> {
+    let sql = format!("{ROLE_SELECT} WHERE r.sys_role_id = $1");
+    let row = sqlx::query(sqlx::AssertSqlSafe(sql))
+        .bind(id)
+        .fetch_optional(conn)
+        .await?;
+    row.as_ref().map(role_json).transpose()
+}
+
+/// `GET /api/accounts/roles` — every role, with how many accounts hold it.
+#[utoipa::path(
+    get, path = "/api/accounts/roles", tag = "accounts",
+    security(("bearer" = [])),
+    responses(
+        (status = 200, description = "`{ data }`, ordered by name"),
+        (status = 403, description = "Requires the master role"),
+    ),
+)]
+pub async fn list_roles(
+    auth: auth::JWTWithUser<users::Model>,
+    State(ctx): State<AppContext>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    admin_caller(pool, &auth).await?;
+    let sql = format!("{ROLE_SELECT} ORDER BY lower(r.name)");
+    let rows = sqlx::query(sqlx::AssertSqlSafe(sql)).fetch_all(pool).await?;
+    let data = rows.iter().map(role_json).collect::<AppResult<Vec<_>>>()?;
+    Ok(Json(json!({ "data": data })).into_response())
+}
+
+/// `POST /api/accounts/roles` — define a role.
+///
+/// A new role holds no access: windows are granted to it afterwards, in the
+/// dictionary, and until then its members reach nothing.
+#[utoipa::path(
+    post, path = "/api/accounts/roles", tag = "accounts",
+    security(("bearer" = [])),
+    request_body(content = serde_json::Value, description = "`{ name, description?, isMasterRole?, isActive? }`"),
+    responses(
+        (status = 201, description = "The new role"),
+        (status = 400, description = "Invalid payload"),
+        (status = 403, description = "Requires the master role"),
+        (status = 409, description = "A role with that name exists"),
+    ),
+)]
+pub async fn create_role(
+    auth: auth::JWTWithUser<users::Model>,
+    State(ctx): State<AppContext>,
+    Json(params): Json<CreateRoleParams>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    admin_caller(pool, &auth).await?;
+    let name = clean_role_name(&params.name).map_err(|e| invalid(vec![e]))?;
+    let actor = auth.user.email.clone();
+
+    let mut tx = pool.begin().await?;
+    lock_accounts(&mut tx).await?;
+    let id: Uuid = sqlx::query_scalar(
+        r"INSERT INTO sys_role (
+               sys_role_id, name, description, user_level, is_master_role,
+               is_can_export, is_can_report, is_personal_lock, is_personal_access,
+               max_query_records, is_show_accounting,
+               entity_type, is_active, created_by, updated_by, created_at, updated_at)
+           VALUES (gen_random_uuid(), $1, $2, 'U', $3,
+                   TRUE, TRUE, FALSE, FALSE, 0, FALSE,
+                   'U', $4, $5, $5, NOW(), NOW())
+           RETURNING sys_role_id",
+    )
+    .bind(&name)
+    .bind(params.description.as_deref())
+    .bind(params.is_master_role)
+    .bind(params.is_active)
+    .bind(&actor)
+    .fetch_one(&mut *tx)
+    .await
+    .map_err(role_name_taken)?;
+    let role = load_role(&mut tx, id).await?.ok_or_else(not_found)?;
+    tx.commit().await?;
+    record_role(&ctx, &auth.user, AuditOperation::Create, id, None, Some(role.clone())).await;
+    Ok((StatusCode::CREATED, Json(role)).into_response())
+}
+
+/// `PATCH /api/accounts/roles/{id}` — rename, describe, activate, or change
+/// whether the role is a master role.
+#[utoipa::path(
+    patch, path = "/api/accounts/roles/{id}", tag = "accounts",
+    security(("bearer" = [])),
+    params(("id" = String, Path, description = "The role's `sys_role_id`")),
+    request_body(content = serde_json::Value, description = "Any of `{ name, description, isMasterRole, isActive }`"),
+    responses(
+        (status = 200, description = "The role as it now stands"),
+        (status = 400, description = "Invalid payload"),
+        (status = 403, description = "Requires the master role"),
+        (status = 404, description = "No such role"),
+        (status = 409, description = "Name in use, or it would leave no active administrator"),
+    ),
+)]
+pub async fn update_role(
+    auth: auth::JWTWithUser<users::Model>,
+    Path(id): Path<Uuid>,
+    State(ctx): State<AppContext>,
+    Json(params): Json<UpdateRoleParams>,
+) -> AppResult<Response> {
+    let pool = ctx.db.get_postgres_connection_pool();
+    admin_caller(pool, &auth).await?;
+    let name = params
+        .name
+        .as_deref()
+        .map(clean_role_name)
+        .transpose()
+        .map_err(|e| invalid(vec![e]))?;
+    let actor = auth.user.email.clone();
+
+    let mut tx = pool.begin().await?;
+    lock_accounts(&mut tx).await?;
+    let before = load_role(&mut tx, id).await?.ok_or_else(not_found)?;
+    let masters_before = active_masters(&mut tx).await?;
+    sqlx::query(
+        r"UPDATE sys_role
+             SET name           = COALESCE($2, name),
+                 description    = COALESCE($3, description),
+                 is_master_role = COALESCE($4, is_master_role),
+                 is_active      = COALESCE($5, is_active),
+                 updated_by     = $6,
+                 updated_at     = NOW()
+           WHERE sys_role_id = $1",
+    )
+    .bind(id)
+    .bind(name.as_deref())
+    .bind(params.description.as_deref())
+    .bind(params.is_master_role)
+    .bind(params.is_active)
+    .bind(&actor)
+    .execute(&mut *tx)
+    .await
+    .map_err(role_name_taken)?;
+    // Demoting or deactivating the role the last administrator holds is the
+    // same loss as removing the grant from the account.
+    ensure_administrator_remains(&mut tx, masters_before).await?;
+    let role = load_role(&mut tx, id).await?.ok_or_else(not_found)?;
+    tx.commit().await?;
+    record_role(&ctx, &auth.user, AuditOperation::Update, id, Some(before), Some(role.clone())).await;
+    Ok(Json(role).into_response())
+}
+
+fn clean_role_name(raw: &str) -> Result<String, String> {
+    let name = raw.trim();
+    if name.is_empty() {
+        Err("name is required".to_string())
+    } else if name.chars().count() > 100 {
+        Err("name must be at most 100 characters".to_string())
+    } else {
+        Ok(name.to_string())
+    }
+}
+
+/// `sys_role.name` is unique; say so in words.
+fn role_name_taken(err: sqlx::Error) -> AppError {
+    match AppError::from(err) {
+        AppError::Conflict(_) => AppError::Conflict("A role with that name already exists".to_string()),
+        other => other,
+    }
+}
+
+async fn record_role(
+    ctx: &AppContext,
+    caller: &users::Model,
+    operation: AuditOperation,
+    id: Uuid,
+    before: Option<Value>,
+    after: Option<Value>,
+) {
+    if let Some(audit) = ctx.shared_store.get::<AuditService>() {
+        audit
+            .record(&AuditEntry {
+                entity_type: "sys_role".to_string(),
+                entity_id: Some(id.to_string()),
+                operation,
+                before,
+                after,
+                user_id: caller.sys_user_id.map(|id| id.to_string()),
+                user_email: Some(caller.email.clone()),
+            })
+            .await;
+    }
+}
+
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("accounts")
         .add("/", get(list))
         .add("/", post(create))
+        // Roles live under the same prefix so they share its gate. The static
+        // `roles` segments are registered before the `{id}` ones; matchit
+        // prefers a static segment, but the order keeps that obvious.
+        .add("/roles", get(list_roles))
+        .add("/roles", post(create_role))
+        .add("/roles/{id}", patch(update_role))
         // `{id}/reset-password` before `{id}`: see `controllers::report`.
         .add("/{id}/reset-password", post(reset_password))
         .add("/{id}", get(show))
