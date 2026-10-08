@@ -1,0 +1,12 @@
+@ Vehicle
+r fuelTransactions
+n: Any number of fuel purchases are recorded against a vehicle over its life.
+
+@ Vessel
+a status
+v ACTIVE: In service and available for voyages.
+v INACTIVE: Not currently in use; can return to service.
+v OUT_OF_SERVICE: Unusable, for example under repair.
+v RETIRED: Withdrawn from the fleet. A final state.
+r voyages
+n: Any number of voyages are made by a vessel over its life.

@@ -66,7 +66,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: PLANNED
       values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
       help:
         summary: The operating lifecycle state of the warehouse and whether it can participate in normal inventory processes.

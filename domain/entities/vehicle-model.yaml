@@ -16,76 +16,75 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the vehicle model record associated with this VehicleModel. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating VehicleModel records, where applicable.
-        relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the model, constant when it is renamed.
+        usage: Generated on creation; vehicles refer to it.
+        relationshipContext: Referenced by each vehicle of the model.
     - name: manufacturer
       type: string
       required: true
       maxLength: 200
       help:
-        summary: Captures the business meaning of manufacturer for the VehicleModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating VehicleModel records, where applicable.
-        relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The maker of the vehicle.
+        usage: Entered once for the model.
+        relationshipContext: Read with the model name.
     - name: modelName
       type: string
       required: true
       maxLength: 200
       help:
-        summary: Captures the business meaning of model name for the VehicleModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating VehicleModel records, where applicable.
-        relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The name the maker gives the model.
+        usage: Shown in lists.
+        relationshipContext: Read with the manufacturer.
     - name: modelCode
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of model code for the VehicleModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating VehicleModel records, where applicable.
-        relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The code of the model.
+        usage: Unique; used in imports.
+        relationshipContext: Read with the year.
     - name: modelYear
       type: integer
       required: false
       help:
-        summary: Captures the business meaning of model year for the VehicleModel. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating VehicleModel records, where applicable.
-        relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The model year.
+        usage: Entered when different years are distinguished.
+        relationshipContext: Read with the code.
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: PLANNED
       values:
         - PLANNED
         - ACTIVE
         - DISCONTINUED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating VehicleModel records, where applicable.
-        relationshipContext: Its meaning is specific to VehicleModel; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Whether the model is current.
+        usage: Starts as PLANNED.
         valueSemantics:
-          PLANNED: Represents the planned state or classification in the context of VehicleModel.
-          ACTIVE: Represents the active state or classification in the context of VehicleModel.
-          DISCONTINUED: Represents the discontinued state or classification in the context of VehicleModel.
+          PLANNED: Announced and not yet available.
+          ACTIVE: Current.
+          DISCONTINUED: No longer made or supported. A final state.
   relationships:
     - name: product
       target: Product
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects VehicleModel to Product so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Product records associated with a VehicleModel.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The product that sells this model.
+        usage: Chosen when the model is sold.
+        cardinalityMeaning: At most one product.
+        context: Links catalogue and fleet.
     - name: vehicles
       target: Vehicle
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Connects VehicleModel to Vehicle so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Vehicle records associated with a VehicleModel.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The vehicles of this model.
+        usage: Read to list the fleet by model.
+        cardinalityMeaning: Any number of vehicles.
+        context: Show how many are in service.
   lifecycle:
     title: Vehicle Model Lifecycle
     attribute: status
@@ -97,12 +96,12 @@ entity:
       - {from: PLANNED, to: DISCONTINUED, action: discontinue}
       - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
   help:
-    summary: Represents a automotive master entity called VehicleModel within the CEDM business model.
-    businessMeaning: VehicleModel is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate VehicleModel records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Product, Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical VehicleModel record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A manufacturer's model and configuration family for vehicles.
+    businessMeaning: The model describes what a vehicle is, such as make, model and year, so the same facts are not repeated on every vehicle and fleets can be analysed by model.
+    usage: Maintained by fleet or product managers; chosen when vehicles are registered.
+    relationshipContext: A model may be sold as a product and has vehicles of that model.
+    lifecycle: A model is planned, active while produced or supported, and discontinued when withdrawn. Discontinued is final.
+    example: The "Transit 350" from a van maker, model year 2026.
 specification:
   version: 0.1.0
   status: draft
