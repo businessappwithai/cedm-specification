@@ -1,0 +1,320 @@
+@ CustomsDeclaration
+r authority
+n: Exactly one authority: the declaration is addressed to the customs office responsible for the crossing point.
+
+@ Dock
+s: A warehouse door, bay or loading position used for receiving, shipping, transfer and staging of goods.
+b: Trucks queue at docks, and a warehouse is only as fast as its docks. Each dock is a resource that is scheduled, assigned to a purpose and tied to the area where goods are staged.
+u: Defined by warehouse managers; booked by carrier appointments; read by yard and dock schedulers.
+c: A dock belongs to a Warehouse and may name a staging InventoryLocation where goods wait before loading or after unloading.
+l: Docks are in service or out of service according to maintenance; the dock code is stable.
+x: Dock D-07, a bidirectional door used for outbound parcels in the morning and returns in the afternoon.
+a dockId
+s: The identity of the dock, independent of its door number.
+u: Generated on creation; appointments and gate events refer to it.
+a dockCode
+s: The number or code of the door, as painted at the warehouse.
+u: Unique within the warehouse; used by drivers and loaders.
+a dockType
+s: What traffic the dock handles.
+u: Set by the warehouse manager; scheduling offers only docks suited to the movement.
+v INBOUND: Receiving goods from suppliers or transfers.
+v OUTBOUND: Shipping goods to customers or other sites.
+v BIDIRECTIONAL: Used for both receiving and shipping, as needed.
+v CROSS_DOCK: Goods move straight from inbound to outbound without being stored.
+r warehouse
+s: The warehouse the dock belongs to.
+u: Set when the dock is created.
+n: Exactly one warehouse: a dock is a physical door of a single building.
+w: Places the dock in the site's capacity.
+r stagingLocation
+s: The area in which goods wait next to the dock.
+u: Chosen to link dock activity with inventory location records.
+n: At most one staging location; some docks load directly from trailers.
+w: Lets receiving and picking hand goods over at a known spot.
+
+@ Document
+s: A business document that records, communicates, supports or evidences business information or activity.
+b: Business runs on documents: orders, invoices, letters, reports. A document record gives each one an identity, status and version, so what was issued and when can always be shown.
+u: Created when a document is drafted or received; moved through issue and approval; read whenever someone needs the evidence.
+c: A document is owned by an Organization, concerns Parties and may relate to a Location.
+l: A document is drafted, issued, approved, and archived at the end of its useful life; it can be cancelled before it is final.
+x: Purchase order PO-20413, issued on 3 March and approved by the purchasing manager.
+a documentId
+s: The identity of the document record.
+u: Generated on creation; attachments, versions and references use it.
+a documentNumber
+s: The number printed on the document.
+u: Allocated from a number series; unique within the owner's context and document type.
+a documentType
+s: The kind of document, such as purchase order, contract or invoice.
+u: Chosen at creation; decides numbering, templates and retention.
+a documentDate
+s: The date shown on the document.
+u: Entered or defaulted to today; used in reports.
+a status
+s: Where the document stands from draft to archive.
+u: Moved by the author and approvers.
+v DRAFT: Being written; not yet issued.
+v ISSUED: Released to its audience.
+v APPROVED: Accepted by the authorised approver.
+v CANCELLED: Withdrawn; kept for history.
+v ARCHIVED: No longer active; retained for the required period.
+a title
+s: The heading of the document.
+u: Shown in lists and search results.
+a description
+s: A summary of what the document says or is for.
+u: Written by the author; helps people find it.
+a documentVersion
+s: The revision number of the document, starting at 1.
+u: Incremented each time a new revision is issued; at least 1.
+a issuedAt
+s: When the document was issued.
+u: Set on issue; before this it is a draft.
+a createdAt
+s: When the document record was created.
+u: Set by the system; part of the audit trail.
+a updatedAt
+s: When the document record last changed.
+u: Set by the system on each change.
+r owner
+s: The organisation that owns the document.
+u: Set at creation; controls who may change it.
+n: At most one owner.
+w: Decides responsibility for the content.
+r parties
+s: The parties the document concerns.
+u: Added as relevant, such as sender and recipient.
+n: Any number.
+w: Lets a party find the documents that concern them.
+r location
+s: The place the document relates to.
+u: Set where location matters, for example a site report.
+n: At most one location.
+w: Ties the document to a physical place.
+
+@ DocumentClassification
+s: A classification assigned to documents for retention, sensitivity, access, regulatory or business-purpose controls.
+b: What a document may be done with depends on what it is. A classification such as Confidential or Contract Record decides who can see it and how long it must be kept.
+u: Defined by records and security managers; applied to documents; used by access and retention rules.
+c: Documents carry a classification, and the classification drives their controls.
+l: Changes are recorded explicitly so that the control that applied on a given date can be shown.
+x: Classification "Financial record – 7 years", which sets the retention period of invoices.
+a documentClassificationId
+s: The identity of the classification.
+u: Generated on creation; documents refer to it.
+a effectiveAt
+s: When the classification and its controls take effect.
+u: Set when it is defined or revised.
+
+@ DocumentVersion
+s: A fixed version of a document that preserves its content identity, metadata and provenance.
+b: Documents change, but evidence must not. Each version is a snapshot that can always be retrieved, so it is possible to show exactly what a person signed or received.
+u: Created each time a document revision is issued; read when comparing revisions or proving what was sent.
+c: Each version belongs to one Document.
+l: A version is immutable. Corrections are new versions.
+x: Version 3 of the supplier code of conduct, issued on 12 January.
+a documentVersionId
+s: The identity of the version.
+u: Generated on creation; signatures and distributions point to it.
+a effectiveAt
+s: When this version took effect.
+u: Set when issued; the version in force on any date is the latest one effective by then.
+r document
+s: The document of which this is a version.
+n: Exactly one document: a version is a snapshot of a single document.
+
+@ Driver
+a driverId
+s: The identity of the driver role, independent of the person's other roles.
+a driverCode
+s: The driver's code in dispatch and fleet systems.
+a licenseNumber
+s: The number of the driving licence that authorises the person to drive.
+u: Entered from the licence document; checked against expiry and class.
+a status
+v DRAFT: Being onboarded; not yet cleared to drive.
+v ACTIVE: Authorised and available for assignment.
+v SUSPENDED: Temporarily barred, for example after an incident or lapsed qualification.
+v INACTIVE: Not currently driving but may return.
+v RETIRED: No longer a driver; kept for history.
+r person
+s: The person who holds the driver role.
+n: Exactly one person: the role is held by a specific individual.
+r vehicles
+n: Any number of vehicles, over time or in parallel as assignments change.
+r fuelTransactions
+n: Any number of fuel purchases made by the driver.
+
+@ ERP
+s: The root record of an enterprise application context, naming the installation and the defaults for everything managed inside it.
+b: An ERP installation needs one place that says what it is, which currency it reports in and which time zone and language apply. Every organisation, party, product and process belongs to that context, so this record is where scoping starts.
+u: Created once when an installation is set up; read as the context for every other record and changed rarely, by administrators.
+c: The context aggregates its Organizations and holds the shared Parties, Locations, Products, Business Processes, Workflows and Documents that those organisations use.
+l: A context is drafted while being configured, becomes active when it goes live, may be suspended, and is retired when it is closed down. Reactivation after retirement needs an explicit policy.
+x: The Acme Group installation: euro reporting currency, Central European time, English locale, containing six legal entities.
+a erpId
+s: The identity of the installation, fixed for its whole life.
+u: Generated at setup; scoped records carry it so data from different installations never mixes.
+a code
+s: The short unique code of the installation, such as ACME-PROD.
+u: Chosen at setup; used in integrations and environment names, so it should not change.
+a name
+s: The name of the installation as users see it.
+u: Shown in the application header and on reports.
+a description
+s: A description of what the installation covers and who it is for.
+u: Written by the administrator; helps new users tell environments apart.
+a status
+s: Whether the installation is being set up, live, paused or closed.
+u: Moved by administrators; only ACTIVE installations accept business transactions.
+v DRAFT: Being configured; not yet live.
+v ACTIVE: Live and in use.
+v SUSPENDED: Paused, for example during a migration; no new business activity.
+v RETIRED: Closed down; kept for history.
+a baseCurrencyId
+s: The currency in which the installation reports consolidated figures.
+u: Chosen at setup; other currencies are converted to it for group reporting.
+a timezone
+s: The default time zone for displaying and interpreting dates and times.
+u: Chosen at setup; users and organisations may override it.
+a locale
+s: The default language and regional formatting for the installation.
+u: Chosen at setup; controls number, date and currency formats where a user has no preference.
+a createdAt
+s: When the installation record was created.
+u: Set by the system and never edited.
+a createdBy
+s: The party that created the installation record.
+u: Set by the system from the signed-in user.
+a updatedAt
+s: When the installation record last changed.
+u: Set by the system on every change.
+a updatedBy
+s: The party that last changed the installation record.
+u: Set by the system from the signed-in user.
+r organizations
+s: The organisations, such as legal entities and units, managed in this installation.
+u: Added as organisations are created; read to scope users, data and reports.
+n: At least one organisation: an installation with none manages nothing.
+w: Every transaction and master record is ultimately owned by one of these organisations.
+r parties
+s: The customers, suppliers, people and other parties known to the installation.
+u: Shared across organisations so a party is recorded once.
+n: Any number, growing as the business trades.
+w: Lets several organisations deal with the same party without duplicating it.
+r locations
+s: The sites, buildings and places known to the installation.
+u: Shared master data used by addresses, inventory and logistics.
+n: Any number.
+w: Gives every organisation the same set of places to refer to.
+r products
+s: The products and services in the shared catalogue.
+u: Shared master data used by sales, purchasing and inventory.
+n: Any number.
+w: Keeps one catalogue for the whole installation.
+r businessProcesses
+s: The business processes defined for the installation.
+u: Maintained by process owners; referenced by workflows and tasks.
+n: Any number.
+w: Provide the agreed way of working that workflows automate.
+r workflows
+s: The workflows that run in the installation.
+u: Created by administrators and process owners to automate processes.
+n: Any number.
+w: Carry out the installation's processes automatically.
+r documents
+s: The documents held in the installation.
+u: Created as business activity is evidenced; searched and retrieved by users.
+n: Any number.
+w: Form the written record of what the installation did.
+
+@ EducationCourse
+s: A defined course or unit of learning offered by an educational institution or as part of a program.
+b: The course is the lasting description of what is taught and what it is worth. Each term's teaching is a separate class, so the course holds what stays the same: code, title, credits and place in a curriculum.
+u: Designed by academic staff and approved by the registrar; scheduled into classes each term; read by students, advisers and timetablers.
+c: A course may belong to an EducationProgram, is taught by Parties as instructors, is scheduled as Classes, is taken through Enrollments and is evaluated by Assessments.
+l: A course is drafted, becomes active when approved, can be made inactive between offerings and is retired when withdrawn. Retired courses stay on transcripts.
+x: MATH101 Calculus I, worth 6 credits, offered every autumn and part of the engineering degree program.
+a courseId
+s: The identity of the course, independent of how it is scheduled each term.
+u: Generated on creation; classes, enrolments and assessments refer to it.
+a courseCode
+s: The code of the course in the catalogue, such as MATH101.
+u: Assigned by the registrar; unique; used on timetables and transcripts.
+a name
+s: The title of the course.
+u: Shown in catalogues, timetables and transcripts.
+a credits
+s: The credit value the course carries towards a qualification.
+u: Set when the course is designed; summed to check a student's progress to a degree.
+a status
+s: Whether the course is offered.
+u: Set by the registrar; only ACTIVE courses can be scheduled into classes.
+v DRAFT: Being designed; not yet offered.
+v ACTIVE: Offered and open to scheduling.
+v INACTIVE: Not currently offered but may return.
+v RETIRED: Withdrawn permanently; kept for transcripts.
+r program
+s: The program that includes the course.
+u: Chosen when the course is placed in a curriculum.
+n: At most one program; a course may stand alone, for example an elective.
+w: Places the course in a path to a qualification.
+r instructors
+s: The people who teach the course.
+u: Assigned by the department.
+n: Any number of instructors.
+w: Defines who may be scheduled to teach it.
+r enrollments
+s: The enrolments of students in the course.
+u: Read for rosters and completion statistics.
+n: Any number, accumulating over terms.
+w: Shows who has taken or is taking the course.
+r classes
+n: Any number of classes, one for each scheduled offering of the course.
+r assessments
+n: Any number of assessments across the course's offerings.
+
+@ EducationProgram
+s: A structured program of study that leads to a qualification, credential or defined learning outcome.
+b: A program is what a student signs up for: a set of courses and rules that together earn a degree, diploma or certificate. It is the unit against which admission, progression and graduation are managed.
+u: Designed and approved by the institution; opened for enrolment; read by admissions, advisers and students planning their studies.
+c: A program is offered by one institution (an Organization), contains EducationCourses and is joined through Enrollments.
+l: A program is drafted, becomes active when accredited and open, may be suspended to new students, and is retired when discontinued. Graduates keep their records.
+x: BSc Computer Science, a three-year degree offered by the Faculty of Engineering.
+a educationProgramId
+s: The identity of the program, independent of its code or title.
+u: Generated on creation; courses and enrolments refer to it.
+a code
+s: The catalogue code of the program, such as CS-BSC.
+u: Assigned by the registrar; unique.
+a name
+s: The title of the program, such as BSc Computer Science.
+u: Shown in prospectuses and on certificates.
+a programType
+s: The kind of qualification the program leads to.
+u: Chosen at creation; drives admission rules and credit requirements.
+v DEGREE: A university-level degree.
+v DIPLOMA: A diploma-level qualification.
+v CERTIFICATE: A shorter certificate.
+v COURSE: A stand-alone course treated as a program.
+v TRAINING: Vocational or workplace training.
+v OTHER: Any other kind of program.
+a status
+s: Whether the program is open to students.
+u: Set by the institution; only ACTIVE programs accept new enrolments.
+v DRAFT: Being designed; not yet open.
+v ACTIVE: Open for enrolment.
+v SUSPENDED: Temporarily closed to new enrolments.
+v RETIRED: Withdrawn permanently; kept for graduates' records.
+r institution
+s: The institution that offers the program.
+u: Set at creation.
+n: Exactly one institution: a program is accredited and delivered by a single institution.
+w: Determines accreditation and rules.
+r enrollments
+s: The enrolments of students in the program.
+u: Read for cohort reporting and progression.
+n: Any number, one for each student on the program.
+w: Show who is studying the program.

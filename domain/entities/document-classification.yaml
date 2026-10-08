@@ -7,18 +7,16 @@ entity:
     icon: file-text
   identity: {key: documentClassificationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentClassification., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence.}}
+    - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the classification., usage: Generated on creation; documents refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the classification and its controls take effect., usage: Set when it is defined or revised.}}
   relationships: []
   invariants:
     - {id: DOCUMENT-CLASSIFICATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed classification assigned to Documents for retention, sensitivity, access, regulatory, or business-purpose controls.
-    purpose: Provide durable, implementation-neutral governance semantics for DocumentClassification.
-    businessMeaning: A governed classification assigned to Documents for retention, sensitivity, access, regulatory, or business-purpose controls.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A classification assigned to documents for retention, sensitivity, access, regulatory or business-purpose controls.
+    businessMeaning: What a document may be done with depends on what it is. A classification such as Confidential or Contract Record decides who can see it and how long it must be kept.
+    usage: Defined by records and security managers; applied to documents; used by access and retention rules.
+    relationshipContext: Documents carry a classification, and the classification drives their controls.
+    lifecycle: Changes are recorded explicitly so that the control that applied on a given date can be shown.
+    example: Classification "Financial record – 7 years", which sets the retention period of invoices.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCUMENT-CLASSIFICATION}

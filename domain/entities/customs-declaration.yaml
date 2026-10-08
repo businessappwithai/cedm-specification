@@ -103,9 +103,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one authority: the declaration is addressed to the customs office responsible for the crossing point.'
         summary: The customs authority to which the declaration is made.
         usage: Chosen according to where the goods cross the border.
-        cardinalityMeaning: Exactly one authority.
         workflowRole: Determines the rules and procedures that apply.
     - name: shipment
       target: Shipment

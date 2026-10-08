@@ -17,9 +17,8 @@ entity:
       immutable: true
       description: Globally unique identifier for the ERP instance.
       help:
-        summary: Identifies the erp record associated with this ERP. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the installation, fixed for its whole life.
+        usage: Generated at setup; scoped records carry it so data from different installations never mixes.
     - name: code
       type: string
       required: true
@@ -27,27 +26,24 @@ entity:
       maxLength: 50
       description: Stable business code used to identify the ERP instance.
       help:
-        summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The short unique code of the installation, such as ACME-PROD.
+        usage: Chosen at setup; used in integrations and environment names, so it should not change.
     - name: name
       type: string
       required: true
       maxLength: 200
       description: Human-readable name of the ERP instance.
       help:
-        summary: The human-readable name used by people, reports, searches, and related business processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The name of the installation as users see it.
+        usage: Shown in the application header and on reports.
     - name: description
       type: string
       required: false
       maxLength: 2000
       description: Business description of the ERP instance.
       help:
-        summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: A description of what the installation covers and who it is for.
+        usage: Written by the administrator; helps new users tell environments apart.
     - name: status
       type: enum
       required: true
@@ -59,48 +55,43 @@ entity:
         - RETIRED
       description: Lifecycle state of the ERP instance.
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Whether the installation is being set up, live, paused or closed.
+        usage: Moved by administrators; only ACTIVE installations accept business transactions.
         valueSemantics:
-          DRAFT: Represents the draft state or classification in the context of ERP.
-          ACTIVE: Represents the active state or classification in the context of ERP.
-          SUSPENDED: Represents the suspended state or classification in the context of ERP.
-          RETIRED: Represents the retired state or classification in the context of ERP.
+          DRAFT: Being configured; not yet live.
+          ACTIVE: Live and in use.
+          SUSPENDED: Paused, for example during a migration; no new business activity.
+          RETIRED: Closed down; kept for history.
     - name: baseCurrencyId
       type: reference
       target: Currency
       required: false
       description: Default accounting currency for the ERP context.
       help:
-        summary: Captures the business meaning of base currency for the ERP. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The currency in which the installation reports consolidated figures.
+        usage: Chosen at setup; other currencies are converted to it for group reporting.
     - name: timezone
       type: timezone
       required: false
       description: Default timezone for date/time interpretation.
       help:
-        summary: Captures the business meaning of timezone for the ERP. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The default time zone for displaying and interpreting dates and times.
+        usage: Chosen at setup; users and organisations may override it.
     - name: locale
       type: locale
       required: false
       description: Default locale for presentation and localization.
       help:
-        summary: Captures the business meaning of locale for the ERP. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The default language and regional formatting for the installation.
+        usage: Chosen at setup; controls number, date and currency formats where a user has no preference.
     - name: createdAt
       type: datetime
       required: true
       immutable: true
       systemManaged: true
       help:
-        summary: The system-managed timestamp recording when the record was created. It supports auditability, chronology, and operational reporting.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: When the installation record was created.
+        usage: Set by the system and never edited.
     - name: createdBy
       type: reference
       target: Party
@@ -108,97 +99,94 @@ entity:
       immutable: true
       systemManaged: true
       help:
-        summary: The party or user responsible for creating the record. It links the record to its audit actor and should not normally be supplied as ordinary business data.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: This field connects ERP to Party. The reference establishes business context between the two entities and lets processes navigate from this record to the related Party.
+        summary: The party that created the installation record.
+        usage: Set by the system from the signed-in user.
     - name: updatedAt
       type: datetime
       required: true
       systemManaged: true
       help:
-        summary: The system-managed timestamp recording the latest modification of the record. It supports synchronization, audit, and change detection.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: When the installation record last changed.
+        usage: Set by the system on every change.
     - name: updatedBy
       type: reference
       target: Party
       required: false
       systemManaged: true
       help:
-        summary: The party or user responsible for the latest modification. It provides the audit link for the most recent change.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable.
-        relationshipContext: This field connects ERP to Party. The reference establishes business context between the two entities and lets processes navigate from this record to the related Party.
+        summary: The party that last changed the installation record.
+        usage: Set by the system from the signed-in user.
   relationships:
     - name: organizations
       target: Organization
       cardinality: 1..*
-      ownership: aggregate
+      ownership: reference
       description: Legal, operational, or organizational units belonging to the ERP context.
       help:
-        summary: Connects ERP to Organization so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Organization records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 1..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The organisations, such as legal entities and units, managed in this installation.
+        usage: Added as organisations are created; read to scope users, data and reports.
+        cardinalityMeaning: 'At least one organisation: an installation with none manages nothing.'
+        workflowRole: Every transaction and master record is ultimately owned by one of these organisations.
     - name: parties
       target: Party
       cardinality: 0..*
       ownership: reference
       description: Parties participating in business activities managed by the ERP.
       help:
-        summary: Connects ERP to Party so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Party records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The customers, suppliers, people and other parties known to the installation.
+        usage: Shared across organisations so a party is recorded once.
+        cardinalityMeaning: Any number, growing as the business trades.
+        workflowRole: Lets several organisations deal with the same party without duplicating it.
     - name: locations
       target: Location
       cardinality: 0..*
       ownership: reference
       description: Physical or logical locations known to the ERP.
       help:
-        summary: Connects ERP to Location so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Location records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The sites, buildings and places known to the installation.
+        usage: Shared master data used by addresses, inventory and logistics.
+        cardinalityMeaning: Any number.
+        workflowRole: Gives every organisation the same set of places to refer to.
     - name: products
       target: Product
       cardinality: 0..*
       ownership: reference
       description: Products and services managed by the ERP.
       help:
-        summary: Connects ERP to Product so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Product records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The products and services in the shared catalogue.
+        usage: Shared master data used by sales, purchasing and inventory.
+        cardinalityMeaning: Any number.
+        workflowRole: Keeps one catalogue for the whole installation.
     - name: businessProcesses
       target: BusinessProcess
       cardinality: 0..*
       ownership: reference
       description: Business processes configured or executed in the ERP.
       help:
-        summary: Connects ERP to BusinessProcess so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about BusinessProcess records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The business processes defined for the installation.
+        usage: Maintained by process owners; referenced by workflows and tasks.
+        cardinalityMeaning: Any number.
+        workflowRole: Provide the agreed way of working that workflows automate.
     - name: workflows
       target: Workflow
       cardinality: 0..*
       ownership: reference
       description: Workflow definitions available to the ERP.
       help:
-        summary: Connects ERP to Workflow so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Workflow records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The workflows that run in the installation.
+        usage: Created by administrators and process owners to automate processes.
+        cardinalityMeaning: Any number.
+        workflowRole: Carry out the installation's processes automatically.
     - name: documents
       target: Document
       cardinality: 0..*
       ownership: reference
       description: Documents managed within the ERP context.
       help:
-        summary: Connects ERP to Document so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Document records associated with a ERP.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The documents held in the installation.
+        usage: Created as business activity is evidenced; searched and retrieved by users.
+        cardinalityMeaning: Any number.
+        workflowRole: Form the written record of what the installation did.
   invariants:
     - id: ERP-001
       rule: code must be unique within the ERP namespace.
@@ -213,16 +201,14 @@ entity:
       - SUSPENDED
       - RETIRED
     transitions:
-      - from: DRAFT
-        to: ACTIVE
-      - from: ACTIVE
-        to: SUSPENDED
-      - from: SUSPENDED
-        to: ACTIVE
-      - from: ACTIVE
-        to: RETIRED
-      - from: SUSPENDED
-        to: RETIRED
+      - {from: DRAFT, to: ACTIVE, action: activate}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: RETIRED, action: retire}
+      - {from: SUSPENDED, to: RETIRED, action: retire}
+    initial: DRAFT
+    terminal:
+      - RETIRED
   audit:
     enabled: true
     trackCreatedBy: true
@@ -236,12 +222,12 @@ entity:
     - master-data
     - business-application
   help:
-    summary: Represents a root business entity called ERP within the CEDM business model.
-    businessMeaning: ERP is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate ERP records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party, Location, Product, BusinessProcess, Workflow, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical ERP record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: The root record of an enterprise application context, naming the installation and the defaults for everything managed inside it.
+    businessMeaning: An ERP installation needs one place that says what it is, which currency it reports in and which time zone and language apply. Every organisation, party, product and process belongs to that context, so this record is where scoping starts.
+    usage: Created once when an installation is set up; read as the context for every other record and changed rarely, by administrators.
+    relationshipContext: The context aggregates its Organizations and holds the shared Parties, Locations, Products, Business Processes, Workflows and Documents that those organisations use.
+    lifecycle: A context is drafted while being configured, becomes active when it goes live, may be suspended, and is retired when it is closed down. Reactivation after retirement needs an explicit policy.
+    example: 'The Acme Group installation: euro reporting currency, Central European time, English locale, containing six legal entities.'
 specification:
   version: 0.1.0
   status: draft

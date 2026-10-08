@@ -7,19 +7,18 @@ entity:
     icon: file-text
   identity: {key: documentVersionId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: documentVersionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DocumentVersion., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence.}}
+    - {name: documentVersionId, type: uuid, required: true, immutable: true, help: {summary: The identity of the version., usage: Generated on creation; signatures and distributions point to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When this version took effect., usage: Set when issued; the version in force on any date is the latest one effective by then.}}
   relationships:
-    - {name: document, target: Document, cardinality: '1', ownership: reference, help: {summary: Parent Document., businessMeaning: Supplies logical document identity., usage: Versioning and retrieval., cardinalityMeaning: Exactly one Document., workflowRole: Version content is immutable after finalization.}}
+    - {name: document, target: Document, cardinality: '1', ownership: reference, help: {summary: The document of which this is a version., cardinalityMeaning: 'Exactly one document: a version is a snapshot of a single document.', businessMeaning: Supplies logical document identity., usage: Versioning and retrieval., workflowRole: Version content is immutable after finalization.}}
   invariants:
     - {id: DOCUMENT-VERSION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: An immutable governed version of a Document preserving content identity, metadata, effective state, and historical provenance.
-    purpose: Provide durable, implementation-neutral governance semantics for DocumentVersion.
-    businessMeaning: An immutable governed version of a Document preserving content identity, metadata, effective state, and historical provenance.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
+    summary: A fixed version of a document that preserves its content identity, metadata and provenance.
+    businessMeaning: Documents change, but evidence must not. Each version is a snapshot that can always be retrieved, so it is possible to show exactly what a person signed or received.
+    usage: Created each time a document revision is issued; read when comparing revisions or proving what was sent.
+    relationshipContext: Each version belongs to one Document.
+    lifecycle: A version is immutable. Corrections are new versions.
+    example: Version 3 of the supplier code of conduct, issued on 12 January.
     commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCUMENT-VERSION}

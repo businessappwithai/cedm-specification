@@ -175,6 +175,8 @@ def main(argv: list[str]) -> int:
         entity["help"] = merge(entity.get("help"), block["help"], filler_set(entity.get("help"), None, related),
                                set(ENTITY_KEYS.values()) | {"purpose", "whenUsed", "howItRelates", "lifecycleUsage",
                                                               "commonProcesses", "commonExamples"})
+        if not entity["help"].get("summary") or not (entity["help"].get("businessMeaning") or entity["help"].get("purpose")):
+            problems.append(f"{name}: entity help needs s (summary) and b (businessMeaning) — DICT-003")
         for attr_name, authored in block["attrs"].items():
             if attr_name not in attrs:
                 problems.append(f"{name}.{attr_name}: no such attribute")
