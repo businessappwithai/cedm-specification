@@ -1,0 +1,172 @@
+@ Berth
+a berthId
+s: The identity of the berth, independent of how the terminal currently numbers or names it.
+a berthCode
+s: The terminal's reference for the berth, such as B12, used by planners and in vessel schedules.
+a name
+s: The descriptive name of the berth, for example North Quay Berth 3.
+a status
+v ACTIVE: Open for ordinary vessel assignments.
+v RESTRICTED: Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval.
+v OUT_OF_SERVICE: Temporarily unusable, for example for dredging or repair; no new assignments.
+v RETIRED: Permanently removed from use; kept for history of past assignments.
+r port
+s: The port in which the berth is located.
+n: Exactly one port; a berth cannot be shared between ports.
+
+@ BillOfMaterial
+s: The recipe for a product: the components and quantities needed to produce or assemble it.
+b: A bill of material turns a product design into something the factory can plan and cost. It says what must be bought or made, and how much, to produce one unit, so material requirements, purchasing and product cost all follow from it.
+u: Created by engineering when a product is designed and revised when the design or process changes; read by planning, purchasing, production and costing.
+c: The bill belongs to one Product and is made up of BOMComponent lines, each naming a component product and its quantity.
+l: A bill is drafted, becomes active when released for production, and becomes obsolete when replaced. Released bills are not edited; changes are made in a new version.
+x: Bill BOM-1042 version 2.0 for the XR-200 bicycle lists a frame, two wheels, a drivetrain and 24 fasteners, and has been active since 1 March.
+a billOfMaterialId
+s: The identity of the bill, constant across its versions' editing.
+u: Generated on creation; production orders and cost roll-ups refer to the bill through it.
+a code
+s: The reference by which engineering and planning name the bill, such as BOM-1042.
+u: Entered when the bill is created and used in searches and documents; unique across bills.
+a bomVersion
+s: The revision of the bill, for example 2.0, so earlier production can be traced to the recipe that applied.
+u: Incremented by engineering when the components or quantities change; production records the version used.
+a status
+s: Whether the bill is still being written, in force for production, or replaced.
+u: Moved by engineering; planning and production use ACTIVE bills.
+v DRAFT: Being prepared; not yet usable for production.
+v ACTIVE: Released and in force; planning and production may use it.
+v OBSOLETE: Replaced or withdrawn; kept for history and for orders already produced from it.
+a effectiveFrom
+s: The first date on which the bill may be used.
+u: Set at release so a new design can be prepared in advance and take over on a known date.
+a effectiveTo
+s: The last date on which the bill may be used.
+u: Set when a replacement takes over; must not be earlier than the effective-from date.
+r product
+s: The product that this bill describes how to make.
+u: Chosen when the bill is created; a product can have several bills over time or for alternative ways of making it.
+n: Exactly one product: a bill is the recipe for a single finished item.
+w: Ties the recipe to the finished item that planning and costing are run for.
+r components
+s: The component lines that make up the bill.
+u: Read to explode the bill into material requirements.
+n: At least one component; a bill with no components describes nothing.
+w: Lines are owned by the bill and are released and retired with it.
+
+@ BillingCycle
+s: A recurring billing interval with its cut-off, which decides which period's charges a billing run picks up.
+b: Billing happens on a rhythm, such as monthly on the first. A billing cycle defines that rhythm, so charges are collected into the right invoice period and no charge is billed twice or missed.
+u: Defined by the billing team; assigned to accounts or contracts; read by billing runs to decide the period and cut-off for charge generation.
+c: Customers, contracts or subscriptions are assigned a cycle; the billing run generates charges for the period it defines.
+l: A cycle is drafted, active while it drives billing, completed when it is no longer used and cancelled if withdrawn before use. It must not rewrite charges already generated.
+x: A monthly cycle that closes on the last day of the month and invoices on the first working day of the next.
+a billingCycleId
+s: The identity of the billing cycle.
+u: Generated on creation; accounts and billing runs refer to the cycle through it.
+a status
+s: Whether the cycle is being prepared, driving billing, or finished.
+u: Set by the billing team; only ACTIVE cycles are used to generate charges.
+v DRAFT: Being defined; not yet used by billing runs.
+v ACTIVE: In force; billing runs use it to determine charge periods.
+v COMPLETED: No longer used for new billing; past runs remain valid.
+v CANCELLED: Withdrawn before it was used.
+
+@ Brand
+a brandId
+s: The identity of the brand, stable when its name or code is revised.
+a code
+a name
+a status
+v ACTIVE: In use and available for assignment to products.
+v INACTIVE: Temporarily not offered, for example while a licence is renegotiated; it can be reactivated.
+v RETIRED: No longer used; kept so historical sales and catalogue records remain accurate.
+r products
+n: Any number of products; a new brand may have none yet.
+r variants
+n: Any number of variants, one for each branded variation of a product.
+
+@ Budget
+a budgetId
+s: The identity of the budget, stable across revisions of its figures.
+a code
+u: Assigned by finance when the budget is created, for example FY26-OPS-V1; used to find the budget and cite it in approvals.
+a status
+v DRAFT: Being prepared by the budget owner; figures may change freely.
+v SUBMITTED: Sent for approval; changes are held while it is reviewed.
+v APPROVED: Accepted by the authorising body but not yet the live control.
+v ACTIVE: The live budget against which spending is monitored.
+v SUPERSEDED: Replaced by a later version; kept as the record of what was once approved.
+v CLOSED: The period is over and the budget is closed for comparison with actuals.
+r organization
+u: Set when the budget is created; determines whose spending the budget limits.
+n: Exactly one organisation: a budget always plans the money of a single organisation.
+r lines
+n: At least one line; a budget with no lines plans no money.
+r fiscalPeriod
+r scenario
+
+@ BudgetLine
+a budgetLineId
+s: The identity of the budget line.
+a amount
+r budget
+n: Exactly one budget; a line cannot exist outside the plan that contains it.
+r account
+r costCenter
+n: At most one cost centre; a line may be planned by account alone.
+r profitCenter
+n: At most one profit centre; used when the plan is organised by profit responsibility.
+
+@ BusinessEvent
+s: An immutable record that a meaningful business fact occurred, published for other domains without replacing the original transaction.
+b: Business events let one part of the organisation tell the rest that something happened, such as an order shipped or a payment settled, without those parts sharing databases. The event is a stable, auditable announcement of the fact.
+u: Written when a governed fact is confirmed; consumed by other systems and processes that react to it, and kept for audit.
+c: An event refers to the transaction that caused it but does not replace it; consumers rely on the event rather than reading the source system.
+l: An event is final when written. A correction is a new event, and delivery retries must not create duplicate effects downstream.
+x: Event "OrderShipped" for order SO-20413, published when the carrier confirmed pick-up, consumed by invoicing and customer notification.
+a businessEventId
+s: The identity of the event, also used by consumers to ignore a delivery they have already processed.
+a occurredAt
+s: When the business fact happened, as opposed to when it was published.
+u: Set from the source transaction's time; consumers order and window events by it.
+
+@ BusinessProcess
+s: A defined sequence of activities, decisions and events that together achieve a business objective.
+b: Naming and versioning a process gives the organisation one agreed description of how a piece of work is done, so teams, systems and auditors refer to the same thing and changes are controlled.
+u: Defined by process owners; linked to the workflows, tasks and documents that carry it out; read by managers, analysts and auditors.
+c: A process is owned by an Organization and realised by Workflows, Tasks and supporting Documents.
+l: A process is drafted, becomes active when approved for use, may be suspended for rework, and is retired when replaced. Only one version is normally effective for a given period.
+x: The order-to-cash process, version 3.0, owned by Finance and effective from 1 January.
+a businessProcessId
+s: The identity of the process, constant across its versions' editing.
+a code
+s: The reference by which the process is named in documents and discussions, for example P2P-001.
+a name
+s: The title of the process, such as Procure to Pay.
+a description
+s: A narrative of what the process achieves, where it starts and ends and who takes part.
+a processVersion
+s: The revision of the process definition, so a change to how work is done is traceable.
+u: Incremented by the process owner when the steps change; runs of the process record the version they followed.
+a status
+v DRAFT: Being designed; not yet in use.
+v ACTIVE: Approved and in use.
+v SUSPENDED: Temporarily withdrawn, for example while being reworked; not used for new runs.
+v RETIRED: Permanently replaced or discontinued; kept for history.
+a effectiveFrom
+s: The first date on which this version of the process applies.
+a effectiveTo
+s: The last date on which this version of the process applies.
+u: Set when a successor takes over; must not precede the effective-from date.
+r ownerOrganization
+s: The part of the organisation accountable for the process.
+n: At most one owner; a process without an owner is a gap to resolve.
+r workflows
+s: The workflows that automate or carry out the process.
+n: Any number, as one process can be realised by several workflows.
+r tasks
+s: The tasks that make up the process's work.
+n: Any number, accumulating as the process is run.
+r documents
+s: The documents that describe or support the process, such as procedures and forms.
+n: Any number.

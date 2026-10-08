@@ -7,18 +7,17 @@ entity:
     icon: activity
   identity: {key: businessEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessEvent., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows.}}
-    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps.}}
+    - {name: businessEventId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the event, also used by consumers to ignore a delivery they have already processed.'}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: 'When the business fact happened, as opposed to when it was published.', usage: Set from the source transaction's time; consumers order and window events by it.}}
   relationships: []
   invariants:
     - {id: BUSINESS-EVENT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
   help:
-    summary: An immutable semantic record that a meaningful business fact occurred, suitable for cross-domain publication without replacing the source transaction.
-    purpose: Provide canonical implementation-neutral integration semantics for BusinessEvent.
-    businessMeaning: An immutable semantic record that a meaningful business fact occurred, suitable for cross-domain publication without replacing the source transaction.
+    summary: An immutable record that a meaningful business fact occurred, published for other domains without replacing the original transaction.
+    businessMeaning: Business events let one part of the organisation tell the rest that something happened, such as an order shipped or a payment settled, without those parts sharing databases. The event is a stable, auditable announcement of the fact.
+    usage: Written when a governed fact is confirmed; consumed by other systems and processes that react to it, and kept for audit.
+    relationshipContext: An event refers to the transaction that caused it but does not replace it; consumers rely on the event rather than reading the source system.
+    lifecycle: An event is final when written. A correction is a new event, and delivery retries must not create duplicate effects downstream.
+    example: Event "OrderShipped" for order SO-20413, published when the carrier confirmed pick-up, consumed by invoicing and customer notification.
     whenUsed: Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
-    howItRelates: Carries or routes evidence derived from authoritative domain transactions without replacing those source records.
-    lifecycleUsage: Created and processed through governed integration states; attempts and finalized evidence are retained.
-    commonProcesses: Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit.
-    commonExamples: Enterprise application integration and event-driven workflows.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUSINESS-EVENT}

@@ -27,11 +27,11 @@ def flags(bad, where, help_):
 def show(entity: dict, bad) -> None:
     n = entity["name"]
     print(f"## {n}  kind={entity.get('kind')}  icon={(entity.get('ui') or {}).get('icon')}")
-    print(f"   {entity.get('description')}")
+    print(f"   {str(entity.get('description'))[:220]}")
     print(f"   EH: {flags(bad, n, entity.get('help'))}")
     for key, value in (entity.get("help") or {}).items():
         if (n, key) not in bad:
-            print(f"      keep {key}: {value}")
+            print(f"      keep {key}: {str(value)[:70]}")
     for a in entity.get("attributes") or []:
         bits = [a.get("type", "?")]
         for flag in ("required", "unique", "immutable"):
@@ -48,20 +48,20 @@ def show(entity: dict, bad) -> None:
             if key == "valueSemantics" and isinstance(value, dict):
                 real = {v: t for v, t in value.items() if (f"{where}[{v}]", "valueSemantics") not in bad}
                 for v, t in real.items():
-                    print(f"      keep valueSemantics[{v}]: {t}")
+                    print(f"      keep vs[{v}]")
             elif (where, key) not in bad:
-                print(f"      keep {key}: {value}")
+                print(f"      keep {key}: {str(value)[:70]}")
     for r in entity.get("relationships") or []:
         where = f"{n}.{r['name']}"
         print(f"   R {r['name']} -> {r.get('target')} {r.get('cardinality')} {r.get('ownership')}  {flags(bad, where, r.get('help'))}")
         for key, value in (r.get("help") or {}).items():
             if (where, key) not in bad:
-                print(f"      keep {key}: {value}")
+                print(f"      keep {key}: {str(value)[:70]}")
     for inv in entity.get("invariants") or []:
-        print(f"   I {inv.get('id')}: {inv.get('rule')}")
+        print(f"   I {inv.get('id')}: {str(inv.get('rule'))[:120]}")
     lc = entity.get("lifecycle")
     if lc:
-        edges = " ".join(f"{t['from']}>{t['to']}({t.get('action')})" for t in lc.get("transitions") or [])
+        edges = " ".join(f"{t['from']}>{t['to']}" for t in lc.get("transitions") or [])
         print(f"   L {lc.get('attribute')} initial={lc.get('initial')} terminal={lc.get('terminal')} {edges}")
     print()
 

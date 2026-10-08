@@ -7,19 +7,17 @@ entity:
     icon: box
   identity: {key: assetTransferId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: assetTransferId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetTransfer., businessMeaning: Identifies one governed AssetTransfer record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact.}}
+    - {name: assetTransferId, type: uuid, required: true, immutable: true, help: {summary: The identity of this transfer event., usage: Generated on creation; history and audit queries refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the move took effect., usage: Taken from the hand-over document; the asset's current assignment is the latest transfer whose effective date has passed.}}
   relationships:
-    - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: Asset affected by this lifecycle record., businessMeaning: Supplies canonical asset identity., usage: Asset lifecycle and audit., cardinalityMeaning: Exactly one Asset., workflowRole: Event changes lifecycle state without rewriting prior asset evidence.}}
+    - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: The asset being moved., usage: Chosen when the transfer is recorded., cardinalityMeaning: Exactly one asset per transfer; moving several assets means several transfers., workflowRole: Keeps custody history for each asset separate from its acquisition.}}
   invariants:
     - {id: ASSET-TRANSFER-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
-    purpose: Provide canonical enterprise semantics for AssetTransfer.
-    businessMeaning: A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: The event by which responsibility for an asset, its location, organisational assignment or custody moves, without rewriting how the asset was acquired.
+    businessMeaning: Assets move between departments, sites and custodians during their life. A transfer records that move as an event, so the asset's current owner and place are right while its earlier history stays intact.
+    usage: Created when an asset is relocated, reassigned or handed over; read to answer who held an asset when and for audits of custody.
+    relationshipContext: Each transfer points to the Asset that moved; the register reflects the latest effective transfer.
+    lifecycle: A transfer is recorded once and is then evidence. A wrong transfer is corrected by a further transfer rather than an edit.
+    example: A laptop moves from the Sales department in Berlin to Support in Madrid on 1 September.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-TRANSFER}

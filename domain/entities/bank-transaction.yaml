@@ -51,18 +51,18 @@ entity:
       required: true
       values: [CREDIT, DEBIT, TRANSFER, FEE, INTEREST, REVERSAL, OTHER]
       help:
+        valueSemantics:
+          CREDIT: Money received into the account.
+          DEBIT: Money paid out of the account.
+          TRANSFER: Movement between the organisation's own accounts or accounts at the bank.
+          FEE: A charge made by the bank for its services.
+          INTEREST: Interest credited or debited by the bank.
+          REVERSAL: A reversal of an earlier bank transaction, such as a returned payment.
+          OTHER: A bank-side adjustment that fits none of the above.
         summary: Classification of the movement reported by the financial institution.
         usage: Supports matching, cash classification, fee handling, transfer processing, and reconciliation.
         relationshipContext: Bank classification does not by itself determine internal accounting meaning.
         workflowRole: Helps identify whether evidence is a candidate Payment, fee, transfer, interest, or reversal.
-        valueSemantics:
-          CREDIT: The transaction type of the bank transaction is credit; set it when that is what the business means for this record.
-          DEBIT: The transaction type of the bank transaction is debit; set it when that is what the business means for this record.
-          TRANSFER: The transaction type of the bank transaction is transfer; set it when that is what the business means for this record.
-          FEE: The transaction type of the bank transaction is fee; set it when that is what the business means for this record.
-          INTEREST: The transaction type of the bank transaction is interest; set it when that is what the business means for this record.
-          REVERSAL: The transaction type of the bank transaction is reversal; set it when that is what the business means for this record.
-          OTHER: The transaction type of the bank transaction is other; set it when that is what the business means for this record.
     - name: amount
       type: Money
       required: true
@@ -77,15 +77,15 @@ entity:
       default: POSTED
       values: [PENDING, POSTED, REVERSED, FAILED]
       help:
+        valueSemantics:
+          PENDING: Reported by the bank but not yet final; it may still change or fall away.
+          POSTED: Final on the bank's books and eligible as settlement evidence.
+          REVERSED: Undone by the bank; no longer supports a payment being cleared.
+          FAILED: Did not complete; no money moved.
         summary: Lifecycle state of the bank-reported transaction.
         usage: Controls whether the transaction is eligible as external settlement evidence.
         relationshipContext: Independent from Payment status and JournalEntry status.
         workflowRole: POSTED evidence can normally support reconciliation; REVERSED evidence must trigger corresponding correction handling.
-        valueSemantics:
-          PENDING: The status of the bank transaction is pending; set it when that is what the business means for this record.
-          POSTED: The status of the bank transaction is posted; set it when that is what the business means for this record.
-          REVERSED: The status of the bank transaction is reversed; set it when that is what the business means for this record.
-          FAILED: The status of the bank transaction is failed; set it when that is what the business means for this record.
     - name: reference
       type: string
       required: false

@@ -9,7 +9,7 @@ entity:
   attributes:
     - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the routing version., businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business routing code., businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition.}}
-    - {name: version, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version.}}
+    - {name: routingVersion, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version.}}
     - name: status
       type: enum
       required: true
@@ -20,9 +20,9 @@ entity:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Output Product this routing produces., businessMeaning: Associates process definition with manufactured item., usage: Planning and production release., cardinalityMeaning: Exactly one output Product., workflowRole: Must match work-order output.}}
     - {name: operations, target: Operation, cardinality: "1..*", ownership: aggregate, help: {summary: Ordered standard process steps., businessMeaning: Defines how production is performed., usage: "Scheduling, costing, execution, and quality gates.", cardinalityMeaning: Active routing requires at least one operation., workflowRole: Operations are instantiated/executed under ManufacturingWorkOrder.}}
   invariants:
-    - {id: ROUTING-001, rule: code and version must be unique within the applicable manufacturing context.}
+    - {id: ROUTING-001, rule: code and routingVersion must be unique within the applicable manufacturing context.}
     - {id: ROUTING-002, rule: ACTIVE routing must contain at least one valid ordered Operation.}
-    - {id: ROUTING-003, rule: Released production must preserve the effective routing version and must not be silently changed by later master-data revisions.}
+    - {id: ROUTING-003, rule: Released production must preserve the effective routing routingVersion and must not be silently changed by later master-data revisions.}
   lifecycle:
     title: Routing Lifecycle
     attribute: status

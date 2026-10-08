@@ -51,7 +51,7 @@ v GENERATION: Produces new content such as text, images or code.
 v EMBEDDING: Turns content into numeric vectors for similarity search and retrieval.
 v ANOMALY_DETECTION: Flags unusual cases that deviate from normal patterns, such as suspicious transactions.
 v OTHER: Any model task not listed above; describe it in the purpose.
-a version
+a modelVersion
 s: The version label of this model build, such as 3.2.0.
 u: Updated whenever the model is retrained or changed in a way that could alter its outputs; predictions record the version that produced them so results stay reproducible.
 a status

@@ -6,17 +6,26 @@ entity:
   ui: {icon: anchor}
   identity: {key: berthId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: berthId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Berth., businessMeaning: Identifies one terminal berth independently of Port or Location labels., usage: "Berth planning, vessel operations, reporting and audit.", relationshipContext: Port owns the terminal context while Location may provide physical geography.}}
-    - {name: berthCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing berth reference., businessMeaning: Operational code used by terminal and vessel planners., usage: "Scheduling, communication and integration.", relationshipContext: Stable within port governance.}}
-    - {name: name, type: string, required: false, maxLength: 300, help: {summary: Human-readable berth name., businessMeaning: Supports operational recognition., usage: "Planning screens and reports.", relationshipContext: Code remains the primary operational reference.}}
+    - {name: berthId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the berth, independent of how the terminal currently numbers or names it.', businessMeaning: Identifies one terminal berth independently of Port or Location labels., usage: "Berth planning, vessel operations, reporting and audit.", relationshipContext: Port owns the terminal context while Location may provide physical geography.}}
+    - {name: berthCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The terminal's reference for the berth, such as B12, used by planners and in vessel schedules.", businessMeaning: Operational code used by terminal and vessel planners., usage: "Scheduling, communication and integration.", relationshipContext: Stable within port governance.}}
+    - {name: name, type: string, required: false, maxLength: 300, help: {summary: 'The descriptive name of the berth, for example North Quay Berth 3.', businessMeaning: Supports operational recognition., usage: "Planning screens and reports.", relationshipContext: Code remains the primary operational reference.}}
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, RESTRICTED, OUT_OF_SERVICE, RETIRED]
-      help: {summary: Operational availability state of the Berth., businessMeaning: Controls ordinary new vessel assignments., usage: "Port planning and safety.", relationshipContext: Historical vessel use remains valid after status changes., valueSemantics: {ACTIVE: Available under normal rules., RESTRICTED: Available only under constraints., OUT_OF_SERVICE: Temporarily unavailable., RETIRED: Permanently closed to new assignment.}}
+      help:
+        valueSemantics:
+          ACTIVE: Open for ordinary vessel assignments.
+          RESTRICTED: Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval.
+          OUT_OF_SERVICE: Temporarily unusable, for example for dredging or repair; no new assignments.
+          RETIRED: Permanently removed from use; kept for history of past assignments.
+        summary: Operational availability state of the Berth.
+        businessMeaning: Controls ordinary new vessel assignments.
+        usage: "Port planning and safety."
+        relationshipContext: Historical vessel use remains valid after status changes.
   relationships:
-    - {name: port, target: Port, cardinality: "1", ownership: reference, help: {summary: Port containing this Berth., businessMeaning: Establishes terminal ownership and operational context., usage: "Port planning and reporting.", cardinalityMeaning: Exactly one Port., workflowRole: Berth assignments occur within this Port.}}
+    - {name: port, target: Port, cardinality: "1", ownership: reference, help: {summary: The port in which the berth is located., cardinalityMeaning: Exactly one port; a berth cannot be shared between ports., businessMeaning: Establishes terminal ownership and operational context., usage: "Port planning and reporting.", workflowRole: Berth assignments occur within this Port.}}
     - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Physical location record associated with the Berth., businessMeaning: Provides geospatial/site context without duplicating Location master data., usage: "Navigation, GIS and reporting.", cardinalityMeaning: Optional where Port/Berth code is sufficient., workflowRole: Location changes do not rewrite historical assignments.}}
     - {name: voyages, target: Voyage, cardinality: "0..*", ownership: reference, help: {summary: Voyages assigned to or historically using this Berth., businessMeaning: Preserves berth-utilization history., usage: "Capacity, operations and reporting.", cardinalityMeaning: Zero or many Voyages over time., workflowRole: Scheduling must avoid conflicting active assignments according to terminal policy.}}
   invariants:

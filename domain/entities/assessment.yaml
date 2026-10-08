@@ -7,8 +7,8 @@ entity:
   identity: {key: assessmentId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: assessmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the assessment definition or event., businessMeaning: Identifies one evaluated learning activity independently of individual learner grades., usage: "Assessment planning, gradebook, reporting and audit.", relationshipContext: Grade records student-specific outcomes against this Assessment.}}
-    - {name: assessmentCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing assessment reference., businessMeaning: Operational identifier used by educators and integrations., usage: "Search, gradebook and reporting.", relationshipContext: Distinct from Class and Course identifiers.}}
-    - {name: title, type: string, required: true, maxLength: 300, help: {summary: Human-readable title of the assessment., businessMeaning: Describes the evaluated activity to learners and educators., usage: "Portals, schedules and reports.", relationshipContext: Assessment type and Class supply further context.}}
+    - {name: assessmentCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: "The educators' reference for this assessment, such as MATH101-MID-2026, used in the gradebook and in integrations.", businessMeaning: Operational identifier used by educators and integrations., usage: "Search, gradebook and reporting.", relationshipContext: Distinct from Class and Course identifiers.}}
+    - {name: title, type: string, required: true, maxLength: 300, help: {summary: 'The name learners and educators see for the assessment, such as Midterm Exam or Lab Report 2.', businessMeaning: Describes the evaluated activity to learners and educators., usage: "Portals, schedules and reports.", relationshipContext: Assessment type and Class supply further context.}}
     - name: assessmentType
       type: enum
       required: true
@@ -26,11 +26,20 @@ entity:
       required: true
       default: DRAFT
       values: [DRAFT, PUBLISHED, CLOSED, CANCELLED]
-      help: {summary: Lifecycle state of the Assessment., businessMeaning: Controls learner visibility and grading eligibility., usage: "Assessment workflow and reporting.", relationshipContext: Grades against CLOSED assessments remain historical., valueSemantics: {DRAFT: Being prepared., PUBLISHED: Active for eligible learners., CLOSED: Assessment is complete for ordinary new grading., CANCELLED: Assessment was cancelled.}}
+      help:
+        summary: Whether learners can see the assessment and whether grades may still be entered against it.
+        valueSemantics:
+          DRAFT: Being prepared by the educator; not visible to learners and not gradeable.
+          PUBLISHED: Active for eligible learners.
+          CLOSED: Assessment is complete for ordinary new grading.
+          CANCELLED: Assessment was cancelled.
+        businessMeaning: Controls learner visibility and grading eligibility.
+        usage: "Assessment workflow and reporting."
+        relationshipContext: Grades against CLOSED assessments remain historical.
   relationships:
-    - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {summary: Course whose learning expectations are evaluated., businessMeaning: Supplies curriculum context., usage: "Assessment planning and reporting.", cardinalityMeaning: Exactly one EducationCourse., workflowRole: Course lifecycle constrains new assessments.}}
+    - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one course; an assessment always measures the learning expectations of a single course., summary: Course whose learning expectations are evaluated., businessMeaning: Supplies curriculum context., usage: "Assessment planning and reporting.", workflowRole: Course lifecycle constrains new assessments.}}
     - {name: class, target: Class, cardinality: "0..1", ownership: reference, help: {summary: Specific Class for which this assessment is administered., businessMeaning: Scopes assessment to one delivery instance where applicable., usage: "Gradebook and learner eligibility.", cardinalityMeaning: Optional for course-wide or reusable assessments., workflowRole: Class must deliver the same course.}}
-    - {name: grades, target: Grade, cardinality: "0..*", ownership: aggregate, help: {summary: Student-specific outcomes recorded against this Assessment., businessMeaning: Separates evaluation definition from individual learner result., usage: "Gradebook, transcript and analytics.", cardinalityMeaning: Zero or many Grade records., workflowRole: Grade student eligibility and score rules must reconcile to Assessment.}}
+    - {name: grades, target: Grade, cardinality: "0..*", ownership: aggregate, help: {usage: Read to see every learner's result for this assessment and to compute averages and distributions., cardinalityMeaning: 'Any number, normally one per enrolled learner once grading starts.', summary: Student-specific outcomes recorded against this Assessment., businessMeaning: Separates evaluation definition from individual learner result., workflowRole: Grade student eligibility and score rules must reconcile to Assessment.}}
   invariants:
     - {id: ASSESSMENT-001, rule: maxScore must be positive when supplied.}
     - {id: ASSESSMENT-002, rule: If Class is supplied it must deliver the referenced EducationCourse.}

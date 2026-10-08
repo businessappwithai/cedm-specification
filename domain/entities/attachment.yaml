@@ -7,18 +7,16 @@ entity:
     icon: paperclip
   identity: {key: attachmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: attachmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Attachment., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence.}}
+    - {name: attachmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the attachment record., usage: Generated on creation; links to the supported record and audit entries use it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the attachment became part of the record., usage: Set when the file is attached; used to show what evidence existed at a given moment.}}
   relationships: []
   invariants:
     - {id: ATTACHMENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance.
-    purpose: Provide durable, implementation-neutral governance semantics for Attachment.
-    businessMeaning: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: A file or other content attached to an enterprise record, with its content identity and provenance kept for audit.
+    businessMeaning: Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice.
+    usage: Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document.
+    relationshipContext: An attachment is linked to the record it supports; the same file may be attached to more than one.
+    lifecycle: Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record.
+    example: A signed delivery note PDF is attached to a shipment record by the driver's handheld at delivery.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ATTACHMENT}

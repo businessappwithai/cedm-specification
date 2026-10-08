@@ -1,0 +1,120 @@
+@ Assessment
+a assessmentCode
+s: The educators' reference for this assessment, such as MATH101-MID-2026, used in the gradebook and in integrations.
+a title
+s: The name learners and educators see for the assessment, such as Midterm Exam or Lab Report 2.
+a status
+s: Whether learners can see the assessment and whether grades may still be entered against it.
+v DRAFT: Being prepared by the educator; not visible to learners and not gradeable.
+r course
+n: Exactly one course; an assessment always measures the learning expectations of a single course.
+r grades
+u: Read to see every learner's result for this assessment and to compute averages and distributions.
+n: Any number, normally one per enrolled learner once grading starts.
+
+@ Asset
+r serviceOrders
+n: Any number over the asset's life; every service visit or repair performed on it adds one.
+
+@ AssetAcquisition
+s: The event by which an organisation takes on an asset, with the context needed to capitalise it, while the accounting entry itself stays in the journal.
+b: Acquiring an asset is a business event with its own date, source and cost. Recording it separately keeps the asset register and the ledger consistent without mixing the story of how the asset arrived into the asset itself.
+u: Created when an asset is purchased, built, leased in or received as a transfer in; read by asset accounting for capitalisation and depreciation start dates.
+c: Each acquisition refers to the Asset it brought into the register; the related JournalEntry holds the accounting posting.
+l: The event is recorded once and is then evidence. Errors are corrected by a compensating or superseding record rather than by editing the original.
+x: A forklift purchased on 3 March for 28,000 is recorded as an acquisition of that asset effective on delivery, from which depreciation starts.
+a assetAcquisitionId
+s: The identity of this acquisition event, so corrections and postings can refer to it.
+u: Generated on creation; journal entries and audit records point back to it.
+a effectiveAt
+s: The date and time from which the organisation treats itself as holding the asset.
+u: Entered from the delivery or transfer document; it starts depreciation and ageing, so it is the date finance relies on.
+r asset
+s: The asset that was acquired.
+u: Chosen when the acquisition is recorded; one asset is normally acquired once.
+n: Exactly one asset per acquisition event.
+w: Links the capitalisation event to the register entry it created.
+
+@ AssetClass
+s: A classification of assets that carries default accounting, depreciation, lifecycle and control rules for every asset placed in it.
+b: Without classes every asset would need its own depreciation method and useful life. A class holds those policies once so assets of the same kind, such as vehicles, buildings or IT equipment, are treated consistently.
+u: Set up by asset accountants and policy owners; chosen when an asset is registered so its defaults are inherited.
+c: Assets are assigned to a class; the class's accounting defaults feed depreciation and the ledger.
+l: A class is defined, used by assets, and eventually closed to new assets; history keeps the policy that applied when each asset was registered.
+x: The Vehicles class sets straight-line depreciation over five years and requires an insurance record for each asset.
+a assetClassId
+s: The identity of the asset class.
+u: Generated on creation; assets and policies refer to the class through it.
+a effectiveAt
+s: When this version of the class's rules takes effect.
+u: Set when the class is defined or its policy revised, so each asset can be evaluated under the rules in force on its own dates.
+
+@ AssetDisposal
+s: The event by which an organisation retires, sells, scraps or otherwise disposes of an asset, with its operational and accounting consequences.
+b: Disposal ends an asset's life in the register. Recording it as an event shows how and when the asset left, supports the gain or loss calculation, and stops the asset being used by mistake.
+u: Created when an asset is sold, scrapped, donated or written off; read by finance for the disposal entry and by operations to confirm the asset is gone.
+c: Each disposal points to the Asset it removes; the accounting posting lives in the journal.
+l: A disposal is recorded once and becomes evidence; mistakes are corrected by a reversing or superseding record, and a reinstated asset needs an explicit process.
+x: A damaged delivery van is sold for scrap on 12 June; the disposal records the sale and the asset leaves the active register.
+a assetDisposalId
+s: The identity of this disposal event.
+u: Generated on creation; journal entries and audit refer to it.
+a effectiveAt
+s: The date and time at which the organisation ceased to hold the asset.
+u: Taken from the sale, scrap or write-off document; depreciation stops and the gain or loss is measured at this date.
+r asset
+s: The asset that was disposed of.
+u: Chosen when the disposal is recorded; the asset then stops being offered for new assignments.
+n: Exactly one asset per disposal event.
+w: Marks the end of the asset's operational life while keeping its history.
+
+@ AssetTransfer
+s: The event by which responsibility for an asset, its location, organisational assignment or custody moves, without rewriting how the asset was acquired.
+b: Assets move between departments, sites and custodians during their life. A transfer records that move as an event, so the asset's current owner and place are right while its earlier history stays intact.
+u: Created when an asset is relocated, reassigned or handed over; read to answer who held an asset when and for audits of custody.
+c: Each transfer points to the Asset that moved; the register reflects the latest effective transfer.
+l: A transfer is recorded once and is then evidence. A wrong transfer is corrected by a further transfer rather than an edit.
+x: A laptop moves from the Sales department in Berlin to Support in Madrid on 1 September.
+a assetTransferId
+s: The identity of this transfer event.
+u: Generated on creation; history and audit queries refer to it.
+a effectiveAt
+s: When the move took effect.
+u: Taken from the hand-over document; the asset's current assignment is the latest transfer whose effective date has passed.
+r asset
+s: The asset being moved.
+u: Chosen when the transfer is recorded.
+n: Exactly one asset per transfer; moving several assets means several transfers.
+w: Keeps custody history for each asset separate from its acquisition.
+
+@ Assignment
+s: The allocation of responsibility for a task or workflow activity to an eligible user, role, team or organisational context.
+b: Work only gets done when someone is responsible for it. An assignment records who that is, so tasks do not stall unowned and ownership changes leave a trail.
+u: Created when a task is routed, claimed or reassigned; read by work queues, escalation rules and audits of workload.
+c: An assignment connects a task or activity to the person or group who must act on it.
+l: An assignment is pending when offered, active once accepted or in effect, completed when the work is done, and cancelled if withdrawn or reassigned. History is kept; a reassignment is a new record.
+x: A claims task is assigned to the Claims Team queue, accepted by an adjuster and completed when the claim is decided.
+a assignmentId
+s: The identity of the assignment.
+u: Generated on creation; escalations and history refer to it.
+a status
+s: Where the assignment stands in its life.
+u: Moved by the workflow and by the assignee; work queues show ACTIVE assignments.
+v PENDING: Offered but not yet accepted or in effect.
+v ACTIVE: In effect; the assignee is responsible for the work.
+v COMPLETED: The work is done and the responsibility ended.
+v CANCELLED: Withdrawn or replaced before completion.
+
+@ Attachment
+s: A file or other content attached to an enterprise record, with its content identity and provenance kept for audit.
+b: Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice.
+u: Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document.
+c: An attachment is linked to the record it supports; the same file may be attached to more than one.
+l: Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record.
+x: A signed delivery note PDF is attached to a shipment record by the driver's handheld at delivery.
+a attachmentId
+s: The identity of the attachment record.
+u: Generated on creation; links to the supported record and audit entries use it.
+a effectiveAt
+s: When the attachment became part of the record.
+u: Set when the file is attached; used to show what evidence existed at a given moment.

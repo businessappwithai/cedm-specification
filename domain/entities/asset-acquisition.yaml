@@ -7,19 +7,17 @@ entity:
     icon: box
   identity: {key: assetAcquisitionId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: assetAcquisitionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetAcquisition., businessMeaning: Identifies one governed AssetAcquisition record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact.}}
+    - {name: assetAcquisitionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of this acquisition event, so corrections and postings can refer to it.', usage: Generated on creation; journal entries and audit records point back to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time from which the organisation treats itself as holding the asset., usage: 'Entered from the delivery or transfer document; it starts depreciation and ageing, so it is the date finance relies on.'}}
   relationships:
-    - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: Asset affected by this lifecycle record., businessMeaning: Supplies canonical asset identity., usage: Asset lifecycle and audit., cardinalityMeaning: Exactly one Asset., workflowRole: Event changes lifecycle state without rewriting prior asset evidence.}}
+    - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: The asset that was acquired., usage: Chosen when the acquisition is recorded; one asset is normally acquired once., cardinalityMeaning: Exactly one asset per acquisition event., workflowRole: Links the capitalisation event to the register entry it created.}}
   invariants:
     - {id: ASSET-ACQUISITION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed event recognizing acquisition and capitalization context for an Asset while keeping accounting posting in JournalEntry.
-    purpose: Provide canonical enterprise semantics for AssetAcquisition.
-    businessMeaning: A governed event recognizing acquisition and capitalization context for an Asset while keeping accounting posting in JournalEntry.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: The event by which an organisation takes on an asset, with the context needed to capitalise it, while the accounting entry itself stays in the journal.
+    businessMeaning: Acquiring an asset is a business event with its own date, source and cost. Recording it separately keeps the asset register and the ledger consistent without mixing the story of how the asset arrived into the asset itself.
+    usage: Created when an asset is purchased, built, leased in or received as a transfer in; read by asset accounting for capitalisation and depreciation start dates.
+    relationshipContext: Each acquisition refers to the Asset it brought into the register; the related JournalEntry holds the accounting posting.
+    lifecycle: The event is recorded once and is then evidence. Errors are corrected by a compensating or superseding record rather than by editing the original.
+    example: A forklift purchased on 3 March for 28,000 is recorded as an acquisition of that asset effective on delivery, from which depreciation starts.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-ACQUISITION}

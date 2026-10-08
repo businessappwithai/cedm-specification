@@ -7,12 +7,19 @@ entity:
     icon: table
   identity: {key: billingCycleId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: billingCycleId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BillingCycle., businessMeaning: Identifies one governed BillingCycle record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows.}}
+    - {name: billingCycleId, type: uuid, required: true, immutable: true, help: {summary: The identity of the billing cycle., usage: Generated on creation; accounts and billing runs refer to the cycle through it.}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of BillingCycle., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}}
+      help:
+        summary: Whether the cycle is being prepared, driving billing, or finished.
+        usage: Set by the billing team; only ACTIVE cycles are used to generate charges.
+        valueSemantics:
+          DRAFT: Being defined; not yet used by billing runs.
+          ACTIVE: In force; billing runs use it to determine charge periods.
+          COMPLETED: No longer used for new billing; past runs remain valid.
+          CANCELLED: Withdrawn before it was used.
   relationships: []
   invariants:
     - {id: BILLING-CYCLE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
@@ -47,12 +54,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed recurring billing interval and cutoff definition used to determine charge-generation periods.
-    purpose: Provide canonical enterprise semantics for BillingCycle while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed recurring billing interval and cutoff definition used to determine charge-generation periods.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A recurring billing interval with its cut-off, which decides which period's charges a billing run picks up.
+    businessMeaning: Billing happens on a rhythm, such as monthly on the first. A billing cycle defines that rhythm, so charges are collected into the right invoice period and no charge is billed twice or missed.
+    usage: Defined by the billing team; assigned to accounts or contracts; read by billing runs to decide the period and cut-off for charge generation.
+    relationshipContext: Customers, contracts or subscriptions are assigned a cycle; the billing run generates charges for the period it defines.
+    lifecycle: A cycle is drafted, active while it drives billing, completed when it is no longer used and cancelled if withdrawn before use. It must not rewrite charges already generated.
+    example: A monthly cycle that closes on the last day of the month and invoices on the first working day of the next.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BILLING-CYCLE}

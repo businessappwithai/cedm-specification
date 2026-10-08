@@ -36,7 +36,7 @@ entity:
         summary: The human-readable name used by people, reports, searches, and related business processes.
         usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Workflow records, where applicable.
         relationshipContext: Its meaning is specific to Workflow; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-    - name: version
+    - name: workflowVersion
       type: string
       required: true
       default: '1.0'

@@ -7,18 +7,16 @@ entity:
     icon: box
   identity: {key: assetClassId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: assetClassId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetClass., businessMeaning: Identifies one governed AssetClass record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records.}}
-    - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact.}}
+    - {name: assetClassId, type: uuid, required: true, immutable: true, help: {summary: The identity of the asset class., usage: Generated on creation; assets and policies refer to the class through it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When this version of the class's rules takes effect., usage: 'Set when the class is defined or its policy revised, so each asset can be evaluated under the rules in force on its own dates.'}}
   relationships: []
   invariants:
     - {id: ASSET-CLASS-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets.
-    purpose: Provide canonical enterprise semantics for AssetClass.
-    businessMeaning: A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: A classification of assets that carries default accounting, depreciation, lifecycle and control rules for every asset placed in it.
+    businessMeaning: Without classes every asset would need its own depreciation method and useful life. A class holds those policies once so assets of the same kind, such as vehicles, buildings or IT equipment, are treated consistently.
+    usage: Set up by asset accountants and policy owners; chosen when an asset is registered so its defaults are inherited.
+    relationshipContext: Assets are assigned to a class; the class's accounting defaults feed depreciation and the ledger.
+    lifecycle: A class is defined, used by assets, and eventually closed to new assets; history keeps the policy that applied when each asset was registered.
+    example: The Vehicles class sets straight-line depreciation over five years and requires an insurance record for each asset.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-CLASS}

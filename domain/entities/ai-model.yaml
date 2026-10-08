@@ -57,7 +57,7 @@ entity:
           EMBEDDING: Turns content into numeric vectors for similarity search and retrieval.
           ANOMALY_DETECTION: Flags unusual cases that deviate from normal patterns, such as suspicious transactions.
           OTHER: Any model task not listed above; describe it in the purpose.
-    - name: version
+    - name: modelVersion
       type: string
       required: true
       maxLength: 50

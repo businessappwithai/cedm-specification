@@ -7,12 +7,19 @@ entity:
     icon: table
   identity: {key: assignmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: assignmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Assignment., businessMeaning: Identifies one governed Assignment record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes.}}
+    - {name: assignmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the assignment., usage: Generated on creation; escalations and history refer to it.}}
     - name: status
       type: enum
       required: true
       values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Governed lifecycle state of Assignment., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}}
+      help:
+        summary: Where the assignment stands in its life.
+        usage: Moved by the workflow and by the assignee; work queues show ACTIVE assignments.
+        valueSemantics:
+          PENDING: Offered but not yet accepted or in effect.
+          ACTIVE: In effect; the assignee is responsible for the work.
+          COMPLETED: The work is done and the responsibility ended.
+          CANCELLED: Withdrawn or replaced before completion.
   relationships: []
   invariants:
     - {id: ASSIGNMENT-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
@@ -47,12 +54,11 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
+    summary: The allocation of responsibility for a task or workflow activity to an eligible user, role, team or organisational context.
+    businessMeaning: Work only gets done when someone is responsible for it. An assignment records who that is, so tasks do not stall unowned and ownership changes leave a trail.
+    usage: Created when a task is routed, claimed or reassigned; read by work queues, escalation rules and audits of workload.
+    relationshipContext: An assignment connects a task or activity to the person or group who must act on it.
+    lifecycle: An assignment is pending when offered, active once accepted or in effect, completed when the work is done, and cancelled if withdrawn or reassigned. History is kept; a reassignment is a new record.
+    example: A claims task is assigned to the Claims Team queue, accepted by an adjuster and completed when the claim is decided.
     commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSIGNMENT}

@@ -36,17 +36,17 @@ entity:
       required: true
       values: [CURRENT, SAVINGS, LOAN, ESCROW, OTHER]
       help:
+        valueSemantics:
+          CURRENT: A transaction account for everyday receipts and payments.
+          SAVINGS: An interest-bearing account held mainly to accumulate balances.
+          LOAN: An account carrying borrowing from the bank.
+          ESCROW: An account holding money on behalf of others until conditions are met.
+          OTHER: Any other kind of account.
         summary: Classification of the banking account's operational purpose.
         businessMeaning: Describes how the account is intended to function in treasury and settlement processes.
         usage: Used for payment eligibility, cash reporting, treasury controls, and accounting configuration.
         relationshipContext: Account type does not determine accounting treatment by itself; ledger configuration may provide additional context.
         workflowRole: Helps determine which Payment directions and banking operations are appropriate.
-        valueSemantics:
-          CURRENT: Operational transaction account normally used for frequent receipts/disbursements.
-          SAVINGS: Account primarily maintained for savings or reserve purposes.
-          LOAN: Account associated with borrowing or loan-related banking arrangements.
-          ESCROW: Account holding funds under controlled escrow arrangements.
-          OTHER: Controlled account type outside the standard classifications.
     - name: currencyId
       type: reference
       target: Currency
@@ -64,16 +64,16 @@ entity:
       default: PENDING
       values: [PENDING, ACTIVE, BLOCKED, CLOSED]
       help:
+        valueSemantics:
+          PENDING: Opened or requested but not yet confirmed by the bank; not available for payments.
+          ACTIVE: Open and available for receipts and payments.
+          BLOCKED: Temporarily frozen, for example for compliance reasons; no new payments should be routed to it.
+          CLOSED: Permanently closed; history remains for reconciliation and audit.
         summary: Lifecycle state controlling whether the account can participate in new banking operations.
         businessMeaning: Indicates whether the account is awaiting activation, available, restricted, or closed.
         usage: Used by Payment execution, bank-feed ingestion, reconciliation, treasury, and account administration.
         relationshipContext: Closing an account must not invalidate historical BankTransactions, Payments, or JournalEntries.
         workflowRole: ACTIVE permits normal use; BLOCKED prevents applicable new activity; CLOSED prevents new normal use while historical evidence remains accessible.
-        valueSemantics:
-          PENDING: Account setup or verification is incomplete.
-          ACTIVE: Available for authorized banking activity.
-          BLOCKED: Temporarily prohibited from applicable activity.
-          CLOSED: Permanently unavailable for new normal activity.
   relationships:
     - name: owners
       target: Party

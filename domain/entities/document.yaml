@@ -78,7 +78,7 @@ entity:
         summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
         usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Document records, where applicable.
         relationshipContext: Its meaning is specific to Document; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
-    - name: version
+    - name: documentVersion
       type: integer
       required: true
       default: 1
@@ -140,7 +140,7 @@ entity:
         context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
   invariants:
     - id: DOCUMENT-001
-      rule: version must be greater than or equal to 1.
+      rule: documentVersion must be greater than or equal to 1.
     - id: DOCUMENT-002
       rule: documentNumber must be unique within the owning business context and document type.
   audit:
