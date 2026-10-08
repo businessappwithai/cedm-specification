@@ -87,9 +87,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: 'Exactly one contract: every obligation arises from a single agreement, though a contract may carry many.'
         summary: The contract that creates the obligation.
         usage: Set when the obligation is created.
-        cardinalityMeaning: Exactly one contract.
         workflowRole: Obligations are monitored while the contract is active.
     - name: responsibleParty
       target: Party

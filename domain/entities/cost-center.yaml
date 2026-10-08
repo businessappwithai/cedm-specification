@@ -7,11 +7,17 @@ entity:
     icon: calculator
   identity: {key: costCenterId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: costCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable CostCenter identity., businessMeaning: Identifies the governed CostCenter concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context.}}
+    - {name: costCenterId, type: uuid, required: true, immutable: true, help: {summary: The identity of the cost centre., usage: Generated on creation; budget lines and postings refer to it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code by which the cost centre is known in postings and reports, such as 4100.', usage: 'Assigned by finance; stable, because history is reported under it.'}}
   relationships:
-    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation that the cost centre belongs to., usage: Set at creation; limits the postings and budgets that can use it., cardinalityMeaning: 'Exactly one organisation: responsibility cannot be split between legal entities.', workflowRole: Scopes cost reporting to the right entity.}}
   invariants:
     - {id: COSTCENTER-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
-  help: {summary: A governed responsibility center used to assign and analyze costs independently of legal-account identity., businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+  help:
+    summary: A unit of responsibility to which costs are assigned and against which they are analysed, separate from the legal accounts.
+    businessMeaning: Ledger accounts say what a cost was; a cost centre says who is responsible for it. Splitting the two lets a manager see and answer for their own spending without changing the chart of accounts.
+    usage: Defined by finance; chosen on cost postings, budgets and purchase requests; read in management reports and budget reviews.
+    relationshipContext: Each cost centre belongs to one Organization; budgets and postings refer to it as a dimension. It never creates or alters ledger entries on its own.
+    lifecycle: A cost centre is created for the life of the responsibility and retired when it ends; postings made to it remain in history.
+    example: Cost centre 4100 "Marketing – Events", responsible for trade show and sponsorship spending.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COST-CENTER}

@@ -1,0 +1,54 @@
+@ ContractClause
+r contract
+n: Exactly one contract: a clause has no meaning outside the agreement it belongs to.
+@ ContractLine
+r contract
+n: Exactly one contract: a line is priced and scoped only within the agreement that contains it.
+@ ContractObligation
+r contract
+n: Exactly one contract: every obligation arises from a single agreement, though a contract may carry many.
+@ ContractRenewal
+r contract
+n: Exactly one contract: a renewal extends a single agreement, and one contract may be renewed many times.
+@ ContractTermination
+r contract
+n: Exactly one contract: a termination ends a single agreement, and an agreement can be ended only once.
+
+@ CorrectiveActionVerification
+a correctiveActionVerificationId
+s: The identity of the verification record.
+a result
+v EFFECTIVE: The action achieved its intended result and the problem has not recurred.
+v PARTIALLY_EFFECTIVE: The action helped but did not fully remove the problem; further action is needed.
+v INEFFECTIVE: The action did not work and the problem persists or has returned.
+v NOT_VERIFIABLE: Effectiveness cannot be established, for example because there is not yet enough evidence.
+a status
+v OPEN: Raised but not started.
+v IN_PROGRESS: The verification is being carried out.
+v COMPLETED: Finished with a result and findings recorded.
+v REOPENED: Reopened because new evidence or a recurrence needs further verification.
+v CANCELLED: Withdrawn and not carried out.
+
+@ CostCenter
+s: A unit of responsibility to which costs are assigned and against which they are analysed, separate from the legal accounts.
+b: Ledger accounts say what a cost was; a cost centre says who is responsible for it. Splitting the two lets a manager see and answer for their own spending without changing the chart of accounts.
+u: Defined by finance; chosen on cost postings, budgets and purchase requests; read in management reports and budget reviews.
+c: Each cost centre belongs to one Organization; budgets and postings refer to it as a dimension. It never creates or alters ledger entries on its own.
+l: A cost centre is created for the life of the responsibility and retired when it ends; postings made to it remain in history.
+x: Cost centre 4100 "Marketing – Events", responsible for trade show and sponsorship spending.
+a costCenterId
+s: The identity of the cost centre.
+u: Generated on creation; budget lines and postings refer to it.
+a code
+s: The code by which the cost centre is known in postings and reports, such as 4100.
+u: Assigned by finance; stable, because history is reported under it.
+r organization
+s: The organisation that the cost centre belongs to.
+u: Set at creation; limits the postings and budgets that can use it.
+n: Exactly one organisation: responsibility cannot be split between legal entities.
+w: Scopes cost reporting to the right entity.
+
+@ Country
+a countryId
+s: The identity of the country record, independent of its ISO codes.
+u: Generated when the country is loaded; addresses, states and cities refer to the country through it.

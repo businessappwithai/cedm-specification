@@ -10,7 +10,7 @@ entity:
     - {name: contractClauseId, type: uuid, required: true, immutable: true, help: {summary: The identity of the clause., usage: Generated on creation; amendments and reviews refer to the clause.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When this wording of the clause took effect., usage: Set from the contract or amendment that introduced it; the effective text on any date is the latest clause in force then.}}
   relationships:
-    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract of which the clause is a part., usage: Set when the clause is created., cardinalityMeaning: Exactly one contract., workflowRole: Groups the clauses that make up the agreement.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a clause has no meaning outside the agreement it belongs to.', summary: The contract of which the clause is a part., usage: Set when the clause is created., workflowRole: Groups the clauses that make up the agreement.}}
   invariants:
     - {id: CONTRACT-CLAUSE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:

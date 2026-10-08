@@ -10,7 +10,7 @@ entity:
     - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the termination., usage: Generated on creation; settlement and wind-down tasks refer to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: 'The date and time from which the contract, or the named obligations, ceases to apply.', usage: Taken from the notice or agreement; later charges and obligations stop at this moment.}}
   relationships:
-    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract being ended., usage: Set when the termination is recorded., cardinalityMeaning: Exactly one contract., workflowRole: Closes the contract's period of effect.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a termination ends a single agreement, and an agreement can be ended only once.', summary: The contract being ended., usage: Set when the termination is recorded., workflowRole: Closes the contract's period of effect.}}
   invariants:
     - {id: CONTRACT-TERMINATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:

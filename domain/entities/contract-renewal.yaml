@@ -10,7 +10,7 @@ entity:
     - {name: contractRenewalId, type: uuid, required: true, immutable: true, help: {summary: The identity of the renewal., usage: Generated on creation; invoices and term calculations refer to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time from which the new term starts., usage: 'Set from the renewal terms, normally the day after the previous term ended.'}}
   relationships:
-    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract that is renewed., usage: Set when the renewal is created., cardinalityMeaning: Exactly one contract., workflowRole: Extends the contract's period of effect.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a renewal extends a single agreement, and one contract may be renewed many times.', summary: The contract that is renewed., usage: Set when the renewal is created., workflowRole: Extends the contract's period of effect.}}
   invariants:
     - {id: CONTRACT-RENEWAL-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:

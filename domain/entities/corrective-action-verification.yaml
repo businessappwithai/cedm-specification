@@ -11,7 +11,12 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Stable identity of the verification record., businessMeaning: Identifies one independent verification event assessing an implemented corrective or preventive action., usage: Quality assurance CAPA audit supplier performance and closure evidence., relationshipContext: Distinct from CorrectiveAction and Nonconformance identities., workflowRole: Provides traceable evidence for a completion decision.}
+      help:
+        summary: The identity of the verification record.
+        businessMeaning: Identifies one independent verification event assessing an implemented corrective or preventive action.
+        usage: Quality assurance CAPA audit supplier performance and closure evidence.
+        relationshipContext: Distinct from CorrectiveAction and Nonconformance identities.
+        workflowRole: Provides traceable evidence for a completion decision.
     - name: verificationNumber
       type: string
       required: true
@@ -31,16 +36,16 @@ entity:
         - INEFFECTIVE
         - NOT_VERIFIABLE
       help:
+        valueSemantics:
+          EFFECTIVE: The action achieved its intended result and the problem has not recurred.
+          PARTIALLY_EFFECTIVE: The action helped but did not fully remove the problem; further action is needed.
+          INEFFECTIVE: The action did not work and the problem persists or has returned.
+          NOT_VERIFIABLE: Effectiveness cannot be established, for example because there is not yet enough evidence.
         summary: Outcome of effectiveness verification.
         businessMeaning: States whether the action achieved its intended quality outcome.
         usage: Controls corrective-action completion recurrence handling and escalation.
         relationshipContext: Does not rewrite original Nonconformance or CorrectiveAction evidence.
         workflowRole: Determines whether action may be completed or must be reopened.
-        valueSemantics:
-          EFFECTIVE: The result of the corrective action verification is effective; set it when that is what the business means for this record.
-          PARTIALLY_EFFECTIVE: The result of the corrective action verification is partially effective; set it when that is what the business means for this record.
-          INEFFECTIVE: The result of the corrective action verification is ineffective; set it when that is what the business means for this record.
-          NOT_VERIFIABLE: The result of the corrective action verification is not verifiable; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
@@ -52,16 +57,16 @@ entity:
         - REOPENED
         - CANCELLED
       help:
+        valueSemantics:
+          OPEN: Raised but not started.
+          IN_PROGRESS: The verification is being carried out.
+          COMPLETED: Finished with a result and findings recorded.
+          REOPENED: Reopened because new evidence or a recurrence needs further verification.
+          CANCELLED: Withdrawn and not carried out.
         summary: Lifecycle state of verification.
         businessMeaning: Separates preparation evaluation completion and follow-up.
         usage: Quality governance and audit.
         workflowRole: COMPLETED records final verification evidence; REOPENED signals additional action is required.
-        valueSemantics:
-          OPEN: The status of the corrective action verification is open; set it when that is what the business means for this record.
-          IN_PROGRESS: The status of the corrective action verification is in progress; set it when that is what the business means for this record.
-          COMPLETED: The status of the corrective action verification is completed; set it when that is what the business means for this record.
-          REOPENED: The status of the corrective action verification is reopened; set it when that is what the business means for this record.
-          CANCELLED: The status of the corrective action verification is cancelled; set it when that is what the business means for this record.
     - name: findings
       type: string
       required: true

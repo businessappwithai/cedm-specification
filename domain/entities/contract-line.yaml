@@ -10,7 +10,7 @@ entity:
     - {name: contractLineId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contract line., usage: Generated on creation; call-offs and invoice lines refer to it.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the line took effect., usage: Set from the signed contract or amendment; the price and quantity that apply to an order are those of the line in force on the order date.}}
   relationships:
-    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: The contract that contains the line., usage: Set when the line is created., cardinalityMeaning: Exactly one contract., workflowRole: Places the line within the agreed commercial terms.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a line is priced and scoped only within the agreement that contains it.', summary: The contract that contains the line., usage: Set when the line is created., workflowRole: Places the line within the agreed commercial terms.}}
   invariants:
     - {id: CONTRACT-LINE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
