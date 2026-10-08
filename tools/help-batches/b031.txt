@@ -1,0 +1,146 @@
+@ Milestone
+s: A significant planned achievement or checkpoint in a project or process.
+b: A project's progress is judged against its milestones. Naming each checkpoint and its target date lets sponsors see whether the work is on track without reading every task.
+u: Set by the project manager at planning; updated as the date approaches; read by sponsors and steering groups.
+c: A milestone belongs to one Project and is reached by completing a set of ProjectTasks.
+l: A milestone is planned, may be flagged at risk and recover, and ends achieved, missed or cancelled.
+x: "Go-live" for a system implementation, targeted for 1 September and flagged at risk in July.
+a milestoneId
+s: The identity of the milestone.
+u: Generated on creation; tasks refer to it.
+a code
+s: The reference of the milestone within the project, such as M3.
+u: Assigned by the project manager.
+a name
+s: The name of the checkpoint.
+u: Shown on plans and status reports.
+a targetDate
+s: The date by which the milestone should be reached.
+u: Set at planning; reviewed at status meetings.
+a status
+s: How the milestone is progressing.
+u: Updated by the project manager at status reviews.
+v PLANNED: Not yet reached and expected on time.
+v AT_RISK: Likely to be late without action.
+v ACHIEVED: Reached. A final state.
+v MISSED: Passed without being reached. A final state.
+v CANCELLED: No longer needed. A final state.
+r project
+s: The project the milestone belongs to.
+u: Set at planning.
+n: Exactly one project: a milestone is a checkpoint of a single undertaking.
+w: Rolls the milestone's status up to the project.
+r tasks
+s: The tasks whose completion leads to the milestone.
+u: Linked at planning.
+n: Any number of tasks.
+w: Task progress feeds the milestone's status.
+
+@ MiningSite
+s: A geographic site where mineral or natural-resource extraction takes place.
+b: The site is the unit of mining operations: it has a resource, a stage from exploration to closure, and a production history. Safety, permits, output and costs are all reported by site.
+u: Registered when exploration begins; advanced as it is developed and brought into production; read by operations and compliance.
+c: A site stands at a Location, is operated by an Organization and has ProductionRecords.
+l: A site begins in exploration, moves to development and then to active production. It can be suspended and resumed, and is closed at the end of its life or if abandoned.
+x: The Kiruna iron ore mine, in production since 1900 and operated by the mining company.
+a miningSiteId
+s: The identity of the site.
+u: Generated on registration.
+a siteCode
+s: The code of the site, such as KIR-01.
+u: Unique; used in production reports.
+a name
+s: The name of the site.
+u: Shown in reports.
+a resourceType
+s: The mineral or resource extracted.
+u: Entered at registration; used in production and market reports.
+a status
+s: The stage of the site's life.
+u: Set by operations management.
+v EXPLORATION: Being surveyed to prove a resource.
+v DEVELOPMENT: Being prepared for production.
+v ACTIVE: In production.
+v SUSPENDED: Production paused.
+v CLOSED: Permanently closed. A final state.
+r location
+s: Where the site is.
+u: Set at registration.
+n: Exactly one location.
+w: Provides coordinates and jurisdiction.
+r organization
+s: The organisation that operates the site.
+u: Set at registration.
+n: Exactly one operator, responsible for permits and safety.
+w: Determines who answers for operations.
+r productionRecords
+s: The production records of the site.
+u: Read to measure output.
+n: Any number, one for each production period.
+w: Record what the site has produced.
+
+@ Nonconformance
+a nonconformanceId
+s: The identity of the nonconformance.
+u: Generated on recording; corrective actions and verifications refer to it.
+a severity
+s: How serious the deviation is.
+u: Set by quality at review; drives containment and escalation.
+v LOW: Minor deviation with little effect.
+v MEDIUM: Notable deviation needing correction.
+v HIGH: Serious deviation affecting product or customers.
+v CRITICAL: Dangerous or legally significant deviation needing immediate containment.
+a status
+s: Where the nonconformance is in its handling.
+u: Moved by quality staff.
+v OPEN: Recorded but not yet reviewed.
+v UNDER_REVIEW: Being investigated.
+v CONTAINED: Affected goods are isolated so the problem cannot spread.
+v CORRECTIVE_ACTION: Corrective actions are under way to remove the cause.
+v CLOSED: Resolved and verified. A final state.
+v REJECTED: Reviewed and found not to be a nonconformance. A final state.
+
+@ NonprofitCampaign
+s: A fundraising or public-interest campaign run to reach a defined funding or participation objective.
+b: Nonprofits raise money and support in campaigns. Recording the objective and target lets the organisation see what a campaign raised, from whom, and whether it succeeded.
+u: Planned by the fundraising team; launched; tracked; completed; read by management and donors.
+c: A campaign is run by an Organization, draws on donor Parties and is supported by Documents.
+l: A campaign is planned, active while running, and ends completed or cancelled.
+x: The winter appeal to raise 250,000 for the emergency shelter programme.
+a campaignId
+s: The identity of the campaign.
+u: Generated on creation; donations refer to it.
+a campaignCode
+s: The code of the campaign, such as WINTER26.
+u: Unique; used in appeal tracking.
+a name
+s: The name of the campaign.
+u: Shown in reports and donor communications.
+a objective
+s: What the campaign aims to achieve.
+u: Written at planning; read when judging results.
+a targetAmount
+s: The amount the campaign aims to raise.
+u: Set at planning; not negative; progress is measured against it.
+a status
+s: Where the campaign is.
+u: Updated by the fundraising team.
+v PLANNED: Being prepared.
+v ACTIVE: Running.
+v COMPLETED: Finished. A final state.
+v CANCELLED: Called off. A final state.
+r organization
+s: The organisation running the campaign.
+u: Set at planning.
+n: Exactly one organisation: a campaign is run in the name of a single body.
+w: Determines whose cause and accounts the campaign serves.
+r donors
+s: The people and organisations who gave to the campaign.
+u: Added as gifts are received.
+n: Any number of donors.
+w: Build the campaign's donor list.
+r documents
+s: The documents of the campaign, such as appeal letters and reports.
+u: Attached during the campaign.
+n: Any number of documents.
+w: Form the campaign's record.

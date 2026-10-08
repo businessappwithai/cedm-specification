@@ -11,7 +11,11 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Stable identity of the nonconformance., businessMeaning: "Identifies one quality deviation independently of its inspection, product, receipt, return or corrective action.", usage: "Quality history, supplier performance, audit and CAPA.", workflowRole: Root identity for issue lifecycle.}
+      help:
+        summary: The identity of the nonconformance.
+        usage: Generated on recording; corrective actions and verifications refer to it.
+        businessMeaning: "Identifies one quality deviation independently of its inspection, product, receipt, return or corrective action."
+        workflowRole: Root identity for issue lifecycle.
     - name: number
       type: string
       required: true
@@ -27,15 +31,15 @@ entity:
         - HIGH
         - CRITICAL
       help:
-        summary: Business severity of the deviation.
-        businessMeaning: Indicates impact and urgency.
-        usage: Prioritization, containment and escalation.
-        workflowRole: Determines response urgency.
+        summary: How serious the deviation is.
+        usage: Set by quality at review; drives containment and escalation.
         valueSemantics:
-          LOW: The severity of the nonconformance is low; set it when that is what the business means for this record.
-          MEDIUM: The severity of the nonconformance is medium; set it when that is what the business means for this record.
-          HIGH: The severity of the nonconformance is high; set it when that is what the business means for this record.
-          CRITICAL: The severity of the nonconformance is critical; set it when that is what the business means for this record.
+          LOW: Minor deviation with little effect.
+          MEDIUM: Notable deviation needing correction.
+          HIGH: Serious deviation affecting product or customers.
+          CRITICAL: Dangerous or legally significant deviation needing immediate containment.
+        businessMeaning: Indicates impact and urgency.
+        workflowRole: Determines response urgency.
     - name: status
       type: enum
       required: true
@@ -48,17 +52,17 @@ entity:
         - CLOSED
         - REJECTED
       help:
-        summary: Lifecycle state of the quality issue.
-        businessMeaning: Indicates investigation, containment, corrective action and closure.
-        usage: Quality management and audit.
-        workflowRole: Controls allowed responses and closure.
+        summary: Where the nonconformance is in its handling.
+        usage: Moved by quality staff.
         valueSemantics:
-          OPEN: The status of the nonconformance is open; set it when that is what the business means for this record.
-          UNDER_REVIEW: The status of the nonconformance is under review; set it when that is what the business means for this record.
-          CONTAINED: The status of the nonconformance is contained; set it when that is what the business means for this record.
-          CORRECTIVE_ACTION: The status of the nonconformance is corrective action; set it when that is what the business means for this record.
-          CLOSED: The status of the nonconformance is closed; set it when that is what the business means for this record.
-          REJECTED: The status of the nonconformance is rejected; set it when that is what the business means for this record.
+          OPEN: Recorded but not yet reviewed.
+          UNDER_REVIEW: Being investigated.
+          CONTAINED: Affected goods are isolated so the problem cannot spread.
+          CORRECTIVE_ACTION: Corrective actions are under way to remove the cause.
+          CLOSED: Resolved and verified. A final state.
+          REJECTED: Reviewed and found not to be a nonconformance. A final state.
+        businessMeaning: Indicates investigation, containment, corrective action and closure.
+        workflowRole: Controls allowed responses and closure.
     - name: description
       type: string
       required: true
