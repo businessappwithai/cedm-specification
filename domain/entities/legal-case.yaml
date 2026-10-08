@@ -7,19 +7,18 @@ entity:
     icon: briefcase
   identity: {key: legalCaseId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalCase., businessMeaning: Identifies one governed LegalCase record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records.}}
-    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten.}}
+    - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: The identity of the case., usage: Generated on creation.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: When the case was opened or the event it records took place., usage: Set when recorded; used to order the history of the matter.}}
   relationships:
-    - {name: legalMatter, target: LegalMatter, cardinality: "1", ownership: reference, help: {summary: Parent legal matter., businessMeaning: Groups case within broader legal work., usage: Legal case management., cardinalityMeaning: Exactly one LegalMatter., workflowRole: "Case outcomes propagate as evidence, not history rewrite."}}
+    - {name: legalMatter, target: LegalMatter, cardinality: "1", ownership: reference, help: {summary: The legal matter this case belongs to., usage: Set when the case is opened., cardinalityMeaning: 'Exactly one matter: a case is a proceeding within a single matter.', workflowRole: Collects the case's costs and outcomes with the rest of the matter., businessMeaning: Groups case within broader legal work.}}
   invariants:
     - {id: LEGAL-CASE-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
-    summary: A governed litigation, arbitration, administrative, or adjudicative case within a LegalMatter.
-    purpose: Provide canonical governance semantics for LegalCase.
-    businessMeaning: A governed litigation, arbitration, administrative, or adjudicative case within a LegalMatter.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
+    summary: A litigation, arbitration, administrative or other adjudicative case that forms part of a legal matter.
+    businessMeaning: A legal matter can run through several proceedings. Each case within it has its own forum, parties and timetable, and recording them separately keeps track of what is pending where.
+    usage: Opened when proceedings begin; updated as the case progresses; read by legal counsel.
+    relationshipContext: Every case belongs to one LegalMatter.
+    lifecycle: Finalised evidence and effective history are preserved; settlement or supersession is recorded explicitly.
+    example: The appeal in a contract dispute, filed at the regional court as a case within the matter.
     commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-CASE}

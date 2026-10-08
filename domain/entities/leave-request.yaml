@@ -6,26 +6,26 @@ entity:
   ui: {icon: calendar-off}
   identity: {key: leaveRequestId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the leave request., businessMeaning: Identifies one absence request independently of later approval or cancellation., usage: "HR workflow, attendance, payroll, reporting and audit.", relationshipContext: Remains stable across lifecycle transitions.}}
-    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing leave request reference., businessMeaning: "Operational identifier for employees, managers and HR.", usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers.}}
+    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: The identity of the leave request., usage: Generated on creation; approvals and attendance records refer to it., businessMeaning: Identifies one absence request independently of later approval or cancellation., relationshipContext: Remains stable across lifecycle transitions.}}
+    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: The reference number of the request., usage: Allocated on submission; unique; quoted in HR queries., businessMeaning: "Operational identifier for employees, managers and HR.", relationshipContext: Distinct from Employee or payroll identifiers.}}
     - name: leaveType
       type: enum
       required: true
       values: [ANNUAL, SICK, PARENTAL, UNPAID, COMPENSATORY, OTHER]
       help:
+        valueSemantics:
+          ANNUAL: Paid holiday.
+          SICK: Absence due to illness.
+          PARENTAL: Leave to care for a new child.
+          UNPAID: Absence without pay.
+          COMPENSATORY: Time off in return for extra hours worked.
+          OTHER: Any other approved absence.
         summary: Business category of requested absence.
         businessMeaning: Determines policy, entitlement and payroll treatment without embedding jurisdiction-specific rules.
         usage: Leave policy, payroll, reporting and entitlement checks.
         relationshipContext: Approval and payroll effects depend on organization policy and Employment context.
-        valueSemantics:
-          ANNUAL: Planned annual leave under applicable policy.
-          SICK: Absence related to sickness under applicable policy.
-          PARENTAL: Parent or caregiver leave.
-          UNPAID: Approved absence without ordinary pay.
-          COMPENSATORY: Leave granted in exchange for qualifying extra work or policy credit.
-          OTHER: Another governed leave category.
     - {name: startDate, type: date, required: true, help: {summary: First requested leave date., businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date.}}
-    - {name: endDate, type: date, required: true, help: {summary: Last requested leave date., businessMeaning: Closes the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must not precede startDate.}}
+    - {name: endDate, type: date, required: true, help: {summary: The last day of the absence., usage: Entered by the employee; must not be before the start date., businessMeaning: Closes the requested absence interval.}}
     - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", usage: Entitlement checks and payroll., relationshipContext: Must reconcile to date interval and policy when supplied.}}
     - name: status
       type: enum
@@ -33,18 +33,18 @@ entity:
       default: DRAFT
       values: [DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED]
       help:
+        valueSemantics:
+          DRAFT: Being prepared by the employee.
+          SUBMITTED: Sent for approval.
+          APPROVED: Granted. A final state.
+          REJECTED: Refused. A final state.
+          CANCELLED: Withdrawn by the employee. A final state.
         summary: Workflow state of the leave request.
         businessMeaning: Distinguishes preparation, review and final authorization outcomes.
         usage: Employee self-service, manager approval, attendance and payroll.
         relationshipContext: APPROVED authorization may drive attendance and payroll but does not itself record actual absence.
-        valueSemantics:
-          DRAFT: Request is being prepared.
-          SUBMITTED: Request awaits governed decision.
-          APPROVED: Absence is authorized under applicable policy.
-          REJECTED: Request was declined and retained for audit.
-          CANCELLED: Request was withdrawn or cancelled and retained for audit.
   relationships:
-    - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee requesting leave., businessMeaning: Identifies whose absence is being authorized., usage: "Approval, scheduling, attendance and payroll.", cardinalityMeaning: Exactly one Employee., workflowRole: Employee must be eligible under applicable policy.}}
+    - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one employee: a leave request is made by a specific person.', summary: Employee requesting leave., businessMeaning: Identifies whose absence is being authorized., usage: "Approval, scheduling, attendance and payroll.", workflowRole: Employee must be eligible under applicable policy.}}
     - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which leave is requested., businessMeaning: "Supplies employer, position and effective policy context.", usage: "Eligibility, payroll and reporting.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: Requested dates must overlap eligible employment.}}
     - {name: approval, target: Approval, cardinality: "0..1", ownership: reference, help: {summary: Approval evidence governing the request decision., businessMeaning: Preserves authorization independently of mutable request presentation., usage: "Workflow, audit and compliance.", cardinalityMeaning: Optional before a decision or where policy does not require formal approval., workflowRole: APPROVED status must reconcile to required approval evidence.}}
     - {name: attendanceRecords, target: Attendance, cardinality: "0..*", ownership: reference, help: {summary: Actual attendance or absence evidence reconciled to this request., businessMeaning: Separates authorization from what actually occurred., usage: "Timekeeping, payroll and audit.", cardinalityMeaning: Zero or many records across the leave interval., workflowRole: LEAVE attendance must reconcile to employee and approved dates.}}
