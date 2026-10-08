@@ -20643,7 +20643,8 @@ function workflowFor(model, entity2) {
     const rows = workflow.transitions.map((transition) => `          <tr><td><code>${escapeHtml(transition.from)}</code></td><td><code>${escapeHtml(transition.to)}</code></td><td>${transition.trigger ? `<code>${escapeHtml(transition.trigger)}</code>` : "&mdash;"}</td></tr>`).join(`
 `);
     return `      <h4>Lifecycle &mdash; ${escapeHtml(workflow.name)}</h4>
-      <p>A record starts at <code>${escapeHtml(workflow.initial ?? "—")}</code>${workflow.terminal.length ? ` and finishes at ${workflow.terminal.map((state) => `<code>${escapeHtml(state)}</code>`).join(" or ")}` : ""}. These are the moves it may make, and no others:</p>
+      <p>A record starts at <code>${escapeHtml(workflow.initial ?? "—")}</code>${workflow.terminal.length ? ` and finishes at ${workflow.terminal.map((state) => `<code>${escapeHtml(state)}</code>`).join(" or ")}` : ""}. These are the moves it may make, and no others:</p>${workflow.terminal.length ? `
+      <p>A record that reaches ${workflow.terminal.length === 1 ? "that final state" : "a final state"} is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>` : ""}
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -20652,6 +20653,9 @@ ${rows}
       </table>`;
   }).join(`
 `);
+}
+function concurrencyPhrase(entity2) {
+  return entity2.concurrency === "last-write-wins" ? "When two people change the same record, the later save replaces the earlier one: this record is <em>last-write-wins</em>." : "When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.";
 }
 function rulesFor(model, entity2) {
   const rules = model.rules.filter((rule2) => rule2.entity === entity2.name);
@@ -20738,6 +20742,7 @@ ${model.rules.length ? `          <li><a href="#rules">The decisions it makes</a
       <h3>${escapeHtml(title(entity2.name))}${category ? ` <span class="group">${escapeHtml(category)}</span>` : ""}</h3>
       <p class="lede">${entity2.description ? escapeHtml(entity2.description) : '<span class="missing">The model gives this entity no description. Add a <code>help</code> to entity <code>' + escapeHtml(entity2.name) + "</code> in the model.</span>"}</p>
       <p class="meta">Stored as <code>${escapeHtml(tableNameFor(entity2))}</code>, keyed by <code>${escapeHtml(entity2.primaryKey || "id")}</code>.</p>
+      <p class="meta">${concurrencyPhrase(entity2)}</p>
 
       <h4>Its fields</h4>
 ${entity2.attributes.some((attribute) => attribute.description) ? "" : `      <p class="missing">No field here carries help text. Add a <code>help</code> to a column of <code>${escapeHtml(entity2.name)}</code> in the model and it appears in this column and in the application itself.</p>
@@ -25497,6 +25502,9 @@ function renderDomainSkill(model, options) {
     }
     if (writes.length)
       lines.push("");
+    if (entity2.concurrency === "last-write-wins") {
+      lines.push("When two people save the same record, the later save replaces the earlier one: this record type is last-write-wins, so no conflict is reported.", "");
+    }
     lines.push("Fields:", ...fieldLines(entity2, enums, target), "");
     for (const child of children.get(entity2.name) ?? []) {
       lines.push(`Line items — **${title2(child.name)}**: kept inside each ${title2(entity2.name)} and reached by opening it, never on their own.${child.description ? ` ${prose(child.description, 300)}` : ""}`, "");
@@ -25505,7 +25513,7 @@ function renderDomainSkill(model, options) {
   lines.push(...enumSection(model.enums));
   if (model.workflows.length > 0) {
     lines.push("## Lifecycles", "");
-    lines.push("A record with a lifecycle moves only along the moves listed — the application refuses any other, for every role. A **final** state is a completed transaction: the application refuses every change to such a record, including an administrator's. Say so when a record is final.", "");
+    lines.push("A record with a lifecycle moves only along the moves listed — the application refuses any other, for every role. A **final** state is a completed transaction: the application refuses every change to such a record and every deletion of it, including an administrator's. Say so when a record is final.", "");
     for (const workflow of model.workflows) {
       lines.push(`### ${title2(workflow.entity)} — ${title2(workflow.name)}`, "");
       if (workflow.initial)
@@ -25735,6 +25743,8 @@ async function writeManifest(outputDir, model, settings, extras = {}) {
       categories: model.categories.map((category) => category.name),
       enums: model.enums.map((modelEnum) => `${modelEnum.name} (${modelEnum.values.length})`),
       sagas: model.sagas.map((saga) => `${saga.name} on ${saga.entity} (${saga.steps.length} steps, ${saga.trigger})`),
+      lastWriteWins: model.entities.filter((entity2) => entity2.concurrency === "last-write-wins").map((entity2) => entity2.name),
+      finalStates: model.workflows.filter((workflow) => workflow.terminal.length > 0).map((workflow) => `${workflow.entity}: ${workflow.terminal.join(", ")}`),
       packageManager: extras.packageManager,
       generatedAt: new Date().toISOString()
     }, null, 2));
