@@ -118,6 +118,24 @@
     "YardTierExceptionRaised on YardTier (1 steps, rule)",
     "YardSlotExceptionRaised on YardSlot (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Container: SOLD, SCRAPPED, LOST, RETIRED",
+    "ContainerMovement: COMPLETED, CANCELLED, FAILED",
+    "Yard: CLOSED",
+    "YardBlock: CLOSED",
+    "YardBay: CLOSED",
+    "YardTier: CLOSED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:29:27.653Z"
+  "generatedAt": "2026-10-08T00:55:37.988Z"
 }

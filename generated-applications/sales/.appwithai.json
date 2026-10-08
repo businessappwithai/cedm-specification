@@ -175,6 +175,31 @@
     "CustomerReturnFollowUpRequired on CustomerReturn (1 steps, rule)",
     "CustomerReturnCompletionConfirmed on CustomerReturn (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Customer: RETIRED",
+    "Lead: LOST",
+    "Opportunity: LOST",
+    "Quotation: REJECTED, EXPIRED, CANCELLED",
+    "SalesOrder: FULFILLED, CANCELLED",
+    "PurchaseOrder: CLOSED, CANCELLED",
+    "Product: DISCONTINUED, RETIRED",
+    "Supplier: RETIRED",
+    "PaymentTerm: RETIRED",
+    "ProductCategory: RETIRED",
+    "DiscountRule: RETIRED",
+    "CustomerReturn: DISPOSITIONED, CANCELLED",
+    "Brand: RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:31:07.162Z"
+  "generatedAt": "2026-10-08T00:57:39.495Z"
 }

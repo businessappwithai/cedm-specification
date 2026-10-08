@@ -111,6 +111,22 @@
     "ServiceRequestFollowUpRequired on ServiceRequest (1 steps, rule)",
     "EscalationFollowUpRequired on Escalation (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Customer: RETIRED",
+    "ServiceRequest: CLOSED, CANCELLED",
+    "Escalation: COMPLETED, CANCELLED",
+    "ServiceLevelAgreement: RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:29:31.136Z"
+  "generatedAt": "2026-10-08T00:55:41.856Z"
 }

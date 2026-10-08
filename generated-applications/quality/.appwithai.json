@@ -153,6 +153,30 @@
     "ReturnDispositionFollowUpRequired on ReturnDisposition (1 steps, rule)",
     "CertificateOfAnalysisFollowUpRequired on CertificateOfAnalysis (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "QualityCharacteristic: RETIRED",
+    "QualityPlan: RETIRED",
+    "TestMethod: RETIRED",
+    "SamplingPlan: RETIRED",
+    "SamplingRule: RETIRED",
+    "QualityInspection: PASSED, FAILED, CANCELLED",
+    "InspectionSample: REJECTED, DISPOSED, CANCELLED",
+    "Nonconformance: CLOSED, REJECTED",
+    "CorrectiveAction: COMPLETED, CANCELLED",
+    "CorrectiveActionVerification: COMPLETED, CANCELLED",
+    "ReturnDisposition: EXECUTED, CANCELLED",
+    "CertificateOfAnalysis: SUPERSEDED, VOID"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:49.793Z"
+  "generatedAt": "2026-10-08T00:57:20.988Z"
 }

@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-04T08:30:19.124Z">2026-10-04T08:30:19.124Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-08T00:56:40.807Z">2026-10-08T00:56:40.807Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -229,6 +229,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address <span class="group">Foundation</span></h3>
       <p class="lede">Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.</p>
       <p class="meta">Stored as <code>bus_address</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -508,6 +509,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; AddressLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -532,6 +534,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address Address Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of address address type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_address_address_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -637,6 +640,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of address status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_address_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -742,6 +746,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Attachment <span class="group">Foundation</span></h3>
       <p class="lede">A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions. Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved. Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation. Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.</p>
       <p class="meta">Stored as <code>bus_attachment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -791,6 +796,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Business Unit <span class="group">Foundation</span></h3>
       <p class="lede">A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_business_unit</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -872,6 +878,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Calendar <span class="group">Foundation</span></h3>
       <p class="lede">A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_calendar</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -935,6 +942,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Carrier <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed logistics service provider responsible for transporting shipments, consignments, or loads. Provide canonical implementation-neutral semantics for Carrier across enterprise applications. A governed logistics service provider responsible for transporting shipments, consignments, or loads. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_carrier</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1002,6 +1010,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>City <span class="group">Foundation</span></h3>
       <p class="lede">A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1169,6 +1178,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Consignment <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms. Provide canonical implementation-neutral semantics for Consignment across enterprise applications. A governed shipment grouping tendered to a carrier under common transport responsibility and commercial terms. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_consignment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1218,6 +1228,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Contact Point <span class="group">Foundation</span></h3>
       <p class="lede">A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_contact_point</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1299,6 +1310,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Country <span class="group">Foundation</span></h3>
       <p class="lede">A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1425,6 +1437,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Currency <span class="group">Foundation</span></h3>
       <p class="lede">Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
       <p class="meta">Stored as <code>bus_currency</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1535,6 +1548,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -1551,6 +1565,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Currency Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of currency status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_currency_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1656,6 +1671,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer <span class="group">Foundation</span></h3>
       <p class="lede">Represents the commercial customer role of a Party. Party identifies who the party is; PartyRole establishes a role; Customer governs buyer-specific commercial behavior and controls. Central to sales order-to-cash, pricing, billing, receivables, collections, service, and customer analytics. Customer connects to SalesOrder, Invoice, Payment, PaymentAllocation through those transaction entities while retaining the underlying Party identity. Customer onboarding → eligibility/credit → SalesOrder → fulfillment → Invoice → Payment → PaymentAllocation → receivables settlement. Customer status constrains new activity but does not replace transaction evidence or rewrite history. Onboard → active → inactive/blocked → retired. Future eligibility changes do not invalidate historical relationships. A Party may simultaneously act as Customer and Supplier. Both roles reference the same Party identity while maintaining separate commercial controls and histories.</p>
       <p class="meta">Stored as <code>bus_customer</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1876,6 +1892,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CustomerLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -1903,6 +1920,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Credit Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer credit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_credit_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2008,6 +2026,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Customer Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer customer type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_customer_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2113,6 +2132,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Role Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_role_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2218,6 +2238,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2323,6 +2344,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Delivery <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient. Provide canonical implementation-neutral semantics for Delivery across enterprise applications. A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_delivery</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2390,6 +2412,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Delivery Attempt <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint. Provide canonical implementation-neutral integration semantics for DeliveryAttempt. An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint. Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit. Carries or routes evidence derived from authoritative domain transactions without replacing those source records. Created and processed through governed integration states; attempts and finalized evidence are retained. Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit. Enterprise application integration and event-driven workflows.</p>
       <p class="meta">Stored as <code>bus_delivery_attempt</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2472,6 +2495,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Department <span class="group">Foundation</span></h3>
       <p class="lede">A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_department</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2553,6 +2577,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate <span class="group">Foundation</span></h3>
       <p class="lede">Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
       <p class="meta">Stored as <code>bus_exchange_rate</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2702,6 +2727,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ExchangeRateLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2728,6 +2754,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate Rate Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of exchange rate rate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_exchange_rate_rate_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2833,6 +2860,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of exchange rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_exchange_rate_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2938,6 +2966,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Freight Charge <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service. Provide canonical implementation-neutral semantics for FreightCharge across enterprise applications. A governed monetary charge for transportation or logistics services attributable to a shipment, consignment, load, or carrier service. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_freight_charge</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3005,6 +3034,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Fulfillment <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed orchestration record connecting sales demand to reservation, picking, packing, shipment, delivery, and completion evidence. Provide canonical implementation-neutral semantics for Fulfillment across enterprise applications. A governed orchestration record connecting sales demand to reservation, picking, packing, shipment, delivery, and completion evidence. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_fulfillment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3054,6 +3084,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Integration Endpoint <span class="group">Foundation</span></h3>
       <p class="lede">A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system. Provide canonical implementation-neutral integration semantics for IntegrationEndpoint. A governed logical endpoint through which enterprise messages or business events are exchanged with an internal or external system. Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit. Carries or routes evidence derived from authoritative domain transactions without replacing those source records. Created and processed through governed integration states; attempts and finalized evidence are retained. Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit. Enterprise application integration and event-driven workflows.</p>
       <p class="meta">Stored as <code>bus_integration_endpoint</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3107,6 +3138,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Inventory Movement <span class="group">Fulfillment</span></h3>
       <p class="lede">Represents one auditable change to inventory state, including stock reductions caused by supplier returns. InventoryMovement is the event ledger from which InventoryBalance is maintained. SupplierReturnLine is the operational authorization for supplier-return quantity; InventoryMovement is the physical stock consequence. Receiving, warehouse execution, procurement, order fulfillment, maintenance, customer and supplier returns, stock counting, reconciliation and analytics. Product identifies what is stocked. InventoryLocation identifies where. InventoryBalance is current state. InventoryMovement is historical event evidence. GoodsReceiptLine explains original accepted receipt. SupplierReturnLine explains later return quantity. SupplierCreditNote explains financial consequence separately. GoodsReceiptLine accepted → RECEIPT movement → InventoryBalance increase. Later SupplierReturn authorization → SupplierReturnLine execution → attributable ISSUE/RETURN movement reducing internal stock → SupplierCreditNote financial adjustment → payable application. Customer returns remain separately attributable through their own return workflow. Prepared → validated → posted → immutable history. Errors use compensating events. SupplierReturn quantity or disposition changes require movement eligibility/reconciliation before posting. Posted movement changes require reversal or compensating movement, never destructive editing. Ten accepted units are returned to a supplier from RACK-A. A movement records the exact quantity and source location and references SupplierReturnLine. A retry of the workflow does not create a second reduction. The supplier credit is accounted for separately.</p>
       <p class="meta">Stored as <code>bus_inventory_movement</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3290,6 +3322,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Inventory Movement Movement Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of inventory movement movement type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_inventory_movement_movement_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3395,6 +3428,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Language <span class="group">Foundation</span></h3>
       <p class="lede">A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_language</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3458,6 +3492,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Legal Entity <span class="group">Foundation</span></h3>
       <p class="lede">A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories. Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession. Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit. Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.</p>
       <p class="meta">Stored as <code>bus_legal_entity</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3507,6 +3542,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Load <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed grouping of shipments, consignments, handling units, or containers assigned together for transport execution. Provide canonical implementation-neutral semantics for Load across enterprise applications. A governed grouping of shipments, consignments, handling units, or containers assigned together for transport execution. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_load</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3556,6 +3592,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location <span class="group">Foundation</span></h3>
       <p class="lede">Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context. Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices. A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred.</p>
       <p class="meta">Stored as <code>bus_location</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3711,6 +3748,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; LocationLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>CLOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -3730,6 +3768,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location Location Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of location location type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_location_location_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3835,6 +3874,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of location status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_location_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3940,6 +3980,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Message <span class="group">Foundation</span></h3>
       <p class="lede">A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence. Provide canonical implementation-neutral integration semantics for Message. A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence. Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit. Carries or routes evidence derived from authoritative domain transactions without replacing those source records. Created and processed through governed integration states; attempts and finalized evidence are retained. Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit. Enterprise application integration and event-driven workflows.</p>
       <p class="meta">Stored as <code>bus_message</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3993,6 +4034,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization <span class="group">Foundation</span></h3>
       <p class="lede">Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.</p>
       <p class="meta">Stored as <code>bus_organization</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4219,6 +4261,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; OrganizationLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -4237,6 +4280,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Organization Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization organization type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_organization_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4342,6 +4386,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4447,6 +4492,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4552,6 +4598,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party <span class="group">Foundation</span></h3>
       <p class="lede">The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.</p>
       <p class="meta">Stored as <code>bus_party</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4668,6 +4715,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PartyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -4695,6 +4743,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4800,6 +4849,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Relationship <span class="group">Foundation</span></h3>
       <p class="lede">A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_party_relationship</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4881,6 +4931,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role <span class="group">Foundation</span></h3>
       <p class="lede">The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.</p>
       <p class="meta">Stored as <code>bus_party_role</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5030,6 +5081,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PartyRoleLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>EXPIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -5054,6 +5106,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role Role Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party role role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_role_role_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5159,6 +5212,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party role status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_role_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5264,6 +5318,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5369,6 +5424,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person <span class="group">Foundation</span></h3>
       <p class="lede">Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.</p>
       <p class="meta">Stored as <code>bus_person</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5593,6 +5649,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Gender <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person gender, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_gender</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5698,6 +5755,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5803,6 +5861,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5908,6 +5967,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Product <span class="group">Foundation</span></h3>
       <p class="lede">Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules. Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts. Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics. Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction entities own their occurrence-specific facts. Product create/update → validate category/unit/tax/location/supplier dependencies → propagate eligibility changes to open SalesOrderLine/PurchaseOrderLine and inventory workflows → resolve exceptions → permit future transactions. Product changes never silently recalculate issued documents or historical movements. Draft → active → discontinued/blocked → retired. Lifecycle transitions require dependent-workflow validation and preserve historical references. SalesOrderLine eligibility. PurchaseOrderLine eligibility. inventory operations. fulfillment eligibility. future InvoiceLine creation. open order quantities. receipt quantities. inventory operations. conversion rules. future TaxRule determination. future InvoiceLine calculation. future default pricing only. catalog. assortment. reporting. policy eligibility. future sourcing and PurchaseOrder eligibility. future operational availability and inventory configuration. If a Product is blocked, the system validates open SalesOrders and PurchaseOrders, prevents new incompatible use, and identifies dependent inventory/fulfillment workflows. Existing invoices and inventory movements remain unchanged. If its tax category changes, future tax determination uses the new category while issued invoices retain their historical tax evidence.</p>
       <p class="meta">Stored as <code>bus_product</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6087,6 +6147,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProductLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>DISCONTINUED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6118,6 +6179,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Product Product Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of product product type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_product_product_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6223,6 +6285,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Product Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of product status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_product_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6328,6 +6391,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Route <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution. Provide canonical implementation-neutral semantics for Route across enterprise applications. A governed planned path or sequence of transport stops/legs used for shipment, fleet, or logistics execution. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_route</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6377,6 +6441,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order <span class="group">Fulfillment</span></h3>
       <p class="lede">Represents the commercial customer commitment from which fulfillment and financial processes derive work. SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment. Order management, allocation, inventory, warehouse execution, transportation, invoicing, customer service and revenue processes. Customer supplies commercial context, SalesOrderLine supplies demand detail, InventoryReservation supplies committed stock, InventoryMovement supplies stock execution, Shipment supplies transport evidence, and Invoice supplies financial claim evidence. Confirmed order → validation → availability check → reservation/allocation → pick/issue → Shipment → delivery/acceptance evidence → SalesOrderLine fulfillment → order status. Invoice is generated according to billing policy and remains independent evidence. Cancellation releases remaining reservations and stops new work while preserving historical downstream effects. Draft → confirmed → allocated → partially fulfilled → fulfilled, with cancellation of remaining demand and controlled exception/recovery paths. Entity changes must propagate through affected dependent workflows rather than directly mutating derived states. Line fulfillment changes recalculate order status; reservation changes affect allocation state; shipment events contribute fulfillment evidence; billing changes do not independently determine fulfillment. Allocation, fulfillment, cancellation and status transitions require concurrency control and idempotency to prevent double reservation, double fulfillment or contradictory terminal states. An order for 20 units reserves 20, ships 12, and becomes PARTIALLY_FULFILLED from accepted fulfillment evidence. The remaining 8 stay executable. A cancellation then releases the remaining reservation and terminates the open demand without reversing the already accepted 12-unit fulfillment.</p>
       <p class="meta">Stored as <code>bus_sales_order</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6542,6 +6607,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; SalesOrderLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>FULFILLED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6572,6 +6638,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order Line <span class="group">Foundation</span></h3>
       <p class="lede">Authoritative commercial commitment at product/quantity level, reconciling transaction pricing with allocation, fulfillment and billing evidence. The line states what the customer agreed to buy and how it is priced. Reservations state committed stock, shipment/fulfillment events state what was delivered, and InvoiceLines state what was billed. Order management, allocation, warehouse fulfillment, shipment, invoicing, credit, margin, customer service and audit. SalesOrder supplies customer/currency context; Product/UOM define item and quantity semantics; InventoryReservation supplies allocation evidence; Shipment supplies transport/fulfillment evidence; InvoiceLine supplies financial claim evidence. Confirmed order line → availability → InventoryReservation → pick/issue → Shipment → accepted fulfillment → quantityFulfilled → billing. Cancellation/reduction releases or reconciles reservations and open shipments before changing remaining demand. Master-data changes trigger controlled revalidation. Draft → confirmed → allocated → partially fulfilled → fulfilled/cancelled. Historical pricing and fulfillment evidence remain reproducible. quantityAllocated follows reservation events; quantityFulfilled follows accepted fulfillment events; SalesOrder status follows line states; InvoiceLine follows billing policy; Product/UOM/pricing changes affect future or explicitly revalidated open work only. Reservation, fulfillment, cancellation and billing allocation require concurrency control and idempotency to prevent double allocation, double fulfillment or double billing. A line requests 20 units. Twenty are reserved, 12 are shipped and accepted, leaving 8 executable. quantityAllocated and quantityFulfilled are updated from their respective workflows. Cancelling the remaining 8 releases the reservation and cancels open work without reversing the accepted 12.</p>
       <p class="meta">Stored as <code>bus_sales_order_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6805,6 +6872,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order Line Price Source <span class="group">Reference Data</span></h3>
       <p class="lede">The values of sales order line price source, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_sales_order_line_price_source</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6910,6 +6978,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of sales order status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_sales_order_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7015,6 +7084,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Shipment <span class="group">Transportation Management</span></h3>
       <p class="lede">Represents physical logistics execution bridging commercial fulfillment and transport while keeping inventory and financial state under their authoritative workflows. Shipment answers how goods are physically moved. It is not itself the inventory ledger, SalesOrder fulfillment ledger, GoodsReceipt acceptance, or financial settlement. Transportation, warehouse operations, procurement, order fulfillment, carrier management, customs, customer service and container logistics. SalesOrder supplies outbound demand, PurchaseOrder supplies inbound procurement context, Container supplies equipment, Location supplies endpoints, InventoryMovement supplies stock consequences, GoodsReceipt supplies inbound acceptance, and Invoice supplies financial claim. Outbound: confirmed SalesOrder → allocation/reservation → pick/issue → Shipment booked → dispatch → transport → delivery evidence → SalesOrder fulfillment update. Inbound: PurchaseOrder → expected shipment → arrival → GoodsReceipt → acceptance → InventoryMovement. Transfer: source allocation → dispatch issue → transit → destination receipt. Return: authorized return → transport → receipt/inspection → disposition → inventory movement. Planned → booked → in transit → delivered, with cancellation and exception paths. Delivery evidence contributes to fulfillment but never bypasses authoritative inventory or financial workflows. Shipment status changes invoke dependent workflow transitions; master-data changes affecting an open shipment require revalidation; posted downstream effects require compensating events for reversal. Dispatch, delivery and inventory posting require idempotency keys and concurrency control to prevent duplicate issue/receipt/fulfillment effects. Twelve units are reserved for an outbound SalesOrder. Dispatch creates one authoritative inventory issue event for the shipped quantity and updates fulfillment through the controlled workflow. A retry cannot issue the same quantity twice. Delivery confirms transport completion but does not itself settle the invoice.</p>
       <p class="meta">Stored as <code>bus_shipment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7198,6 +7268,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ShipmentLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>DELIVERED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -7229,6 +7300,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Shipment Line <span class="group">Foundation</span></h3>
       <p class="lede">Line-level logistics execution connecting commercial demand to physical transport and inventory evidence. ShipmentLine says what quantity moved in logistics; InventoryMovement says what happened to stock. Outbound fulfillment, inbound transport, transfers, returns, carrier operations, claims, and audit. Shipment supplies logistics context; order lines supply demand/commitment; InventoryMovement supplies stock effects. Planned → dispatched → delivered or exception/cancellation according to parent shipment. Quantity or source-line changes revalidate allocation, inventory, receiving, fulfillment, and delivery workflows.</p>
       <p class="meta">Stored as <code>bus_shipment_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7392,6 +7464,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Shipment Shipment Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of shipment shipment type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_shipment_shipment_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7497,6 +7570,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Shipment Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of shipment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_shipment_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7602,6 +7676,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>State Province <span class="group">Foundation</span></h3>
       <p class="lede">A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_state_province</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7699,6 +7774,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task <span class="group">Foundation</span></h3>
       <p class="lede">Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Task record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_task</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7888,6 +7964,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaskLifecycle</h4>
       <p>A record starts at <code>CREATED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code> or <code>FAILED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -7927,6 +8004,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Priority <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_priority</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8032,6 +8110,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8137,6 +8216,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Task Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task task type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_task_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8242,6 +8322,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tracking Event <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress. Provide canonical implementation-neutral semantics for TrackingEvent across enterprise applications. An immutable timestamped logistics observation describing shipment, consignment, load, container, or handling-unit progress. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.</p>
       <p class="meta">Stored as <code>bus_tracking_event</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8309,6 +8390,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Trip <span class="group">Transportation and Logistics records</span></h3>
       <p class="lede">Represents a travel entity called Trip within the CEDM business model. Trip is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Trip records. The entity participates in a wider business graph through relationships with Party, TripSegment, BusinessTransaction. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Trip record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_trip</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8414,6 +8496,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TripLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -8440,6 +8523,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Trip Segment <span class="group">Foundation</span></h3>
       <p class="lede">Represents a travel entity called TripSegment within the CEDM business model. TripSegment is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate TripSegment records. The entity participates in a wider business graph through relationships with Trip, Location, Location, Vehicle. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical TripSegment record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_trip_segment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8589,6 +8673,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TripSegmentLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -8615,6 +8700,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Trip Segment Mode <span class="group">Reference Data</span></h3>
       <p class="lede">The values of trip segment mode, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_trip_segment_mode</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8720,6 +8806,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Trip Segment Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of trip segment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_trip_segment_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8825,6 +8912,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Trip Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of trip status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_trip_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8930,6 +9018,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure <span class="group">Foundation</span></h3>
       <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9067,6 +9156,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -9083,6 +9173,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure Category <span class="group">Reference Data</span></h3>
       <p class="lede">The values of unit of measure category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure_category</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9188,6 +9279,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of unit of measure status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9293,6 +9385,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Vehicle <span class="group">Transportation Management</span></h3>
       <p class="lede">Represents a logistics asset called Vehicle within the CEDM business model. Vehicle is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Vehicle records. The entity participates in a wider business graph through relationships with Party, Location, ContainerMovement. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Vehicle record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_vehicle</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9413,6 +9506,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; VehicleLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -9440,6 +9534,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Vehicle Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of vehicle status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_vehicle_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9545,6 +9640,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Vehicle Vehicle Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of vehicle vehicle type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_vehicle_vehicle_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>

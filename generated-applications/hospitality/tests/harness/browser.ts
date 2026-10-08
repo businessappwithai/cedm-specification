@@ -20,7 +20,7 @@
  *    "through the browser"; driving a form a hundred thousand times would
  *    measure Playwright's typing speed and take days.
  *
- * Generated: 2026-10-04T08:29:58.687Z
+ * Generated: 2026-10-08T00:56:16.615Z
  * Project: hospitality
  */
 
@@ -50,7 +50,7 @@ export interface BrowserSession {
    * returning one round trip's worth of results rather than N.
    */
   apiBatch<T = unknown>(
-    requests: Array<{ path: string; method?: string; body?: unknown }>,
+    requests: Array<{ path: string; method?: string; body?: unknown; headers?: Record<string, string> }>,
     concurrency?: number
   ): Promise<Array<PageResponse<T>>>;
   close(): Promise<void>;
@@ -237,7 +237,7 @@ export async function openApp(): Promise<BrowserSession> {
     ) as Promise<PageResponse<T>>;
 
   const apiBatch = async <T = unknown>(
-    requests: Array<{ path: string; method?: string; body?: unknown }>,
+    requests: Array<{ path: string; method?: string; body?: unknown; headers?: Record<string, string> }>,
     concurrency = 16
   ): Promise<Array<PageResponse<T>>> =>
     page.evaluate(
@@ -248,7 +248,12 @@ export async function openApp(): Promise<BrowserSession> {
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
-        const list = specs as Array<{ path: string; method?: string; body?: unknown }>;
+        const list = specs as Array<{
+          path: string;
+          method?: string;
+          body?: unknown;
+          headers?: Record<string, string>;
+        }>;
         const results = new Array(list.length);
         let next = 0;
 
@@ -275,7 +280,7 @@ export async function openApp(): Promise<BrowserSession> {
               const response = await fetch(`${prefix}${spec.path}`, {
                 method: spec.method ?? "GET",
                 credentials: "include",
-                headers,
+                headers: { ...headers, ...(spec.headers ?? {}) },
                 signal: controller.signal,
                 body: spec.body == null ? undefined : JSON.stringify(spec.body),
               });

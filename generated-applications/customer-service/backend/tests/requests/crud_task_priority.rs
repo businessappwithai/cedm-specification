@@ -3,7 +3,7 @@
 //! One module per entity, so a failure names the entity that broke instead of
 //! collapsing every entity into one suite.
 //!
-//! Generated: 2026-10-04T08:29:29.540Z
+//! Generated: 2026-10-08T00:55:39.909Z
 //! Project: customer-service
 
 use serde_json::{json, Value};
@@ -254,6 +254,7 @@ async fn soft_deletes_a_record() {
         let deleted = request
             .delete(&format!("/api/bus/{}/{id}", meta.route))
             .add_header("authorization", bearer(&token))
+            .add_header("if-match", if_match(&created))
             .await;
         assert_eq!(deleted.status_code(), 204);
 

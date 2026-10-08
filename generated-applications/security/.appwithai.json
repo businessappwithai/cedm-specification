@@ -112,6 +112,24 @@
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
     "AccessGrantFollowUpRequired on AccessGrant (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "User: RETIRED",
+    "Identity: REVOKED, EXPIRED",
+    "Role: RETIRED",
+    "Permission: RETIRED",
+    "AccessGrant: COMPLETED, CANCELLED",
+    "SecurityIncident: CLOSED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:31:10.239Z"
+  "generatedAt": "2026-10-08T00:57:42.793Z"
 }

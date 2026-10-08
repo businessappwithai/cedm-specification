@@ -109,6 +109,22 @@
     "BusinessTransactionFollowUpRequired on BusinessTransaction (1 steps, rule)",
     "BusinessTransactionCompletionConfirmed on BusinessTransaction (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "OrganizationMembership: COMPLETED, CANCELLED",
+    "Approval: COMPLETED, CANCELLED",
+    "Assignment: COMPLETED, CANCELLED",
+    "BusinessTransaction: COMPLETED, CANCELLED, REVERSED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:29:45.414Z"
+  "generatedAt": "2026-10-08T00:55:59.553Z"
 }

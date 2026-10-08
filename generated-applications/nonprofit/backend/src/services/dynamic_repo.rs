@@ -167,6 +167,17 @@ pub enum RawVersion {
     Restore { written: i32, previous: i32 },
 }
 
+/// The outcome of a guarded delete.
+#[derive(Debug)]
+pub enum DeleteResult {
+    /// The row is soft-deleted.
+    Deleted,
+    /// A condition of the delete no longer held; the row as it now stands.
+    Refused { current: Value },
+    /// There was no live row to delete.
+    Gone,
+}
+
 /// The outcome of a guarded update.
 #[derive(Debug)]
 pub enum UpdateResult {
@@ -410,26 +421,64 @@ impl DynamicRepo {
         Ok(())
     }
 
-    /// Soft delete. Returns false when the row was already gone.
+    /// Soft delete, under the same conditions as `update`.
     ///
     /// Advances `version` like any other write: a reader holding the record
     /// must not be able to save over a deletion as if nothing had happened.
-    pub async fn soft_delete(&self, table: &TableName, id: Uuid) -> AppResult<bool> {
-        let (sql, bound) = Query::update()
-            .table(Alias::new(table.as_str()))
+    /// The guard is the one an update takes, and for the same reasons: a
+    /// caller who read version `n` deletes version `n` and nothing newer, and a
+    /// record in a final state is a completed transaction, which a deletion
+    /// would undo as surely as an edit. A system delete — a workflow step —
+    /// passes `WriteGuard::default()`.
+    ///
+    /// Each condition is part of the one UPDATE, so a record that changes or
+    /// becomes final between the caller's read and this statement is refused
+    /// rather than deleted.
+    pub async fn soft_delete(
+        &self,
+        meta: &TableMeta,
+        id: Uuid,
+        guard: &WriteGuard<'_>,
+    ) -> AppResult<DeleteResult> {
+        let mut delete = Query::update();
+        delete
+            .table(Alias::new(meta.table_name.clone()))
             .value(Alias::new("deleted_at"), Expr::val(Utc::now()))
             .value(
                 Alias::new("version"),
                 Expr::col(Alias::new("version")).add(1),
             )
             .and_where(Expr::col(Alias::new("id")).eq(id))
-            .and_where(Expr::col(Alias::new("deleted_at")).is_null())
-            .build_sqlx(PostgresQueryBuilder);
+            .and_where(Expr::col(Alias::new("deleted_at")).is_null());
 
+        if let Some(version) = guard.expected_version {
+            delete.and_where(Expr::col(Alias::new("version")).eq(version));
+        }
+        if let Some(lifecycle) = guard.closed_by {
+            if !lifecycle.finals.is_empty() && meta.column(&lifecycle.status_field).is_some() {
+                let column = Expr::col(Alias::new(lifecycle.status_field.clone()))
+                    .cast_as(Alias::new("text"));
+                delete.and_where(
+                    column
+                        .clone()
+                        .is_null()
+                        .or(column.is_not_in(lifecycle.finals.iter().cloned())),
+                );
+            }
+        }
+
+        let (sql, bound) = delete.build_sqlx(PostgresQueryBuilder);
         let result = sqlx::query_with(AssertSqlSafe(sql), bound)
             .execute(&self.pool)
             .await?;
-        Ok(result.rows_affected() > 0)
+        if result.rows_affected() > 0 {
+            return Ok(DeleteResult::Deleted);
+        }
+        Ok(match self.find_by_id(&meta_table(meta), id).await? {
+            // Still there and not deleted, so a condition failed.
+            Some(current) => DeleteResult::Refused { current },
+            None => DeleteResult::Gone,
+        })
     }
 
     /// The pool, for callers that need to issue a statement this type does not

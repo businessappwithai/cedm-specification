@@ -150,6 +150,25 @@
     "CustomerExceptionRaised on Customer (1 steps, rule)",
     "ProductExceptionRaised on Product (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Shipment: DELIVERED, CANCELLED",
+    "Vehicle: RETIRED",
+    "SalesOrder: FULFILLED, CANCELLED",
+    "Trip: COMPLETED, CANCELLED",
+    "TripSegment: COMPLETED, CANCELLED",
+    "Customer: RETIRED",
+    "Product: DISCONTINUED, RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:19.139Z"
+  "generatedAt": "2026-10-08T00:56:40.833Z"
 }

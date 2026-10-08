@@ -92,6 +92,19 @@
     "ProfessionalEngagementExceptionRaised on ProfessionalEngagement (1 steps, rule)",
     "ProfessionalEngagementFollowUpRequired on ProfessionalEngagement (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "ProfessionalEngagement: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:39.270Z"
+  "generatedAt": "2026-10-08T00:57:05.287Z"
 }

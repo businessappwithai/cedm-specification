@@ -592,7 +592,14 @@ impl WorkflowExecutor {
         {
             self.repo.hard_delete(&table, id).await?
         } else {
-            self.repo.soft_delete(&table, id).await?
+            // A step completes a transaction rather than reopening one, so it
+            // writes as the system: no version, no final-state refusal.
+            matches!(
+                self.repo
+                    .soft_delete(&meta, id, &crate::services::dynamic_repo::WriteGuard::default())
+                    .await?,
+                crate::services::dynamic_repo::DeleteResult::Deleted
+            )
         };
 
         if !removed {

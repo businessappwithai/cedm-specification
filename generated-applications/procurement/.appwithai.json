@@ -195,6 +195,34 @@
     "InvoiceExceptionRaised on Invoice (1 steps, rule)",
     "InvoiceFollowUpRequired on Invoice (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Supplier: RETIRED",
+    "PurchaseRequisition: CLOSED, REJECTED, CANCELLED",
+    "RequestForQuotation: AWARDED, CANCELLED",
+    "SupplierQuotation: REJECTED, EXPIRED, WITHDRAWN",
+    "PurchaseOrder: CLOSED, CANCELLED",
+    "GoodsReceipt: REJECTED, CANCELLED",
+    "SupplierClaim: CLOSED, REJECTED, CANCELLED",
+    "SupplierClaimResolution: EXECUTED, FAILED, CANCELLED",
+    "SupplierCreditNote: FULLY_APPLIED, CANCELLED, REVERSED",
+    "SupplierCreditNoteApplication: REVERSED, CANCELLED",
+    "SupplierDebitNote: FULLY_APPLIED, CANCELLED, REVERSED",
+    "SupplierDebitNoteApplication: REVERSED, CANCELLED",
+    "SupplierPerformanceAssessment: SUPERSEDED, CANCELLED",
+    "SupplierReturn: COMPLETED, CANCELLED",
+    "Product: DISCONTINUED, RETIRED",
+    "Invoice: PAID, CANCELLED, VOID"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:36.713Z"
+  "generatedAt": "2026-10-08T00:57:00.967Z"
 }

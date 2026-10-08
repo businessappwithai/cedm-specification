@@ -108,6 +108,23 @@
     "PayrollFollowUpRequired on Payroll (1 steps, rule)",
     "PayrollCompletionConfirmed on Payroll (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Employee: TERMINATED, RETIRED",
+    "Position: FILLED, RETIRED",
+    "Employment: TERMINATED",
+    "Payroll: PAID, REVERSED",
+    "Job: RETIRED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:02.353Z"
+  "generatedAt": "2026-10-08T00:56:20.615Z"
 }

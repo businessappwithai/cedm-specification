@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-04T08:29:49.710Z">2026-10-04T08:29:49.710Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-08T00:56:04.422Z">2026-10-08T00:56:04.422Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -289,6 +289,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Account <span class="group">Financial Accounting</span></h3>
       <p class="lede">Represents a financial master entity called Account within the CEDM business model. Account is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Account records. The entity participates in a wider business graph through relationships with Account, Account, Organization. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Account record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_account</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -425,6 +426,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; AccountLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -441,6 +443,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Account Account Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of account account type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_account_account_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -546,6 +549,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Account Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of account status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_account_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -651,6 +655,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address <span class="group">Foundation</span></h3>
       <p class="lede">Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.</p>
       <p class="meta">Stored as <code>bus_address</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -945,6 +950,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; AddressLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -969,6 +975,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address Address Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of address address type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_address_address_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1074,6 +1081,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Address Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of address status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_address_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1179,6 +1187,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset <span class="group">Foundation</span></h3>
       <p class="lede">Represents the long-lived business object for a durable resource whose identity, ownership, location, maintenance, financial treatment, and lifecycle must be managed over time. Asset is the instance-level concept used when an organization must manage a specific physical or accountable resource rather than merely a product type. A container, vehicle, machine, aircraft, or facility equipment item can be represented as an Asset when individual lifecycle and accountability matter. Used across asset management, maintenance, finance, depreciation, inventory, logistics, leasing, insurance, compliance, and operational planning. Product describes what the asset is as a standardized model. Asset identifies the individual resource. Location describes current operational placement. MaintenanceWorkOrder records maintenance activity. AssetDepreciation records financial measurement. Organization identifies ownership when applicable. Historical movements and transactions should preserve changes rather than overwriting the asset&#39;s identity. An asset may be planned before entering service, active during productive use, under maintenance while temporarily unavailable, held pending a business decision, disposed when ownership/control has ended, or retired when operational use has ceased. Lifecycle state should not erase history; it changes how current processes may act on the asset. A shipping container is acquired and assigned an assetNumber and serial/equipment identity. It is linked to a Product model, located at a depot, receives MaintenanceWorkOrder records during its service life, and has AssetDepreciation records for financial reporting. When its repair economics no longer justify continued use, a RepairEstimate may recommend SALE or SCRAP; the resulting disposition changes the asset lifecycle while preserving its historical record.</p>
       <p class="meta">Stored as <code>bus_asset</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1359,6 +1368,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; AssetLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>DISPOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -1393,6 +1403,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Acquisition <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed event recognizing acquisition and capitalization context for an Asset while keeping accounting posting in JournalEntry. Provide canonical enterprise semantics for AssetAcquisition. A governed event recognizing acquisition and capitalization context for an Asset while keeping accounting posting in JournalEntry. Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable. Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains. Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence. Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit. Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.</p>
       <p class="meta">Stored as <code>bus_asset_acquisition</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1460,6 +1471,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Class <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets. Provide canonical enterprise semantics for AssetClass. A governed classification defining accounting, depreciation, lifecycle, and control defaults for Assets. Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable. Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains. Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence. Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit. Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.</p>
       <p class="meta">Stored as <code>bus_asset_class</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1509,6 +1521,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Depreciation <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">Represents the financial measurement of how an Asset&#39;s depreciable value is consumed over time or usage. AssetDepreciation translates an asset&#39;s economic consumption into an accounting measure. It is not a description of physical condition; an asset can be heavily depreciated while remaining operational, or have a high book value while requiring significant repair. Used by fixed-asset accounting, period close, financial reporting, asset valuation, disposal analysis, budgeting, management reporting, and repair/disposition economics. Asset identifies the resource. AssetDepreciation supplies the accounting method and resulting financial measures. RepairEstimate may compare estimated repair cost or sale value against net book value, but those are different business concepts. MaintenanceWorkOrder captures physical work and actual maintenance execution; depreciation captures accounting consumption. A depreciation schedule begins when an asset becomes subject to the applicable accounting policy, accumulates depreciation through accounting periods or usage, may be revised after approved accounting changes, and ends or is settled when the asset is disposed, retired, fully depreciated, or otherwise removed from the relevant accounting basis. A container acquired for 10,000 units of currency has a defined salvage value and useful life. Under STRAIGHT depreciation, its depreciable base is allocated over the useful life. A RepairEstimate later evaluates a 3,000-unit repair against its net book value and expected sale value; the depreciation record provides the accounting baseline but does not determine the repair decision by itself.</p>
       <p class="meta">Stored as <code>bus_asset_depreciation</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1698,6 +1711,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Depreciation Depreciation Method <span class="group">Reference Data</span></h3>
       <p class="lede">The values of asset depreciation depreciation method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_asset_depreciation_depreciation_method</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1803,6 +1817,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Disposal <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences. Provide canonical enterprise semantics for AssetDisposal. A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences. Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable. Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains. Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence. Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit. Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.</p>
       <p class="meta">Stored as <code>bus_asset_disposal</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1870,6 +1885,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of asset status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_asset_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -1975,6 +1991,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Asset Transfer <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history. Provide canonical enterprise semantics for AssetTransfer. A governed event transferring Asset responsibility, location, organizational assignment, or custody without rewriting acquisition history. Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable. Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains. Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence. Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit. Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.</p>
       <p class="meta">Stored as <code>bus_asset_transfer</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2042,6 +2059,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Attachment <span class="group">Foundation</span></h3>
       <p class="lede">A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions. Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved. Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation. Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.</p>
       <p class="meta">Stored as <code>bus_attachment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2091,6 +2109,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Bank Account <span class="group">Foundation</span></h3>
       <p class="lede">Represents the controlled banking account context through which cash is received, disbursed, observed, and reconciled. BankAccount is master data for the financial account; it is not a bank transaction, payment, or accounting entry. Central to treasury, Payment execution, BankTransaction ingestion, bank reconciliation, cash reporting, and accounting. Party provides ownership context. Organization provides the financial institution. Payment represents internal settlement events. BankTransaction represents external statement evidence. JournalEntry represents accounting consequences. BankAccount setup → verification → activation → Payment execution/receipt → BankTransaction import → account/date/currency/reference reconciliation → Payment clearing → accounting reconciliation. Account closure affects future activity but preserves historical evidence. Pending → active → blocked or closed. Lifecycle controls future operational use and never deletes historical transactions. A USD current account at a bank is ACTIVE. Customer Payments are received into it, corresponding USD BankTransactions are imported from the bank feed, each is reconciled to the appropriate Payment, and the Payment becomes CLEARED only after controlled matching.</p>
       <p class="meta">Stored as <code>bus_bank_account</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2199,6 +2218,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; BankAccountLifecycle</h4>
       <p>A record starts at <code>PENDING</code> and finishes at <code>CLOSED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2223,6 +2243,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Bank Account Account Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of bank account account type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_bank_account_account_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2328,6 +2349,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Bank Account Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of bank account status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_bank_account_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2433,6 +2455,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Billing Cycle <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed recurring billing interval and cutoff definition used to determine charge-generation periods. Provide canonical enterprise semantics for BillingCycle while keeping planning, operational, financial and evidential responsibilities separated. A governed recurring billing interval and cutoff definition used to determine charge-generation periods. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_billing_cycle</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2477,6 +2500,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Lifecycle &mdash; BillingCycleLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2501,6 +2525,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Billing Cycle Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of billing cycle status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_billing_cycle_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2606,6 +2631,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Budget <span class="group">Budgeting and Planning</span></h3>
       <p class="lede">Governed financial planning baseline. Budget records intended/authorized financial amounts while JournalEntry records actual accounting. Planning, spending control and variance reporting. BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions. Draft to submitted to approved/active to superseded/closed.</p>
       <p class="meta">Stored as <code>bus_budget</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2714,6 +2740,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; BudgetLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>CLOSED</code> or <code>SUPERSEDED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -2742,6 +2769,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Budget Line <span class="group">Foundation</span></h3>
       <p class="lede">Detailed dimensional budget allocation. Defines planned money at an account/responsibility intersection. Budgeting and variance analysis. Budget governs; Account/CostCenter/ProfitCenter classify.</p>
       <p class="meta">Stored as <code>bus_budget_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2862,6 +2890,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Budget Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of budget status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_budget_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -2967,6 +2996,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Business Unit <span class="group">Foundation</span></h3>
       <p class="lede">A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_business_unit</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3048,6 +3078,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Calendar <span class="group">Foundation</span></h3>
       <p class="lede">A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_calendar</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3111,6 +3142,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Cash Position <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">Reproducible point-in-time treasury liquidity view. CashPosition summarizes cash; BankTransaction supplies external evidence, Payment supplies internal settlement state, and JournalEntry supplies accounting recognition. Daily cash management, liquidity, funding, payment planning and treasury reporting. BankAccount defines account/currency; bank transactions and payments supply observed/pending cash evidence. Calculated for an as-of cutoff → reviewed/published where required → retained or superseded by later snapshots. New/reversed/reconciled cash evidence affects subsequent positions and forecasts, not source transaction history.</p>
       <p class="meta">Stored as <code>bus_cash_position</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3221,6 +3253,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Charge <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed billable monetary amount created from subscription, usage, service, product, fee, or adjustment rules before settlement. Provide canonical enterprise semantics for Charge while keeping planning, operational, financial and evidential responsibilities separated. A governed billable monetary amount created from subscription, usage, service, product, fee, or adjustment rules before settlement. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_charge</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3283,6 +3316,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ChargeLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -3307,6 +3341,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Charge Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of charge status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_charge_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3412,6 +3447,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>City <span class="group">Foundation</span></h3>
       <p class="lede">A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3579,6 +3615,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Contact Point <span class="group">Foundation</span></h3>
       <p class="lede">A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_contact_point</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3660,6 +3697,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Cost Center <span class="group">Budgeting and Planning</span></h3>
       <p class="lede">A governed responsibility center used to assign and analyze costs independently of legal-account identity. Provides planning/management semantics separately from actual accounting evidence. Planning, control, management reporting and analysis. Organization supplies governance; financial transactions remain authoritative for actuals.</p>
       <p class="meta">Stored as <code>bus_cost_center</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3728,6 +3766,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Country <span class="group">Foundation</span></h3>
       <p class="lede">A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -3854,6 +3893,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Credit Note <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">Represents an explicit reduction of a customer&#39;s financial claim while preserving original invoice, return, accounting, application and refund evidence. CustomerReturn records reverse fulfillment; CreditNote records the financial adjustment; CreditNoteApplication records how it is consumed; Invoice remains the historical claim; JournalEntry records accounting; Payment records any refund cash. Customer returns, accounts receivable, billing corrections, tax adjustments, customer concessions, statements, audit and refunds. CustomerReturnLine provides returned quantity and approved credit basis. InvoiceLine provides original billed evidence. CreditNoteLine captures adjustment detail. CreditNoteApplication connects the adjustment to invoice exposure. JournalEntry records accounting. Payment records refund. Return authorized → received/inspected → disposition approved → credit eligibility calculated → CreditNote draft → approval → accounting determination → post → create CreditNoteApplication against open Invoice or establish refund due → refund Payment if required → reconcile → fully applied/refunded. Original Invoice and Payment history remain immutable. Draft → approved → posted → partially applied/fully applied or refund due → refunded, with cancellation and reversal paths. Changes to return disposition or original invoice evidence trigger revalidation of an unposted credit. Posted credit changes require explicit reversal and replacement. Applications are corrected by reversal/reallocation, and refund payments remain separate evidence. A customer returns five units with approved credit of USD 590. CreditNote is posted for USD 590. A CreditNoteApplication can consume the credit against an open invoice; if no eligible balance exists, the credit becomes refund due and a separate Payment settles it.</p>
       <p class="meta">Stored as <code>bus_credit_note</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4061,6 +4101,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CreditNoteLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>FULLY_APPLIED</code> or <code>REFUNDED</code> or <code>CANCELLED</code> or <code>REVERSED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -4095,6 +4136,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Credit Note Application <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">Provides the auditable bridge by which a posted customer CreditNote is consumed against an Invoice. CreditNote establishes the authorized financial reduction; Invoice remains the original claim; CreditNoteApplication records exactly where and how much of the credit was used. Receivables, customer statements, returns, billing corrections, tax, reconciliation, audit and refund-versus-application decisions. CreditNoteLine explains source credit detail; InvoiceLine explains original claim detail; this entity records header-level application evidence; JournalEntry records accounting recognition; Payment records any separate refund. CreditNote posted → select eligible Invoice → validate remaining credit and invoice exposure → currency/rate validation → activate application → update CreditNote amountApplied/amountRemaining and Invoice amountCredited/amountOutstanding/status → reverse and reallocate when required. Draft → active → reversed/cancelled. Historical applications are retained. Changes to posted CreditNote or Invoice never rewrite an application; corrections use reversal and replacement applications. A posted USD 590 CreditNote is applied to a USD 590 open invoice. The application consumes USD 590 of available credit and reduces the invoice exposure by USD 590. If applied incorrectly, the application is reversed and a new application is created.</p>
       <p class="meta">Stored as <code>bus_credit_note_application</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4243,6 +4285,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CreditNoteApplicationLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>REVERSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -4269,6 +4312,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Credit Note Application Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of credit note application status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_credit_note_application_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4374,6 +4418,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Credit Note Line <span class="group">Foundation</span></h3>
       <p class="lede">Represents one auditable financial adjustment detail and its source evidence. CreditNoteLine translates an eligible original invoice or return into a specific credited value while preserving historical source facts. Return credits, billing corrections, tax adjustments, customer concessions and audit. InvoiceLine is the original financial evidence; CustomerReturnLine is the reverse-fulfillment evidence; CreditNoteLine is the new financial result. Validate source → determine eligible quantity/value → apply return and pricing/tax policy → snapshot evidence → calculate line credit → approve → post through CreditNote. Corrections use reversal/replacement. Draft → calculated → approved → posted, with controlled reversal after posting. Three returned units are eligible for credit at the original transaction value. CreditNoteLine records quantity 3, preserves the source InvoiceLine and CustomerReturnLine, recalculates applicable tax, and contributes its total to CreditNote without changing the original invoice line.</p>
       <p class="meta">Stored as <code>bus_credit_note_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4591,6 +4636,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Credit Note Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of credit note status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_credit_note_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4696,6 +4742,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Currency <span class="group">Foundation</span></h3>
       <p class="lede">Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
       <p class="meta">Stored as <code>bus_currency</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4811,6 +4858,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -4827,6 +4875,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Currency Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of currency status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_currency_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -4932,6 +4981,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer <span class="group">Accounts Receivable</span></h3>
       <p class="lede">Represents the commercial customer role of a Party. Party identifies who the party is; PartyRole establishes a role; Customer governs buyer-specific commercial behavior and controls. Central to sales order-to-cash, pricing, billing, receivables, collections, service, and customer analytics. Customer connects to SalesOrder, Invoice, Payment, PaymentAllocation through those transaction entities while retaining the underlying Party identity. Customer onboarding → eligibility/credit → SalesOrder → fulfillment → Invoice → Payment → PaymentAllocation → receivables settlement. Customer status constrains new activity but does not replace transaction evidence or rewrite history. Onboard → active → inactive/blocked → retired. Future eligibility changes do not invalidate historical relationships. A Party may simultaneously act as Customer and Supplier. Both roles reference the same Party identity while maintaining separate commercial controls and histories.</p>
       <p class="meta">Stored as <code>bus_customer</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5173,6 +5223,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; CustomerLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -5200,6 +5251,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Credit Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer credit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_credit_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5305,6 +5357,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Customer Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer customer type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_customer_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5410,6 +5463,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Role Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_role_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5515,6 +5569,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Customer Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of customer status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_customer_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5620,6 +5675,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Department <span class="group">Foundation</span></h3>
       <p class="lede">A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_department</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5701,6 +5757,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate <span class="group">Foundation</span></h3>
       <p class="lede">Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
       <p class="meta">Stored as <code>bus_exchange_rate</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5852,6 +5909,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ExchangeRateLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -5878,6 +5936,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate Rate Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of exchange rate rate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_exchange_rate_rate_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -5983,6 +6042,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Exchange Rate Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of exchange rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_exchange_rate_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6088,6 +6148,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Fiscal Period <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">Accounting-period control for posting, close and reporting. FiscalPeriod determines whether an accounting date is currently eligible for recognition; it does not replace JournalEntry. General ledger, AP, AR, treasury, assets, inventory accounting, tax and financial close. Organization defines books; JournalEntry carries accounting date; period state controls posting eligibility. Future → open → soft closed → closed → locked, with governed reopen where policy permits. Closing/reopening immediately revalidates pending postings and close processes while preserving already posted history.</p>
       <p class="meta">Stored as <code>bus_fiscal_period</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6195,6 +6256,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; FiscalPeriodLifecycle</h4>
       <p>A record starts at <code>FUTURE</code> and finishes at <code>CLOSED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6212,6 +6274,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Fiscal Period Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of fiscal period status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_fiscal_period_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6317,6 +6380,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Forecast <span class="group">Budgeting and Planning</span></h3>
       <p class="lede">A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting. Provides planning/management semantics separately from actual accounting evidence. Planning, control, management reporting and analysis. Organization supplies governance; financial transactions remain authoritative for actuals.</p>
       <p class="meta">Stored as <code>bus_forecast</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6415,6 +6479,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Foreign Exchange Transaction <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties. Provide canonical enterprise semantics for ForeignExchangeTransaction. A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties. Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable. Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains. Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence. Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit. Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.</p>
       <p class="meta">Stored as <code>bus_foreign_exchange_transaction</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6464,6 +6529,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Interest <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed interest accrual or charge calculated for an eligible financial balance, rate basis, and period. Provide canonical enterprise semantics for Interest. A governed interest accrual or charge calculated for an eligible financial balance, rate basis, and period. Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable. Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains. Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence. Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit. Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.</p>
       <p class="meta">Stored as <code>bus_interest</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6513,6 +6579,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Invoice <span class="group">Financial Accounting</span></h3>
       <p class="lede">Represents a formal financial claim and its controlled settlement and adjustment state. Invoice records what was originally claimed. Payment records money moved. PaymentAllocation records how money is applied. CreditNote, SupplierCreditNote, and SupplierDebitNote record separate authorized financial adjustments; their application entities record claim-level consumption. Used by order-to-cash, procure-to-pay, accounting, tax, collections, payments, reconciliation, customer credit, supplier recovery and audit. SalesOrder provides commercial commitment, Shipment or delivery provides fulfillment where applicable, GoodsReceipt provides accepted procurement fulfillment, Invoice provides the claim, CreditNote provides customer reduction, SupplierCreditNote provides supplier reduction, SupplierDebitNote provides buyer recovery, Payment provides settlement, and application entities connect each adjustment to the claim. Invoice preparation → line calculation → discount → taxable base → tax determination → total → PaymentTerm due-date calculation → issue → payment → PaymentAllocation and/or approved adjustment application → amountSettled/amountCredited/amountOutstanding → PARTIALLY_PAID or PAID. Supplier credit and debit applications remain explicit non-cash financial evidence. Draft → issued → partially paid or overdue → paid, with cancellation and void paths. Corrections use CreditNote, SupplierCreditNote, SupplierDebitNote, controlled adjustments, or allocation/application reversals rather than silently rewriting posted evidence. Changes to Customer, Supplier, Product, UOM, pricing, discount, tax, Currency, SalesOrder, PurchaseOrder, GoodsReceipt, return, claim, credit, or debit evidence affecting an open transaction trigger controlled revalidation. Posted invoice history is not silently recalculated. Posted adjustments and applications are corrected through explicit reversal/replacement. A purchase invoice totals 10,000 EUR. A 1,000 EUR supplier credit and a 500 EUR supplier debit are each explicitly applied through their application entities; the invoice&#39;s original values remain unchanged while payable exposure is reconciled from the active settlement and adjustment evidence.</p>
       <p class="meta">Stored as <code>bus_invoice</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6807,6 +6874,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; InvoiceLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>PAID</code> or <code>CANCELLED</code> or <code>VOID</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -6844,6 +6912,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Invoice Invoice Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of invoice invoice type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_invoice_invoice_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -6949,6 +7018,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Invoice Line <span class="group">Foundation</span></h3>
       <p class="lede">Represents one immutable financial claim line with reproducible calculation evidence and explicit customer and supplier adjustment references. InvoiceLine is the historical financial result. Current Product, DiscountRule, TaxRule, UOM and pricing master data are inputs to future transactions, not live dependencies of a posted line. CreditNoteLine and SupplierCreditNoteLine record later reductions separately. Billing, accounts payable, accounts receivable, procurement matching, tax, accounting, returns, credit processing, audit and settlement. Invoice provides claim context; Product/UOM identify and measure the billed item; DiscountRule and TaxRule explain policy; pricingEvidence, discountEvidence and taxEvidence preserve transaction-time results; PO/receipt relationships support three-way matching; CreditNoteLine records customer adjustment; SupplierCreditNoteLine records supplier adjustment. Determine transaction price → calculate gross → resolve discount → calculate taxable base → resolve tax → calculate tax → calculate net → snapshot evidence → matching/approval → post. If a customer or supplier return/correction occurs later, determine eligible adjustment → create corresponding credit line → post credit → apply through explicit application evidence. Subsequent master-data changes never rewrite posted history. Draft → calculated → matched/exception → approved → posted. After posting, historical calculation evidence is immutable and corrections use explicit financial documents or adjustments. Changes to Product/UOM/pricing/discount/tax masters require validation of future and open transactions but never silently modify posted InvoiceLines. Changes to procurement commitments, receipts, customer returns, supplier returns or credits can change downstream matching/adjustment eligibility through controlled reconciliation without rewriting the invoice calculation. A purchase invoice line is linked to a PurchaseOrderLine and accepted GoodsReceiptLine. If three received units are later returned to the supplier, SupplierReturnLine and SupplierCreditNoteLine reference this InvoiceLine; the original billed price and tax remain unchanged while the supplier credit is applied separately.</p>
       <p class="meta">Stored as <code>bus_invoice_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7254,6 +7324,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Invoice Line Matching Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of invoice line matching status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_invoice_line_matching_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7359,6 +7430,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Invoice Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of invoice status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_invoice_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7464,6 +7536,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Journal Entry <span class="group">Financial Accounting</span></h3>
       <p class="lede">Represents accounting recognition of a business event in a balanced double-entry ledger. JournalEntry is the accounting representation, not the operational event itself. Payment records settlement activity, BankTransaction records external bank evidence, Invoice records a claim, CreditNote records customer adjustment, SupplierCreditNote records supplier payable adjustment, SupplierDebitNote records buyer recovery, and JournalEntry records accounting recognition. General ledger, accounts receivable, accounts payable, treasury, inventory accounting, asset accounting, tax, audit, period close and financial reporting. sourceTransaction provides generic origin. Payment, CreditNote, SupplierCreditNote and SupplierDebitNote provide direct traceability when applicable. JournalEntryLine contains debit/credit effects. Organization provides accounting boundary. Business event → accounting determination → JournalEntry draft → line validation → balance validation → POSTED. Customer and supplier credit/debit posting follows adjustment calculation and approval and must create/link required accounting recognition. Payment workflow independently progresses through payment states and bank reconciliation. Draft entries may be prepared and corrected under authorization. Posting establishes immutable recognition. Corrections after posting use explicit reversal and replacement entries. Changes to unposted CreditNote, SupplierCreditNote or SupplierDebitNote require accounting recalculation. Posted adjustment changes require reversal/replacement JournalEntry treatment; posted journal history is never destructively rewritten. A USD 500 SupplierDebitNote increases supplier recovery exposure. A balanced JournalEntry records the authorized accounting consequence. If the debit is later reversed, the original JournalEntry remains and a compensating reversal entry is posted.</p>
       <p class="meta">Stored as <code>bus_journal_entry</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7644,6 +7717,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; JournalEntryLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>REVERSED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -7666,6 +7740,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Journal Entry Line <span class="group">Foundation</span></h3>
       <p class="lede">Represents a financial transaction line called JournalEntryLine within the CEDM business model. JournalEntryLine is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate JournalEntryLine records. The entity participates in a wider business graph through relationships with JournalEntry, Account. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical JournalEntryLine record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_journal_entry_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7790,6 +7865,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Journal Entry Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of journal entry status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_journal_entry_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7895,6 +7971,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Language <span class="group">Foundation</span></h3>
       <p class="lede">A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_language</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -7958,6 +8035,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Ledger <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed accounting book defining the scope in which journal entries are recorded and reported. Provide canonical enterprise semantics for Ledger while keeping planning, operational, financial and evidential responsibilities separated. A governed accounting book defining the scope in which journal entries are recorded and reported. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_ledger</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8021,6 +8099,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; LedgerLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -8045,6 +8124,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Ledger Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of ledger status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_ledger_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8150,6 +8230,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Legal Entity <span class="group">Foundation</span></h3>
       <p class="lede">A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories. Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession. Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit. Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.</p>
       <p class="meta">Stored as <code>bus_legal_entity</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8199,6 +8280,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location <span class="group">Foundation</span></h3>
       <p class="lede">Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context. Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices. A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred.</p>
       <p class="meta">Stored as <code>bus_location</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8352,6 +8434,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; LocationLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>CLOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -8371,6 +8454,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location Location Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of location location type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_location_location_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8476,6 +8560,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Location Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of location status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_location_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8581,6 +8666,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization <span class="group">Foundation</span></h3>
       <p class="lede">Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.</p>
       <p class="meta">Stored as <code>bus_organization</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8840,6 +8926,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; OrganizationLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -8858,6 +8945,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Organization Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization organization type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_organization_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -8963,6 +9051,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9068,6 +9157,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Organization Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of organization status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_organization_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9173,6 +9263,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party <span class="group">Foundation</span></h3>
       <p class="lede">The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.</p>
       <p class="meta">Stored as <code>bus_party</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9288,6 +9379,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PartyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -9315,6 +9407,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9420,6 +9513,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Relationship <span class="group">Foundation</span></h3>
       <p class="lede">A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.</p>
       <p class="meta">Stored as <code>bus_party_relationship</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9501,6 +9595,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role <span class="group">Foundation</span></h3>
       <p class="lede">The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.</p>
       <p class="meta">Stored as <code>bus_party_role</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9651,6 +9746,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PartyRoleLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>EXPIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -9675,6 +9771,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role Role Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party role role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_role_role_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9780,6 +9877,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Role Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party role status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_role_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9885,6 +9983,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Party Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_party_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -9990,6 +10089,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment <span class="group">Financial Accounting</span></h3>
       <p class="lede">Represents movement or recognition of money while keeping payment execution, claim settlement, bank evidence, accounting recognition, customer refunds and supplier-credit refunds as separate connected facts. Payment is the settlement event. Invoice is the claim. PaymentAllocation applies receipt payments to claims. CreditNote is a customer financial adjustment. SupplierCreditNote is a supplier payable adjustment. A refund or settlement Payment is separate cash evidence. Accounts receivable, accounts payable, treasury, banking integrations, cash management, reconciliation, collections, supplier payments, customer refunds and supplier-credit refunds. Currency defines denomination. PaymentAllocation connects receipt Payments to claims. CreditNote connects customer refunds. SupplierCreditNote connects supplier-credit cash settlements when a supplier returns funds. BankTransaction confirms external settlement. JournalEntry records accounting consequences. Receipt Payment → approval → posting → allocation → bank evidence → cleared. Customer credit: CreditNote posted → application or refund due → DISBURSEMENT Payment → bank reconciliation. Supplier credit: SupplierCreditNote posted → application against payable or supplier refund due → RECEIPT Payment from supplier → bank reconciliation. Original payment and credit histories remain immutable. Draft → approved → posted → cleared, with controlled void and reversal paths. Payment, Invoice, CreditNote, SupplierCreditNote, BankTransaction and JournalEntry retain independent lifecycle states because they represent different business facts. Changes to CreditNote or SupplierCreditNote settlement obligations require validation of linked payment eligibility. Payment reversal requires corresponding reversal of affected refund/settlement projections and accounting evidence; it must never rewrite the originating credit note. A supplier has a EUR 300 unapplied SupplierCreditNote. The supplier refunds EUR 300 rather than applying it to another invoice. A new RECEIPT Payment for EUR 300 is linked to the SupplierCreditNote and reconciled to bank evidence. The original supplier credit remains unchanged except for its controlled cash-settlement projection.</p>
       <p class="meta">Stored as <code>bus_payment</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10230,6 +10330,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PaymentLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>CLEARED</code> or <code>VOID</code> or <code>REVERSED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -10259,6 +10360,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Allocation <span class="group">Foundation</span></h3>
       <p class="lede">Provides the controlled bridge between a Payment event and an Invoice claim. Payment says money moved; Invoice says money is owed; PaymentAllocation says exactly how much of that payment satisfies that claim. Central to receivables, payables, collections, payment reconciliation, bank reconciliation, refunds, reallocation, and accounting. Payment supplies source funds. Invoice supplies target obligation. Currency defines denominations. ExchangeRate converts denominations when required. Invoice derives settlement projections from active allocations. Payment received or posted → validate available unapplied amount → select Invoice → compare currencies → select approved ExchangeRate if required → calculate target invoice amount → apply rounding policy → activate PaymentAllocation → update Invoice amountSettled/amountOutstanding/status → reconcile with bank and accounting evidence. Draft allocation → validation → active settlement → optional reversal/cancellation → corrected allocation if needed. Historical allocations are never silently rewritten. A EUR 5,000 Payment is applied to a USD invoice using an approved EUR-to-USD ExchangeRate. paymentAmount remains EUR 5,000, invoiceAmount records the USD claim value satisfied, ExchangeRate preserves the conversion evidence, and any rounding adjustment is explicit. The Invoice is not marked paid until its active allocations satisfy its outstanding amount.</p>
       <p class="meta">Stored as <code>bus_payment_allocation</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10436,6 +10538,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PaymentAllocationLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>REVERSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -10462,6 +10565,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Allocation Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of payment allocation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_payment_allocation_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10567,6 +10671,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Direction <span class="group">Reference Data</span></h3>
       <p class="lede">The values of payment direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_payment_direction</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10672,6 +10777,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Instruction <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence. Provide canonical enterprise semantics for PaymentInstruction while keeping planning, operational, financial and evidential responsibilities separated. A governed instruction authorizing or requesting a future payment through a bank or payment channel, separate from the resulting Payment and BankTransaction evidence. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_payment_instruction</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10749,6 +10855,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PaymentInstructionLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -10773,6 +10880,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Instruction Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of payment instruction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_payment_instruction_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10878,6 +10986,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Payment Method <span class="group">Reference Data</span></h3>
       <p class="lede">The values of payment payment method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_payment_payment_method</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -10983,6 +11092,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Payment Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of payment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_payment_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11088,6 +11198,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person <span class="group">Foundation</span></h3>
       <p class="lede">Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.</p>
       <p class="meta">Stored as <code>bus_person</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11312,6 +11423,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Gender <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person gender, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_gender</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11417,6 +11529,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Party Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_party_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11522,6 +11635,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Person Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of person status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_person_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11627,6 +11741,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Product <span class="group">Foundation</span></h3>
       <p class="lede">Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules. Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts. Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics. Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction entities own their occurrence-specific facts. Product create/update → validate category/unit/tax/location/supplier dependencies → propagate eligibility changes to open SalesOrderLine/PurchaseOrderLine and inventory workflows → resolve exceptions → permit future transactions. Product changes never silently recalculate issued documents or historical movements. Draft → active → discontinued/blocked → retired. Lifecycle transitions require dependent-workflow validation and preserve historical references. SalesOrderLine eligibility. PurchaseOrderLine eligibility. inventory operations. fulfillment eligibility. future InvoiceLine creation. open order quantities. receipt quantities. inventory operations. conversion rules. future TaxRule determination. future InvoiceLine calculation. future default pricing only. catalog. assortment. reporting. policy eligibility. future sourcing and PurchaseOrder eligibility. future operational availability and inventory configuration. If a Product is blocked, the system validates open SalesOrders and PurchaseOrders, prevents new incompatible use, and identifies dependent inventory/fulfillment workflows. Existing invoices and inventory movements remain unchanged. If its tax category changes, future tax determination uses the new category while issued invoices retain their historical tax evidence.</p>
       <p class="meta">Stored as <code>bus_product</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11824,6 +11939,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ProductLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>DISCONTINUED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -11855,6 +11971,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Product Product Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of product product type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_product_product_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -11960,6 +12077,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Product Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of product status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_product_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12065,6 +12183,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Profit Center <span class="group">Budgeting and Planning</span></h3>
       <p class="lede">A governed responsibility center used to analyze revenue, cost, and profitability independently of legal-account identity. Provides planning/management semantics separately from actual accounting evidence. Planning, control, management reporting and analysis. Organization supplies governance; financial transactions remain authoritative for actuals.</p>
       <p class="meta">Stored as <code>bus_profit_center</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12133,6 +12252,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Purchase Order <span class="group">Accounts Payable</span></h3>
       <p class="lede">Represents the formal commercial procurement commitment between a buying organization and a Supplier. PurchaseOrder establishes what the Supplier is expected to provide; it is not proof that goods arrived or that later returns occurred. Purchasing, supplier management, receiving, warehouse operations, accounts payable, budgeting, inventory planning and analytics. PurchaseRequisition represents internal demand. PurchaseOrder converts approved demand into an external commitment. PurchaseOrderLine specifies the commitment. GoodsReceipt records actual receipt and acceptance. InventoryMovement records stock effects. SupplierReturn reverses eligible fulfillment. Invoice records the supplier claim. SupplierCreditNote records authorized financial reduction. Payment settles claims. Draft, approval, issuance, receipt, return, cancellation and closure are distinct stages. Financial settlement can continue after physical fulfillment or return. PurchaseOrder → GoodsReceipt → acceptance → InventoryMovement; when goods must be returned, eligible receipt → SupplierReturn → InventoryMovement reversal → SupplierCreditNote → payable reconciliation. A depot orders 100 parts, receives 96 and accepts 94. Later, three accepted parts are returned as defective. The original order and receipt remain unchanged; SupplierReturn and its inventory/credit workflows record the reversal.</p>
       <p class="meta">Stored as <code>bus_purchase_order</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12297,6 +12417,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; PurchaseOrderLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>CLOSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -12329,6 +12450,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Purchase Order Line <span class="group">Foundation</span></h3>
       <p class="lede">Represents one measurable procurement commitment and its accumulated fulfillment, billing and reverse-fulfillment state. PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records receipt. SupplierReturnLine records subsequent reversal. InvoiceLine records supplier claim. Purchasing, supplier communication, receiving, inventory, supplier returns, accounts payable, budgeting and three-way matching. PurchaseOrder supplies supplier and commercial context; GoodsReceiptLine supplies accepted fulfillment; SupplierReturnLine supplies reverse quantity; SupplierCreditNoteLine supplies financial adjustment. Pricing → commitment → receipt → acceptance → InventoryMovement; if goods are returned, eligible accepted quantity → SupplierReturnLine → InventoryMovement reversal → SupplierCreditNoteLine. Historical commitment remains unchanged. Created → approved/issued → partially/fully received → optionally partially/fully returned → billed/closed according to policy. Historical commercial evidence remains reproducible. A line commits to 100 units, 94 are accepted, and three are later returned. receivedQuantity remains the receipt projection, acceptedQuantity remains accepted fulfillment evidence, returnedQuantity becomes three from posted return events, and the original quantity/price remain unchanged.</p>
       <p class="meta">Stored as <code>bus_purchase_order_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12561,6 +12683,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Purchase Order Line Price Source <span class="group">Reference Data</span></h3>
       <p class="lede">The values of purchase order line price source, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_purchase_order_line_price_source</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12666,6 +12789,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Purchase Order Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of purchase order status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_purchase_order_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12771,6 +12895,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order <span class="group">Accounts Receivable</span></h3>
       <p class="lede">Represents the commercial customer commitment from which fulfillment and financial processes derive work. SalesOrder establishes accepted demand; it does not itself move inventory, prove shipment, or prove payment. Order management, allocation, inventory, warehouse execution, transportation, invoicing, customer service and revenue processes. Customer supplies commercial context, SalesOrderLine supplies demand detail, InventoryReservation supplies committed stock, InventoryMovement supplies stock execution, Shipment supplies transport evidence, and Invoice supplies financial claim evidence. Confirmed order → validation → availability check → reservation/allocation → pick/issue → Shipment → delivery/acceptance evidence → SalesOrderLine fulfillment → order status. Invoice is generated according to billing policy and remains independent evidence. Cancellation releases remaining reservations and stops new work while preserving historical downstream effects. Draft → confirmed → allocated → partially fulfilled → fulfilled, with cancellation of remaining demand and controlled exception/recovery paths. Entity changes must propagate through affected dependent workflows rather than directly mutating derived states. Line fulfillment changes recalculate order status; reservation changes affect allocation state; shipment events contribute fulfillment evidence; billing changes do not independently determine fulfillment. Allocation, fulfillment, cancellation and status transitions require concurrency control and idempotency to prevent double reservation, double fulfillment or contradictory terminal states. An order for 20 units reserves 20, ships 12, and becomes PARTIALLY_FULFILLED from accepted fulfillment evidence. The remaining 8 stay executable. A cancellation then releases the remaining reservation and terminates the open demand without reversing the already accepted 12-unit fulfillment.</p>
       <p class="meta">Stored as <code>bus_sales_order</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -12936,6 +13061,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; SalesOrderLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>FULFILLED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -12966,6 +13092,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order Line <span class="group">Foundation</span></h3>
       <p class="lede">Authoritative commercial commitment at product/quantity level, reconciling transaction pricing with allocation, fulfillment and billing evidence. The line states what the customer agreed to buy and how it is priced. Reservations state committed stock, shipment/fulfillment events state what was delivered, and InvoiceLines state what was billed. Order management, allocation, warehouse fulfillment, shipment, invoicing, credit, margin, customer service and audit. SalesOrder supplies customer/currency context; Product/UOM define item and quantity semantics; InventoryReservation supplies allocation evidence; Shipment supplies transport/fulfillment evidence; InvoiceLine supplies financial claim evidence. Confirmed order line → availability → InventoryReservation → pick/issue → Shipment → accepted fulfillment → quantityFulfilled → billing. Cancellation/reduction releases or reconciles reservations and open shipments before changing remaining demand. Master-data changes trigger controlled revalidation. Draft → confirmed → allocated → partially fulfilled → fulfilled/cancelled. Historical pricing and fulfillment evidence remain reproducible. quantityAllocated follows reservation events; quantityFulfilled follows accepted fulfillment events; SalesOrder status follows line states; InvoiceLine follows billing policy; Product/UOM/pricing changes affect future or explicitly revalidated open work only. Reservation, fulfillment, cancellation and billing allocation require concurrency control and idempotency to prevent double allocation, double fulfillment or double billing. A line requests 20 units. Twenty are reserved, 12 are shipped and accepted, leaving 8 executable. quantityAllocated and quantityFulfilled are updated from their respective workflows. Cancelling the remaining 8 releases the reservation and cancels open work without reversing the accepted 12.</p>
       <p class="meta">Stored as <code>bus_sales_order_line</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13198,6 +13325,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order Line Price Source <span class="group">Reference Data</span></h3>
       <p class="lede">The values of sales order line price source, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_sales_order_line_price_source</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13303,6 +13431,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Sales Order Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of sales order status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_sales_order_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13408,6 +13537,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Scenario <span class="group">Budgeting and Planning</span></h3>
       <p class="lede">Alternative planning assumption context. Separates hypothetical plans from actual outcomes. Budgeting, forecasting and sensitivity analysis. Budget and Forecast may reference it.</p>
       <p class="meta">Stored as <code>bus_scenario</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13471,6 +13601,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; ScenarioLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>ARCHIVED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -13485,6 +13616,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Scenario Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of scenario status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_scenario_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13590,6 +13722,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>State Province <span class="group">Foundation</span></h3>
       <p class="lede">A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.</p>
       <p class="meta">Stored as <code>bus_state_province</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13687,6 +13820,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Subscription <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle. Provide canonical enterprise semantics for Subscription while keeping planning, operational, financial and evidential responsibilities separated. A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_subscription</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13749,6 +13883,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; SubscriptionLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -13773,6 +13908,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Subscription Plan <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions. Provide canonical enterprise semantics for SubscriptionPlan while keeping planning, operational, financial and evidential responsibilities separated. A governed reusable commercial plan defining recurring, usage, entitlement, pricing, and billing terms for subscriptions. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_subscription_plan</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13817,6 +13953,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Lifecycle &mdash; SubscriptionPlanLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -13841,6 +13978,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Subscription Plan Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of subscription plan status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_subscription_plan_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -13946,6 +14084,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Subscription Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of subscription status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_subscription_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14051,6 +14190,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Supplier <span class="group">Accounts Payable</span></h3>
       <p class="lede">Represents the procurement-facing role of a Party that supplies business inputs and participates in reverse procurement, supplier claims, financial recovery and performance governance. Party provides identity, PartyRole provides the role, and Supplier adds procurement-specific qualification, terms and transaction history. SupplierClaim captures the case; SupplierClaimResolution captures the remedy; downstream transactions execute it; SupplierPerformanceAssessment interprets accumulated evidence for governance. Central to source-to-pay, sourcing, procurement, receiving, supplier returns, quality claims, accounts payable, supplier qualification, recovery and performance management. Supplier connects PartyRole to PurchaseOrder, GoodsReceipt, Invoice, Payment, SupplierReturn, SupplierCreditNote, SupplierDebitNote, SupplierClaim, SupplierClaimResolution, SupplierPerformanceAssessment, Product and PaymentTerm. Supplier qualification/status → PurchaseOrder → GoodsReceipt → Invoice matching → Payment; issue detection → SupplierClaim → SupplierClaimResolution → SupplierReturn and/or SupplierCreditNote/SupplierDebitNote/Payment → reconciliation; periodic evidence aggregation → SupplierPerformanceAssessment → governance/improvement decision. Onboard → qualify → active → suspend/block/inactive → retire. State changes constrain future activity without rewriting historical evidence. A supplier&#39;s quarterly assessment combines delivery receipts, inspection failures, claims and returns into an approved scorecard. The result informs qualification and improvement decisions while the underlying transactions remain unchanged.</p>
       <p class="meta">Stored as <code>bus_supplier</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14260,6 +14400,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; SupplierLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -14287,6 +14428,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Supplier Qualification Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of supplier qualification status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_supplier_qualification_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14392,6 +14534,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Supplier Role Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of supplier role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_supplier_role_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14497,6 +14640,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Supplier Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of supplier status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_supplier_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14602,6 +14746,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Supplier Supplier Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of supplier supplier type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_supplier_supplier_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14707,6 +14852,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task <span class="group">Foundation</span></h3>
       <p class="lede">Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Task record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.</p>
       <p class="meta">Stored as <code>bus_task</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -14896,6 +15042,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaskLifecycle</h4>
       <p>A record starts at <code>CREATED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code> or <code>FAILED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -14935,6 +15082,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Priority <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task priority, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_priority</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15040,6 +15188,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15145,6 +15294,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Task Task Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of task task type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_task_task_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15250,6 +15400,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Code <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment. Provide canonical enterprise semantics for TaxCode while keeping planning, operational, financial and evidential responsibilities separated. A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_tax_code</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15312,6 +15463,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaxCodeLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -15336,6 +15488,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Code Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax code status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_code_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15441,6 +15594,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Jurisdiction <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted. Provide canonical enterprise semantics for TaxJurisdiction while keeping planning, operational, financial and evidential responsibilities separated. A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_tax_jurisdiction</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15503,6 +15657,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaxJurisdictionLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -15527,6 +15682,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Jurisdiction Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax jurisdiction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_jurisdiction_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15632,6 +15788,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Rate <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction. Provide canonical enterprise semantics for TaxRate while keeping planning, operational, financial and evidential responsibilities separated. A governed effective-dated tax percentage or amount applicable under a TaxCode and TaxJurisdiction. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_tax_rate</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15694,6 +15851,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaxRateLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -15718,6 +15876,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Rate Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax rate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_rate_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15823,6 +15982,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Registration <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed registration of a Party or Organization with a TaxJurisdiction and tax authority. Provide canonical enterprise semantics for TaxRegistration while keeping planning, operational, financial and evidential responsibilities separated. A governed registration of a Party or Organization with a TaxJurisdiction and tax authority. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_tax_registration</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -15885,6 +16045,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaxRegistrationLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -15909,6 +16070,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Registration Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax registration status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_registration_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16014,6 +16176,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Rule <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">Defines reusable tax policy used to determine tax treatment and calculate tax amounts. TaxRule is policy; transaction tax evidence records what tax was actually determined and charged. Sales, procurement, invoicing, tax reporting, accounting and compliance. Discount determination normally establishes the post-discount base. Product, Customer, Organization, Location, transaction date and jurisdiction determine TaxRule applicability. InvoiceLine or TaxLine records the resulting tax. Gross amount → discount → taxable base → resolve effective TaxRule → calculate tax → round → snapshot tax evidence → invoice total → accounting/tax reporting. Policy changes trigger revalidation of eligible open transactions, not retroactive mutation. Draft → active for an effective period → inactive/retired. Future transactions respect lifecycle; historical tax calculations remain reproducible. Rate changes affect future determination and eligible open transactions; jurisdiction/scope changes trigger affected transaction validation; status changes prevent future selection; issued tax evidence remains unchanged. A taxable USD 900 post-discount base is subject to an 18% GST rule, producing USD 162 tax. If the rule later changes to 20%, the existing issued invoice retains USD 162 unless a legally authorized correction process creates a new tax document.</p>
       <p class="meta">Stored as <code>bus_tax_rule</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16207,6 +16370,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaxRuleLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -16233,6 +16397,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Rule Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax rule status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_rule_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16338,6 +16503,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Rule Tax Type <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax rule tax type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_rule_tax_type</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16443,6 +16609,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Transaction <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting. Provide canonical enterprise semantics for TaxTransaction while keeping planning, operational, financial and evidential responsibilities separated. A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_tax_transaction</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16505,6 +16672,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; TaxTransactionLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -16529,6 +16697,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Tax Transaction Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of tax transaction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_tax_transaction_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16634,6 +16803,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure <span class="group">Foundation</span></h3>
       <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16771,6 +16941,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; UnitOfMeasureLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches that final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -16787,6 +16958,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure Category <span class="group">Reference Data</span></h3>
       <p class="lede">The values of unit of measure category, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure_category</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16892,6 +17064,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Unit Of Measure Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of unit of measure status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_unit_of_measure_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -16997,6 +17170,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Usage Record <span class="group">Finance and Accounting records</span></h3>
       <p class="lede">An immutable measured usage event or aggregate used for usage-based entitlement and billing. Provide canonical enterprise semantics for UsageRecord while keeping planning, operational, financial and evidential responsibilities separated. An immutable measured usage event or aggregate used for usage-based entitlement and billing. Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows. References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable. Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation. Financial control, tax, billing, subscription management, settlement, reconciliation and audit. Enterprise finance and recurring-revenue operations.</p>
       <p class="meta">Stored as <code>bus_usage_record</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -17059,6 +17233,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </ul>
       <h4>Lifecycle &mdash; UsageRecordLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <p>A record that reaches a final state is a completed transaction: the application refuses every change to it and every deletion of it, for every role, an administrator included.</p>
       <table>
         <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
         <tbody>
@@ -17083,6 +17258,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Usage Record Status <span class="group">Reference Data</span></h3>
       <p class="lede">The values of usage record status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
       <p class="meta">Stored as <code>bus_usage_record_status</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>
@@ -17188,6 +17364,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h3>Variance <span class="group">Budgeting and Planning</span></h3>
       <p class="lede">A derived comparison between planned, forecast, or actual financial measures for a defined period and dimensional context. Provides planning/management semantics separately from actual accounting evidence. Planning, control, management reporting and analysis. Organization supplies governance; financial transactions remain authoritative for actuals.</p>
       <p class="meta">Stored as <code>bus_variance</code>, keyed by <code>id</code>.</p>
+      <p class="meta">When two people change the same record, the second to save is told who changed it first, when, and what, and chooses to refresh or to overwrite. A deletion is checked the same way.</p>
 
       <h4>Its fields</h4>
       <table>

@@ -161,6 +161,28 @@
     "WaveFollowUpRequired on Wave (1 steps, rule)",
     "WaveCompletionConfirmed on Wave (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "InventoryReservation: CONSUMED, CANCELLED, EXPIRED",
+    "InventoryTransfer: COMPLETED, CANCELLED",
+    "Lot: CONSUMED, EXPIRED, REJECTED",
+    "SerialNumber: RETURNED, SCRAPPED, RETIRED",
+    "Product: DISCONTINUED, RETIRED",
+    "Warehouse: CLOSED",
+    "Putaway: COMPLETED, CANCELLED",
+    "Picking: CANCELLED",
+    "Packing: CANCELLED",
+    "Wave: COMPLETED, CANCELLED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:09.246Z"
+  "generatedAt": "2026-10-08T00:56:28.060Z"
 }

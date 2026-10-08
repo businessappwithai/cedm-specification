@@ -102,6 +102,21 @@
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
     "LeaseFollowUpRequired on Lease (1 steps, rule)"
   ],
+  "lastWriteWins": [],
+  "finalStates": [
+    "Party: RETIRED",
+    "Organization: RETIRED",
+    "PartyRole: EXPIRED",
+    "Address: RETIRED",
+    "Location: CLOSED, RETIRED",
+    "Currency: RETIRED",
+    "ExchangeRate: EXPIRED, CANCELLED",
+    "UnitOfMeasure: RETIRED",
+    "Task: COMPLETED, CANCELLED, FAILED",
+    "Property: SOLD, RETIRED",
+    "Lease: EXPIRED, TERMINATED, CANCELLED",
+    "Facility: CLOSED"
+  ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:53.333Z"
+  "generatedAt": "2026-10-08T00:57:25.080Z"
 }
