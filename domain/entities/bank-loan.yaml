@@ -57,7 +57,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: APPLICATION
       values:
         - APPLICATION
         - APPROVED

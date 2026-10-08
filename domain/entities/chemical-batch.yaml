@@ -41,7 +41,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: QUARANTINED
+      default: PLANNED
       values:
         - PLANNED
         - QUARANTINED
@@ -95,17 +95,18 @@ entity:
     attribute: status
     states: [PLANNED, QUARANTINED, RELEASED, REJECTED, EXPIRED, CONSUMED]
     initial: PLANNED
-    terminal: [CONSUMED, REJECTED, EXPIRED]
+    terminal:
+      - CONSUMED
+      - REJECTED
+      - EXPIRED
     transitions:
-      - {from: PLANNED, to: RELEASED, action: release}
-      - {from: RELEASED, to: CONSUMED, action: consume}
-      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: PLANNED, to: QUARANTINED, action: receive}
       - {from: QUARANTINED, to: RELEASED, action: release}
-      - {from: PLANNED, to: REJECTED, action: reject}
-      - {from: RELEASED, to: REJECTED, action: reject}
       - {from: QUARANTINED, to: REJECTED, action: reject}
-      - {from: RELEASED, to: EXPIRED, action: expire}
       - {from: QUARANTINED, to: EXPIRED, action: expire}
+      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: RELEASED, to: CONSUMED, action: consume}
+      - {from: RELEASED, to: EXPIRED, action: expire}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a chemical batch is stopped"

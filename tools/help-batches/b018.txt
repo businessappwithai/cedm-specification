@@ -1,0 +1,167 @@
+@ FiscalPeriod
+a endDate
+s: The last day covered by the accounting period.
+u: Set when the calendar is defined; must not be before the start date. Postings dated after it belong to a later period.
+c: Together with the start date it defines the interval in which journal entries may be dated.
+a status
+v FUTURE: Defined but not yet open; no postings are accepted.
+v OPEN: Accepting postings.
+v SOFT_CLOSED: Normally closed but still open to postings by authorised finance staff, for adjustments.
+v CLOSED: Closed; no further postings and figures are final for reporting. A final state.
+v LOCKED: Frozen temporarily, for example during an audit or a month-end freeze; it can be reopened.
+r organization
+n: Exactly one organisation: each legal entity keeps its own accounting calendar and closes its own periods.
+
+@ Flight
+s: A scheduled or operated air transport service between two locations.
+b: A flight is the unit of air travel that bookings, crews and aircraft are assigned to. It states what flies when, between which places, for which carrier, and where it stands.
+u: Created when a schedule is published; updated with delays and changes; read by booking, operations and passengers.
+c: A flight runs between an origin and destination Location, is operated by a carrier Organization and may be flown by a specific Aircraft.
+l: A flight is scheduled, may be delayed, boards, departs and arrives. It can be cancelled before departure.
+x: Flight LH400 from Frankfurt to New York, scheduled for 10:25 and flown by an Airbus A340.
+a flightId
+s: The identity of the flight record.
+u: Generated on creation; bookings and crew assignments refer to it.
+a flightNumber
+s: The public flight number, such as LH400.
+u: Assigned by the carrier; shown on tickets and boards. The same number is reused on different days.
+a departureAt
+s: The scheduled or actual time of departure.
+u: Set from the schedule and updated on delay; arrival must be later than it.
+a arrivalAt
+s: The scheduled or actual time of arrival.
+u: Set from the schedule and updated on delay.
+a status
+s: Where the flight is in its operation.
+u: Updated by flight operations.
+v SCHEDULED: Planned and open for booking.
+v BOARDING: Passengers are boarding.
+v DEPARTED: In the air.
+v ARRIVED: Landed. A final state.
+v DELAYED: Departure is later than scheduled.
+v CANCELLED: Will not operate. A final state.
+r origin
+s: The place the flight departs from.
+u: Chosen when scheduled.
+n: Exactly one origin: a flight leaves from a single airport.
+w: Determines departure handling and time zone.
+r destination
+s: The place the flight arrives at.
+u: Chosen when scheduled.
+n: Exactly one destination.
+w: Determines arrival handling and connections.
+r carrier
+s: The airline that operates the flight.
+u: Set when scheduled.
+n: Exactly one carrier: the operator is responsible for the flight.
+w: Establishes who sells and flies it.
+r vehicle
+s: The aircraft assigned to fly it.
+u: Assigned by operations; changed if the aircraft is swapped.
+n: At most one aircraft; the assignment may not yet be made.
+w: Links the flight to aircraft availability and maintenance.
+
+@ FoodBatch
+s: A traceable batch of food or beverage product that was produced or received under controlled conditions.
+b: Food safety depends on tracing. If a problem is found, the batch record shows what was in it, where it came from, how it was checked and where it went, so a recall can be limited to what is affected.
+u: Created at production or receipt; held in quarantine until checks pass; released and consumed; read by quality and recall teams.
+c: A batch is of one Product, may come from a Supplier, and is judged through QualityInspections.
+l: A batch is planned, held in quarantine on arrival, released when checks pass, and ends consumed, rejected or expired. A released batch can be quarantined again if a concern arises.
+x: Batch L240318 of oat drink, produced on 18 March, held for microbiological tests and released two days later.
+a foodBatchId
+s: The identity of the batch record.
+u: Generated on creation; inspections and stock movements refer to it.
+a batchNumber
+s: The lot number on the packaging.
+u: Allocated at production or receipt; unique, and the key for traceability and recall.
+a productionDate
+s: The date the batch was produced.
+u: Entered at production; the start of shelf life.
+a expiryDate
+s: The date after which the batch must not be sold or used.
+u: Set from the product's shelf life; must not be before the production date.
+a status
+s: Whether the batch may be used or sold.
+u: Set by quality; only RELEASED batches may be shipped.
+v PLANNED: Scheduled but not yet produced or received.
+v QUARANTINED: Held until quality checks pass.
+v RELEASED: Passed checks and available.
+v REJECTED: Failed checks; must not be used. A final state.
+v EXPIRED: Past its expiry date. A final state.
+v CONSUMED: Used up. A final state.
+r product
+s: The product that the batch is of.
+u: Set at creation.
+n: Exactly one product: a batch is a lot of a particular item.
+w: Gives the batch its specification and shelf life.
+r supplier
+s: The supplier that provided the batch, when it was bought in.
+u: Set at receipt; used for supplier quality tracking.
+n: At most one supplier; own-produced batches have none.
+w: Allows a problem to be traced back to its source.
+r qualityInspections
+s: The inspections carried out on the batch.
+u: Read when deciding release.
+n: Any number of inspections.
+w: Release depends on passing them.
+
+@ Forecast
+s: A versioned forward-looking financial projection built on a defined scenario and the information available at a given date.
+b: A forecast says where the numbers are expected to go. Keeping it apart from approved budgets and actual postings lets the organisation compare what was planned, what is expected and what happened.
+u: Prepared by finance each cycle; versioned as assumptions change; read by management.
+c: A forecast belongs to an Organization, may use a Scenario and covers a FiscalPeriod. It never creates or alters actual journal entries.
+x: The Q3 rolling forecast of revenue and costs for the European subsidiary, prepared in July under the base scenario.
+a forecastId
+s: The identity of the forecast version.
+u: Generated on creation; later versions refer to it.
+a code
+s: The reference of the forecast, such as FC-2026-Q3-V2.
+u: Assigned by finance; identifies version and cycle.
+r organization
+s: The organisation the forecast is for.
+u: Set when prepared.
+n: Exactly one organisation: forecasts are made for a particular entity.
+w: Scopes the projected figures.
+r scenario
+s: The scenario of assumptions on which the forecast is based.
+u: Chosen when prepared.
+n: At most one scenario.
+w: Allows alternative projections to be compared.
+r fiscalPeriod
+s: The period the forecast covers.
+u: Set when prepared.
+n: At most one period.
+w: Places the projection in time.
+
+@ ForeignExchangeTransaction
+s: An agreement or execution that exchanges one currency for another at defined amounts, rate, dates and counterparties.
+b: Whenever money changes currency, a rate is fixed and an obligation arises. This record preserves the terms so the gain or loss, the cash movement and the accounting can be explained.
+u: Created when a trade is agreed; settled on the value date; read by treasury and accounting.
+c: A transaction exchanges two currencies between counterparties and may be linked to payments and journal entries.
+l: Finalised financial evidence is corrected by compensating or superseding records, not edited.
+x: Buying 1,000,000 EUR for USD at 1.0840 for value in two days.
+a foreignExchangeTransactionId
+s: The identity of the exchange transaction.
+u: Generated on creation; settlement and accounting refer to it.
+a effectiveAt
+s: When the exchange takes effect (the value date).
+u: Set from the deal; cash moves on this date.
+
+@ FreightCharge
+s: A charge for transportation or logistics services attributable to a shipment, consignment, load or carrier service.
+b: Freight cost is a real part of the price of goods. Recording each charge against the movement that caused it lets the cost be checked against the carrier's invoice and allocated to the right product or customer.
+u: Created from carrier rates or invoices; checked and allocated; read by logistics and finance.
+c: A charge may relate to a Shipment.
+l: Changes and retries preserve history and do not duplicate downstream commercial or financial effects.
+x: A 420.00 line-haul charge for a full truck from Hamburg to Munich.
+a freightChargeId
+s: The identity of the freight charge.
+u: Generated on creation; carrier invoice matching refers to it.
+a code
+s: The reference of the charge, often the carrier's charge code.
+u: Used to match against the carrier's invoice.
+r shipment
+s: The shipment on which the charge is incurred.
+u: Set when the charge is attributed.
+n: At most one shipment; some charges are not tied to a single shipment.
+w: Drives landed-cost calculation.
