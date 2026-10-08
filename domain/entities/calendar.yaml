@@ -7,19 +7,17 @@ entity:
     icon: calendar
   identity: {key: calendarId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: calendarId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Calendar., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Calendar is referenced.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Calendar., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Calendar., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity.}}
+    - {name: calendarId, type: uuid, required: true, immutable: true, help: {summary: The identity of the calendar., usage: Generated on creation; schedules and rules refer to the calendar through it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short reference for the calendar, such as DE-NAT.', usage: Assigned by the administrator; used in configuration and reports; kept stable.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The descriptive name of the calendar., usage: Shown wherever a calendar is chosen.}}
   relationships: []
   invariants:
     - {id: CALENDAR-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations.
+    businessMeaning: 'Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree.'
+    usage: Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count.
+    relationshipContext: Locations, teams, contracts and schedules point to the calendar that governs their working days.
+    lifecycle: A calendar's code and identity stay stable. Changes to holidays apply from their effective date and do not rewrite history.
+    example: The German national business calendar, with weekends and public holidays marked non-working.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CALENDAR}

@@ -7,19 +7,17 @@ entity:
     icon: truck
   identity: {key: carrierId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: carrierId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Carrier., businessMeaning: Identifies one governed Carrier record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows.}}
-    - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Carrier., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity.}}
+    - {name: carrierId, type: uuid, required: true, immutable: true, help: {summary: The identity of the carrier role., usage: Generated on creation; shipments and rates refer to the carrier through it.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The carrier's short code, such as the SCAC code used in North American freight.", usage: Entered when the carrier is set up; used on shipping documents and in EDI messages.}}
   relationships:
-    - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Canonical party providing carrier service., businessMeaning: Separates logistics role from Party identity., usage: Shipment tendering and performance., cardinalityMeaning: Exactly one Party., workflowRole: Carrier eligibility derives from governed party role/status.}}
+    - {name: party, target: Party, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one party: the carrier role is played by a single legal or natural person.', summary: Canonical party providing carrier service., businessMeaning: Separates logistics role from Party identity., usage: Shipment tendering and performance., workflowRole: Carrier eligibility derives from governed party role/status.}}
   invariants:
     - {id: CARRIER-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
-    purpose: Provide canonical implementation-neutral semantics for Carrier across enterprise applications.
-    businessMeaning: A governed logistics service provider responsible for transporting shipments, consignments, or loads.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A logistics provider that transports shipments, consignments or loads.
+    businessMeaning: Goods usually move on someone else's trucks, ships or planes. A carrier record identifies that provider and gives bookings, tracking and freight invoices a single party to refer to.
+    usage: Created when a transport provider is approved for use; selected when shipments are booked; read for service performance and freight costs.
+    relationshipContext: A carrier is a Party acting in the transport role; shipments and consignments are assigned to it.
+    lifecycle: Changes and retries preserve history, and a carrier's past shipments remain linked to it after it stops being used.
+    example: A regional haulage firm engaged for pallet deliveries within the country.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CARRIER}
