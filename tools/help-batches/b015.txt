@@ -1,0 +1,390 @@
+@ EducationStudent
+s: A learner who is enrolled, or eligible to enrol, at an educational institution or in one of its programs.
+b: The student record is the institution's view of a learner as a learner: their student number, standing and history of study. It is separate from the person, who may also be an employee, a parent or a customer.
+u: Created at application; updated as the student is admitted, studies, graduates or leaves; read by admissions, teachers, finance and the registrar.
+c: A student is a Party, belongs to an institution (Organization), enrols through Enrollments, takes Classes, earns Grades, has Attendance records and Fees, and may have Guardians.
+l: A student begins as an applicant and becomes active when admitted. Active students may be suspended and reinstated, graduate and later become alumni, or withdraw at any point before graduating.
+x: Student 20260417, admitted to the engineering program in September, suspended for a term for medical reasons and reinstated.
+a studentId
+s: The identity of the student record.
+u: Generated on creation; enrolments, grades and fees refer to it.
+a partyId
+s: The person or party record that this student is.
+u: Set at application so one human being has one identity across roles.
+a studentNumber
+s: The number the institution gives the student, printed on cards and transcripts.
+u: Allocated at admission; unique; used at enquiry desks and in the gradebook.
+a status
+s: The student's standing with the institution.
+u: Moved by the registrar and student services; most teaching and billing applies to ACTIVE students.
+v APPLICANT: Has applied but not yet been admitted.
+v ACTIVE: Admitted and currently studying.
+v SUSPENDED: Temporarily barred from study, for example for discipline or health; may be reinstated.
+v GRADUATED: Has completed the requirements of a program.
+v WITHDRAWN: Left the institution before graduating. A final state.
+v ALUMNI: A former student who graduated and keeps a relationship as alumnus. A final state.
+r party
+s: The party that is the learner.
+u: Set at application.
+n: Exactly one party: a student is always a specific person.
+w: Keeps personal details in one place across all the person's roles.
+r enrollments
+s: The student's enrolments in programs and courses.
+u: Read for study history and current load.
+n: Any number over a student's time at the institution.
+w: Enrolments are owned by the student record.
+r institution
+s: The institution at which the student is registered.
+u: Set at admission.
+n: At most one institution.
+w: Scopes fees, rules and reporting.
+r guardians
+n: Any number of guardians, usually one or two for a minor and none for an adult.
+r classes
+n: Any number of classes over the student's time.
+r attendanceRecords
+n: Any number of attendance records, one for each class session.
+r grades
+u: Read to produce transcripts and progression decisions.
+n: Any number of grades, accumulating over the student's time.
+r fees
+n: Any number of fees charged over the student's time.
+
+@ Emission
+s: A measured or calculated release of greenhouse gas or other pollutant tied to a business activity or source.
+b: Sustainability reporting and carbon targets depend on recorded emissions. Each record says how much, of what kind, from which source and how reliable the figure is, so totals can be audited.
+u: Recorded from meters, calculations or estimates; summed by organisation, site and period for reports.
+c: An emission is attributed to an Organization, optionally to a Location or Product, and its quantity uses a UnitOfMeasure.
+l: Emission records are facts; a revised calculation is recorded as a new record or correction, not by overwriting.
+x: 120 tonnes of CO2e from the Rotterdam plant's natural gas use in March, calculated from metered gas volume.
+a emissionId
+s: The identity of the emission record.
+u: Generated on creation; reports and corrections refer to it.
+a emissionSource
+s: What produced the emission, such as boiler, fleet, purchased electricity or air travel.
+u: Entered when recorded; used to group emissions by source.
+a emissionType
+s: The reporting category of the emission under the greenhouse gas protocol.
+u: Chosen when recorded; decides which reporting total it contributes to.
+v SCOPE_1: Direct emissions from sources the organisation owns or controls.
+v SCOPE_2: Indirect emissions from purchased electricity, heat or steam.
+v SCOPE_3: Other indirect emissions in the value chain, such as supplier and customer activity.
+v OTHER: Emissions that do not fit the scope categories, such as local pollutants.
+a quantity
+s: The amount emitted, in the stated unit.
+u: Entered or calculated; zero or more.
+a unitOfMeasureId
+s: The unit in which the quantity is expressed, such as tonnes of CO2 equivalent.
+u: Chosen when recorded; quantities in different units are converted before being added.
+a measuredAt
+s: When the emission was measured or the period it covers ended.
+u: Set when recorded; used to assign it to a reporting period.
+a sourceQuality
+s: How the figure was obtained, which tells readers how far to trust it.
+u: Chosen when recorded; reports may show the share that is measured rather than estimated.
+v MEASURED: Taken from a meter or direct measurement.
+v CALCULATED: Computed from activity data using emission factors.
+v ESTIMATED: Approximated where no data was available.
+r organization
+s: The organisation responsible for the emission.
+n: Exactly one organisation: every emission is attributed to a reporting entity.
+r location
+s: The site where the emission occurred.
+n: At most one location; some emissions, such as air travel, have no single site.
+r product
+s: The product whose production or use caused the emission.
+n: At most one product; most emissions are not attributed to a product.
+
+@ Employee
+s: A person engaged by an organisation as an employee.
+b: Employment law, payroll and HR all apply to the employee role rather than to the person in general. This record carries that role: the employee number and the hiring and leaving dates.
+u: Created when a person is hired; updated as they take leave or leave the organisation; read by HR, payroll and managers.
+c: An employee is a Person, may belong to an Organization, requests leave and has attendance records.
+l: An employee is active, may be on leave, and ends terminated or retired.
+x: Employee 10482, hired on 1 March, currently active in the finance team.
+a employeeId
+s: The identity of the employee role.
+u: Generated on hiring; leave, payroll and attendance refer to it.
+a partyRoleId
+s: The party role that this employee record specialises.
+u: Set at hiring so the role is linked to the person's general identity.
+a employeeNumber
+s: The number the employer gives the employee, printed on badges and payslips.
+u: Allocated at hiring; unique.
+a hireDate
+s: The date the person started as an employee.
+u: Entered by HR; the start of service for benefits.
+a terminationDate
+s: The date the employment ended.
+u: Entered when it ends; must not be before the hire date.
+a status
+s: Whether the person is currently working.
+u: Set by HR.
+v ACTIVE: Employed and working.
+v ON_LEAVE: Employed but away on approved leave.
+v TERMINATED: Employment ended by dismissal, resignation or end of contract. A final state.
+v RETIRED: Left on retirement. A final state.
+r person
+s: The person who is the employee.
+n: Exactly one person: an employee role is held by a specific individual.
+r organization
+s: The organisation that employs them.
+n: At most one organisation.
+r leaveRequests
+n: Any number of leave requests over the employment.
+r attendanceRecords
+n: Any number of attendance records, one for each working day recorded.
+
+@ Employment
+s: A time-bound employment relationship between a person and an organisation.
+b: Employment is more than a role; it has terms, a start and an end, and may change over time. This record is the contract-level relationship that pay, leave and attendance are measured against.
+u: Created at hiring and on a change of contract; read by HR and payroll.
+c: An employment links an Employee to an employer Organization, may fill a Position, and has Compensation history, leave requests and attendance.
+l: An employment is pending until its start, active while in force, may be suspended and ends terminated.
+x: Full-time employment of an analyst with Acme Ltd from 1 March, in the finance analyst position.
+a employmentId
+s: The identity of the employment.
+u: Generated on creation; compensation and attendance refer to it.
+a employmentType
+s: The basis on which the person is employed.
+u: Chosen at hiring; decides benefits, working time and notice.
+v FULL_TIME: A standard full-time contract.
+v PART_TIME: A contract for fewer than full-time hours.
+v CONTRACT: A fixed-term or project contract.
+v TEMPORARY: Short-term or seasonal work.
+v INTERN: A student or trainee placement.
+v OTHER: Any other arrangement.
+a startDate
+s: The first day of the employment.
+u: Taken from the contract; pay and leave accrue from it.
+a endDate
+s: The last day of the employment, if it has ended or is fixed-term.
+u: Set when known; must not be before the start date.
+a status
+s: Where the employment stands.
+u: Moved by HR.
+v PENDING: Agreed but not yet started.
+v ACTIVE: In force; the person is employed.
+v SUSPENDED: Temporarily not in force, for example during an unpaid break.
+v TERMINATED: Ended. A final state.
+r employee
+s: The employee the employment is for.
+n: Exactly one employee: an employment relationship binds a specific individual.
+r employer
+s: The organisation that employs the person.
+n: Exactly one employer: the legal entity that carries the obligations of employment.
+r position
+s: The position the person fills.
+n: At most one position.
+r compensationHistory
+n: Any number of compensation arrangements over the employment.
+r leaveRequests
+n: Any number of leave requests.
+r attendanceRecords
+n: Any number of attendance records.
+
+@ EnergyAsset
+s: A physical asset used to generate, transmit, distribute, store or consume energy.
+b: Energy businesses run on physical plant. Each asset record carries its type and capacity, so planners know what is available and maintenance work can be tracked against the equipment it concerns.
+u: Registered when plant is planned or commissioned; updated through maintenance and outages; read by operations, asset management and regulators.
+c: An asset belongs to an Organization, stands at a Location and is the subject of MaintenanceWorkOrders.
+l: An asset is planned, goes active when commissioned, moves to maintenance when taken out of service for work, and is eventually decommissioned for good.
+x: A 50 MW solar array at the Almeria site, commissioned in 2024 and under annual maintenance each spring.
+a energyAssetId
+s: The identity of the energy asset.
+u: Generated on registration; work orders and readings refer to the asset through it.
+a assetCode
+s: The asset tag by which engineers and systems refer to the equipment, such as TX-0412.
+u: Assigned at registration; unique; printed on the equipment and used in work orders.
+a assetType
+s: The kind of plant, such as transformer, turbine, battery store or substation.
+u: Chosen at registration; groups assets for maintenance programmes and reporting.
+a capacity
+s: The rated capacity of the asset, in the unit conventional for its type (for example MW or MWh).
+u: Entered from the nameplate or commissioning test; used for capacity planning. Not negative.
+a status
+s: Whether the asset is available to operate.
+u: Set by operations and maintenance; planners count only ACTIVE assets as available.
+v PLANNED: Approved but not yet built or commissioned.
+v ACTIVE: In service and operating.
+v MAINTENANCE: Out of service while maintenance or repair is carried out.
+v DECOMMISSIONED: Permanently retired from service. A final state.
+r location
+s: The site where the asset stands.
+u: Set at registration; updated if the asset is relocated.
+n: At most one location; mobile or not-yet-sited assets may have none.
+w: Lets crews and planners find the equipment.
+r organization
+s: The organisation that owns or operates the asset.
+u: Set at registration.
+n: Exactly one organisation, because every asset must have an accountable operator.
+w: Establishes who is responsible for operating and maintaining the equipment.
+r maintenanceWorkOrders
+s: The maintenance work orders raised against the asset.
+u: Read to see the asset's maintenance history and open work.
+n: Any number over the asset's life.
+w: Open work orders may restrict whether the asset can return to service.
+
+@ EnergyMeter
+s: A metering device or logical metering point that records consumption or production of a utility resource.
+b: Billing and balancing depend on measured quantities. The meter is where those measurements originate, so it must be identified, located and tied to the customer it serves.
+u: Registered at installation; read periodically for billing; updated when disconnected or retired.
+c: A meter is installed at a Location, may serve a Customer and accumulates MeterReadings over time.
+l: A meter is planned, becomes active when installed and read, may be disconnected from supply, and is retired when removed.
+x: Electricity meter M-884201 at a customer's premises, read monthly and billed on the residential tariff.
+a energyMeterId
+s: The identity of the meter record.
+u: Generated on registration; readings and bills refer to it.
+a meterNumber
+s: The serial number or metering point number of the meter.
+u: Unique; printed on the device and on bills; used to match readings that arrive from the field.
+a meterType
+s: The utility resource that the meter measures.
+u: Chosen at registration; decides the unit of measure and the tariffs that can apply.
+v ELECTRICITY: Electrical energy consumed or produced.
+v GAS: Natural gas consumed.
+v WATER: Water consumed.
+v STEAM: Steam or district heat consumed.
+v SOLAR: Electricity generated by solar installations.
+v OTHER: Any other metered resource.
+a status
+s: Whether the meter is in service and being read.
+u: Set by field services and billing.
+v PLANNED: Ordered or scheduled for installation; not yet recording.
+v ACTIVE: Installed and being read for billing.
+v DISCONNECTED: Supply disconnected; no readings are billed.
+v RETIRED: Removed permanently; history is kept.
+a installedAt
+s: The date the meter was installed.
+u: Entered by the installer; consumption is billed from this date.
+r location
+s: The place where the meter is installed.
+u: Set at installation.
+n: Exactly one location: a meter measures at one physical point.
+w: Ties readings and billing to the premises supplied.
+r customer
+s: The customer who is billed for what the meter records.
+u: Set when supply starts; changed on move-in or move-out.
+n: At most one customer; a meter at vacant premises has none.
+w: Directs the meter's consumption to the right bills.
+r readings
+s: The readings taken from the meter.
+u: Read to calculate consumption between two dates.
+n: Any number, accumulating at each reading.
+w: Consumption is the difference between successive readings.
+
+@ EnergyTariff
+s: A pricing schedule that sets the charges for consumption, demand, connection or other utility services.
+b: A tariff turns metered quantities into money. Recording which rates apply from when allows any bill to be explained and recalculated.
+u: Defined by the provider; assigned to customers or meters; read by billing.
+c: A tariff is set by a provider Organization and prices a quantity in a UnitOfMeasure.
+l: A tariff is drafted, active during its effective period, and either expires or is retired when replaced.
+x: Residential electricity tariff 2026, 0.24 per kWh from 1 January to 31 December.
+a tariffId
+s: The identity of the tariff.
+u: Generated on creation; bills and meters refer to the tariff.
+a tariffCode
+s: The code of the tariff in the provider's price list, such as RES-ELEC-2026.
+u: Unique; assigned by the provider and quoted to customers.
+a name
+s: The descriptive name of the tariff.
+u: Shown on bills and in customer portals.
+a effectiveFrom
+s: The first date on which the tariff applies.
+u: Set when the tariff is approved; consumption from this date is priced by it.
+a effectiveTo
+s: The last date on which the tariff applies.
+u: Set when the tariff is replaced; must not be before the start date.
+a status
+s: Whether the tariff is available for billing.
+u: Set by the provider; only ACTIVE tariffs are assigned to new customers.
+v DRAFT: Being prepared; not yet in force.
+v ACTIVE: In force and used for billing.
+v EXPIRED: Its period has ended; kept for past bills.
+v RETIRED: Withdrawn before or after use; kept for history.
+r provider
+s: The organisation that supplies the service and sets the tariff.
+u: Set when the tariff is created.
+n: Exactly one provider, since tariffs are published by a single supplier.
+w: Identifies whose price list the tariff belongs to.
+r unitOfMeasure
+s: The unit in which quantities are priced, such as kilowatt-hour or cubic metre.
+u: Chosen when the tariff is defined; readings must be converted to it.
+n: Exactly one unit.
+w: Makes sure that price and quantity use the same unit.
+
+@ Enrollment
+s: A student's formal registration in an educational program or course.
+b: Enrolment is the moment a learner becomes part of a program. Fees, attendance, grades and eligibility to graduate all hang from it.
+u: Created at registration; confirmed; completed or withdrawn; read by the registrar, teachers and finance.
+c: An enrolment links an EducationStudent to an EducationProgram, and may be for a particular EducationCourse and Class. Grades and fees attach to it.
+l: An enrolment is pending until confirmed, active while the student studies, and ends completed, withdrawn or cancelled. A completed enrolment needs completion evidence where the program requires it.
+x: Enrolment of student 20260417 in the engineering program, confirmed on 1 September.
+a enrollmentId
+s: The identity of the enrolment.
+u: Generated on creation; grades and fees refer to it.
+a enrollmentNumber
+s: The reference number of the enrolment, quoted in correspondence.
+u: Allocated at registration; unique.
+a enrolledAt
+s: The date and time the registration was made.
+u: Set when the student registers; used to order registrations and apply deadlines.
+a status
+s: Whether the registration is confirmed and where it ends.
+u: Moved by the registrar.
+v PENDING: Requested and awaiting confirmation, for example of prerequisites or payment.
+v ACTIVE: Confirmed; the student is studying.
+v COMPLETED: Finished successfully. A final state.
+v WITHDRAWN: The student left before completing. A final state.
+v CANCELLED: Withdrawn before it began. A final state.
+r student
+s: The student who is enrolled.
+u: Set at registration.
+n: Exactly one student, because an enrolment is a particular learner's registration.
+w: Attaches the study record to the learner.
+r program
+s: The program in which the student is enrolled.
+u: Chosen at registration.
+n: Exactly one program: the enrolment is a registration for a particular course of study.
+w: Determines the requirements for completion.
+r course
+s: The course, when the enrolment is for a single course.
+u: Set when a student registers for a course directly.
+n: At most one course.
+w: Narrows the enrolment from a whole program to one course.
+r class
+s: The scheduled class, when the student is placed in a particular offering.
+u: Set when a place is allocated.
+n: At most one class.
+w: Places the student in a timetable.
+r grades
+s: The grades earned under the enrolment.
+u: Read to produce transcripts.
+n: Any number, one per assessed item.
+w: Accumulate towards completion.
+r fees
+s: The fees charged for the enrolment.
+u: Read by finance.
+n: Any number, such as tuition and lab fees.
+w: Billing follows enrolment.
+
+@ Entitlement
+a entitlementId
+s: The identity of the entitlement, independent of the contract that grants it.
+u: Generated on creation; service orders and coverage checks refer to it.
+a entitlementCode
+s: The unique reference by which the entitlement is quoted when service is requested.
+u: Assigned when the entitlement is created.
+a status
+v DRAFT: Being set up; no service rights yet.
+v ACTIVE: In force; covered service may be authorised.
+v SUSPENDED: Paused, for example for non-payment; no new covered service.
+v EXHAUSTED: The usage limit has been reached.
+v EXPIRED: The period has ended.
+v TERMINATED: Ended early. A final state.
+r customer
+n: Exactly one customer, the holder of the service right.
+r serviceContract
+n: Exactly one service contract, the agreement that grants the entitlement.
+r serviceOrders
+n: Any number of service orders that draw on the entitlement.

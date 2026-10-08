@@ -16,40 +16,35 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the tariff record associated with this EnergyTariff. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-        relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the tariff.
+        usage: Generated on creation; bills and meters refer to the tariff.
     - name: tariffCode
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of tariff code for the EnergyTariff. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-        relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The code of the tariff in the provider's price list, such as RES-ELEC-2026.
+        usage: Unique; assigned by the provider and quoted to customers.
     - name: name
       type: string
       required: true
       maxLength: 300
       help:
-        summary: The human-readable name used by people, reports, searches, and related business processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-        relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The descriptive name of the tariff.
+        usage: Shown on bills and in customer portals.
     - name: effectiveFrom
       type: date
       required: true
       help:
-        summary: Captures the business meaning of effective from for the EnergyTariff. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-        relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The first date on which the tariff applies.
+        usage: Set when the tariff is approved; consumption from this date is priced by it.
     - name: effectiveTo
       type: date
       required: false
       help:
-        summary: Captures the business meaning of effective to for the EnergyTariff. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-        relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The last date on which the tariff applies.
+        usage: Set when the tariff is replaced; must not be before the start date.
     - name: status
       type: enum
       required: true
@@ -60,33 +55,32 @@ entity:
         - EXPIRED
         - RETIRED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EnergyTariff records, where applicable.
-        relationshipContext: Its meaning is specific to EnergyTariff; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Whether the tariff is available for billing.
+        usage: Set by the provider; only ACTIVE tariffs are assigned to new customers.
         valueSemantics:
-          DRAFT: Represents the draft state or classification in the context of EnergyTariff.
-          ACTIVE: Represents the active state or classification in the context of EnergyTariff.
-          EXPIRED: Represents the expired state or classification in the context of EnergyTariff.
-          RETIRED: Represents the retired state or classification in the context of EnergyTariff.
+          DRAFT: Being prepared; not yet in force.
+          ACTIVE: In force and used for billing.
+          EXPIRED: Its period has ended; kept for past bills.
+          RETIRED: Withdrawn before or after use; kept for history.
   relationships:
     - name: provider
       target: Organization
       cardinality: '1'
       ownership: reference
       help:
-        summary: Connects EnergyTariff to Organization so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Organization records associated with a EnergyTariff.
-        cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The organisation that supplies the service and sets the tariff.
+        usage: Set when the tariff is created.
+        cardinalityMeaning: Exactly one provider, since tariffs are published by a single supplier.
+        workflowRole: Identifies whose price list the tariff belongs to.
     - name: unitOfMeasure
       target: UnitOfMeasure
       cardinality: '1'
       ownership: reference
       help:
-        summary: Connects EnergyTariff to UnitOfMeasure so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about UnitOfMeasure records associated with a EnergyTariff.
-        cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The unit in which quantities are priced, such as kilowatt-hour or cubic metre.
+        usage: Chosen when the tariff is defined; readings must be converted to it.
+        cardinalityMeaning: Exactly one unit.
+        workflowRole: Makes sure that price and quantity use the same unit.
   invariants:
     - id: TARIFF-001
       rule: effectiveTo must not precede effectiveFrom.
@@ -103,12 +97,12 @@ entity:
       - {from: DRAFT, to: RETIRED, action: retire}
       - {from: ACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a utilities entity called EnergyTariff within the CEDM business model.
-    businessMeaning: EnergyTariff is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate EnergyTariff records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, UnitOfMeasure. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical EnergyTariff record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A pricing schedule that sets the charges for consumption, demand, connection or other utility services.
+    businessMeaning: A tariff turns metered quantities into money. Recording which rates apply from when allows any bill to be explained and recalculated.
+    usage: Defined by the provider; assigned to customers or meters; read by billing.
+    relationshipContext: A tariff is set by a provider Organization and prices a quantity in a UnitOfMeasure.
+    lifecycle: A tariff is drafted, active during its effective period, and either expires or is retired when replaced.
+    example: Residential electricity tariff 2026, 0.24 per kWh from 1 January to 31 December.
 specification:
   version: 0.1.0
   status: draft
