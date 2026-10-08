@@ -108,15 +108,19 @@ entity:
     attribute: status
     states: [OPEN, FILLED, FROZEN, CLOSED, RETIRED]
     initial: OPEN
-    terminal: [FILLED, RETIRED]
+    terminal:
+      - RETIRED
     transitions:
-      - {from: OPEN, to: CLOSED, action: close}
-      - {from: CLOSED, to: FILLED, action: mark_filled}
-      - {from: OPEN, to: FROZEN, action: mark_frozen}
+      - {from: OPEN, to: FILLED, action: fill}
+      - {from: FILLED, to: OPEN, action: vacate}
+      - {from: OPEN, to: FROZEN, action: freeze}
       - {from: FROZEN, to: OPEN, action: unfreeze}
+      - {from: OPEN, to: CLOSED, action: close}
+      - {from: CLOSED, to: OPEN, action: reopen}
       - {from: OPEN, to: RETIRED, action: retire}
       - {from: FROZEN, to: RETIRED, action: retire}
       - {from: CLOSED, to: RETIRED, action: retire}
+      - {from: FILLED, to: RETIRED, action: retire}
   help:
     summary: Represents a workforce master entity called Position within the CEDM business model.
     businessMeaning: Position is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.

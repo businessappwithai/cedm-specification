@@ -1,0 +1,144 @@
+@ Picking
+a pickingId
+s: The identity of the pick task.
+u: Generated on creation; packing and stock movements refer to it.
+a quantity
+s: The quantity to be picked.
+u: Set from the reservation or order line; the pick is confirmed against it.
+a status
+s: Where the pick task stands.
+u: Updated by warehouse staff and handheld devices.
+v PLANNED: Created, not yet released to the floor.
+v RELEASED: Released to pickers.
+v IN_PROGRESS: A picker is collecting the goods.
+v PICKED: All goods collected. A final state.
+v SHORT: Less than the requested quantity was found; the pick can be retried after replenishment.
+v CANCELLED: Called off. A final state.
+v EXCEPTION: Held because of a problem such as damage or a blocked location.
+r sourceLocation
+n: Exactly one source location: each pick collects from a single storage position.
+r handlingUnit
+n: At most one handling unit, the pallet or tote the goods are picked into.
+
+@ Policy
+s: A formally defined rule, principle or requirement that governs business behaviour or decision-making.
+b: Policies state what the organisation has decided to do. Holding them as versioned records shows which version applied when, who owns it and which controls put it into practice.
+u: Written by the policy owner; approved; made active; reviewed periodically; read by staff and auditors.
+c: A policy is owned by an Organization, implemented by Controls and evidenced by a Document.
+l: A policy is drafted, approved, then made active. It can be suspended and resumed, and is retired when superseded. Only an approved version may become active.
+x: The Information Security Policy version 3.0, approved by the board and active from 1 January.
+a policyId
+s: The identity of the policy.
+u: Generated on creation; controls and documents refer to it.
+a code
+s: The reference of the policy, such as POL-SEC-001.
+u: Unique; used in audits and training.
+a name
+s: The title of the policy.
+u: Shown in policy libraries.
+a description
+s: A summary of the policy's purpose and scope.
+u: Written by the owner; read by staff.
+a policyType
+s: The area the policy covers, such as security, procurement or conduct.
+u: Chosen at creation; groups policies for review.
+a policyVersion
+s: The revision of the policy text.
+u: Incremented at each revision.
+a status
+s: Where the policy stands.
+u: Moved by the owner and approvers.
+v DRAFT: Being written.
+v APPROVED: Approved but not yet in force.
+v ACTIVE: In force.
+v SUSPENDED: Temporarily not applied.
+v RETIRED: Withdrawn. A final state.
+a effectiveFrom
+s: The first date the policy applies.
+u: Set at approval.
+a effectiveTo
+s: The last date the policy applies.
+u: Set when superseded; not before the start date.
+r owner
+s: The organisation accountable for the policy.
+u: Set at creation.
+n: At most one owner.
+w: Gives accountability for review.
+r controls
+s: The controls that implement the policy.
+u: Linked as controls are designed.
+n: Any number of controls.
+w: Show how the policy is put into practice.
+r document
+s: The document containing the policy text.
+u: Attached on approval.
+n: At most one document.
+w: Provides the authoritative text.
+
+@ Position
+s: A defined role in an organisation, with its responsibilities, place in the reporting structure and staffing needs.
+b: A position is a seat in the organisation chart. It exists whether or not someone sits in it, which lets headcount, budgets and succession be planned separately from the people.
+u: Created by HR and management when a role is approved; filled by hiring; read by managers and recruiters.
+c: A position belongs to an Organization, reports to a parent Position, may be based on a Job and is occupied by Employees.
+l: A position is open until filled; it can become vacant again, be frozen while recruitment is held, closed, and finally retired.
+x: Senior Accountant, Finance Department, reporting to the Financial Controller, filled in March.
+a positionId
+s: The identity of the position.
+u: Generated on creation; employment records refer to it.
+a code
+s: The position number.
+u: Unique; used in headcount plans.
+a title
+s: The title of the position.
+u: Shown on charts and advertisements.
+a status
+s: Whether the position can be filled.
+u: Set by HR.
+v OPEN: Approved and vacant, or available to be filled.
+v FILLED: Occupied by an employee.
+v FROZEN: Held back temporarily and not to be filled.
+v CLOSED: No longer needed but not yet retired.
+v RETIRED: Removed from the structure. A final state.
+a effectiveFrom
+s: The first date the position exists.
+u: Set when approved.
+a effectiveTo
+s: The last date the position exists.
+u: Set when it is closed; not before the start date.
+r organization
+s: The organisation the position belongs to.
+u: Set at creation.
+n: Exactly one organisation: a position is a seat in one organisation.
+w: Places it in the structure.
+r parentPosition
+s: The position this one reports to.
+u: Set to build the reporting line.
+n: At most one parent; the top position has none.
+w: Defines the reporting chain.
+r employees
+s: The employees who hold the position.
+u: Read to see who fills it.
+n: Any number, since a position can be shared.
+w: Link people to the seat.
+r job
+n: At most one job, the standard description the position is based on.
+
+@ Practitioner
+a practitionerId
+s: The identity of the practitioner role.
+u: Generated on registration; orders and encounters refer to it.
+a practitionerCode
+s: The unique code of the practitioner in the healthcare organisation.
+u: Assigned at credentialing; used on orders and schedules.
+a status
+v DRAFT: Being credentialed; not yet cleared.
+v ACTIVE: Cleared to practise.
+v SUSPENDED: Barred pending review.
+v INACTIVE: Not currently practising here.
+v RETIRED: No longer a practitioner. A final state.
+r person
+n: Exactly one person: the professional role is held by a specific individual.
+r appointments
+n: Any number of appointments booked with the practitioner.
+r encounters
+n: Any number of encounters in which the practitioner took part.

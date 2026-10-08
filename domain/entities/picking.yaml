@@ -31,26 +31,22 @@ entity:
     attribute: status
     states: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
     initial: PLANNED
-    terminal: [CANCELLED]
+    terminal:
+      - PICKED
+      - CANCELLED
     transitions:
       - {from: PLANNED, to: RELEASED, action: release}
       - {from: RELEASED, to: IN_PROGRESS, action: start}
-      - {from: IN_PROGRESS, to: PICKED, action: mark_picked}
-      - {from: PICKED, to: SHORT, action: mark_short}
-      - {from: RELEASED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: RELEASED, action: resolve_exception}
-      - {from: IN_PROGRESS, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: IN_PROGRESS, action: resolve_exception}
-      - {from: PICKED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: PICKED, action: resolve_exception}
-      - {from: SHORT, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: SHORT, action: resolve_exception}
+      - {from: IN_PROGRESS, to: PICKED, action: complete}
+      - {from: IN_PROGRESS, to: SHORT, action: short_pick}
+      - {from: SHORT, to: RELEASED, action: retry}
+      - {from: RELEASED, to: EXCEPTION, action: raise_exception}
+      - {from: IN_PROGRESS, to: EXCEPTION, action: raise_exception}
+      - {from: EXCEPTION, to: RELEASED, action: resolve}
       - {from: PLANNED, to: CANCELLED, action: cancel}
       - {from: RELEASED, to: CANCELLED, action: cancel}
-      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
-      - {from: PICKED, to: CANCELLED, action: cancel}
-      - {from: SHORT, to: CANCELLED, action: cancel}
       - {from: EXCEPTION, to: CANCELLED, action: cancel}
+      - {from: SHORT, to: CANCELLED, action: cancel}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a picking is stopped"
