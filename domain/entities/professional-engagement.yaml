@@ -70,9 +70,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        cardinalityMeaning: Exactly one client party, who receives the services and the invoices.
         summary: The party the services are delivered to and billed.
         usage: Chosen when the engagement is created.
-        cardinalityMeaning: Exactly one client.
         context: Decides who is invoiced.
     - name: contract
       target: Contract
