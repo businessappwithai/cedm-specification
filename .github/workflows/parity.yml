@@ -27,6 +27,12 @@ jobs:
         with:
           bun-version: "1.3.14"
 
+      # The WebAssembly build runs on Node's WASI (see scripts/appwithai-wasm.mjs);
+      # an unpinned runner Node segfaulted on it, so pin one that does not.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
