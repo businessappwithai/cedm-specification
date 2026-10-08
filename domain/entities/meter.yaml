@@ -6,49 +6,49 @@ entity:
   ui: {icon: gauge}
   identity: {key: meterId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: meterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the meter., businessMeaning: Identifies one measuring point independently of readings., usage: "Maintenance, utilities, operations, audit and integration.", relationshipContext: The meter persists while readings accumulate as evidence.}}
-    - {name: meterCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing meter reference., businessMeaning: "Operational identifier used on devices, work orders and reports.", usage: "Search, field work, integration and audit.", relationshipContext: Distinct from manufacturer serial numbers and Asset identifiers.}}
+    - {name: meterId, type: uuid, required: true, immutable: true, help: {summary: The identity of the meter., usage: Generated on creation; readings and plans refer to it., businessMeaning: Identifies one measuring point independently of readings., relationshipContext: The meter persists while readings accumulate as evidence.}}
+    - {name: meterCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The code of the meter, such as FL-07-HRS.', usage: Unique; used in readings and imports., businessMeaning: "Operational identifier used on devices, work orders and reports.", relationshipContext: Distinct from manufacturer serial numbers and Asset identifiers.}}
     - name: meterType
       type: enum
       required: true
       values: [HOURS, DISTANCE, CYCLES, ENERGY, VOLUME, COUNT, PRESSURE, TEMPERATURE, OTHER]
       help:
-        summary: Measurement purpose of the meter.
-        businessMeaning: Defines how readings are interpreted and which maintenance or operational rules may consume them.
-        usage: Maintenance scheduling, condition monitoring, utilities and analytics.
-        relationshipContext: UnitOfMeasure provides the quantitative unit.
+        summary: What the meter measures.
+        usage: Chosen at creation; determines the expected unit and behaviour.
         valueSemantics:
-          HOURS: Accumulated operating time.
-          DISTANCE: Accumulated distance travelled.
-          CYCLES: Count of operating cycles.
-          ENERGY: Energy consumption or production.
-          VOLUME: Accumulated or instantaneous volume.
-          COUNT: Generic cumulative count.
-          PRESSURE: Pressure measurement.
-          TEMPERATURE: Temperature measurement.
-          OTHER: Governed measurement outside the standard classes.
+          HOURS: Operating time.
+          DISTANCE: Distance travelled.
+          CYCLES: Operating cycles, such as lifts or starts.
+          ENERGY: Energy used.
+          VOLUME: Volume consumed or produced.
+          COUNT: A simple count.
+          PRESSURE: Pressure.
+          TEMPERATURE: Temperature.
+          OTHER: Any other measure.
+        businessMeaning: Defines how readings are interpreted and which maintenance or operational rules may consume them.
+        relationshipContext: UnitOfMeasure provides the quantitative unit.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, OUT_OF_SERVICE, RETIRED]
       help:
-        summary: Operational lifecycle state of the meter.
-        businessMeaning: Controls whether new readings should normally be accepted.
-        usage: Maintenance, telemetry validation and audit.
-        relationshipContext: Historical readings remain valid after status changes.
+        summary: Whether the meter is in use.
+        usage: Set by maintenance engineering.
         valueSemantics:
-          DRAFT: Meter is being configured.
-          ACTIVE: Meter is available for governed readings.
-          OUT_OF_SERVICE: Meter is temporarily unavailable or unreliable.
-          RETIRED: Meter is permanently withdrawn from new readings.
-    - {name: lastReadingValue, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Convenience projection of the latest accepted reading., businessMeaning: Current observed value rather than authoritative reading history., usage: "Scheduling, dashboards and condition monitoring.", relationshipContext: Must remain traceable to reading evidence.}}
-    - {name: lastReadingAt, type: datetime, required: false, help: {summary: Timestamp of the latest accepted reading projection., businessMeaning: Indicates freshness of current meter state., usage: "Scheduling, telemetry health and audit.", relationshipContext: Must correspond to the projected latest reading value.}}
+          DRAFT: Being defined; not yet read.
+          ACTIVE: In use and being read.
+          OUT_OF_SERVICE: Faulty or removed temporarily.
+          RETIRED: No longer used. A final state.
+        businessMeaning: Controls whether new readings should normally be accepted.
+        relationshipContext: Historical readings remain valid after status changes.
+    - {name: lastReadingValue, type: decimal, required: false, precision: 20, scale: 6, help: {summary: The most recent reading., usage: Updated from readings; maintenance plans compare it with thresholds., businessMeaning: Current observed value rather than authoritative reading history., relationshipContext: Must remain traceable to reading evidence.}}
+    - {name: lastReadingAt, type: datetime, required: false, help: {summary: When the most recent reading was taken., usage: Updated with each reading; shows how current the value is., businessMeaning: Indicates freshness of current meter state., relationshipContext: Must correspond to the projected latest reading value.}}
   relationships:
-    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: Asset measured by this meter., businessMeaning: Connects usage or condition evidence to a durable managed resource., usage: "Maintenance, reliability and lifecycle analysis.", cardinalityMeaning: Optional when the meter belongs to a Location rather than a specific Asset., workflowRole: Asset lifecycle constrains new meter use but not historical readings.}}
-    - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Location measured by or containing this meter., businessMeaning: Supports facility and utility measurement when no single Asset owns the meter., usage: "Facilities, utilities and operational reporting.", cardinalityMeaning: Optional when Asset is sufficient context., workflowRole: At least one governed context must identify what is measured.}}
-    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "1", ownership: reference, help: {summary: Unit in which readings are expressed., businessMeaning: Makes meter values quantitatively unambiguous., usage: "Validation, reporting and integration.", cardinalityMeaning: Exactly one UnitOfMeasure., workflowRole: Unit changes require controlled conversion or meter replacement semantics.}}
-    - {name: maintenancePlans, target: MaintenancePlan, cardinality: "0..*", ownership: reference, help: {summary: Maintenance plans driven or informed by this meter., businessMeaning: Enables usage and condition based maintenance intervals., usage: "Preventive and condition-based maintenance.", cardinalityMeaning: Zero or many plans., workflowRole: Accepted readings may trigger plan-due evaluation without rewriting prior readings.}}
+    - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: The asset that the meter measures., usage: Linked where the quantity belongs to equipment., cardinalityMeaning: At most one asset; a meter may instead measure a location., workflowRole: Lets usage trigger maintenance for the asset., businessMeaning: Connects usage or condition evidence to a durable managed resource.}}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: The place that the meter measures., usage: 'Linked where the quantity belongs to a place, such as a room temperature.', cardinalityMeaning: At most one location., workflowRole: Ties the measurement to the site., businessMeaning: Supports facility and utility measurement when no single Asset owns the meter.}}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: "1", ownership: reference, help: {summary: The unit in which the meter's values are expressed., usage: Chosen at creation; readings must use it., cardinalityMeaning: 'Exactly one unit, so every reading is comparable.', workflowRole: Prevents readings being mixed across units., businessMeaning: Makes meter values quantitatively unambiguous.}}
+    - {name: maintenancePlans, target: MaintenancePlan, cardinality: "0..*", ownership: reference, help: {summary: The maintenance plans that use this meter., usage: Linked when a plan is triggered by usage., cardinalityMeaning: Any number of plans., workflowRole: Readings trigger work according to these plans., businessMeaning: Enables usage and condition based maintenance intervals.}}
   invariants:
     - {id: METER-001, rule: A Meter must identify an Asset or Location as its governed measurement context.}
     - {id: METER-002, rule: lastReadingValue and lastReadingAt are projections and must remain traceable to accepted reading evidence when present.}
@@ -67,10 +67,10 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: OUT_OF_SERVICE, to: RETIRED, action: retire}
   help:
-    summary: Defines the measuring point used to observe usage or condition for maintenance and operational decisions.
-    businessMeaning: Meter is the durable measurement master; readings are time-based evidence. Current reading fields are only a convenience projection.
-    usage: Maintenance/EAM, facilities, fleet, utilities, reliability, condition monitoring, reporting and integration.
-    relationshipContext: A Meter belongs to an Asset or Location, uses a governed UnitOfMeasure, and can drive MaintenancePlans.
-    lifecycle: Configuration becomes active, may be taken out of service, and can be retired while historical readings and decisions remain auditable.
-    example: An engine-hour meter on a generator drives a MaintenancePlan due every 500 operating hours.
+    summary: A physical or logical measuring point on an asset or at a location, used to drive condition, usage, billing, maintenance or operational decisions.
+    businessMeaning: Many decisions depend on a measured quantity such as running hours or temperature. A meter defines what is measured, in which unit and on what, and keeps the latest reading so maintenance and billing can act on it.
+    usage: Defined when measurement starts; updated by readings; read by maintenance planning and operations.
+    relationshipContext: A meter is attached to an Asset or Location, is expressed in a UnitOfMeasure and may trigger MaintenancePlans.
+    lifecycle: A meter is drafted, active while it is read, out of service when faulty, and retired when removed.
+    example: The hour meter on forklift FL-07, last read at 4,812 hours.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-METER}
