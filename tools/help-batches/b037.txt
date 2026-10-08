@@ -125,20 +125,42 @@ n: At most one job, the standard description the position is based on.
 
 @ Practitioner
 a practitionerId
-s: The identity of the practitioner role.
-u: Generated on registration; orders and encounters refer to it.
+s: The identity of the practitioner role, independent of the person's other roles.
+u: Generated on registration; orders, appointments and encounters refer to it.
 a practitionerCode
-s: The unique code of the practitioner in the healthcare organisation.
-u: Assigned at credentialing; used on orders and schedules.
+s: The code by which the practitioner is known in the healthcare organisation.
+u: Assigned at credentialing; unique; used on orders, schedules and prescriptions.
+a licenseNumber
+s: The professional licence number issued by the licensing body.
+u: Entered at credentialing from the licence; checked against its expiry before the practitioner is scheduled.
+a specialty
+s: The practitioner's clinical specialty, such as cardiology or paediatrics.
+u: Entered at credentialing; used to route referrals and choose the right clinician for an appointment.
 a status
+s: Whether the practitioner is cleared to work.
+u: Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders.
 v DRAFT: Being credentialed; not yet cleared.
 v ACTIVE: Cleared to practise.
-v SUSPENDED: Barred pending review.
-v INACTIVE: Not currently practising here.
-v RETIRED: No longer a practitioner. A final state.
+v SUSPENDED: Barred while a licence or conduct matter is reviewed.
+v INACTIVE: Not currently practising here but may return.
+v RETIRED: No longer a practitioner here. A final state.
 r person
+s: The individual who holds the practitioner role.
+u: Set at credentialing and not changed.
 n: Exactly one person: the professional role is held by a specific individual.
+w: Keeps the person's identity in one place across all their roles.
+r providers
+s: The healthcare providers the practitioner works for or through.
+u: Linked when privileges are granted.
+n: Any number of providers, as practitioners often work at several.
+w: Determines where the practitioner may be scheduled.
 r appointments
-n: Any number of appointments booked with the practitioner.
+s: The appointments booked with the practitioner.
+u: Read for the practitioner's schedule.
+n: Any number of appointments, past and future.
+w: Show the practitioner's workload.
 r encounters
-n: Any number of encounters in which the practitioner took part.
+s: The encounters in which the practitioner took part.
+u: Read for clinical history and workload.
+n: Any number of encounters over the practitioner's service.
+w: Record who delivered care.
