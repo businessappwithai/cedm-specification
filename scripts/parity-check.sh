@@ -111,7 +111,9 @@ generate_rs() {
 }
 
 generate_wasm() {
-  node --no-warnings scripts/appwithai-wasm.mjs generate \
+  # --liftoff-only: CI's Node segfaulted in V8's optimising wasm tier on the
+  # larger applications; the baseline compiler is slower but does not crash.
+  node --no-warnings --liftoff-only scripts/appwithai-wasm.mjs generate \
     -i "$1" -o "$2" -n parity --skip-cli-scaffold --force >/dev/null
 }
 
