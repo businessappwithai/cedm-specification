@@ -1,0 +1,3 @@
+@ Store
+r location
+n: A store stands at one location, which gives its address; a second site is a second store.
