@@ -11,13 +11,23 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Stable identity of the payment event., businessMeaning: "Identifies the financial movement independently of its business reference, allocations, bank evidence, accounting entries or credit settlement purpose.", usage: "Reconciliation, allocation, accounting, audit, integration and reversal.", relationshipContext: Identity remains stable when allocations are reversed or a refund/settlement is associated with a credit note., workflowRole: "Root reference across preparation, authorization, posting, clearing and reversal."}
+      help:
+        summary: The identity of the payment, separate from the bank's reference.
+        usage: Generated on creation; allocations, ledger entries and bank matches refer to it.
+        businessMeaning: "Identifies the financial movement independently of its business reference, allocations, bank evidence, accounting entries or credit settlement purpose."
+        relationshipContext: Identity remains stable when allocations are reversed or a refund/settlement is associated with a credit note.
+        workflowRole: "Root reference across preparation, authorization, posting, clearing and reversal."
     - name: paymentNumber
       type: string
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Business-facing payment reference., businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries.", usage: "Finance, counterparties, integrations and reconciliation.", relationshipContext: Distinct from paymentId and bank transaction identifiers., workflowRole: Correlates internal payment evidence with operational and external references.}
+      help:
+        summary: The number under which the payment is recorded and quoted.
+        usage: Allocated from a number series; unique; shown on remittance advices and receipts.
+        businessMeaning: "Reference communicated in remittance, statements, bank reconciliation and payment inquiries."
+        relationshipContext: Distinct from paymentId and bank transaction identifiers.
+        workflowRole: Correlates internal payment evidence with operational and external references.
     - name: paymentDate
       type: datetime
       required: true
@@ -29,14 +39,14 @@ entity:
         - RECEIPT
         - DISBURSEMENT
       help:
-        summary: Indicates whether the organization receives or disburses money.
+        summary: Whether money is coming in or going out.
+        usage: Set when the payment is created; decides whose account is debited and credited.
+        valueSemantics:
+          RECEIPT: Money received from a payer.
+          DISBURSEMENT: Money paid out to a payee.
         businessMeaning: Establishes cash-flow direction and payer/payee interpretation.
-        usage: Receivables, payables, treasury, accounting and refunds/credit settlements.
         relationshipContext: Customer refund and supplier-credit refund/settlement payments are DISBURSEMENT events and never rewrite original receipt payments.
         workflowRole: Determines cash-flow and settlement path.
-        valueSemantics:
-          RECEIPT: The direction of the payment is receipt; set it when that is what the business means for this record.
-          DISBURSEMENT: The direction of the payment is disbursement; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
@@ -49,18 +59,18 @@ entity:
         - VOID
         - REVERSED
       help:
-        summary: Lifecycle state of the payment event.
+        summary: How far the payment has progressed from preparation to clearing.
+        usage: Moved by treasury and the bank reconciliation process.
+        valueSemantics:
+          DRAFT: Being prepared; no financial effect.
+          APPROVED: Authorised but not yet recorded in the books.
+          POSTED: Recorded in the ledger but not yet confirmed by the bank.
+          CLEARED: Confirmed by bank evidence. A final state.
+          VOID: Cancelled and of no effect. A final state.
+          REVERSED: Cancelled after posting by a compensating entry. A final state.
         businessMeaning: Indicates authorization, internal recognition, external clearing, invalidation or reversal.
-        usage: Controls execution, reconciliation, reporting and correction.
         relationshipContext: Independent of Invoice, CreditNote, SupplierCreditNote and BankTransaction statuses.
         workflowRole: APPROVED authorizes processing; POSTED recognizes internally; CLEARED confirms external evidence; VOID/REVERSED handle correction.
-        valueSemantics:
-          DRAFT: The status of the payment is draft; set it when that is what the business means for this record.
-          APPROVED: The status of the payment is approved; set it when that is what the business means for this record.
-          POSTED: The status of the payment is posted; set it when that is what the business means for this record.
-          CLEARED: The status of the payment is cleared; set it when that is what the business means for this record.
-          VOID: The status of the payment is void; set it when that is what the business means for this record.
-          REVERSED: The status of the payment is reversed; set it when that is what the business means for this record.
     - name: amount
       type: Money
       required: true
@@ -82,18 +92,18 @@ entity:
         - DIRECT_DEBIT
         - OTHER
       help:
-        summary: Mechanism through which payment is executed or received.
+        summary: How the money is moved.
+        usage: Chosen when the payment is created; decides processing and fees.
+        valueSemantics:
+          CASH: Notes and coins.
+          BANK_TRANSFER: An electronic transfer between bank accounts.
+          CARD: A payment card.
+          CHEQUE: A paper cheque.
+          DIRECT_DEBIT: A debit collected under a mandate.
+          OTHER: Any other method.
         businessMeaning: Describes how money moves rather than which obligation it settles.
-        usage: Execution, bank matching, treasury and reconciliation.
         relationshipContext: Refund or supplier-credit settlement method must satisfy applicable policy.
         workflowRole: Determines expected settlement evidence.
-        valueSemantics:
-          CASH: The payment method of the payment is cash; set it when that is what the business means for this record.
-          BANK_TRANSFER: The payment method of the payment is bank transfer; set it when that is what the business means for this record.
-          CARD: The payment method of the payment is card; set it when that is what the business means for this record.
-          CHEQUE: The payment method of the payment is cheque; set it when that is what the business means for this record.
-          DIRECT_DEBIT: The payment method of the payment is direct debit; set it when that is what the business means for this record.
-          OTHER: The payment method of the payment is other; set it when that is what the business means for this record.
     - name: valueDate
       type: date
       required: false
