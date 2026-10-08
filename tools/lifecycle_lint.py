@@ -31,6 +31,10 @@ def lint(entity: dict) -> list[str]:
         return []
     out = []
     states = list(lc.get("states") or [])
+    if not lc.get("attribute"):
+        out.append("L9 lifecycle names no attribute")
+    if not lc.get("initial"):
+        out.append("L9 lifecycle names no initial state")
     initial = lc.get("initial")
     terminal = set(lc.get("terminal") or [])
     edges = [(t["from"], t["to"]) for t in lc.get("transitions") or []]

@@ -209,6 +209,7 @@ entity:
     initial: DRAFT
     terminal:
       - RETIRED
+    attribute: status
   audit:
     enabled: true
     trackCreatedBy: true

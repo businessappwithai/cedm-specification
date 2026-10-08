@@ -27,10 +27,13 @@ def main(argv: list[str]) -> int:
     name = argv[0]
     terminal = None
     initial = None
+    attribute = None
     edges = []
     it = iter(argv[1:])
     for arg in it:
-        if arg == "--initial":
+        if arg == "--attribute":
+            attribute = next(it)
+        elif arg == "--initial":
             initial = next(it)
         elif arg == "--terminal":
             terminal = [s for s in next(it).split(",") if s]
@@ -57,6 +60,8 @@ def main(argv: list[str]) -> int:
             m.fa.set_flow_style()
             new.append(m)
         lc["transitions"] = new
+        if attribute is not None:
+            lc["attribute"] = attribute
         if initial is not None:
             lc["initial"] = initial
         if terminal is not None:

@@ -16,26 +16,23 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Identifies the media content record associated with this MediaContent. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MediaContent records, where applicable.
-        relationshipContext: Its meaning is specific to MediaContent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The identity of the work.
+        usage: Generated on creation; rights and publications refer to it.
     - name: contentCode
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: Captures the business meaning of content code for the MediaContent. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MediaContent records, where applicable.
-        relationshipContext: Its meaning is specific to MediaContent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The catalogue code of the work.
+        usage: Unique; assigned by the content team and used by distributors and royalty systems.
     - name: title
       type: string
       required: true
       maxLength: 500
       help:
-        summary: Captures the business meaning of title for the MediaContent. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MediaContent records, where applicable.
-        relationshipContext: Its meaning is specific to MediaContent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The title of the work.
+        usage: Shown on publications and in catalogues; can be changed without losing the work's identity.
     - name: contentType
       type: enum
       required: true
@@ -49,18 +46,17 @@ entity:
         - GAME
         - OTHER
       help:
-        summary: Captures the business meaning of content type for the MediaContent. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MediaContent records, where applicable.
-        relationshipContext: Its meaning is specific to MediaContent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: The form of the work.
+        usage: Chosen when the work is registered; decides workflows, formats and royalty rules.
         valueSemantics:
-          VIDEO: Represents the video state or classification in the context of MediaContent.
-          AUDIO: Represents the audio state or classification in the context of MediaContent.
-          IMAGE: Represents the image state or classification in the context of MediaContent.
-          ARTICLE: Represents the article state or classification in the context of MediaContent.
-          BOOK: Represents the book state or classification in the context of MediaContent.
-          PODCAST: Represents the podcast state or classification in the context of MediaContent.
-          GAME: Represents the game state or classification in the context of MediaContent.
-          OTHER: Represents the other state or classification in the context of MediaContent.
+          VIDEO: A film, series or clip.
+          AUDIO: Music or spoken-word audio.
+          IMAGE: A photograph or illustration.
+          ARTICLE: A written article.
+          BOOK: A book or e-book.
+          PODCAST: A podcast episode or series.
+          GAME: A game.
+          OTHER: Any other kind of work.
     - name: status
       type: enum
       required: true
@@ -72,43 +68,42 @@ entity:
         - ARCHIVED
         - RETIRED
       help:
-        summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes.
-        usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MediaContent records, where applicable.
-        relationshipContext: Its meaning is specific to MediaContent; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value.
+        summary: Where the work is in its life.
+        usage: Moved by the content team; only PUBLISHED works are shown to audiences.
         valueSemantics:
-          DRAFT: Represents the draft state or classification in the context of MediaContent.
-          PRODUCED: Represents the produced state or classification in the context of MediaContent.
-          PUBLISHED: Represents the published state or classification in the context of MediaContent.
-          ARCHIVED: Represents the archived state or classification in the context of MediaContent.
-          RETIRED: Represents the retired state or classification in the context of MediaContent.
+          DRAFT: Being created.
+          PRODUCED: Finished but not yet released.
+          PUBLISHED: Released to its audience.
+          ARCHIVED: Kept but no longer promoted.
+          RETIRED: Withdrawn from distribution. A final state.
   relationships:
     - name: owner
       target: Organization
       cardinality: 0..1
       ownership: reference
       help:
-        summary: Connects MediaContent to Organization so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Organization records associated with a MediaContent.
-        cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The organisation that owns the work.
+        usage: Set at registration.
+        cardinalityMeaning: At most one owner; works with shared or unclear ownership may have none recorded.
+        workflowRole: Determines who may license and who is paid.
     - name: documents
       target: Document
       cardinality: 0..*
       ownership: reference
       help:
-        summary: Connects MediaContent to Document so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about Document records associated with a MediaContent.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The documents that support the work, such as scripts and contracts.
+        usage: Attached during production and licensing.
+        cardinalityMeaning: Any number of documents.
+        workflowRole: Provide the paper trail for rights and approvals.
     - name: rights
       target: MediaRight
       cardinality: 0..*
       ownership: aggregate
       help:
-        summary: Connects MediaContent to MediaRight so related business context can be navigated and enforced.
-        usage: Used when processes need to find or reason about MediaRight records associated with a MediaContent.
-        cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-        context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        summary: The rights and licences that apply to the work.
+        usage: Checked before publication or licensing.
+        cardinalityMeaning: Any number of rights, such as one for each territory and medium.
+        workflowRole: Publication is allowed only within these rights.
   lifecycle:
     title: Media Content Lifecycle
     attribute: status
@@ -123,12 +118,12 @@ entity:
       - {from: PRODUCED, to: RETIRED, action: retire}
       - {from: PUBLISHED, to: RETIRED, action: retire}
   help:
-    summary: Represents a media entity called MediaContent within the CEDM business model.
-    businessMeaning: MediaContent is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate MediaContent records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Document, MediaRight. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships.
-    example: A typical MediaContent record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    summary: A digital or physical media work that is managed for creation, licensing, publication or distribution.
+    businessMeaning: Media businesses live on content and the rights to it. This record identifies each work, its type and its stage, and ties it to the rights that allow it to be used.
+    usage: Created when a work is commissioned or acquired; moved through production and publication; read by publishing, licensing and finance.
+    relationshipContext: A work is owned by an Organization, supported by Documents and licensed through MediaRights.
+    lifecycle: A work is drafted, produced, published, and then archived or retired. Rights and history remain after publication ends.
+    example: A documentary film, produced in 2025 and published on the streaming platform in 2026.
 specification:
   version: 0.1.0
   status: draft
