@@ -1,0 +1,63 @@
+@ SupplyPlan
+a status
+v DRAFT: Being prepared by planners; nothing is released.
+
+@ SupplyPlanLine
+r product
+n: Each line plans one product; several products need several lines.
+r location
+n: Each line plans for one location; the same product at another site is another line.
+
+@ TaxCode
+s: A tax classification code used to choose the tax rules, rates, registrations and reporting treatment that apply.
+b: A tax code lets a product, service or transaction be given its tax treatment by name instead of retyping rules. It keeps tax decisions consistent and makes it clear why a given rate was charged.
+u: Maintained by tax or finance; chosen on products, lines and accounts; read by tax calculation and returns.
+c: A tax code may belong to an organisation and is used with jurisdictions and rates.
+l: A tax code is drafted, active while it is used, and completed when no longer used. It may be cancelled before use. Completed and cancelled are final; past transactions keep it.
+x: Code "STD-20" marks goods taxed at the standard rate of twenty percent.
+a taxCodeId
+s: The identity of the tax code, constant when it is renamed.
+b: Lets transactions point at the code without depending on its label.
+u: Generated on creation; tax lines refer to it.
+c: Referenced by every transaction taxed under the code.
+a status
+s: Whether the tax code can be used on new transactions.
+b: Keeps retired codes from being chosen while history stays intact.
+u: Starts as DRAFT; set by tax staff.
+c: Only active codes are offered on documents.
+v DRAFT: Being defined; not yet usable.
+v ACTIVE: In use on transactions.
+v COMPLETED: No longer used on new transactions. A final state.
+v CANCELLED: Withdrawn before use. A final state.
+r organization
+s: The organisation the code is set up for.
+u: Chosen when the code is company specific.
+n: At most one organisation; empty means it applies to all.
+w: Decides which company's returns the code feeds.
+
+@ TaxJurisdiction
+s: A geographic or legal authority under which taxes are imposed, collected, reported or remitted.
+b: Jurisdictions say who is owed tax and under whose rules. Recording them lets tax be worked out and reported to the right authority and keeps the rates of different places apart.
+u: Maintained by tax or finance; used when calculating and reporting tax.
+c: A jurisdiction may belong to an organisation and is the place where tax codes apply.
+l: A jurisdiction is drafted, active while taxes are due, and completed when it no longer applies. It may be cancelled before use. Completed and cancelled are final.
+x: "Ontario, Canada" is the jurisdiction in which provincial sales tax is collected.
+a taxJurisdictionId
+s: The identity of the jurisdiction, constant when it is renamed.
+b: Lets tax rates and registrations point at the jurisdiction.
+u: Generated on creation; tax rates and returns refer to it.
+c: Referenced by rates and registrations.
+a status
+s: Whether the jurisdiction is in use.
+b: Stops tax being worked out against a place that no longer applies.
+u: Starts as DRAFT; set by tax staff.
+c: Only active jurisdictions are used in calculation.
+v DRAFT: Being defined; not yet used.
+v ACTIVE: Taxes are calculated and reported under it.
+v COMPLETED: No longer applies to new transactions. A final state.
+v CANCELLED: Withdrawn before use. A final state.
+r organization
+s: The organisation that is registered or reports in the jurisdiction.
+u: Chosen when the jurisdiction is company specific.
+n: At most one organisation.
+w: Decides whose returns go to the authority.

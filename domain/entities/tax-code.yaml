@@ -7,14 +7,23 @@ entity:
     icon: percent
   identity: {key: taxCodeId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: taxCodeId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxCode., businessMeaning: Identifies one governed TaxCode record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows.}}
+    - {name: taxCodeId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the tax code, constant when it is renamed.', businessMeaning: Lets transactions point at the code without depending on its label., usage: Generated on creation; tax lines refer to it., relationshipContext: Referenced by every transaction taxed under the code.}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxCode., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}}
+      help:
+        summary: Whether the tax code can be used on new transactions.
+        businessMeaning: Keeps retired codes from being chosen while history stays intact.
+        usage: Starts as DRAFT; set by tax staff.
+        relationshipContext: Only active codes are offered on documents.
+        valueSemantics:
+          DRAFT: Being defined; not yet usable.
+          ACTIVE: In use on transactions.
+          COMPLETED: No longer used on new transactions. A final state.
+          CANCELLED: Withdrawn before use. A final state.
   relationships:
-    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the code is set up for., usage: Chosen when the code is company specific., cardinalityMeaning: At most one organisation; empty means it applies to all., workflowRole: Decides which company's returns the code feeds.}}
   invariants:
     - {id: TAX-CODE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
@@ -48,12 +57,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
-    purpose: Provide canonical enterprise semantics for TaxCode while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed tax classification code used to select applicable tax rules, rates, jurisdictions, registrations, and reporting treatment.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A tax classification code used to choose the tax rules, rates, registrations and reporting treatment that apply.
+    businessMeaning: A tax code lets a product, service or transaction be given its tax treatment by name instead of retyping rules. It keeps tax decisions consistent and makes it clear why a given rate was charged.
+    usage: Maintained by tax or finance; chosen on products, lines and accounts; read by tax calculation and returns.
+    relationshipContext: A tax code may belong to an organisation and is used with jurisdictions and rates.
+    lifecycle: A tax code is drafted, active while it is used, and completed when no longer used. It may be cancelled before use. Completed and cancelled are final; past transactions keep it.
+    example: Code "STD-20" marks goods taxed at the standard rate of twenty percent.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-CODE}

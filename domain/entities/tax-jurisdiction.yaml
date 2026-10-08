@@ -7,14 +7,23 @@ entity:
     icon: percent
   identity: {key: taxJurisdictionId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: taxJurisdictionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxJurisdiction., businessMeaning: Identifies one governed TaxJurisdiction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows.}}
+    - {name: taxJurisdictionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the jurisdiction, constant when it is renamed.', businessMeaning: Lets tax rates and registrations point at the jurisdiction., usage: Generated on creation; tax rates and returns refer to it., relationshipContext: Referenced by rates and registrations.}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-      help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxJurisdiction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}}
+      help:
+        summary: Whether the jurisdiction is in use.
+        businessMeaning: Stops tax being worked out against a place that no longer applies.
+        usage: Starts as DRAFT; set by tax staff.
+        relationshipContext: Only active jurisdictions are used in calculation.
+        valueSemantics:
+          DRAFT: Being defined; not yet used.
+          ACTIVE: Taxes are calculated and reported under it.
+          COMPLETED: No longer applies to new transactions. A final state.
+          CANCELLED: Withdrawn before use. A final state.
   relationships:
-    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation that is registered or reports in the jurisdiction., usage: Chosen when the jurisdiction is company specific., cardinalityMeaning: At most one organisation., workflowRole: Decides whose returns go to the authority.}}
   invariants:
     - {id: TAX-JURISDICTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
@@ -48,12 +57,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted.
-    purpose: Provide canonical enterprise semantics for TaxJurisdiction while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed geographic or legal authority under which taxes are imposed, collected, reported, or remitted.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A geographic or legal authority under which taxes are imposed, collected, reported or remitted.
+    businessMeaning: Jurisdictions say who is owed tax and under whose rules. Recording them lets tax be worked out and reported to the right authority and keeps the rates of different places apart.
+    usage: Maintained by tax or finance; used when calculating and reporting tax.
+    relationshipContext: A jurisdiction may belong to an organisation and is the place where tax codes apply.
+    lifecycle: A jurisdiction is drafted, active while taxes are due, and completed when it no longer applies. It may be cancelled before use. Completed and cancelled are final.
+    example: '"Ontario, Canada" is the jurisdiction in which provincial sales tax is collected.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-JURISDICTION}
