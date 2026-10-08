@@ -11,7 +11,12 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the supplier debit note., businessMeaning: Identifies one financial debit adjustment independently of its supplier claim invoice lines applications or accounting evidence., usage: Used for accounts payable recovery supplier communication reconciliation audit and integration., relationshipContext: Distinct from SupplierClaim SupplierClaimResolution Invoice and SupplierCreditNote identities., workflowRole: Stable identity across drafting approval posting application and reversal.}
+      help:
+        summary: The identity of the debit note, constant for its life.
+        businessMeaning: Identifies one financial debit adjustment independently of its supplier claim invoice lines applications or accounting evidence.
+        usage: Used for accounts payable recovery supplier communication reconciliation audit and integration.
+        relationshipContext: Distinct from SupplierClaim SupplierClaimResolution Invoice and SupplierCreditNote identities.
+        workflowRole: Stable identity across drafting approval posting application and reversal.
     - name: debitNoteNumber
       type: string
       required: true
@@ -36,20 +41,20 @@ entity:
         - CANCELLED
         - REVERSED
       help:
+        valueSemantics:
+          DRAFT: Drafted by the buyer and not yet approved.
+          APPROVED: Accepted internally and ready to post.
+          POSTED: Recorded in the accounts; available to offset what the buyer owes.
+          PARTIALLY_APPLIED: Part of the debit has been offset against invoices.
+          FULLY_APPLIED: The whole debit has been used. A final state.
+          DISPUTED: The supplier disputes the debit.
+          CANCELLED: Withdrawn before posting. A final state.
+          REVERSED: A posted debit undone by a reversing entry. A final state.
         summary: Lifecycle state of the supplier debit adjustment.
         businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal.
         usage: Controls posting payable reconciliation and supplier dispute workflows.
         relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence.
         workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling.
-        valueSemantics:
-          DRAFT: The status of the supplier debit note is draft; set it when that is what the business means for this record.
-          APPROVED: The status of the supplier debit note is approved; set it when that is what the business means for this record.
-          POSTED: The status of the supplier debit note is posted; set it when that is what the business means for this record.
-          PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business means for this record.
-          FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for this record.
-          DISPUTED: The status of the supplier debit note is disputed; set it when that is what the business means for this record.
-          CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this record.
-          REVERSED: The status of the supplier debit note is reversed; set it when that is what the business means for this record.
     - name: currencyId
       type: reference
       target: Currency
@@ -106,19 +111,24 @@ entity:
     attribute: status
     states: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, DISPUTED, CANCELLED, REVERSED]
     initial: DRAFT
-    terminal: [FULLY_APPLIED, CANCELLED, REVERSED]
+    terminal:
+      - FULLY_APPLIED
+      - CANCELLED
+      - REVERSED
     transitions:
       - {from: DRAFT, to: APPROVED, action: approve}
       - {from: APPROVED, to: POSTED, action: post}
-      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
-      - {from: PARTIALLY_APPLIED, to: DISPUTED, action: mark_disputed}
-      - {from: DISPUTED, to: FULLY_APPLIED, action: mark_fully_applied}
+      - {from: POSTED, to: PARTIALLY_APPLIED, action: apply}
+      - {from: POSTED, to: FULLY_APPLIED, action: apply}
+      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: apply}
+      - {from: POSTED, to: DISPUTED, action: dispute}
+      - {from: PARTIALLY_APPLIED, to: DISPUTED, action: dispute}
+      - {from: DISPUTED, to: POSTED, action: resolve}
+      - {from: DISPUTED, to: REVERSED, action: reverse}
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: POSTED, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
-      - {from: DISPUTED, to: CANCELLED, action: cancel}
-      - {from: DISPUTED, to: REVERSED, action: reverse}
+      - {from: POSTED, to: REVERSED, action: reverse}
+      - {from: PARTIALLY_APPLIED, to: REVERSED, action: reverse}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a supplier debit note is ended"

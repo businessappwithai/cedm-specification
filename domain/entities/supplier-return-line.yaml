@@ -12,7 +12,7 @@ entity:
       required: true
       immutable: true
       help:
-        summary: Immutable identity of the supplier return line.
+        summary: The identity of the return line, constant for its life.
         businessMeaning: Identifies one quantity-level reverse-procurement instruction.
         usage: Used for inventory, supplier credit, quality, reconciliation and audit.
         relationshipContext: Distinct from the original PurchaseOrderLine and GoodsReceiptLine identities.
@@ -52,15 +52,15 @@ entity:
       required: true
       values: [RETURN_TO_SUPPLIER, REJECTED, EXCEPTION]
       help:
+        valueSemantics:
+          RETURN_TO_SUPPLIER: The quantity is sent back for credit or replacement.
+          REJECTED: The quantity is refused and stays with the supplier.
+          EXCEPTION: The quantity is handled outside the normal return.
         summary: Operational result governing how the returned procurement quantity is handled.
         businessMeaning: Identifies whether the quantity is actually being returned to the supplier or requires exception processing.
         usage: Supports warehouse and supplier-claim workflows.
         relationshipContext: Distinct from the original GoodsReceipt acceptance status and any QualityInspection disposition.
         workflowRole: Controls whether the normal supplier-return workflow may proceed.
-        valueSemantics:
-          RETURN_TO_SUPPLIER: The disposition of the supplier return line is return to supplier; set it when that is what the business means for this record.
-          REJECTED: The disposition of the supplier return line is rejected; set it when that is what the business means for this record.
-          EXCEPTION: The disposition of the supplier return line is exception; set it when that is what the business means for this record.
   relationships:
     - name: supplierReturn
       target: SupplierReturn

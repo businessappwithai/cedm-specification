@@ -11,7 +11,12 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Immutable identity of the supplier performance assessment., businessMeaning: Identifies one governed evaluation of supplier performance for a defined period and scope., usage: "Supplier governance, sourcing decisions, improvement plans, audit and reporting.", relationshipContext: "Distinct from Supplier identity, PurchaseOrder transactions, SupplierClaim cases and individual quality inspections.", workflowRole: "Stable reference across calculation, review, approval and follow-up."}
+      help:
+        summary: The identity of the assessment, constant for its life.
+        businessMeaning: Identifies one governed evaluation of supplier performance for a defined period and scope.
+        usage: "Supplier governance, sourcing decisions, improvement plans, audit and reporting."
+        relationshipContext: "Distinct from Supplier identity, PurchaseOrder transactions, SupplierClaim cases and individual quality inspections."
+        workflowRole: "Stable reference across calculation, review, approval and follow-up."
     - name: assessmentNumber
       type: string
       required: true
@@ -42,18 +47,18 @@ entity:
         - SUPERSEDED
         - CANCELLED
       help:
-        summary: Lifecycle state of the supplier performance assessment.
+        summary: Where the assessment is in review and publication.
+        valueSemantics:
+          DRAFT: Scores and notes are still being compiled.
+          IN_REVIEW: Under review by procurement or quality.
+          APPROVED: Accepted and ready to publish.
+          PUBLISHED: Shared with the supplier and used in decisions.
+          SUPERSEDED: Replaced by a later assessment. A final state.
+          CANCELLED: Withdrawn. A final state.
         businessMeaning: Separates calculation, review, approval, publication and replacement of scorecard results.
         usage: Controls whether the assessment may be changed or consumed by supplier governance.
         relationshipContext: Does not change the status of Supplier, PurchaseOrder, GoodsReceipt, Invoice or SupplierClaim records.
         workflowRole: PUBLISHED makes the assessment an approved historical scorecard; corrections use a replacement or superseding assessment.
-        valueSemantics:
-          DRAFT: The status of the supplier performance assessment is draft; set it when that is what the business means for this record.
-          IN_REVIEW: The status of the supplier performance assessment is in review; set it when that is what the business means for this record.
-          APPROVED: The status of the supplier performance assessment is approved; set it when that is what the business means for this record.
-          PUBLISHED: The status of the supplier performance assessment is published; set it when that is what the business means for this record.
-          SUPERSEDED: The status of the supplier performance assessment is superseded; set it when that is what the business means for this record.
-          CANCELLED: The status of the supplier performance assessment is cancelled; set it when that is what the business means for this record.
     - name: overallScore
       type: decimal
       required: false
@@ -70,17 +75,17 @@ entity:
         - NEEDS_IMPROVEMENT
         - UNSATISFACTORY
       help:
+        valueSemantics:
+          EXCELLENT: Consistently exceeds requirements.
+          GOOD: Meets requirements with few issues.
+          ACCEPTABLE: Meets the minimum required.
+          NEEDS_IMPROVEMENT: Falls short in places; a plan is needed.
+          UNSATISFACTORY: Fails requirements; action is required.
         summary: Interpreted supplier performance rating.
         businessMeaning: Converts the approved score or governed assessment criteria into a business-facing performance category.
         usage: Supplier segmentation, review cadence and improvement decisions.
         relationshipContext: Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or commercial evidence.
         workflowRole: Supports governance actions and escalation.
-        valueSemantics:
-          EXCELLENT: The rating of the supplier performance assessment is excellent; set it when that is what the business means for this record.
-          GOOD: The rating of the supplier performance assessment is good; set it when that is what the business means for this record.
-          ACCEPTABLE: The rating of the supplier performance assessment is acceptable; set it when that is what the business means for this record.
-          NEEDS_IMPROVEMENT: The rating of the supplier performance assessment is needs improvement; set it when that is what the business means for this record.
-          UNSATISFACTORY: The rating of the supplier performance assessment is unsatisfactory; set it when that is what the business means for this record.
     - name: notes
       type: string
       required: false

@@ -41,16 +41,16 @@ entity:
         - REVERSED
         - CANCELLED
       help:
+        valueSemantics:
+          DRAFT: Prepared and not yet applied.
+          ACTIVE: Applied against the invoice, reducing what is payable.
+          REVERSED: Undone by a reversing application. A final state.
+          CANCELLED: Withdrawn before it was applied. A final state.
         summary: Lifecycle state of the debit application.
         businessMeaning: Separates preparation from effective application and later reversal.
         usage: Controls payable projections and remaining debit balance.
         relationshipContext: Application status does not replace SupplierDebitNote or Invoice status.
         workflowRole: ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence.
-        valueSemantics:
-          DRAFT: The status of the supplier debit note application is draft; set it when that is what the business means for this record.
-          ACTIVE: The status of the supplier debit note application is active; set it when that is what the business means for this record.
-          REVERSED: The status of the supplier debit note application is reversed; set it when that is what the business means for this record.
-          CANCELLED: The status of the supplier debit note application is cancelled; set it when that is what the business means for this record.
     - name: reversalOfApplicationId
       type: reference
       target: SupplierDebitNoteApplication
