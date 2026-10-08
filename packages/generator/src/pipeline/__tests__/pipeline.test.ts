@@ -36,6 +36,16 @@ describe("the pipeline is the only generation path", () => {
     expect(manifest.categories).toEqual(model.categories.map((c) => c.name));
     expect(manifest.enums).toHaveLength(model.enums.length);
     expect(manifest.sagas).toHaveLength(model.sagas.length);
+    // Optimistic locking: the exceptions, and the states that close a record.
+    expect(manifest.lastWriteWins).toEqual(
+      model.entities.filter((e) => e.concurrency === "last-write-wins").map((e) => e.name)
+    );
+    expect(manifest.finalStates).toEqual(
+      model.workflows
+        .filter((w) => w.terminal.length > 0)
+        .map((w) => `${w.entity}: ${w.terminal.join(", ")}`)
+    );
+    expect(manifest.finalStates.length).toBeGreaterThan(0);
 
     // The model travels with the application it produced, exactly as written.
     const shipped = await fs.readFile(path.join(out, "model", "model.eml.yaml"), "utf-8");

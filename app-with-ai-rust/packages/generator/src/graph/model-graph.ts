@@ -112,6 +112,9 @@ export function buildModelGraph(model: ParsedModel): ModelGraph {
         ...(entity.description ? { description: entity.description } : {}),
         primaryKey: entity.primaryKey,
         attributeCount: entity.attributes.length,
+        // How two people's edits of one record are reconciled: what the
+        // assistant answers "can two people edit this at once?" from.
+        concurrency: entity.concurrency ?? "optimistic",
       },
     });
 

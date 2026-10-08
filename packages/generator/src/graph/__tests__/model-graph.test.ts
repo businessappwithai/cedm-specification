@@ -29,6 +29,22 @@ describe("buildModelGraph", () => {
     );
   });
 
+  it("says how each entity reconciles two people's edits", () => {
+    const crm = buildModelGraph(
+      compileYaml(
+        readFileSync(
+          path.join(import.meta.dirname, "../../../../../language/yaml/examples/crm.eml.yaml"),
+          "utf-8"
+        )
+      )
+    );
+    const of = (name: string) =>
+      crm.nodes.find((node) => node.label === "Entity" && node.properties.name === name)?.properties
+        .concurrency;
+    expect(of("Activity")).toBe("last-write-wins");
+    expect(of("Account")).toBe("optimistic");
+  });
+
   it("gives every attribute an edge from its entity", () => {
     expect(edgesOf("HAS_ATTRIBUTE")).toHaveLength(nodesOf("Attribute").length);
   });
@@ -123,7 +139,11 @@ describe("buildModelGraph", () => {
   it("records which roles the model grants, and on what", () => {
     const declared = new Set(model.rbac.operations.flatMap((rule) => rule.roles));
     for (const rule of model.rbac.transitions) for (const r of rule.roles) declared.add(r);
-    expect(nodesOf("Role").map((n) => n.properties.name).sort()).toEqual([...declared].sort());
+    expect(
+      nodesOf("Role")
+        .map((n) => n.properties.name)
+        .sort()
+    ).toEqual([...declared].sort());
   });
 });
 
