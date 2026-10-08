@@ -6,10 +6,10 @@ entity:
   ui: {icon: file-badge}
   identity: {key: serviceContractId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceContractId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service-contract specialization., businessMeaning: Identifies operational service coverage independently of the generic Contract identity., usage: "Service operations, entitlement, billing, reporting and audit.", relationshipContext: Required Contract relationship supplies the legal/commercial agreement., requiredMeaning: Required.}}
-    - {name: serviceContractNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing service contract reference., businessMeaning: Operational identifier for service coverage administration., usage: "Customer service, renewals, entitlement and reporting.", relationshipContext: May differ from generic Contract number., requiredMeaning: Required.}}
-    - {name: effectiveFrom, type: date, required: true, help: {summary: First date service coverage is effective., businessMeaning: Starts entitlement and service-policy applicability., usage: "Coverage validation, renewal and reporting.", relationshipContext: Must be compatible with the governing Contract., requiredMeaning: Required.}}
-    - {name: effectiveTo, type: date, required: false, help: {summary: Last date of service coverage., businessMeaning: Ends ordinary service entitlement under this specialization., usage: "Coverage validation and renewal.", relationshipContext: Must not precede effectiveFrom and normally cannot exceed governing Contract scope., optionalMeaning: Optional for open-ended coverage.}}
+    - {name: serviceContractId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service-contract specialization., businessMeaning: Identifies operational service coverage independently of the generic Contract identity., usage: "Service operations, entitlement, billing, reporting and audit.", relationshipContext: Required Contract relationship supplies the legal/commercial agreement.}}
+    - {name: serviceContractNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing service contract reference., businessMeaning: Operational identifier for service coverage administration., usage: "Customer service, renewals, entitlement and reporting.", relationshipContext: May differ from generic Contract number.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: First date service coverage is effective., businessMeaning: Starts entitlement and service-policy applicability., usage: "Coverage validation, renewal and reporting.", relationshipContext: Must be compatible with the governing Contract.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: Last date of service coverage., businessMeaning: Ends ordinary service entitlement under this specialization., usage: "Coverage validation and renewal.", relationshipContext: Must not precede effectiveFrom and normally cannot exceed governing Contract scope.}}
     - name: status
       type: enum
       required: true
@@ -26,7 +26,6 @@ entity:
           SUSPENDED: Coverage is temporarily unavailable for new ordinary authorization.
           EXPIRED: Effective period ended.
           TERMINATED: Coverage was ended early through governed process.
-        requiredMeaning: Required.
   relationships:
     - {name: contract, target: Contract, cardinality: "1", ownership: reference, help: {summary: Generic legal or commercial Contract underlying this service specialization., businessMeaning: "Prevents duplicate modeling of parties, clauses and legal obligations.", usage: "Legal traceability, renewals and compliance.", cardinalityMeaning: Exactly one Contract., workflowRole: Service coverage cannot outlive or contradict governing Contract terms without explicit amendment.}}
     - {name: customer, target: Customer, cardinality: "1", ownership: reference, help: {summary: Customer receiving contracted service coverage., businessMeaning: Establishes the commercial beneficiary of service rights., usage: "Entitlement, case management and billing.", cardinalityMeaning: Exactly one Customer in this baseline specialization., workflowRole: Customer must be consistent with governing Contract parties.}}

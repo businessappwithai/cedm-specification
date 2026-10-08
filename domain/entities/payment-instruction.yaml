@@ -7,17 +7,17 @@ entity:
     icon: credit-card
   identity: {key: paymentInstructionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PaymentInstruction., businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of PaymentInstruction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: paymentInstructionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PaymentInstruction., businessMeaning: Identifies one governed PaymentInstruction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of PaymentInstruction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}}
   relationships:
-  - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account from/to which payment is instructed., businessMeaning: Supplies treasury settlement account., usage: Payment execution., cardinalityMeaning: Exactly one BankAccount., workflowRole: Instruction does not itself prove bank settlement.}}
-  - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: Payment resulting from executed instruction., businessMeaning: Connects intent to settlement transaction., usage: Treasury reconciliation., cardinalityMeaning: Optional until execution., workflowRole: Retries must not create duplicate Payment.}}
+    - {name: bankAccount, target: BankAccount, cardinality: '1', ownership: reference, help: {summary: Bank account from/to which payment is instructed., businessMeaning: Supplies treasury settlement account., usage: Payment execution., cardinalityMeaning: Exactly one BankAccount., workflowRole: Instruction does not itself prove bank settlement.}}
+    - {name: payment, target: Payment, cardinality: 0..1, ownership: reference, help: {summary: Payment resulting from executed instruction., businessMeaning: Connects intent to settlement transaction., usage: Treasury reconciliation., cardinalityMeaning: Optional until execution., workflowRole: Retries must not create duplicate Payment.}}
   invariants:
-  - {id: PAYMENT-INSTRUCTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: PAYMENT-INSTRUCTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Payment Instruction Lifecycle
     attribute: status

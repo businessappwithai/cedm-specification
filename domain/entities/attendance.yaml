@@ -6,8 +6,8 @@ entity:
   ui: {icon: clock-3}
   identity: {key: attendanceId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of attendance evidence., businessMeaning: Identifies one attendance record independently of later approval or correction., usage: "Timekeeping, payroll, scheduling, reporting and audit.", relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact., requiredMeaning: Required.}}
-    - {name: attendanceDate, type: date, required: true, help: {summary: Business date to which attendance evidence applies., businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., usage: "Timekeeping, payroll and reporting.", relationshipContext: Must align with applicable Employment and work schedule., requiredMeaning: Required.}}
+    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of attendance evidence., businessMeaning: Identifies one attendance record independently of later approval or correction., usage: "Timekeeping, payroll, scheduling, reporting and audit.", relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact.}}
+    - {name: attendanceDate, type: date, required: true, help: {summary: Business date to which attendance evidence applies., businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., usage: "Timekeeping, payroll and reporting.", relationshipContext: Must align with applicable Employment and work schedule.}}
     - name: attendanceType
       type: enum
       required: true
@@ -25,10 +25,9 @@ entity:
           HOLIDAY: Date is treated as a governed holiday.
           OFF_DAY: Scheduled non-working day.
           OTHER: Another governed attendance classification.
-        requiredMeaning: Required.
-    - {name: clockInAt, type: datetime, required: false, help: {summary: Recorded start timestamp for worked time., businessMeaning: Timekeeping evidence used when interval capture applies., usage: "Attendance, overtime and payroll.", relationshipContext: Must not be after clockOutAt when both are supplied., optionalMeaning: Optional for day-status-only or summarized time.}}
-    - {name: clockOutAt, type: datetime, required: false, help: {summary: Recorded end timestamp for worked time., businessMeaning: Completes a captured work interval., usage: "Attendance, overtime and payroll.", relationshipContext: Must not precede clockInAt when both are supplied., optionalMeaning: Optional while a shift is open or for summarized attendance.}}
-    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed worked-time quantity., businessMeaning: Summarized hours attributable to attendance evidence., usage: "Payroll, utilization and reporting.", relationshipContext: Should reconcile to captured intervals and policy when available., optionalMeaning: Optional when derived downstream.}}
+    - {name: clockInAt, type: datetime, required: false, help: {summary: Recorded start timestamp for worked time., businessMeaning: Timekeeping evidence used when interval capture applies., usage: "Attendance, overtime and payroll.", relationshipContext: Must not be after clockOutAt when both are supplied.}}
+    - {name: clockOutAt, type: datetime, required: false, help: {summary: Recorded end timestamp for worked time., businessMeaning: Completes a captured work interval., usage: "Attendance, overtime and payroll.", relationshipContext: Must not precede clockInAt when both are supplied.}}
+    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed worked-time quantity., businessMeaning: Summarized hours attributable to attendance evidence., usage: "Payroll, utilization and reporting.", relationshipContext: Should reconcile to captured intervals and policy when available.}}
     - name: status
       type: enum
       required: true
@@ -44,7 +43,6 @@ entity:
           RECORDED: Timekeeping evidence is captured and awaits approval where required.
           APPROVED: Evidence is approved for downstream governed use.
           CANCELLED: Erroneous or inapplicable provisional evidence was cancelled and retained.
-        requiredMeaning: Required.
   relationships:
     - {name: employee, target: Employee, cardinality: "0..1", ownership: reference, help: {summary: Employee whose work or absence is recorded when Attendance is used in HCM., businessMeaning: Establishes the employment subject without making Attendance HCM-only., usage: "Timekeeping, payroll and workforce reporting.", cardinalityMeaning: Optional outside employment attendance., workflowRole: Employee eligibility and work schedule constrain HCM interpretation.}}
     - {name: student, target: EducationStudent, cardinality: "0..1", ownership: reference, help: {summary: Student whose participation or absence is recorded when Attendance is used in Education., businessMeaning: Establishes the education subject without duplicating a second attendance concept., usage: "Class attendance, learner support and education reporting.", cardinalityMeaning: Optional outside education attendance., workflowRole: Student enrollment and class membership constrain education interpretation.}}

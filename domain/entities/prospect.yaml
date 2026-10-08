@@ -7,12 +7,12 @@ entity:
     icon: database
   identity: {key: prospectId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Prospect., businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Prospect., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+    - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Prospect., businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Prospect., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity.}}
   relationships:
-  - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Party represented by prospect., businessMeaning: Supplies canonical person/organization identity., usage: CRM qualification and deduplication., cardinalityMeaning: Exactly one Party., workflowRole: Qualification may create Lead without duplicating Party.}}
+    - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Party represented by prospect., businessMeaning: Supplies canonical person/organization identity., usage: CRM qualification and deduplication., cardinalityMeaning: Exactly one Party., workflowRole: Qualification may create Lead without duplicating Party.}}
   invariants:
-  - {id: PROSPECT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: PROSPECT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
     summary: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
     purpose: Provide canonical implementation-neutral semantics for Prospect across enterprise applications.

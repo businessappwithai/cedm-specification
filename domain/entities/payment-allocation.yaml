@@ -17,7 +17,6 @@ entity:
         usage: Used for reconciliation, audit, reversal, reallocation, and settlement projections.
         relationshipContext: Payment identifies money received or sent; Invoice identifies the claim; PaymentAllocation connects the two.
         workflowRole: Provides the auditable settlement bridge used to derive Invoice amountSettled and amountOutstanding.
-        requiredMeaning: Required for traceable allocation evidence.
     - name: paymentId
       type: reference
       target: Payment
@@ -29,7 +28,6 @@ entity:
         usage: Supports payment reconciliation, bank matching, and settlement audit.
         relationshipContext: The allocation cannot create or replace the underlying Payment event.
         workflowRole: Supplies the source monetary amount and payment currency for allocation.
-        requiredMeaning: Required to trace settlement to its source.
     - name: invoiceId
       type: reference
       target: Invoice
@@ -41,7 +39,6 @@ entity:
         usage: Supports receivables/payables settlement, aging, statements, and reconciliation.
         relationshipContext: The allocation reduces the claim; it does not change the original Invoice total.
         workflowRole: Supplies the target claim and invoice currency for settlement comparison.
-        requiredMeaning: Required to identify the settlement target.
     - name: paymentAmount
       type: Money
       required: true
@@ -51,7 +48,6 @@ entity:
         usage: Supports remaining-payment calculation and reconciliation to the Payment.
         relationshipContext: Must use the Payment currency and must not exceed the unapplied source payment amount under policy.
         workflowRole: Establishes the source-side settlement quantity before any cross-currency conversion.
-        requiredMeaning: Required for allocation calculation.
     - name: invoiceAmount
       type: Money
       required: true
@@ -61,7 +57,6 @@ entity:
         usage: Drives Invoice amountSettled and amountOutstanding projections.
         relationshipContext: May differ numerically and in currency from paymentAmount when an approved ExchangeRate is used.
         workflowRole: Supplies the target-side settlement value applied to the claim.
-        requiredMeaning: Required for deterministic claim settlement.
     - name: exchangeRateId
       type: reference
       target: ExchangeRate
@@ -73,7 +68,6 @@ entity:
         usage: Supports audit, reconciliation, accounting, and reproducibility of cross-currency settlement.
         relationshipContext: Required for cross-currency allocation and normally absent when currencies are identical.
         workflowRole: Connects paymentAmount to invoiceAmount through an approved conversion rule.
-        optionalMeaning: Optional when source and target currencies are identical.
     - name: allocatedAt
       type: datetime
       required: true
@@ -84,7 +78,6 @@ entity:
         usage: Used for aging, accounting period determination, audit, and dispute investigation.
         relationshipContext: Distinct from Payment creation time and bank clearing time.
         workflowRole: Determines when the Invoice settlement projection is changed.
-        requiredMeaning: Required for settlement chronology.
     - name: status
       type: enum
       required: true
@@ -96,7 +89,6 @@ entity:
         usage: Controls Invoice settlement projections, reconciliation, and audit.
         relationshipContext: Invoice amountSettled must be derived from active allocations rather than every historical allocation record.
         workflowRole: ACTIVE affects settlement; REVERSED removes the allocation effect through a controlled correction; CANCELLED prevents activation.
-        requiredMeaning: Required for controlled settlement state.
         valueSemantics:
           DRAFT: The status of the payment allocation is draft; set it when that is what the business means for this record.
           ACTIVE: The status of the payment allocation is active; set it when that is what the business means for this record.
@@ -113,7 +105,6 @@ entity:
         usage: Supports audit, dispute resolution, reallocation, and accounting correction.
         relationshipContext: A reversal is a new historical event and does not rewrite the original allocation.
         workflowRole: Enables controlled reversal followed by a corrected allocation.
-        optionalMeaning: Optional for normal allocations.
     - name: roundingAdjustment
       type: Money
       required: false
@@ -123,7 +114,6 @@ entity:
         usage: Used in cross-currency reconciliation and accounting adjustment.
         relationshipContext: Must use an appropriate currency and remain within configured tolerance.
         workflowRole: Makes small conversion/precision differences explicit and auditable.
-        optionalMeaning: Optional when no rounding adjustment is required.
   relationships:
     - name: payment
       target: Payment

@@ -7,22 +7,22 @@ entity:
     icon: list
   identity: {key: brandId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: brandId, type: uuid, required: true, immutable: true, help: {summary: Stable brand identity., businessMeaning: Identifies the brand independently of display-name changes., usage: "PIM, catalog, commerce and reporting.", relationshipContext: Referenced by Products/Variants., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed brand code., businessMeaning: Stable business/integration identifier., usage: Catalog and integration., relationshipContext: Unique in brand master., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Brand display name., businessMeaning: Customer/supplier-facing market identity., usage: "Catalog, documents, search and reporting.", relationshipContext: Presentation can change without changing brand identity., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [ACTIVE, INACTIVE, RETIRED]
-    help: {summary: Brand lifecycle state., businessMeaning: Controls future assignment/use., usage: Master-data governance., relationshipContext: Historical product/transaction references remain valid., valueSemantics: {ACTIVE: Eligible for new assignment., INACTIVE: Temporarily unavailable for new assignment., RETIRED: Permanently unavailable for new assignment.}, requiredMeaning: Required.}
+    - {name: brandId, type: uuid, required: true, immutable: true, help: {summary: Stable brand identity., businessMeaning: Identifies the brand independently of display-name changes., usage: "PIM, catalog, commerce and reporting.", relationshipContext: Referenced by Products/Variants.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed brand code., businessMeaning: Stable business/integration identifier., usage: Catalog and integration., relationshipContext: Unique in brand master.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Brand display name., businessMeaning: Customer/supplier-facing market identity., usage: "Catalog, documents, search and reporting.", relationshipContext: Presentation can change without changing brand identity.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+      help: {summary: Brand lifecycle state., businessMeaning: Controls future assignment/use., usage: Master-data governance., relationshipContext: Historical product/transaction references remain valid., valueSemantics: {ACTIVE: Eligible for new assignment., INACTIVE: Temporarily unavailable for new assignment., RETIRED: Permanently unavailable for new assignment.}}
   relationships:
-  - {name: products, target: Product, cardinality: 0..*, ownership: reference, help: {summary: Products marketed/manufactured under brand., businessMeaning: Connects product portfolio to market identity., usage: Catalog and reporting., cardinalityMeaning: Zero or many Products., workflowRole: Brand lifecycle affects future assignments but not historical evidence.}}
-  - {name: variants, target: ProductVariant, cardinality: 0..*, ownership: reference, help: {summary: Variants explicitly associated with brand., businessMeaning: Supports variant-specific brand assignment., usage: Catalog and commerce., cardinalityMeaning: Zero or many variants., workflowRole: Variant may inherit brand from parent Product when policy allows.}}
+    - {name: products, target: Product, cardinality: 0..*, ownership: reference, help: {summary: Products marketed/manufactured under brand., businessMeaning: Connects product portfolio to market identity., usage: Catalog and reporting., cardinalityMeaning: Zero or many Products., workflowRole: Brand lifecycle affects future assignments but not historical evidence.}}
+    - {name: variants, target: ProductVariant, cardinality: 0..*, ownership: reference, help: {summary: Variants explicitly associated with brand., businessMeaning: Supports variant-specific brand assignment., usage: Catalog and commerce., cardinalityMeaning: Zero or many variants., workflowRole: Variant may inherit brand from parent Product when policy allows.}}
   invariants:
-  - {id: BRAND-001, rule: code must be unique.}
-  - {id: BRAND-002, rule: RETIRED brand must not be newly assigned without governed reinstatement or migration.}
-  - {id: BRAND-003, rule: Brand rename/status changes must preserve historical transaction and catalog evidence where point-in-time reproduction is required.}
+    - {id: BRAND-001, rule: code must be unique.}
+    - {id: BRAND-002, rule: RETIRED brand must not be newly assigned without governed reinstatement or migration.}
+    - {id: BRAND-003, rule: Brand rename/status changes must preserve historical transaction and catalog evidence where point-in-time reproduction is required.}
   lifecycle:
     title: Brand Lifecycle
     attribute: status

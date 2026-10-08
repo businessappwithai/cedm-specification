@@ -7,12 +7,12 @@ entity:
     icon: database
   identity: {key: collateralId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Collateral., businessMeaning: Identifies one governed Collateral record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Collateral., businessMeaning: Identifies one governed Collateral record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact.}}
   relationships:
-  - {name: bankLoan, target: BankLoan, cardinality: 0..1, ownership: reference, help: {summary: Loan secured by collateral., businessMeaning: Connects pledged value to credit exposure., usage: Credit risk and lending., cardinalityMeaning: Optional when securing a Facility or other exposure., workflowRole: Release/substitution requires governed lifecycle evidence.}}
+    - {name: bankLoan, target: BankLoan, cardinality: 0..1, ownership: reference, help: {summary: Loan secured by collateral., businessMeaning: Connects pledged value to credit exposure., usage: Credit risk and lending., cardinalityMeaning: Optional when securing a Facility or other exposure., workflowRole: Release/substitution requires governed lifecycle evidence.}}
   invariants:
-  - {id: COLLATERAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: COLLATERAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
     summary: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
     purpose: Provide canonical enterprise semantics for Collateral.

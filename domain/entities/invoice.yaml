@@ -17,7 +17,6 @@ entity:
         usage: Used for financial integrations, audit, payment allocation, reconciliation, reporting, and lifecycle navigation.
         relationshipContext: InvoiceId identifies the claim; InvoiceNumber is its business-facing reference; CreditNote and supplier debit/credit applications provide later financial adjustment evidence.
         workflowRole: Provides the stable identity carried through issuance, settlement, adjustment, reversal, and accounting.
-        requiredMeaning: Required for claim traceability.
     - name: invoiceNumber
       type: string
       required: true
@@ -29,7 +28,6 @@ entity:
         usage: Used in documents, statements, reconciliation, collections, payables, and integrations.
         relationshipContext: Distinct from invoiceId and source order numbers.
         workflowRole: Provides the human-recognizable reference throughout the claim lifecycle.
-        requiredMeaning: Required for operational and financial communication.
     - name: invoiceDate
       type: date
       required: true
@@ -39,7 +37,6 @@ entity:
         usage: Used for accounting periods, tax, payment-term calculation, aging, reporting, and reconciliation.
         relationshipContext: Distinct from payment, bank settlement, credit-note, debit-note, and clearing dates.
         workflowRole: Provides the temporal anchor for invoice issuance and applicable PaymentTerm calculation.
-        requiredMeaning: Required for financial chronology.
     - name: dueDate
       type: date
       required: false
@@ -49,7 +46,6 @@ entity:
         usage: Drives aging, collections, cash forecasting, and payment planning.
         relationshipContext: PaymentTerm is policy; dueDate is the invoice-specific result and must not be silently recalculated after issue.
         workflowRole: Determines when the outstanding claim becomes overdue under the applicable policy.
-        optionalMeaning: Optional while terms remain unresolved or for claim types without a due date.
     - name: invoiceType
       type: enum
       required: true
@@ -60,7 +56,6 @@ entity:
         usage: Used by accounting, tax, receivables, payables, matching, and reporting.
         relationshipContext: Must agree with Customer/Supplier and source transaction relationships. A dedicated CreditNote or SupplierDebitNote is preferred for explicit financial adjustments.
         workflowRole: Controls which party, matching, tax, and settlement processes apply.
-        requiredMeaning: Required for correct financial treatment.
         valueSemantics:
           SALES: The invoice type of the invoice is sales; set it when that is what the business means for this record.
           PURCHASE: The invoice type of the invoice is purchase; set it when that is what the business means for this record.
@@ -85,7 +80,6 @@ entity:
           OVERDUE: Claim remains outstanding after its due date.
           CANCELLED: Claim has been cancelled under authorized controls.
           VOID: Claim has been invalidated under accounting controls.
-        requiredMeaning: Required for controlled claim lifecycle.
     - name: currencyId
       type: reference
       target: Currency
@@ -97,7 +91,6 @@ entity:
         usage: Used for accounting, payment allocation, tax, reconciliation, reporting, and credit or debit adjustment.
         relationshipContext: Payment, CreditNote, SupplierCreditNote, or SupplierDebitNote may use another currency only under explicitly governed exchange-rate treatment.
         workflowRole: Provides the denomination against which invoice amounts, settlement and adjustments are evaluated.
-        requiredMeaning: Required for interpreting the claim.
     - name: subtotal
       type: Money
       required: true
@@ -107,7 +100,6 @@ entity:
         usage: Used for tax calculation, accounting, reconciliation, and document totals.
         relationshipContext: Must use invoice currency and reconcile with InvoiceLine monetary values.
         workflowRole: Feeds document-level discount, tax, and total calculations according to policy.
-        requiredMeaning: Required for claim calculation.
     - name: discountAmount
       type: Money
       required: true
@@ -118,7 +110,6 @@ entity:
         usage: Used for invoice calculation, tax determination, reporting, and reconciliation.
         relationshipContext: Must reconcile with applicable DiscountRule evidence and must not be confused with credit notes or early-payment discounts.
         workflowRole: Reduces the applicable document base before tax according to the invoice calculation policy.
-        requiredMeaning: Required as a zero-valued projection when no document discount exists.
     - name: taxableAmount
       type: Money
       required: true
@@ -128,7 +119,6 @@ entity:
         usage: Used for tax calculation, tax reporting, audit, and reconciliation.
         relationshipContext: Must reconcile with InvoiceLine taxable amounts and document-level tax determinations.
         workflowRole: Supplies the base for TaxRule application and tax calculation.
-        requiredMeaning: Required for deterministic tax calculation.
     - name: taxAmount
       type: Money
       required: true
@@ -139,7 +129,6 @@ entity:
         usage: Used for tax reporting, invoice totals, accounting, and reconciliation.
         relationshipContext: Must reconcile with transaction-level tax evidence and jurisdictional treatment.
         workflowRole: Contributes to totalAmount and downstream tax/accounting reporting.
-        requiredMeaning: Required, including zero when no tax applies.
     - name: totalAmount
       type: Money
       required: true
@@ -149,7 +138,6 @@ entity:
         usage: Used for settlement, aging, statements, reporting, and accounting.
         relationshipContext: Represents the original claim itself, not the amount already paid or subsequently adjusted.
         workflowRole: Provides the claim base against which active PaymentAllocation and authorized adjustment application evidence are evaluated.
-        requiredMeaning: Required for financial settlement.
     - name: amountSettled
       type: Money
       required: true
@@ -160,7 +148,6 @@ entity:
         usage: Used to calculate outstanding balance and derive settlement status.
         relationshipContext: Not an independent cash event; Payment and PaymentAllocation provide the underlying evidence.
         workflowRole: Changes when allocations are posted, activated, reversed, or corrected.
-        requiredMeaning: Required as a settlement projection.
     - name: amountCredited
       type: Money
       required: true
@@ -171,7 +158,6 @@ entity:
         usage: Used for customer balance, invoice settlement, statements, reconciliation and reporting.
         relationshipContext: CreditNote is a separate financial document; this projection must not rewrite original Invoice or InvoiceLine values.
         workflowRole: Changes through controlled credit-note application or reversal workflows.
-        requiredMeaning: Required as a zero-valued adjustment projection when no credits apply.
     - name: amountOutstanding
       type: Money
       required: true
@@ -182,7 +168,6 @@ entity:
         usage: Drives collections, payment allocation, aging, statements, and cash forecasting.
         relationshipContext: Normally reconciles totalAmount less active settlement and authorized adjustment applications in invoice currency.
         workflowRole: Determines whether additional allocation or adjustment application is permitted and whether PAID can be reached.
-        requiredMeaning: Required for operational settlement decisions.
   relationships:
     - name: customer
       target: Customer

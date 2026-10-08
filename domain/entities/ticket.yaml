@@ -6,10 +6,10 @@ entity:
   ui: {icon: ticket}
   identity: {key: ticketId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: ticketId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the ticket., businessMeaning: Identifies one operational service work item independently of its parent case or request., usage: "Queues, assignment, escalation, reporting and audit.", relationshipContext: Remains stable across reassignment and status changes., requiredMeaning: Required.}}
-    - {name: ticketNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing ticket reference., businessMeaning: Operational identifier used by service teams and integrations., usage: "Search, communication, escalation and reporting.", relationshipContext: Distinct from case and request numbers., requiredMeaning: Required.}}
-    - {name: summary, type: string, required: true, maxLength: 500, help: {summary: Concise statement of the work to perform., businessMeaning: Defines the operational responsibility represented by the ticket., usage: "Queues, handoffs and reporting.", relationshipContext: Parent case or request provides broader business context., requiredMeaning: Required.}}
-    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: Operational urgency of ticket work., businessMeaning: Guides queue ordering and escalation., usage: "Assignment, escalation and reporting.", relationshipContext: May inherit from but need not equal parent case priority., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated urgency., URGENT: Immediate attention.}, requiredMeaning: Required.}}
+    - {name: ticketId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the ticket., businessMeaning: Identifies one operational service work item independently of its parent case or request., usage: "Queues, assignment, escalation, reporting and audit.", relationshipContext: Remains stable across reassignment and status changes.}}
+    - {name: ticketNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing ticket reference., businessMeaning: Operational identifier used by service teams and integrations., usage: "Search, communication, escalation and reporting.", relationshipContext: Distinct from case and request numbers.}}
+    - {name: summary, type: string, required: true, maxLength: 500, help: {summary: Concise statement of the work to perform., businessMeaning: Defines the operational responsibility represented by the ticket., usage: "Queues, handoffs and reporting.", relationshipContext: Parent case or request provides broader business context.}}
+    - {name: priority, type: enum, required: true, default: NORMAL, values: [LOW, NORMAL, HIGH, URGENT], help: {summary: Operational urgency of ticket work., businessMeaning: Guides queue ordering and escalation., usage: "Assignment, escalation and reporting.", relationshipContext: May inherit from but need not equal parent case priority., valueSemantics: {LOW: Low urgency., NORMAL: Standard urgency., HIGH: Elevated urgency., URGENT: Immediate attention.}}}
     - name: status
       type: enum
       required: true
@@ -28,7 +28,6 @@ entity:
           RESOLVED: Work outcome is recorded and awaits closure.
           CLOSED: Ticket is final historical evidence.
           CANCELLED: Ticket was cancelled through governed workflow.
-        requiredMeaning: Required.
   relationships:
     - {name: serviceCase, target: ServiceCase, cardinality: "0..1", ownership: reference, help: {summary: Service case coordinated by this ticket., businessMeaning: Places the work item within a durable customer or service issue., usage: "Case coordination and reporting.", cardinalityMeaning: Optional when ticket originates directly from a request., workflowRole: Ticket outcome contributes to case resolution.}}
     - {name: serviceRequest, target: ServiceRequest, cardinality: "0..1", ownership: reference, help: {summary: Service request directly giving rise to this ticket., businessMeaning: Preserves intake-to-work traceability., usage: "Service execution and audit.", cardinalityMeaning: Optional when case alone provides context., workflowRole: At least one of ServiceCase or ServiceRequest must provide governing context.}}

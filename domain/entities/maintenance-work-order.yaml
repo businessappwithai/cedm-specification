@@ -15,7 +15,6 @@ entity:
         summary: The immutable system identity of the maintenance work order.
         usage: Used for maintenance history, integrations, audit, reporting, scheduling, and traceability across the asset lifecycle.
         relationshipContext: Identifies the work order independently of its business number, Asset, MaintenancePlan, assignee, or RepairEstimate.
-        requiredMeaning: Required because every maintenance intervention must be uniquely traceable.
     - name: workOrderNumber
       type: string
       required: true
@@ -25,7 +24,6 @@ entity:
         summary: The human-facing reference used by maintenance personnel to identify the work order.
         usage: Used on maintenance requests, work instructions, technician communications, inspection records, repair documents, and reports.
         relationshipContext: It is a business reference rather than the technical identity and remains the primary operational reference for people.
-        requiredMeaning: Required so maintenance teams can unambiguously refer to the work instruction.
     - name: workType
       type: enum
       required: true
@@ -40,7 +38,6 @@ entity:
           CORRECTIVE: Work performed to correct a known condition or restore an asset to its required operating state.
           REPAIR: Work specifically focused on restoring damaged, defective, or failed components or equipment.
           EMERGENCY: Urgent intervention required because an immediate failure, safety concern, operational disruption, or critical condition requires action.
-        requiredMeaning: Required because maintenance planning and reporting depend on the reason for the work.
     - name: status
       type: enum
       required: true
@@ -58,7 +55,6 @@ entity:
           ON_HOLD: Work is temporarily stopped because of parts, access, safety, approval, diagnosis, scheduling, or another blocking condition.
           COMPLETED: The defined work has been performed and accepted according to the applicable completion criteria.
           CANCELLED: The work order has been intentionally terminated without completing the planned work.
-        requiredMeaning: Required because maintenance processes must know whether work is pending, active, blocked, completed, or terminated.
     - name: priority
       type: enum
       required: true
@@ -73,7 +69,6 @@ entity:
           NORMAL: Standard maintenance urgency under normal operational planning.
           HIGH: Requires accelerated scheduling because delay may materially affect operations, reliability, or service.
           CRITICAL: Requires immediate or near-immediate attention because delay may create severe safety, operational, financial, or regulatory consequences.
-        requiredMeaning: Required because maintenance queues need a defined prioritization basis.
     - name: requestedAt
       type: datetime
       required: true
@@ -81,7 +76,6 @@ entity:
         summary: The date and time when the maintenance need or work request was formally raised.
         usage: Used for response-time measurement, backlog analysis, SLA monitoring, maintenance history, and audit.
         relationshipContext: It marks demand for maintenance, not necessarily the time work was scheduled, assigned, or started.
-        requiredMeaning: Required to measure the elapsed time from maintenance demand to execution.
     - name: scheduledAt
       type: datetime
       required: false
@@ -89,7 +83,6 @@ entity:
         summary: The planned date and time at which maintenance execution is expected to begin.
         usage: Used for technician scheduling, asset availability planning, shutdown coordination, parts readiness, and maintenance calendars.
         relationshipContext: It represents a plan and may differ from the actual execution start recorded elsewhere or inferred from status history.
-        optionalMeaning: Optional while the work remains unscheduled.
     - name: completedAt
       type: datetime
       required: false
@@ -97,7 +90,6 @@ entity:
         summary: The date and time at which the maintenance work order was formally completed and accepted.
         usage: Used for maintenance history, downtime analysis, SLA measurement, compliance reporting, asset availability, and cost closure.
         relationshipContext: Completion means the work-order scope has been accepted; it does not necessarily mean the Asset has returned to service if a separate commissioning or release process exists.
-        optionalMeaning: Optional until the work is completed.
     - name: description
       type: string
       required: false
@@ -106,7 +98,6 @@ entity:
         summary: The human-readable statement of the maintenance problem, requested work, observed condition, or intended scope.
         usage: Provides context to planners, technicians, inspectors, approvers, and downstream reports when structured fields alone cannot capture the maintenance requirement.
         relationshipContext: It complements structured workType, Asset, RepairEstimate, and MaintenancePlan information and should not be used as the sole source for critical machine-readable conditions.
-        optionalMeaning: Optional when the work scope is fully defined through structured request or task data.
   relationships:
     - name: asset
       target: Asset

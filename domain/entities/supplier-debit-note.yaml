@@ -7,104 +7,100 @@ entity:
     icon: factory
   identity: {key: supplierDebitNoteId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: supplierDebitNoteId
-    type: uuid
-    required: true
-    immutable: true
-    help: {summary: Immutable identity of the supplier debit note., businessMeaning: Identifies one financial debit adjustment independently of its supplier claim invoice lines applications or accounting evidence., usage: Used for accounts payable recovery supplier communication reconciliation audit and integration., relationshipContext: Distinct from SupplierClaim SupplierClaimResolution Invoice and SupplierCreditNote identities., workflowRole: Stable identity across drafting approval posting application and reversal., requiredMeaning: Required.}
-  - name: debitNoteNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help: {summary: Human-facing supplier debit reference., businessMeaning: Identifies the debit adjustment in supplier correspondence and financial operations., usage: Used for reconciliation supplier statements audit and integrations., relationshipContext: Distinct from supplier claim purchase order invoice and return numbers., workflowRole: Provides operational reference throughout the debit lifecycle., requiredMeaning: Required.}
-  - name: debitNoteDate
-    type: date
-    required: true
-    help: {summary: Effective date of the supplier debit adjustment., businessMeaning: Establishes financial chronology and accounting or tax period., usage: Period control reconciliation reporting and supplier communication., relationshipContext: Distinct from claim resolution invoice return and payment dates., workflowRole: Anchors recognition of the adjustment., requiredMeaning: Required.}
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values:
-    - DRAFT
-    - APPROVED
-    - POSTED
-    - PARTIALLY_APPLIED
-    - FULLY_APPLIED
-    - DISPUTED
-    - CANCELLED
-    - REVERSED
-    help:
-      summary: Lifecycle state of the supplier debit adjustment.
-      businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal.
-      usage: Controls posting payable reconciliation and supplier dispute workflows.
-      relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence.
-      workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling.
-      requiredMeaning: Required.
-      valueSemantics:
-        DRAFT: The status of the supplier debit note is draft; set it when that is what the business means for this record.
-        APPROVED: The status of the supplier debit note is approved; set it when that is what the business means for this record.
-        POSTED: The status of the supplier debit note is posted; set it when that is what the business means for this record.
-        PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business
-          means for this record.
-        FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for
-          this record.
-        DISPUTED: The status of the supplier debit note is disputed; set it when that is what the business means for this record.
-        CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this
-          record.
-        REVERSED: The status of the supplier debit note is reversed; set it when that is what the business means for this record.
-  - name: currencyId
-    type: reference
-    target: Currency
-    required: true
-    immutableAfterPosting: true
-    help: {summary: Currency in which debit amounts are denominated., businessMeaning: Defines the monetary denomination of the adjustment., usage: Accounting reconciliation supplier settlement and reporting., relationshipContext: Cross-currency application requires explicit ExchangeRate evidence., workflowRole: Qualifies all monetary values., requiredMeaning: Required.}
-  - name: subtotal
-    type: Money
-    required: true
-    help: {summary: Pre-tax value of the supplier debit adjustment., businessMeaning: Aggregate financial increase before applicable tax., usage: Calculation tax and reconciliation., workflowRole: Feeds totalAmount., requiredMeaning: Required.}
-  - name: taxAmount
-    type: Money
-    required: true
-    default: {amount: 0}
-    help: {summary: Tax component associated with the debit adjustment., businessMeaning: Represents applicable tax added to the adjustment., usage: Tax reporting accounting and reconciliation., workflowRole: Contributes to totalAmount., requiredMeaning: Required including zero.}
-  - name: totalAmount
-    type: Money
-    required: true
-    help: {summary: Total supplier debit adjustment., businessMeaning: Financial amount by which supplier-related recoverable exposure is increased., usage: Accounts payable supplier settlement accounting and reconciliation., relationshipContext: "It is an adjustment, not a replacement for the original supplier Invoice.", workflowRole: Determines the maximum amount available for controlled application., requiredMeaning: Required.}
-  - name: amountApplied
-    type: Money
-    required: true
-    default: {amount: 0}
-    help: {summary: Portion of the supplier debit recognized against eligible supplier payable claims., businessMeaning: Tracks how much posted debit has been consumed by active SupplierDebitNoteApplication records., usage: Reconciliation supplier statements and reporting., relationshipContext: SupplierDebitNoteApplication is the explicit settlement evidence; Payment remains separate cash movement., workflowRole: Changes through controlled application or reversal events., requiredMeaning: Required.}
-  - name: amountRemaining
-    type: Money
-    required: true
-    default: {amount: 0}
-    help: {summary: Unapplied portion of the posted supplier debit., businessMeaning: Represents debit value still available for payable application or governed settlement handling., usage: Reconciliation supplier statements and resolution tracking., workflowRole: Determines whether the debit is fully applied., requiredMeaning: Required.}
+    - name: supplierDebitNoteId
+      type: uuid
+      required: true
+      immutable: true
+      help: {summary: Immutable identity of the supplier debit note., businessMeaning: Identifies one financial debit adjustment independently of its supplier claim invoice lines applications or accounting evidence., usage: Used for accounts payable recovery supplier communication reconciliation audit and integration., relationshipContext: Distinct from SupplierClaim SupplierClaimResolution Invoice and SupplierCreditNote identities., workflowRole: Stable identity across drafting approval posting application and reversal.}
+    - name: debitNoteNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help: {summary: Human-facing supplier debit reference., businessMeaning: Identifies the debit adjustment in supplier correspondence and financial operations., usage: Used for reconciliation supplier statements audit and integrations., relationshipContext: Distinct from supplier claim purchase order invoice and return numbers., workflowRole: Provides operational reference throughout the debit lifecycle.}
+    - name: debitNoteDate
+      type: date
+      required: true
+      help: {summary: Effective date of the supplier debit adjustment., businessMeaning: Establishes financial chronology and accounting or tax period., usage: Period control reconciliation reporting and supplier communication., relationshipContext: Distinct from claim resolution invoice return and payment dates., workflowRole: Anchors recognition of the adjustment.}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - APPROVED
+        - POSTED
+        - PARTIALLY_APPLIED
+        - FULLY_APPLIED
+        - DISPUTED
+        - CANCELLED
+        - REVERSED
+      help:
+        summary: Lifecycle state of the supplier debit adjustment.
+        businessMeaning: Separates preparation authorization accounting recognition application dispute and reversal.
+        usage: Controls posting payable reconciliation and supplier dispute workflows.
+        relationshipContext: Status does not alter original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution evidence.
+        workflowRole: POSTED creates financial evidence; application and dispute states track subsequent handling.
+        valueSemantics:
+          DRAFT: The status of the supplier debit note is draft; set it when that is what the business means for this record.
+          APPROVED: The status of the supplier debit note is approved; set it when that is what the business means for this record.
+          POSTED: The status of the supplier debit note is posted; set it when that is what the business means for this record.
+          PARTIALLY_APPLIED: The status of the supplier debit note is partially applied; set it when that is what the business means for this record.
+          FULLY_APPLIED: The status of the supplier debit note is fully applied; set it when that is what the business means for this record.
+          DISPUTED: The status of the supplier debit note is disputed; set it when that is what the business means for this record.
+          CANCELLED: The status of the supplier debit note is cancelled; set it when that is what the business means for this record.
+          REVERSED: The status of the supplier debit note is reversed; set it when that is what the business means for this record.
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: true
+      immutableAfterPosting: true
+      help: {summary: Currency in which debit amounts are denominated., businessMeaning: Defines the monetary denomination of the adjustment., usage: Accounting reconciliation supplier settlement and reporting., relationshipContext: Cross-currency application requires explicit ExchangeRate evidence., workflowRole: Qualifies all monetary values.}
+    - name: subtotal
+      type: Money
+      required: true
+      help: {summary: Pre-tax value of the supplier debit adjustment., businessMeaning: Aggregate financial increase before applicable tax., usage: Calculation tax and reconciliation., workflowRole: Feeds totalAmount.}
+    - name: taxAmount
+      type: Money
+      required: true
+      default: {amount: 0}
+      help: {summary: Tax component associated with the debit adjustment., businessMeaning: Represents applicable tax added to the adjustment., usage: Tax reporting accounting and reconciliation., workflowRole: Contributes to totalAmount.}
+    - name: totalAmount
+      type: Money
+      required: true
+      help: {summary: Total supplier debit adjustment., businessMeaning: Financial amount by which supplier-related recoverable exposure is increased., usage: Accounts payable supplier settlement accounting and reconciliation., relationshipContext: "It is an adjustment, not a replacement for the original supplier Invoice.", workflowRole: Determines the maximum amount available for controlled application.}
+    - name: amountApplied
+      type: Money
+      required: true
+      default: {amount: 0}
+      help: {summary: Portion of the supplier debit recognized against eligible supplier payable claims., businessMeaning: Tracks how much posted debit has been consumed by active SupplierDebitNoteApplication records., usage: Reconciliation supplier statements and reporting., relationshipContext: SupplierDebitNoteApplication is the explicit settlement evidence; Payment remains separate cash movement., workflowRole: Changes through controlled application or reversal events.}
+    - name: amountRemaining
+      type: Money
+      required: true
+      default: {amount: 0}
+      help: {summary: Unapplied portion of the posted supplier debit., businessMeaning: Represents debit value still available for payable application or governed settlement handling., usage: Reconciliation supplier statements and resolution tracking., workflowRole: Determines whether the debit is fully applied.}
   relationships:
-  - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier responsible for the financial adjustment., businessMeaning: Identifies the external party whose payable exposure is adjusted., usage: Payables supplier communication and reconciliation., workflowRole: Establishes party context.}}
-  - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Supplier claim that provides the commercial or quality case for the debit., businessMeaning: Connects financial adjustment to the case that established the recovery entitlement., usage: Traceability approval and dispute management., workflowRole: Provides supporting evidence without replacing the debit document.}}
-  - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution that approved this debit remedy., businessMeaning: Connects the posted financial adjustment to the controlled decision that authorized the recovery., usage: Governance approval audit and claim closure., workflowRole: Supplies the execution mandate for DEBIT_ADJUSTMENT or another authorized financial remedy.}}
-  - {name: invoices, target: Invoice, cardinality: 0..*, ownership: reference, help: {summary: Supplier invoices whose payable exposure is affected by the debit., businessMeaning: Identifies original financial claims without mutating their historical values., usage: Accounts payable reconciliation and audit., workflowRole: Supplies eligible source claims.}}
-  - {name: lines, target: SupplierDebitNoteLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed components of the supplier debit., businessMeaning: Explains quantities prices tax and reasons contributing to the adjustment., usage: Calculation supplier dispute audit and reconciliation., workflowRole: Supplies authoritative detail for header totals.}}
-  - {name: applications, target: SupplierDebitNoteApplication, cardinality: 0..*, ownership: reference, help: {summary: Explicit applications of this posted supplier debit against eligible supplier invoices., businessMeaning: Records how the debit is consumed against payable claims without changing original invoice history., usage: Accounts payable reconciliation supplier statements and audit., workflowRole: Active applications determine amountApplied and amountRemaining.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries recognizing the supplier debit., businessMeaning: Separates accounting recognition from the adjustment document., usage: General ledger AP tax and audit., workflowRole: Posted debit requires balanced accounting treatment.}}
+    - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier responsible for the financial adjustment., businessMeaning: Identifies the external party whose payable exposure is adjusted., usage: Payables supplier communication and reconciliation., workflowRole: Establishes party context.}}
+    - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Supplier claim that provides the commercial or quality case for the debit., businessMeaning: Connects financial adjustment to the case that established the recovery entitlement., usage: Traceability approval and dispute management., workflowRole: Provides supporting evidence without replacing the debit document.}}
+    - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution that approved this debit remedy., businessMeaning: Connects the posted financial adjustment to the controlled decision that authorized the recovery., usage: Governance approval audit and claim closure., workflowRole: Supplies the execution mandate for DEBIT_ADJUSTMENT or another authorized financial remedy.}}
+    - {name: invoices, target: Invoice, cardinality: 0..*, ownership: reference, help: {summary: Supplier invoices whose payable exposure is affected by the debit., businessMeaning: Identifies original financial claims without mutating their historical values., usage: Accounts payable reconciliation and audit., workflowRole: Supplies eligible source claims.}}
+    - {name: lines, target: SupplierDebitNoteLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed components of the supplier debit., businessMeaning: Explains quantities prices tax and reasons contributing to the adjustment., usage: Calculation supplier dispute audit and reconciliation., workflowRole: Supplies authoritative detail for header totals.}}
+    - {name: applications, target: SupplierDebitNoteApplication, cardinality: 0..*, ownership: reference, help: {summary: Explicit applications of this posted supplier debit against eligible supplier invoices., businessMeaning: Records how the debit is consumed against payable claims without changing original invoice history., usage: Accounts payable reconciliation supplier statements and audit., workflowRole: Active applications determine amountApplied and amountRemaining.}}
+    - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries recognizing the supplier debit., businessMeaning: Separates accounting recognition from the adjustment document., usage: General ledger AP tax and audit., workflowRole: Posted debit requires balanced accounting treatment.}}
   invariants:
-  - {id: SUPPLIER-DEBIT-001, rule: POSTED supplier debit must contain at least one line.}
-  - {id: SUPPLIER-DEBIT-002, rule: totalAmount must reconcile with line values tax and rounding evidence.}
-  - {id: SUPPLIER-DEBIT-003, rule: amountApplied must not exceed totalAmount under normal application policy.}
-  - {id: SUPPLIER-DEBIT-004, rule: amountRemaining must equal totalAmount less active SupplierDebitNoteApplication amounts under configured rounding policy.}
-  - {id: SUPPLIER-DEBIT-005, rule: A claim-originated debit must reference sufficient SupplierClaim evidence and the approved recovery entitlement represented by SupplierClaimResolution.}
-  - {id: SUPPLIER-DEBIT-006, rule: Original Invoice and InvoiceLine values remain immutable; debit adjustments must be represented by explicit financial evidence.}
-  - {id: SUPPLIER-DEBIT-007, rule: POSTED supplier debits are immutable except through explicit reversal or compensating adjustment workflows.}
-  - {id: SUPPLIER-DEBIT-008, rule: Posting must be idempotent and must not duplicate accounting recognition on retry.}
-  - {id: SUPPLIER-DEBIT-009, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize a debit adjustment and the debit amount must not exceed the approved recovery amount."}
-  - {id: SUPPLIER-DEBIT-010, rule: Active SupplierDebitNoteApplication records must reconcile to amountApplied and must not collectively exceed totalAmount.}
-  - {id: SUPPLIER-DEBIT-NOTE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
-  - {id: SUPPLIER-DEBIT-NOTE-EXE-002, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
-  - {id: SUPPLIER-DEBIT-NOTE-EXE-003, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+    - {id: SUPPLIER-DEBIT-001, rule: POSTED supplier debit must contain at least one line.}
+    - {id: SUPPLIER-DEBIT-002, rule: totalAmount must reconcile with line values tax and rounding evidence.}
+    - {id: SUPPLIER-DEBIT-003, rule: amountApplied must not exceed totalAmount under normal application policy.}
+    - {id: SUPPLIER-DEBIT-004, rule: amountRemaining must equal totalAmount less active SupplierDebitNoteApplication amounts under configured rounding policy.}
+    - {id: SUPPLIER-DEBIT-005, rule: A claim-originated debit must reference sufficient SupplierClaim evidence and the approved recovery entitlement represented by SupplierClaimResolution.}
+    - {id: SUPPLIER-DEBIT-006, rule: Original Invoice and InvoiceLine values remain immutable; debit adjustments must be represented by explicit financial evidence.}
+    - {id: SUPPLIER-DEBIT-007, rule: POSTED supplier debits are immutable except through explicit reversal or compensating adjustment workflows.}
+    - {id: SUPPLIER-DEBIT-008, rule: Posting must be idempotent and must not duplicate accounting recognition on retry.}
+    - {id: SUPPLIER-DEBIT-009, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize a debit adjustment and the debit amount must not exceed the approved recovery amount."}
+    - {id: SUPPLIER-DEBIT-010, rule: Active SupplierDebitNoteApplication records must reconcile to amountApplied and must not collectively exceed totalAmount.}
+    - {id: SUPPLIER-DEBIT-NOTE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
+    - {id: SUPPLIER-DEBIT-NOTE-EXE-002, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+    - {id: SUPPLIER-DEBIT-NOTE-EXE-003, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   lifecycle:
     title: Supplier Debit Note Lifecycle
     attribute: status

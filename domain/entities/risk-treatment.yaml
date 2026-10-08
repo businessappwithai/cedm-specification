@@ -11,61 +11,58 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: riskTreatmentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the RiskTreatment record.
-      businessMeaning: Identifies one governed RiskTreatment independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing Risk context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
-  - name: riskTreatmentCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 120
-    help:
-      summary: Human-readable business reference for the RiskTreatment.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help:
-      summary: Lifecycle state of the RiskTreatment.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
-      valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+    - name: riskTreatmentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the RiskTreatment record.
+        businessMeaning: Identifies one governed RiskTreatment independently of related records and later lifecycle changes.
+        usage: Referencing, workflow execution, reporting, audit, and integration.
+        relationshipContext: Connects this record to its governing Risk context and downstream evidence.
+    - name: riskTreatmentCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 120
+      help:
+        summary: Human-readable business reference for the RiskTreatment.
+        businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
+        usage: Creation, review, search, workflow, reporting, and audit.
+        relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Lifecycle state of the RiskTreatment.
+        businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
+        usage: Workflow gating, governance, reporting, and audit.
+        relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
+        valueSemantics:
+          DRAFT: Record is being prepared and is not yet normally effective.
+          ACTIVE: Record is effective for its governed business purpose.
+          COMPLETED: Governed work or assessment is complete and retained as historical evidence.
+          CANCELLED: Record was cancelled through controlled workflow and remains auditable.
   relationships:
-  - name: context
-    target: Risk
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Governing Risk associated with this RiskTreatment.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every RiskTreatment belongs to exactly one governing Risk in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+    - name: context
+      target: Risk
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Governing Risk associated with this RiskTreatment.
+        businessMeaning: Supplies the business context needed to interpret and validate the record.
+        usage: Workflow navigation, validation, traceability, reporting, and audit.
+        cardinalityMeaning: Every RiskTreatment belongs to exactly one governing Risk in this baseline model.
+        context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
   invariants:
-  - id: RISK-TREATMENT-001
-    rule: The governing Risk relationship is required and must reference a valid record.
-  - id: RISK-TREATMENT-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: RISK-TREATMENT-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - id: RISK-TREATMENT-001
+      rule: The governing Risk relationship is required and must reference a valid record.
+    - id: RISK-TREATMENT-002
+      rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
+    - id: RISK-TREATMENT-003
+      rule: Creation and lifecycle transitions must be idempotent and auditable.
   lifecycle:
     title: Risk Treatment Lifecycle
     attribute: status

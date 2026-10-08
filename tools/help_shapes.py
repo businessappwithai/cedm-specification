@@ -11,8 +11,12 @@ true about one concept is not also true of forty others.
     python tools/help_shapes.py --write-legacy   # (re)build tools/help-legacy-shapes.txt
 
 `tools/help-legacy-shapes.txt` lists the shapes the earlier template generators
-stamped. A text matching one is filler however few times it occurs, which is what
-lets `--check` run on a single new entity.
+stamped, found by this very repetition. Filler *is* a text matching one of them,
+however few times it occurs — which is what lets `--check` run on a single new
+entity — and the list is frozen: regenerating it from a library that has since
+been rewritten would find nothing, and one that mixes both would turn two
+entities' honest similarity into a "template". `--repeats` reports what repeats
+now, as a prompt to vary wording, not as a gate.
 """
 from __future__ import annotations
 
@@ -105,12 +109,17 @@ def scan():
 def filler_rows(seen, rows):
     legacy = legacy_shapes()
     for where, key, s, value in rows:
-        if s in legacy or len(seen[(key, s)]) >= THRESHOLD:
+        if s in legacy:
             yield where, key, value
 
 
 def main(argv: list[str]) -> int:
     seen, rows = scan()
+    if "--repeats" in argv:
+        rep = sorted(((len(e), k, sh) for (k, sh), e in seen.items() if len(e) >= 5 and (k, sh)), reverse=True)
+        for n, k, sh in rep[:40]:
+            print(f"{n:4d} {k}: {sh[:110]}")
+        return 0
     if "--write-legacy" in argv:
         shapes = sorted({s for (key, s), ents in seen.items() if len(ents) >= THRESHOLD})
         LEGACY.write_text("// Shapes the template generators stamped. Regenerate with --write-legacy only\n"

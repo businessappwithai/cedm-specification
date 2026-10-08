@@ -16,7 +16,6 @@ entity:
         usage: Referenced by Product, transaction lines, inventory, and conversion rules.
         relationshipContext: Identifies the measurement definition rather than a quantity value.
         workflowRole: Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted.
-        requiredMeaning: Required for unambiguous measurement semantics.
     - name: code
       type: string
       required: true
@@ -27,7 +26,6 @@ entity:
         usage: Used in forms, integrations, documents, validation, and quantity display.
         relationshipContext: Code identifies the unit definition; it does not represent a conversion or quantity itself.
         workflowRole: Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting.
-        requiredMeaning: Required for operational interoperability.
     - name: name
       type: string
       required: true
@@ -37,7 +35,6 @@ entity:
         usage: Used in user interfaces, reports, documents, catalogs, and search.
         relationshipContext: Describes the unit definition identified by code and unitOfMeasureId.
         workflowRole: Provides understandable measurement context to business users.
-        requiredMeaning: Required for clear business interpretation.
     - name: symbol
       type: string
       required: false
@@ -47,7 +44,6 @@ entity:
         usage: Used for compact display in documents, labels, reports, and interfaces.
         relationshipContext: Symbol is presentation metadata and does not replace the canonical unit code.
         workflowRole: Improves human-readable representation of quantities.
-        optionalMeaning: Optional when the unit has no standard symbol or display policy does not require one.
     - name: category
       type: enum
       required: true
@@ -57,7 +53,6 @@ entity:
         usage: Prevents invalid conversions and supports dimensional validation.
         relationshipContext: Conversion is valid only between compatible dimensions under the applicable conversion model.
         workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
-        requiredMeaning: Required to establish dimensional compatibility.
         valueSemantics:
           QUANTITY: The category of the unit of measure is quantity; set it when that is what the business means for this record.
           LENGTH: The category of the unit of measure is length; set it when that is what the business means for this record.
@@ -79,7 +74,6 @@ entity:
         usage: Used for quantity conversion when no context-specific conversion rule overrides the default.
         relationshipContext: Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation.
         workflowRole: Supplies the conversion used by new and eligible future quantity transactions after dependency validation.
-        optionalMeaning: Optional for base units or units whose conversion requires a dedicated rule.
     - name: baseUnitId
       type: reference
       target: UnitOfMeasure
@@ -89,7 +83,6 @@ entity:
         usage: Supports standardized quantity storage and conversion.
         relationshipContext: A derived unit belongs to the same dimensional category as its base unit.
         workflowRole: Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities.
-        optionalMeaning: Optional for a base unit itself.
     - name: status
       type: enum
       required: true
@@ -100,7 +93,6 @@ entity:
         usage: Used by master-data validation and transaction entry.
         relationshipContext: Retiring a unit must not invalidate historical quantities already recorded with that unit.
         workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
-        requiredMeaning: Required for transaction eligibility.
         valueSemantics:
           ACTIVE: The status of the unit of measure is active; set it when that is what the business means for this record.
           INACTIVE: The status of the unit of measure is inactive; set it when that is what the business means for this record.

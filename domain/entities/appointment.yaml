@@ -6,31 +6,30 @@ entity:
   ui: {icon: calendar-clock}
   identity: {key: appointmentId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: appointmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the appointment., businessMeaning: Identifies one scheduled healthcare commitment independently of encounter execution., usage: "Scheduling, reminders, patient service, reporting and audit.", relationshipContext: HealthcareEncounter may later record actual care but does not replace Appointment identity., requiredMeaning: Required.}}
-    - {name: appointmentNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing appointment reference., businessMeaning: Operational identifier for scheduling and communication., usage: "Search, reminders, check-in and integration.", relationshipContext: Distinct from patient and encounter identifiers., requiredMeaning: Required.}}
-    - {name: appointmentType, type: string, required: true, maxLength: 120, help: {summary: Business classification of the scheduled healthcare service., businessMeaning: "Supports routing, duration, resource and preparation policies.", usage: "Scheduling, capacity planning and reporting.", relationshipContext: Does not itself prove what service was actually delivered., requiredMeaning: Required.}}
-    - {name: scheduledStartAt, type: datetime, required: true, help: {summary: Planned start timestamp., businessMeaning: Establishes when the scheduled service is intended to begin., usage: "Scheduling, reminders, capacity and lateness measurement.", relationshipContext: Must precede scheduledEndAt when an end is supplied., requiredMeaning: Required.}}
-    - {name: scheduledEndAt, type: datetime, required: false, help: {summary: Planned end timestamp., businessMeaning: Supports resource-capacity and duration planning., usage: "Scheduling and capacity management.", relationshipContext: Must follow scheduledStartAt., optionalMeaning: Optional when duration is not fixed at scheduling time.}}
+    - {name: appointmentId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the booking itself, separate from the encounter that records the care when the patient is seen.', businessMeaning: Identifies one scheduled healthcare commitment independently of encounter execution., usage: "Scheduling, reminders, patient service, reporting and audit.", relationshipContext: HealthcareEncounter may later record actual care but does not replace Appointment identity.}}
+    - {name: appointmentNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The scheduling reference given to the appointment, used in reminders and check-in.', businessMeaning: Operational identifier for scheduling and communication., usage: "Search, reminders, check-in and integration.", relationshipContext: Distinct from patient and encounter identifiers.}}
+    - {name: appointmentType, type: string, required: true, maxLength: 120, help: {summary: Business classification of the scheduled healthcare service., businessMeaning: "Supports routing, duration, resource and preparation policies.", usage: "Scheduling, capacity planning and reporting.", relationshipContext: Does not itself prove what service was actually delivered.}}
+    - {name: scheduledStartAt, type: datetime, required: true, help: {summary: Planned start timestamp., businessMeaning: Establishes when the scheduled service is intended to begin., usage: "Scheduling, reminders, capacity and lateness measurement.", relationshipContext: Must precede scheduledEndAt when an end is supplied.}}
+    - {name: scheduledEndAt, type: datetime, required: false, help: {summary: Planned end timestamp., businessMeaning: Supports resource-capacity and duration planning., usage: "Scheduling and capacity management.", relationshipContext: Must follow scheduledStartAt.}}
     - name: status
       type: enum
       required: true
       default: SCHEDULED
       values: [SCHEDULED, CONFIRMED, CHECKED_IN, COMPLETED, CANCELLED, NO_SHOW]
       help:
-        summary: Lifecycle state of the scheduled commitment.
-        businessMeaning: Distinguishes planned, confirmed, arrived and final scheduling outcomes.
-        usage: Scheduling, reminders, check-in, operations and reporting.
-        relationshipContext: COMPLETED normally reconciles to encounter evidence when care occurred.
         valueSemantics:
           SCHEDULED: Appointment is booked but not yet confirmed.
           CONFIRMED: Patient or provider confirmation has been recorded.
           CHECKED_IN: Patient arrival or equivalent readiness has been recorded.
           COMPLETED: Scheduled service concluded and any required encounter evidence is reconciled.
-          CANCELLED: Appointment was cancelled through governed workflow.
+          CANCELLED: The appointment was cancelled by the patient or provider before it took place.
           NO_SHOW: Patient did not attend according to policy.
-        requiredMeaning: Required.
+        summary: Lifecycle state of the scheduled commitment.
+        businessMeaning: Distinguishes planned, confirmed, arrived and final scheduling outcomes.
+        usage: Scheduling, reminders, check-in, operations and reporting.
+        relationshipContext: COMPLETED normally reconciles to encounter evidence when care occurred.
   relationships:
-    - {name: patient, target: HealthcarePatient, cardinality: "1", ownership: reference, help: {summary: Patient for whom the appointment is scheduled., businessMeaning: Establishes the recipient of intended care., usage: "Scheduling, reminders and patient history.", cardinalityMeaning: Exactly one HealthcarePatient., workflowRole: Patient status and scheduling policy constrain new appointments.}}
+    - {name: patient, target: HealthcarePatient, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one patient; an appointment cannot exist without the person it is for., summary: Patient for whom the appointment is scheduled., businessMeaning: Establishes the recipient of intended care., usage: "Scheduling, reminders and patient history.", workflowRole: Patient status and scheduling policy constrain new appointments.}}
     - {name: practitioner, target: Practitioner, cardinality: "0..1", ownership: reference, help: {summary: Practitioner scheduled to deliver or supervise care., businessMeaning: Supplies professional resource commitment., usage: "Scheduling, capacity and reporting.", cardinalityMeaning: Optional before assignment or for resource-pool appointments., workflowRole: Practitioner must be eligible when assigned.}}
     - {name: provider, target: HealthcareProvider, cardinality: "0..1", ownership: reference, help: {summary: Healthcare provider organization or service context for the appointment., businessMeaning: Supplies organizational delivery context., usage: "Scheduling, reporting and operational routing.", cardinalityMeaning: Optional where practitioner or location fully determines context., workflowRole: Provider eligibility must agree with assigned practitioner where applicable.}}
     - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Planned physical or virtual service location., businessMeaning: Defines where scheduled care is expected to occur., usage: "Scheduling, navigation and resource planning.", cardinalityMeaning: Optional for unsited or virtual appointments represented elsewhere., workflowRole: Location availability must be validated under scheduling policy.}}

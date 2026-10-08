@@ -7,13 +7,13 @@ entity:
     icon: database
   identity: {key: contactPointId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContactPoint., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this ContactPoint is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for ContactPoint., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of ContactPoint., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContactPoint., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this ContactPoint is referenced.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for ContactPoint., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of ContactPoint., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity.}}
   relationships:
-  - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Governing Party context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Party., workflowRole: Referenced workflows must remain compatible with governing context.}}
+    - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Governing Party context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Party., workflowRole: Referenced workflows must remain compatible with governing context.}}
   invariants:
-  - {id: CONTACT-POINT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: CONTACT-POINT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
     summary: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
     purpose: Provide a canonical enterprise representation with stable identity and governed semantics.

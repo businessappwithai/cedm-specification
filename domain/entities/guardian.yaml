@@ -6,8 +6,8 @@ entity:
   ui: {icon: users-round}
   identity: {key: guardianId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: guardianId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the guardian role., businessMeaning: Identifies one governed education guardian relationship independently of the underlying Party., usage: "Student administration, communication, consent, billing and audit.", relationshipContext: Party supplies common identity; Guardian supplies education-specific responsibility., requiredMeaning: Required.}}
-    - {name: guardianCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing guardian reference., businessMeaning: Operational identifier used in education administration., usage: "Search, communication and integration.", relationshipContext: Distinct from Party identifiers., requiredMeaning: Required.}}
+    - {name: guardianId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the guardian role., businessMeaning: Identifies one governed education guardian relationship independently of the underlying Party., usage: "Student administration, communication, consent, billing and audit.", relationshipContext: Party supplies common identity; Guardian supplies education-specific responsibility.}}
+    - {name: guardianCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing guardian reference., businessMeaning: Operational identifier used in education administration., usage: "Search, communication and integration.", relationshipContext: Distinct from Party identifiers.}}
     - name: relationshipType
       type: enum
       required: true
@@ -23,13 +23,12 @@ entity:
           CAREGIVER: Caregiver relationship recognized by policy.
           SPONSOR: Financial or administrative sponsor relationship.
           OTHER: Another governed guardian relationship.
-        requiredMeaning: Required.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, INACTIVE]
-      help: {summary: Whether the guardian role is currently active for ordinary education processes., businessMeaning: Controls current use without deleting historical communications or authorizations., usage: "Student administration and audit.", relationshipContext: Student-specific relationship validity may be narrower than overall guardian status., valueSemantics: {ACTIVE: Role may be used under applicable policy., INACTIVE: Role is no longer ordinarily used for new actions.}, requiredMeaning: Required.}
+      help: {summary: Whether the guardian role is currently active for ordinary education processes., businessMeaning: Controls current use without deleting historical communications or authorizations., usage: "Student administration and audit.", relationshipContext: Student-specific relationship validity may be narrower than overall guardian status., valueSemantics: {ACTIVE: Role may be used under applicable policy., INACTIVE: Role is no longer ordinarily used for new actions.}}
   relationships:
     - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Party holding the guardian role., businessMeaning: Reuses common identity and contact data without duplication., usage: "Communication, authorization and audit.", cardinalityMeaning: Exactly one Party., workflowRole: Party identity changes do not rewrite historical guardian evidence.}}
     - {name: students, target: EducationStudent, cardinality: "1..*", ownership: reference, help: {summary: Students for whom this guardian relationship applies., businessMeaning: Establishes education responsibility or communication scope., usage: "Student administration, consent, billing and communication.", cardinalityMeaning: One or more students are associated with a Guardian role., workflowRole: Student-specific authority must be evaluated according to current policy.}}

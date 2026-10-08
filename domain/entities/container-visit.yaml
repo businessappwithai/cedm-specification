@@ -15,7 +15,6 @@ entity:
         businessMeaning: Identifies one stay of a container in the terminal, separate from the container itself, which visits many times over its life.
         usage: "Referenced by gate events, container movements and voyage manifests that belong to the stay."
         relationshipContext: GateEvent.containerVisit and Voyage.containerVisits resolve to this identity.
-        requiredMeaning: Required because every stay needs its own identity to group the events of that stay.
     - name: visitReference
       type: string
       required: false
@@ -26,7 +25,6 @@ entity:
         businessMeaning: Lets drivers, shipping lines and the terminal refer to the same stay without exchanging internal identifiers.
         usage: "Quoted on gate receipts, appointments and integration messages."
         relationshipContext: External gate and yard systems send this reference to attach their messages to the right stay.
-        optionalMeaning: Optional because a visit created internally may not yet have an external reference.
     - name: arrivedAt
       type: datetime
       required: true
@@ -35,7 +33,6 @@ entity:
         businessMeaning: Starts the dwell clock that storage charges and free-time rules run against.
         usage: "Used to calculate dwell time, storage billing and demurrage exposure."
         relationshipContext: Normally equals the time of the inbound GateEvent or the vessel discharge that opened the visit.
-        requiredMeaning: Required because a visit cannot exist without a starting point for custody.
     - name: departedAt
       type: datetime
       required: false
@@ -44,7 +41,6 @@ entity:
         businessMeaning: Closes the dwell clock; an empty value means the container is still in the terminal.
         usage: "Used to close the visit, finalise storage billing and report dwell."
         relationshipContext: Normally equals the time of the outbound GateEvent or the vessel load that closed the visit.
-        optionalMeaning: Optional because the container is still inside the terminal until it departs.
     - name: status
       type: enum
       required: true

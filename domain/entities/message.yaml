@@ -7,11 +7,11 @@ entity:
     icon: table
   identity: {key: messageId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Message., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+    - {name: messageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Message., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps.}}
   relationships: []
   invariants:
-  - {id: MESSAGE-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+    - {id: MESSAGE-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
   help:
     summary: A governed integration message envelope preserving payload identity, direction, correlation, processing state, and delivery evidence.
     purpose: Provide canonical implementation-neutral integration semantics for Message.

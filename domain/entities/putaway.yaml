@@ -7,25 +7,25 @@ entity:
     icon: file-text
   identity: {key: putawayId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: putawayId, type: uuid, required: true, immutable: true, help: {summary: Stable putaway-task identity., businessMeaning: Identifies one directed storage action., usage: Receiving and WMS execution., relationshipContext: Connects source staging to target storage., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed for storage., businessMeaning: Defines task execution quantity., usage: Putaway confirmation and variance., relationshipContext: Must reconcile with transfer/movement., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
-    help: {summary: Putaway task state., businessMeaning: Controls executable storage work., usage: WMS orchestration., relationshipContext: Completion alone does not alter stock without inventory posting., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being executed., COMPLETED: Confirmed and reconciled., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    - {name: putawayId, type: uuid, required: true, immutable: true, help: {summary: Stable putaway-task identity., businessMeaning: Identifies one directed storage action., usage: Receiving and WMS execution., relationshipContext: Connects source staging to target storage.}}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed for storage., businessMeaning: Defines task execution quantity., usage: Putaway confirmation and variance., relationshipContext: Must reconcile with transfer/movement.}}
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
+      help: {summary: Putaway task state., businessMeaning: Controls executable storage work., usage: WMS orchestration., relationshipContext: Completion alone does not alter stock without inventory posting., valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being executed., COMPLETED: Confirmed and reconciled., CANCELLED: Terminated., EXCEPTION: Requires resolution.}}
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., cardinalityMeaning: Exactly one Product., workflowRole: Must match transfer.}}
-  - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Receiving/staging origin., businessMeaning: Current controlled position., usage: Execution., cardinalityMeaning: Exactly one source., workflowRole: Must contain eligible stock.}}
-  - {name: targetLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Directed storage destination., businessMeaning: Selected eligible storage position., usage: Putaway optimization., cardinalityMeaning: Exactly one target., workflowRole: Zone/location constraints must be satisfied.}}
-  - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Physical pallet/carton/tote moved as unit., businessMeaning: Supports scan-based execution., usage: WMS mobility., cardinalityMeaning: Optional for loose stock., workflowRole: Handling-unit location must reconcile.}}
-  - {name: inventoryTransfer, target: InventoryTransfer, cardinality: '1', ownership: reference, help: {summary: Inventory relocation authorization/execution associated with putaway., businessMeaning: Separates warehouse task from stock ledger., usage: Reconciliation., cardinalityMeaning: Exactly one governed transfer., workflowRole: Completed task must reconcile to posted movement.}}
+    - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., cardinalityMeaning: Exactly one Product., workflowRole: Must match transfer.}}
+    - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Receiving/staging origin., businessMeaning: Current controlled position., usage: Execution., cardinalityMeaning: Exactly one source., workflowRole: Must contain eligible stock.}}
+    - {name: targetLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Directed storage destination., businessMeaning: Selected eligible storage position., usage: Putaway optimization., cardinalityMeaning: Exactly one target., workflowRole: Zone/location constraints must be satisfied.}}
+    - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Physical pallet/carton/tote moved as unit., businessMeaning: Supports scan-based execution., usage: WMS mobility., cardinalityMeaning: Optional for loose stock., workflowRole: Handling-unit location must reconcile.}}
+    - {name: inventoryTransfer, target: InventoryTransfer, cardinality: '1', ownership: reference, help: {summary: Inventory relocation authorization/execution associated with putaway., businessMeaning: Separates warehouse task from stock ledger., usage: Reconciliation., cardinalityMeaning: Exactly one governed transfer., workflowRole: Completed task must reconcile to posted movement.}}
   invariants:
-  - {id: PUTAWAY-001, rule: quantity must be greater than zero and source/target must differ.}
-  - {id: PUTAWAY-002, rule: "Target must satisfy WarehouseZone, product, quality, capacity and handling constraints."}
-  - {id: PUTAWAY-003, rule: COMPLETED requires attributable transfer/movement evidence and retries must be idempotent.}
-  - {id: PUTAWAY-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - {id: PUTAWAY-001, rule: quantity must be greater than zero and source/target must differ.}
+    - {id: PUTAWAY-002, rule: "Target must satisfy WarehouseZone, product, quality, capacity and handling constraints."}
+    - {id: PUTAWAY-003, rule: COMPLETED requires attributable transfer/movement evidence and retries must be idempotent.}
+    - {id: PUTAWAY-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   lifecycle:
     title: Putaway Lifecycle
     attribute: status

@@ -6,8 +6,8 @@ entity:
   ui: {icon: receipt-text}
   identity: {key: projectCostId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: projectCostId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the project cost event., businessMeaning: Identifies one cost attribution independently of later posting or correction., usage: "Project control, billing, accounting reconciliation and audit.", relationshipContext: Remains stable across lifecycle transitions and correction evidence., requiredMeaning: Required.}}
-    - {name: costNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing project cost reference., businessMeaning: Operational identifier for tracing cost evidence., usage: "Search, approval, reporting, reconciliation and integration.", relationshipContext: Distinct from JournalEntry or Invoice references., requiredMeaning: Required.}}
+    - {name: projectCostId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the project cost event., businessMeaning: Identifies one cost attribution independently of later posting or correction., usage: "Project control, billing, accounting reconciliation and audit.", relationshipContext: Remains stable across lifecycle transitions and correction evidence.}}
+    - {name: costNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing project cost reference., businessMeaning: Operational identifier for tracing cost evidence., usage: "Search, approval, reporting, reconciliation and integration.", relationshipContext: Distinct from JournalEntry or Invoice references.}}
     - name: costType
       type: enum
       required: true
@@ -24,9 +24,8 @@ entity:
           SERVICE: Purchased or internal service cost.
           OVERHEAD: Allocated indirect cost.
           OTHER: Governed cost outside the standard categories.
-        requiredMeaning: Required.
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Monetary amount attributed to the project., businessMeaning: Operational project cost value before or alongside accounting posting., usage: "Budget control, project margin, billing and reconciliation.", relationshipContext: Currency is supplied by the required Currency relationship., requiredMeaning: Required.}}
-    - {name: incurredDate, type: date, required: true, help: {summary: Date on which the project cost was economically incurred., businessMeaning: Establishes project-period attribution independently of accounting posting date., usage: "Project reporting, accrual analysis and budget control.", relationshipContext: May differ from JournalEntry posting date or Invoice date., requiredMeaning: Required.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Monetary amount attributed to the project., businessMeaning: Operational project cost value before or alongside accounting posting., usage: "Budget control, project margin, billing and reconciliation.", relationshipContext: Currency is supplied by the required Currency relationship.}}
+    - {name: incurredDate, type: date, required: true, help: {summary: Date on which the project cost was economically incurred., businessMeaning: Establishes project-period attribution independently of accounting posting date., usage: "Project reporting, accrual analysis and budget control.", relationshipContext: May differ from JournalEntry posting date or Invoice date.}}
     - name: status
       type: enum
       required: true
@@ -43,7 +42,6 @@ entity:
           POSTED: Accounting recognition has been reconciled.
           REVERSED: Subsequent governed evidence reversed the economic effect.
           CANCELLED: Draft or unposted cost was cancelled and remains auditable.
-        requiredMeaning: Required.
   relationships:
     - {name: project, target: Project, cardinality: "1", ownership: reference, help: {summary: Project receiving the cost attribution., businessMeaning: Establishes the accountable project context., usage: "Project control, margin and reporting.", cardinalityMeaning: Exactly one Project., workflowRole: Project status must permit new cost attribution.}}
     - {name: projectTask, target: ProjectTask, cardinality: "0..1", ownership: reference, help: {summary: Task receiving the cost when task-level costing applies., businessMeaning: Refines project cost to work-breakdown execution., usage: "Task costing, earned value and analysis.", cardinalityMeaning: Optional for project-level cost., workflowRole: Task must belong to the same Project.}}

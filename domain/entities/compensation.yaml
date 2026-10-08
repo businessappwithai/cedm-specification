@@ -6,8 +6,8 @@ entity:
   ui: {icon: badge-dollar-sign}
   identity: {key: compensationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: compensationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the compensation arrangement., businessMeaning: Identifies one effective-dated compensation record independently of later payroll results., usage: "HCM, payroll input, budgeting, reporting and audit.", relationshipContext: Employment identifies the working relationship; Compensation defines remuneration terms., requiredMeaning: Required.}}
-    - {name: compensationCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing compensation arrangement reference., businessMeaning: Operational identifier for compensation administration., usage: "Search, change workflow, reporting and integration.", relationshipContext: Distinct from payroll run or payment identifiers., requiredMeaning: Required.}}
+    - {name: compensationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the compensation arrangement., businessMeaning: Identifies one effective-dated compensation record independently of later payroll results., usage: "HCM, payroll input, budgeting, reporting and audit.", relationshipContext: Employment identifies the working relationship; Compensation defines remuneration terms.}}
+    - {name: compensationCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing compensation arrangement reference., businessMeaning: Operational identifier for compensation administration., usage: "Search, change workflow, reporting and integration.", relationshipContext: Distinct from payroll run or payment identifiers.}}
     - name: basis
       type: enum
       required: true
@@ -24,10 +24,9 @@ entity:
           ANNUAL: Amount is a governed annual amount.
           FIXED: Amount is fixed for the arrangement or covered period.
           OTHER: Another governed basis defined by policy.
-        requiredMeaning: Required.
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Compensation amount under the selected basis., businessMeaning: Contractual or policy remuneration term rather than a payroll result., usage: "Payroll input, workforce cost planning and reporting.", relationshipContext: Currency relationship defines monetary denomination., requiredMeaning: Required.}}
-    - {name: effectiveFrom, type: date, required: true, help: {summary: First date on which the compensation arrangement is effective., businessMeaning: Establishes temporal applicability for payroll and HR decisions., usage: "Effective-dated administration and audit.", relationshipContext: Must be compatible with the governing Employment period., requiredMeaning: Required.}}
-    - {name: effectiveTo, type: date, required: false, help: {summary: Last date on which the compensation arrangement is effective., businessMeaning: Closes an arrangement without overwriting prior terms., usage: "Compensation changes, history and payroll eligibility.", relationshipContext: A successor Compensation may begin after this date., optionalMeaning: Optional while open-ended.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: Compensation amount under the selected basis., businessMeaning: Contractual or policy remuneration term rather than a payroll result., usage: "Payroll input, workforce cost planning and reporting.", relationshipContext: Currency relationship defines monetary denomination.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: First date on which the compensation arrangement is effective., businessMeaning: Establishes temporal applicability for payroll and HR decisions., usage: "Effective-dated administration and audit.", relationshipContext: Must be compatible with the governing Employment period.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: Last date on which the compensation arrangement is effective., businessMeaning: Closes an arrangement without overwriting prior terms., usage: "Compensation changes, history and payroll eligibility.", relationshipContext: A successor Compensation may begin after this date.}}
     - name: status
       type: enum
       required: true
@@ -43,7 +42,6 @@ entity:
           ACTIVE: Terms are eligible for governed payroll or HR use during the effective period.
           SUPERSEDED: Terms were replaced by later approved compensation and remain historical.
           CANCELLED: Arrangement was cancelled without remaining effective.
-        requiredMeaning: Required.
   relationships:
     - {name: employment, target: Employment, cardinality: "1", ownership: reference, help: {summary: Employment relationship governed by these compensation terms., businessMeaning: Anchors remuneration to an employer-employee relationship., usage: "HCM, payroll and workforce planning.", cardinalityMeaning: Exactly one Employment., workflowRole: Effective dates must be compatible with Employment eligibility.}}
     - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {summary: Currency in which the amount is denominated., businessMeaning: Makes compensation value unambiguous., usage: "Payroll, budgeting and reporting.", cardinalityMeaning: Exactly one Currency., workflowRole: Currency changes are represented as new effective-dated terms rather than rewriting history.}}

@@ -15,7 +15,6 @@ entity:
         businessMeaning: Identifies one port facility independently of its code, name or the locations it occupies.
         usage: "Referenced by berths, gates, voyages and port-call records; generated once and never changed."
         relationshipContext: Berth.port and Voyage.originPort / destinationPort resolve to this identity.
-        requiredMeaning: Required because every berth and voyage leg must point at exactly one port.
     - name: portCode
       type: string
       required: true
@@ -26,7 +25,6 @@ entity:
         businessMeaning: The code partners use to name this port in bookings, manifests and schedules, so it must be stable and unique.
         usage: "Used for lookup, voyage planning, document exchange and integration with external schedules."
         relationshipContext: Voyages name their origin and destination ports by this code on external documents.
-        requiredMeaning: Required because partners and documents identify a port by code, not by internal identity.
     - name: name
       type: string
       required: true
@@ -36,7 +34,6 @@ entity:
         businessMeaning: Supports recognition on planning screens and reports; it may be reworded without changing the port's identity.
         usage: "Shown in lists, voyage schedules, berth planning and reports."
         relationshipContext: The code stays the operational key when the displayed name is revised.
-        requiredMeaning: Required so planners can recognise the port without decoding its identifier.
     - name: timeZone
       type: string
       required: false
@@ -46,7 +43,6 @@ entity:
         businessMeaning: Port calls and gate hours are quoted in local time, so the zone is needed to compare them across ports.
         usage: "Applied when displaying and comparing voyage times and berth windows."
         relationshipContext: Voyage departure and arrival times are interpreted in the zone of the port they refer to.
-        optionalMeaning: Optional because a port may inherit the zone of its Location.
     - name: status
       type: enum
       required: true

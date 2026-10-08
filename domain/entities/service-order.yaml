@@ -6,10 +6,10 @@ entity:
   ui: {icon: clipboard-check}
   identity: {key: serviceOrderId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service execution order., businessMeaning: Identifies one authorization to perform service work., usage: "Service operations, field service, billing, reporting and audit.", relationshipContext: "Distinct from request, case and maintenance work-order identities.", requiredMeaning: Required.}}
-    - {name: serviceOrderNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing service order reference., businessMeaning: Operational identifier used for scheduling and execution., usage: "Dispatch, customer communication, billing and integration.", relationshipContext: Stable across execution status changes., requiredMeaning: Required.}}
-    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: Scope of authorized service work., businessMeaning: States what work the service provider is authorized to perform., usage: "Scheduling, execution, customer communication and audit.", relationshipContext: "Product, Asset and related request or case provide structured context.", requiredMeaning: Required.}}
-    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: Planned start of service execution., businessMeaning: Scheduling commitment rather than actual work evidence., usage: "Dispatch and customer communication.", relationshipContext: May be governed by SLA and availability., optionalMeaning: Optional before scheduling.}}
+    - {name: serviceOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service execution order., businessMeaning: Identifies one authorization to perform service work., usage: "Service operations, field service, billing, reporting and audit.", relationshipContext: "Distinct from request, case and maintenance work-order identities."}}
+    - {name: serviceOrderNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing service order reference., businessMeaning: Operational identifier used for scheduling and execution., usage: "Dispatch, customer communication, billing and integration.", relationshipContext: Stable across execution status changes.}}
+    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: Scope of authorized service work., businessMeaning: States what work the service provider is authorized to perform., usage: "Scheduling, execution, customer communication and audit.", relationshipContext: "Product, Asset and related request or case provide structured context."}}
+    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: Planned start of service execution., businessMeaning: Scheduling commitment rather than actual work evidence., usage: "Dispatch and customer communication.", relationshipContext: May be governed by SLA and availability.}}
     - name: status
       type: enum
       required: true
@@ -27,7 +27,6 @@ entity:
           IN_PROGRESS: Authorized service is being performed.
           COMPLETED: Service execution is complete and retained as history.
           CANCELLED: Order was cancelled through governed workflow.
-        requiredMeaning: Required.
   relationships:
     - {name: serviceRequest, target: ServiceRequest, cardinality: "0..1", ownership: reference, help: {summary: Request authorizing or motivating this order., businessMeaning: Preserves intake-to-execution traceability., usage: Service workflow and audit., cardinalityMeaning: "Optional when order comes from a case, contract or planned service process.", workflowRole: Request and order remain distinct lifecycle records.}}
     - {name: serviceCase, target: ServiceCase, cardinality: "0..1", ownership: reference, help: {summary: Case whose resolution requires this service order., businessMeaning: Connects execution work to the broader managed issue., usage: "Case resolution and reporting.", cardinalityMeaning: Optional., workflowRole: Completed order contributes evidence but does not automatically close the case.}}

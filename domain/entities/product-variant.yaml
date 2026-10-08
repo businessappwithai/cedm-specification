@@ -7,23 +7,23 @@ entity:
     icon: package
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of variant., businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code., requiredMeaning: Required.}}
-  - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity., optionalMeaning: Optional for non-stocked variants.}}
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
-    help: {summary: Variant lifecycle state., businessMeaning: Controls future eligibility of this configuration., usage: Catalog and transaction validation., relationshipContext: Parent Product restrictions also apply., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible for governed use., BLOCKED: Temporarily prohibited., DISCONTINUED: No longer offered for new demand., RETIRED: Lifecycle closed.}, requiredMeaning: Required.}
+    - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: Stable variant identity., businessMeaning: Identifies one governed product configuration independently of its SKU., usage: "Catalog, sales, procurement, inventory and manufacturing.", relationshipContext: Belongs to exactly one parent Product.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of variant., businessMeaning: Human/integration identifier for the configuration., usage: Catalog and transactions., relationshipContext: Distinct from parent Product code.}}
+    - {name: sku, type: string, required: false, maxLength: 100, help: {summary: Stock-keeping code for variant., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., usage: "WMS, commerce and integration.", relationshipContext: Does not replace immutable variant identity.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
+      help: {summary: Variant lifecycle state., businessMeaning: Controls future eligibility of this configuration., usage: Catalog and transaction validation., relationshipContext: Parent Product restrictions also apply., valueSemantics: {DRAFT: Being configured., ACTIVE: Eligible for governed use., BLOCKED: Temporarily prohibited., DISCONTINUED: No longer offered for new demand., RETIRED: Lifecycle closed.}}
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, inverse: variants, help: {summary: Parent product family., businessMeaning: Supplies shared identity and semantics., usage: Catalog and master-data inheritance., cardinalityMeaning: Exactly one parent Product., workflowRole: Parent restrictions propagate to variant eligibility.}}
-  - {name: brand, target: Brand, cardinality: 0..1, ownership: reference, help: {summary: Brand associated with variant where different or explicit., businessMeaning: Provides market identity., usage: Catalog and commerce., cardinalityMeaning: Optional; may inherit parent brand., workflowRole: Brand retirement affects future presentation/eligibility policy.}}
+    - {name: product, target: Product, cardinality: '1', ownership: reference, inverse: variants, help: {summary: Parent product family., businessMeaning: Supplies shared identity and semantics., usage: Catalog and master-data inheritance., cardinalityMeaning: Exactly one parent Product., workflowRole: Parent restrictions propagate to variant eligibility.}}
+    - {name: brand, target: Brand, cardinality: 0..1, ownership: reference, help: {summary: Brand associated with variant where different or explicit., businessMeaning: Provides market identity., usage: Catalog and commerce., cardinalityMeaning: Optional; may inherit parent brand., workflowRole: Brand retirement affects future presentation/eligibility policy.}}
   invariants:
-  - {id: PRODUCT-VARIANT-001, rule: code must be unique and variant must reference exactly one Product.}
-  - {id: PRODUCT-VARIANT-002, rule: ACTIVE variant cannot override a parent Product restriction that prohibits new use.}
-  - {id: PRODUCT-VARIANT-003, rule: Variant attribute configuration must be unique within its parent product family under the applicable option model.}
-  - {id: PRODUCT-VARIANT-004, rule: Variant master changes must not rewrite historical transaction evidence.}
+    - {id: PRODUCT-VARIANT-001, rule: code must be unique and variant must reference exactly one Product.}
+    - {id: PRODUCT-VARIANT-002, rule: ACTIVE variant cannot override a parent Product restriction that prohibits new use.}
+    - {id: PRODUCT-VARIANT-003, rule: Variant attribute configuration must be unique within its parent product family under the applicable option model.}
+    - {id: PRODUCT-VARIANT-004, rule: Variant master changes must not rewrite historical transaction evidence.}
   lifecycle:
     title: Product Variant Lifecycle
     attribute: status

@@ -6,8 +6,8 @@ entity:
   ui: {icon: calendar-off}
   identity: {key: leaveRequestId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the leave request., businessMeaning: Identifies one absence request independently of later approval or cancellation., usage: "HR workflow, attendance, payroll, reporting and audit.", relationshipContext: Remains stable across lifecycle transitions., requiredMeaning: Required.}}
-    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing leave request reference., businessMeaning: "Operational identifier for employees, managers and HR.", usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers., requiredMeaning: Required.}}
+    - {name: leaveRequestId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the leave request., businessMeaning: Identifies one absence request independently of later approval or cancellation., usage: "HR workflow, attendance, payroll, reporting and audit.", relationshipContext: Remains stable across lifecycle transitions.}}
+    - {name: requestNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing leave request reference., businessMeaning: "Operational identifier for employees, managers and HR.", usage: "Search, approval, reporting and integration.", relationshipContext: Distinct from Employee or payroll identifiers.}}
     - name: leaveType
       type: enum
       required: true
@@ -24,10 +24,9 @@ entity:
           UNPAID: Approved absence without ordinary pay.
           COMPENSATORY: Leave granted in exchange for qualifying extra work or policy credit.
           OTHER: Another governed leave category.
-        requiredMeaning: Required.
-    - {name: startDate, type: date, required: true, help: {summary: First requested leave date., businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date., requiredMeaning: Required.}}
-    - {name: endDate, type: date, required: true, help: {summary: Last requested leave date., businessMeaning: Closes the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
-    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", usage: Entitlement checks and payroll., relationshipContext: Must reconcile to date interval and policy when supplied., optionalMeaning: Optional when quantity is derived from schedule and dates.}}
+    - {name: startDate, type: date, required: true, help: {summary: First requested leave date., businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date.}}
+    - {name: endDate, type: date, required: true, help: {summary: Last requested leave date., businessMeaning: Closes the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must not precede startDate.}}
+    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", usage: Entitlement checks and payroll., relationshipContext: Must reconcile to date interval and policy when supplied.}}
     - name: status
       type: enum
       required: true
@@ -44,7 +43,6 @@ entity:
           APPROVED: Absence is authorized under applicable policy.
           REJECTED: Request was declined and retained for audit.
           CANCELLED: Request was withdrawn or cancelled and retained for audit.
-        requiredMeaning: Required.
   relationships:
     - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee requesting leave., businessMeaning: Identifies whose absence is being authorized., usage: "Approval, scheduling, attendance and payroll.", cardinalityMeaning: Exactly one Employee., workflowRole: Employee must be eligible under applicable policy.}}
     - {name: employment, target: Employment, cardinality: "0..1", ownership: reference, help: {summary: Employment relationship under which leave is requested., businessMeaning: "Supplies employer, position and effective policy context.", usage: "Eligibility, payroll and reporting.", cardinalityMeaning: Optional only when the employee has a single unambiguous Employment., workflowRole: Requested dates must overlap eligible employment.}}

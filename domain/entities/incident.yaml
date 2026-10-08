@@ -7,11 +7,11 @@ entity:
     icon: table
   identity: {key: incidentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: incidentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Incident., businessMeaning: Identifies one governed Incident record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+    - {name: incidentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Incident., businessMeaning: Identifies one governed Incident record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten.}}
   relationships: []
   invariants:
-  - {id: INCIDENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: INCIDENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
     summary: A governed record of an adverse, disruptive, security, operational, safety, compliance, or other risk event requiring response and analysis.
     purpose: Provide canonical governance semantics for Incident.

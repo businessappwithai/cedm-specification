@@ -7,13 +7,13 @@ entity:
     icon: truck
   identity: {key: deliveryAttemptId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps., optionalMeaning: Optional for endpoint/master definitions.}}
+    - {name: deliveryAttemptId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of DeliveryAttempt., businessMeaning: Identifies one governed integration record., usage: "Integration, event processing, reporting and audit.", relationshipContext: Referenced by compatible integration workflows.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: Effective or occurrence time where applicable., businessMeaning: Anchors integration evidence in chronology., usage: Processing and audit., relationshipContext: Does not replace source transaction timestamps.}}
   relationships:
-  - {name: message, target: Message, cardinality: '1', ownership: reference, help: {summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., cardinalityMeaning: Exactly one Message., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}
-  - {name: endpoint, target: IntegrationEndpoint, cardinality: '1', ownership: reference, help: {summary: Destination endpoint attempted., businessMeaning: Defines delivery target., usage: Integration operations., cardinalityMeaning: Exactly one endpoint., workflowRole: Configuration changes do not rewrite historical attempts.}}
+    - {name: message, target: Message, cardinality: '1', ownership: reference, help: {summary: Message being delivered., businessMeaning: Supplies immutable payload identity., usage: Retry and delivery audit., cardinalityMeaning: Exactly one Message., workflowRole: Retries create distinct attempts and must not duplicate business effects.}}
+    - {name: endpoint, target: IntegrationEndpoint, cardinality: '1', ownership: reference, help: {summary: Destination endpoint attempted., businessMeaning: Defines delivery target., usage: Integration operations., cardinalityMeaning: Exactly one endpoint., workflowRole: Configuration changes do not rewrite historical attempts.}}
   invariants:
-  - {id: DELIVERY-ATTEMPT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
+    - {id: DELIVERY-ATTEMPT-001, rule: Delivery retries and corrections must preserve auditable evidence and must not duplicate downstream business effects.}
   help:
     summary: An immutable record of an attempt to deliver a Message or BusinessEvent subscription payload to an IntegrationEndpoint.
     purpose: Provide canonical implementation-neutral integration semantics for DeliveryAttempt.

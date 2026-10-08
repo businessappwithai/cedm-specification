@@ -11,107 +11,96 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: correctiveActionId
-    type: uuid
-    required: true
-    immutable: true
-    help: {summary: Immutable identity of the corrective action., businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification.", usage: "CAPA, quality audit, supplier improvement and compliance.", relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities., workflowRole: "Stable reference through assignment, execution, verification and closure.", requiredMeaning: Required.}
-  - name: actionNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle., requiredMeaning: Required.}
-  - name: actionType
-    type: enum
-    required: true
-    values:
-    - CONTAINMENT
-    - CORRECTION
-    - CORRECTIVE
-    - PREVENTIVE
-    help:
-      summary: Classification of the quality action.
-      businessMeaning: Distinguishes immediate containment, correction of an existing condition, root-cause corrective action,
-        and preventive action.
-      usage: Determines evidence expectations, routing and effectiveness criteria.
-      relationshipContext: Containment/disposition can control immediate risk while corrective/preventive actions address causes
-        and recurrence.
-      workflowRole: Determines the intended outcome that verification must assess.
-      requiredMeaning: Required.
-      valueSemantics:
-        CONTAINMENT: The action type of the corrective action is containment; set it when that is what the business means for
-          this record.
-        CORRECTION: The action type of the corrective action is correction; set it when that is what the business means for
-          this record.
-        CORRECTIVE: The action type of the corrective action is corrective; set it when that is what the business means for
-          this record.
-        PREVENTIVE: The action type of the corrective action is preventive; set it when that is what the business means for
-          this record.
-  - name: description
-    type: string
-    required: true
-    maxLength: 4000
-    help: {summary: Detailed statement of what the action will accomplish., businessMeaning: "Defines scope, intended outcome and work required to address the quality issue.", usage: "Assignment, execution, audit and effectiveness assessment.", relationshipContext: Must remain traceable to the associated Nonconformance or approved quality objective., workflowRole: Defines the implementation target for verification., requiredMeaning: Required.}
-  - name: status
-    type: enum
-    required: true
-    default: OPEN
-    values:
-    - OPEN
-    - ASSIGNED
-    - IN_PROGRESS
-    - VERIFICATION
-    - COMPLETED
-    - CANCELLED
-    help:
-      summary: Lifecycle state of the action.
-      businessMeaning: Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or
-        cancelled.
-      usage: Controls execution and closure.
-      relationshipContext: COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence.
-      workflowRole: VERIFICATION gates final completion when effectiveness verification is required.
-      requiredMeaning: Required.
-      valueSemantics:
-        OPEN: The status of the corrective action is open; set it when that is what the business means for this record.
-        ASSIGNED: The status of the corrective action is assigned; set it when that is what the business means for this record.
-        IN_PROGRESS: The status of the corrective action is in progress; set it when that is what the business means for this
-          record.
-        VERIFICATION: The status of the corrective action is verification; set it when that is what the business means for this
-          record.
-        COMPLETED: The status of the corrective action is completed; set it when that is what the business means for this record.
-        CANCELLED: The status of the corrective action is cancelled; set it when that is what the business means for this record.
-  - name: dueDate
-    type: date
-    required: false
-    help: {summary: Target date for action implementation., businessMeaning: Defines when the responsible party is expected to complete implementation., usage: "Work planning, escalation, SLA reporting and quality governance.", relationshipContext: Distinct from completedDate and verificationDate., workflowRole: Supports overdue detection and escalation., optionalMeaning: Optional when policy does not require a target date.}
-  - name: completedDate
-    type: date
-    required: false
-    help: {summary: Date implementation was formally completed., businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification.", usage: "CAPA metrics, audit and chronology.", relationshipContext: Does not replace verification evidence where effectiveness is required., workflowRole: Required when status is COMPLETED., optionalMeaning: Optional until completion.}
+    - name: correctiveActionId
+      type: uuid
+      required: true
+      immutable: true
+      help: {summary: Immutable identity of the corrective action., businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification.", usage: "CAPA, quality audit, supplier improvement and compliance.", relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities., workflowRole: "Stable reference through assignment, execution, verification and closure."}
+    - name: actionNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle.}
+    - name: actionType
+      type: enum
+      required: true
+      values:
+        - CONTAINMENT
+        - CORRECTION
+        - CORRECTIVE
+        - PREVENTIVE
+      help:
+        summary: Classification of the quality action.
+        businessMeaning: Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action.
+        usage: Determines evidence expectations, routing and effectiveness criteria.
+        relationshipContext: Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence.
+        workflowRole: Determines the intended outcome that verification must assess.
+        valueSemantics:
+          CONTAINMENT: The action type of the corrective action is containment; set it when that is what the business means for this record.
+          CORRECTION: The action type of the corrective action is correction; set it when that is what the business means for this record.
+          CORRECTIVE: The action type of the corrective action is corrective; set it when that is what the business means for this record.
+          PREVENTIVE: The action type of the corrective action is preventive; set it when that is what the business means for this record.
+    - name: description
+      type: string
+      required: true
+      maxLength: 4000
+      help: {summary: Detailed statement of what the action will accomplish., businessMeaning: "Defines scope, intended outcome and work required to address the quality issue.", usage: "Assignment, execution, audit and effectiveness assessment.", relationshipContext: Must remain traceable to the associated Nonconformance or approved quality objective., workflowRole: Defines the implementation target for verification.}
+    - name: status
+      type: enum
+      required: true
+      default: OPEN
+      values:
+        - OPEN
+        - ASSIGNED
+        - IN_PROGRESS
+        - VERIFICATION
+        - COMPLETED
+        - CANCELLED
+      help:
+        summary: Lifecycle state of the action.
+        businessMeaning: Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled.
+        usage: Controls execution and closure.
+        relationshipContext: COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence.
+        workflowRole: VERIFICATION gates final completion when effectiveness verification is required.
+        valueSemantics:
+          OPEN: The status of the corrective action is open; set it when that is what the business means for this record.
+          ASSIGNED: The status of the corrective action is assigned; set it when that is what the business means for this record.
+          IN_PROGRESS: The status of the corrective action is in progress; set it when that is what the business means for this record.
+          VERIFICATION: The status of the corrective action is verification; set it when that is what the business means for this record.
+          COMPLETED: The status of the corrective action is completed; set it when that is what the business means for this record.
+          CANCELLED: The status of the corrective action is cancelled; set it when that is what the business means for this record.
+    - name: dueDate
+      type: date
+      required: false
+      help: {summary: Target date for action implementation., businessMeaning: Defines when the responsible party is expected to complete implementation., usage: "Work planning, escalation, SLA reporting and quality governance.", relationshipContext: Distinct from completedDate and verificationDate., workflowRole: Supports overdue detection and escalation.}
+    - name: completedDate
+      type: date
+      required: false
+      help: {summary: Date implementation was formally completed., businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification.", usage: "CAPA metrics, audit and chronology.", relationshipContext: Does not replace verification evidence where effectiveness is required., workflowRole: Required when status is COMPLETED.}
   relationships:
-  - name: nonconformance
-    target: Nonconformance
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Quality issue that caused or requires this action., businessMeaning: "Connects the action to the deviation and its containment, disposition and closure requirements.", usage: "CAPA traceability, root-cause analysis and audit.", workflowRole: Supplies the problem context the action is intended to address.}
-  - name: owner
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Party accountable for implementing the action., businessMeaning: Identifies the responsible person or organization for execution., usage: "Assignment, escalation and accountability.", workflowRole: Owns implementation evidence and completion proposal.}
-  - name: verifications
-    target: CorrectiveActionVerification
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Effectiveness verification records evaluating this action., businessMeaning: Connects implementation to objective evidence about whether the intended outcome was achieved., usage: "CAPA closure, audit and recurrence prevention.", cardinalityMeaning: "An action may require multiple verifications, including re-verification after an ineffective result.", workflowRole: Verification evidence gates completion where quality policy requires effectiveness confirmation.}
+    - name: nonconformance
+      target: Nonconformance
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Quality issue that caused or requires this action., businessMeaning: "Connects the action to the deviation and its containment, disposition and closure requirements.", usage: "CAPA traceability, root-cause analysis and audit.", workflowRole: Supplies the problem context the action is intended to address.}
+    - name: owner
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Party accountable for implementing the action., businessMeaning: Identifies the responsible person or organization for execution., usage: "Assignment, escalation and accountability.", workflowRole: Owns implementation evidence and completion proposal.}
+    - name: verifications
+      target: CorrectiveActionVerification
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Effectiveness verification records evaluating this action., businessMeaning: Connects implementation to objective evidence about whether the intended outcome was achieved., usage: "CAPA closure, audit and recurrence prevention.", cardinalityMeaning: "An action may require multiple verifications, including re-verification after an ineffective result.", workflowRole: Verification evidence gates completion where quality policy requires effectiveness confirmation.}
   invariants:
-  - {id: CORRECTIVE-ACTION-001, rule: completedDate must be present when status is COMPLETED.}
-  - {id: CORRECTIVE-ACTION-002, rule: A COMPLETED action requiring effectiveness verification must have at least one completed EFFECTIVE CorrectiveActionVerification unless an explicit quality-policy exception is recorded.}
-  - {id: CORRECTIVE-ACTION-003, rule: "INEFFECTIVE or NOT_VERIFIABLE verification must not silently permit final completion; the action must remain open, be reopened, or have an authorized exception."}
-  - {id: CORRECTIVE-ACTION-004, rule: "CorrectiveAction implementation must not rewrite the originating Nonconformance, QualityInspection, receipt or return evidence."}
-  - {id: CORRECTIVE-ACTION-005, rule: "Posted or completed action history is retained; corrections use reopening, amendment or additional action records rather than destructive mutation."}
-  - {id: CORRECTIVE-ACTION-006, rule: Verification creation and completion must be idempotent and must not create conflicting effectiveness evidence on retry.}
+    - {id: CORRECTIVE-ACTION-001, rule: completedDate must be present when status is COMPLETED.}
+    - {id: CORRECTIVE-ACTION-002, rule: A COMPLETED action requiring effectiveness verification must have at least one completed EFFECTIVE CorrectiveActionVerification unless an explicit quality-policy exception is recorded.}
+    - {id: CORRECTIVE-ACTION-003, rule: "INEFFECTIVE or NOT_VERIFIABLE verification must not silently permit final completion; the action must remain open, be reopened, or have an authorized exception."}
+    - {id: CORRECTIVE-ACTION-004, rule: "CorrectiveAction implementation must not rewrite the originating Nonconformance, QualityInspection, receipt or return evidence."}
+    - {id: CORRECTIVE-ACTION-005, rule: "Posted or completed action history is retained; corrections use reopening, amendment or additional action records rather than destructive mutation."}
+    - {id: CORRECTIVE-ACTION-006, rule: Verification creation and completion must be idempotent and must not create conflicting effectiveness evidence on retry.}
   lifecycle:
     title: Corrective Action Lifecycle
     attribute: status

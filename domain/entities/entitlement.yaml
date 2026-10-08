@@ -6,11 +6,11 @@ entity:
   ui: {icon: badge-check}
   identity: {key: entitlementId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: entitlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service entitlement., businessMeaning: Identifies one service right independently of the contract header or service work consuming it., usage: "Coverage validation, service authorization, reporting and audit.", relationshipContext: Remains stable as consumption and status change., requiredMeaning: Required.}}
-    - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing entitlement reference., businessMeaning: Operational identifier for coverage administration., usage: "Case intake, service authorization and reporting.", relationshipContext: Distinct from Contract and ServiceContract numbers., requiredMeaning: Required.}}
-    - {name: effectiveFrom, type: date, required: true, help: {summary: First date the service right may be used., businessMeaning: Starts entitlement eligibility., usage: "Coverage checks and reporting.", relationshipContext: Must fall within the governing ServiceContract period., requiredMeaning: Required.}}
-    - {name: effectiveTo, type: date, required: false, help: {summary: Last date the service right may be used., businessMeaning: Ends ordinary eligibility without rewriting historical consumption., usage: "Coverage checks and renewals.", relationshipContext: Must not exceed governed contract scope., optionalMeaning: Optional for open-ended rights permitted by the ServiceContract.}}
-    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context., optionalMeaning: Optional for unlimited coverage.}}
+    - {name: entitlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service entitlement., businessMeaning: Identifies one service right independently of the contract header or service work consuming it., usage: "Coverage validation, service authorization, reporting and audit.", relationshipContext: Remains stable as consumption and status change.}}
+    - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing entitlement reference., businessMeaning: Operational identifier for coverage administration., usage: "Case intake, service authorization and reporting.", relationshipContext: Distinct from Contract and ServiceContract numbers.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: First date the service right may be used., businessMeaning: Starts entitlement eligibility., usage: "Coverage checks and reporting.", relationshipContext: Must fall within the governing ServiceContract period.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: Last date the service right may be used., businessMeaning: Ends ordinary eligibility without rewriting historical consumption., usage: "Coverage checks and renewals.", relationshipContext: Must not exceed governed contract scope.}}
+    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context.}}
     - name: status
       type: enum
       required: true
@@ -28,7 +28,6 @@ entity:
           EXHAUSTED: Governed usage limit has been consumed.
           EXPIRED: Effective period ended.
           TERMINATED: Right ended through governed action.
-        requiredMeaning: Required.
   relationships:
     - {name: customer, target: Customer, cardinality: "1", ownership: reference, help: {summary: Customer entitled to receive service., businessMeaning: Establishes beneficiary identity., usage: "Service authorization and customer history.", cardinalityMeaning: Exactly one Customer., workflowRole: Must agree with governing ServiceContract.}}
     - {name: serviceContract, target: ServiceContract, cardinality: "1", ownership: reference, help: {summary: Service contract granting this right., businessMeaning: Supplies commercial and temporal coverage basis., usage: "Authorization, renewal and audit.", cardinalityMeaning: Exactly one ServiceContract., workflowRole: Entitlement scope and dates must remain within contract terms.}}

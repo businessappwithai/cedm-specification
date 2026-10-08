@@ -15,7 +15,6 @@ entity:
         summary: "The product category id of the product category: an identifier the business records on it."
         usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
         relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its product category id."
     - name: code
       type: string
       required: true
@@ -25,7 +24,6 @@ entity:
         summary: "The code of the product category: a value the business records on it."
         usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
         relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its code."
     - name: name
       type: string
       required: true
@@ -34,7 +32,6 @@ entity:
         summary: "The name of the product category: a value the business records on it."
         usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
         relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its name."
     - name: description
       type: string
       required: false

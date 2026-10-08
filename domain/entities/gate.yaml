@@ -15,7 +15,6 @@ entity:
         businessMeaning: Identifies one checkpoint independently of its code or the lane layout currently in use.
         usage: "Referenced by every gate event recorded at the checkpoint."
         relationshipContext: GateEvent.gate resolves to this identity.
-        requiredMeaning: Required because a gate event must always say where it happened.
     - name: gateCode
       type: string
       required: true
@@ -26,7 +25,6 @@ entity:
         businessMeaning: The reference gate clerks, truck drivers and integrations use to name a checkpoint.
         usage: "Used in gate appointments, event capture and integration messages."
         relationshipContext: Gate events carry this code when imported from external gate systems.
-        requiredMeaning: Required because external gate systems identify the checkpoint by code.
     - name: name
       type: string
       required: false
@@ -36,7 +34,6 @@ entity:
         businessMeaning: Helps staff recognise the checkpoint, for example Main Truck Gate or Rail Gate.
         usage: "Shown on operations screens and reports."
         relationshipContext: The gate code remains the operational key when the name is changed.
-        optionalMeaning: Optional because the code can serve as the display label.
     - name: gateType
       type: enum
       required: true

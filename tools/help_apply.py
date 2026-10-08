@@ -112,14 +112,19 @@ def merge(old, authored: dict, bad_texts: set[str], vocabulary: set[str]) -> Com
         new[key] = dict(value) if isinstance(value, dict) else value
     if isinstance(old, dict):
         for key, value in old.items():
-            if key in new or key in ALWAYS_DROP:
+            if key == "valueSemantics" and isinstance(value, dict):
+                # Authored values win; real prose for the others stays.
+                kept = {v: t for v, t in value.items() if " ".join(str(t).split()) not in bad_texts}
+                merged = {**kept, **(new.get("valueSemantics") or {})}
+                if merged:
+                    order = list(value) + [v for v in merged if v not in value]
+                    new["valueSemantics"] = {v: merged[v] for v in order if v in merged}
                 continue
-            if key in vocabulary and key != "valueSemantics":
-                # An authored block speaks for every key it could have written.
-                if isinstance(value, str) and " ".join(value.split()) not in bad_texts:
-                    new[key] = value
+            if key in new or key in ALWAYS_DROP or key == "valueSemantics":
                 continue
-            if key == "valueSemantics":
+            # Real prose the author did not replace stays; template text goes,
+            # whatever key it sits under.
+            if isinstance(value, str) and " ".join(value.split()) in bad_texts:
                 continue
             new[key] = value
     return new
@@ -157,7 +162,11 @@ def main(argv: list[str]) -> int:
             bad = set()
             if isinstance(item_old, dict):
                 for key, value in item_old.items():
-                    if isinstance(value, str):
+                    if key == "valueSemantics" and isinstance(value, dict):
+                        for val, text in value.items():
+                            if isinstance(text, str) and hs.shape(text, name, str(val), (own, *targets), entity.get("kind")) in legacy:
+                                bad.add(" ".join(text.split()))
+                    elif isinstance(value, str):
                         s = hs.shape(value, name, own, targets, entity.get("kind"))
                         if s in legacy:
                             bad.add(" ".join(value.split()))
@@ -171,16 +180,14 @@ def main(argv: list[str]) -> int:
                 problems.append(f"{name}.{attr_name}: no such attribute")
                 continue
             attr = attrs[attr_name]
-            if "valueSemantics" in authored or attr.get("type") == "enum":
-                have = {str(v) for v in authored.get("valueSemantics", {})}
-                want = {str(v) for v in attr.get("values") or []}
-                if want and have != want:
-                    problems.append(f"{name}.{attr_name}: valueSemantics must cover exactly {sorted(want)} (has {sorted(have)})")
-                    continue
             if authored.get("examples"):
                 authored["examples"] = [e.strip() for e in authored["examples"].split(";") if e.strip()]
             attr["help"] = merge(attr.get("help"), authored, filler_set(attr.get("help"), attr_name, (attr.get("target"),)),
                                  set(ATTR_KEYS.values()))
+            want = {str(v) for v in attr.get("values") or []}
+            have = {str(v) for v in (attr["help"].get("valueSemantics") or {})}
+            if want and have != want:
+                problems.append(f"{name}.{attr_name}: valueSemantics must cover exactly {sorted(want)} (missing {sorted(want - have)}, extra {sorted(have - want)}); add 'v VALUE: ...' lines")
         for rel_name, authored in block["rels"].items():
             if rel_name not in rels:
                 problems.append(f"{name}.{rel_name}: no such relationship")

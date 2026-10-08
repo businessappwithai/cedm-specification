@@ -7,13 +7,13 @@ entity:
     icon: table
   identity: {key: varianceId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: Stable Variance identity., businessMeaning: Identifies the governed Variance concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+    - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: Stable Variance identity., businessMeaning: Identifies the governed Variance concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context.}}
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
-  - {name: budget, target: Budget, cardinality: 0..1, ownership: reference, help: {summary: Budget baseline compared., businessMeaning: Supplies planned value source., usage: Budget-vs-actual analysis., cardinalityMeaning: Optional for forecast-only comparison., workflowRole: Analysis cannot mutate budget.}}
-  - {name: forecast, target: Forecast, cardinality: 0..1, ownership: reference, help: {summary: Forecast baseline compared., businessMeaning: Supplies projected value source., usage: Forecast-vs-actual/budget analysis., cardinalityMeaning: Optional., workflowRole: Analysis cannot mutate forecast.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
+    - {name: budget, target: Budget, cardinality: 0..1, ownership: reference, help: {summary: Budget baseline compared., businessMeaning: Supplies planned value source., usage: Budget-vs-actual analysis., cardinalityMeaning: Optional for forecast-only comparison., workflowRole: Analysis cannot mutate budget.}}
+    - {name: forecast, target: Forecast, cardinality: 0..1, ownership: reference, help: {summary: Forecast baseline compared., businessMeaning: Supplies projected value source., usage: Forecast-vs-actual/budget analysis., cardinalityMeaning: Optional., workflowRole: Analysis cannot mutate forecast.}}
   invariants:
-  - {id: VARIANCE-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+    - {id: VARIANCE-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
   help: {summary: "A derived comparison between planned, forecast, or actual financial measures for a defined period and dimensional context.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VARIANCE}

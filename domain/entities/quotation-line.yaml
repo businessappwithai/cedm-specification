@@ -7,141 +7,127 @@ entity:
     icon: list
   identity: {key: quotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: quotationLineId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: 'The quotation line id of the quotation line: an identifier the business records on it.'
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and
-        reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful
-        on its own.
-      requiredMeaning: 'Required: a quotation line cannot be understood without its quotation line id.'
-  - name: lineNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: 'The line number of the quotation line: a whole number the business records on it.'
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and
-        reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful
-        on its own.
-      requiredMeaning: 'Required: a quotation line cannot be understood without its line number.'
-  - name: quantity
-    type: decimal
-    required: true
-    precision: 20
-    scale: 6
-    help:
-      summary: 'The quantity of the quotation line: a number the business records on it.'
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and
-        reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful
-        on its own.
-      requiredMeaning: 'Required: a quotation line cannot be understood without its quantity.'
-  - name: unitPrice
-    type: Money
-    required: true
-    help:
-      summary: Transaction-time quoted price per unit, including its currency.
-      usage: Used for quotation valuation and, when accepted, as source evidence for downstream SalesOrder pricing.
-      relationshipContext: Must be interpreted with the quotation currency and UnitOfMeasure.
-      workflowRole: Price determination may source a current price rule, but the accepted quotation retains this effective price.
-      requiredMeaning: Required for a financially valued quotation line.
-  - name: amount
-    type: Money
-    required: true
-    help:
-      summary: Calculated gross commercial value of the quotation line before any separately represented adjustments.
-      usage: Supports quotation totals and conversion validation.
-      relationshipContext: Currency must match unitPrice and the quotation currency under the quotation's pricing policy.
-      workflowRole: Provides a reproducible quoted amount.
-      requiredMeaning: Required for a financially valued quotation line.
-  - name: discountAmount
-    type: Money
-    required: false
-    help:
-      summary: Transaction-time discount amount granted on the quoted line.
-      usage: Preserves the commercial concession used to derive the net amount.
-      relationshipContext: Must use the quotation currency.
-      workflowRole: Prevents later DiscountRule changes from rewriting an accepted quotation.
-      optionalMeaning: Optional when no discount applies.
-  - name: priceSource
-    type: enum
-    required: false
-    values: [PRICE_LIST, CONTRACT, CUSTOMER_AGREEMENT, MANUAL, PROMOTION, OTHER]
-    help:
-      summary: Records the business source used to determine the quoted price.
-      usage: Supports audit, margin analysis, pricing explanation, and downstream conversion.
-      relationshipContext: Source metadata does not replace the transaction-time unitPrice.
-      workflowRole: Explains why the quoted price was selected.
-      optionalMeaning: Optional when the quotation does not require source attribution.
-      valueSemantics:
-        PRICE_LIST: The price source of the quotation line is price list; set it when that is what the business means for this record.
-        CONTRACT: The price source of the quotation line is contract; set it when that is what the business means for this record.
-        CUSTOMER_AGREEMENT: The price source of the quotation line is customer agreement; set it when that is what the business means for this record.
-        MANUAL: The price source of the quotation line is manual; set it when that is what the business means for this record.
-        PROMOTION: The price source of the quotation line is promotion; set it when that is what the business means for this record.
-        OTHER: The price source of the quotation line is other; set it when that is what the business means for this record.
-  - name: priceDeterminedAt
-    type: datetime
-    required: false
-    help:
-      summary: Timestamp at which the quoted price was determined.
-      usage: Supports effective-dated pricing audit and reproducibility.
-      relationshipContext: Distinct from quotation creation time when pricing is recalculated or manually overridden.
-      workflowRole: Provides temporal evidence for price determination.
-      optionalMeaning: Optional only where the quotation process does not capture determination timing.
-  - name: description
-    type: string
-    required: false
-    maxLength: 1000
-    help:
-      summary: "The description of the quotation line: a value the business records on it."
-      usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+    - name: quotationLineId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: 'The quotation line id of the quotation line: an identifier the business records on it.'
+        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+    - name: lineNumber
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: 'The line number of the quotation line: a whole number the business records on it.'
+        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 20
+      scale: 6
+      help:
+        summary: 'The quantity of the quotation line: a number the business records on it.'
+        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
+    - name: unitPrice
+      type: Money
+      required: true
+      help:
+        summary: Transaction-time quoted price per unit, including its currency.
+        usage: Used for quotation valuation and, when accepted, as source evidence for downstream SalesOrder pricing.
+        relationshipContext: Must be interpreted with the quotation currency and UnitOfMeasure.
+        workflowRole: Price determination may source a current price rule, but the accepted quotation retains this effective price.
+    - name: amount
+      type: Money
+      required: true
+      help:
+        summary: Calculated gross commercial value of the quotation line before any separately represented adjustments.
+        usage: Supports quotation totals and conversion validation.
+        relationshipContext: Currency must match unitPrice and the quotation currency under the quotation's pricing policy.
+        workflowRole: Provides a reproducible quoted amount.
+    - name: discountAmount
+      type: Money
+      required: false
+      help:
+        summary: Transaction-time discount amount granted on the quoted line.
+        usage: Preserves the commercial concession used to derive the net amount.
+        relationshipContext: Must use the quotation currency.
+        workflowRole: Prevents later DiscountRule changes from rewriting an accepted quotation.
+    - name: priceSource
+      type: enum
+      required: false
+      values: [PRICE_LIST, CONTRACT, CUSTOMER_AGREEMENT, MANUAL, PROMOTION, OTHER]
+      help:
+        summary: Records the business source used to determine the quoted price.
+        usage: Supports audit, margin analysis, pricing explanation, and downstream conversion.
+        relationshipContext: Source metadata does not replace the transaction-time unitPrice.
+        workflowRole: Explains why the quoted price was selected.
+        valueSemantics:
+          PRICE_LIST: The price source of the quotation line is price list; set it when that is what the business means for this record.
+          CONTRACT: The price source of the quotation line is contract; set it when that is what the business means for this record.
+          CUSTOMER_AGREEMENT: The price source of the quotation line is customer agreement; set it when that is what the business means for this record.
+          MANUAL: The price source of the quotation line is manual; set it when that is what the business means for this record.
+          PROMOTION: The price source of the quotation line is promotion; set it when that is what the business means for this record.
+          OTHER: The price source of the quotation line is other; set it when that is what the business means for this record.
+    - name: priceDeterminedAt
+      type: datetime
+      required: false
+      help:
+        summary: Timestamp at which the quoted price was determined.
+        usage: Supports effective-dated pricing audit and reproducibility.
+        relationshipContext: Distinct from quotation creation time when pricing is recalculated or manually overridden.
+        workflowRole: Provides temporal evidence for price determination.
+    - name: description
+      type: string
+      required: false
+      maxLength: 1000
+      help:
+        summary: "The description of the quotation line: a value the business records on it."
+        usage: Entered or maintained when a quotation line is created or changed; shown on its form and available to search and reports.
+        relationshipContext: Read together with the quotation line's other fields and its relationships; it is not meaningful on its own.
   relationships:
-  - name: quotation
-    target: Quotation
-    cardinality: '1'
-    ownership: reference
-    inverse: lines
-    help:
-      summary: Links a quotation line to quotation, the quotation it relates to.
-      usage: Chosen from the existing quotation records when the quotation line is created or edited.
-      cardinalityMeaning: A quotation line has exactly one quotation in this role.
-      context: Lets the quotation line be found from, and reported with, its quotation.
-  - name: product
-    target: Product
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a quotation line to product, the product it relates to.
-      usage: Chosen from the existing product records when the quotation line is created or edited.
-      cardinalityMeaning: A quotation line has at most one product in this role.
-      context: Lets the quotation line be found from, and reported with, its product.
-  - name: unitOfMeasure
-    target: UnitOfMeasure
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a quotation line to unit of measure, the unit of measure it relates to.
-      usage: Chosen from the existing unit of measure records when the quotation line is created or edited.
-      cardinalityMeaning: A quotation line has at most one unit of measure in this role.
-      context: Lets the quotation line be found from, and reported with, its unit of measure.
+    - name: quotation
+      target: Quotation
+      cardinality: '1'
+      ownership: reference
+      inverse: lines
+      help:
+        summary: Links a quotation line to quotation, the quotation it relates to.
+        usage: Chosen from the existing quotation records when the quotation line is created or edited.
+        cardinalityMeaning: A quotation line has exactly one quotation in this role.
+        context: Lets the quotation line be found from, and reported with, its quotation.
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Links a quotation line to product, the product it relates to.
+        usage: Chosen from the existing product records when the quotation line is created or edited.
+        cardinalityMeaning: A quotation line has at most one product in this role.
+        context: Lets the quotation line be found from, and reported with, its product.
+    - name: unitOfMeasure
+      target: UnitOfMeasure
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Links a quotation line to unit of measure, the unit of measure it relates to.
+        usage: Chosen from the existing unit of measure records when the quotation line is created or edited.
+        cardinalityMeaning: A quotation line has at most one unit of measure in this role.
+        context: Lets the quotation line be found from, and reported with, its unit of measure.
   invariants:
-  - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
-  - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}
-  - {id: QUOTATION-LINE-003, rule: amount.currency must equal unitPrice.currency.}
-  - {id: QUOTATION-LINE-004, rule: "amount must reconcile with quantity and unitPrice under the quotation's pricing and rounding policy, including explicitly represented discounts where applicable."}
-  - {id: QUOTATION-LINE-005, rule: "Changing a Product, PriceList, DiscountRule, Currency policy, or UnitOfMeasure after quotation acceptance must not silently rewrite the accepted quotation line."}
-  - {id: QUOTATION-LINE-006, rule: "Conversion from an accepted QuotationLine to SalesOrderLine must carry forward the effective quantity, UOM, unitPrice, currency, discount evidence, and applicable pricing source rather than re-querying master pricing without an explicit repricing action."}
-  - {id: QUOTATION-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
-  - {id: QUOTATION-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
-  - {id: QUOTATION-LINE-EXE-003, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
-  - {id: QUOTATION-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
+    - {id: QUOTATION-LINE-001, rule: quantity must be greater than zero.}
+    - {id: QUOTATION-LINE-002, rule: unitPrice.currency must be compatible with the quotation currency.}
+    - {id: QUOTATION-LINE-003, rule: amount.currency must equal unitPrice.currency.}
+    - {id: QUOTATION-LINE-004, rule: "amount must reconcile with quantity and unitPrice under the quotation's pricing and rounding policy, including explicitly represented discounts where applicable."}
+    - {id: QUOTATION-LINE-005, rule: "Changing a Product, PriceList, DiscountRule, Currency policy, or UnitOfMeasure after quotation acceptance must not silently rewrite the accepted quotation line."}
+    - {id: QUOTATION-LINE-006, rule: "Conversion from an accepted QuotationLine to SalesOrderLine must carry forward the effective quantity, UOM, unitPrice, currency, discount evidence, and applicable pricing source rather than re-querying master pricing without an explicit repricing action."}
+    - {id: QUOTATION-LINE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - {id: QUOTATION-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+    - {id: QUOTATION-LINE-EXE-003, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+    - {id: QUOTATION-LINE-EXE-004, rule: "Discount Amount cannot be negative.", violatedWhen: "discount_amount != null and discount_amount < 0", message: "Discount Amount cannot be negative."}
   help:
     summary: Preserves the commercial terms offered to a customer and the evidence needed when those terms become an order.
     businessMeaning: QuotationLine is a transaction-time commercial snapshot, not merely a pointer to current pricing master data.

@@ -7,25 +7,25 @@ entity:
     icon: database
   identity: {key: fiscalPeriodId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context., requiredMeaning: Required.}}
-  - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate., requiredMeaning: Required.}}
-  - {name: endDate, type: date, required: true, help: {summary: Last accounting date in period., businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: OPEN
-    values: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
-    help: {summary: Posting-control state., businessMeaning: Governs permitted accounting recognition and correction., usage: Journal validation and close., relationshipContext: Historical posted entries remain immutable., valueSemantics: {FUTURE: Not yet normally postable., OPEN: Normal posting allowed., SOFT_CLOSED: Restricted adjustment posting only., CLOSED: Ordinary posting prohibited., LOCKED: Administratively locked against posting/reopen without exceptional governance.}, requiredMeaning: Required.}
+    - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period.}}
+    - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context.}}
+    - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate.}}
+    - {name: endDate, type: date, required: true, help: {summary: Last accounting date in period., businessMeaning: Defines upper posting boundary., usage: Period determination and close., relationshipContext: Must not precede startDate.}}
+    - name: status
+      type: enum
+      required: true
+      default: OPEN
+      values: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
+      help: {summary: Posting-control state., businessMeaning: Governs permitted accounting recognition and correction., usage: Journal validation and close., relationshipContext: Historical posted entries remain immutable., valueSemantics: {FUTURE: Not yet normally postable., OPEN: Normal posting allowed., SOFT_CLOSED: Restricted adjustment posting only., CLOSED: Ordinary posting prohibited., LOCKED: Administratively locked against posting/reopen without exceptional governance.}}
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Accounting organization owning period., businessMeaning: Establishes books/control boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal organization must match.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: "0..*", ownership: reference, help: {summary: Accounting entries recognized in period., businessMeaning: Provides posting chronology., usage: "Close, reporting and audit.", cardinalityMeaning: Zero or many entries., workflowRole: Posted entry date must fall within boundaries and allowed state.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Accounting organization owning period., businessMeaning: Establishes books/control boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal organization must match.}}
+    - {name: journalEntries, target: JournalEntry, cardinality: "0..*", ownership: reference, help: {summary: Accounting entries recognized in period., businessMeaning: Provides posting chronology., usage: "Close, reporting and audit.", cardinalityMeaning: Zero or many entries., workflowRole: Posted entry date must fall within boundaries and allowed state.}}
   invariants:
-  - {id: FISCAL-PERIOD-001, rule: endDate must be on or after startDate.}
-  - {id: FISCAL-PERIOD-002, rule: Periods for the same organization and accounting calendar must not overlap unless explicitly modeled as distinct adjustment-period types.}
-  - {id: FISCAL-PERIOD-003, rule: POSTED JournalEntry requires an eligible FiscalPeriod containing entryDate.}
-  - {id: FISCAL-PERIOD-004, rule: CLOSED or LOCKED period rejects ordinary new posting; corrections require governed reopen or permitted adjustment-period treatment.}
-  - {id: FISCAL-PERIOD-005, rule: Period close never rewrites posted journal history.}
+    - {id: FISCAL-PERIOD-001, rule: endDate must be on or after startDate.}
+    - {id: FISCAL-PERIOD-002, rule: Periods for the same organization and accounting calendar must not overlap unless explicitly modeled as distinct adjustment-period types.}
+    - {id: FISCAL-PERIOD-003, rule: POSTED JournalEntry requires an eligible FiscalPeriod containing entryDate.}
+    - {id: FISCAL-PERIOD-004, rule: CLOSED or LOCKED period rejects ordinary new posting; corrections require governed reopen or permitted adjustment-period treatment.}
+    - {id: FISCAL-PERIOD-005, rule: Period close never rewrites posted journal history.}
   lifecycle:
     title: Fiscal Period Lifecycle
     attribute: status

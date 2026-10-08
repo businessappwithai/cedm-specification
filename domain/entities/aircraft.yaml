@@ -11,110 +11,83 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: aircraftId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the aircraft record associated with this Aircraft. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: registrationNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 50
-    help:
-      summary: Captures the business meaning of registration number for the Aircraft. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: aircraftType
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of aircraft type for the Aircraft. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: serialNumber
-    type: string
-    required: false
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of serial number for the Aircraft. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - PLANNED
-    - ACTIVE
-    - MAINTENANCE
-    - GROUNDED
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Aircraft records, where applicable.
-      relationshipContext: Its meaning is specific to Aircraft; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of Aircraft.
-        ACTIVE: Represents the active state or classification in the context of Aircraft.
-        MAINTENANCE: Represents the maintenance state or classification in the context of Aircraft.
-        GROUNDED: Represents the grounded state or classification in the context of Aircraft.
-        RETIRED: Represents the retired state or classification in the context of Aircraft.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: aircraftId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent system identity of the aircraft record.
+        usage: Generated on creation; flights and work orders refer to the aircraft through it, so a re-registration does not break history.
+    - name: registrationNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 50
+      help:
+        summary: The national registration (tail number) painted on the aircraft and listed in the aviation register.
+        usage: Entered from registration documents; unique across the fleet and used by crews, air traffic and authorities to name the aircraft. It can change if the aircraft is re-registered.
+    - name: aircraftType
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The make and model of the aircraft, such as Airbus A320-214 or Cessna 172S.
+        usage: Chosen from type data when the aircraft is added; decides crew qualifications, maintenance programmes and performance limits that apply.
+    - name: serialNumber
+      type: string
+      required: false
+      unique: true
+      maxLength: 100
+      help:
+        summary: The manufacturer's serial number, which stays with the airframe for life.
+        usage: Entered from the build documents; unlike the registration it never changes, so it is the safe way to trace an airframe across owners and registers.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - PLANNED
+        - ACTIVE
+        - MAINTENANCE
+        - GROUNDED
+        - RETIRED
+      help:
+        summary: Whether the aircraft is available to fly.
+        usage: Updated by operations and maintenance control; scheduling may assign only ACTIVE aircraft.
+        valueSemantics:
+          PLANNED: Expected to join the fleet but not yet delivered or accepted.
+          ACTIVE: In service and available for scheduling.
+          MAINTENANCE: Out of service for scheduled or unscheduled maintenance.
+          GROUNDED: Not permitted to fly pending an airworthiness issue, inspection or regulatory decision.
+          RETIRED: Permanently removed from the fleet; the record is kept for history.
   relationships:
-  - name: organization
-    target: Organization
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Aircraft to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Aircraft.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: location
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Aircraft to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a Aircraft.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: maintenanceWorkOrders
-    target: MaintenanceWorkOrder
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Aircraft to MaintenanceWorkOrder so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about MaintenanceWorkOrder records associated with a Aircraft.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: organization
+      target: Organization
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The organisation that operates this aircraft.
+        usage: Set when the aircraft is added; determines whose fleet, rules and reporting the aircraft falls under.
+        cardinalityMeaning: Exactly one operator at a time; every aircraft must belong to an organisation.
+        workflowRole: Establishes accountability for airworthiness and scheduling.
+    - name: location
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Where the aircraft is currently based or parked.
+        usage: Updated as the aircraft moves between airports and hangars; used for dispatch and maintenance planning.
+        cardinalityMeaning: At most one current location, and empty while the position is unknown.
+        workflowRole: Planners use it to decide which work can be done where.
+    - name: maintenanceWorkOrders
+      target: MaintenanceWorkOrder
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The maintenance work orders raised for this aircraft.
+        usage: Read to see what is open, what is done and what is due; each order is created from this aircraft's maintenance programme or from a defect.
+        cardinalityMeaning: Any number over the aircraft's life.
+        workflowRole: Open work orders gate return to service.
   lifecycle:
     title: Aircraft Lifecycle
     attribute: status
@@ -132,18 +105,12 @@ entity:
       - {from: MAINTENANCE, to: RETIRED, action: retire}
       - {from: GROUNDED, to: RETIRED, action: retire}
   help:
-    summary: Represents a aerospace asset called Aircraft within the CEDM business model.
-    businessMeaning: Aircraft is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Aircraft records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Location,
-      MaintenanceWorkOrder. These relationships provide the context needed to interpret the record rather than treating its
-      fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Aircraft record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: An aircraft, powered or unpowered, managed as an operational asset with its own registration, type, status and maintenance history.
+    businessMeaning: For an operator, each aircraft is a high-value asset that must be airworthy, scheduled and maintained. This record is the aircraft's identity in the system, to which flights, maintenance and compliance evidence are attached.
+    usage: Created when an aircraft is acquired or planned into the fleet; read by scheduling, maintenance planning and compliance, and updated as the aircraft changes status.
+    relationshipContext: An aircraft belongs to an operating Organization, may be located at a Location, and is the subject of MaintenanceWorkOrders; together they show who is responsible, where it is and what work it needs.
+    lifecycle: An aircraft is planned, becomes active in service, goes into maintenance or is grounded when it cannot fly, returns to service when released, and is retired when it leaves the fleet.
+    example: Registration G-ABCD, an Airbus A320 serial 5421, is active with a Frankfurt-based airline and is in a scheduled C-check at its maintenance base.
 specification:
   version: 0.1.0
   status: draft

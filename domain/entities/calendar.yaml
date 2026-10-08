@@ -7,12 +7,12 @@ entity:
     icon: calendar
   identity: {key: calendarId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: calendarId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Calendar., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Calendar is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Calendar., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Calendar., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: calendarId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Calendar., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Calendar is referenced.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for Calendar., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Calendar., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity.}}
   relationships: []
   invariants:
-  - {id: CALENDAR-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: CALENDAR-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
     summary: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes.
     purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
