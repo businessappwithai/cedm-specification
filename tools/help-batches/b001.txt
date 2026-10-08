@@ -1,0 +1,50 @@
+@ Account
+s: A ledger account in a chart of accounts: the named bucket to which monetary activity is posted and from which balances are reported.
+b: Account is how an organisation classifies money. Every posting lands on an account, and the account's type decides which statement it appears on (balance sheet or income statement) and which direction increases its balance.
+u: Created when the chart of accounts is set up or extended; referenced by journal postings, invoices, payments, budgets and financial reports. Accounts are retired, never deleted, so past postings stay explainable.
+c: Accounts form a tree through parent and child accounts so balances roll up into reporting groups; each chart belongs to an Organization, and an account may be pinned to a Currency for foreign-currency ledgers.
+l: Active accounts accept postings. Inactive accounts are paused and can be reactivated. Retired accounts are closed for good but remain in reports covering the periods in which they were used.
+x: Account 4000 "Product Revenue" (type REVENUE) is a child of 4000-series "Revenue"; every sales invoice line posts to it, and the income statement sums it into total revenue.
+a accountId
+s: The permanent system identity of the ledger account.
+u: Generated when the account is created and never changed; postings, budgets and reports hold this identity so renumbering the account code does not break them.
+a code
+s: The account number or code under which the account appears in the chart of accounts, such as 1100 or 4000.
+u: Entered by the finance team when creating the account and used for lookup, sorting and imports. It must be unique within its chart, and finance teams usually structure it so the leading digits indicate the account class.
+a name
+s: The descriptive title of the account, such as Accounts Receivable or Product Revenue.
+u: Shown on ledgers, trial balances and statements. It can be reworded for clarity without affecting history because postings refer to the account by identity.
+a accountType
+s: The accounting class of the account, which decides where it appears in the statements and whether debits or credits increase it.
+u: Chosen when the account is created and rarely changed afterwards, because changing it reclassifies every historical posting. Reports group and sign balances by this value.
+v ASSET: Something the organisation owns or is owed, such as cash or receivables; debits increase it and it appears on the balance sheet.
+v LIABILITY: Something the organisation owes, such as payables or loans; credits increase it and it appears on the balance sheet.
+v EQUITY: The owners' residual interest, such as share capital and retained earnings; credits increase it and it appears on the balance sheet.
+v REVENUE: Income earned from the organisation's activities; credits increase it and it appears on the income statement.
+v EXPENSE: Cost incurred in earning revenue; debits increase it and it appears on the income statement.
+v CONTRA: An account that offsets another, such as accumulated depreciation against an asset or sales returns against revenue; it carries the opposite sign of the account it offsets.
+a status
+s: Whether the account is open for new postings.
+u: New accounts start ACTIVE. Finance staff move an account to INACTIVE to stop postings temporarily and to RETIRED when it is closed for good; posting screens offer only ACTIVE accounts.
+v ACTIVE: Open for postings and shown in account pick-lists.
+v INACTIVE: Paused: no new postings are accepted, but it can be reactivated and still appears in reports.
+v RETIRED: Closed for good: no postings, kept only so historical periods stay reportable.
+a currencyId
+s: The currency in which this account is denominated, when it is held in something other than the organisation's base currency.
+u: Set for foreign-currency accounts such as a euro bank account so that postings and balances are held in that currency; left empty for ordinary base-currency accounts.
+c: Points to Currency so foreign-currency balances can be revalued into the reporting currency.
+r parentAccount
+s: The account directly above this one in the chart of accounts hierarchy.
+u: Chosen when the account is created to place it in a reporting group, for example Bank Accounts under Current Assets. Leave empty for a top-level account.
+n: At most one parent: the chart is a tree, so an account sits in exactly one place or at the top.
+w: Lets reports roll balances up the tree; a cycle would make roll-up impossible, which is why the hierarchy must stay acyclic.
+r childAccounts
+s: The accounts placed directly beneath this one in the hierarchy.
+u: Read to expand a group into its detail accounts and to total a group from its members.
+n: Any number of children, including none for a posting account at the bottom of the tree.
+w: The inverse of the parent link; balances of the children sum into this account for reporting.
+r organization
+s: The organisation whose chart of accounts this account belongs to.
+u: Set when the account is created so each legal entity keeps its own chart; used to scope ledgers and reports to one organisation.
+n: At most one organisation; an account with none is treated as shared across the chart it is loaded into.
+w: Keeps one organisation's ledger from mixing with another's in consolidated or multi-entity setups.
