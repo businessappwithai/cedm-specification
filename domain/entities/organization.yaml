@@ -51,34 +51,34 @@ entity:
       required: true
       values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
       help:
+        valueSemantics:
+          ENTERPRISE: The top-level body, such as a group or corporation.
+          COMPANY: A legal company.
+          BUSINESS_UNIT: A business division with its own results.
+          DIVISION: A major part of the organisation.
+          DEPARTMENT: A functional unit.
+          BRANCH: A local office or branch.
+          SUBSIDIARY: A company controlled by another.
+          OTHER: Any other organised body.
         summary: Classifies the organizational structure represented by the specialization.
         usage: Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration.
         relationshipContext: Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations.
         workflowRole: Controls applicable organizational hierarchy and operating-context rules.
-        valueSemantics:
-          ENTERPRISE: The organization type of the organization is enterprise; set it when that is what the business means for this record.
-          COMPANY: The organization type of the organization is company; set it when that is what the business means for this record.
-          BUSINESS_UNIT: The organization type of the organization is business unit; set it when that is what the business means for this record.
-          DIVISION: The organization type of the organization is division; set it when that is what the business means for this record.
-          DEPARTMENT: The organization type of the organization is department; set it when that is what the business means for this record.
-          BRANCH: The organization type of the organization is branch; set it when that is what the business means for this record.
-          SUBSIDIARY: The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-          OTHER: The organization type of the organization is other; set it when that is what the business means for this record.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
       help:
+        valueSemantics:
+          DRAFT: Being set up; not yet in use.
+          ACTIVE: In use.
+          INACTIVE: Temporarily not in use; can be reactivated.
+          RETIRED: Closed; kept for history. A final state.
         summary: Lifecycle of the organizational specialization.
         usage: Controls whether the organization can normally be selected as an organizational context.
         relationshipContext: Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity.
         workflowRole: Governs organizational use while preserving historical relationships.
-        valueSemantics:
-          DRAFT: The status of the organization is draft; set it when that is what the business means for this record.
-          ACTIVE: The status of the organization is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the organization is inactive; set it when that is what the business means for this record.
-          RETIRED: The status of the organization is retired; set it when that is what the business means for this record.
     - name: legalName
       type: string
       required: false

@@ -6,7 +6,7 @@ entity:
   ui: {icon: eye}
   identity: {key: observationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: observationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Observation., businessMeaning: Identifies one primary evidence item independently of later interpretation., usage: "Research data, laboratory analysis, reproducibility and audit.", relationshipContext: Result may derive from one or more Observations.}}
+    - {name: observationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the observation., usage: Generated on recording; results and verifications refer to it., businessMeaning: Identifies one primary evidence item independently of later interpretation., relationshipContext: Result may derive from one or more Observations.}}
     - {name: observedAt, type: datetime, required: true, help: {summary: Timestamp at which evidence was observed or measured., businessMeaning: Establishes scientific chronology., usage: "Time-series analysis, reproducibility and audit.", relationshipContext: May differ from record-entry time.}}
     - {name: observationType, type: string, required: true, maxLength: 160, help: {summary: Classification of the observed characteristic., businessMeaning: Defines what property or phenomenon the value represents., usage: "Analysis, validation and reporting.", relationshipContext: Unit and value semantics depend on observation type.}}
     - {name: value, type: string, required: true, maxLength: 2000, help: {summary: Recorded measured or qualitative value., businessMeaning: Primary scientific evidence as captured under applicable method., usage: "Analysis, QC and reporting.", relationshipContext: Numeric interpretation may require UnitOfMeasure and method context.}}
@@ -15,7 +15,15 @@ entity:
       required: true
       default: RECORDED
       values: [RECORDED, VERIFIED, INVALIDATED]
-      help: {summary: Governance state of the Observation., businessMeaning: "Distinguishes captured evidence, verified evidence and explicitly invalidated evidence.", usage: "QC, analysis and audit.", relationshipContext: Invalidation preserves original evidence rather than deleting it., valueSemantics: {RECORDED: Evidence is captured., VERIFIED: Evidence passed applicable review/QC., INVALIDATED: Evidence is retained but excluded or flagged under governed reason.}}
+      help:
+        summary: Whether the observation has been checked.
+        usage: Set by the scientist or reviewer; only verified observations feed final results.
+        valueSemantics:
+          RECORDED: Captured but not yet checked.
+          VERIFIED: Checked and accepted as primary evidence. A final state.
+          INVALIDATED: Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state.
+        businessMeaning: "Distinguishes captured evidence, verified evidence and explicitly invalidated evidence."
+        relationshipContext: Invalidation preserves original evidence rather than deleting it.
   relationships:
     - {name: sample, target: Sample, cardinality: "0..1", ownership: reference, help: {summary: Sample from which the Observation originates., businessMeaning: Preserves specimen provenance., usage: "Traceability and interpretation.", cardinalityMeaning: Optional for non-sample observations., workflowRole: Sample lineage remains intact.}}
     - {name: assay, target: Assay, cardinality: "0..1", ownership: reference, help: {summary: Assay execution producing the Observation., businessMeaning: Preserves method/execution provenance., usage: "Laboratory analysis and audit.", cardinalityMeaning: Optional when captured outside an Assay., workflowRole: Completed Assay evidence retains observation identity.}}
