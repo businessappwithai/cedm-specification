@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-09T08:30:24.665Z
+ * Generated: 2026-10-09T15:28:02.046Z
  * Project: compliance
  */
 
@@ -60,143 +60,148 @@ export const modelEnums: ModelEnum[] = [
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
-    name: "ControlControlType",
+    name: "AuditCaseStatus",
     referenceId: 1002,
+    values: ["PLANNED", "IN_PROGRESS", "REPORTED", "CLOSED", "CANCELLED"],
+  },
+  {
+    name: "ControlControlType",
+    referenceId: 1003,
     values: ["PREVENTIVE", "DETECTIVE", "CORRECTIVE", "DIRECTIVE"],
   },
   {
     name: "ControlFrequency",
-    referenceId: 1003,
+    referenceId: 1004,
     values: ["CONTINUOUS", "DAILY", "WEEKLY", "MONTHLY", "QUARTERLY", "ANNUAL", "EVENT_DRIVEN", "AD_HOC"],
   },
   {
     name: "ControlStatus",
-    referenceId: 1004,
+    referenceId: 1005,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "CurrencyStatus",
-    referenceId: 1005,
+    referenceId: 1006,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "ExchangeRateRateType",
-    referenceId: 1006,
+    referenceId: 1007,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1007,
+    referenceId: 1008,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
     name: "LocationLocationType",
-    referenceId: 1008,
+    referenceId: 1009,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1009,
+    referenceId: 1010,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1010,
+    referenceId: 1011,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1011,
+    referenceId: 1012,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "OrganizationStatus",
-    referenceId: 1012,
+    referenceId: 1013,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "PartyPartyType",
-    referenceId: 1013,
+    referenceId: 1014,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PartyRoleRoleType",
-    referenceId: 1014,
+    referenceId: 1015,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1015,
+    referenceId: 1016,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1016,
+    referenceId: 1017,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1017,
+    referenceId: 1018,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1018,
+    referenceId: 1019,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1019,
+    referenceId: 1020,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PolicyStatus",
-    referenceId: 1020,
+    referenceId: 1021,
     values: ["DRAFT", "APPROVED", "ACTIVE", "SUSPENDED", "RETIRED"],
   },
   {
     name: "RiskImpact",
-    referenceId: 1021,
+    referenceId: 1022,
     values: ["INSIGNIFICANT", "MINOR", "MODERATE", "MAJOR", "SEVERE"],
   },
   {
     name: "RiskLikelihood",
-    referenceId: 1022,
+    referenceId: 1023,
     values: ["RARE", "UNLIKELY", "POSSIBLE", "LIKELY", "ALMOST_CERTAIN"],
   },
   {
     name: "RiskStatus",
-    referenceId: 1023,
+    referenceId: 1024,
     values: ["IDENTIFIED", "ASSESSED", "MITIGATING", "ACCEPTED", "CLOSED", "MATERIALIZED"],
   },
   {
     name: "RiskTreatmentStatus",
-    referenceId: 1024,
+    referenceId: 1025,
     values: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1025,
+    referenceId: 1026,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1026,
+    referenceId: 1027,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1027,
+    referenceId: 1028,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1028,
+    referenceId: 1029,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1029,
+    referenceId: 1030,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -393,6 +398,20 @@ export const stateMachines: StateMachine[] = [
       { from: "ASSESSED", to: "MATERIALIZED", trigger: "materialize" },
       { from: "MITIGATING", to: "MATERIALIZED", trigger: "materialize" },
       { from: "ACCEPTED", to: "MATERIALIZED", trigger: "materialize" },
+    ],
+  },
+  {
+    entity: "AuditCase",
+    tableName: "bus_audit_case",
+    statusField: "status",
+    initial: "PLANNED",
+    terminal: ["CLOSED", "CANCELLED"],
+    edges: [
+      { from: "PLANNED", to: "IN_PROGRESS", trigger: "start" },
+      { from: "IN_PROGRESS", to: "REPORTED", trigger: "report" },
+      { from: "REPORTED", to: "CLOSED", trigger: "close" },
+      { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
+      { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

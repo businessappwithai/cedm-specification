@@ -20,10 +20,74 @@ entity:
           ACTIVE: Confirmed and waiting to be invoiced.
           COMPLETED: Invoiced; the charge has done its job.
           CANCELLED: Withdrawn and will not be billed.
+    - name: chargeNumber
+      type: string
+      maxLength: 100
+      unique: true
+      required: true
+      help:
+        summary: The reference number of the charge, such as CHG-000412.
+        usage: Assigned when the charge is generated; quoted on invoices and in disputes.
+        relationshipContext: Read with the customer.
+    - name: chargeType
+      type: enum
+      values:
+        - SUBSCRIPTION
+        - USAGE
+        - SERVICE
+        - PRODUCT
+        - FEE
+        - ADJUSTMENT
+      required: true
+      help:
+        summary: What the charge is for.
+        usage: Set by the rule that generates it; invoices and reports group charges by type.
+        relationshipContext: Decides the revenue treatment.
+        valueSemantics:
+          SUBSCRIPTION: A recurring charge for a subscription period.
+          USAGE: A charge for measured usage.
+          SERVICE: A charge for a service delivered.
+          PRODUCT: A charge for goods supplied.
+          FEE: A fee such as a setup or late fee.
+          ADJUSTMENT: A correction that increases the amount owed.
+    - name: amount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The amount to be billed, before settlement.
+        usage: Calculated by the generating rule; must not be negative; summed onto the invoice.
+        relationshipContext: Compared with the amount later paid.
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: true
+      help:
+        summary: The currency of the charge amount.
+        usage: Set from the customer or contract; invoicing converts if needed.
+        relationshipContext: Read with the amount.
+    - name: chargedOn
+      type: date
+      required: true
+      help:
+        summary: The date the charge arose.
+        usage: Set when generated; decides the invoice period it falls in.
+        relationshipContext: Compared with invoice dates.
+    - name: description
+      type: string
+      maxLength: 1000
+      required: false
+      help:
+        summary: Words describing the charge as the customer will see them.
+        usage: Generated or entered; printed on the invoice line.
+        relationshipContext: Read by the customer.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer who is billed for the charge., usage: Set when the charge is generated; invoices are assembled per customer., cardinalityMeaning: At most one customer; a charge for an internal cost centre may have none., workflowRole: Decides which invoice the charge lands on and whose credit exposure it affects.}}
   invariants:
     - {id: CHARGE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - id: CHARGE-002
+      rule: amount must not be negative.
   lifecycle:
     title: Charge Lifecycle
     attribute: status

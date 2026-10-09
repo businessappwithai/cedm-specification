@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-09T08:33:25.957Z
+//! Generated: 2026-10-09T15:31:08.916Z
 //! Project: travel
 
 #![allow(dead_code)]

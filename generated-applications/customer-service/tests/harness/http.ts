@@ -4,7 +4,7 @@
  * Login issues an httpOnly session cookie; `fetch` does not persist cookies on
  * its own, so the jar here is what keeps a suite logged in across requests.
  *
- * Generated: 2026-10-09T08:30:38.116Z
+ * Generated: 2026-10-09T15:28:16.202Z
  * Project: customer-service
  */
 

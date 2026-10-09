@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:33:02.601Z
+//! Generated: 2026-10-09T15:30:46.752Z
 //! Project: supply-chain
 
 use serde_json::Value;

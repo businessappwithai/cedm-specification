@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-09T08:31:39.484Z
+ * Generated: 2026-10-09T15:29:17.971Z
  * Project: legal
  */
 
@@ -60,123 +60,128 @@ export const modelEnums: ModelEnum[] = [
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
-    name: "ContractObligationObligationType",
+    name: "AgreementAgreementType",
     referenceId: 1002,
+    values: ["SERVICE", "SUPPLY", "LICENSE", "PARTNERSHIP", "NON_DISCLOSURE", "OTHER"],
+  },
+  {
+    name: "ContractObligationObligationType",
+    referenceId: 1003,
     values: ["DELIVERY", "PAYMENT", "SERVICE", "REPORTING", "COMPLIANCE", "PERFORMANCE", "OTHER"],
   },
   {
     name: "ContractObligationStatus",
-    referenceId: 1003,
+    referenceId: 1004,
     values: ["OPEN", "IN_PROGRESS", "FULFILLED", "BREACHED", "WAIVED", "CANCELLED"],
   },
   {
     name: "ContractStatus",
-    referenceId: 1004,
+    referenceId: 1005,
     values: ["DRAFT", "NEGOTIATION", "APPROVAL", "ACTIVE", "SUSPENDED", "EXPIRED", "TERMINATED", "CANCELLED"],
   },
   {
     name: "CurrencyStatus",
-    referenceId: 1005,
+    referenceId: 1006,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "ExchangeRateRateType",
-    referenceId: 1006,
+    referenceId: 1007,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1007,
+    referenceId: 1008,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
     name: "LocationLocationType",
-    referenceId: 1008,
+    referenceId: 1009,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1009,
+    referenceId: 1010,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1010,
+    referenceId: 1011,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1011,
+    referenceId: 1012,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "OrganizationStatus",
-    referenceId: 1012,
+    referenceId: 1013,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "PartyPartyType",
-    referenceId: 1013,
+    referenceId: 1014,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PartyRoleRoleType",
-    referenceId: 1014,
+    referenceId: 1015,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1015,
+    referenceId: 1016,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1016,
+    referenceId: 1017,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1017,
+    referenceId: 1018,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1018,
+    referenceId: 1019,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1019,
+    referenceId: 1020,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "RenewalStatus",
-    referenceId: 1020,
+    referenceId: 1021,
     values: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1021,
+    referenceId: 1022,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1022,
+    referenceId: 1023,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1023,
+    referenceId: 1024,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1024,
+    referenceId: 1025,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1025,
+    referenceId: 1026,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];

@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-09T08:33:30.337Z
+//! Generated: 2026-10-09T15:31:13.780Z
 //! Project: workflow
 
 use serde_json::{json, Value};

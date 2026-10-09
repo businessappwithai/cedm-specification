@@ -336,20 +336,20 @@ VALUES ('499fb41c-2eae-54b3-9391-7e941111df90', 'Risk 5', 'Risk 5', 'Description
 ON CONFLICT DO NOTHING;
 
 -- Audit Case (bus_audit_case)
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('2cec9eb9-5b9a-5ac2-bd95-3c48fc2cf526', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('2cec9eb9-5b9a-5ac2-bd95-3c48fc2cf526', NULL, 'Case Number 1', 'Audit Case 1', 'Scope 1', '2026-01-15', NULL, 'PLANNED', 'dd3588df-1060-54f9-b533-6474e9950d0b', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('2553c89d-dedd-5364-b70e-f24c2e60a912', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('2553c89d-dedd-5364-b70e-f24c2e60a912', NULL, 'Case Number 2', 'Audit Case 2', 'Scope 2', '2026-02-15', NULL, 'PLANNED', '60caa376-c947-5072-ba9c-14379e338a10', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('732d659d-af26-5639-ae29-a546d86133a8', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('732d659d-af26-5639-ae29-a546d86133a8', NULL, 'Case Number 3', 'Audit Case 3', 'Scope 3', '2026-03-15', NULL, 'PLANNED', '11add255-0e3c-5dba-91a1-8020b44ecfed', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('b831b81b-80fe-5d15-a233-0524061c77e3', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('b831b81b-80fe-5d15-a233-0524061c77e3', NULL, 'Case Number 4', 'Audit Case 4', 'Scope 4', '2026-04-15', NULL, 'PLANNED', '14e6a5f5-f0af-5e24-8878-fdf9a39f964c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_audit_case (id, effective_at, doc_status, created_at, updated_at)
-VALUES ('9eff9698-e927-57da-a11c-114d85a9051a', NULL, 'final', NOW(), NOW())
+INSERT INTO bus_audit_case (id, effective_at, case_number, title, scope, opened_on, closed_on, status, lead_auditor_id, doc_status, created_at, updated_at)
+VALUES ('9eff9698-e927-57da-a11c-114d85a9051a', NULL, 'Case Number 5', 'Audit Case 5', 'Scope 5', '2026-05-15', NULL, 'PLANNED', '51e4d6be-d507-520a-a049-13e5ef84c784', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Audit Event (bus_audit_event)

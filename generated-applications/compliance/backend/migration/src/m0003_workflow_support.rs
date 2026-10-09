@@ -529,6 +529,14 @@ ALTER TABLE bus_risk_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_risk_status_doc_status ON bus_risk_status (doc_status);
 
+ALTER TABLE bus_audit_case_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_audit_case_status_doc_status ON bus_audit_case_status (doc_status);
+
 ALTER TABLE bus_risk_treatment_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -1031,6 +1039,14 @@ ALTER TABLE bus_risk_impact
 DROP INDEX IF EXISTS idx_bus_risk_status_doc_status;
 
 ALTER TABLE bus_risk_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_audit_case_status_doc_status;
+
+ALTER TABLE bus_audit_case_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

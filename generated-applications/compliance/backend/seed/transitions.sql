@@ -440,6 +440,31 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('6a2250de-cd95-5df4-a5a6-5dcf726d175b', 'bus_risk', 'status', 'ACCEPTED', 'MATERIALIZED', 'materialize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- AuditCaseLifecycle: PLANNED → IN_PROGRESS (start)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4585cc7e-33eb-5eaa-b404-f154aa9fea26', 'bus_audit_case', 'status', 'PLANNED', 'IN_PROGRESS', 'start', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: IN_PROGRESS → REPORTED (report)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9e96333c-ef8c-5771-ad97-e2dd5ea946cc', 'bus_audit_case', 'status', 'IN_PROGRESS', 'REPORTED', 'report', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: REPORTED → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('2c153534-cb8c-5eda-a597-dac716ad3edd', 'bus_audit_case', 'status', 'REPORTED', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: PLANNED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0073121b-ba98-5342-b9f8-bef2a788bc07', 'bus_audit_case', 'status', 'PLANNED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: IN_PROGRESS → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('734cd7cf-a3e1-597e-8fe6-34abbc4d5394', 'bus_audit_case', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- RiskTreatmentLifecycle: DRAFT → ACTIVE (activate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('80e5bad8-0b29-54d6-aee4-db1d53e4245b', 'bus_risk_treatment', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
@@ -638,6 +663,23 @@ VALUES ('8caedf65-f97b-5585-9cd0-8e9cc01d01f7', 'bus_risk', 'status', 'CLOSED', 
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('ecdb166a-9042-5fc8-8502-9334b71ad0e0', 'bus_risk', 'status', 'MATERIALIZED', FALSE, TRUE, 60, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- AuditCaseLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('89e0228d-6961-55d3-bab3-2bc1433e11df', 'bus_audit_case', 'status', 'PLANNED', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('9865af8a-478b-5b25-921a-4a77ef410397', 'bus_audit_case', 'status', 'IN_PROGRESS', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('68083a90-8063-5fe8-b786-c67f869a101b', 'bus_audit_case', 'status', 'REPORTED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('cd9a1736-89c2-5d54-9bda-2b4315f9cdde', 'bus_audit_case', 'status', 'CLOSED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('aec80bc8-7a1d-5962-b70f-b0592b60247f', 'bus_audit_case', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RiskTreatmentLifecycle: states

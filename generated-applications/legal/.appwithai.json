@@ -66,6 +66,7 @@
     "ContractStatus",
     "ContractObligationObligationType",
     "ContractObligationStatus",
+    "AgreementAgreementType",
     "RenewalStatus"
   ],
   "categories": [
@@ -77,6 +78,7 @@
   "enums": [
     "AddressAddressType (7)",
     "AddressStatus (3)",
+    "AgreementAgreementType (6)",
     "ContractObligationObligationType (7)",
     "ContractObligationStatus (6)",
     "ContractStatus (8)",
@@ -111,5 +113,5 @@
     "RenewalFollowUpRequired on Renewal (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T08:31:39.924Z"
+  "generatedAt": "2026-10-09T15:29:18.383Z"
 }

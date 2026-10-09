@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T08:30:32.820Z
+ * Generated: 2026-10-09T15:28:10.912Z
  * Project: container-logistics
  */
 

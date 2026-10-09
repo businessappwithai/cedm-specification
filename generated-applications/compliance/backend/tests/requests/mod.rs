@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-09T08:30:22.737Z
+//! Generated: 2026-10-09T15:28:00.061Z
 //! Project: compliance
 
 mod accounts;
@@ -34,6 +34,7 @@ mod crud_address_address_type;
 mod crud_address_status;
 mod crud_attachment;
 mod crud_audit_case;
+mod crud_audit_case_status;
 mod crud_audit_event;
 mod crud_business_unit;
 mod crud_calendar;
@@ -98,6 +99,7 @@ mod rules_address_address_type;
 mod rules_address_status;
 mod rules_attachment;
 mod rules_audit_case;
+mod rules_audit_case_status;
 mod rules_audit_event;
 mod rules_business_unit;
 mod rules_calendar;

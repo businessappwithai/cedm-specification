@@ -6,7 +6,7 @@
 //! assert the resolution itself rather than the storage: a value written
 //! through the API must be visible to the next request that resolves it.
 //!
-//! Generated: 2026-10-09T08:30:45.238Z
+//! Generated: 2026-10-09T15:28:23.214Z
 //! Project: ecommerce
 
 use serde_json::{json, Value};

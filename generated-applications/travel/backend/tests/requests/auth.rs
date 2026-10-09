@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-09T08:33:25.964Z
+//! Generated: 2026-10-09T15:31:08.925Z
 //! Project: travel
 
 use serde_json::{json, Value};

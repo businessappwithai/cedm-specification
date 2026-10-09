@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-09T08:31:03.630Z
+//! Generated: 2026-10-09T15:28:42.370Z
 //! Project: finance
 
 mod accounts;
@@ -56,6 +56,7 @@ mod crud_business_unit;
 mod crud_calendar;
 mod crud_cash_position;
 mod crud_charge;
+mod crud_charge_charge_type;
 mod crud_charge_status;
 mod crud_city;
 mod crud_contact_point;
@@ -153,6 +154,7 @@ mod crud_tax_code_status;
 mod crud_tax_jurisdiction;
 mod crud_tax_jurisdiction_status;
 mod crud_tax_rate;
+mod crud_tax_rate_rate_basis;
 mod crud_tax_rate_status;
 mod crud_tax_registration;
 mod crud_tax_registration_status;
@@ -167,6 +169,7 @@ mod crud_unit_of_measure_status;
 mod crud_usage_record;
 mod crud_usage_record_status;
 mod crud_variance;
+mod crud_variance_basis;
 
 mod rules_account;
 mod rules_account_account_type;
@@ -195,6 +198,7 @@ mod rules_business_unit;
 mod rules_calendar;
 mod rules_cash_position;
 mod rules_charge;
+mod rules_charge_charge_type;
 mod rules_charge_status;
 mod rules_city;
 mod rules_contact_point;
@@ -292,6 +296,7 @@ mod rules_tax_code_status;
 mod rules_tax_jurisdiction;
 mod rules_tax_jurisdiction_status;
 mod rules_tax_rate;
+mod rules_tax_rate_rate_basis;
 mod rules_tax_rate_status;
 mod rules_tax_registration;
 mod rules_tax_registration_status;
@@ -306,3 +311,4 @@ mod rules_unit_of_measure_status;
 mod rules_usage_record;
 mod rules_usage_record_status;
 mod rules_variance;
+mod rules_variance_basis;

@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-09T08:33:23.355Z
+ * Generated: 2026-10-09T15:31:05.928Z
  * Project: trade
  */
 

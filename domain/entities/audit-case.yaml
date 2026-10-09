@@ -9,9 +9,78 @@ entity:
   attributes:
     - {name: auditCaseId, type: uuid, required: true, immutable: true, help: {summary: The identity of the audit case., usage: 'Generated on opening; findings, evidence and actions refer to the case through it.'}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the case took effect as the governing record of the review., usage: Set when the case is opened or a revision takes effect; used to order cases and show which version applied at a given time.}}
-  relationships: []
+    - name: caseNumber
+      type: string
+      maxLength: 100
+      unique: true
+      required: true
+      help:
+        summary: The reference number of the audit case, such as AUD-2026-007.
+        usage: Assigned when the case is opened; quoted in findings and reports.
+        relationshipContext: Read with the title.
+    - name: title
+      type: string
+      maxLength: 300
+      required: true
+      help:
+        summary: A short title saying what is being audited.
+        usage: Entered when the case is opened; shown in lists.
+        relationshipContext: Read with the case number.
+    - name: scope
+      type: text
+      required: false
+      help:
+        summary: A description of what the audit covers and what it leaves out.
+        usage: Written when the case is planned and agreed with the audited area; findings are judged against it.
+        relationshipContext: Read by auditors and those audited.
+    - name: openedOn
+      type: date
+      required: true
+      help:
+        summary: The date the audit case was opened.
+        usage: Set when the case is created; the length of the case is measured from it.
+        relationshipContext: Not later than the closing date.
+    - name: closedOn
+      type: date
+      required: false
+      help:
+        summary: The date the audit case was closed.
+        usage: Set when the case is closed; must not be before the opening date.
+        relationshipContext: Gives the duration of the case.
+    - name: status
+      type: enum
+      values:
+        - PLANNED
+        - IN_PROGRESS
+        - REPORTED
+        - CLOSED
+        - CANCELLED
+      default: PLANNED
+      required: true
+      help:
+        summary: Where the audit case is in its life, from planning to closure.
+        usage: Starts as PLANNED; moved by the lead auditor as fieldwork, reporting and follow-up proceed.
+        relationshipContext: Decides whether findings can still be added.
+        valueSemantics:
+          PLANNED: Scoped and scheduled; fieldwork has not started.
+          IN_PROGRESS: Evidence is being gathered and tested.
+          REPORTED: Findings have been reported and actions are being followed up.
+          CLOSED: All actions are done and the case is finished. A final state.
+          CANCELLED: Called off before it was reported. A final state.
+  relationships:
+    - name: leadAuditor
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for the audit.
+        usage: Chosen when the case is planned.
+        cardinalityMeaning: At most one lead auditor; empty until one is appointed.
+        workflowRole: Owns the conclusions and the report.
   invariants:
     - {id: AUDIT-CASE-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - id: AUDIT-CASE-002
+      rule: closedOn must not precede openedOn.
   help:
     summary: An audit investigation or review that groups its scope, evidence, findings, actions and conclusions in one place.
     businessMeaning: An audit case is the container for one piece of assurance work. It keeps everything an auditor gathered and concluded together, so the outcome can be defended later and follow-up actions can be traced to their source.
@@ -19,4 +88,33 @@ entity:
     relationshipContext: Evidence, findings and corrective actions attach to the case; the audit events that prove the underlying activity are referenced as evidence.
     lifecycle: Finalised evidence and conclusions are preserved. Reassessment or correction is recorded explicitly, never by silently rewriting the case.
     example: An internal audit of supplier payment controls for the third quarter, with sampled payments as evidence and three findings raised.
+  lifecycle:
+    title: Audit Case Lifecycle
+    attribute: status
+    states:
+      - PLANNED
+      - IN_PROGRESS
+      - REPORTED
+      - CLOSED
+      - CANCELLED
+    initial: PLANNED
+    terminal:
+      - CLOSED
+      - CANCELLED
+    transitions:
+      - from: PLANNED
+        to: IN_PROGRESS
+        action: start
+      - from: IN_PROGRESS
+        to: REPORTED
+        action: report
+      - from: REPORTED
+        to: CLOSED
+        action: close
+      - from: PLANNED
+        to: CANCELLED
+        action: cancel
+      - from: IN_PROGRESS
+        to: CANCELLED
+        action: cancel
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AUDIT-CASE}

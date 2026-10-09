@@ -239,6 +239,16 @@ enums:
       BREACHED: Not met in time or at the required standard. A final state that may lead to remedies.
       WAIVED: Released by the other party; no longer required. A final state.
       CANCELLED: No longer applicable, for example because the contract changed. A final state.
+  - name: AgreementAgreementType
+    values: [SERVICE, SUPPLY, LICENSE, PARTNERSHIP, NON_DISCLOSURE, OTHER]
+    table: true
+    descriptions:
+      SERVICE: An agreement to provide or receive services.
+      SUPPLY: An agreement to supply or buy goods.
+      LICENSE: An agreement granting rights to use something.
+      PARTNERSHIP: An agreement to work together towards a shared aim.
+      NON_DISCLOSURE: An agreement to keep information confidential.
+      OTHER: An agreement that fits no other type.
   - name: RenewalStatus
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     table: true
@@ -260,7 +270,7 @@ categories:
     entities: [Agreement, ContractLine, ContractAmendment, ContractRenewal, ContractTermination, Renewal, LegalCase, LegalMatter]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ContractStatus, ContractObligationObligationType, ContractObligationStatus, RenewalStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ContractStatus, ContractObligationObligationType, ContractObligationStatus, AgreementAgreementType, RenewalStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -291,6 +301,11 @@ entities:
         fk: true
         optional: true
         help: The Contract this Party belongs to.
+      - name: agreement_id
+        type: string
+        fk: true
+        optional: true
+        help: The Agreement this Party belongs to.
   - name: Person
     help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
     icon: user
@@ -14548,6 +14563,24 @@ entities:
         type: datetime
         optional: true
         help: The date and time at which the agreement was concluded or took effect. Set when the agreement is recorded; used to place it in the sequence of events and to compute periods that run from it.
+      - name: agreement_number
+        type: string(100)
+        unique: true
+        help: The reference number the business gives the agreement, such as AGR-2026-014. Assigned when the agreement is recorded; quoted in correspondence and used to find the agreement again. Read with the title to identify the agreement.
+      - name: title
+        type: string(300)
+        help: A short title saying what the agreement is about. Entered when recorded; shown in lists and on documents. Read with the agreement number.
+      - name: agreement_type
+        type: string
+        enum: AgreementAgreementType
+        help: The kind of agreement, such as a service, supply or licence agreement. Chosen when recorded; decides which review and approval steps apply and how agreements are grouped in reports. Read with the parties to understand the commitment. An agreement to provide or receive services. An agreement to supply or buy goods. An agreement granting rights to use something. An agreement to work together towards a shared aim. An agreement to keep information confidential. An agreement that fits no other type.
+      - name: effective_from
+        type: date
+        help: The date the agreement takes effect. Taken from the signed document; obligations are measured from it. Not later than the end date.
+      - name: effective_to
+        type: date
+        optional: true
+        help: The date the agreement ends; empty for an open-ended agreement. Taken from the signed document or set when it is terminated; must not be before the start date. Compared with today to show whether the agreement is in force.
   - name: ContractLine
     help: "A line within a contract that fixes a specific product or service, its price, quantity, term or scope of obligation. Commercial contracts are priced and scoped line by line. Lines state exactly what is being bought or provided, and orders and invoices are checked against them. Added when a contract is drafted or amended; read when orders are placed, delivered and invoiced under the contract. Each line belongs to one Contract; orders, shipments and invoices draw on lines. Executed lines are evidence. A change in price or quantity is made by amendment, not by editing the signed line. Line 3 of a supply contract: 10,000 units of part A-200 per quarter at 4.20 each."
     icon: file-check
@@ -15277,6 +15310,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: AgreementAgreementType
+    help: "The values of agreement agreement type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: RenewalStatus
     help: "The values of renewal status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15466,6 +15524,11 @@ relationships:
     to: ContractObligation
     toCardinality: zero-or-more
     label: responsible_party
+  - from: Agreement
+    fromCardinality: exactly-one
+    to: Party
+    toCardinality: one-or-more
+    label: parties
   - from: Contract
     fromCardinality: exactly-one
     to: ContractLine

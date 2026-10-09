@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-09T08:31:10.194Z
+//! Generated: 2026-10-09T15:28:49.050Z
 //! Project: food
 
 #![allow(dead_code)]

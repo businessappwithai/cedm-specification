@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-09T08:33:16.419Z
+//! Generated: 2026-10-09T15:30:59.816Z
 //! Project: telecommunications
 
 use serde_json::Value;

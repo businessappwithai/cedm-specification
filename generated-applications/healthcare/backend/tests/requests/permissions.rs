@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:31:14.427Z
+//! Generated: 2026-10-09T15:28:53.536Z
 //! Project: healthcare
 
 use serde_json::Value;

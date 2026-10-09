@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-09T08:31:23.406Z
+//! Generated: 2026-10-09T15:29:01.987Z
 //! Project: human-resources
 
 use serde_json::Value;

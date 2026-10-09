@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T08:32:28.944Z
+ * Generated: 2026-10-09T15:30:08.812Z
  * Project: public-sector
  */
 

@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:30:40.748Z
+//! Generated: 2026-10-09T15:28:18.885Z
 //! Project: document-management
 
 use serde_json::Value;

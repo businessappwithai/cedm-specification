@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T08:30:55.827Z
+ * Generated: 2026-10-09T15:28:33.746Z
  * Project: energy
  */
 

@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-09T08:30:18.248Z
+//! Generated: 2026-10-09T15:27:55.571Z
 //! Project: banking
 
 use serde_json::Value;

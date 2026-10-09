@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T08:31:08.025Z">2026-10-09T08:31:08.025Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:28:46.607Z">2026-10-09T15:28:46.607Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -128,6 +128,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-calendar">Calendar</a></li>
               <li><a href="#entity-cash-position">Cash Position</a></li>
               <li><a href="#entity-charge">Charge</a></li>
+              <li><a href="#entity-charge-charge-type">Charge Charge Type</a></li>
               <li><a href="#entity-charge-status">Charge Status</a></li>
               <li><a href="#entity-city">City</a></li>
               <li><a href="#entity-contact-point">Contact Point</a></li>
@@ -225,6 +226,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-tax-jurisdiction">Tax Jurisdiction</a></li>
               <li><a href="#entity-tax-jurisdiction-status">Tax Jurisdiction Status</a></li>
               <li><a href="#entity-tax-rate">Tax Rate</a></li>
+              <li><a href="#entity-tax-rate-rate-basis">Tax Rate Rate Basis</a></li>
               <li><a href="#entity-tax-rate-status">Tax Rate Status</a></li>
               <li><a href="#entity-tax-registration">Tax Registration</a></li>
               <li><a href="#entity-tax-registration-status">Tax Registration Status</a></li>
@@ -239,6 +241,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-usage-record">Usage Record</a></li>
               <li><a href="#entity-usage-record-status">Usage Record Status</a></li>
               <li><a href="#entity-variance">Variance</a></li>
+              <li><a href="#entity-variance-basis">Variance Basis</a></li>
             </ul>
           </li>
           <li><a href="#rules">The decisions it makes</a></li>
@@ -250,7 +253,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Finance and Accounting, built on the CEDM common foundation.</p></div>
-    <p>finance keeps 138 kinds of records, grouped into 7 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>finance keeps 141 kinds of records, grouped into 7 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
@@ -261,7 +264,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td>Accounts Receivable</td><td><a href="#entity-customer">Customer</a>, <a href="#entity-sales-order">Sales Order</a></td></tr>
         <tr><td>Budgeting and Planning</td><td><a href="#entity-budget">Budget</a>, <a href="#entity-forecast">Forecast</a>, <a href="#entity-scenario">Scenario</a>, <a href="#entity-cost-center">Cost Center</a>, <a href="#entity-profit-center">Profit Center</a>, <a href="#entity-variance">Variance</a></td></tr>
         <tr><td>Finance and Accounting records</td><td><a href="#entity-ledger">Ledger</a>, <a href="#entity-fiscal-period">Fiscal Period</a>, <a href="#entity-payment-instruction">Payment Instruction</a>, <a href="#entity-credit-note">Credit Note</a>, <a href="#entity-credit-note-application">Credit Note Application</a>, <a href="#entity-tax-code">Tax Code</a>, <a href="#entity-tax-jurisdiction">Tax Jurisdiction</a>, <a href="#entity-tax-rate">Tax Rate</a>, <a href="#entity-tax-registration">Tax Registration</a>, <a href="#entity-tax-rule">Tax Rule</a>, <a href="#entity-tax-transaction">Tax Transaction</a>, <a href="#entity-billing-cycle">Billing Cycle</a>, <a href="#entity-charge">Charge</a>, <a href="#entity-subscription">Subscription</a>, <a href="#entity-subscription-plan">Subscription Plan</a>, <a href="#entity-usage-record">Usage Record</a>, <a href="#entity-asset-class">Asset Class</a>, <a href="#entity-asset-acquisition">Asset Acquisition</a>, <a href="#entity-asset-depreciation">Asset Depreciation</a>, <a href="#entity-asset-disposal">Asset Disposal</a>, <a href="#entity-asset-transfer">Asset Transfer</a>, <a href="#entity-foreign-exchange-transaction">Foreign Exchange Transaction</a>, <a href="#entity-cash-position">Cash Position</a>, <a href="#entity-interest">Interest</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-account-account-type">Account Account Type</a>, <a href="#entity-account-status">Account Status</a>, <a href="#entity-journal-entry-status">Journal Entry Status</a>, <a href="#entity-invoice-invoice-type">Invoice Invoice Type</a>, <a href="#entity-invoice-status">Invoice Status</a>, <a href="#entity-payment-direction">Payment Direction</a>, <a href="#entity-payment-status">Payment Status</a>, <a href="#entity-payment-payment-method">Payment Payment Method</a>, <a href="#entity-supplier-supplier-type">Supplier Supplier Type</a>, <a href="#entity-supplier-qualification-status">Supplier Qualification Status</a>, <a href="#entity-supplier-status">Supplier Status</a>, <a href="#entity-supplier-role-type">Supplier Role Type</a>, <a href="#entity-purchase-order-status">Purchase Order Status</a>, <a href="#entity-customer-customer-type">Customer Customer Type</a>, <a href="#entity-customer-credit-status">Customer Credit Status</a>, <a href="#entity-customer-status">Customer Status</a>, <a href="#entity-customer-role-type">Customer Role Type</a>, <a href="#entity-sales-order-status">Sales Order Status</a>, <a href="#entity-budget-status">Budget Status</a>, <a href="#entity-scenario-status">Scenario Status</a>, <a href="#entity-ledger-status">Ledger Status</a>, <a href="#entity-fiscal-period-status">Fiscal Period Status</a>, <a href="#entity-invoice-line-matching-status">Invoice Line Matching Status</a>, <a href="#entity-payment-allocation-status">Payment Allocation Status</a>, <a href="#entity-payment-instruction-status">Payment Instruction Status</a>, <a href="#entity-credit-note-status">Credit Note Status</a>, <a href="#entity-credit-note-application-status">Credit Note Application Status</a>, <a href="#entity-tax-code-status">Tax Code Status</a>, <a href="#entity-tax-jurisdiction-status">Tax Jurisdiction Status</a>, <a href="#entity-tax-rate-status">Tax Rate Status</a>, <a href="#entity-tax-registration-status">Tax Registration Status</a>, <a href="#entity-tax-rule-tax-type">Tax Rule Tax Type</a>, <a href="#entity-tax-rule-status">Tax Rule Status</a>, <a href="#entity-tax-transaction-status">Tax Transaction Status</a>, <a href="#entity-billing-cycle-status">Billing Cycle Status</a>, <a href="#entity-charge-status">Charge Status</a>, <a href="#entity-subscription-status">Subscription Status</a>, <a href="#entity-subscription-plan-status">Subscription Plan Status</a>, <a href="#entity-usage-record-status">Usage Record Status</a>, <a href="#entity-asset-depreciation-depreciation-method">Asset Depreciation Depreciation Method</a>, <a href="#entity-purchase-order-line-price-source">Purchase Order Line Price Source</a>, <a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a>, <a href="#entity-bank-account-account-type">Bank Account Account Type</a>, <a href="#entity-bank-account-status">Bank Account Status</a>, <a href="#entity-asset-status">Asset Status</a>, <a href="#entity-product-product-type">Product Product Type</a>, <a href="#entity-product-status">Product Status</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-account-account-type">Account Account Type</a>, <a href="#entity-account-status">Account Status</a>, <a href="#entity-journal-entry-status">Journal Entry Status</a>, <a href="#entity-invoice-invoice-type">Invoice Invoice Type</a>, <a href="#entity-invoice-status">Invoice Status</a>, <a href="#entity-payment-direction">Payment Direction</a>, <a href="#entity-payment-status">Payment Status</a>, <a href="#entity-payment-payment-method">Payment Payment Method</a>, <a href="#entity-supplier-supplier-type">Supplier Supplier Type</a>, <a href="#entity-supplier-qualification-status">Supplier Qualification Status</a>, <a href="#entity-supplier-status">Supplier Status</a>, <a href="#entity-supplier-role-type">Supplier Role Type</a>, <a href="#entity-purchase-order-status">Purchase Order Status</a>, <a href="#entity-customer-customer-type">Customer Customer Type</a>, <a href="#entity-customer-credit-status">Customer Credit Status</a>, <a href="#entity-customer-status">Customer Status</a>, <a href="#entity-customer-role-type">Customer Role Type</a>, <a href="#entity-sales-order-status">Sales Order Status</a>, <a href="#entity-budget-status">Budget Status</a>, <a href="#entity-scenario-status">Scenario Status</a>, <a href="#entity-variance-basis">Variance Basis</a>, <a href="#entity-ledger-status">Ledger Status</a>, <a href="#entity-fiscal-period-status">Fiscal Period Status</a>, <a href="#entity-invoice-line-matching-status">Invoice Line Matching Status</a>, <a href="#entity-payment-allocation-status">Payment Allocation Status</a>, <a href="#entity-payment-instruction-status">Payment Instruction Status</a>, <a href="#entity-credit-note-status">Credit Note Status</a>, <a href="#entity-credit-note-application-status">Credit Note Application Status</a>, <a href="#entity-tax-code-status">Tax Code Status</a>, <a href="#entity-tax-jurisdiction-status">Tax Jurisdiction Status</a>, <a href="#entity-tax-rate-status">Tax Rate Status</a>, <a href="#entity-tax-rate-rate-basis">Tax Rate Rate Basis</a>, <a href="#entity-tax-registration-status">Tax Registration Status</a>, <a href="#entity-tax-rule-tax-type">Tax Rule Tax Type</a>, <a href="#entity-tax-rule-status">Tax Rule Status</a>, <a href="#entity-tax-transaction-status">Tax Transaction Status</a>, <a href="#entity-billing-cycle-status">Billing Cycle Status</a>, <a href="#entity-charge-status">Charge Status</a>, <a href="#entity-charge-charge-type">Charge Charge Type</a>, <a href="#entity-subscription-status">Subscription Status</a>, <a href="#entity-subscription-plan-status">Subscription Plan Status</a>, <a href="#entity-usage-record-status">Usage Record Status</a>, <a href="#entity-asset-depreciation-depreciation-method">Asset Depreciation Depreciation Method</a>, <a href="#entity-purchase-order-line-price-source">Purchase Order Line Price Source</a>, <a href="#entity-sales-order-line-price-source">Sales Order Line Price Source</a>, <a href="#entity-bank-account-account-type">Bank Account Account Type</a>, <a href="#entity-bank-account-status">Bank Account Status</a>, <a href="#entity-asset-status">Asset Status</a>, <a href="#entity-product-product-type">Product Product Type</a>, <a href="#entity-product-status">Product Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -273,8 +276,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 138</td></tr>
-        <tr><td>User</td><td><code>user@finance.example.com</code></td><td>138 of 138</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 141</td></tr>
+        <tr><td>User</td><td><code>user@finance.example.com</code></td><td>141 of 141</td></tr>
       </tbody>
     </table>
 
@@ -3239,6 +3242,42 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>Where the charge stands before it is billed. Moved by the billing run and by billing staff; only ACTIVE charges are picked up by invoicing. Generated but not yet checked; excluded from invoicing. Confirmed and waiting to be invoiced. Invoiced; the charge has done its job. Withdrawn and will not be billed.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
+          <td><code>charge_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The reference number of the charge, such as CHG-000412. Assigned when the charge is generated; quoted on invoices and in disputes. Read with the customer.</td>
+        </tr>
+        <tr>
+          <td><code>charge_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>What the charge is for. Set by the rule that generates it; invoices and reports group charges by type. Decides the revenue treatment. A recurring charge for a subscription period. A charge for measured usage. A charge for a service delivered. A charge for goods supplied. A fee such as a setup or late fee. A correction that increases the amount owed.<div class="detail">One of: <code>SUBSCRIPTION</code>, <code>USAGE</code>, <code>SERVICE</code>, <code>PRODUCT</code>, <code>FEE</code>, <code>ADJUSTMENT</code></div></td>
+        </tr>
+        <tr>
+          <td><code>amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The amount to be billed, before settlement. Calculated by the generating rule; must not be negative; summed onto the invoice. Compared with the amount later paid.</td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The currency of the charge amount. Set from the customer or contract; invoicing converts if needed. Read with the amount.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        <tr>
+          <td><code>charged_on</code></td>
+          <td>Date</td>
+          <td><span class="tag">required</span></td>
+          <td>The date the charge arose. Set when generated; decides the invoice period it falls in. Compared with invoice dates.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 1000</span></td>
+          <td>Words describing the charge as the customer will see them. Generated or entered; printed on the invoice line. Read by the customer.</td>
+        </tr>
+        <tr>
           <td><code>customer_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
@@ -3247,7 +3286,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Charge</b> window, on the <b>Charge</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Charge</b> window, on the <b>Charge</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -3268,11 +3307,59 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>customer_id</code></td>
-            <td>Customer</td>
+            <td><code>charge_number</code></td>
+            <td>Charge Number</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>charge_type</code></td>
+            <td>Charge Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>amount</code></td>
+            <td>Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>charged_on</code></td>
+            <td>Charged On</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>customer_id</code></td>
+            <td>Customer</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -3300,6 +3387,111 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <p><b>Processes:</b> <a href="#process-charge-follow-up-required">ChargeFollowUpRequired</a>, <a href="#process-charge-completion-confirmed">ChargeCompletionConfirmed</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-charge-charge-type" class="entity">
+      <h3>Charge Charge Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of charge charge type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_charge_charge_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Charge Charge Type</b> window, on the <b>Charge Charge Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -15310,6 +15502,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Tax Code</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Tax Code</b> has many <a href="#entity-tax-rate">Tax Rate</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; TaxCodeLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
@@ -15501,6 +15694,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Tax Jurisdiction</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Tax Jurisdiction</b> has many <a href="#entity-tax-rate">Tax Rate</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; TaxJurisdictionLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
@@ -15651,15 +15845,51 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>Shows whether the tax rate is being prepared, currently applicable, or withdrawn from use. Moved by tax administrators; only active rates are picked up by tax calculation, and older rates stay for history. Stops an out-of-date rate being used on new transactions. Only active rates are picked up in calculation. Being defined; not yet applied. In force and applied to transactions. Replaced or expired. A final state. Withdrawn before use. A final state.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
+          <td><code>rate</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The size of the tax: a percentage of the taxable amount or a fixed amount, as the rate basis says. Entered by tax staff from the authority&#39;s published rate; must not be negative; applied to the taxable amount during tax calculation. Read with the rate basis; applied under the linked tax code and jurisdiction.</td>
+        </tr>
+        <tr>
+          <td><code>rate_basis</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the rate is a percentage of the taxable amount or a fixed amount per unit or document. Chosen when the rate is set up; tax calculation multiplies or adds accordingly. Decides how the rate figure is read. The rate is a percentage of the taxable amount. The rate is a fixed amount charged regardless of the taxable amount.<div class="detail">One of: <code>PERCENTAGE</code>, <code>FIXED_AMOUNT</code></div></td>
+        </tr>
+        <tr>
+          <td><code>effective_from</code></td>
+          <td>Date</td>
+          <td><span class="tag">required</span></td>
+          <td>The first date on which the rate applies to transactions. Set from the authority&#39;s announcement; a transaction is taxed at the rate whose period contains its tax date. Compared with the transaction tax date and the end of the period.</td>
+        </tr>
+        <tr>
+          <td><code>effective_to</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The last date on which the rate applies; empty while it remains in force. Set when the authority changes the rate or the code stops being used; must not be before the start date. Compared with the transaction tax date.</td>
+        </tr>
+        <tr>
           <td><code>organization_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
           <td>The organisation the rate is set up for. Chosen when the rate is company specific. At most one organisation; empty means it applies to all. Decides which company&#39;s returns carry the tax.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
+        <tr>
+          <td><code>tax_code_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The tax code whose treatment this rate carries. Chosen when the rate is created; tax calculation finds rates through the code on a document line. A rate belongs to one tax code; the same figure for another code is a separate rate. Links the classification on a line to the figure that is charged.<div class="detail">Points at <b>Tax Code</b></div></td>
+        </tr>
+        <tr>
+          <td><code>tax_jurisdiction_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The jurisdiction in which this rate is imposed. Chosen when the rate is created; matched to the place of supply or delivery. A rate applies in exactly one jurisdiction, since authorities set their own rates. Selects which authority&#39;s figure applies and which return it feeds.<div class="detail">Points at <b>Tax Jurisdiction</b></div></td>
+        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Tax Rate</b> window, on the <b>Tax Rate</b> tab. These are its 3 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Tax Rate</b> window, on the <b>Tax Rate</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -15680,11 +15910,59 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
+            <td><code>rate</code></td>
+            <td>Rate</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>rate_basis</code></td>
+            <td>Rate Basis</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>effective_from</code></td>
+            <td>Effective From</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>effective_to</code></td>
+            <td>Effective To</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
             <td><code>organization_id</code></td>
             <td>Organization</td>
             <td>Yes</td>
             <td>Yes</td>
-            <td>30</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>tax_code_id</code></td>
+            <td>Tax Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>tax_jurisdiction_id</code></td>
+            <td>Tax Jurisdiction</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -15692,6 +15970,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Tax Rate</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Tax Rate</b> belongs to one <a href="#entity-tax-code">Tax Code</a>.</li>
+          <li>Each <b>Tax Rate</b> belongs to one <a href="#entity-tax-jurisdiction">Tax Jurisdiction</a>.</li>
       </ul>
       <h4>Lifecycle &mdash; TaxRateLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
@@ -15712,6 +15992,111 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <p><b>Processes:</b> <a href="#process-tax-rate-follow-up-required">TaxRateFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-tax-rate-rate-basis" class="entity">
+      <h3>Tax Rate Rate Basis <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of tax rate rate basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_tax_rate_rate_basis</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Tax Rate Rate Basis</b> window, on the <b>Tax Rate Rate Basis</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -17207,6 +17592,42 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>The reference code of the variance, such as VAR-2026-03-MKT, naming the period and area compared. Assigned by finance or the planning system when the comparison is produced; used in reports, review packs and when quoting a variance to managers. Gives reviewers a stable reference. Read with the period.</td>
         </tr>
         <tr>
+          <td><code>period_start</code></td>
+          <td>Date</td>
+          <td><span class="tag">required</span></td>
+          <td>The first day of the period being compared. Set when the variance is calculated; actual and plan figures are taken from this date. Not later than the period end.</td>
+        </tr>
+        <tr>
+          <td><code>period_end</code></td>
+          <td>Date</td>
+          <td><span class="tag">required</span></td>
+          <td>The last day of the period being compared. Set when the variance is calculated; must not be before the start of the period. Defines the length of the comparison period.</td>
+        </tr>
+        <tr>
+          <td><code>basis</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the actual figure is compared with a budget or with a forecast. Chosen when calculated; decides which of the linked budget or forecast supplies the plan figure. Read with the budget and forecast relationships. Actuals are compared with the approved budget. Actuals are compared with the latest forecast.<div class="detail">One of: <code>BUDGET</code>, <code>FORECAST</code></div></td>
+        </tr>
+        <tr>
+          <td><code>planned_amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The budgeted or forecast amount for the period. Copied from the budget or forecast when the variance is calculated, so later revisions do not change it. Compared with the actual amount to give the variance.</td>
+        </tr>
+        <tr>
+          <td><code>actual_amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The amount actually incurred or earned in the period according to the ledger. Taken from posted accounting evidence when calculated; the variance never changes those entries. Compared with the planned amount.</td>
+        </tr>
+        <tr>
+          <td><code>variance_amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The actual amount minus the planned amount; a positive figure is above plan. Calculated when the variance is produced; read by budget owners to see where spend or revenue departs from plan. The difference between the actual and planned amounts.</td>
+        </tr>
+        <tr>
           <td><code>organization_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
@@ -17227,7 +17648,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Variance</b> window, on the <b>Variance</b> tab. These are its 5 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Variance</b> window, on the <b>Variance</b> tab. These are its 11 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -17248,27 +17669,75 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
-            <td><code>organization_id</code></td>
-            <td>Organization</td>
+            <td><code>period_start</code></td>
+            <td>Period Start</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>30</td>
             <td>No</td>
           </tr>
           <tr>
-            <td><code>budget_id</code></td>
-            <td>Budget</td>
+            <td><code>period_end</code></td>
+            <td>Period End</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>40</td>
             <td>No</td>
           </tr>
           <tr>
-            <td><code>forecast_id</code></td>
-            <td>Forecast</td>
+            <td><code>basis</code></td>
+            <td>Basis</td>
             <td>Yes</td>
             <td>Yes</td>
             <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>planned_amount</code></td>
+            <td>Planned Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>actual_amount</code></td>
+            <td>Actual Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>variance_amount</code></td>
+            <td>Variance Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>organization_id</code></td>
+            <td>Organization</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>budget_id</code></td>
+            <td>Budget</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>forecast_id</code></td>
+            <td>Forecast</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -17279,6 +17748,111 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Variance</b> belongs to one <a href="#entity-budget">Budget</a>.</li>
           <li>Each <b>Variance</b> belongs to one <a href="#entity-forecast">Forecast</a>.</li>
       </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-variance-basis" class="entity">
+      <h3>Variance Basis <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of variance basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_variance_basis</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Variance Basis</b> window, on the <b>Variance Basis</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
   </section>
@@ -17622,7 +18196,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    finance 1.0.0 &middot; 138 record types &middot; 68 rules &middot; 74 processes
+    finance 1.0.0 &middot; 141 record types &middot; 68 rules &middot; 74 processes
   </footer>
 </div>
 </body>

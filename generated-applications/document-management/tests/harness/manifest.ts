@@ -7,7 +7,7 @@
  * recorded here, and `cleanup.ts` deletes exactly those rows — leaving the
  * application's own seed data (roles, admin user, dictionary) untouched.
  *
- * Generated: 2026-10-09T08:30:42.717Z
+ * Generated: 2026-10-09T15:28:20.642Z
  * Project: document-management
  */
 

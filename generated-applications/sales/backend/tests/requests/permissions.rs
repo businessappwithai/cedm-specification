@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:32:53.008Z
+//! Generated: 2026-10-09T15:30:36.162Z
 //! Project: sales
 
 use serde_json::Value;

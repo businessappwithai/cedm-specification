@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T08:31:39.910Z">2026-10-09T08:31:39.910Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:29:18.365Z">2026-10-09T15:29:18.365Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -105,6 +105,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-address-address-type">Address Address Type</a></li>
               <li><a href="#entity-address-status">Address Status</a></li>
               <li><a href="#entity-agreement">Agreement</a></li>
+              <li><a href="#entity-agreement-agreement-type">Agreement Agreement Type</a></li>
               <li><a href="#entity-attachment">Attachment</a></li>
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
@@ -170,7 +171,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Legal and Contract Management, built on the CEDM common foundation.</p></div>
-    <p>legal keeps 58 kinds of records, grouped into 4 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>legal keeps 59 kinds of records, grouped into 4 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
@@ -178,7 +179,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-contract-obligation">Contract Obligation</a></td></tr>
         <tr><td>Contract Management</td><td><a href="#entity-contract">Contract</a>, <a href="#entity-contract-clause">Contract Clause</a></td></tr>
         <tr><td>Legal and Contract Management records</td><td><a href="#entity-agreement">Agreement</a>, <a href="#entity-contract-line">Contract Line</a>, <a href="#entity-contract-amendment">Contract Amendment</a>, <a href="#entity-contract-renewal">Contract Renewal</a>, <a href="#entity-contract-termination">Contract Termination</a>, <a href="#entity-renewal">Renewal</a>, <a href="#entity-legal-case">Legal Case</a>, <a href="#entity-legal-matter">Legal Matter</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-contract-status">Contract Status</a>, <a href="#entity-contract-obligation-obligation-type">Contract Obligation Obligation Type</a>, <a href="#entity-contract-obligation-status">Contract Obligation Status</a>, <a href="#entity-renewal-status">Renewal Status</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-contract-status">Contract Status</a>, <a href="#entity-contract-obligation-obligation-type">Contract Obligation Obligation Type</a>, <a href="#entity-contract-obligation-status">Contract Obligation Status</a>, <a href="#entity-agreement-agreement-type">Agreement Agreement Type</a>, <a href="#entity-renewal-status">Renewal Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -190,8 +191,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 58</td></tr>
-        <tr><td>User</td><td><code>user@legal.example.com</code></td><td>58 of 58</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 59</td></tr>
+        <tr><td>User</td><td><code>user@legal.example.com</code></td><td>59 of 59</td></tr>
       </tbody>
     </table>
 
@@ -721,10 +722,40 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>The date and time at which the agreement was concluded or took effect. Set when the agreement is recorded; used to place it in the sequence of events and to compute periods that run from it.</td>
         </tr>
+        <tr>
+          <td><code>agreement_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The reference number the business gives the agreement, such as AGR-2026-014. Assigned when the agreement is recorded; quoted in correspondence and used to find the agreement again. Read with the title to identify the agreement.</td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>A short title saying what the agreement is about. Entered when recorded; shown in lists and on documents. Read with the agreement number.</td>
+        </tr>
+        <tr>
+          <td><code>agreement_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The kind of agreement, such as a service, supply or licence agreement. Chosen when recorded; decides which review and approval steps apply and how agreements are grouped in reports. Read with the parties to understand the commitment. An agreement to provide or receive services. An agreement to supply or buy goods. An agreement granting rights to use something. An agreement to work together towards a shared aim. An agreement to keep information confidential. An agreement that fits no other type.<div class="detail">One of: <code>SERVICE</code>, <code>SUPPLY</code>, <code>LICENSE</code>, <code>PARTNERSHIP</code>, <code>NON_DISCLOSURE</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>effective_from</code></td>
+          <td>Date</td>
+          <td><span class="tag">required</span></td>
+          <td>The date the agreement takes effect. Taken from the signed document; obligations are measured from it. Not later than the end date.</td>
+        </tr>
+        <tr>
+          <td><code>effective_to</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date the agreement ends; empty for an open-ended agreement. Taken from the signed document or set when it is terminated; must not be before the start date. Compared with today to show whether the agreement is in force.</td>
+        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Agreement</b> window, on the <b>Agreement</b> tab. These are its 2 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Agreement</b> window, on the <b>Agreement</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -742,6 +773,155 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Yes</td>
             <td>Yes</td>
             <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>agreement_number</code></td>
+            <td>Agreement Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td>Title</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>agreement_type</code></td>
+            <td>Agreement Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>effective_from</code></td>
+            <td>Effective From</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>effective_to</code></td>
+            <td>Effective To</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Agreement</b> has many <a href="#entity-party">Party</a> records.</li>
+      </ul>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-agreement-agreement-type" class="entity">
+      <h3>Agreement Agreement Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of agreement agreement type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_agreement_agreement_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Agreement Agreement Type</b> window, on the <b>Agreement Agreement Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -4218,10 +4398,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>The Contract this Party belongs to.<div class="detail">Points at <b>Contract</b></div></td>
         </tr>
+        <tr>
+          <td><code>agreement_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Agreement this Party belongs to.<div class="detail">Points at <b>Agreement</b></div></td>
+        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -4273,6 +4459,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>60</td>
             <td>No</td>
           </tr>
+          <tr>
+            <td><code>agreement_id</code></td>
+            <td>Agreement</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
@@ -4286,6 +4480,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party</b> has many <a href="#entity-task">Task</a> records.</li>
           <li>Each <b>Party</b> belongs to one <a href="#entity-contract">Contract</a>.</li>
           <li>Each <b>Party</b> has many <a href="#entity-contract-obligation">Contract Obligation</a> records.</li>
+          <li>Each <b>Party</b> belongs to one <a href="#entity-agreement">Agreement</a>.</li>
       </ul>
       <h4>Lifecycle &mdash; PartyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -6780,7 +6975,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    legal 1.0.0 &middot; 58 record types &middot; 15 rules &middot; 18 processes
+    legal 1.0.0 &middot; 59 record types &middot; 15 rules &middot; 18 processes
   </footer>
 </div>
 </body>

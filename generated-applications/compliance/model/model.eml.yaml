@@ -271,6 +271,15 @@ enums:
       ACCEPTED: The remaining exposure is accepted.
       CLOSED: No longer a risk. A final state.
       MATERIALIZED: The risk has occurred. A final state.
+  - name: AuditCaseStatus
+    values: [PLANNED, IN_PROGRESS, REPORTED, CLOSED, CANCELLED]
+    table: true
+    descriptions:
+      PLANNED: Scoped and scheduled; fieldwork has not started.
+      IN_PROGRESS: Evidence is being gathered and tested.
+      REPORTED: Findings have been reported and actions are being followed up.
+      CLOSED: All actions are done and the case is finished. A final state.
+      CANCELLED: Called off before it was reported. A final state.
   - name: RiskTreatmentStatus
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     table: true
@@ -292,7 +301,7 @@ categories:
     entities: [AuditCase, AuditEvent, ComplianceRequirement, Finding, RiskAssessment, Filing, Obligation, LossEvent]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, PolicyStatus, ControlControlType, ControlFrequency, ControlStatus, RiskLikelihood, RiskImpact, RiskStatus, RiskTreatmentStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, PolicyStatus, ControlControlType, ControlFrequency, ControlStatus, RiskLikelihood, RiskImpact, RiskStatus, AuditCaseStatus, RiskTreatmentStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14610,6 +14619,35 @@ entities:
         type: datetime
         optional: true
         help: When the case took effect as the governing record of the review. Set when the case is opened or a revision takes effect; used to order cases and show which version applied at a given time.
+      - name: case_number
+        type: string(100)
+        unique: true
+        help: The reference number of the audit case, such as AUD-2026-007. Assigned when the case is opened; quoted in findings and reports. Read with the title.
+      - name: title
+        type: string(300)
+        help: A short title saying what is being audited. Entered when the case is opened; shown in lists. Read with the case number.
+      - name: scope
+        type: text
+        optional: true
+        help: A description of what the audit covers and what it leaves out. Written when the case is planned and agreed with the audited area; findings are judged against it. Read by auditors and those audited.
+      - name: opened_on
+        type: date
+        help: The date the audit case was opened. Set when the case is created; the length of the case is measured from it. Not later than the closing date.
+      - name: closed_on
+        type: date
+        optional: true
+        help: The date the audit case was closed. Set when the case is closed; must not be before the opening date. Gives the duration of the case.
+      - name: status
+        type: string
+        enum: AuditCaseStatus
+        help: Where the audit case is in its life, from planning to closure. Starts as PLANNED; moved by the lead auditor as fieldwork, reporting and follow-up proceed. Decides whether findings can still be added. Scoped and scheduled; fieldwork has not started. Evidence is being gathered and tested. Findings have been reported and actions are being followed up. All actions are done and the case is finished. A final state. Called off before it was reported. A final state.
+        default: PLANNED
+      - name: lead_auditor_id
+        type: string
+        fk: true
+        references: Party
+        optional: true
+        help: The person responsible for the audit. Chosen when the case is planned. At most one lead auditor; empty until one is appointed. Owns the conclusions and the report.
   - name: AuditEvent
     help: "An immutable record of a significant action, state change, access, decision or control event. Audit events are the evidence that something happened: who did what, to what, and when. They cannot be edited, which is exactly what makes them usable as proof. Written automatically whenever a governed action occurs; read by auditors, security teams and investigations to reconstruct what took place. Events point to the record or action they describe and the actor responsible; audit cases cite them as evidence. An event is final the moment it is written. A mistake is explained by a later event, never by changing the original. Event recorded when a finance manager approved a payment run, showing the approver, the time and the run approved."
     icon: activity
@@ -15456,6 +15494,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: AuditCaseStatus
+    help: "The values of audit case status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: RiskTreatmentStatus
     help: "The values of risk treatment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15659,6 +15722,11 @@ relationships:
     to: RiskTreatment
     toCardinality: zero-or-more
     label: treatments
+  - from: Party
+    fromCardinality: exactly-one
+    to: AuditCase
+    toCardinality: zero-or-more
+    label: lead_auditor
   - from: Control
     fromCardinality: exactly-one
     to: Finding
@@ -16272,6 +16340,28 @@ stateMachines:
       - from: ACCEPTED
         to: MATERIALIZED
         trigger: materialize
+  - name: AuditCaseLifecycle
+    title: Audit Case Lifecycle
+    entity: AuditCase
+    states: [PLANNED, IN_PROGRESS, REPORTED, CLOSED, CANCELLED]
+    initial: PLANNED
+    final: [CLOSED, CANCELLED]
+    transitions:
+      - from: PLANNED
+        to: IN_PROGRESS
+        trigger: start
+      - from: IN_PROGRESS
+        to: REPORTED
+        trigger: report
+      - from: REPORTED
+        to: CLOSED
+        trigger: close
+      - from: PLANNED
+        to: CANCELLED
+        trigger: cancel
+      - from: IN_PROGRESS
+        to: CANCELLED
+        trigger: cancel
   - name: RiskTreatmentLifecycle
     title: Risk Treatment Lifecycle
     entity: RiskTreatment

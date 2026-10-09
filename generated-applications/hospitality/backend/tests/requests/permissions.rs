@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:31:19.112Z
+//! Generated: 2026-10-09T15:28:57.750Z
 //! Project: hospitality
 
 use serde_json::Value;

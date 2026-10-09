@@ -1,7 +1,7 @@
 /**
  * TanStack Query Hooks for Entity CRUD Operations
  *
- * Generated: 2026-10-09T08:30:28.270Z
+ * Generated: 2026-10-09T15:28:06.215Z
  */
 
 import {

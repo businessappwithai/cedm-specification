@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T08:30:32.822Z
+ * Generated: 2026-10-09T15:28:10.913Z
  * Project: container-logistics
  */
 

@@ -879,15 +879,36 @@ export const mockApiResponses = {
       {
         id: 'test-id-1',
         effective_at: '2024-01-15T10:00:00Z',
+        case_number: 'Test Case Number 1',
+        title: 'Test Title 1',
+        scope: 'Test text content',
+        opened_on: '2024-01-15',
+        closed_on: '2024-01-15',
+        status: 'Test Status 1',
+        lead_auditor_id: 'Test Lead Auditor 1',
       },
       {
         id: 'test-id-2',
         effective_at: '2024-01-16T10:00:00Z',
+        case_number: 'Test Case Number 2',
+        title: 'Test Title 2',
+        scope: 'Test text content 2',
+        opened_on: '2024-01-16',
+        closed_on: '2024-01-16',
+        status: 'Test Status 2',
+        lead_auditor_id: 'Test Lead Auditor 2',
       },
     ],
     single: {
       id: 'test-id-1',
       effective_at: '2024-01-15T10:00:00Z',
+      case_number: 'Test Case Number',
+      title: 'Test Title',
+      scope: 'Test text content',
+      opened_on: '2024-01-15',
+      closed_on: '2024-01-15',
+      status: 'Test Status',
+      lead_auditor_id: 'Test Lead Auditor',
     },
   },
   auditEvent: {
@@ -1818,6 +1839,34 @@ export const mockApiResponses = {
     },
   },
   riskStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  auditCaseStatus: {
     list: [
       {
         id: 'test-id-1',

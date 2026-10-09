@@ -392,6 +392,12 @@ enums:
       DRAFT: Being defined and not yet used in planning.
       ACTIVE: Available for budgets and forecasts.
       ARCHIVED: No longer used but kept for history. A final state.
+  - name: VarianceBasis
+    values: [BUDGET, FORECAST]
+    table: true
+    descriptions:
+      BUDGET: Actuals are compared with the approved budget.
+      FORECAST: Actuals are compared with the latest forecast.
   - name: LedgerStatus
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     table: true
@@ -480,6 +486,12 @@ enums:
       ACTIVE: In force and applied to transactions.
       COMPLETED: Replaced or expired. A final state.
       CANCELLED: Withdrawn before use. A final state.
+  - name: TaxRateRateBasis
+    values: [PERCENTAGE, FIXED_AMOUNT]
+    table: true
+    descriptions:
+      PERCENTAGE: The rate is a percentage of the taxable amount.
+      FIXED_AMOUNT: The rate is a fixed amount charged regardless of the taxable amount.
   - name: TaxRegistrationStatus
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     table: true
@@ -530,6 +542,16 @@ enums:
       ACTIVE: Confirmed and waiting to be invoiced.
       COMPLETED: Invoiced; the charge has done its job.
       CANCELLED: Withdrawn and will not be billed.
+  - name: ChargeChargeType
+    values: [SUBSCRIPTION, USAGE, SERVICE, PRODUCT, FEE, ADJUSTMENT]
+    table: true
+    descriptions:
+      SUBSCRIPTION: A recurring charge for a subscription period.
+      USAGE: A charge for measured usage.
+      SERVICE: A charge for a service delivered.
+      PRODUCT: A charge for goods supplied.
+      FEE: A fee such as a setup or late fee.
+      ADJUSTMENT: A correction that increases the amount owed.
   - name: SubscriptionStatus
     values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
     table: true
@@ -649,7 +671,7 @@ categories:
     entities: [Ledger, FiscalPeriod, PaymentInstruction, CreditNote, CreditNoteApplication, TaxCode, TaxJurisdiction, TaxRate, TaxRegistration, TaxRule, TaxTransaction, BillingCycle, Charge, Subscription, SubscriptionPlan, UsageRecord, AssetClass, AssetAcquisition, AssetDepreciation, AssetDisposal, AssetTransfer, ForeignExchangeTransaction, CashPosition, Interest]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, AccountAccountType, AccountStatus, JournalEntryStatus, InvoiceInvoiceType, InvoiceStatus, PaymentDirection, PaymentStatus, PaymentPaymentMethod, SupplierSupplierType, SupplierQualificationStatus, SupplierStatus, SupplierRoleType, PurchaseOrderStatus, CustomerCustomerType, CustomerCreditStatus, CustomerStatus, CustomerRoleType, SalesOrderStatus, BudgetStatus, ScenarioStatus, LedgerStatus, FiscalPeriodStatus, InvoiceLineMatchingStatus, PaymentAllocationStatus, PaymentInstructionStatus, CreditNoteStatus, CreditNoteApplicationStatus, TaxCodeStatus, TaxJurisdictionStatus, TaxRateStatus, TaxRegistrationStatus, TaxRuleTaxType, TaxRuleStatus, TaxTransactionStatus, BillingCycleStatus, ChargeStatus, SubscriptionStatus, SubscriptionPlanStatus, UsageRecordStatus, AssetDepreciationDepreciationMethod, PurchaseOrderLinePriceSource, SalesOrderLinePriceSource, BankAccountAccountType, BankAccountStatus, AssetStatus, ProductProductType, ProductStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, AccountAccountType, AccountStatus, JournalEntryStatus, InvoiceInvoiceType, InvoiceStatus, PaymentDirection, PaymentStatus, PaymentPaymentMethod, SupplierSupplierType, SupplierQualificationStatus, SupplierStatus, SupplierRoleType, PurchaseOrderStatus, CustomerCustomerType, CustomerCreditStatus, CustomerStatus, CustomerRoleType, SalesOrderStatus, BudgetStatus, ScenarioStatus, VarianceBasis, LedgerStatus, FiscalPeriodStatus, InvoiceLineMatchingStatus, PaymentAllocationStatus, PaymentInstructionStatus, CreditNoteStatus, CreditNoteApplicationStatus, TaxCodeStatus, TaxJurisdictionStatus, TaxRateStatus, TaxRateRateBasis, TaxRegistrationStatus, TaxRuleTaxType, TaxRuleStatus, TaxTransactionStatus, BillingCycleStatus, ChargeStatus, ChargeChargeType, SubscriptionStatus, SubscriptionPlanStatus, UsageRecordStatus, AssetDepreciationDepreciationMethod, PurchaseOrderLinePriceSource, SalesOrderLinePriceSource, BankAccountAccountType, BankAccountStatus, AssetStatus, ProductProductType, ProductStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -15491,6 +15513,25 @@ entities:
       - name: code
         type: string(100)
         help: The reference code of the variance, such as VAR-2026-03-MKT, naming the period and area compared. Assigned by finance or the planning system when the comparison is produced; used in reports, review packs and when quoting a variance to managers. Gives reviewers a stable reference. Read with the period.
+      - name: period_start
+        type: date
+        help: The first day of the period being compared. Set when the variance is calculated; actual and plan figures are taken from this date. Not later than the period end.
+      - name: period_end
+        type: date
+        help: The last day of the period being compared. Set when the variance is calculated; must not be before the start of the period. Defines the length of the comparison period.
+      - name: basis
+        type: string
+        enum: VarianceBasis
+        help: Whether the actual figure is compared with a budget or with a forecast. Chosen when calculated; decides which of the linked budget or forecast supplies the plan figure. Read with the budget and forecast relationships. Actuals are compared with the approved budget. Actuals are compared with the latest forecast.
+      - name: planned_amount
+        type: decimal
+        help: The budgeted or forecast amount for the period. Copied from the budget or forecast when the variance is calculated, so later revisions do not change it. Compared with the actual amount to give the variance.
+      - name: actual_amount
+        type: decimal
+        help: The amount actually incurred or earned in the period according to the ledger. Taken from posted accounting evidence when calculated; the variance never changes those entries. Compared with the planned amount.
+      - name: variance_amount
+        type: decimal
+        help: The actual amount minus the planned amount; a positive figure is above plan. Calculated when the variance is produced; read by budget owners to see where spend or revenue departs from plan. The difference between the actual and planned amounts.
       - name: organization_id
         type: string
         fk: true
@@ -15897,11 +15938,34 @@ entities:
         type: string
         enum: TaxRateStatus
         help: Shows whether the tax rate is being prepared, currently applicable, or withdrawn from use. Moved by tax administrators; only active rates are picked up by tax calculation, and older rates stay for history. Stops an out-of-date rate being used on new transactions. Only active rates are picked up in calculation. Being defined; not yet applied. In force and applied to transactions. Replaced or expired. A final state. Withdrawn before use. A final state.
+      - name: rate
+        type: decimal
+        help: "The size of the tax: a percentage of the taxable amount or a fixed amount, as the rate basis says. Entered by tax staff from the authority's published rate; must not be negative; applied to the taxable amount during tax calculation. Read with the rate basis; applied under the linked tax code and jurisdiction."
+      - name: rate_basis
+        type: string
+        enum: TaxRateRateBasis
+        help: Whether the rate is a percentage of the taxable amount or a fixed amount per unit or document. Chosen when the rate is set up; tax calculation multiplies or adds accordingly. Decides how the rate figure is read. The rate is a percentage of the taxable amount. The rate is a fixed amount charged regardless of the taxable amount.
+        default: PERCENTAGE
+      - name: effective_from
+        type: date
+        help: The first date on which the rate applies to transactions. Set from the authority's announcement; a transaction is taxed at the rate whose period contains its tax date. Compared with the transaction tax date and the end of the period.
+      - name: effective_to
+        type: date
+        optional: true
+        help: The last date on which the rate applies; empty while it remains in force. Set when the authority changes the rate or the code stops being used; must not be before the start date. Compared with the transaction tax date.
       - name: organization_id
         type: string
         fk: true
         optional: true
         help: The organisation the rate is set up for. Chosen when the rate is company specific. At most one organisation; empty means it applies to all. Decides which company's returns carry the tax.
+      - name: tax_code_id
+        type: string
+        fk: true
+        help: The tax code whose treatment this rate carries. Chosen when the rate is created; tax calculation finds rates through the code on a document line. A rate belongs to one tax code; the same figure for another code is a separate rate. Links the classification on a line to the figure that is charged.
+      - name: tax_jurisdiction_id
+        type: string
+        fk: true
+        help: The jurisdiction in which this rate is imposed. Chosen when the rate is created; matched to the place of supply or delivery. A rate applies in exactly one jurisdiction, since authorities set their own rates. Selects which authority's figure applies and which return it feeds.
   - name: TaxRegistration
     help: The registration of a party or organisation with a tax jurisdiction and its tax authority. A registration is the tax identity the business holds in a place, such as a VAT number. Recording it shows where the business may charge and must report tax and which number to print on invoices. Maintained by tax staff; read when invoicing and filing returns. A registration may belong to an organisation and is held in a jurisdiction. A registration is drafted, active while valid and completed when it ends. It may be cancelled before use. Completed and cancelled are final. The company's VAT registration in Germany, active since March 2022.
     icon: percent
@@ -16016,6 +16080,28 @@ entities:
         type: string
         enum: ChargeStatus
         help: Where the charge stands before it is billed. Moved by the billing run and by billing staff; only ACTIVE charges are picked up by invoicing. Generated but not yet checked; excluded from invoicing. Confirmed and waiting to be invoiced. Invoiced; the charge has done its job. Withdrawn and will not be billed.
+      - name: charge_number
+        type: string(100)
+        unique: true
+        help: The reference number of the charge, such as CHG-000412. Assigned when the charge is generated; quoted on invoices and in disputes. Read with the customer.
+      - name: charge_type
+        type: string
+        enum: ChargeChargeType
+        help: What the charge is for. Set by the rule that generates it; invoices and reports group charges by type. Decides the revenue treatment. A recurring charge for a subscription period. A charge for measured usage. A charge for a service delivered. A charge for goods supplied. A fee such as a setup or late fee. A correction that increases the amount owed.
+      - name: amount
+        type: decimal
+        help: The amount to be billed, before settlement. Calculated by the generating rule; must not be negative; summed onto the invoice. Compared with the amount later paid.
+      - name: currency_id
+        type: string
+        fk: true
+        help: The currency of the charge amount. Set from the customer or contract; invoicing converts if needed. Read with the amount.
+      - name: charged_on
+        type: date
+        help: The date the charge arose. Set when generated; decides the invoice period it falls in. Compared with invoice dates.
+      - name: description
+        type: string(1000)
+        optional: true
+        help: Words describing the charge as the customer will see them. Generated or entered; printed on the invoice line. Read by the customer.
       - name: customer_id
         type: string
         fk: true
@@ -17533,6 +17619,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: VarianceBasis
+    help: "The values of variance basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: LedgerStatus
     help: "The values of ledger status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -17783,6 +17894,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: TaxRateRateBasis
+    help: "The values of tax rate rate basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: TaxRegistrationStatus
     help: "The values of tax registration status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -17910,6 +18046,31 @@ entities:
         default: "true"
   - name: ChargeStatus
     help: "The values of charge status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ChargeChargeType
+    help: "The values of charge charge type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -18729,6 +18890,14 @@ relationships:
     to: TaxJurisdiction
     toCardinality: zero-or-more
   - from: Organization
+    fromCardinality: exactly-one
+    to: TaxRate
+    toCardinality: zero-or-more
+  - from: TaxCode
+    fromCardinality: exactly-one
+    to: TaxRate
+    toCardinality: zero-or-more
+  - from: TaxJurisdiction
     fromCardinality: exactly-one
     to: TaxRate
     toCardinality: zero-or-more

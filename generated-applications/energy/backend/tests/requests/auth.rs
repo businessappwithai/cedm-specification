@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-09T08:30:54.333Z
+//! Generated: 2026-10-09T15:28:32.437Z
 //! Project: energy
 
 use serde_json::{json, Value};

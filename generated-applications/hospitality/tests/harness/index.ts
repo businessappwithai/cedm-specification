@@ -1,7 +1,7 @@
 /**
  * Harness barrel — suites import everything from here.
  *
- * Generated: 2026-10-09T08:31:20.693Z
+ * Generated: 2026-10-09T15:28:59.355Z
  * Project: hospitality
  */
 

@@ -346,7 +346,26 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Charge Status values) — Where the charge stands before it is billed. Moved by the billing run and by billing staff; only ACTIVE charges are picked up by invoicing. Generated but not yet checked; excluded from invoicing. Confirmed and waiting to be invoiced. Invoi…
+  - **Charge Number** (required) — The reference number of the charge, such as CHG-000412. Assigned when the charge is generated; quoted on invoices and in disputes. Read with the customer.
+  - **Charge Type** (required, one of the Charge Charge Type values) — What the charge is for. Set by the rule that generates it; invoices and reports group charges by type. Decides the revenue treatment. A recurring charge for a subscription period. A charge for measured usage. A charge for a service deliver…
+  - **Amount** (required) — The amount to be billed, before settlement. Calculated by the generating rule; must not be negative; summed onto the invoice. Compared with the amount later paid.
+  - **Currency** (required, a Currency) — The currency of the charge amount. Set from the customer or contract; invoicing converts if needed. Read with the amount.
+  - **Charged On** (required) — The date the charge arose. Set when generated; decides the invoice period it falls in. Compared with invoice dates.
+  - **Description** — Words describing the charge as the customer will see them. Generated or entered; printed on the invoice line. Read by the customer.
   - **Customer** (a Customer) — The customer who is billed for the charge. Set when the charge is generated; invoices are assembled per customer. At most one customer; a charge for an internal cost centre may have none. Decides which invoice the charge lands on and whose…
+
+### Charge Charge Type
+
+The values of charge charge type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Charge Status
 
@@ -1604,7 +1623,26 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Tax Rate Status values) — Shows whether the tax rate is being prepared, currently applicable, or withdrawn from use. Moved by tax administrators; only active rates are picked up by tax calculation, and older rates stay for history. Stops an out-of-date rate being u…
+  - **Rate** (required) — The size of the tax: a percentage of the taxable amount or a fixed amount, as the rate basis says. Entered by tax staff from the authority's published rate; must not be negative; applied to the taxable amount during tax calculation. Read w…
+  - **Rate Basis** (required, one of the Tax Rate Rate Basis values) — Whether the rate is a percentage of the taxable amount or a fixed amount per unit or document. Chosen when the rate is set up; tax calculation multiplies or adds accordingly. Decides how the rate figure is read. The rate is a percentage of…
+  - **Effective From** (required) — The first date on which the rate applies to transactions. Set from the authority's announcement; a transaction is taxed at the rate whose period contains its tax date. Compared with the transaction tax date and the end of the period.
+  - **Effective To** — The last date on which the rate applies; empty while it remains in force. Set when the authority changes the rate or the code stops being used; must not be before the start date. Compared with the transaction tax date.
   - **Organization** (a Organization) — The organisation the rate is set up for. Chosen when the rate is company specific. At most one organisation; empty means it applies to all. Decides which company's returns carry the tax.
+  - **Tax Code** (required, a Tax Code) — The tax code whose treatment this rate carries. Chosen when the rate is created; tax calculation finds rates through the code on a document line. A rate belongs to one tax code; the same figure for another code is a separate rate. Links th…
+  - **Tax Jurisdiction** (required, a Tax Jurisdiction) — The jurisdiction in which this rate is imposed. Chosen when the rate is created; matched to the place of supply or delivery. A rate applies in exactly one jurisdiction, since authorities set their own rates. Selects which authority's figur…
+
+### Tax Rate Rate Basis
+
+The values of tax rate rate basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Tax Rate Status
 
@@ -1782,9 +1820,28 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The reference code of the variance, such as VAR-2026-03-MKT, naming the period and area compared. Assigned by finance or the planning system when the comparison is produced; used in reports, review packs and when quoting a variance to mana…
+  - **Period Start** (required) — The first day of the period being compared. Set when the variance is calculated; actual and plan figures are taken from this date. Not later than the period end.
+  - **Period End** (required) — The last day of the period being compared. Set when the variance is calculated; must not be before the start of the period. Defines the length of the comparison period.
+  - **Basis** (required, one of the Variance Basis values) — Whether the actual figure is compared with a budget or with a forecast. Chosen when calculated; decides which of the linked budget or forecast supplies the plan figure. Read with the budget and forecast relationships. Actuals are compared…
+  - **Planned Amount** (required) — The budgeted or forecast amount for the period. Copied from the budget or forecast when the variance is calculated, so later revisions do not change it. Compared with the actual amount to give the variance.
+  - **Actual Amount** (required) — The amount actually incurred or earned in the period according to the ledger. Taken from posted accounting evidence when calculated; the variance never changes those entries. Compared with the planned amount.
+  - **Variance Amount** (required) — The actual amount minus the planned amount; a positive figure is above plan. Calculated when the variance is produced; read by budget owners to see where spend or revenue departs from plan. The difference between the actual and planned amo…
   - **Organization** (required, a Organization) — The organisation the comparison is for. Chosen when created. Exactly one organisation. Decides whose budget is measured.
   - **Budget** (a Budget) — The budget used as the plan. Chosen when comparing with budget. At most one budget. Provides the planned figure. Supplies planned value source.
   - **Forecast** (a Forecast) — The forecast used as the expectation. Chosen when comparing with forecast. At most one forecast; empty if only a budget is used. Provides the expected figure. Supplies projected value source.
+
+### Variance Basis
+
+The values of variance basis, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ## Value lists
 
@@ -1865,6 +1922,15 @@ Fields:
 - **ACTIVE** — The live budget against which spending is monitored.
 - **SUPERSEDED** — Replaced by a later version; kept as the record of what was once approved. A final state.
 - **CLOSED** — The period is over and the budget is closed for comparison with actuals. A final state.
+
+### Charge Charge Type
+
+- **SUBSCRIPTION** — A recurring charge for a subscription period.
+- **USAGE** — A charge for measured usage.
+- **SERVICE** — A charge for a service delivered.
+- **PRODUCT** — A charge for goods supplied.
+- **FEE** — A fee such as a setup or late fee.
+- **ADJUSTMENT** — A correction that increases the amount owed.
 
 ### Charge Status
 
@@ -2282,6 +2348,11 @@ Fields:
 - **COMPLETED** — No longer applies to new transactions. A final state.
 - **CANCELLED** — Withdrawn before use. A final state.
 
+### Tax Rate Rate Basis
+
+- **PERCENTAGE** — The rate is a percentage of the taxable amount.
+- **FIXED AMOUNT** — The rate is a fixed amount charged regardless of the taxable amount.
+
 ### Tax Rate Status
 
 - **DRAFT** — Being defined; not yet applied.
@@ -2343,6 +2414,11 @@ Fields:
 - **ACTIVE** — Confirmed and waiting to be billed.
 - **COMPLETED** — Billed. A final state.
 - **CANCELLED** — Discarded as recorded in error. A final state.
+
+### Variance Basis
+
+- **BUDGET** — Actuals are compared with the approved budget.
+- **FORECAST** — Actuals are compared with the latest forecast.
 
 ## Lifecycles
 
@@ -2861,7 +2937,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 138 of 138 record types
+- **User** — reads 141 of 141 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

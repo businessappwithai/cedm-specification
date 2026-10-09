@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:31:42.008Z
+//! Generated: 2026-10-09T15:29:20.615Z
 //! Project: life-sciences
 
 use serde_json::Value;

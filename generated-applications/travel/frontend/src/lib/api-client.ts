@@ -1,7 +1,7 @@
 /**
  * API Client for Backend Communication
  *
- * Generated: 2026-10-09T08:33:27.488Z
+ * Generated: 2026-10-09T15:31:10.430Z
  */
 
 const API_BASE_URL = (() => {

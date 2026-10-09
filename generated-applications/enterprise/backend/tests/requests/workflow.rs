@@ -1,6 +1,6 @@
 //! Workflow definitions, runs, and the audit trail they write.
 //!
-//! Generated: 2026-10-09T08:30:58.754Z
+//! Generated: 2026-10-09T15:28:36.845Z
 //! Project: enterprise
 
 use serde_json::{json, Value};

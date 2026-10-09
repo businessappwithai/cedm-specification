@@ -278,6 +278,25 @@ Readable by every signed-in person.
 
 Fields:
   - **Status** (required, one of the Credit Status values) — Whether the credit is being prepared, available to use, used up, or withdrawn. Moved by billing staff; only an ACTIVE credit can be applied to a charge or invoice. Being prepared by billing; it cannot yet be applied to any charge. Issued a…
+  - **Credit Number** (required) — The reference number of the credit, such as CR-000087. Assigned when the credit is issued; quoted to the customer. Read with the customer.
+  - **Reason** (required, one of the Credit Reason values) — Why the credit was given. Chosen when issued; reports use it to see why money is being given back. Decides the approval needed. Given to keep the customer's goodwill. Corrects an amount billed wrongly. Given for goods or services returned.…
+  - **Amount** (required) — The total value of the credit when issued. Entered when issued; must not be negative. The starting point for the remaining amount.
+  - **Remaining Amount** (required) — The part of the credit not yet applied to charges. Starts equal to the amount and falls as the credit is applied; never more than the amount. Compared with the amount to show how much is used.
+  - **Currency** (required, a Currency) — The currency of the credit. Set from the customer or contract; credits apply only to charges in the same currency. Read with the amount.
+  - **Issued On** (required) — The date the credit was issued. Set when issued; the credit may be applied from this date. Compared with charge dates.
+
+### Credit Reason
+
+The values of credit reason, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Credit Status
 
@@ -823,6 +842,14 @@ Fields:
 - **REVERSAL** — A reversal of an earlier bank transaction, such as a returned payment.
 - **OTHER** — A bank-side adjustment that fits none of the above.
 
+### Credit Reason
+
+- **GOODWILL** — Given to keep the customer's goodwill.
+- **BILLING ERROR** — Corrects an amount billed wrongly.
+- **RETURN** — Given for goods or services returned.
+- **PROMOTION** — Given as part of an offer.
+- **OTHER** — Given for another reason.
+
 ### Credit Status
 
 - **DRAFT** — Being prepared by billing; it cannot yet be applied to any charge.
@@ -1169,7 +1196,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 56 of 56 record types
+- **User** — reads 57 of 57 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

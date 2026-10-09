@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T08:31:32.385Z
+//! Generated: 2026-10-09T15:29:11.056Z
 //! Project: inventory
 
 use serde_json::Value;

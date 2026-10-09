@@ -1,6 +1,6 @@
 //! `/api/accounts` — creating, disabling and removing the people who sign in.
 //!
-//! Generated: 2026-10-09T08:32:05.170Z
+//! Generated: 2026-10-09T15:29:44.180Z
 //! Project: mining
 //!
 //! The suites that sign in as the administrator cannot see what a *different*

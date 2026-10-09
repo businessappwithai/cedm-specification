@@ -16,7 +16,7 @@
 //! from the request, the scope it picks from the path, the 429 it builds and
 //! the headers it writes.
 //!
-//! Generated: 2026-10-09T08:31:28.075Z
+//! Generated: 2026-10-09T15:29:06.525Z
 //! Project: insurance
 
 use std::{net::SocketAddr, sync::Arc};

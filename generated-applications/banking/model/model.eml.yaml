@@ -261,6 +261,15 @@ enums:
       ACTIVE: Issued and available to apply against what the customer owes.
       COMPLETED: Fully applied or expired, so nothing remains to use. A final state.
       CANCELLED: Withdrawn before it was used up, leaving no usable value. A final state.
+  - name: CreditReason
+    values: [GOODWILL, BILLING_ERROR, RETURN, PROMOTION, OTHER]
+    table: true
+    descriptions:
+      GOODWILL: Given to keep the customer's goodwill.
+      BILLING_ERROR: Corrects an amount billed wrongly.
+      RETURN: Given for goods or services returned.
+      PROMOTION: Given as part of an offer.
+      OTHER: Given for another reason.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -272,7 +281,7 @@ categories:
     entities: [BankAccount, BankTransaction, BankReconciliation, BankLoan, Deposit, Credit, Collateral]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, BankAccountAccountType, BankAccountStatus, BankTransactionTransactionType, BankTransactionStatus, BankLoanStatus, CreditStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, BankAccountAccountType, BankAccountStatus, BankTransactionTransactionType, BankTransactionStatus, BankLoanStatus, CreditStatus, CreditReason]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14626,6 +14635,27 @@ entities:
         type: string
         enum: CreditStatus
         help: Whether the credit is being prepared, available to use, used up, or withdrawn. Moved by billing staff; only an ACTIVE credit can be applied to a charge or invoice. Being prepared by billing; it cannot yet be applied to any charge. Issued and available to apply against what the customer owes. Fully applied or expired, so nothing remains to use. A final state. Withdrawn before it was used up, leaving no usable value. A final state.
+      - name: credit_number
+        type: string(100)
+        unique: true
+        help: The reference number of the credit, such as CR-000087. Assigned when the credit is issued; quoted to the customer. Read with the customer.
+      - name: reason
+        type: string
+        enum: CreditReason
+        help: Why the credit was given. Chosen when issued; reports use it to see why money is being given back. Decides the approval needed. Given to keep the customer's goodwill. Corrects an amount billed wrongly. Given for goods or services returned. Given as part of an offer. Given for another reason.
+      - name: amount
+        type: decimal
+        help: The total value of the credit when issued. Entered when issued; must not be negative. The starting point for the remaining amount.
+      - name: remaining_amount
+        type: decimal
+        help: The part of the credit not yet applied to charges. Starts equal to the amount and falls as the credit is applied; never more than the amount. Compared with the amount to show how much is used.
+      - name: currency_id
+        type: string
+        fk: true
+        help: The currency of the credit. Set from the customer or contract; credits apply only to charges in the same currency. Read with the amount.
+      - name: issued_on
+        type: date
+        help: The date the credit was issued. Set when issued; the credit may be applied from this date. Compared with charge dates.
   - name: Collateral
     help: An asset, guarantee or other value pledged to secure a loan, facility or other credit exposure. Collateral is what the lender can fall back on if the borrower fails to repay. Recording it, with the exposure it secures, lets risk and credit teams see how well covered a loan is. Registered when security is taken; revalued over time; read by credit risk and collections. Collateral secures a BankLoan or other facility; its value offsets the exposure. Collateral is taken, held, and released when the exposure is repaid. Corrections are recorded explicitly, not by editing past valuations. A commercial property pledged against a five-year business loan, valued at 400,000.
     icon: database
@@ -15320,6 +15350,31 @@ entities:
         default: "true"
   - name: CreditStatus
     help: "The values of credit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: CreditReason
+    help: "The values of credit reason, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id

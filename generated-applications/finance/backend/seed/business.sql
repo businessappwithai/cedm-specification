@@ -727,20 +727,20 @@ VALUES ('fe1a5fe1-6a7c-5cf1-8963-79b6cf02c3ee', 'Forecast 5', 'c349b577-fdcf-5ea
 ON CONFLICT DO NOTHING;
 
 -- Variance (bus_variance)
-INSERT INTO bus_variance (id, code, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
-VALUES ('5ee5f3fa-d99b-5688-8176-b5e9abab76ae', 'Variance 1', '91772552-4d58-5b69-92b2-7caf56f4fd0d', 'ba6c0627-aac2-562d-9d91-bdb0aa892398', '0910bfbf-ae3c-5fff-a47a-46ff8c5303e3', 'final', NOW(), NOW())
+INSERT INTO bus_variance (id, code, period_start, period_end, basis, planned_amount, actual_amount, variance_amount, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
+VALUES ('5ee5f3fa-d99b-5688-8176-b5e9abab76ae', 'Variance 1', '2026-01-15', '2026-01-15', 'BUDGET', 10.50, 10.50, 10.50, '91772552-4d58-5b69-92b2-7caf56f4fd0d', 'ba6c0627-aac2-562d-9d91-bdb0aa892398', '0910bfbf-ae3c-5fff-a47a-46ff8c5303e3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_variance (id, code, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
-VALUES ('39ba53ad-4690-52ab-b5e9-039515efbd63', 'Variance 2', '0179dde7-7e74-5155-9825-bca0c2865f77', 'af9aea7d-a30a-585c-a6fe-562d525071db', 'a5071cad-a443-5d25-8dc1-c653bfdaf3c2', 'final', NOW(), NOW())
+INSERT INTO bus_variance (id, code, period_start, period_end, basis, planned_amount, actual_amount, variance_amount, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
+VALUES ('39ba53ad-4690-52ab-b5e9-039515efbd63', 'Variance 2', '2026-02-15', '2026-02-15', 'FORECAST', 21.00, 21.00, 21.00, '0179dde7-7e74-5155-9825-bca0c2865f77', 'af9aea7d-a30a-585c-a6fe-562d525071db', 'a5071cad-a443-5d25-8dc1-c653bfdaf3c2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_variance (id, code, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
-VALUES ('6a6c65e8-6d51-55ed-839c-d1d1b76a4d40', 'Variance 3', '4883ea9a-36a3-519c-954a-adde6562ec78', '62198f6d-f775-5d00-85df-65e51c212a56', '56f65895-a9a5-54ba-96d5-06591cf67404', 'final', NOW(), NOW())
+INSERT INTO bus_variance (id, code, period_start, period_end, basis, planned_amount, actual_amount, variance_amount, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
+VALUES ('6a6c65e8-6d51-55ed-839c-d1d1b76a4d40', 'Variance 3', '2026-03-15', '2026-03-15', 'BUDGET', 31.50, 31.50, 31.50, '4883ea9a-36a3-519c-954a-adde6562ec78', '62198f6d-f775-5d00-85df-65e51c212a56', '56f65895-a9a5-54ba-96d5-06591cf67404', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_variance (id, code, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
-VALUES ('018677c7-2811-5bf9-b778-57b5454816a6', 'Variance 4', 'fe6c3a57-d6d8-525d-aa26-91dadc3a70e5', '187aab20-d5e6-57f3-b877-61d8942e4b6c', '2782c253-d7d5-5aca-9e88-fe6ac5960935', 'final', NOW(), NOW())
+INSERT INTO bus_variance (id, code, period_start, period_end, basis, planned_amount, actual_amount, variance_amount, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
+VALUES ('018677c7-2811-5bf9-b778-57b5454816a6', 'Variance 4', '2026-04-15', '2026-04-15', 'FORECAST', 42.00, 42.00, 42.00, 'fe6c3a57-d6d8-525d-aa26-91dadc3a70e5', '187aab20-d5e6-57f3-b877-61d8942e4b6c', '2782c253-d7d5-5aca-9e88-fe6ac5960935', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_variance (id, code, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
-VALUES ('45342302-2514-5b58-9442-a3772cd592ce', 'Variance 5', 'c349b577-fdcf-5eab-917b-c8c9b3bfaf23', 'c9abc0b2-2264-5a21-b64d-b8b460e55493', 'fe1a5fe1-6a7c-5cf1-8963-79b6cf02c3ee', 'final', NOW(), NOW())
+INSERT INTO bus_variance (id, code, period_start, period_end, basis, planned_amount, actual_amount, variance_amount, organization_id, budget_id, forecast_id, doc_status, created_at, updated_at)
+VALUES ('45342302-2514-5b58-9442-a3772cd592ce', 'Variance 5', '2026-05-15', '2026-05-15', 'BUDGET', 52.50, 52.50, 52.50, 'c349b577-fdcf-5eab-917b-c8c9b3bfaf23', 'c9abc0b2-2264-5a21-b64d-b8b460e55493', 'fe1a5fe1-6a7c-5cf1-8963-79b6cf02c3ee', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Payment Allocation (bus_payment_allocation)
@@ -829,20 +829,20 @@ VALUES ('c7edf71e-75d7-5bce-9e3b-7416b5a624c8', 'DRAFT', 'c349b577-fdcf-5eab-917
 ON CONFLICT DO NOTHING;
 
 -- Tax Rate (bus_tax_rate)
-INSERT INTO bus_tax_rate (id, status, organization_id, doc_status, created_at, updated_at)
-VALUES ('ae408ecf-5710-5088-8a1e-f3f07c4dbc12', 'DRAFT', '91772552-4d58-5b69-92b2-7caf56f4fd0d', 'final', NOW(), NOW())
+INSERT INTO bus_tax_rate (id, status, rate, rate_basis, effective_from, effective_to, organization_id, tax_code_id, tax_jurisdiction_id, doc_status, created_at, updated_at)
+VALUES ('ae408ecf-5710-5088-8a1e-f3f07c4dbc12', 'DRAFT', 10.50, 'PERCENTAGE', '2026-01-15', NULL, '91772552-4d58-5b69-92b2-7caf56f4fd0d', 'cdac7aa1-5cee-5469-a7e5-a4fcc3e81d99', 'abb0edb9-a1f7-5aea-a733-0761670fc0de', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_tax_rate (id, status, organization_id, doc_status, created_at, updated_at)
-VALUES ('a8c069a2-ebee-50de-9040-e6fed4088259', 'DRAFT', '0179dde7-7e74-5155-9825-bca0c2865f77', 'final', NOW(), NOW())
+INSERT INTO bus_tax_rate (id, status, rate, rate_basis, effective_from, effective_to, organization_id, tax_code_id, tax_jurisdiction_id, doc_status, created_at, updated_at)
+VALUES ('a8c069a2-ebee-50de-9040-e6fed4088259', 'DRAFT', 21.00, 'FIXED_AMOUNT', '2026-02-15', NULL, '0179dde7-7e74-5155-9825-bca0c2865f77', 'c60ac57f-b43f-5f70-8bf4-dded2b90e35f', '57a1d171-dd24-528f-a076-3669c908ce35', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_tax_rate (id, status, organization_id, doc_status, created_at, updated_at)
-VALUES ('a1a23dbf-2e51-59a8-a014-27011b7b0f68', 'DRAFT', '4883ea9a-36a3-519c-954a-adde6562ec78', 'final', NOW(), NOW())
+INSERT INTO bus_tax_rate (id, status, rate, rate_basis, effective_from, effective_to, organization_id, tax_code_id, tax_jurisdiction_id, doc_status, created_at, updated_at)
+VALUES ('a1a23dbf-2e51-59a8-a014-27011b7b0f68', 'DRAFT', 31.50, 'PERCENTAGE', '2026-03-15', NULL, '4883ea9a-36a3-519c-954a-adde6562ec78', '5d30ec6f-df04-5bde-a0b1-40887942a7bb', '759022e9-768a-52aa-b0e2-cb0eed47ebf2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_tax_rate (id, status, organization_id, doc_status, created_at, updated_at)
-VALUES ('41c7c55c-1c77-58f6-9601-bafe08121298', 'DRAFT', 'fe6c3a57-d6d8-525d-aa26-91dadc3a70e5', 'final', NOW(), NOW())
+INSERT INTO bus_tax_rate (id, status, rate, rate_basis, effective_from, effective_to, organization_id, tax_code_id, tax_jurisdiction_id, doc_status, created_at, updated_at)
+VALUES ('41c7c55c-1c77-58f6-9601-bafe08121298', 'DRAFT', 42.00, 'FIXED_AMOUNT', '2026-04-15', NULL, 'fe6c3a57-d6d8-525d-aa26-91dadc3a70e5', '1a9e3000-72c8-5ef1-8241-b10069f3b753', 'b6941931-8bc8-56d8-bc4b-8a214956badf', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_tax_rate (id, status, organization_id, doc_status, created_at, updated_at)
-VALUES ('cb17e58e-7d97-58a9-9dd2-3262b1416e25', 'DRAFT', 'c349b577-fdcf-5eab-917b-c8c9b3bfaf23', 'final', NOW(), NOW())
+INSERT INTO bus_tax_rate (id, status, rate, rate_basis, effective_from, effective_to, organization_id, tax_code_id, tax_jurisdiction_id, doc_status, created_at, updated_at)
+VALUES ('cb17e58e-7d97-58a9-9dd2-3262b1416e25', 'DRAFT', 52.50, 'PERCENTAGE', '2026-05-15', NULL, 'c349b577-fdcf-5eab-917b-c8c9b3bfaf23', '24f03b14-0421-5273-9d2a-4bdf4522b207', 'c7edf71e-75d7-5bce-9e3b-7416b5a624c8', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Tax Registration (bus_tax_registration)
@@ -897,20 +897,20 @@ VALUES ('7c770718-63a2-50ea-aa98-118e9cc02896', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Charge (bus_charge)
-INSERT INTO bus_charge (id, status, customer_id, doc_status, created_at, updated_at)
-VALUES ('ff9f2639-ffe9-5c77-8acb-d16526b3de9e', 'DRAFT', '515a8068-8b9c-54b1-96ce-8359e3a1524c', 'final', NOW(), NOW())
+INSERT INTO bus_charge (id, status, charge_number, charge_type, amount, currency_id, charged_on, description, customer_id, doc_status, created_at, updated_at)
+VALUES ('ff9f2639-ffe9-5c77-8acb-d16526b3de9e', 'DRAFT', 'Charge 1', 'SUBSCRIPTION', 10.50, 'be96ecd5-ebfd-52d9-8971-1d4755b075ab', '2026-01-15', 'Description 1', '515a8068-8b9c-54b1-96ce-8359e3a1524c', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_charge (id, status, customer_id, doc_status, created_at, updated_at)
-VALUES ('c1d377d6-65f0-5cb1-ab84-cd7f13ada995', 'DRAFT', '0b744f5d-b2c7-51d3-93fa-d8112b737cb6', 'final', NOW(), NOW())
+INSERT INTO bus_charge (id, status, charge_number, charge_type, amount, currency_id, charged_on, description, customer_id, doc_status, created_at, updated_at)
+VALUES ('c1d377d6-65f0-5cb1-ab84-cd7f13ada995', 'DRAFT', 'Charge 2', 'USAGE', 21.00, '0b072212-b393-511e-88e7-329a76e885ef', '2026-02-15', 'Description 2', '0b744f5d-b2c7-51d3-93fa-d8112b737cb6', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_charge (id, status, customer_id, doc_status, created_at, updated_at)
-VALUES ('4e611015-a48b-5d9b-9427-2e5ece78363b', 'DRAFT', '9b9b2c19-a8c9-5b59-b164-9d2c077f6e09', 'final', NOW(), NOW())
+INSERT INTO bus_charge (id, status, charge_number, charge_type, amount, currency_id, charged_on, description, customer_id, doc_status, created_at, updated_at)
+VALUES ('4e611015-a48b-5d9b-9427-2e5ece78363b', 'DRAFT', 'Charge 3', 'SERVICE', 31.50, 'f2b680ed-845b-5f31-b616-df4f64e1f32b', '2026-03-15', 'Description 3', '9b9b2c19-a8c9-5b59-b164-9d2c077f6e09', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_charge (id, status, customer_id, doc_status, created_at, updated_at)
-VALUES ('14a5cde6-519d-5fff-9eec-9b78d2d36f19', 'DRAFT', '7a8c8424-870e-554f-ba50-3eb4ca870ceb', 'final', NOW(), NOW())
+INSERT INTO bus_charge (id, status, charge_number, charge_type, amount, currency_id, charged_on, description, customer_id, doc_status, created_at, updated_at)
+VALUES ('14a5cde6-519d-5fff-9eec-9b78d2d36f19', 'DRAFT', 'Charge 4', 'PRODUCT', 42.00, 'b9317bd1-a6d2-5940-8d04-de2e43bf810b', '2026-04-15', 'Description 4', '7a8c8424-870e-554f-ba50-3eb4ca870ceb', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_charge (id, status, customer_id, doc_status, created_at, updated_at)
-VALUES ('89c5c081-2e4d-529c-8ae6-6b458d9aacc5', 'DRAFT', '7f3b2164-e9e4-5c51-ab33-9addbc54ec27', 'final', NOW(), NOW())
+INSERT INTO bus_charge (id, status, charge_number, charge_type, amount, currency_id, charged_on, description, customer_id, doc_status, created_at, updated_at)
+VALUES ('89c5c081-2e4d-529c-8ae6-6b458d9aacc5', 'DRAFT', 'Charge 5', 'FEE', 52.50, '3c9c5090-23dd-5c11-bf00-161557f45dc3', '2026-05-15', 'Description 5', '7f3b2164-e9e4-5c51-ab33-9addbc54ec27', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Subscription (bus_subscription)

@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T08:31:20.393Z
+ * Generated: 2026-10-09T15:28:59.091Z
  * Project: hospitality
  */
 

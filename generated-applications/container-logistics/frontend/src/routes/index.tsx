@@ -3,7 +3,7 @@
  *
  * Automatically redirects to the main dashboard page.
  *
- * Generated: 2026-10-09T08:30:32.813Z
+ * Generated: 2026-10-09T15:28:10.903Z
  */
 
 import { createFileRoute, redirect } from '@tanstack/react-router';

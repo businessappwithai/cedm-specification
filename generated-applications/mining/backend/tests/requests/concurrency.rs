@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T08:32:05.160Z
+//! Generated: 2026-10-09T15:29:44.171Z
 //! Project: mining
 //!
 //! Every entity is optimistic unless the model says `concurrency:

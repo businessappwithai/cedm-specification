@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-09T08:31:10.199Z
+//! Generated: 2026-10-09T15:28:49.055Z
 //! Project: food
 
 use serde_json::Value;

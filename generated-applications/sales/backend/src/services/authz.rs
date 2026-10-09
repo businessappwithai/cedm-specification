@@ -1,6 +1,6 @@
 //! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
-//! Generated: 2026-10-09T08:32:53.041Z
+//! Generated: 2026-10-09T15:30:36.191Z
 //! Project: sales
 //!
 //! **The gap this closes.** `/api/bus/*` required a JWT and nothing else, so

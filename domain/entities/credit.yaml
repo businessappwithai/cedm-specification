@@ -20,10 +20,75 @@ entity:
           ACTIVE: Issued and available to apply against what the customer owes.
           COMPLETED: Fully applied or expired, so nothing remains to use. A final state.
           CANCELLED: Withdrawn before it was used up, leaving no usable value. A final state.
+    - name: creditNumber
+      type: string
+      maxLength: 100
+      unique: true
+      required: true
+      help:
+        summary: The reference number of the credit, such as CR-000087.
+        usage: Assigned when the credit is issued; quoted to the customer.
+        relationshipContext: Read with the customer.
+    - name: reason
+      type: enum
+      values:
+        - GOODWILL
+        - BILLING_ERROR
+        - RETURN
+        - PROMOTION
+        - OTHER
+      required: true
+      help:
+        summary: Why the credit was given.
+        usage: Chosen when issued; reports use it to see why money is being given back.
+        relationshipContext: Decides the approval needed.
+        valueSemantics:
+          GOODWILL: Given to keep the customer's goodwill.
+          BILLING_ERROR: Corrects an amount billed wrongly.
+          RETURN: Given for goods or services returned.
+          PROMOTION: Given as part of an offer.
+          OTHER: Given for another reason.
+    - name: amount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The total value of the credit when issued.
+        usage: Entered when issued; must not be negative.
+        relationshipContext: The starting point for the remaining amount.
+    - name: remainingAmount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The part of the credit not yet applied to charges.
+        usage: Starts equal to the amount and falls as the credit is applied; never more than the amount.
+        relationshipContext: Compared with the amount to show how much is used.
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: true
+      help:
+        summary: The currency of the credit.
+        usage: Set from the customer or contract; credits apply only to charges in the same currency.
+        relationshipContext: Read with the amount.
+    - name: issuedOn
+      type: date
+      required: true
+      help:
+        summary: The date the credit was issued.
+        usage: Set when issued; the credit may be applied from this date.
+        relationshipContext: Compared with charge dates.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer to whom the credit is owed., usage: Set when the credit is issued; it can be applied only to that customer's charges., cardinalityMeaning: At most one customer; an unassigned credit is a draft not yet attached to anyone., workflowRole: Decides whose charges the credit can reduce.}}
   invariants:
     - {id: CREDIT-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - id: CREDIT-002
+      rule: amount must not be negative.
+    - id: CREDIT-003
+      rule: remainingAmount must not exceed amount.
   lifecycle:
     title: Credit Lifecycle
     attribute: status

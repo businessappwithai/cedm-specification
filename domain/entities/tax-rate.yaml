@@ -22,10 +22,69 @@ entity:
           ACTIVE: In force and applied to transactions.
           COMPLETED: Replaced or expired. A final state.
           CANCELLED: Withdrawn before use. A final state.
+    - name: rate
+      type: decimal
+      precision: 12
+      scale: 8
+      required: true
+      help:
+        summary: 'The size of the tax: a percentage of the taxable amount or a fixed amount, as the rate basis says.'
+        usage: Entered by tax staff from the authority's published rate; must not be negative; applied to the taxable amount during tax calculation.
+        relationshipContext: Read with the rate basis; applied under the linked tax code and jurisdiction.
+    - name: rateBasis
+      type: enum
+      values:
+        - PERCENTAGE
+        - FIXED_AMOUNT
+      default: PERCENTAGE
+      required: true
+      help:
+        summary: Whether the rate is a percentage of the taxable amount or a fixed amount per unit or document.
+        usage: Chosen when the rate is set up; tax calculation multiplies or adds accordingly.
+        relationshipContext: Decides how the rate figure is read.
+        valueSemantics:
+          PERCENTAGE: The rate is a percentage of the taxable amount.
+          FIXED_AMOUNT: The rate is a fixed amount charged regardless of the taxable amount.
+    - name: effectiveFrom
+      type: date
+      required: true
+      help:
+        summary: The first date on which the rate applies to transactions.
+        usage: Set from the authority's announcement; a transaction is taxed at the rate whose period contains its tax date.
+        relationshipContext: Compared with the transaction tax date and the end of the period.
+    - name: effectiveTo
+      type: date
+      required: false
+      help:
+        summary: The last date on which the rate applies; empty while it remains in force.
+        usage: Set when the authority changes the rate or the code stops being used; must not be before the start date.
+        relationshipContext: Compared with the transaction tax date.
   relationships:
     - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the rate is set up for., usage: Chosen when the rate is company specific., cardinalityMeaning: At most one organisation; empty means it applies to all., workflowRole: Decides which company's returns carry the tax.}}
+    - name: taxCode
+      target: TaxCode
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The tax code whose treatment this rate carries.
+        usage: Chosen when the rate is created; tax calculation finds rates through the code on a document line.
+        cardinalityMeaning: A rate belongs to one tax code; the same figure for another code is a separate rate.
+        workflowRole: Links the classification on a line to the figure that is charged.
+    - name: taxJurisdiction
+      target: TaxJurisdiction
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The jurisdiction in which this rate is imposed.
+        usage: Chosen when the rate is created; matched to the place of supply or delivery.
+        cardinalityMeaning: A rate applies in exactly one jurisdiction, since authorities set their own rates.
+        workflowRole: Selects which authority's figure applies and which return it feeds.
   invariants:
     - {id: TAX-RATE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - id: TAX-RATE-002
+      rule: rate must not be negative.
+    - id: TAX-RATE-003
+      rule: effectiveTo must not precede effectiveFrom.
   lifecycle:
     title: Tax Rate Lifecycle
     attribute: status

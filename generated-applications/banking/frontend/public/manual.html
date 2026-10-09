@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T08:30:20.612Z">2026-10-09T08:30:20.612Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:27:57.918Z">2026-10-09T15:27:57.918Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -121,6 +121,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-contact-point">Contact Point</a></li>
               <li><a href="#entity-country">Country</a></li>
               <li><a href="#entity-credit">Credit</a></li>
+              <li><a href="#entity-credit-reason">Credit Reason</a></li>
               <li><a href="#entity-credit-status">Credit Status</a></li>
               <li><a href="#entity-currency">Currency</a></li>
               <li><a href="#entity-currency-status">Currency Status</a></li>
@@ -168,14 +169,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Banking and Financial Services, built on the CEDM common foundation.</p></div>
-    <p>banking keeps 56 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>banking keeps 57 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
         <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a></td></tr>
         <tr><td>Banking and Financial Services</td><td><a href="#entity-bank-account">Bank Account</a>, <a href="#entity-bank-transaction">Bank Transaction</a>, <a href="#entity-bank-reconciliation">Bank Reconciliation</a>, <a href="#entity-bank-loan">Bank Loan</a>, <a href="#entity-deposit">Deposit</a>, <a href="#entity-credit">Credit</a>, <a href="#entity-collateral">Collateral</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-bank-account-account-type">Bank Account Account Type</a>, <a href="#entity-bank-account-status">Bank Account Status</a>, <a href="#entity-bank-transaction-transaction-type">Bank Transaction Transaction Type</a>, <a href="#entity-bank-transaction-status">Bank Transaction Status</a>, <a href="#entity-bank-loan-status">Bank Loan Status</a>, <a href="#entity-credit-status">Credit Status</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-bank-account-account-type">Bank Account Account Type</a>, <a href="#entity-bank-account-status">Bank Account Status</a>, <a href="#entity-bank-transaction-transaction-type">Bank Transaction Transaction Type</a>, <a href="#entity-bank-transaction-status">Bank Transaction Status</a>, <a href="#entity-bank-loan-status">Bank Loan Status</a>, <a href="#entity-credit-status">Credit Status</a>, <a href="#entity-credit-reason">Credit Reason</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -187,8 +188,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 56</td></tr>
-        <tr><td>User</td><td><code>user@banking.example.com</code></td><td>56 of 56</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 57</td></tr>
+        <tr><td>User</td><td><code>user@banking.example.com</code></td><td>57 of 57</td></tr>
       </tbody>
     </table>
 
@@ -2512,10 +2513,46 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><span class="tag">required</span></td>
           <td>Whether the credit is being prepared, available to use, used up, or withdrawn. Moved by billing staff; only an ACTIVE credit can be applied to a charge or invoice. Being prepared by billing; it cannot yet be applied to any charge. Issued and available to apply against what the customer owes. Fully applied or expired, so nothing remains to use. A final state. Withdrawn before it was used up, leaving no usable value. A final state.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
         </tr>
+        <tr>
+          <td><code>credit_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The reference number of the credit, such as CR-000087. Assigned when the credit is issued; quoted to the customer. Read with the customer.</td>
+        </tr>
+        <tr>
+          <td><code>reason</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Why the credit was given. Chosen when issued; reports use it to see why money is being given back. Decides the approval needed. Given to keep the customer&#39;s goodwill. Corrects an amount billed wrongly. Given for goods or services returned. Given as part of an offer. Given for another reason.<div class="detail">One of: <code>GOODWILL</code>, <code>BILLING_ERROR</code>, <code>RETURN</code>, <code>PROMOTION</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The total value of the credit when issued. Entered when issued; must not be negative. The starting point for the remaining amount.</td>
+        </tr>
+        <tr>
+          <td><code>remaining_amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The part of the credit not yet applied to charges. Starts equal to the amount and falls as the credit is applied; never more than the amount. Compared with the amount to show how much is used.</td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The currency of the credit. Set from the customer or contract; credits apply only to charges in the same currency. Read with the amount.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        <tr>
+          <td><code>issued_on</code></td>
+          <td>Date</td>
+          <td><span class="tag">required</span></td>
+          <td>The date the credit was issued. Set when issued; the credit may be applied from this date. Compared with charge dates.</td>
+        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Credit</b> window, on the <b>Credit</b> tab. These are its 2 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Credit</b> window, on the <b>Credit</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -2533,6 +2570,54 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>Yes</td>
             <td>Yes</td>
             <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>credit_number</code></td>
+            <td>Credit Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>reason</code></td>
+            <td>Reason</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>amount</code></td>
+            <td>Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>remaining_amount</code></td>
+            <td>Remaining Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>issued_on</code></td>
+            <td>Issued On</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -2556,6 +2641,111 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <p><b>Processes:</b> <a href="#process-credit-follow-up-required">CreditFollowUpRequired</a>, <a href="#process-credit-completion-confirmed">CreditCompletionConfirmed</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-credit-reason" class="entity">
+      <h3>Credit Reason <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of credit reason, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_credit_reason</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Credit Reason</b> window, on the <b>Credit Reason</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -6890,7 +7080,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    banking 1.0.0 &middot; 56 record types &middot; 16 rules &middot; 21 processes
+    banking 1.0.0 &middot; 57 record types &middot; 16 rules &middot; 21 processes
   </footer>
 </div>
 </body>

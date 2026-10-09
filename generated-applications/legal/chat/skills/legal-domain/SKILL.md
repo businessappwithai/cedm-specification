@@ -70,6 +70,24 @@ Readable by every signed-in person.
 
 Fields:
   - **Occurred At** — The date and time at which the agreement was concluded or took effect. Set when the agreement is recorded; used to place it in the sequence of events and to compute periods that run from it.
+  - **Agreement Number** (required) — The reference number the business gives the agreement, such as AGR-2026-014. Assigned when the agreement is recorded; quoted in correspondence and used to find the agreement again. Read with the title to identify the agreement.
+  - **Title** (required) — A short title saying what the agreement is about. Entered when recorded; shown in lists and on documents. Read with the agreement number.
+  - **Agreement Type** (required, one of the Agreement Agreement Type values) — The kind of agreement, such as a service, supply or licence agreement. Chosen when recorded; decides which review and approval steps apply and how agreements are grouped in reports. Read with the parties to understand the commitment. An ag…
+  - **Effective From** (required) — The date the agreement takes effect. Taken from the signed document; obligations are measured from it. Not later than the end date.
+  - **Effective To** — The date the agreement ends; empty for an open-ended agreement. Taken from the signed document or set when it is terminated; must not be before the start date. Compared with today to show whether the agreement is in force.
+
+### Agreement Agreement Type
+
+The values of agreement agreement type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Attachment
 
@@ -481,6 +499,7 @@ Fields:
   - **Status** (required, one of the Party Status values) — Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account m…
   - **External Reference** — An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI,…
   - **Contract** (a Contract) — The Contract this Party belongs to.
+  - **Agreement** (a Agreement) — The Agreement this Party belongs to.
 
 ### Party Party Type
 
@@ -771,6 +790,15 @@ Fields:
 - **ACTIVE** — Valid and available for new documents.
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
+
+### Agreement Agreement Type
+
+- **SERVICE** — An agreement to provide or receive services.
+- **SUPPLY** — An agreement to supply or buy goods.
+- **LICENSE** — An agreement granting rights to use something.
+- **PARTNERSHIP** — An agreement to work together towards a shared aim.
+- **NON DISCLOSURE** — An agreement to keep information confidential.
+- **OTHER** — An agreement that fits no other type.
 
 ### Contract Obligation Obligation Type
 
@@ -1146,7 +1174,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 58 of 58 record types
+- **User** — reads 59 of 59 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

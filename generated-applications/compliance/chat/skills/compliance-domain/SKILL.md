@@ -79,6 +79,26 @@ Readable by every signed-in person.
 
 Fields:
   - **Effective At** — When the case took effect as the governing record of the review. Set when the case is opened or a revision takes effect; used to order cases and show which version applied at a given time.
+  - **Case Number** (required) — The reference number of the audit case, such as AUD-2026-007. Assigned when the case is opened; quoted in findings and reports. Read with the title.
+  - **Title** (required) — A short title saying what is being audited. Entered when the case is opened; shown in lists. Read with the case number.
+  - **Scope** — A description of what the audit covers and what it leaves out. Written when the case is planned and agreed with the audited area; findings are judged against it. Read by auditors and those audited.
+  - **Opened On** (required) — The date the audit case was opened. Set when the case is created; the length of the case is measured from it. Not later than the closing date.
+  - **Closed On** — The date the audit case was closed. Set when the case is closed; must not be before the opening date. Gives the duration of the case.
+  - **Status** (required, one of the Audit Case Status values) — Where the audit case is in its life, from planning to closure. Starts as PLANNED; moved by the lead auditor as fieldwork, reporting and follow-up proceed. Decides whether findings can still be added. Scoped and scheduled; fieldwork has not…
+  - **Lead Auditor** (a Party) — The person responsible for the audit. Chosen when the case is planned. At most one lead auditor; empty until one is appointed. Owns the conclusions and the report.
+
+### Audit Case Status
+
+The values of audit case status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Audit Event
 
@@ -844,6 +864,14 @@ Fields:
 - **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
 - **RETIRED** — No longer valid; kept only as history and in past documents.
 
+### Audit Case Status
+
+- **PLANNED** — Scoped and scheduled; fieldwork has not started.
+- **IN PROGRESS** — Evidence is being gathered and tested.
+- **REPORTED** — Findings have been reported and actions are being followed up.
+- **CLOSED** — All actions are done and the case is finished. A final state.
+- **CANCELLED** — Called off before it was reported. A final state.
+
 ### Control Control Type
 
 - **PREVENTIVE** — Stops a risk event from happening.
@@ -1245,6 +1273,18 @@ Moves:
 - MITIGATING → MATERIALIZED (Materialize)
 - ACCEPTED → MATERIALIZED (Materialize)
 
+### Audit Case — Audit Case Lifecycle
+
+Starts at **PLANNED**.
+Final: **CLOSED**, **CANCELLED**.
+
+Moves:
+- PLANNED → IN PROGRESS (Start)
+- IN PROGRESS → REPORTED (Report)
+- REPORTED → CLOSED (Close)
+- PLANNED → CANCELLED (Cancel)
+- IN PROGRESS → CANCELLED (Cancel)
+
 ### Risk Treatment — Risk Treatment Lifecycle
 
 Starts at **DRAFT**.
@@ -1258,7 +1298,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 63 of 63 record types
+- **User** — reads 64 of 64 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-09T08:31:10.200Z
+//! Generated: 2026-10-09T15:28:49.056Z
 //! Project: food
 
 use serde_json::{json, Value};

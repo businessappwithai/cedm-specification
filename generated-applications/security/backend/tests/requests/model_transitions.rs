@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-09T08:32:58.182Z
+//! Generated: 2026-10-09T15:30:42.293Z
 //! Project: security
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its

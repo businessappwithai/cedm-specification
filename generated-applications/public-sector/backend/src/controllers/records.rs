@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-09T08:32:27.224Z
+//! Generated: 2026-10-09T15:30:07.224Z
 //! Project: public-sector
 //!
 //! Two things a person looking at a record wants that the CRUD routes cannot
