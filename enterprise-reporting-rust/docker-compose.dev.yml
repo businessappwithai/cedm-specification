@@ -69,7 +69,7 @@ services:
       MARIADB_USER: ${MARIADB_USER:-enterprise}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-enterprise_pass}
       AUTH_SECRET: ${AUTH_SECRET:-u+xA6iwkg5BuouPQ50O4tN+cbGpB0uDk/p0ZNt17k4A=}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required — generate one with: openssl rand -hex 32}
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:?ENCRYPTION_KEY is required — generate one with: openssl rand -hex 32}"
     depends_on:
       mariadb:
         condition: service_healthy

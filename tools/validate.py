@@ -29,6 +29,8 @@ except ImportError:
     print("ERROR: PyYAML is required (pip install pyyaml)")
     raise SystemExit(2)
 
+SELF_REFERENCE_ACYCLIC = re.compile(r"cycl|acyclic|ancestor|descendant|own parent|circular", re.I)
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 ENTITY_DIR = ROOT / "domain" / "entities"
 REGISTRY = ENTITY_DIR / "index.yaml"
@@ -337,6 +339,10 @@ def main() -> int:
     for directory in ("specification", "domains", "schema", "applications"):
         for path in sorted((ROOT / directory).glob("*.yaml")):
             load_yaml(path)
+    # The files at the repository root are specification files too (cedm.yaml
+    # once shipped a line that did not parse and nothing noticed).
+    for path in sorted(ROOT.glob("*.yaml")):
+        load_yaml(path)
 
     files = sorted(p for p in ENTITY_DIR.glob("*.yaml") if p.name != "index.yaml")
     entities: dict[str, tuple[pathlib.Path, dict]] = {}
@@ -433,8 +439,14 @@ def main() -> int:
             target = rel.get("target")
             if target not in entities:
                 errors.append(f"{name}.{rel.get('name')}: dangling relationship target {target!r}")
-            if target == name:
-                warnings.append(f"{name}.{rel.get('name')}: self-reference requires hierarchy/cycle review")
+            if target == name and not any(
+                SELF_REFERENCE_ACYCLIC.search(str(inv.get("rule", "")))
+                for inv in entity.get("invariants") or []
+            ):
+                errors.append(
+                    f"{name}.{rel.get('name')}: self-reference needs an invariant stating the "
+                    "hierarchy is acyclic (no cycle, own parent or own ancestor)"
+                )
 
     # Detect cycles only in explicit parent/child hierarchies.
     hierarchy = defaultdict(set)

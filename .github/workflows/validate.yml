@@ -29,3 +29,12 @@ jobs:
 
       - name: The model is YAML, and nothing carries the earlier notation
         run: bash scripts/check-yaml-only.sh
+
+      - name: No template filler in help (HELP-001)
+        run: python tools/help_shapes.py --check
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Application models are in sync with the catalog
+        run: bun scripts/build-domain-applications.ts --check
