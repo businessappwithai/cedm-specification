@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-04T01:14:40.143Z
+ * Generated: 2026-10-09T06:46:09.234Z
  * Project: sales
  */
 
@@ -1274,7 +1274,7 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
       },
       {
-        name: "from_currency",
+        name: "from_currency_id",
         displayName: "From Currency",
         type: "string",
         required: true,
@@ -1283,7 +1283,7 @@ export const entities: EntityMeta[] = [
         references: "Currency",
       },
       {
-        name: "to_currency",
+        name: "to_currency_id",
         displayName: "To Currency",
         type: "string",
         required: true,
@@ -2990,13 +2990,12 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
       },
       {
-        name: "currency",
+        name: "currency_id",
         displayName: "Currency",
         type: "string",
         required: false,
         unique: false,
         isForeignKey: true,
-        references: "Currency",
       },
       {
         name: "priority",
@@ -6430,20 +6429,6 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "currency_id",
   },
   {
-    name: "from_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "to_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
     name: "base_unit",
     sourceEntity: "UnitOfMeasure",
     targetEntity: "UnitOfMeasure",
@@ -6757,13 +6742,6 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "QuotationLine",
     cardinality: "oneToMany",
     foreignKey: "unit_of_measure_id",
-  },
-  {
-    name: "currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "DiscountRule",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
   },
   {
     name: "party_prospect",

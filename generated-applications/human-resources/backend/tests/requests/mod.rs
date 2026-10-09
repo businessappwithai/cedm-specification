@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:30:00.918Z
+//! Generated: 2026-10-09T06:44:33.080Z
 //! Project: human-resources
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -32,9 +33,15 @@ mod crud_address;
 mod crud_address_address_type;
 mod crud_address_status;
 mod crud_attachment;
+mod crud_attendance;
+mod crud_attendance_attendance_type;
+mod crud_attendance_status;
 mod crud_business_unit;
 mod crud_calendar;
 mod crud_city;
+mod crud_compensation;
+mod crud_compensation_basis;
+mod crud_compensation_status;
 mod crud_contact_point;
 mod crud_country;
 mod crud_currency;
@@ -52,6 +59,9 @@ mod crud_exchange_rate_status;
 mod crud_job;
 mod crud_job_status;
 mod crud_language;
+mod crud_leave_request;
+mod crud_leave_request_leave_type;
+mod crud_leave_request_status;
 mod crud_legal_entity;
 mod crud_location;
 mod crud_location_location_type;
@@ -88,9 +98,15 @@ mod rules_address;
 mod rules_address_address_type;
 mod rules_address_status;
 mod rules_attachment;
+mod rules_attendance;
+mod rules_attendance_attendance_type;
+mod rules_attendance_status;
 mod rules_business_unit;
 mod rules_calendar;
 mod rules_city;
+mod rules_compensation;
+mod rules_compensation_basis;
+mod rules_compensation_status;
 mod rules_contact_point;
 mod rules_country;
 mod rules_currency;
@@ -108,6 +124,9 @@ mod rules_exchange_rate_status;
 mod rules_job;
 mod rules_job_status;
 mod rules_language;
+mod rules_leave_request;
+mod rules_leave_request_leave_type;
+mod rules_leave_request_status;
 mod rules_legal_entity;
 mod rules_location;
 mod rules_location_location_type;

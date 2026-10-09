@@ -200,19 +200,19 @@ VALUES ('be8fd98c-28dc-515e-8e4d-785f1d1782dd', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('af3b9190-7315-530d-b530-2ca542146672', 'd9d9aa05-1435-56d8-954c-7849f94a931b', 'd9d9aa05-1435-56d8-954c-7849f94a931b', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('a094a779-b9b0-5bdf-b77b-e3f2a43ef735', '63aea963-802f-510e-bb44-1f0e34e149dc', '63aea963-802f-510e-bb44-1f0e34e149dc', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('ac3d0faa-c15c-5878-9621-98129ce0dfe1', 'd528d629-3194-5d86-a982-3e1cabf1fe2a', 'd528d629-3194-5d86-a982-3e1cabf1fe2a', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('86f53290-c998-50d2-9015-c8d16bf070b0', 'e16ae67a-069a-5113-b653-1132a6ffdb56', 'e16ae67a-069a-5113-b653-1132a6ffdb56', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('bca19e52-df44-5c88-8309-36648b796d65', 'a23c6305-2790-58fd-b484-f7600a68e45d', 'a23c6305-2790-58fd-b484-f7600a68e45d', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -401,4 +401,21 @@ VALUES ('5306c5dd-2ba7-5244-896b-8b6c6b0eab08', 'Timesheet 4', 'DRAFT', 'd763587
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_timesheet (id, timesheet_code, status, context_id, doc_status, created_at, updated_at)
 VALUES ('520abc97-6cea-5d07-b14b-d2fbf7510d28', 'Timesheet 5', 'DRAFT', '5f4b5d13-9eea-5960-8a84-130e18dc56b8', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Project Cost (bus_project_cost)
+INSERT INTO bus_project_cost (id, cost_number, cost_type, amount, incurred_date, status, project_id, project_task_id, timesheet_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('849d65c8-89f9-52cb-9766-a9f9f0a5488b', 'Project Cost 1', 'LABOR', 10.50, '2026-01-15', 'DRAFT', '86d47472-d509-53cd-bc8c-d57f503e82bb', '81e9470c-2b61-5c10-9555-82e4f07cb52a', 'e89d7920-803d-5ce0-a552-f011a3c39180', 'd9d9aa05-1435-56d8-954c-7849f94a931b', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_project_cost (id, cost_number, cost_type, amount, incurred_date, status, project_id, project_task_id, timesheet_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('7ce87a7a-d3e4-5029-9444-cea1cb82d4bd', 'Project Cost 2', 'MATERIAL', 21.00, '2026-02-15', 'DRAFT', '01b7ca13-64be-52c6-ad8b-53f0d296f85c', '4462a270-818b-5972-b1b9-170071640978', 'baba543b-aae8-5765-8126-7d25575e5c89', '63aea963-802f-510e-bb44-1f0e34e149dc', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_project_cost (id, cost_number, cost_type, amount, incurred_date, status, project_id, project_task_id, timesheet_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('4abb412c-9b15-57be-af3a-28654d37334f', 'Project Cost 3', 'EXPENSE', 31.50, '2026-03-15', 'DRAFT', '5dfe70c8-7b06-5a52-a5dd-376c557b28e6', '83be153a-6a91-57d3-9953-3a440c2664bd', '48cdbdb9-ef9f-551f-828b-e36c3ce88924', 'd528d629-3194-5d86-a982-3e1cabf1fe2a', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_project_cost (id, cost_number, cost_type, amount, incurred_date, status, project_id, project_task_id, timesheet_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('44ceaab2-f40d-58a6-82f8-04244f98ea85', 'Project Cost 4', 'SERVICE', 42.00, '2026-04-15', 'DRAFT', '5f7e34e0-9ba5-57b1-bb91-b40e647f0813', '09ca6f38-abee-5d6d-aa4c-0ffa51fa3237', '5306c5dd-2ba7-5244-896b-8b6c6b0eab08', 'e16ae67a-069a-5113-b653-1132a6ffdb56', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_project_cost (id, cost_number, cost_type, amount, incurred_date, status, project_id, project_task_id, timesheet_id, currency_id, doc_status, created_at, updated_at)
+VALUES ('82b9e01c-4d23-5e20-8763-294b3904a0dc', 'Project Cost 5', 'OVERHEAD', 52.50, '2026-05-15', 'DRAFT', '03c43b98-efd2-540b-abde-b6601d81b075', 'afcda55f-db0c-510f-890d-9537904e7215', '520abc97-6cea-5d07-b14b-d2fbf7510d28', 'a23c6305-2790-58fd-b484-f7600a68e45d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

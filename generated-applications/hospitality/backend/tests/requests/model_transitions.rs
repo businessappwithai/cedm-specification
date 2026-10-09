@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:57.478Z
+//! Generated: 2026-10-09T06:44:29.049Z
 //! Project: hospitality
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -79,16 +79,15 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_hotel", "status", "ACTIVE", "CLOSED"),
     ("bus_hotel", "status", "PLANNED", "RETIRED"),
     ("bus_hotel", "status", "ACTIVE", "RETIRED"),
+    ("bus_hotel_room", "status", "AVAILABLE", "RESERVED"),
+    ("bus_hotel_room", "status", "RESERVED", "AVAILABLE"),
+    ("bus_hotel_room", "status", "RESERVED", "OCCUPIED"),
     ("bus_hotel_room", "status", "AVAILABLE", "OCCUPIED"),
-    ("bus_hotel_room", "status", "OCCUPIED", "RESERVED"),
     ("bus_hotel_room", "status", "OCCUPIED", "CLEANING"),
-    ("bus_hotel_room", "status", "CLEANING", "OCCUPIED"),
-    ("bus_hotel_room", "status", "RESERVED", "CLEANING"),
-    ("bus_hotel_room", "status", "CLEANING", "RESERVED"),
-    ("bus_hotel_room", "status", "OCCUPIED", "OUT_OF_SERVICE"),
-    ("bus_hotel_room", "status", "OUT_OF_SERVICE", "OCCUPIED"),
-    ("bus_hotel_room", "status", "RESERVED", "OUT_OF_SERVICE"),
-    ("bus_hotel_room", "status", "OUT_OF_SERVICE", "RESERVED"),
+    ("bus_hotel_room", "status", "CLEANING", "AVAILABLE"),
+    ("bus_hotel_room", "status", "AVAILABLE", "OUT_OF_SERVICE"),
+    ("bus_hotel_room", "status", "CLEANING", "OUT_OF_SERVICE"),
+    ("bus_hotel_room", "status", "OUT_OF_SERVICE", "AVAILABLE"),
     ("bus_hotel_reservation", "status", "REQUESTED", "RESERVED"),
     ("bus_hotel_reservation", "status", "RESERVED", "CHECKED_IN"),
     (
@@ -99,16 +98,7 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ),
     ("bus_hotel_reservation", "status", "REQUESTED", "CANCELLED"),
     ("bus_hotel_reservation", "status", "RESERVED", "CANCELLED"),
-    ("bus_hotel_reservation", "status", "CHECKED_IN", "CANCELLED"),
-    (
-        "bus_hotel_reservation",
-        "status",
-        "CHECKED_OUT",
-        "CANCELLED",
-    ),
     ("bus_hotel_reservation", "status", "RESERVED", "NO_SHOW"),
-    ("bus_hotel_reservation", "status", "CHECKED_IN", "NO_SHOW"),
-    ("bus_hotel_reservation", "status", "CHECKED_OUT", "NO_SHOW"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

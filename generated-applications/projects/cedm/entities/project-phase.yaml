@@ -7,20 +7,29 @@ entity:
     icon: folder-kanban
   identity: {key: projectPhaseId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: Stable phase identity., businessMeaning: Identifies one project stage., usage: "Planning, execution, costing and reporting.", relationshipContext: Belongs to one Project., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 200, help: {summary: Human-readable phase name., businessMeaning: Communicates project stage., usage: Plans and reports., relationshipContext: Unique according to project policy., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Phase lifecycle state., businessMeaning: Controls phase execution., usage: Project governance., relationshipContext: Task/milestone state must reconcile., valueSemantics: {PLANNED: Not started., ACTIVE: Executing., COMPLETED: Closed successfully., CANCELLED: Terminated.}, requiredMeaning: Required.}
+    - {name: projectPhaseId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the phase, constant for its life.', usage: Generated on creation; tasks and milestones refer to it., businessMeaning: Identifies one project stage., relationshipContext: Belongs to one Project.}}
+    - {name: name, type: string, required: true, maxLength: 200, help: {summary: 'The name of the phase, such as Design or Handover.', usage: Shown in plans and reports., businessMeaning: Communicates project stage., relationshipContext: Unique according to project policy.}}
+    - name: status
+      type: enum
+      required: true
+      values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the phase is.
+        usage: Starts as PLANNED; moved by the project manager.
+        valueSemantics:
+          PLANNED: Scheduled and not started.
+          ACTIVE: Work in the phase is under way.
+          COMPLETED: The phase's work is finished. A final state.
+          CANCELLED: The phase will not be carried out. A final state.
+        businessMeaning: Controls phase execution.
+        relationshipContext: Task/milestone state must reconcile.
   relationships:
-  - {name: project, target: Project, cardinality: '1', ownership: reference, help: {summary: Parent Project., businessMeaning: Supplies overall scope/governance., usage: Project execution., cardinalityMeaning: Exactly one Project., workflowRole: Phase cannot outlive incompatible project state.}}
-  - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., cardinalityMeaning: Zero or many tasks., workflowRole: Completion requires task reconciliation.}}
-  - {name: milestones, target: Milestone, cardinality: 0..*, ownership: reference, help: {summary: Milestones governed by phase., businessMeaning: Supplies delivery checkpoints., usage: Project tracking., cardinalityMeaning: Zero or many milestones., workflowRole: Milestone evidence supports phase completion.}}
+    - {name: project, target: Project, cardinality: '1', ownership: reference, help: {summary: The project the phase belongs to., usage: Chosen when the phase is created., cardinalityMeaning: Exactly one project; a phase cannot exist alone., workflowRole: Places the stage in the project's plan., businessMeaning: Supplies overall scope/governance.}}
+    - {name: tasks, target: ProjectTask, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: 'Any number of tasks, none for a phase not yet broken down.', summary: Tasks assigned to phase., businessMeaning: Supplies executable work., usage: Scheduling and delivery., workflowRole: Completion requires task reconciliation.}}
+    - {name: milestones, target: Milestone, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of milestones that mark the phase's progress., summary: Milestones governed by phase., businessMeaning: Supplies delivery checkpoints., usage: Project tracking., workflowRole: Milestone evidence supports phase completion.}}
   invariants:
-  - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
-  - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
+    - {id: PROJECT-PHASE-001, rule: COMPLETED phase must reconcile non-cancelled required tasks and milestones.}
+    - {id: PROJECT-PHASE-002, rule: Phase dates and lifecycle must remain compatible with parent Project.}
   lifecycle:
     title: Project Phase Lifecycle
     attribute: status
@@ -51,5 +60,11 @@ entity:
               task_type: "USER"
               status: "CREATED"
               priority: "NORMAL"
-  help: {summary: Governed project lifecycle stage., businessMeaning: Groups project execution into manageable stages without replacing tasks or milestones., usage: "Project planning, delivery, resources and costing.", relationshipContext: "Project owns context; ProjectTask and Milestone provide execution evidence."}
+  help:
+    summary: A stage of a project that groups tasks and milestones within one portion of its lifecycle.
+    businessMeaning: Phases divide a project into stages such as design, build and handover, so progress can be reviewed and approved stage by stage rather than as one undifferentiated piece of work.
+    usage: Defined by the project manager; read in plans and status reports.
+    relationshipContext: A phase belongs to one project and groups its tasks and milestones.
+    lifecycle: A phase is planned, active while its work runs, then completed. It may be cancelled. Completed and cancelled are final.
+    example: The "Build" phase of PRJ-0042 contains twelve tasks and the milestone "Prototype accepted".
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-PHASE}

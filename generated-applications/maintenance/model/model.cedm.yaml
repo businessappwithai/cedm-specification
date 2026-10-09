@@ -12,6 +12,7 @@ application:
 imports:
   - module: common
   - entity: Asset
+  - entity: Meter
   - entity: MaintenancePlan
   - entity: MaintenanceWorkOrder
   - entity: RepairEstimate
@@ -23,6 +24,6 @@ ui:
   categories:
     - name: Maintenance Management
       icon: wrench
-      entities: [Asset, MaintenancePlan, MaintenanceWorkOrder, RepairEstimate]
+      entities: [Asset, Meter, MaintenancePlan, MaintenanceWorkOrder, RepairEstimate]
     - name: Asset Maintenance and Reliability records
       entities: [Equipment, Failure, SparePart]

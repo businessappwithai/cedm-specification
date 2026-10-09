@@ -7,19 +7,17 @@ entity:
     icon: file-check
   identity: {key: contractTerminationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContractTermination., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+    - {name: contractTerminationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the termination., usage: Generated on creation; settlement and wind-down tasks refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: 'The date and time from which the contract, or the named obligations, ceases to apply.', usage: Taken from the notice or agreement; later charges and obligations stop at this moment.}}
   relationships:
-  - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {summary: Contract governed by this record., businessMeaning: Supplies legal/commercial agreement context., usage: Contract lifecycle and audit., cardinalityMeaning: Exactly one Contract., workflowRole: Changes preserve prior executed evidence and apply according to effective terms.}}
+    - {name: contract, target: Contract, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one contract: a termination ends a single agreement, and an agreement can be ended only once.', summary: The contract being ended., usage: Set when the termination is recorded., workflowRole: Closes the contract's period of effect.}}
   invariants:
-  - {id: CONTRACT-TERMINATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - {id: CONTRACT-TERMINATION-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: A governed event ending a Contract or selected obligations under authorized termination terms.
-    purpose: Provide durable, implementation-neutral governance semantics for ContractTermination.
-    businessMeaning: A governed event ending a Contract or selected obligations under authorized termination terms.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: An event that ends a contract, or selected obligations under it, according to its termination terms.
+    businessMeaning: 'Ending a contract has consequences: obligations stop, notices are given, final settlements are made. Recording the termination states when and how it ended, which is what disputes and wind-down tasks rely on.'
+    usage: Created when notice is given or the contract ends by agreement; read by contract managers, finance and legal.
+    relationshipContext: Each termination belongs to one Contract.
+    lifecycle: Executed terminations are evidence; they are not edited. A wrongly recorded termination is corrected by an explicit follow-up record.
+    example: The customer terminates a service contract with 90 days' notice, effective 31 October.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTRACT-TERMINATION}

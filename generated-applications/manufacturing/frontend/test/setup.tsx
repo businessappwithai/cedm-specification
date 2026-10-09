@@ -612,8 +612,8 @@ export const mockApiResponses = {
     list: [
       {
         id: 'test-id-1',
-        from_currency: 'Test From Currency 1',
-        to_currency: 'Test To Currency 1',
+        from_currency_id: 'Test From Currency 1',
+        to_currency_id: 'Test To Currency 1',
         rate: 10.99,
         rate_type: 'Test Rate Type 1',
         effective_at: '2024-01-15T10:00:00Z',
@@ -623,8 +623,8 @@ export const mockApiResponses = {
       },
       {
         id: 'test-id-2',
-        from_currency: 'Test From Currency 2',
-        to_currency: 'Test To Currency 2',
+        from_currency_id: 'Test From Currency 2',
+        to_currency_id: 'Test To Currency 2',
         rate: 20.99,
         rate_type: 'Test Rate Type 2',
         effective_at: '2024-01-16T10:00:00Z',
@@ -635,8 +635,8 @@ export const mockApiResponses = {
     ],
     single: {
       id: 'test-id-1',
-      from_currency: 'Test From Currency',
-      to_currency: 'Test To Currency',
+      from_currency_id: 'Test From Currency',
+      to_currency_id: 'Test To Currency',
       rate: 10.99,
       rate_type: 'Test Rate Type',
       effective_at: '2024-01-15T10:00:00Z',
@@ -808,6 +808,7 @@ export const mockApiResponses = {
       {
         id: 'test-id-1',
         code: 'Test Code 1',
+        bom_version: 'Test Bom Version 1',
         status: 'Test Status 1',
         effective_from: '2024-01-15',
         effective_to: '2024-01-15',
@@ -816,6 +817,7 @@ export const mockApiResponses = {
       {
         id: 'test-id-2',
         code: 'Test Code 2',
+        bom_version: 'Test Bom Version 2',
         status: 'Test Status 2',
         effective_from: '2024-01-16',
         effective_to: '2024-01-16',
@@ -825,6 +827,7 @@ export const mockApiResponses = {
     single: {
       id: 'test-id-1',
       code: 'Test Code',
+      bom_version: 'Test Bom Version',
       status: 'Test Status',
       effective_from: '2024-01-15',
       effective_to: '2024-01-15',
@@ -867,12 +870,14 @@ export const mockApiResponses = {
       {
         id: 'test-id-1',
         code: 'Test Code 1',
+        routing_version: 'Test Routing Version 1',
         status: 'Test Status 1',
         product_id: 'Test Product 1',
       },
       {
         id: 'test-id-2',
         code: 'Test Code 2',
+        routing_version: 'Test Routing Version 2',
         status: 'Test Status 2',
         product_id: 'Test Product 2',
       },
@@ -880,6 +885,7 @@ export const mockApiResponses = {
     single: {
       id: 'test-id-1',
       code: 'Test Code',
+      routing_version: 'Test Routing Version',
       status: 'Test Status',
       product_id: 'Test Product',
     },

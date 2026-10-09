@@ -33,6 +33,9 @@
     "Employee",
     "Position",
     "Employment",
+    "Compensation",
+    "Attendance",
+    "LeaveRequest",
     "Payroll",
     "Job",
     "PartyPartyType",
@@ -62,6 +65,12 @@
     "PositionStatus",
     "EmploymentEmploymentType",
     "EmploymentStatus",
+    "CompensationBasis",
+    "CompensationStatus",
+    "AttendanceAttendanceType",
+    "AttendanceStatus",
+    "LeaveRequestLeaveType",
+    "LeaveRequestStatus",
     "PayrollStatus",
     "JobStatus"
   ],
@@ -74,6 +83,10 @@
   "enums": [
     "AddressAddressType (7)",
     "AddressStatus (3)",
+    "AttendanceAttendanceType (7)",
+    "AttendanceStatus (4)",
+    "CompensationBasis (6)",
+    "CompensationStatus (4)",
     "CurrencyStatus (3)",
     "EmployeeRoleType (10)",
     "EmployeeStatus (4)",
@@ -82,6 +95,8 @@
     "ExchangeRateRateType (6)",
     "ExchangeRateStatus (4)",
     "JobStatus (4)",
+    "LeaveRequestLeaveType (6)",
+    "LeaveRequestStatus (5)",
     "LocationLocationType (10)",
     "LocationStatus (5)",
     "OrganizationOrganizationType (8)",
@@ -109,5 +124,5 @@
     "PayrollCompletionConfirmed on Payroll (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:02.353Z"
+  "generatedAt": "2026-10-09T06:44:35.268Z"
 }

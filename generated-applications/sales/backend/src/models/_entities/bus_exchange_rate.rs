@@ -21,7 +21,7 @@
 //! If that migration changes, this changes with it, or the mismatch surfaces as
 //! a runtime `DbErr` on the first query rather than as a compile error here.
 //!
-//! Generated: 2026-10-04T01:14:38.616Z
+//! Generated: 2026-10-09T06:46:06.558Z
 //! Project: sales
 
 use sea_orm::entity::prelude::*;
@@ -34,8 +34,8 @@ pub struct Model {
     /// not auto-increment — SeaORM assumes integer auto-increment otherwise.
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub from_currency: Uuid,
-    pub to_currency: Uuid,
+    pub from_currency_id: Uuid,
+    pub to_currency_id: Uuid,
     pub rate: Decimal,
     pub rate_type: String,
     pub effective_at: DateTimeWithTimeZone,

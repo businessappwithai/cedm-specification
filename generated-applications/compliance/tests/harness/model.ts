@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:22.334Z
+ * Generated: 2026-10-09T06:43:35.260Z
  * Project: compliance
  */
 
@@ -383,14 +383,16 @@ export const stateMachines: StateMachine[] = [
     initial: "IDENTIFIED",
     terminal: ["CLOSED", "MATERIALIZED"],
     edges: [
-      { from: "IDENTIFIED", to: "ASSESSED", trigger: "mark_assessed" },
-      { from: "ASSESSED", to: "MITIGATING", trigger: "mark_mitigating" },
+      { from: "IDENTIFIED", to: "ASSESSED", trigger: "assess" },
+      { from: "ASSESSED", to: "MITIGATING", trigger: "mitigate" },
+      { from: "ASSESSED", to: "ACCEPTED", trigger: "accept" },
       { from: "MITIGATING", to: "ACCEPTED", trigger: "accept" },
       { from: "ACCEPTED", to: "CLOSED", trigger: "close" },
-      { from: "IDENTIFIED", to: "MATERIALIZED", trigger: "mark_materialized" },
-      { from: "ASSESSED", to: "MATERIALIZED", trigger: "mark_materialized" },
-      { from: "MITIGATING", to: "MATERIALIZED", trigger: "mark_materialized" },
-      { from: "ACCEPTED", to: "MATERIALIZED", trigger: "mark_materialized" },
+      { from: "MITIGATING", to: "CLOSED", trigger: "close" },
+      { from: "IDENTIFIED", to: "MATERIALIZED", trigger: "materialize" },
+      { from: "ASSESSED", to: "MATERIALIZED", trigger: "materialize" },
+      { from: "MITIGATING", to: "MATERIALIZED", trigger: "materialize" },
+      { from: "ACCEPTED", to: "MATERIALIZED", trigger: "materialize" },
     ],
   },
   {

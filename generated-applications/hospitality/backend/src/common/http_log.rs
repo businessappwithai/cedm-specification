@@ -29,7 +29,7 @@
 //! never reaches a log line. The path alone answers what was served; the
 //! filters that were applied are the caller's business.
 //!
-//! Generated: 2026-10-04T01:11:54.276Z
+//! Generated: 2026-10-09T06:44:29.079Z
 //! Project: hospitality
 
 use std::time::Instant;

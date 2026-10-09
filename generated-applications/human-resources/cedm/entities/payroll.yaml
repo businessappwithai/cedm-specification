@@ -7,31 +7,72 @@ entity:
     icon: file-text
   identity: {key: payrollId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: payrollId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the payroll record., businessMeaning: Identifies one governed payroll calculation independently of employee and payment., usage: "Payroll processing, finance, audit, and integration.", relationshipContext: Root identity for payroll evidence., requiredMeaning: Required.}}
-  - {name: payrollNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing payroll reference., businessMeaning: Identifies the payroll calculation or result operationally., usage: "Review, payslip correlation, finance, and audit.", relationshipContext: Distinct from Payment and JournalEntry references., requiredMeaning: Required.}}
-  - {name: periodStart, type: date, required: true, help: {summary: Start of the payroll earning period., businessMeaning: Defines the first date whose approved employment inputs belong to the calculation., usage: "Eligibility, attendance, leave, compensation, and reporting.", relationshipContext: Must not follow periodEnd., requiredMeaning: Required.}}
-  - {name: periodEnd, type: date, required: true, help: {summary: End of the payroll earning period., businessMeaning: Defines the final date included in the calculation., usage: Payroll cutoff and reconciliation., relationshipContext: Must be on or after periodStart., requiredMeaning: Required.}}
-  - {name: grossAmount, type: Money, required: true, help: {summary: Gross calculated employee earnings before deductions., businessMeaning: Records total earnings recognized by the payroll calculation., usage: "Payroll review, finance, and reporting.", relationshipContext: Must reconcile with governed earning inputs., requiredMeaning: Required.}}
-  - {name: netAmount, type: Money, required: true, help: {summary: Net amount payable after authorized deductions., businessMeaning: Establishes the payroll settlement obligation before Payment execution., usage: Payroll approval and payment instruction., relationshipContext: Payment settles this obligation but is separate evidence., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, CALCULATED, APPROVED, POSTED, PAID, REVERSED]
-    help: {summary: Lifecycle state of payroll processing., businessMeaning: "Controls calculation, approval, accounting, settlement, and reversal.", usage: Payroll workflow and audit., relationshipContext: "PAID requires settlement evidence; POSTED requires accounting evidence.", valueSemantics: {DRAFT: Inputs are being prepared., CALCULATED: Gross-to-net calculation completed., APPROVED: Authorized for posting/settlement., POSTED: Accounting impact recorded., PAID: Settlement completed., REVERSED: Prior effects corrected through controlled reversal.}, requiredMeaning: Required.}
+    - {name: payrollId, type: uuid, required: true, immutable: true, help: {summary: The identity of the payroll result., usage: Generated on calculation; payslips and postings refer to it., businessMeaning: Identifies one governed payroll calculation independently of employee and payment., relationshipContext: Root identity for payroll evidence.}}
+    - {name: payrollNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The number of the payroll result, shown on the payslip.', usage: Allocated from a number series; unique., businessMeaning: Identifies the payroll calculation or result operationally., relationshipContext: Distinct from Payment and JournalEntry references.}}
+    - {name: periodStart, type: date, required: true, help: {summary: The first day of the pay period., usage: Set by the payroll calendar., businessMeaning: Defines the first date whose approved employment inputs belong to the calculation., relationshipContext: Must not follow periodEnd.}}
+    - {name: periodEnd, type: date, required: true, help: {summary: The last day of the pay period., usage: Set by the payroll calendar; after the start date., businessMeaning: Defines the final date included in the calculation., relationshipContext: Must be on or after periodStart.}}
+    - {name: grossAmount, type: Money, required: true, help: {summary: The total pay before deductions., usage: 'Calculated from compensation, hours worked and leave.', businessMeaning: Records total earnings recognized by the payroll calculation., relationshipContext: Must reconcile with governed earning inputs.}}
+    - {name: netAmount, type: Money, required: true, help: {summary: The amount payable to the employee after deductions., usage: 'Calculated from the gross amount less tax, contributions and other deductions.', businessMeaning: Establishes the payroll settlement obligation before Payment execution., relationshipContext: Payment settles this obligation but is separate evidence.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, CALCULATED, APPROVED, POSTED, PAID, REVERSED]
+      help:
+        summary: How far the payroll has progressed.
+        usage: Moved by payroll staff.
+        valueSemantics:
+          DRAFT: Created; not yet calculated.
+          CALCULATED: Gross-to-net calculation done and awaiting review.
+          APPROVED: Reviewed and approved for payment.
+          POSTED: Recorded in the books.
+          PAID: Net pay has been paid out. A final state.
+          REVERSED: Cancelled after posting by a compensating entry. A final state.
+        businessMeaning: "Controls calculation, approval, accounting, settlement, and reversal."
+        relationshipContext: "PAID requires settlement evidence; POSTED requires accounting evidence."
   relationships:
-  - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: Employee whose compensation is calculated., businessMeaning: Supplies employment identity and eligibility context., usage: "Payroll, reporting, and audit.", cardinalityMeaning: Exactly one employee owns this payroll result., workflowRole: Employment must be eligible for the period.}}
-  - {name: employment, target: Employment, cardinality: '1', ownership: reference, help: {summary: Employment relationship governing the payroll result., businessMeaning: Supplies organizational and contractual employment context., usage: Eligibility and compensation interpretation., cardinalityMeaning: Exactly one applicable employment is required., workflowRole: Must overlap the payroll period.}}
-  - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: Settlement transactions paying the approved net obligation., businessMeaning: Separates payroll calculation from actual cash settlement., usage: Reconciliation and audit., cardinalityMeaning: Zero or many payments support partial/retry/reversal patterns., workflowRole: PAID requires reconciled settlement.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries generated from approved payroll., businessMeaning: Records ledger consequences separately from calculation., usage: Financial accounting and reconciliation., cardinalityMeaning: Zero or many controlled entries may exist., workflowRole: POSTED requires balanced attributable accounting evidence.}}
+    - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {summary: The employee the result is for., usage: Set when the payroll is calculated., cardinalityMeaning: "Exactly one employee: a payroll result is one person's pay for a period.", workflowRole: Determines who is paid., businessMeaning: Supplies employment identity and eligibility context.}}
+    - {name: employment, target: Employment, cardinality: '1', ownership: reference, help: {summary: The employment under which the pay is earned., usage: Set when the payroll is calculated., cardinalityMeaning: 'Exactly one employment, which supplies the contract terms.', workflowRole: Provides the pay terms and tax treatment., businessMeaning: Supplies organizational and contractual employment context.}}
+    - {name: payments, target: Payment, cardinality: 0..*, ownership: reference, help: {summary: The payments by which the net pay is made., usage: Read to confirm that the pay reached the employee., cardinalityMeaning: 'Any number of payments, as pay may be split or corrected.', workflowRole: Link the pay owed to the money paid., businessMeaning: Separates payroll calculation from actual cash settlement.}}
+    - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of journal entries that record the payroll costs and liabilities., summary: Accounting entries generated from approved payroll., businessMeaning: Records ledger consequences separately from calculation., usage: Financial accounting and reconciliation., workflowRole: POSTED requires balanced attributable accounting evidence.}}
+    - name: compensationTerms
+      target: Compensation
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of compensation arrangements that applied during the period.
+        summary: Effective compensation terms consumed or reconciled by this Payroll result.
+        businessMeaning: Preserves the remuneration basis used for calculation without copying mutable HR policy into payroll history.
+        usage: Payroll calculation audit, reconciliation and dispute analysis.
+        workflowRole: Only compensation effective for the covered period may contribute to calculation.
+    - name: attendanceRecords
+      target: Attendance
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of attendance records used to calculate pay.
+        summary: Approved attendance evidence consumed by this Payroll result.
+        businessMeaning: Connects financial calculation to actual work or absence facts.
+        usage: Payroll calculation, overtime, absence treatment and audit.
+        workflowRole: Payroll processing must preserve which approved evidence was consumed.
+    - name: leaveRequests
+      target: LeaveRequest
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of leave requests that affected pay in the period.
+        summary: Approved leave authorizations relevant to this Payroll result.
+        businessMeaning: Provides policy authorization for paid or unpaid absence treatment.
+        usage: Payroll calculation, reconciliation and audit.
+        workflowRole: Leave effects must reconcile with actual attendance evidence and applicable policy.
   invariants:
-  - {id: PAYROLL-001, rule: periodStart must not be after periodEnd and employment must be eligible for the applicable period.}
-  - {id: PAYROLL-002, rule: "grossAmount and netAmount must be reproducible from governed earning, deduction, attendance, leave, compensation, and statutory inputs applicable to the period."}
-  - {id: PAYROLL-003, rule: Payroll calculation does not itself move cash; settlement requires attributable Payment evidence.}
-  - {id: PAYROLL-004, rule: POSTED payroll requires balanced attributable JournalEntry evidence and PAID requires reconciled Payment evidence.}
-  - {id: PAYROLL-005, rule: Corrections after posting or payment use controlled reversal/recalculation evidence and do not destructively rewrite historical payroll.}
-  - {id: PAYROLL-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
-  - {id: PAYROLL-EXE-002, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
+    - {id: PAYROLL-001, rule: periodStart must not be after periodEnd and employment must be eligible for the applicable period.}
+    - {id: PAYROLL-002, rule: "grossAmount and netAmount must be reproducible from governed earning, deduction, attendance, leave, compensation, and statutory inputs applicable to the period."}
+    - {id: PAYROLL-003, rule: Payroll calculation does not itself move cash; settlement requires attributable Payment evidence.}
+    - {id: PAYROLL-004, rule: POSTED payroll requires balanced attributable JournalEntry evidence and PAID requires reconciled Payment evidence.}
+    - {id: PAYROLL-005, rule: Corrections after posting or payment use controlled reversal/recalculation evidence and do not destructively rewrite historical payroll.}
+    - {id: PAYROLL-EXE-001, rule: "Period End must not be earlier than period start.", violatedWhen: "period_start != null and period_end != null and period_end < period_start", message: "Period End cannot be earlier than period start."}
+    - {id: PAYROLL-EXE-002, rule: "Gross Amount cannot be negative.", violatedWhen: "gross_amount != null and gross_amount < 0", message: "Gross Amount cannot be negative."}
   lifecycle:
     title: Payroll Lifecycle
     attribute: status
@@ -82,10 +123,11 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Governs auditable gross-to-net payroll calculation and its downstream accounting and settlement.
-    businessMeaning: Payroll calculates employee compensation obligations; JournalEntry records accounting; Payment records settlement.
-    usage: Human capital management, payroll operations, finance, compliance, employee service, and audit.
-    relationshipContext: Employee and Employment provide eligibility; attendance and leave may supply time inputs; JournalEntry and Payment record separate downstream effects.
-    lifecycle: Draft → calculated → approved → posted → paid, with controlled reversal.
+    summary: A payroll run, or an employee's payroll result, that turns approved employment, attendance, leave, compensation and statutory inputs into gross-to-net pay.
+    businessMeaning: Paying staff correctly means combining many inputs by many rules. The payroll record shows for each employee and period what was earned, what was deducted and what is owed, so pay can be explained, paid and posted to the books.
+    usage: Calculated for each pay period; approved; posted; paid; read by HR, finance and the employee.
+    relationshipContext: A payroll result is for an Employee under an Employment, uses Compensation terms, Attendance and LeaveRequests, is paid through Payments and posted through JournalEntries.
+    lifecycle: A payroll is drafted, calculated, approved and posted, and finally paid. A posted payroll can be reversed if it was wrong.
+    example: 'The March payroll for employee 10482: gross 4,800, net 3,420 after tax and social contributions.'
     changePropagation: Changes to open-period employment/time/compensation inputs trigger recalculation; posted or paid history is corrected through controlled reversal.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PAYROLL}

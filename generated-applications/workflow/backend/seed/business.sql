@@ -200,19 +200,19 @@ VALUES ('4a35b692-1252-5034-9955-a634de1aeeb5', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('38004439-1ff1-58ea-8c10-2efc56be7e93', 'dc9a211a-1e0d-501a-ba5a-0e253cd691bc', 'dc9a211a-1e0d-501a-ba5a-0e253cd691bc', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('7f850dc4-0c6d-5ec5-a6a2-686ba512921b', '9445b143-9b6b-560f-8adc-790fb40dc252', '9445b143-9b6b-560f-8adc-790fb40dc252', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('4b87db1b-5fd5-538f-a5af-73bb01b2dbfa', 'af1f3562-002d-5f12-a374-2bee848882c9', 'af1f3562-002d-5f12-a374-2bee848882c9', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('2c69f393-c0ba-5b32-8848-6f89b9ea6384', '716d24f8-b536-5ade-9bc5-eeb3a88c0c48', '716d24f8-b536-5ade-9bc5-eeb3a88c0c48', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('60b79641-143a-5a40-b8e9-1e7206d7e8ac', '1f4a0230-d453-5190-b7b6-a2c69ef32960', '1f4a0230-d453-5190-b7b6-a2c69ef32960', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -268,37 +268,37 @@ VALUES ('6b6cf43b-daa3-5c0f-8232-955205c16d14', NULL, 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Business Process (bus_business_process)
-INSERT INTO bus_business_process (id, code, name, description, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
-VALUES ('b325dde0-9f6b-51c5-b282-202ff6d13175', 'Business Process 1', 'Business Process 1', 'Description 1', 'DRAFT', NULL, NULL, '2fe0dce7-e9b5-5e67-a3b9-ff203460ec5f', 'final', NOW(), NOW())
+INSERT INTO bus_business_process (id, code, name, description, process_version, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
+VALUES ('b325dde0-9f6b-51c5-b282-202ff6d13175', 'Business Process 1', 'Business Process 1', 'Description 1', 'Process Version 1', 'DRAFT', NULL, NULL, '2fe0dce7-e9b5-5e67-a3b9-ff203460ec5f', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_business_process (id, code, name, description, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
-VALUES ('b7aa52f4-e05e-5925-bc87-ec9912028e36', 'Business Process 2', 'Business Process 2', 'Description 2', 'DRAFT', NULL, NULL, '512738a9-678e-5058-8d0b-38a49a951d1d', 'final', NOW(), NOW())
+INSERT INTO bus_business_process (id, code, name, description, process_version, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
+VALUES ('b7aa52f4-e05e-5925-bc87-ec9912028e36', 'Business Process 2', 'Business Process 2', 'Description 2', 'Process Version 2', 'DRAFT', NULL, NULL, '512738a9-678e-5058-8d0b-38a49a951d1d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_business_process (id, code, name, description, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
-VALUES ('c613cd6a-cd54-56cc-ad71-287035fdcaf3', 'Business Process 3', 'Business Process 3', 'Description 3', 'DRAFT', NULL, NULL, '47db7873-d2e4-5579-a2ea-b5e49dbde950', 'final', NOW(), NOW())
+INSERT INTO bus_business_process (id, code, name, description, process_version, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
+VALUES ('c613cd6a-cd54-56cc-ad71-287035fdcaf3', 'Business Process 3', 'Business Process 3', 'Description 3', 'Process Version 3', 'DRAFT', NULL, NULL, '47db7873-d2e4-5579-a2ea-b5e49dbde950', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_business_process (id, code, name, description, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
-VALUES ('1c0b46c6-a0f1-5ea0-9657-65d09c04b1f2', 'Business Process 4', 'Business Process 4', 'Description 4', 'DRAFT', NULL, NULL, 'be4a152e-8498-5daa-b993-c5bdbc12e636', 'final', NOW(), NOW())
+INSERT INTO bus_business_process (id, code, name, description, process_version, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
+VALUES ('1c0b46c6-a0f1-5ea0-9657-65d09c04b1f2', 'Business Process 4', 'Business Process 4', 'Description 4', 'Process Version 4', 'DRAFT', NULL, NULL, 'be4a152e-8498-5daa-b993-c5bdbc12e636', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_business_process (id, code, name, description, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
-VALUES ('59b8bcf3-96bc-59db-9e18-10ef04a9dbd5', 'Business Process 5', 'Business Process 5', 'Description 5', 'DRAFT', NULL, NULL, 'ebd4aeda-7e85-5576-ba37-e00e7f0ca24d', 'final', NOW(), NOW())
+INSERT INTO bus_business_process (id, code, name, description, process_version, status, effective_from, effective_to, owner_organization_id, doc_status, created_at, updated_at)
+VALUES ('59b8bcf3-96bc-59db-9e18-10ef04a9dbd5', 'Business Process 5', 'Business Process 5', 'Description 5', 'Process Version 5', 'DRAFT', NULL, NULL, 'ebd4aeda-7e85-5576-ba37-e00e7f0ca24d', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Workflow (bus_workflow)
-INSERT INTO bus_workflow (id, code, name, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
-VALUES ('99cf8268-a757-5209-9c8d-a5b34d3710ae', 'Workflow 1', 'Workflow 1', 'HUMAN', 'DRAFT', 'CEDM', '{}', 'b325dde0-9f6b-51c5-b282-202ff6d13175', 'final', NOW(), NOW())
+INSERT INTO bus_workflow (id, code, name, workflow_version, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
+VALUES ('99cf8268-a757-5209-9c8d-a5b34d3710ae', 'Workflow 1', 'Workflow 1', 'Workflow Version 1', 'HUMAN', 'DRAFT', 'CEDM', '{}', 'b325dde0-9f6b-51c5-b282-202ff6d13175', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_workflow (id, code, name, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
-VALUES ('5cb10e1a-cd75-5173-887d-84b1852d0d53', 'Workflow 2', 'Workflow 2', 'AUTOMATED', 'DRAFT', 'BPMN', '{}', 'b7aa52f4-e05e-5925-bc87-ec9912028e36', 'final', NOW(), NOW())
+INSERT INTO bus_workflow (id, code, name, workflow_version, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
+VALUES ('5cb10e1a-cd75-5173-887d-84b1852d0d53', 'Workflow 2', 'Workflow 2', 'Workflow Version 2', 'AUTOMATED', 'DRAFT', 'BPMN', '{}', 'b7aa52f4-e05e-5925-bc87-ec9912028e36', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_workflow (id, code, name, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
-VALUES ('e6893635-d2cc-5bcb-b17e-4de9094e6f97', 'Workflow 3', 'Workflow 3', 'HYBRID', 'DRAFT', 'STATE_MACHINE', '{}', 'c613cd6a-cd54-56cc-ad71-287035fdcaf3', 'final', NOW(), NOW())
+INSERT INTO bus_workflow (id, code, name, workflow_version, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
+VALUES ('e6893635-d2cc-5bcb-b17e-4de9094e6f97', 'Workflow 3', 'Workflow 3', 'Workflow Version 3', 'HYBRID', 'DRAFT', 'STATE_MACHINE', '{}', 'c613cd6a-cd54-56cc-ad71-287035fdcaf3', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_workflow (id, code, name, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
-VALUES ('4fecf55a-73ce-5e41-9f55-e35733be559e', 'Workflow 4', 'Workflow 4', 'HUMAN', 'DRAFT', 'OTHER', '{}', '1c0b46c6-a0f1-5ea0-9657-65d09c04b1f2', 'final', NOW(), NOW())
+INSERT INTO bus_workflow (id, code, name, workflow_version, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
+VALUES ('4fecf55a-73ce-5e41-9f55-e35733be559e', 'Workflow 4', 'Workflow 4', 'Workflow Version 4', 'HUMAN', 'DRAFT', 'OTHER', '{}', '1c0b46c6-a0f1-5ea0-9657-65d09c04b1f2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_workflow (id, code, name, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
-VALUES ('8ec01ef9-dfb7-5e4b-978c-26f93b4d7093', 'Workflow 5', 'Workflow 5', 'AUTOMATED', 'DRAFT', 'CEDM', '{}', '59b8bcf3-96bc-59db-9e18-10ef04a9dbd5', 'final', NOW(), NOW())
+INSERT INTO bus_workflow (id, code, name, workflow_version, execution_type, status, definition_format, definition, business_process_id, doc_status, created_at, updated_at)
+VALUES ('8ec01ef9-dfb7-5e4b-978c-26f93b4d7093', 'Workflow 5', 'Workflow 5', 'Workflow Version 5', 'AUTOMATED', 'DRAFT', 'CEDM', '{}', '59b8bcf3-96bc-59db-9e18-10ef04a9dbd5', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Task (bus_task)

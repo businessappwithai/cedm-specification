@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:29:46.974Z
+//! Generated: 2026-10-09T06:44:13.917Z
 //! Project: finance
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -56,7 +56,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("FiscalPeriod", "status", "CLOSED"),
     ("PaymentAllocation", "status", "REVERSED"),
     ("PaymentInstruction", "status", "COMPLETED"),
-    ("CreditNote", "status", "FULLY_APPLIED"),
+    ("CreditNote", "status", "CANCELLED"),
     ("CreditNoteApplication", "status", "REVERSED"),
     ("TaxCode", "status", "COMPLETED"),
     ("TaxJurisdiction", "status", "COMPLETED"),

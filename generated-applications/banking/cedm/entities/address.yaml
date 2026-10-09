@@ -7,177 +7,169 @@ entity:
     icon: map-pin
   identity: {key: addressId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: addressId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: "The address id of the address: an identifier the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a address cannot be understood without its address id."
-  - name: addressType
-    type: enum
-    required: true
-    values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
-    help:
-      summary: "The address type of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a address cannot be understood without its address type."
-      valueSemantics:
-        RESIDENTIAL: The address type of the address is residential; set it when that is what the business means for this record.
-        BUSINESS: The address type of the address is business; set it when that is what the business means for this record.
-        BILLING: The address type of the address is billing; set it when that is what the business means for this record.
-        SHIPPING: The address type of the address is shipping; set it when that is what the business means for this record.
-        REGISTERED: The address type of the address is registered; set it when that is what the business means for this record.
-        POSTAL: The address type of the address is postal; set it when that is what the business means for this record.
-        OTHER: The address type of the address is other; set it when that is what the business means for this record.
-  - name: line1
-    type: string
-    required: true
-    maxLength: 200
-    help:
-      summary: "The line1 of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a address cannot be understood without its line1."
-  - name: line2
-    type: string
-    required: false
-    maxLength: 200
-    help:
-      summary: "The line2 of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-  - name: line3
-    type: string
-    required: false
-    maxLength: 200
-    help:
-      summary: "The line3 of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-  - name: cityName
-    type: string
-    required: false
-    maxLength: 150
-    help:
-      summary: The name of the town or locality when it is not in the list of cities.
-      usage: Filled only when no city can be chosen; leave it empty when the city is picked from the list.
-      relationshipContext: Stands in for the city relationship; an address states one or the other.
-  - name: postalCode
-    type: string
-    required: false
-    maxLength: 30
-    help:
-      summary: "The postal code of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-  - name: latitude
-    type: decimal
-    required: false
-    precision: 10
-    scale: 7
-    help:
-      summary: "The latitude of the address: a number the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-  - name: longitude
-    type: decimal
-    required: false
-    precision: 10
-    scale: 7
-    help:
-      summary: "The longitude of the address: a number the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-  - name: isPrimary
-    type: boolean
-    required: true
-    default: false
-    help:
-      summary: "The is primary of the address: a yes/no indicator the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a address cannot be understood without its is primary."
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [ACTIVE, INACTIVE, RETIRED]
-    help:
-      summary: "The status of the address: a value the business records on it."
-      usage: Entered or maintained when a address is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the address's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a address cannot be understood without its status."
-      valueSemantics:
-        ACTIVE: The status of the address is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the address is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the address is retired; set it when that is what the business means for this record.
+    - name: addressId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent system identity of the address.
+        usage: Generated on creation; parties, locations and document snapshots refer to the address through it.
+    - name: addressType
+      type: enum
+      required: true
+      values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
+      help:
+        summary: The purpose for which the address is used.
+        usage: Chosen when the address is created and used to pick the right address for a document, such as BILLING for invoices and SHIPPING for deliveries.
+        valueSemantics:
+          RESIDENTIAL: A private home address.
+          BUSINESS: A place of business or office.
+          BILLING: Where invoices and statements are sent.
+          SHIPPING: Where goods are delivered.
+          REGISTERED: The official registered address of a legal entity.
+          POSTAL: A mailing address such as a post office box.
+          OTHER: Any purpose not listed.
+    - name: line1
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The first line of the street address, usually building number and street.
+        usage: Entered by the person maintaining the address; printed on labels and documents.
+    - name: line2
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: An optional second address line, such as a suite, unit or floor.
+        usage: Filled when line 1 is not enough to find the exact delivery point.
+    - name: line3
+      type: string
+      required: false
+      maxLength: 200
+      help:
+        summary: An optional third address line for additional delivery details.
+        usage: Rarely used; kept for countries and carriers whose formats need more than two lines.
+    - name: cityName
+      type: string
+      required: false
+      maxLength: 150
+      help:
+        summary: The name of the town or locality when it is not in the list of cities.
+        usage: Filled only when no city can be chosen; leave it empty when the city is picked from the list.
+        relationshipContext: Stands in for the city relationship; an address states one or the other.
+    - name: postalCode
+      type: string
+      required: false
+      maxLength: 30
+      help:
+        summary: The postal or ZIP code of the address.
+        usage: Entered according to the country's format; used for delivery, tax zones and distance calculation.
+    - name: latitude
+      type: decimal
+      required: false
+      precision: 10
+      scale: 7
+      help:
+        summary: The north-south position of the address on the earth in decimal degrees, from -90 to 90.
+        usage: Optional; filled by geocoding for mapping and routing. Must stay within -90 to 90.
+    - name: longitude
+      type: decimal
+      required: false
+      precision: 10
+      scale: 7
+      help:
+        summary: The east-west position of the address on the earth in decimal degrees, from -180 to 180.
+        usage: Optional; filled by geocoding for mapping and routing. Must stay within -180 to 180.
+    - name: isPrimary
+      type: boolean
+      required: true
+      default: false
+      help:
+        summary: Marks the address a party or location uses by default for its address type.
+        usage: Set by the person maintaining addresses; at most one active primary address of each type applies per party or location, and it is the one documents pick unless told otherwise.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, RETIRED]
+      help:
+        summary: Whether the address may still be used for new business.
+        usage: Changed by data stewards; selection lists offer only ACTIVE addresses.
+        valueSemantics:
+          ACTIVE: Valid and available for new documents.
+          INACTIVE: Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
+          RETIRED: No longer valid; kept only as history and in past documents.
   relationships:
-  - name: country
-    target: Country
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: The country the address is in.
-      usage: Chosen from the list of countries; the states and cities offered are narrowed by it.
-      cardinalityMeaning: Exactly one country.
-      context: Every address names its country, which settles the format, tax and trade rules that apply to it.
-  - name: stateProvince
-    target: StateProvince
-    cardinality: 0..1
-    ownership: reference
-    narrowedBy: [country]
-    help:
-      summary: The state, province or equivalent division the address is in.
-      usage: Chosen after the country, from the divisions of that country.
-      cardinalityMeaning: At most one; some countries have no divisions in the list.
-      context: Must be a division of the address's own country.
-  - name: city
-    target: City
-    cardinality: 0..1
-    ownership: reference
-    narrowedBy: [stateProvince, country]
-    help:
-      summary: The city the address is in, chosen from the list.
-      usage: Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed.
-      cardinalityMeaning: At most one.
-      context: Must be a city of the address's own country, and of its state or province where one is stated.
-  - name: party
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Party that maintains or uses this reusable address.
-      workflowRole: Provides party master-data context for address selection.
-  - name: location
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Location associated with this address.
-      workflowRole: Provides physical/place context for operational and geographic processes.
+    - name: country
+      target: Country
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The country the address is in.
+        usage: Chosen first; it sets the address format and narrows the states and cities offered.
+        cardinalityMeaning: Exactly one country is required.
+        workflowRole: Settles the format, tax and trade rules that apply to the address.
+        context: Every address names its country, which settles the format, tax and trade rules that apply to it.
+    - name: stateProvince
+      target: StateProvince
+      cardinality: 0..1
+      ownership: reference
+      narrowedBy: [country]
+      help:
+        summary: The state, province or equivalent division the address is in.
+        usage: Chosen after the country, from that country's divisions.
+        cardinalityMeaning: At most one; some countries have no divisions in the list.
+        workflowRole: Must belong to the address's own country.
+        context: Must be a division of the address's own country.
+    - name: city
+      target: City
+      cardinality: 0..1
+      ownership: reference
+      narrowedBy: [stateProvince, country]
+      help:
+        summary: The city the address is in, chosen from the list.
+        usage: Chosen after the state or province; use the city name field only when the city is not listed.
+        cardinalityMeaning: At most one.
+        workflowRole: Must belong to the address's own country, and to its state or province where one is given.
+        context: Must be a city of the address's own country, and of its state or province where one is stated.
+    - name: party
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The party that uses or maintains this address.
+        usage: Set when a party's address is added; used to find a party's addresses and pick the effective one.
+        cardinalityMeaning: At most one party; an address being prepared may have none yet.
+        workflowRole: Supplies the party context for selecting an address.
+    - name: location
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The location this address describes.
+        usage: Set when the address is the postal address of a site; used by logistics and mapping.
+        cardinalityMeaning: At most one location.
+        workflowRole: Supplies the place context for operational and geographic processes.
   invariants:
-  - id: ADDRESS-001
-    rule: An address names its country.
-  - id: ADDRESS-EXE-001
-    rule: An address states its city, from the list or by name.
-    violatedWhen: city_id == null and city_name == null
-    message: Choose the city, or give its name when it is not in the list.
-  - id: ADDRESS-002
-    rule: latitude must be between -90 and 90 when supplied.
-  - id: ADDRESS-003
-    rule: longitude must be between -180 and 180 when supplied.
-  - id: ADDRESS-004
-    rule: An Address may be associated with a Party, a Location, both, or neither while being prepared, but an orphan reusable address must not be selected as an effective operational address.
-  - id: ADDRESS-005
-    rule: Changing or retiring an Address must not rewrite historical transaction address evidence; transactions requiring legal or operational reproducibility must retain a snapshot or equivalent effective-dated reference.
-  - id: ADDRESS-006
-    rule: At most one active primary Address of the same applicable addressType may exist for the same Party or Location under the configured scope.
-  - id: ADDRESS-007
-    rule: Address status changes that make an address unusable must trigger validation of dependent master-data references before the address becomes unavailable for new transactions.
+    - id: ADDRESS-001
+      rule: An address names its country.
+    - id: ADDRESS-EXE-001
+      rule: An address states its city, from the list or by name.
+      violatedWhen: city_id == null and city_name == null
+      message: Choose the city, or give its name when it is not in the list.
+    - id: ADDRESS-002
+      rule: latitude must be between -90 and 90 when supplied.
+    - id: ADDRESS-003
+      rule: longitude must be between -180 and 180 when supplied.
+    - id: ADDRESS-004
+      rule: An Address may be associated with a Party, a Location, both, or neither while being prepared, but an orphan reusable address must not be selected as an effective operational address.
+    - id: ADDRESS-005
+      rule: Changing or retiring an Address must not rewrite historical transaction address evidence; transactions requiring legal or operational reproducibility must retain a snapshot or equivalent effective-dated reference.
+    - id: ADDRESS-006
+      rule: At most one active primary Address of the same applicable addressType may exist for the same Party or Location under the configured scope.
+    - id: ADDRESS-007
+      rule: Address status changes that make an address unusable must trigger validation of dependent master-data references before the address becomes unavailable for new transactions.
   lifecycle:
     title: Address Lifecycle
     attribute: status
@@ -190,11 +182,11 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence.
-    businessMeaning: Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes.
-    usage: Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows.
-    relationshipContext: Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required.
+    summary: A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed.
+    businessMeaning: Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed.
+    usage: Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes.
+    relationshipContext: An address is placed through its Country, optional StateProvince and City, so it follows the geography lists, and may be used by a Party or a Location.
+    lifecycle: Addresses are active, can be made inactive and reactivated, and are retired when finished with. Retirement stops new use but never removes the address from past documents.
+    example: A customer moves its billing address; the customer record now points to the new active address while already issued invoices keep the address that applied when they were issued.
     workflowContext: Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.
-    lifecycle: Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots.
-    example: A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-ADDRESS}

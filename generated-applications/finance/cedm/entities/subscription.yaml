@@ -7,16 +7,23 @@ entity:
     icon: repeat
   identity: {key: subscriptionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: subscriptionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Subscription., businessMeaning: Identifies one governed Subscription record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Subscription., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: subscriptionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the subscription, constant for its life.', usage: Generated on creation; billing and entitlements refer to it., relationshipContext: Referenced by invoices and usage records.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the subscription is.
+        usage: Starts as DRAFT; moved by account management.
+        valueSemantics:
+          DRAFT: Being set up; no service yet.
+          ACTIVE: Running; the customer is entitled to the service.
+          COMPLETED: The term ended normally. A final state.
+          CANCELLED: Ended early. A final state.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+    - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer who subscribes., usage: Chosen when created., cardinalityMeaning: At most one customer; empty until identified., workflowRole: Decides who is billed and served.}}
   invariants:
-  - {id: SUBSCRIPTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: SUBSCRIPTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Subscription Lifecycle
     attribute: status
@@ -48,12 +55,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
-    purpose: Provide canonical enterprise semantics for Subscription while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed customer subscription to a plan, product, service, or entitlement over a defined lifecycle.
+    summary: A customer's subscription to a plan, product, service or entitlement over a defined life.
+    businessMeaning: A subscription is the ongoing agreement to supply something for a period. It records who subscribes and its state, while billing, usage and entitlement are recorded in their own records so none is duplicated.
+    usage: Created when a customer signs up; read by billing, support and account management.
+    relationshipContext: A subscription belongs to a customer and follows a plan.
+    lifecycle: A subscription is drafted, active while it runs, and completes at the end of its term or is cancelled. Completed and cancelled are final.
+    example: A customer subscribes to the Premium plan for twelve months from 1 March.
     whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
     commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-SUBSCRIPTION}

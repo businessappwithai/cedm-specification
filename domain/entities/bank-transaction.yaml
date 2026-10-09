@@ -74,7 +74,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: POSTED
+      default: PENDING
       values: [PENDING, POSTED, REVERSED, FAILED]
       help:
         valueSemantics:

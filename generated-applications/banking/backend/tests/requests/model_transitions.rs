@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:15.221Z
+//! Generated: 2026-10-09T06:43:28.586Z
 //! Project: banking
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -85,14 +85,12 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_bank_loan", "status", "APPLICATION", "APPROVED"),
     ("bus_bank_loan", "status", "APPROVED", "ACTIVE"),
     ("bus_bank_loan", "status", "ACTIVE", "DELINQUENT"),
+    ("bus_bank_loan", "status", "DELINQUENT", "ACTIVE"),
+    ("bus_bank_loan", "status", "ACTIVE", "PAID_OFF"),
     ("bus_bank_loan", "status", "DELINQUENT", "PAID_OFF"),
-    ("bus_bank_loan", "status", "PAID_OFF", "DEFAULTED"),
+    ("bus_bank_loan", "status", "DELINQUENT", "DEFAULTED"),
     ("bus_bank_loan", "status", "APPLICATION", "CANCELLED"),
     ("bus_bank_loan", "status", "APPROVED", "CANCELLED"),
-    ("bus_bank_loan", "status", "ACTIVE", "CANCELLED"),
-    ("bus_bank_loan", "status", "DELINQUENT", "CANCELLED"),
-    ("bus_bank_loan", "status", "PAID_OFF", "CANCELLED"),
-    ("bus_bank_loan", "status", "DEFAULTED", "CANCELLED"),
     ("bus_credit", "status", "DRAFT", "ACTIVE"),
     ("bus_credit", "status", "ACTIVE", "COMPLETED"),
     ("bus_credit", "status", "DRAFT", "CANCELLED"),

@@ -53,7 +53,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: AVAILABLE
+      default: PLANNED
       values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
       help:
         summary: Where the sample is in its life, from planned through use to disposal.

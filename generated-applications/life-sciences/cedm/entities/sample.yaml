@@ -11,188 +11,181 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: sampleId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the research sample.
-      businessMeaning: Identifies one specimen or material sample independently of experiments, compounds, storage locations, and observations.
-      usage: Chain of custody, experiment execution, laboratory tracking, reporting, audit, and integration.
-      relationshipContext: Connects Sample to Experiment, Compound, parent/derived samples, and related scientific evidence.
-      requiredMeaning: Required for unambiguous sample traceability.
-  - name: sampleCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 120
-    help:
-      summary: Human-readable business identifier for the sample.
-      businessMeaning: Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting.
-      usage: Labels, searches, laboratory workflows, reports, integrations, and audit.
-      relationshipContext: Identifies the Sample rather than the Experiment or Compound associated with it.
-      requiredMeaning: Required for operational identification.
-  - name: sampleType
-    type: enum
-    required: true
-    values: [SPECIMEN, ALIQUOT, COMPOUND, MATERIAL, BIOLOGICAL, CHEMICAL, ENVIRONMENTAL, CONTROL, REFERENCE, OTHER]
-    help:
-      summary: Classification of the scientific sample.
-      businessMeaning: Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules.
-      usage: Laboratory routing, protocol selection, reporting, safety, and analytics.
-      relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
-      requiredMeaning: Required because handling and interpretation depend on sample classification.
-      valueSemantics:
-        SPECIMEN: The sample type of the sample is specimen; set it when that is what the business means for this record.
-        ALIQUOT: The sample type of the sample is aliquot; set it when that is what the business means for this record.
-        COMPOUND: The sample type of the sample is compound; set it when that is what the business means for this record.
-        MATERIAL: The sample type of the sample is material; set it when that is what the business means for this record.
-        BIOLOGICAL: The sample type of the sample is biological; set it when that is what the business means for this record.
-        CHEMICAL: The sample type of the sample is chemical; set it when that is what the business means for this record.
-        ENVIRONMENTAL: The sample type of the sample is environmental; set it when that is what the business means for this record.
-        CONTROL: The sample type of the sample is control; set it when that is what the business means for this record.
-        REFERENCE: The sample type of the sample is reference; set it when that is what the business means for this record.
-        OTHER: The sample type of the sample is other; set it when that is what the business means for this record.
-  - name: status
-    type: enum
-    required: true
-    default: AVAILABLE
-    values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
-    help:
-      summary: Lifecycle state of the sample.
-      businessMeaning: Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically.
-      usage: Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal.
-      relationshipContext: Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations.
-      valueSemantics:
-        PLANNED: Sample is expected but has not yet been collected or received.
-        COLLECTED: Sample has been collected and awaits normal receipt or availability controls.
-        RECEIVED: Sample has entered the governed laboratory or research custody process.
-        AVAILABLE: Sample is eligible for governed research use.
-        IN_USE: Sample is currently participating in an active research activity.
-        CONSUMED: Usable sample quantity has been exhausted by governed activity.
-        DISPOSED: Sample was intentionally disposed of under an authorized process.
-        LOST: Sample can no longer be physically accounted for.
-        QUARANTINED: Sample is held from normal use pending review or resolution.
-        ARCHIVED: Sample is retained for historical or long-term controlled storage.
-      requiredMeaning: Required to govern sample availability and custody.
-  - name: collectedAt
-    type: datetime
-    required: false
-    help:
-      summary: Time at which the sample was collected or created.
-      businessMeaning: Establishes the origin chronology of the specimen.
-      usage: Chain of custody, protocol compliance, stability analysis, reporting, and audit.
-      relationshipContext: May precede receipt and experiment use; derived samples may use creation time as collection time.
-      optionalMeaning: Optional when the source system or sample type does not provide a collection timestamp.
-  - name: quantity
-    type: decimal
-    required: false
-    precision: 30
-    scale: 12
-    help:
-      summary: Governed quantity currently represented by the sample record when quantity tracking applies.
-      businessMeaning: Describes how much specimen or material is associated with the sample for planning and traceability.
-      usage: Laboratory planning, aliquoting, consumption tracking, reporting, and reconciliation.
-      relationshipContext: Quantity requires a compatible UnitOfMeasure and must not be confused with enterprise InventoryBalance unless an explicit integration exists.
-      optionalMeaning: Optional for samples whose business meaning is discrete or not quantity-controlled.
-  - name: unitOfMeasure
-    type: reference
-    target: UnitOfMeasure
-    required: false
-    help:
-      summary: Unit in which sample quantity is expressed.
-      businessMeaning: Gives dimensional meaning to the sample quantity.
-      usage: Quantity comparison, conversion, reporting, and audit.
-      relationshipContext: Required when quantity is dimensional; changes to unit definitions must not silently reinterpret historical sample evidence.
-      optionalMeaning: Optional when quantity is absent or explicitly unitless.
+    - name: sampleId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the research sample.
+        businessMeaning: Identifies one specimen or material sample independently of experiments, compounds, storage locations, and observations.
+        usage: Chain of custody, experiment execution, laboratory tracking, reporting, audit, and integration.
+        relationshipContext: Connects Sample to Experiment, Compound, parent/derived samples, and related scientific evidence.
+    - name: sampleCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 120
+      help:
+        summary: Human-readable business identifier for the sample.
+        businessMeaning: Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting.
+        usage: Labels, searches, laboratory workflows, reports, integrations, and audit.
+        relationshipContext: Identifies the Sample rather than the Experiment or Compound associated with it.
+    - name: sampleType
+      type: enum
+      required: true
+      values: [SPECIMEN, ALIQUOT, COMPOUND, MATERIAL, BIOLOGICAL, CHEMICAL, ENVIRONMENTAL, CONTROL, REFERENCE, OTHER]
+      help:
+        valueSemantics:
+          SPECIMEN: A portion taken from a larger whole for study.
+          ALIQUOT: A measured part of a prepared sample.
+          COMPOUND: A sample of a chemical compound under study.
+          MATERIAL: A sample of a material or substance.
+          BIOLOGICAL: Biological matter such as tissue, cells or fluid.
+          CHEMICAL: A chemical substance or mixture.
+          ENVIRONMENTAL: Taken from the environment, such as water, soil or air.
+          CONTROL: A sample with a known result used to check a test.
+          REFERENCE: A certified standard to compare against.
+          OTHER: A sample that fits no other type.
+        summary: Classification of the scientific sample.
+        businessMeaning: Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules.
+        usage: Laboratory routing, protocol selection, reporting, safety, and analytics.
+        relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
+      help:
+        summary: Where the sample is in its life, from planned through use to disposal.
+        businessMeaning: Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically.
+        usage: Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal.
+        relationshipContext: Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations.
+        valueSemantics:
+          PLANNED: Sample is expected but has not yet been collected or received.
+          COLLECTED: Sample has been collected and awaits normal receipt or availability controls.
+          RECEIVED: Sample has entered the governed laboratory or research custody process.
+          AVAILABLE: Sample is eligible for governed research use.
+          IN_USE: Sample is currently participating in an active research activity.
+          CONSUMED: Usable sample quantity has been exhausted by governed activity.
+          DISPOSED: Sample was intentionally disposed of under an authorized process.
+          LOST: Sample can no longer be physically accounted for.
+          QUARANTINED: Sample is held from normal use pending review or resolution.
+          ARCHIVED: Sample is retained for historical or long-term controlled storage.
+    - name: collectedAt
+      type: datetime
+      required: false
+      help:
+        summary: Time at which the sample was collected or created.
+        businessMeaning: Establishes the origin chronology of the specimen.
+        usage: Chain of custody, protocol compliance, stability analysis, reporting, and audit.
+        relationshipContext: May precede receipt and experiment use; derived samples may use creation time as collection time.
+    - name: quantity
+      type: decimal
+      required: false
+      precision: 30
+      scale: 12
+      help:
+        summary: Governed quantity currently represented by the sample record when quantity tracking applies.
+        businessMeaning: Describes how much specimen or material is associated with the sample for planning and traceability.
+        usage: Laboratory planning, aliquoting, consumption tracking, reporting, and reconciliation.
+        relationshipContext: Quantity requires a compatible UnitOfMeasure and must not be confused with enterprise InventoryBalance unless an explicit integration exists.
+    - name: unitOfMeasure
+      type: reference
+      target: UnitOfMeasure
+      required: false
+      help:
+        summary: Unit in which sample quantity is expressed.
+        businessMeaning: Gives dimensional meaning to the sample quantity.
+        usage: Quantity comparison, conversion, reporting, and audit.
+        relationshipContext: Required when quantity is dimensional; changes to unit definitions must not silently reinterpret historical sample evidence.
   relationships:
-  - name: experiments
-    target: Experiment
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Experiments that use or produced evidence from this sample.
-      businessMeaning: Connects the specimen to scientific investigations in which it participates.
-      usage: Research traceability, protocol execution, results interpretation, and audit.
-      cardinalityMeaning: A sample may participate in zero or many experiments subject to availability and protocol rules.
-      context: Experiment lifecycle changes do not erase historical sample participation.
-  - name: compounds
-    target: Compound
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Compounds represented by, contained in, or associated with this sample.
-      businessMeaning: Connects physical or logical sample evidence to investigated chemical or biological substances.
-      usage: Compound research, analytical testing, provenance, reporting, and audit.
-      cardinalityMeaning: A sample may be associated with zero or many compounds depending on its composition and research purpose.
-      context: Compound association supplies scientific meaning without changing sample custody.
-  - name: parentSample
-    target: Sample
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Source sample from which this sample was derived.
-      businessMeaning: Preserves provenance for aliquots, splits, preparations, or other derived specimens.
-      usage: Lineage, chain of custody, quantity reconciliation, and audit.
-      cardinalityMeaning: A sample may have at most one immediate parent in this model.
-      context: Parent-child lineage must remain acyclic.
-  - name: derivedSamples
-    target: Sample
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Samples directly derived from this sample.
-      businessMeaning: Provides forward provenance from a source specimen to aliquots, splits, or preparations.
-      usage: Lineage navigation, custody, quantity reconciliation, and audit.
-      cardinalityMeaning: A sample may produce zero or many derived samples.
-      context: Derivation does not silently overwrite the source sample history.
+    - name: experiments
+      target: Experiment
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Experiments that use or produced evidence from this sample.
+        businessMeaning: Connects the specimen to scientific investigations in which it participates.
+        usage: Research traceability, protocol execution, results interpretation, and audit.
+        cardinalityMeaning: A sample may participate in zero or many experiments subject to availability and protocol rules.
+        context: Experiment lifecycle changes do not erase historical sample participation.
+    - name: compounds
+      target: Compound
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Compounds represented by, contained in, or associated with this sample.
+        businessMeaning: Connects physical or logical sample evidence to investigated chemical or biological substances.
+        usage: Compound research, analytical testing, provenance, reporting, and audit.
+        cardinalityMeaning: A sample may be associated with zero or many compounds depending on its composition and research purpose.
+        context: Compound association supplies scientific meaning without changing sample custody.
+    - name: parentSample
+      target: Sample
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Source sample from which this sample was derived.
+        businessMeaning: Preserves provenance for aliquots, splits, preparations, or other derived specimens.
+        usage: Lineage, chain of custody, quantity reconciliation, and audit.
+        cardinalityMeaning: A sample may have at most one immediate parent in this model.
+        context: Parent-child lineage must remain acyclic.
+    - name: derivedSamples
+      target: Sample
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Samples directly derived from this sample.
+        businessMeaning: Provides forward provenance from a source specimen to aliquots, splits, or preparations.
+        usage: Lineage navigation, custody, quantity reconciliation, and audit.
+        cardinalityMeaning: A sample may produce zero or many derived samples.
+        context: Derivation does not silently overwrite the source sample history.
+    - {name: assays, target: Assay, cardinality: "0..*", ownership: reference, help: {summary: Assay executions that analyze this Sample., businessMeaning: Connects specimen provenance to analytical work., usage: "Laboratory operations, chain of custody and audit.", cardinalityMeaning: Zero or many Assays subject to sample availability and protocol., workflowRole: Assay use must preserve sample lineage and quantity/custody rules.}}
+    - {name: observations, target: Observation, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: Any number of observations recorded against the sample., summary: Observations directly attributed to this Sample., businessMeaning: Preserves measurement provenance even when no explicit Assay is modeled., usage: "Research analysis and audit.", workflowRole: Evidence remains linked to the sample lineage that produced it.}}
+
   invariants:
-  - id: SAMPLE-001
-    rule: sampleCode must uniquely identify a Sample within the governing research context.
-  - id: SAMPLE-002
-    rule: quantity, when present, must be nonnegative and must have a compatible UnitOfMeasure when dimensional.
-  - id: SAMPLE-003
-    rule: A CONSUMED, DISPOSED, LOST, or QUARANTINED Sample must not be newly assigned to an Experiment except through an explicitly authorized exception appropriate to the status.
-  - id: SAMPLE-004
-    rule: parentSample and derivedSamples must form an acyclic lineage and must preserve provenance.
-  - id: SAMPLE-005
-    rule: Derived-sample creation must not silently increase governed material quantity; where quantity conservation applies, parent and child quantities must reconcile under the applicable preparation or loss rules.
-  - id: SAMPLE-006
-    rule: Completed Experiment evidence must retain the Sample identity and lineage applicable at execution time even if sample status later changes.
-  - id: SAMPLE-007
-    rule: Sample lifecycle, lineage, and quantity changes must be auditable and idempotent.
-  - {id: SAMPLE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - id: SAMPLE-001
+      rule: sampleCode must uniquely identify a Sample within the governing research context.
+    - id: SAMPLE-002
+      rule: quantity, when present, must be nonnegative and must have a compatible UnitOfMeasure when dimensional.
+    - id: SAMPLE-003
+      rule: A CONSUMED, DISPOSED, LOST, or QUARANTINED Sample must not be newly assigned to an Experiment except through an explicitly authorized exception appropriate to the status.
+    - id: SAMPLE-004
+      rule: parentSample and derivedSamples must form an acyclic lineage and must preserve provenance.
+    - id: SAMPLE-005
+      rule: Derived-sample creation must not silently increase governed material quantity; where quantity conservation applies, parent and child quantities must reconcile under the applicable preparation or loss rules.
+    - id: SAMPLE-006
+      rule: Completed Experiment evidence must retain the Sample identity and lineage applicable at execution time even if sample status later changes.
+    - id: SAMPLE-007
+      rule: Sample lifecycle, lineage, and quantity changes must be auditable and idempotent.
+    - {id: SAMPLE-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   lifecycle:
     title: Sample Lifecycle
     attribute: status
     states: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
     initial: PLANNED
-    terminal: [CONSUMED, DISPOSED, LOST]
+    terminal:
+      - CONSUMED
+      - DISPOSED
+      - LOST
     transitions:
-      - {from: PLANNED, to: COLLECTED, action: mark_collected}
+      - {from: PLANNED, to: COLLECTED, action: collect}
       - {from: COLLECTED, to: RECEIVED, action: receive}
-      - {from: RECEIVED, to: AVAILABLE, action: mark_available}
-      - {from: AVAILABLE, to: IN_USE, action: mark_in_use}
-      - {from: IN_USE, to: ARCHIVED, action: archive}
-      - {from: ARCHIVED, to: CONSUMED, action: consume}
+      - {from: RECEIVED, to: AVAILABLE, action: release}
+      - {from: AVAILABLE, to: IN_USE, action: issue}
+      - {from: IN_USE, to: AVAILABLE, action: return}
+      - {from: IN_USE, to: CONSUMED, action: consume}
+      - {from: AVAILABLE, to: CONSUMED, action: consume}
+      - {from: AVAILABLE, to: DISPOSED, action: dispose}
+      - {from: QUARANTINED, to: DISPOSED, action: dispose}
+      - {from: AVAILABLE, to: LOST, action: lose}
+      - {from: IN_USE, to: LOST, action: lose}
       - {from: COLLECTED, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: COLLECTED, action: release}
       - {from: RECEIVED, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: RECEIVED, action: release}
       - {from: AVAILABLE, to: QUARANTINED, action: quarantine}
       - {from: QUARANTINED, to: AVAILABLE, action: release}
-      - {from: IN_USE, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: IN_USE, action: release}
-      - {from: COLLECTED, to: DISPOSED, action: mark_disposed}
-      - {from: RECEIVED, to: DISPOSED, action: mark_disposed}
-      - {from: AVAILABLE, to: DISPOSED, action: mark_disposed}
-      - {from: IN_USE, to: DISPOSED, action: mark_disposed}
-      - {from: QUARANTINED, to: DISPOSED, action: mark_disposed}
-      - {from: COLLECTED, to: LOST, action: mark_lost}
-      - {from: RECEIVED, to: LOST, action: mark_lost}
-      - {from: AVAILABLE, to: LOST, action: mark_lost}
-      - {from: IN_USE, to: LOST, action: mark_lost}
-      - {from: QUARANTINED, to: LOST, action: mark_lost}
+      - {from: AVAILABLE, to: ARCHIVED, action: archive}
+      - {from: ARCHIVED, to: AVAILABLE, action: restore}
+      - {from: ARCHIVED, to: DISPOSED, action: dispose}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a sample is stopped"

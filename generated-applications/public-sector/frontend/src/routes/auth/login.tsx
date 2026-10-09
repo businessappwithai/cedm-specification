@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-04T01:12:37.255Z
+ * Generated: 2026-10-09T06:45:41.611Z
  * Project: public-sector
  */
 

@@ -13,7 +13,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
       help:
         summary: Whether the practitioner is cleared to work.

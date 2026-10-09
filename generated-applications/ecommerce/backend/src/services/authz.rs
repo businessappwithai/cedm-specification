@@ -1,6 +1,6 @@
 //! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
-//! Generated: 2026-10-04T08:29:36.127Z
+//! Generated: 2026-10-09T06:43:56.898Z
 //! Project: ecommerce
 //!
 //! **The gap this closes.** `/api/bus/*` required a JWT and nothing else, so
@@ -135,8 +135,15 @@ pub async fn principal(pool: &PgPool, user: &users::Model) -> AppResult<Principa
         r"SELECT r.name, COALESCE(r.is_master_role, false)
             FROM sys_user_roles ur
             JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+            JOIN sys_user su ON su.sys_user_id = ur.sys_user_id
            WHERE ur.sys_user_id = $1
-             AND COALESCE(ur.is_active, true) = true",
+             AND COALESCE(ur.is_active, true) = true
+             -- A deactivated or locked account holds nothing, whatever it was
+             -- granted: a JWT cannot be revoked, so this is where disabled
+             -- takes effect on a token that is still valid.
+             AND COALESCE(su.is_active, false) = true
+             AND COALESCE(su.is_locked, false) = false
+             AND COALESCE(r.is_active, true) = true",
     )
     .bind(sys_user_id)
     .fetch_all(pool)
@@ -202,10 +209,18 @@ pub async fn table_access(
         r"SELECT bool_and(COALESCE(a.is_read_only, false))
             FROM sys_access     a
             JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+            JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+            JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
             JOIN sys_tab        tb ON tb.sys_window_id = a.sys_window_id
             JOIN sys_table      t  ON t.sys_table_id  = tb.sys_table_id
            WHERE ur.sys_user_id = $1
              AND t.table_name   = $2
+             -- The grant counts only while the grant, the role and the account
+             -- are all switched on; deactivating any of them withdraws it.
+             AND COALESCE(ur.is_active, true) = true
+             AND COALESCE(sr.is_active, true) = true
+             AND COALESCE(su.is_active, false) = true
+             AND COALESCE(su.is_locked, false) = false
              AND COALESCE(a.is_active,  true)  = true
              AND COALESCE(a.is_exclude, false) = false",
     )
@@ -339,10 +354,16 @@ pub async fn readable_tables(
             r"SELECT t.table_name
                 FROM sys_access     a
                 JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+                JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+                JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
                 JOIN sys_tab        tb ON tb.sys_window_id = a.sys_window_id
                 JOIN sys_table      t  ON t.sys_table_id  = tb.sys_table_id
                WHERE ur.sys_user_id = $1
                  AND t.table_name = ANY($2)
+                 AND COALESCE(ur.is_active, true) = true
+                 AND COALESCE(sr.is_active, true) = true
+                 AND COALESCE(su.is_active, false) = true
+                 AND COALESCE(su.is_locked, false) = false
                  AND COALESCE(a.is_active,  true)  = true
                  AND COALESCE(a.is_exclude, false) = false
                GROUP BY t.table_name",
@@ -616,6 +637,41 @@ pub fn require_dictionary_admin(principal: &Principal) -> AppResult<()> {
     Err(AppError::Forbidden(
         "administering the Application Dictionary requires the master role".to_string(),
     ))
+}
+
+/// Refuse the request unless the caller may manage accounts and their roles.
+///
+/// The same bar as the dictionary's writes, spelled separately so the refusal
+/// says what was refused: granting a role is granting access.
+pub fn require_account_admin(principal: &Principal) -> AppResult<()> {
+    if principal.is_master {
+        return Ok(());
+    }
+    Err(AppError::Forbidden(
+        "managing accounts requires the master role".to_string(),
+    ))
+}
+
+/// May this account sign in at all?
+///
+/// An account with a `sys_user` identity that an administrator has deactivated
+/// or locked may not. An account with **no** identity (a self-registered one
+/// that nobody has granted anything) may: it exists, and reaches nothing.
+/// Anything the lookup cannot answer is a refusal, not a pass.
+pub async fn account_enabled(pool: &PgPool, user: &users::Model) -> AppResult<bool> {
+    let Some(sys_user_id) = user.sys_user_id else {
+        return Ok(true);
+    };
+    let state: Option<(bool, bool)> = sqlx::query_as(
+        r"SELECT COALESCE(is_active, false), COALESCE(is_locked, false)
+            FROM sys_user WHERE sys_user_id = $1",
+    )
+    .bind(sys_user_id)
+    .fetch_optional(pool)
+    .await
+    .map_err(|err| unreadable("the account's state", &err))?;
+    // A dangling link is an account the dictionary no longer knows.
+    Ok(matches!(state, Some((true, false))))
 }
 
 fn forbidden(table_name: &str, verb: &str) -> AppError {

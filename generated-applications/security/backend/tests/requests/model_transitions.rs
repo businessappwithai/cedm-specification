@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:31:08.665Z
+//! Generated: 2026-10-09T06:46:12.152Z
 //! Project: security
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -109,21 +109,22 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
         "bus_security_incident",
         "status",
         "INVESTIGATING",
+        "CONTAINED",
+    ),
+    (
+        "bus_security_incident",
+        "status",
+        "CONTAINED",
+        "INVESTIGATING",
+    ),
+    (
+        "bus_security_incident",
+        "status",
+        "INVESTIGATING",
         "RESOLVED",
     ),
+    ("bus_security_incident", "status", "CONTAINED", "RESOLVED"),
     ("bus_security_incident", "status", "RESOLVED", "CLOSED"),
-    (
-        "bus_security_incident",
-        "status",
-        "INVESTIGATING",
-        "CONTAINED",
-    ),
-    (
-        "bus_security_incident",
-        "status",
-        "CONTAINED",
-        "INVESTIGATING",
-    ),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

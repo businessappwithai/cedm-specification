@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:38.989Z
+//! Generated: 2026-10-09T06:44:00.936Z
 //! Project: education
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -88,18 +88,12 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_education_course", "status", "ACTIVE", "RETIRED"),
     ("bus_education_course", "status", "INACTIVE", "RETIRED"),
     ("bus_education_student", "status", "APPLICANT", "ACTIVE"),
-    ("bus_education_student", "status", "ACTIVE", "GRADUATED"),
-    ("bus_education_student", "status", "GRADUATED", "ALUMNI"),
+    ("bus_education_student", "status", "APPLICANT", "WITHDRAWN"),
     ("bus_education_student", "status", "ACTIVE", "SUSPENDED"),
     ("bus_education_student", "status", "SUSPENDED", "ACTIVE"),
-    ("bus_education_student", "status", "GRADUATED", "SUSPENDED"),
-    ("bus_education_student", "status", "SUSPENDED", "GRADUATED"),
-    ("bus_education_student", "status", "ALUMNI", "SUSPENDED"),
-    ("bus_education_student", "status", "SUSPENDED", "ALUMNI"),
-    ("bus_education_student", "status", "APPLICANT", "WITHDRAWN"),
+    ("bus_education_student", "status", "ACTIVE", "GRADUATED"),
+    ("bus_education_student", "status", "GRADUATED", "ALUMNI"),
     ("bus_education_student", "status", "ACTIVE", "WITHDRAWN"),
-    ("bus_education_student", "status", "GRADUATED", "WITHDRAWN"),
-    ("bus_education_student", "status", "ALUMNI", "WITHDRAWN"),
     ("bus_education_student", "status", "SUSPENDED", "WITHDRAWN"),
     ("bus_enrollment", "status", "PENDING", "ACTIVE"),
     ("bus_enrollment", "status", "ACTIVE", "COMPLETED"),

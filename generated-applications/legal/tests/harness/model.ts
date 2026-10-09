@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:12:05.671Z
+ * Generated: 2026-10-09T06:44:48.017Z
  * Project: legal
  */
 
@@ -329,29 +329,20 @@ export const stateMachines: StateMachine[] = [
     initial: "DRAFT",
     terminal: ["EXPIRED", "TERMINATED", "CANCELLED"],
     edges: [
-      { from: "DRAFT", to: "APPROVAL", trigger: "mark_approval" },
+      { from: "DRAFT", to: "NEGOTIATION", trigger: "negotiate" },
+      { from: "DRAFT", to: "APPROVAL", trigger: "submit_for_approval" },
+      { from: "NEGOTIATION", to: "APPROVAL", trigger: "submit_for_approval" },
+      { from: "APPROVAL", to: "NEGOTIATION", trigger: "return_to_negotiation" },
       { from: "APPROVAL", to: "ACTIVE", trigger: "activate" },
-      { from: "APPROVAL", to: "NEGOTIATION", trigger: "mark_negotiation" },
-      { from: "NEGOTIATION", to: "APPROVAL", trigger: "resume" },
-      { from: "ACTIVE", to: "NEGOTIATION", trigger: "mark_negotiation" },
-      { from: "NEGOTIATION", to: "ACTIVE", trigger: "resume" },
-      { from: "APPROVAL", to: "SUSPENDED", trigger: "suspend" },
-      { from: "SUSPENDED", to: "APPROVAL", trigger: "resume" },
       { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
       { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
-      { from: "APPROVAL", to: "EXPIRED", trigger: "expire" },
       { from: "ACTIVE", to: "EXPIRED", trigger: "expire" },
-      { from: "NEGOTIATION", to: "EXPIRED", trigger: "expire" },
       { from: "SUSPENDED", to: "EXPIRED", trigger: "expire" },
-      { from: "APPROVAL", to: "TERMINATED", trigger: "terminate" },
       { from: "ACTIVE", to: "TERMINATED", trigger: "terminate" },
-      { from: "NEGOTIATION", to: "TERMINATED", trigger: "terminate" },
       { from: "SUSPENDED", to: "TERMINATED", trigger: "terminate" },
       { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
-      { from: "APPROVAL", to: "CANCELLED", trigger: "cancel" },
-      { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
       { from: "NEGOTIATION", to: "CANCELLED", trigger: "cancel" },
-      { from: "SUSPENDED", to: "CANCELLED", trigger: "cancel" },
+      { from: "APPROVAL", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

@@ -7,16 +7,25 @@ entity:
     icon: table
   identity: {key: usageRecordId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of UsageRecord., businessMeaning: Identifies one governed UsageRecord record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of UsageRecord., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the usage record, constant for its life.', businessMeaning: Lets invoice lines point at the exact usage they charged for., usage: Generated on creation., relationshipContext: Referenced by billing lines.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the record is in billing.
+        businessMeaning: Shows whether usage has been confirmed and charged.
+        usage: Starts as DRAFT; moved by metering and billing.
+        relationshipContext: Only active records are charged.
+        valueSemantics:
+          DRAFT: Received and not yet confirmed.
+          ACTIVE: Confirmed and waiting to be billed.
+          COMPLETED: Billed. A final state.
+          CANCELLED: Discarded as recorded in error. A final state.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+    - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer whose usage it is., usage: Chosen from the metered account., cardinalityMeaning: At most one customer; empty until matched., workflowRole: Decides whom to charge.}}
   invariants:
-  - {id: USAGE-RECORD-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: USAGE-RECORD-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Usage Record Lifecycle
     attribute: status
@@ -48,12 +57,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: An immutable measured usage event or aggregate used for usage-based entitlement and billing.
-    purpose: Provide canonical enterprise semantics for UsageRecord while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: An immutable measured usage event or aggregate used for usage-based entitlement and billing.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A fixed record of measured usage, either a single event or an aggregate, used for usage-based entitlement and billing.
+    businessMeaning: A usage record is the evidence of how much a customer consumed, such as minutes or gigabytes. It feeds billing and entitlement checks and, because it is never rewritten, can be shown to the customer if a charge is queried.
+    usage: Created by metering systems; read by billing and customer support.
+    relationshipContext: A usage record may relate to a customer.
+    lifecycle: A record is drafted and becomes active when confirmed, then completed once billed. It may be cancelled if recorded in error. Completed and cancelled are final.
+    example: 1,240 call minutes used by a customer in March are recorded as one usage record.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-USAGE-RECORD}

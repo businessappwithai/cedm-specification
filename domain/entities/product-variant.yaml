@@ -13,7 +13,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: DRAFT
       values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
       help:
         summary: Whether the variant can be traded.

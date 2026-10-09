@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-04T01:12:01.739Z
+//! Generated: 2026-10-09T06:44:41.703Z
 //! Project: inventory
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -1262,14 +1262,14 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
-                name: "from_currency",
+                name: "from_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
                 max_length: None,
             },
             FieldMeta {
-                name: "to_currency",
+                name: "to_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
@@ -1523,6 +1523,76 @@ pub static ENTITIES: &[EntityMeta] = &[
         ],
     },
     EntityMeta {
+        name: "InventoryItem",
+        table_name: "bus_inventory_item",
+        route: "bus_inventory_item",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "item_code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("item_code", false),
+                max_length: Some(120),
+            },
+            FieldMeta {
+                name: "status",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("status", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "safety_stock_quantity",
+                field_type: FieldType::from_model("decimal", false),
+                required: false,
+                ref_table: ref_table_for("safety_stock_quantity", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "reorder_point_quantity",
+                field_type: FieldType::from_model("decimal", false),
+                required: false,
+                ref_table: ref_table_for("reorder_point_quantity", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "allow_negative_inventory",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("allow_negative_inventory", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "product_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("product_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "stocking_uom_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: Some("bus_unit_of_measure"),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "organization_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("organization_id", true),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
         name: "InventoryBalance",
         table_name: "bus_inventory_balance",
         route: "bus_inventory_balance",
@@ -1560,6 +1630,13 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("datetime", false),
                 required: true,
                 ref_table: ref_table_for("last_updated_at", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "inventory_item_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("inventory_item_id", true),
                 max_length: None,
             },
             FieldMeta {
@@ -1637,6 +1714,13 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("unit_of_measure_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "inventory_item_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("inventory_item_id", true),
                 max_length: None,
             },
             FieldMeta {
@@ -3661,6 +3745,55 @@ pub static ENTITIES: &[EntityMeta] = &[
         name: "TaskPriority",
         table_name: "bus_task_priority",
         route: "bus_task_priority",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "InventoryItemStatus",
+        table_name: "bus_inventory_item_status",
+        route: "bus_inventory_item_status",
         fields: &[
             FieldMeta {
                 name: "id",

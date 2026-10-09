@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:47.103Z
+ * Generated: 2026-10-09T06:44:17.558Z
  * Project: finance
  */
 
@@ -755,20 +755,25 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_credit_note",
     statusField: "status",
     initial: "DRAFT",
-    terminal: ["FULLY_APPLIED", "REFUNDED", "CANCELLED", "REVERSED"],
+    terminal: ["CANCELLED", "REVERSED"],
     edges: [
       { from: "DRAFT", to: "APPROVED", trigger: "approve" },
       { from: "APPROVED", to: "POSTED", trigger: "post" },
-      { from: "POSTED", to: "PARTIALLY_APPLIED", trigger: "mark_partially_applied" },
+      { from: "POSTED", to: "PARTIALLY_APPLIED", trigger: "apply" },
+      { from: "POSTED", to: "FULLY_APPLIED", trigger: "apply" },
+      { from: "PARTIALLY_APPLIED", to: "FULLY_APPLIED", trigger: "apply" },
+      { from: "POSTED", to: "REFUND_DUE", trigger: "mark_refund_due" },
       { from: "PARTIALLY_APPLIED", to: "REFUND_DUE", trigger: "mark_refund_due" },
-      { from: "REFUND_DUE", to: "FULLY_APPLIED", trigger: "mark_fully_applied" },
       { from: "REFUND_DUE", to: "REFUNDED", trigger: "refund" },
+      { from: "REFUND_DUE", to: "PARTIALLY_APPLIED", trigger: "apply" },
+      { from: "REFUND_DUE", to: "FULLY_APPLIED", trigger: "apply" },
       { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
       { from: "APPROVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "POSTED", to: "CANCELLED", trigger: "cancel" },
-      { from: "PARTIALLY_APPLIED", to: "CANCELLED", trigger: "cancel" },
-      { from: "REFUND_DUE", to: "CANCELLED", trigger: "cancel" },
+      { from: "POSTED", to: "REVERSED", trigger: "reverse" },
+      { from: "PARTIALLY_APPLIED", to: "REVERSED", trigger: "reverse" },
+      { from: "FULLY_APPLIED", to: "REVERSED", trigger: "reverse" },
       { from: "REFUND_DUE", to: "REVERSED", trigger: "reverse" },
+      { from: "REFUNDED", to: "REVERSED", trigger: "reverse" },
     ],
   },
   {

@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:13:12.361Z
+ * Generated: 2026-10-09T06:46:39.886Z
  * Project: travel
  */
 
@@ -317,17 +317,16 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_flight",
     statusField: "status",
     initial: "SCHEDULED",
-    terminal: ["CANCELLED"],
+    terminal: ["ARRIVED", "CANCELLED"],
     edges: [
-      { from: "SCHEDULED", to: "BOARDING", trigger: "mark_boarding" },
-      { from: "BOARDING", to: "DEPARTED", trigger: "mark_departed" },
-      { from: "DEPARTED", to: "ARRIVED", trigger: "mark_arrived" },
-      { from: "ARRIVED", to: "DELAYED", trigger: "mark_delayed" },
+      { from: "SCHEDULED", to: "BOARDING", trigger: "start_boarding" },
+      { from: "BOARDING", to: "DEPARTED", trigger: "depart" },
+      { from: "DEPARTED", to: "ARRIVED", trigger: "arrive" },
+      { from: "SCHEDULED", to: "DELAYED", trigger: "delay" },
+      { from: "DELAYED", to: "BOARDING", trigger: "start_boarding" },
+      { from: "DELAYED", to: "CANCELLED", trigger: "cancel" },
       { from: "SCHEDULED", to: "CANCELLED", trigger: "cancel" },
       { from: "BOARDING", to: "CANCELLED", trigger: "cancel" },
-      { from: "DEPARTED", to: "CANCELLED", trigger: "cancel" },
-      { from: "ARRIVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "DELAYED", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

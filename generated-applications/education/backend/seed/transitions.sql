@@ -370,49 +370,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('7ef8d939-bee3-55bd-a4d4-4d9cbcb7427c', 'bus_education_course', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- EducationStudentLifecycle: APPLICANT → ACTIVE (activate)
+-- EducationStudentLifecycle: APPLICANT → ACTIVE (admit)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cedb8d38-1f93-530b-81db-c9edf6eda9a4', 'bus_education_student', 'status', 'APPLICANT', 'ACTIVE', 'activate', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: ACTIVE → GRADUATED (mark_graduated)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('eaf46b98-83db-572c-96c0-9351a03261f1', 'bus_education_student', 'status', 'ACTIVE', 'GRADUATED', 'mark_graduated', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: GRADUATED → ALUMNI (mark_alumni)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b24912fc-459d-5027-a042-730de471ef0b', 'bus_education_student', 'status', 'GRADUATED', 'ALUMNI', 'mark_alumni', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: ACTIVE → SUSPENDED (suspend)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b867e746-5465-52d8-b5ef-8cb06da0bac9', 'bus_education_student', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: SUSPENDED → ACTIVE (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4b50be6a-dc2b-5258-b6a9-6a295ce00b7d', 'bus_education_student', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: GRADUATED → SUSPENDED (suspend)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9c131709-6d56-5a5d-bc43-a0f9388baad6', 'bus_education_student', 'status', 'GRADUATED', 'SUSPENDED', 'suspend', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: SUSPENDED → GRADUATED (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cfadf2e3-98b7-53a5-967f-098e04e5f11f', 'bus_education_student', 'status', 'SUSPENDED', 'GRADUATED', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: ALUMNI → SUSPENDED (suspend)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('06925372-3769-5e33-8fae-5bf44e533ed7', 'bus_education_student', 'status', 'ALUMNI', 'SUSPENDED', 'suspend', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: SUSPENDED → ALUMNI (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f069662b-beb1-5b6e-af36-d4db7b31261b', 'bus_education_student', 'status', 'SUSPENDED', 'ALUMNI', 'resume', TRUE, NOW())
+VALUES ('cedb8d38-1f93-530b-81db-c9edf6eda9a4', 'bus_education_student', 'status', 'APPLICANT', 'ACTIVE', 'admit', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- EducationStudentLifecycle: APPLICANT → WITHDRAWN (withdraw)
@@ -420,19 +380,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('9f436584-82ff-5721-916e-ca04da63373b', 'bus_education_student', 'status', 'APPLICANT', 'WITHDRAWN', 'withdraw', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- EducationStudentLifecycle: ACTIVE → SUSPENDED (suspend)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b867e746-5465-52d8-b5ef-8cb06da0bac9', 'bus_education_student', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- EducationStudentLifecycle: SUSPENDED → ACTIVE (reinstate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4b50be6a-dc2b-5258-b6a9-6a295ce00b7d', 'bus_education_student', 'status', 'SUSPENDED', 'ACTIVE', 'reinstate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- EducationStudentLifecycle: ACTIVE → GRADUATED (graduate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('eaf46b98-83db-572c-96c0-9351a03261f1', 'bus_education_student', 'status', 'ACTIVE', 'GRADUATED', 'graduate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- EducationStudentLifecycle: GRADUATED → ALUMNI (make_alumnus)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b24912fc-459d-5027-a042-730de471ef0b', 'bus_education_student', 'status', 'GRADUATED', 'ALUMNI', 'make_alumnus', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- EducationStudentLifecycle: ACTIVE → WITHDRAWN (withdraw)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('5cc0d42b-f775-505f-aa65-3ab2d07f7d94', 'bus_education_student', 'status', 'ACTIVE', 'WITHDRAWN', 'withdraw', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: GRADUATED → WITHDRAWN (withdraw)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4a27502e-f1b5-523d-8194-b075187e49f6', 'bus_education_student', 'status', 'GRADUATED', 'WITHDRAWN', 'withdraw', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- EducationStudentLifecycle: ALUMNI → WITHDRAWN (withdraw)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7e9b83ae-14c4-53f8-a3da-2630a24d5c6b', 'bus_education_student', 'status', 'ALUMNI', 'WITHDRAWN', 'withdraw', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- EducationStudentLifecycle: SUSPENDED → WITHDRAWN (withdraw)
@@ -644,7 +614,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('9a088bee-9cbd-51dc-8646-1af0644e9fdb', 'bus_education_student', 'status', 'WITHDRAWN', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('82f06e62-6063-5157-b748-1501a0a89d68', 'bus_education_student', 'status', 'ALUMNI', FALSE, FALSE, 60, TRUE, NOW())
+VALUES ('82f06e62-6063-5157-b748-1501a0a89d68', 'bus_education_student', 'status', 'ALUMNI', FALSE, TRUE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- EnrollmentLifecycle: states

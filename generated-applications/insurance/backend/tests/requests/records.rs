@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-04T01:11:59.102Z
+//! Generated: 2026-10-09T06:44:37.578Z
 //! Project: insurance
 
 use serde_json::{json, Value};

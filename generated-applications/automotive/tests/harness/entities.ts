@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-04T01:11:17.423Z
+ * Generated: 2026-10-09T06:43:25.898Z
  * Project: automotive
  */
 
@@ -1250,7 +1250,7 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
       },
       {
-        name: "from_currency",
+        name: "from_currency_id",
         displayName: "From Currency",
         type: "string",
         required: true,
@@ -1259,7 +1259,7 @@ export const entities: EntityMeta[] = [
         references: "Currency",
       },
       {
-        name: "to_currency",
+        name: "to_currency_id",
         displayName: "To Currency",
         type: "string",
         required: true,
@@ -3169,20 +3169,6 @@ export const relationships: RelationshipMeta[] = [
   },
   {
     name: "exchange_rates_to",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "from_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "to_currency_ref",
     sourceEntity: "Currency",
     targetEntity: "ExchangeRate",
     cardinality: "oneToMany",

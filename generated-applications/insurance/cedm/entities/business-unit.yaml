@@ -7,20 +7,18 @@ entity:
     icon: table
   identity: {key: businessUnitId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: businessUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of BusinessUnit., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this BusinessUnit is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for BusinessUnit., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of BusinessUnit., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: businessUnitId, type: uuid, required: true, immutable: true, help: {summary: The identity of the business unit., usage: 'Generated on creation; budgets, transactions and reports refer to it.'}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short reference for the unit, such as CE or EMEA-RETAIL.', usage: Assigned by finance and used on reports and in postings; kept stable because history relies on it.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The full name of the unit., usage: Shown in organisation charts and management reports.}}
   relationships:
-  - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: Governing Organization context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Organization., workflowRole: Referenced workflows must remain compatible with governing context.}}
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation to which the unit belongs., usage: Set when the unit is created., cardinalityMeaning: Exactly one organisation; a unit cannot stand alone., workflowRole: Rolls the unit's results up into its parent organisation.}}
   invariants:
-  - {id: BUSINESS-UNIT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: BUSINESS-UNIT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed organizational unit representing a major business, division, line, or operating segment within an Organization.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed organizational unit representing a major business, division, line, or operating segment within an Organization.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A major business, division, product line or operating segment within an organisation.
+    businessMeaning: Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole.
+    usage: Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment.
+    relationshipContext: Each business unit belongs to one Organization and groups the work and results of one part of it.
+    lifecycle: A business unit keeps its code and identity stable. Reorganisations are recorded explicitly so earlier reports are not silently changed.
+    example: The Consumer Electronics division of a manufacturer, with its own budget and profit target.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUSINESS-UNIT}

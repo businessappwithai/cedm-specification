@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:29:29.421Z
+//! Generated: 2026-10-09T06:43:48.165Z
 //! Project: customer-service
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,9 +43,15 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("Customer", "status", "RETIRED"),
+    ("ServiceCase", "status", "CLOSED"),
     ("ServiceRequest", "status", "CLOSED"),
-    ("Escalation", "status", "COMPLETED"),
+    ("Ticket", "status", "CLOSED"),
+    ("ServiceOrder", "status", "COMPLETED"),
+    ("ServiceContract", "status", "EXPIRED"),
+    ("Entitlement", "status", "EXHAUSTED"),
     ("ServiceLevelAgreement", "status", "RETIRED"),
+    ("Escalation", "status", "COMPLETED"),
+    ("Contract", "status", "EXPIRED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -76,17 +82,43 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["INACTIVE", "BLOCKED", "RETIRED"],
     ),
     (
+        "ServiceCase",
+        "status",
+        "OPEN",
+        &["IN_PROGRESS", "CANCELLED"],
+    ),
+    (
         "ServiceRequest",
         "status",
         "OPEN",
         &["TRIAGED", "CANCELLED"],
     ),
-    ("Escalation", "status", "PENDING", &["ACTIVE", "CANCELLED"]),
+    ("Ticket", "status", "NEW", &["ASSIGNED", "CANCELLED"]),
+    (
+        "ServiceOrder",
+        "status",
+        "DRAFT",
+        &["APPROVED", "CANCELLED"],
+    ),
+    (
+        "ServiceContract",
+        "status",
+        "DRAFT",
+        &["ACTIVE", "TERMINATED"],
+    ),
+    ("Entitlement", "status", "DRAFT", &["ACTIVE", "TERMINATED"]),
     (
         "ServiceLevelAgreement",
         "status",
         "DRAFT",
         &["ACTIVE", "RETIRED"],
+    ),
+    ("Escalation", "status", "PENDING", &["ACTIVE", "CANCELLED"]),
+    (
+        "Contract",
+        "status",
+        "DRAFT",
+        &["NEGOTIATION", "APPROVAL", "CANCELLED"],
     ),
 ];
 

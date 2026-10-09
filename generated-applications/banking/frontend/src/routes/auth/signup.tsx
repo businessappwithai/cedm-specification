@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-04T01:11:19.694Z
+ * Generated: 2026-10-09T06:43:30.403Z
  * Project: banking
  */
 

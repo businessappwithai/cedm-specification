@@ -50,7 +50,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: PLANNED
       values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
       help:
         summary: Whether the place is in use.

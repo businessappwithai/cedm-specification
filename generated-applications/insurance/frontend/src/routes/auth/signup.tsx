@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-04T01:11:59.880Z
+ * Generated: 2026-10-09T06:44:38.914Z
  * Project: insurance
  */
 

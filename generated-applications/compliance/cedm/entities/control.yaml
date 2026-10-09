@@ -11,165 +11,129 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: controlId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the control record associated with this Control. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: description
-    type: string
-    required: true
-    maxLength: 4000
-    help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: controlType
-    type: enum
-    required: true
-    values:
-    - PREVENTIVE
-    - DETECTIVE
-    - CORRECTIVE
-    - DIRECTIVE
-    help:
-      summary: Captures the business meaning of control type for the Control. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PREVENTIVE: Represents the preventive state or classification in the context of Control.
-        DETECTIVE: Represents the detective state or classification in the context of Control.
-        CORRECTIVE: Represents the corrective state or classification in the context of Control.
-        DIRECTIVE: Represents the directive state or classification in the context of Control.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: frequency
-    type: enum
-    required: true
-    values:
-    - CONTINUOUS
-    - DAILY
-    - WEEKLY
-    - MONTHLY
-    - QUARTERLY
-    - ANNUAL
-    - EVENT_DRIVEN
-    - AD_HOC
-    help:
-      summary: Captures the business meaning of frequency for the Control. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        CONTINUOUS: Represents the continuous state or classification in the context of Control.
-        DAILY: Represents the daily state or classification in the context of Control.
-        WEEKLY: Represents the weekly state or classification in the context of Control.
-        MONTHLY: Represents the monthly state or classification in the context of Control.
-        QUARTERLY: Represents the quarterly state or classification in the context of Control.
-        ANNUAL: Represents the annual state or classification in the context of Control.
-        EVENT_DRIVEN: Represents the event driven state or classification in the context of Control.
-        AD_HOC: Represents the ad hoc state or classification in the context of Control.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - DRAFT
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Control records, where applicable.
-      relationshipContext: Its meaning is specific to Control; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of Control.
-        ACTIVE: Represents the active state or classification in the context of Control.
-        INACTIVE: Represents the inactive state or classification in the context of Control.
-        RETIRED: Represents the retired state or classification in the context of Control.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: controlId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the control.
+        usage: Generated on creation; tests, findings and risk links refer to it.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The reference by which the control is cited in risk registers and audits.
+        usage: Unique; assigned when the control is defined.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The short name of the control.
+        usage: Shown in registers and test plans.
+    - name: description
+      type: string
+      required: true
+      maxLength: 4000
+      help:
+        summary: A full description of what the control does and how it operates.
+        usage: Written by the control owner; read by those who test or rely on the control.
+    - name: controlType
+      type: enum
+      required: true
+      values:
+        - PREVENTIVE
+        - DETECTIVE
+        - CORRECTIVE
+        - DIRECTIVE
+      help:
+        summary: How the control acts on a risk.
+        usage: Chosen when the control is defined; auditors use it to judge whether coverage is balanced.
+        valueSemantics:
+          PREVENTIVE: Stops a risk event from happening.
+          DETECTIVE: Finds a risk event after it has happened.
+          CORRECTIVE: Limits damage and restores normal operation after an event.
+          DIRECTIVE: Tells people what they must or must not do, such as a policy or procedure.
+    - name: frequency
+      type: enum
+      required: true
+      values:
+        - CONTINUOUS
+        - DAILY
+        - WEEKLY
+        - MONTHLY
+        - QUARTERLY
+        - ANNUAL
+        - EVENT_DRIVEN
+        - AD_HOC
+      help:
+        summary: How often the control operates.
+        usage: Set by the control owner; testers use it to decide how many occurrences to sample.
+        valueSemantics:
+          CONTINUOUS: Operates all the time, for example an automated system check.
+          DAILY: Performed every day.
+          WEEKLY: Performed every week.
+          MONTHLY: Performed every month.
+          QUARTERLY: Performed every quarter.
+          ANNUAL: Performed once a year.
+          EVENT_DRIVEN: Performed when a particular event occurs.
+          AD_HOC: Performed as needed, with no fixed schedule.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - ACTIVE
+        - INACTIVE
+        - RETIRED
+      help:
+        summary: Whether the control is being designed, in operation or ended.
+        usage: Set by the control owner; only ACTIVE controls are tested and relied on.
+        valueSemantics:
+          DRAFT: Being designed; not yet operating.
+          ACTIVE: Operating and relied upon.
+          INACTIVE: Not currently operating, but may be reinstated.
+          RETIRED: Permanently ended; kept for history.
   relationships:
-  - name: owner
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Control to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Control.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Control to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Control.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: risks
-    target: Risk
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Control to Risk so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Risk records associated with a Control.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: policies
-    target: Policy
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Control to Policy so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Policy records associated with a Control.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: owner
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person or party accountable for the control operating.
+        usage: Set when the control is defined; receives test findings.
+        cardinalityMeaning: At most one owner; a control without an owner is an assurance gap.
+        workflowRole: Identifies who answers for the control.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation in which the control operates.
+        usage: Set so controls can be scoped and tested per legal entity.
+        cardinalityMeaning: At most one organisation.
+        workflowRole: Scopes assurance work.
+    - name: risks
+      target: Risk
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The risks the control mitigates.
+        usage: Linked when the control is designed against a risk; read to see how well each risk is covered.
+        cardinalityMeaning: Any number of risks; a control may address several.
+        workflowRole: Shows risk coverage.
+    - name: policies
+      target: Policy
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The policies the control implements.
+        usage: Linked to show how a policy is put into practice.
+        cardinalityMeaning: Any number of policies.
+        workflowRole: Traces policy to operating control.
   lifecycle:
     title: Control Lifecycle
     attribute: status
@@ -184,18 +148,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a governance entity called Control within the CEDM business model.
-    businessMeaning: Control is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Control records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
-      Risk, Policy. These relationships provide the context needed to interpret the record rather than treating its fields
-      as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Control record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: A policy, procedure, mechanism or activity designed to prevent, detect or reduce a business risk.
+    businessMeaning: Controls are what the organisation actually does about its risks. Naming each control, saying how often it runs and who owns it makes assurance possible, because an auditor can test the control rather than rely on assurances.
+    usage: Defined by risk and compliance teams; assigned an owner; tested periodically; read by auditors and management.
+    relationshipContext: A control is owned by a Party, belongs to an Organization, mitigates Risks and implements Policies.
+    lifecycle: A control is drafted, becomes active when put into operation, can be made inactive, and is retired when no longer needed.
+    example: Monthly bank reconciliation review by the financial controller, a detective control against misstatement of cash.
 specification:
   version: 0.1.0
   status: draft

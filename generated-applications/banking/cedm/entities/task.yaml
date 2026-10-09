@@ -11,208 +11,164 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: taskId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the task record associated with this Task. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: code
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: description
-    type: string
-    required: false
-    maxLength: 2000
-    help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: taskType
-    type: enum
-    required: true
-    values:
-    - USER
-    - SYSTEM
-    - APPROVAL
-    - DECISION
-    - NOTIFICATION
-    - SCRIPT
-    - OTHER
-    help:
-      summary: Captures the business meaning of task type for the Task. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        USER: Represents the user state or classification in the context of Task.
-        SYSTEM: Represents the system state or classification in the context of Task.
-        APPROVAL: Represents the approval state or classification in the context of Task.
-        DECISION: Represents the decision state or classification in the context of Task.
-        NOTIFICATION: Represents the notification state or classification in the context of Task.
-        SCRIPT: Represents the script state or classification in the context of Task.
-        OTHER: Represents the other state or classification in the context of Task.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: CREATED
-    values:
-    - CREATED
-    - READY
-    - ASSIGNED
-    - IN_PROGRESS
-    - BLOCKED
-    - COMPLETED
-    - CANCELLED
-    - FAILED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        CREATED: Represents the created state or classification in the context of Task.
-        READY: Represents the ready state or classification in the context of Task.
-        ASSIGNED: Represents the assigned state or classification in the context of Task.
-        IN_PROGRESS: Represents the in progress state or classification in the context of Task.
-        BLOCKED: Represents the blocked state or classification in the context of Task.
-        COMPLETED: Represents the completed state or classification in the context of Task.
-        CANCELLED: Represents the cancelled state or classification in the context of Task.
-        FAILED: Represents the failed state or classification in the context of Task.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: priority
-    type: enum
-    required: true
-    default: NORMAL
-    values:
-    - LOW
-    - NORMAL
-    - HIGH
-    - CRITICAL
-    help:
-      summary: Captures the business meaning of priority for the Task. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        LOW: Represents the low state or classification in the context of Task.
-        NORMAL: Represents the normal state or classification in the context of Task.
-        HIGH: Represents the high state or classification in the context of Task.
-        CRITICAL: Represents the critical state or classification in the context of Task.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: dueAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: startedAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: completedAt
-    type: datetime
-    required: false
-    help:
-      summary: Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable.
-      relationshipContext: Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: taskId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the task, constant for its life.
+        usage: Generated on creation; workflow and audit records refer to it.
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The code of the task, such as TASK-0042.
+        usage: Used in lists and notifications.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: A short statement of the work.
+        usage: Shown on to-do lists.
+    - name: description
+      type: string
+      required: false
+      maxLength: 2000
+      help:
+        summary: Details of what must be done.
+        usage: Read by the assignee.
+    - name: taskType
+      type: enum
+      required: true
+      values:
+        - USER
+        - SYSTEM
+        - APPROVAL
+        - DECISION
+        - NOTIFICATION
+        - SCRIPT
+        - OTHER
+      help:
+        summary: The kind of work the task is.
+        usage: Chosen when created; decides who or what performs it.
+        valueSemantics:
+          USER: Work done by a person.
+          SYSTEM: A step run automatically.
+          APPROVAL: A person must approve or refuse something.
+          DECISION: A choice that decides the path.
+          NOTIFICATION: A message to be sent.
+          SCRIPT: A script run by the system.
+          OTHER: Work that fits no other type.
+    - name: status
+      type: enum
+      required: true
+      default: CREATED
+      values:
+        - CREATED
+        - READY
+        - ASSIGNED
+        - IN_PROGRESS
+        - BLOCKED
+        - COMPLETED
+        - CANCELLED
+        - FAILED
+      help:
+        summary: Where the task is.
+        usage: Starts as CREATED; moved as it is worked.
+        valueSemantics:
+          CREATED: Recorded and not yet ready.
+          READY: Ready to be picked up.
+          ASSIGNED: Given to someone.
+          IN_PROGRESS: Being worked.
+          BLOCKED: Cannot proceed until something is resolved.
+          COMPLETED: Done. A final state.
+          CANCELLED: No longer needed. A final state.
+          FAILED: Could not be done. A final state.
+    - name: priority
+      type: enum
+      required: true
+      default: NORMAL
+      values:
+        - LOW
+        - NORMAL
+        - HIGH
+        - CRITICAL
+      help:
+        summary: How urgent the task is.
+        usage: Set when created; used to order work.
+        valueSemantics:
+          LOW: Can wait.
+          NORMAL: Ordinary priority.
+          HIGH: Do ahead of normal work.
+          CRITICAL: Do immediately.
+    - name: dueAt
+      type: datetime
+      required: false
+      help:
+        usage: Set when created; overdue tasks are flagged.
+        relationshipContext: Compared with the completion time.
+        summary: Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+    - name: startedAt
+      type: datetime
+      required: false
+      help:
+        usage: Set when work starts.
+        relationshipContext: Not later than the completion time.
+        summary: Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+    - name: completedAt
+      type: datetime
+      required: false
+      help:
+        usage: Set when the task is completed; required for a completed task.
+        relationshipContext: Gives the time taken.
+        summary: Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   relationships:
-  - name: workflow
-    target: Workflow
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Task to Workflow so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Workflow records associated with a Task.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: assignee
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Task to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Task.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Task to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Task.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: relatedDocument
-    target: Document
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Task to Document so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Document records associated with a Task.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: workflow
+      target: Workflow
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The workflow the task is part of.
+        usage: Set when the task is created by a workflow.
+        cardinalityMeaning: At most one workflow.
+        context: Places the task in a larger process.
+    - name: assignee
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for the task.
+        usage: Chosen when assigned.
+        cardinalityMeaning: At most one assignee.
+        context: Decides whose list it is on.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation the task is for.
+        usage: Chosen when it concerns a unit.
+        cardinalityMeaning: At most one organisation.
+        context: Groups tasks by unit.
+    - name: relatedDocument
+      target: Document
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The document the task concerns.
+        usage: Linked when the task is about a document.
+        cardinalityMeaning: At most one document.
+        context: Gives the assignee what to act on.
   invariants:
-  - id: TASK-001
-    rule: completedAt is required when status is COMPLETED.
-  - id: TASK-002
-    rule: completedAt must not precede startedAt.
-  - id: TASK-003
-    rule: A USER or APPROVAL task should have an assignee before entering IN_PROGRESS unless explicitly configured otherwise.
-  - {id: TASK-EXE-001, rule: "A task that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the task is completed."}
+    - id: TASK-001
+      rule: completedAt is required when status is COMPLETED.
+    - id: TASK-002
+      rule: completedAt must not precede startedAt.
+    - id: TASK-003
+      rule: A USER or APPROVAL task should have an assignee before entering IN_PROGRESS unless explicitly configured otherwise.
+    - {id: TASK-EXE-001, rule: "A task that is completed states when (completed at).", violatedWhen: "status == \"COMPLETED\" and completed_at == null", message: "Record completed at when the task is completed."}
   lifecycle:
     title: Task Lifecycle
     attribute: status
@@ -240,18 +196,12 @@ entity:
       - {from: IN_PROGRESS, to: FAILED, action: fail}
       - {from: BLOCKED, to: FAILED, action: fail}
   help:
-    summary: Represents a process runtime entity called Task within the CEDM business model.
-    businessMeaning: Task is a business concept with its own identity and lifecycle. It captures information that must remain
-      understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Task records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Workflow, Party, Organization,
-      Document. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Task record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: A discrete unit of business work performed by a person, organisation, system or workflow participant.
+    businessMeaning: Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done.
+    usage: Created by people or workflows; picked up by assignees; read by managers and reports.
+    relationshipContext: A task may belong to a workflow, an assignee, an organisation and a related document.
+    lifecycle: A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All three end states are final.
+    example: A task "Approve purchase order PO-5120" is assigned to a manager and completed the same day.
 specification:
   version: 0.1.0
   status: draft

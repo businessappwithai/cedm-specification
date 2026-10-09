@@ -7,15 +7,22 @@ entity:
     icon: activity
   identity: {key: escalationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Escalation., businessMeaning: Identifies one governed Escalation record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of Escalation., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: escalationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the escalation., usage: Generated when raised; notes and resolution refer to it.}}
+    - name: status
+      type: enum
+      required: true
+      values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the escalation stands.
+        usage: Moved by the escalation process.
+        valueSemantics:
+          PENDING: Raised and waiting to be picked up.
+          ACTIVE: Being handled by the person it was escalated to.
+          COMPLETED: Resolved.
+          CANCELLED: Withdrawn because it was no longer needed.
   relationships: []
   invariants:
-  - {id: ESCALATION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: ESCALATION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
   lifecycle:
     title: Escalation Lifecycle
     attribute: status
@@ -47,12 +54,11 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed workflow event raising overdue, breached, exceptional, or unresolved work to another responsibility or control level.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed workflow event raising overdue, breached, exceptional, or unresolved work to another responsibility or control level.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
+    summary: A workflow event that raises overdue, breached, exceptional or unresolved work to a higher level of responsibility or control.
+    businessMeaning: Work that is late or stuck needs someone with more authority to notice. An escalation records that this happened, to whom, and what came of it.
+    usage: Raised automatically or manually when a deadline passes or an exception occurs; resolved by the person it is escalated to.
+    relationshipContext: An escalation attaches to the task or case that triggered it and to the new owner of the problem.
+    lifecycle: An escalation is pending when raised, active while being handled, completed when resolved and cancelled if it turns out to be unnecessary. State changes keep an auditable history and do not trigger duplicate effects.
+    example: A support case unanswered for 48 hours is escalated to the team lead.
     commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ESCALATION}

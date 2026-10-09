@@ -251,19 +251,19 @@ VALUES ('fb57b634-419f-53d8-a0e0-33a773e76ebd', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('d7aefc24-6ef0-518a-a937-411a2ff4be87', 'a5f9122e-bb05-58d5-9de8-9bc634445578', 'a5f9122e-bb05-58d5-9de8-9bc634445578', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('f91da56e-ce14-5ac4-bb0f-f8f6d117fd99', '174ab9fe-d902-547f-97b1-c9ba3a046c91', '174ab9fe-d902-547f-97b1-c9ba3a046c91', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('9432479f-8bac-5ebd-98e1-70ba3cbd975b', 'ab2907f1-16c3-558e-81ab-fc3f6c230c8f', 'ab2907f1-16c3-558e-81ab-fc3f6c230c8f', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('824d4327-3774-50c3-927d-c2ed2f036de2', 'a3421d4b-8422-5f23-80c3-aa3b6bc37e74', 'a3421d4b-8422-5f23-80c3-aa3b6bc37e74', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('a1753a2c-83e6-55c5-89bb-d5e2feb0ae4f', 'c9190a7d-2a88-5291-ae7a-35cec51c53bb', 'c9190a7d-2a88-5291-ae7a-35cec51c53bb', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -335,6 +335,23 @@ INSERT INTO bus_asset (id, asset_number, name, asset_type, acquisition_date, acq
 VALUES ('62ba5ab6-1972-5ee6-8ad6-66d6d0875de1', 'Asset Number 5', 'Asset 5', 'Asset Type 5', NULL, 52.50, 'PLANNED', 'Serial Number 5', '0caa1132-7d63-5cdf-a278-abf37fecffa4', 'fb57b634-419f-53d8-a0e0-33a773e76ebd', 'cea9d8b8-e366-51e2-8348-7f971a6ceec8', '1393401b-a1b3-58a1-baa0-e143af8717c2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Meter (bus_meter)
+INSERT INTO bus_meter (id, meter_code, meter_type, status, last_reading_value, last_reading_at, asset_id, location_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('d146ccad-c3e4-54a2-b86e-cba5a441bd70', 'Meter 1', 'HOURS', 'DRAFT', 10.50, NULL, '242adf04-360d-53e1-9756-2fb16ba3791b', '3ece2851-8f78-58ff-972a-38cd6e396de6', '67dddbc4-4063-53fe-bee8-a6562aedc026', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_meter (id, meter_code, meter_type, status, last_reading_value, last_reading_at, asset_id, location_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('3535bead-b66d-5b30-a999-53147be4a352', 'Meter 2', 'DISTANCE', 'DRAFT', 21.00, NULL, 'e3a0df03-123e-5bb1-8593-feb919d336c2', '978ae773-eb46-544b-9be5-357a86966d6d', 'f4ca6669-76ac-570f-8d11-c5bfc96a6964', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_meter (id, meter_code, meter_type, status, last_reading_value, last_reading_at, asset_id, location_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('7a22aee8-f18b-5257-8fae-d63d194fb92f', 'Meter 3', 'CYCLES', 'DRAFT', 31.50, NULL, '8f181893-8511-5efd-99ab-6627c436f6d3', '922cbd4a-75f0-5fa9-b772-659b29503713', '8dbf20e5-71a8-5657-b268-e309c17337ff', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_meter (id, meter_code, meter_type, status, last_reading_value, last_reading_at, asset_id, location_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('d007e1d4-4508-545e-906c-84538093943f', 'Meter 4', 'ENERGY', 'DRAFT', 42.00, NULL, 'd1b2e703-c858-574d-bd1a-17090bc196dc', 'aed5ee60-b837-5afd-8a6e-fbb69f30adf1', 'fad75eee-c637-5b4e-82f9-24967a3dc3b1', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_meter (id, meter_code, meter_type, status, last_reading_value, last_reading_at, asset_id, location_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('81def8b7-b7b8-55e7-9f2f-b26a5145492c', 'Meter 5', 'VOLUME', 'DRAFT', 52.50, NULL, '62ba5ab6-1972-5ee6-8ad6-66d6d0875de1', 'fb57b634-419f-53d8-a0e0-33a773e76ebd', '4407abc8-0563-5544-91a3-63c39dbf92ec', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- Container (bus_container)
 INSERT INTO bus_container (id, container_number, iso_code, size_code, container_type, tare_weight, max_gross_weight, manufacture_date, status, inventory_status, owner_id, current_location_id, doc_status, created_at, updated_at)
 VALUES ('c156a46a-53f0-57e6-9564-5c3b8f485bcf', 'Container 1', 'Iso Code 1', 'Size Code 1', 'Container Type 1', 10.50, 10.50, NULL, 'ACTIVE', 'Inventory Status 1', '875948f0-0775-535c-a1d7-201bfe3cbc43', '3ece2851-8f78-58ff-972a-38cd6e396de6', 'final', NOW(), NOW())
@@ -388,19 +405,19 @@ ON CONFLICT DO NOTHING;
 
 -- Maintenance Work Order (bus_maintenance_work_order)
 INSERT INTO bus_maintenance_work_order (id, work_order_number, work_type, status, priority, requested_at, scheduled_at, completed_at, description, asset_id, maintenance_plan_id, assignee_id, location_id, repair_estimate_id, spare_part_id, doc_status, created_at, updated_at)
-VALUES ('5376ec7a-48f2-5580-8b69-7ebc784a4fe7', 'Maintenance Work Order 1', 'INSPECTION', 'PLANNED', 'LOW', '2026-01-15T09:00:00Z', NULL, NULL, 'Description 1', '242adf04-360d-53e1-9756-2fb16ba3791b', '78366d4a-644e-5755-906e-e970b4149cf7', '875948f0-0775-535c-a1d7-201bfe3cbc43', '3ece2851-8f78-58ff-972a-38cd6e396de6', '988f87e7-9582-5e2a-9d03-5cccebcfa532', '92d90f2e-f857-5e3e-8ff1-a6b3ba0174ec', 'final', NOW(), NOW())
+VALUES ('5376ec7a-48f2-5580-8b69-7ebc784a4fe7', 'Maintenance Work Order 1', 'INSPECTION', 'OPEN', 'LOW', '2026-01-15T09:00:00Z', NULL, NULL, 'Description 1', '242adf04-360d-53e1-9756-2fb16ba3791b', '78366d4a-644e-5755-906e-e970b4149cf7', '875948f0-0775-535c-a1d7-201bfe3cbc43', '3ece2851-8f78-58ff-972a-38cd6e396de6', '988f87e7-9582-5e2a-9d03-5cccebcfa532', '92d90f2e-f857-5e3e-8ff1-a6b3ba0174ec', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_maintenance_work_order (id, work_order_number, work_type, status, priority, requested_at, scheduled_at, completed_at, description, asset_id, maintenance_plan_id, assignee_id, location_id, repair_estimate_id, spare_part_id, doc_status, created_at, updated_at)
-VALUES ('59a4f494-4cff-5a27-8c4d-554036dc3838', 'Maintenance Work Order 2', 'PREVENTIVE', 'PLANNED', 'NORMAL', '2026-02-15T09:00:00Z', NULL, NULL, 'Description 2', 'e3a0df03-123e-5bb1-8593-feb919d336c2', 'ce7cd551-115e-5cd6-bed6-8df983ac68fe', '8a7c19de-7ac9-5a8e-92fc-ebc854535ce3', '978ae773-eb46-544b-9be5-357a86966d6d', '56dfcaa4-e40c-5e04-a23a-6a6daaf2a101', '04c5a8a7-228d-55d3-9d83-fad0e3e385d2', 'final', NOW(), NOW())
+VALUES ('59a4f494-4cff-5a27-8c4d-554036dc3838', 'Maintenance Work Order 2', 'PREVENTIVE', 'OPEN', 'NORMAL', '2026-02-15T09:00:00Z', NULL, NULL, 'Description 2', 'e3a0df03-123e-5bb1-8593-feb919d336c2', 'ce7cd551-115e-5cd6-bed6-8df983ac68fe', '8a7c19de-7ac9-5a8e-92fc-ebc854535ce3', '978ae773-eb46-544b-9be5-357a86966d6d', '56dfcaa4-e40c-5e04-a23a-6a6daaf2a101', '04c5a8a7-228d-55d3-9d83-fad0e3e385d2', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_maintenance_work_order (id, work_order_number, work_type, status, priority, requested_at, scheduled_at, completed_at, description, asset_id, maintenance_plan_id, assignee_id, location_id, repair_estimate_id, spare_part_id, doc_status, created_at, updated_at)
-VALUES ('bd15ff36-7623-5799-907f-42f9f9e36c39', 'Maintenance Work Order 3', 'CORRECTIVE', 'PLANNED', 'HIGH', '2026-03-15T09:00:00Z', NULL, NULL, 'Description 3', '8f181893-8511-5efd-99ab-6627c436f6d3', '6eb6fabe-9c0e-5f0a-8b18-106a6425eb09', '42f0b406-c568-5bf3-861e-cfe123f7e307', '922cbd4a-75f0-5fa9-b772-659b29503713', '17c9562a-ae3a-57f0-9ea2-ce465c8fcada', '23ac427d-061e-51ad-84a4-082ffe6db0cf', 'final', NOW(), NOW())
+VALUES ('bd15ff36-7623-5799-907f-42f9f9e36c39', 'Maintenance Work Order 3', 'CORRECTIVE', 'OPEN', 'HIGH', '2026-03-15T09:00:00Z', NULL, NULL, 'Description 3', '8f181893-8511-5efd-99ab-6627c436f6d3', '6eb6fabe-9c0e-5f0a-8b18-106a6425eb09', '42f0b406-c568-5bf3-861e-cfe123f7e307', '922cbd4a-75f0-5fa9-b772-659b29503713', '17c9562a-ae3a-57f0-9ea2-ce465c8fcada', '23ac427d-061e-51ad-84a4-082ffe6db0cf', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_maintenance_work_order (id, work_order_number, work_type, status, priority, requested_at, scheduled_at, completed_at, description, asset_id, maintenance_plan_id, assignee_id, location_id, repair_estimate_id, spare_part_id, doc_status, created_at, updated_at)
-VALUES ('9a18c5cd-67a9-5641-8f93-3b518258aab9', 'Maintenance Work Order 4', 'REPAIR', 'PLANNED', 'CRITICAL', '2026-04-15T09:00:00Z', NULL, NULL, 'Description 4', 'd1b2e703-c858-574d-bd1a-17090bc196dc', 'ebe7b4af-09e0-500d-b29b-197c802750e3', '0133a6d1-2ed7-532a-a8e7-5b3d77c89d8b', 'aed5ee60-b837-5afd-8a6e-fbb69f30adf1', '047ad826-d937-5a74-8a82-08b39e825ab7', 'e08c6e46-69b7-5c05-b044-3ff2a1f6fae9', 'final', NOW(), NOW())
+VALUES ('9a18c5cd-67a9-5641-8f93-3b518258aab9', 'Maintenance Work Order 4', 'REPAIR', 'OPEN', 'CRITICAL', '2026-04-15T09:00:00Z', NULL, NULL, 'Description 4', 'd1b2e703-c858-574d-bd1a-17090bc196dc', 'ebe7b4af-09e0-500d-b29b-197c802750e3', '0133a6d1-2ed7-532a-a8e7-5b3d77c89d8b', 'aed5ee60-b837-5afd-8a6e-fbb69f30adf1', '047ad826-d937-5a74-8a82-08b39e825ab7', 'e08c6e46-69b7-5c05-b044-3ff2a1f6fae9', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_maintenance_work_order (id, work_order_number, work_type, status, priority, requested_at, scheduled_at, completed_at, description, asset_id, maintenance_plan_id, assignee_id, location_id, repair_estimate_id, spare_part_id, doc_status, created_at, updated_at)
-VALUES ('9aa8637a-07aa-5734-9751-c7195c97d912', 'Maintenance Work Order 5', 'EMERGENCY', 'PLANNED', 'LOW', '2026-05-15T09:00:00Z', NULL, NULL, 'Description 5', '62ba5ab6-1972-5ee6-8ad6-66d6d0875de1', '1393401b-a1b3-58a1-baa0-e143af8717c2', 'bb6ab68c-2304-5190-bac9-9ad7f428ec75', 'fb57b634-419f-53d8-a0e0-33a773e76ebd', 'eae151a9-8cd1-508d-ab78-f4d776fd82c3', 'd7b9a391-8242-522d-9d4b-2599b350f57e', 'final', NOW(), NOW())
+VALUES ('9aa8637a-07aa-5734-9751-c7195c97d912', 'Maintenance Work Order 5', 'EMERGENCY', 'OPEN', 'LOW', '2026-05-15T09:00:00Z', NULL, NULL, 'Description 5', '62ba5ab6-1972-5ee6-8ad6-66d6d0875de1', '1393401b-a1b3-58a1-baa0-e143af8717c2', 'bb6ab68c-2304-5190-bac9-9ad7f428ec75', 'fb57b634-419f-53d8-a0e0-33a773e76ebd', 'eae151a9-8cd1-508d-ab78-f4d776fd82c3', 'd7b9a391-8242-522d-9d4b-2599b350f57e', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Repair Estimate Line (bus_repair_estimate_line)

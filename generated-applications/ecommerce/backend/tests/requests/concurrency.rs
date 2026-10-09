@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:29:36.098Z
+//! Generated: 2026-10-09T06:43:56.873Z
 //! Project: ecommerce
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -42,7 +42,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
-    ("ShoppingCart", "status", "EXPIRED"),
+    ("ShoppingCart", "status", "CHECKED_OUT"),
     ("ProductVariant", "status", "DISCONTINUED"),
     ("Product", "status", "DISCONTINUED"),
 ];
@@ -68,7 +68,12 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["INACTIVE", "RETIRED"],
     ),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
-    ("ShoppingCart", "status", "ACTIVE", &["CHECKED_OUT"]),
+    (
+        "ShoppingCart",
+        "status",
+        "ACTIVE",
+        &["CHECKED_OUT", "ABANDONED", "EXPIRED"],
+    ),
     (
         "ProductVariant",
         "status",

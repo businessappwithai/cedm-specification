@@ -11,61 +11,53 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: healthcareOrderId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the HealthcareOrder record.
-      businessMeaning: Identifies one governed HealthcareOrder independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing HealthcareEncounter context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
-  - name: healthcareOrderCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 120
-    help:
-      summary: Human-readable business reference for the HealthcareOrder.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help:
-      summary: Lifecycle state of the HealthcareOrder.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related HealthcareEncounter workflows but never erase historical evidence.
-      valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+    - name: healthcareOrderId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the order.
+        usage: Generated on creation.
+        relationshipContext: Connects this record to its governing HealthcareEncounter context and downstream evidence.
+    - name: healthcareOrderCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 120
+      help:
+        summary: The unique reference of the order, quoted by laboratories and pharmacies.
+        usage: Allocated when issued.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the order stands.
+        usage: Moved by the ordering and performing teams.
+        valueSemantics:
+          DRAFT: Being prepared; not yet sent.
+          ACTIVE: Issued and awaiting action.
+          COMPLETED: Carried out. A final state.
+          CANCELLED: Withdrawn. A final state.
+        relationshipContext: Status changes can affect related HealthcareEncounter workflows but never erase historical evidence.
   relationships:
-  - name: context
-    target: HealthcareEncounter
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Governing HealthcareEncounter associated with this HealthcareOrder.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every HealthcareOrder belongs to exactly one governing HealthcareEncounter in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+    - name: context
+      target: HealthcareEncounter
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The encounter in which the order was raised.
+        usage: Set when the order is created.
+        cardinalityMeaning: 'Exactly one encounter: an order is always part of a specific episode of care.'
+        workflowRole: Links the instruction to the care context.
   invariants:
-  - id: HEALTHCARE-ORDER-001
-    rule: The governing HealthcareEncounter relationship is required and must reference a valid record.
-  - id: HEALTHCARE-ORDER-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: HEALTHCARE-ORDER-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - id: HEALTHCARE-ORDER-001
+      rule: The governing HealthcareEncounter relationship is required and must reference a valid record.
+    - id: HEALTHCARE-ORDER-002
+      rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
+    - id: HEALTHCARE-ORDER-003
+      rule: Creation and lifecycle transitions must be idempotent and auditable.
   lifecycle:
     title: Healthcare Order Lifecycle
     attribute: status
@@ -115,13 +107,12 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents HealthcareOrder as a first-class governed CEDM business concept.
-    businessMeaning: A clinical or operational order issued within healthcare for a test, medication, procedure, service, or other governed action.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: HealthcareEncounter supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A HealthcareOrder is created for a valid HealthcareEncounter, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: A clinical or operational order for a test, medication, procedure, service or other governed action within healthcare.
+    businessMeaning: Care is delivered through orders. An order states what is requested, when and by whom, so that laboratories, pharmacies and wards act on the same instruction.
+    usage: Raised by a clinician during an encounter; carried out by the relevant department; read to track progress.
+    relationshipContext: Each order belongs to one HealthcareEncounter.
+    lifecycle: An order is drafted, becomes active when issued, completes when carried out and may be cancelled. Completed orders are not rewritten; changes are made by amendment or a new order.
+    example: A request for a full blood count, issued during an outpatient visit and completed by the laboratory.
 specification:
   version: 0.1.0
   status: draft

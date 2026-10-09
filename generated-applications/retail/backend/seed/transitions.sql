@@ -330,19 +330,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('ecaf16dc-7250-518a-92c7-ca88e9908dd3', 'bus_store', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RetailSaleLifecycle: OPEN → VOIDED (mark_voided)
+-- RetailSaleLifecycle: OPEN → COMPLETED (complete)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('66e145e3-e4c7-5020-9b20-12bc56c50b19', 'bus_retail_sale', 'status', 'OPEN', 'VOIDED', 'mark_voided', TRUE, NOW())
+VALUES ('de818204-ba3b-599a-b29c-0a355ae8f5fb', 'bus_retail_sale', 'status', 'OPEN', 'COMPLETED', 'complete', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RetailSaleLifecycle: VOIDED → COMPLETED (complete)
+-- RetailSaleLifecycle: OPEN → VOIDED (void)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b258d59b-d844-532f-b461-85ee584b6cbf', 'bus_retail_sale', 'status', 'VOIDED', 'COMPLETED', 'complete', TRUE, NOW())
+VALUES ('66e145e3-e4c7-5020-9b20-12bc56c50b19', 'bus_retail_sale', 'status', 'OPEN', 'VOIDED', 'void', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RetailSaleLifecycle: VOIDED → REFUNDED (refund)
+-- RetailSaleLifecycle: COMPLETED → REFUNDED (refund)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2e7a0310-7038-5a3a-953b-29a3f1e2c9bf', 'bus_retail_sale', 'status', 'VOIDED', 'REFUNDED', 'refund', TRUE, NOW())
+VALUES ('286eea5f-55cd-5ab8-abc9-5341b41e276d', 'bus_retail_sale', 'status', 'COMPLETED', 'REFUNDED', 'refund', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProductLifecycle: DRAFT → ACTIVE (activate)
@@ -538,10 +538,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('0070536a-c16d-5a16-8538-d78e70c23147', 'bus_retail_sale', 'status', 'OPEN', TRUE, FALSE, 10, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('1a4ca53f-35c9-560b-a565-a944ef56f811', 'bus_retail_sale', 'status', 'COMPLETED', FALSE, TRUE, 20, TRUE, NOW())
+VALUES ('1a4ca53f-35c9-560b-a565-a944ef56f811', 'bus_retail_sale', 'status', 'COMPLETED', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('d5a056aa-2255-5870-b252-45cedc21efea', 'bus_retail_sale', 'status', 'VOIDED', FALSE, FALSE, 30, TRUE, NOW())
+VALUES ('d5a056aa-2255-5870-b252-45cedc21efea', 'bus_retail_sale', 'status', 'VOIDED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('e2b69675-d531-578f-872f-d96591e38ae5', 'bus_retail_sale', 'status', 'REFUNDED', FALSE, TRUE, 40, TRUE, NOW())

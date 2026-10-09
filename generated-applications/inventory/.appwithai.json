@@ -30,6 +30,7 @@
     "Calendar",
     "Attachment",
     "Task",
+    "InventoryItem",
     "InventoryBalance",
     "InventoryMovement",
     "InventoryReservation",
@@ -71,6 +72,7 @@
     "TaskTaskType",
     "TaskStatus",
     "TaskPriority",
+    "InventoryItemStatus",
     "InventoryMovementMovementType",
     "InventoryReservationStatus",
     "InventoryTransferStatus",
@@ -105,6 +107,7 @@
     "ExchangeRateRateType (6)",
     "ExchangeRateStatus (4)",
     "HandlingUnitType (7)",
+    "InventoryItemStatus (4)",
     "InventoryLocationLocationType (10)",
     "InventoryLocationStatus (3)",
     "InventoryMovementMovementType (7)",
@@ -162,5 +165,5 @@
     "WaveCompletionConfirmed on Wave (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:09.246Z"
+  "generatedAt": "2026-10-09T06:44:44.060Z"
 }

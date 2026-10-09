@@ -612,8 +612,8 @@ export const mockApiResponses = {
     list: [
       {
         id: 'test-id-1',
-        from_currency: 'Test From Currency 1',
-        to_currency: 'Test To Currency 1',
+        from_currency_id: 'Test From Currency 1',
+        to_currency_id: 'Test To Currency 1',
         rate: 10.99,
         rate_type: 'Test Rate Type 1',
         effective_at: '2024-01-15T10:00:00Z',
@@ -623,8 +623,8 @@ export const mockApiResponses = {
       },
       {
         id: 'test-id-2',
-        from_currency: 'Test From Currency 2',
-        to_currency: 'Test To Currency 2',
+        from_currency_id: 'Test From Currency 2',
+        to_currency_id: 'Test To Currency 2',
         rate: 20.99,
         rate_type: 'Test Rate Type 2',
         effective_at: '2024-01-16T10:00:00Z',
@@ -635,8 +635,8 @@ export const mockApiResponses = {
     ],
     single: {
       id: 'test-id-1',
-      from_currency: 'Test From Currency',
-      to_currency: 'Test To Currency',
+      from_currency_id: 'Test From Currency',
+      to_currency_id: 'Test To Currency',
       rate: 10.99,
       rate_type: 'Test Rate Type',
       effective_at: '2024-01-15T10:00:00Z',
@@ -804,6 +804,43 @@ export const mockApiResponses = {
       location_id: 'Test Location',
       product_id: 'Test Product',
       maintenance_plan_id: 'Test Maintenance Plan',
+    },
+  },
+  meter: {
+    list: [
+      {
+        id: 'test-id-1',
+        meter_code: 'Test Meter Code 1',
+        meter_type: 'Test Meter Type 1',
+        status: 'Test Status 1',
+        last_reading_value: 10.99,
+        last_reading_at: '2024-01-15T10:00:00Z',
+        asset_id: 'Test Asset 1',
+        location_id: 'Test Location 1',
+        unit_of_measure_id: 'Test Unit Of Measure 1',
+      },
+      {
+        id: 'test-id-2',
+        meter_code: 'Test Meter Code 2',
+        meter_type: 'Test Meter Type 2',
+        status: 'Test Status 2',
+        last_reading_value: 20.99,
+        last_reading_at: '2024-01-16T10:00:00Z',
+        asset_id: 'Test Asset 2',
+        location_id: 'Test Location 2',
+        unit_of_measure_id: 'Test Unit Of Measure 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      meter_code: 'Test Meter Code',
+      meter_type: 'Test Meter Type',
+      status: 'Test Status',
+      last_reading_value: 10.99,
+      last_reading_at: '2024-01-15T10:00:00Z',
+      asset_id: 'Test Asset',
+      location_id: 'Test Location',
+      unit_of_measure_id: 'Test Unit Of Measure',
     },
   },
   maintenancePlan: {
@@ -1753,6 +1790,62 @@ export const mockApiResponses = {
     },
   },
   assetStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  meterMeterType: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  meterStatus: {
     list: [
       {
         id: 'test-id-1',

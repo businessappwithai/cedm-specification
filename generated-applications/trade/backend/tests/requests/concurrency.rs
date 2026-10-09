@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:31:23.113Z
+//! Generated: 2026-10-09T06:46:33.393Z
 //! Project: trade
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -42,7 +42,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
-    ("TradeDeclaration", "status", "REJECTED"),
+    ("TradeDeclaration", "status", "RELEASED"),
     ("CustomsDeclaration", "status", "CLEARED"),
 ];
 
@@ -71,7 +71,7 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "TradeDeclaration",
         "status",
         "DRAFT",
-        &["SUBMITTED", "REJECTED", "CANCELLED"],
+        &["SUBMITTED", "CANCELLED"],
     ),
     (
         "CustomsDeclaration",

@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-04T01:13:01.531Z
+//! Generated: 2026-10-09T06:46:20.293Z
 //! Project: sustainability
 
 use serde_json::Value;

@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-04T01:13:13.800Z
+//! Generated: 2026-10-09T06:46:42.859Z
 //! Project: workflow
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -1248,14 +1248,14 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
-                name: "from_currency",
+                name: "from_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
                 max_length: None,
             },
             FieldMeta {
-                name: "to_currency",
+                name: "to_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
@@ -1556,6 +1556,13 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: Some(4000),
             },
             FieldMeta {
+                name: "process_version",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("process_version", false),
+                max_length: Some(30),
+            },
+            FieldMeta {
                 name: "status",
                 field_type: FieldType::from_model("string", false),
                 required: true,
@@ -1610,6 +1617,13 @@ pub static ENTITIES: &[EntityMeta] = &[
                 required: true,
                 ref_table: ref_table_for("name", false),
                 max_length: Some(300),
+            },
+            FieldMeta {
+                name: "workflow_version",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("workflow_version", false),
+                max_length: Some(30),
             },
             FieldMeta {
                 name: "execution_type",

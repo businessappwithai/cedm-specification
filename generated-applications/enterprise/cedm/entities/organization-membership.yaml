@@ -7,15 +7,22 @@ entity:
     icon: building-2
   identity: {key: organizationMembershipId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: organizationMembershipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of OrganizationMembership., businessMeaning: Identifies one governed OrganizationMembership record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of OrganizationMembership., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: organizationMembershipId, type: uuid, required: true, immutable: true, help: {summary: The identity of the membership., usage: Generated on creation; role assignments and audit entries refer to it.}}
+    - name: status
+      type: enum
+      required: true
+      values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Whether the person currently belongs to the organisation.
+        usage: Moved by administrators or the invitation process; access based on membership applies only while ACTIVE.
+        valueSemantics:
+          PENDING: Offered or requested, not yet effective.
+          ACTIVE: In force; the person belongs to the organisation.
+          COMPLETED: Ended normally. A final state.
+          CANCELLED: Withdrawn before it took effect. A final state.
   relationships: []
   invariants:
-  - {id: ORGANIZATION-MEMBERSHIP-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: ORGANIZATION-MEMBERSHIP-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
   lifecycle:
     title: Organization Membership Lifecycle
     attribute: status
@@ -47,12 +54,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed relationship connecting a User or Party to an Organization with membership status and role context.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A governed relationship connecting a User or Party to an Organization with membership status and role context.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: A relationship that connects a user or party to an organisation, with its membership status and role context.
+    businessMeaning: 'People belong to organisations in different ways: as staff, partners, members or contractors. The membership says that a person belongs, in what capacity and whether it is current, which access and responsibilities are then based on.'
+    usage: Created when someone is invited or added; activated on acceptance; ended when they leave; read by access control and administration.
+    relationshipContext: A membership links a User or Party to an Organization.
+    lifecycle: A membership is pending until accepted, active while in force, completed when it ends normally and cancelled if withdrawn before it began. State changes keep auditable history and do not duplicate effects.
+    example: A consultant added to a client organisation for the duration of a project.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ORGANIZATION-MEMBERSHIP}

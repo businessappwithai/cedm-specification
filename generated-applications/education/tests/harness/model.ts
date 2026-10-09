@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:36.763Z
+ * Generated: 2026-10-09T06:44:02.352Z
  * Project: education
  */
 
@@ -362,21 +362,15 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_education_student",
     statusField: "status",
     initial: "APPLICANT",
-    terminal: ["WITHDRAWN"],
+    terminal: ["WITHDRAWN", "ALUMNI"],
     edges: [
-      { from: "APPLICANT", to: "ACTIVE", trigger: "activate" },
-      { from: "ACTIVE", to: "GRADUATED", trigger: "mark_graduated" },
-      { from: "GRADUATED", to: "ALUMNI", trigger: "mark_alumni" },
-      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
-      { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
-      { from: "GRADUATED", to: "SUSPENDED", trigger: "suspend" },
-      { from: "SUSPENDED", to: "GRADUATED", trigger: "resume" },
-      { from: "ALUMNI", to: "SUSPENDED", trigger: "suspend" },
-      { from: "SUSPENDED", to: "ALUMNI", trigger: "resume" },
+      { from: "APPLICANT", to: "ACTIVE", trigger: "admit" },
       { from: "APPLICANT", to: "WITHDRAWN", trigger: "withdraw" },
+      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
+      { from: "SUSPENDED", to: "ACTIVE", trigger: "reinstate" },
+      { from: "ACTIVE", to: "GRADUATED", trigger: "graduate" },
+      { from: "GRADUATED", to: "ALUMNI", trigger: "make_alumnus" },
       { from: "ACTIVE", to: "WITHDRAWN", trigger: "withdraw" },
-      { from: "GRADUATED", to: "WITHDRAWN", trigger: "withdraw" },
-      { from: "ALUMNI", to: "WITHDRAWN", trigger: "withdraw" },
       { from: "SUSPENDED", to: "WITHDRAWN", trigger: "withdraw" },
     ],
   },

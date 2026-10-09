@@ -1,0 +1,76 @@
+entity:
+  name: ProjectCost
+  namespace: cedm.domain
+  kind: project_cost_transaction
+  description: A governed cost attribution to a Project, preserving operational cost evidence separately from accounting posting while allowing reconciliation to financial records.
+  ui: {icon: receipt-text}
+  identity: {key: projectCostId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - {name: projectCostId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the cost record, constant for its life.', usage: Generated on creation; accounting links refer to it., businessMeaning: Identifies one cost attribution independently of later posting or correction., relationshipContext: Remains stable across lifecycle transitions and correction evidence.}}
+    - {name: costNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The business number of the cost, such as PC-1180.', usage: Unique; quoted in approvals and reconciliation., businessMeaning: Operational identifier for tracing cost evidence., relationshipContext: Distinct from JournalEntry or Invoice references.}}
+    - name: costType
+      type: enum
+      required: true
+      values: [LABOR, MATERIAL, EXPENSE, SERVICE, OVERHEAD, OTHER]
+      help:
+        summary: The kind of cost, such as labour or material.
+        usage: Chosen when the cost is entered; reports split spend by it.
+        valueSemantics:
+          LABOR: Staff time, internal or external.
+          MATERIAL: Goods and supplies consumed.
+          EXPENSE: Travel and other out-of-pocket spend.
+          SERVICE: Work bought from a supplier.
+          OVERHEAD: A share of shared costs.
+          OTHER: A cost that fits no other kind.
+        businessMeaning: Explains the operational source of project cost without replacing accounting classification.
+        relationshipContext: Accounting treatment is represented by linked journal evidence when posted.
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: The cost in the cost's currency., usage: Entered with the cost; summed against the project budget., businessMeaning: Operational project cost value before or alongside accounting posting., relationshipContext: Currency is supplied by the required Currency relationship.}}
+    - {name: incurredDate, type: date, required: true, help: {summary: The date the cost was incurred., usage: Decides the period the cost is reported in., businessMeaning: Establishes project-period attribution independently of accounting posting date., relationshipContext: May differ from JournalEntry posting date or Invoice date.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, APPROVED, POSTED, REVERSED, CANCELLED]
+      help:
+        summary: Where the cost is in its approval and posting.
+        usage: Starts as DRAFT; moved by approval and finance.
+        valueSemantics:
+          DRAFT: Entered and not yet approved.
+          APPROVED: Accepted as chargeable to the project; ready to post.
+          POSTED: Booked to the accounts.
+          REVERSED: A posted cost cancelled by a reversing entry. A final state.
+          CANCELLED: Withdrawn before posting. A final state.
+        businessMeaning: Distinguishes preparation, approval, accounting reconciliation and corrective states.
+        relationshipContext: POSTED normally requires attributable accounting evidence; reversal does not delete the original cost.
+  relationships:
+    - {name: project, target: Project, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Every cost is charged to a single project, so it can never be split across two budgets.', summary: The project the cost is charged to., usage: Chosen when the cost is entered., workflowRole: Puts the cost against the right budget., businessMeaning: Establishes the accountable project context.}}
+    - {name: projectTask, target: ProjectTask, cardinality: "0..1", ownership: reference, help: {summary: The task the cost relates to., usage: Chosen when the cost is attributed to a task., cardinalityMeaning: At most one task; empty for a cost of the project as a whole., workflowRole: Enables cost reporting by task., businessMeaning: Refines project cost to work-breakdown execution.}}
+    - {name: currency, target: Currency, cardinality: "1", ownership: reference, help: {summary: The currency the amount is in., usage: Chosen when the cost is entered., cardinalityMeaning: 'Exactly one currency, so the amount has a defined unit.', workflowRole: Allows the cost to be converted for the budget and the ledger., businessMeaning: Makes monetary value unambiguous.}}
+    - {name: timesheet, target: Timesheet, cardinality: "0..1", ownership: reference, help: {summary: 'The timesheet the cost came from, for labour.', usage: Set when the cost is generated from booked time., cardinalityMeaning: At most one timesheet; empty for a cost not from time., workflowRole: Traces labour cost back to hours worked., businessMeaning: Connects approved time reporting to labor cost attribution.}}
+    - {name: invoiceLine, target: InvoiceLine, cardinality: "0..1", ownership: reference, help: {summary: The supplier invoice line the cost came from., usage: Set when the cost is matched to a bill., cardinalityMeaning: At most one invoice line., workflowRole: Traces purchased cost back to the document., businessMeaning: Connects project costing to supplier or customer billing.}}
+    - {name: journalEntryLine, target: JournalEntryLine, cardinality: "0..1", ownership: reference, help: {summary: The ledger line that posted the cost., usage: Set when finance posts the cost., cardinalityMeaning: 'At most one journal line, present only once posted.', workflowRole: Reconciles project cost with the accounts., businessMeaning: Keeps project costing separate from ledger evidence while enabling reconciliation.}}
+  invariants:
+    - {id: PROJECT-COST-001, rule: "amount must not be zero; negative amounts require governed credit, reversal or correction semantics."}
+    - {id: PROJECT-COST-002, rule: projectTask must belong to project whenever projectTask is supplied.}
+    - {id: PROJECT-COST-003, rule: POSTED cost is historical evidence and cannot be destructively edited; corrections use reversal or follow-up evidence.}
+    - {id: PROJECT-COST-004, rule: Repeated posting or import of the same external cost evidence must be idempotent.}
+  lifecycle:
+    title: Project Cost Lifecycle
+    attribute: status
+    states: [DRAFT, APPROVED, POSTED, REVERSED, CANCELLED]
+    initial: DRAFT
+    terminal: [REVERSED, CANCELLED]
+    transitions:
+      - {from: DRAFT, to: APPROVED, action: approve}
+      - {from: DRAFT, to: CANCELLED, action: cancel}
+      - {from: APPROVED, to: POSTED, action: post}
+      - {from: APPROVED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: REVERSED, action: reverse}
+  help:
+    summary: A cost charged to a project, kept as operational evidence separate from its accounting posting.
+    businessMeaning: A project cost records what was spent on a project, of what kind, on what date and in which currency. It stays as operational evidence even after finance posts it, and links to the task, timesheet, invoice line and journal line it came from, so spend can be traced and reconciled with the ledger.
+    usage: Entered or generated from time and expenses; approved by the project manager; posted by finance; read by project reporting.
+    relationshipContext: A cost belongs to one project and currency, and may name a task, a timesheet, an invoice line and the journal line that posted it.
+    lifecycle: A cost is drafted, approved, then posted to the accounts. It may be cancelled before posting, and a posted cost is reversed rather than changed. Reversed and cancelled are final.
+    example: Cost PC-1180 charges 4,200 of subcontracted labour to project PRJ-0042 on 12 May; once approved it is posted to the ledger.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROJECT-COST}

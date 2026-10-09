@@ -14,7 +14,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: OPEN
+      default: FUTURE
       values: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
       help:
         valueSemantics:

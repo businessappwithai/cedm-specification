@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:19.838Z
+ * Generated: 2026-10-09T06:43:30.607Z
  * Project: banking
  */
 
@@ -362,19 +362,17 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_bank_loan",
     statusField: "status",
     initial: "APPLICATION",
-    terminal: ["CANCELLED"],
+    terminal: ["PAID_OFF", "DEFAULTED", "CANCELLED"],
     edges: [
       { from: "APPLICATION", to: "APPROVED", trigger: "approve" },
-      { from: "APPROVED", to: "ACTIVE", trigger: "activate" },
+      { from: "APPROVED", to: "ACTIVE", trigger: "disburse" },
       { from: "ACTIVE", to: "DELINQUENT", trigger: "mark_delinquent" },
-      { from: "DELINQUENT", to: "PAID_OFF", trigger: "mark_paid_off" },
-      { from: "PAID_OFF", to: "DEFAULTED", trigger: "mark_defaulted" },
+      { from: "DELINQUENT", to: "ACTIVE", trigger: "cure" },
+      { from: "ACTIVE", to: "PAID_OFF", trigger: "pay_off" },
+      { from: "DELINQUENT", to: "PAID_OFF", trigger: "pay_off" },
+      { from: "DELINQUENT", to: "DEFAULTED", trigger: "mark_defaulted" },
       { from: "APPLICATION", to: "CANCELLED", trigger: "cancel" },
       { from: "APPROVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
-      { from: "DELINQUENT", to: "CANCELLED", trigger: "cancel" },
-      { from: "PAID_OFF", to: "CANCELLED", trigger: "cancel" },
-      { from: "DEFAULTED", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

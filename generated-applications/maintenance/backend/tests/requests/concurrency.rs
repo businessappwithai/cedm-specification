@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:20.404Z
+//! Generated: 2026-10-09T06:45:00.651Z
 //! Project: maintenance
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,6 +43,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("Asset", "status", "DISPOSED"),
+    ("Meter", "status", "RETIRED"),
     ("MaintenancePlan", "status", "RETIRED"),
     ("MaintenanceWorkOrder", "status", "COMPLETED"),
     ("RepairEstimate", "status", "COMPLETED"),
@@ -72,12 +73,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     ("Asset", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
+    ("Meter", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
     ("MaintenancePlan", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
     (
         "MaintenanceWorkOrder",
         "status",
-        "PLANNED",
-        &["OPEN", "CANCELLED"],
+        "OPEN",
+        &["PLANNED", "ASSIGNED", "CANCELLED"],
     ),
     (
         "RepairEstimate",

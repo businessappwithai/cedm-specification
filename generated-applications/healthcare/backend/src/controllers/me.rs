@@ -341,7 +341,13 @@ async fn granted_windows(pool: &PgPool, principal: &Principal) -> AppResult<Vec<
                 FROM sys_window w
                 JOIN sys_access    a ON a.sys_window_id = w.sys_window_id
                 JOIN sys_user_roles ur ON ur.sys_role_id = a.sys_role_id
+                JOIN sys_role       sr ON sr.sys_role_id = ur.sys_role_id
+                JOIN sys_user       su ON su.sys_user_id = ur.sys_user_id
                WHERE ur.sys_user_id = $1
+                 AND COALESCE(ur.is_active, true) = true
+                 AND COALESCE(sr.is_active, true) = true
+                 AND COALESCE(su.is_active, false) = true
+                 AND COALESCE(su.is_locked, false) = false
                  AND COALESCE(w.is_active, true) = true
                  AND COALESCE(a.is_active, true) = true
                  AND COALESCE(a.is_exclude, false) = false

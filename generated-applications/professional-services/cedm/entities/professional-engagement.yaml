@@ -11,136 +11,99 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: engagementId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the engagement record associated with this ProfessionalEngagement. The identifier connects this
-        record to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: engagementNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of engagement number for the ProfessionalEngagement. It is interpreted together
-        with the entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: PROPOSED
-    values:
-    - PROPOSED
-    - ACTIVE
-    - ON_HOLD
-    - COMPLETED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PROPOSED: Represents the proposed state or classification in the context of ProfessionalEngagement.
-        ACTIVE: Represents the active state or classification in the context of ProfessionalEngagement.
-        ON_HOLD: Represents the on hold state or classification in the context of ProfessionalEngagement.
-        COMPLETED: Represents the completed state or classification in the context of ProfessionalEngagement.
-        CANCELLED: Represents the cancelled state or classification in the context of ProfessionalEngagement.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: startDate
-    type: date
-    required: false
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
-        must follow the business chronology.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: endDate
-    type: date
-    required: false
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted
-        together with the corresponding start date.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating ProfessionalEngagement records,
-        where applicable.
-      relationshipContext: Its meaning is specific to ProfessionalEngagement; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: engagementId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the engagement, constant for its life.
+        usage: Generated on creation; timesheets and invoices refer to it.
+    - name: engagementNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The number the business uses for the engagement, such as ENG-2026-014.
+        usage: Unique; quoted in correspondence and invoices.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: A short name for the engagement as people recognise it.
+        usage: Shown in lists and picks; usually names the client and scope.
+    - name: status
+      type: enum
+      required: true
+      default: PROPOSED
+      values:
+        - PROPOSED
+        - ACTIVE
+        - ON_HOLD
+        - COMPLETED
+        - CANCELLED
+      help:
+        summary: Where the engagement stands.
+        usage: Starts as PROPOSED; changed by the engagement manager as the work progresses.
+        valueSemantics:
+          PROPOSED: Offered to the client but not yet agreed.
+          ACTIVE: Agreed and in delivery; time may be booked.
+          ON_HOLD: Paused; no new time is expected until resumed.
+          COMPLETED: All work is delivered. A final state.
+          CANCELLED: Stopped before completion. A final state.
+    - name: startDate
+      type: date
+      required: false
+      help:
+        summary: The date work on the engagement starts.
+        usage: Set when the engagement is agreed; planning and billing periods begin from it.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: The date work on the engagement is due to end.
+        usage: Must not be before the start date; updated if the scope changes.
   relationships:
-  - name: client
-    target: Party
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects ProfessionalEngagement to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a ProfessionalEngagement.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: contract
-    target: Contract
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects ProfessionalEngagement to Contract so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Contract records associated with a ProfessionalEngagement.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: project
-    target: Project
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects ProfessionalEngagement to Project so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Project records associated with a ProfessionalEngagement.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: timesheets
-    target: Timesheet
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects ProfessionalEngagement to Timesheet so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Timesheet records associated with a ProfessionalEngagement.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: client
+      target: Party
+      cardinality: '1'
+      ownership: reference
+      help:
+        cardinalityMeaning: Exactly one client party, who receives the services and the invoices.
+        summary: The party the services are delivered to and billed.
+        usage: Chosen when the engagement is created.
+        context: Decides who is invoiced.
+    - name: contract
+      target: Contract
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The contract that governs the terms of the engagement.
+        usage: Chosen once a contract exists.
+        cardinalityMeaning: At most one contract; empty while still a proposal.
+        context: Supplies rates and terms for billing.
+    - name: project
+      target: Project
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The project used to plan and track the delivery work.
+        usage: Chosen when delivery is organised as a project.
+        cardinalityMeaning: At most one project; empty if no project is set up.
+        context: Connects commercial terms to the work plan.
+    - name: timesheets
+      target: Timesheet
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The timesheets booked against this engagement.
+        usage: Read to total the hours worked and billed.
+        cardinalityMeaning: Any number of timesheets, none at the start.
+        context: Time worked is what is measured and billed.
   invariants:
-  - id: ENGAGEMENT-001
-    rule: endDate must not precede startDate.
+    - id: ENGAGEMENT-001
+      rule: endDate must not precede startDate.
   lifecycle:
     title: Professional Engagement Lifecycle
     attribute: status
@@ -211,18 +174,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a professional services entity called ProfessionalEngagement within the CEDM business model.
-    businessMeaning: ProfessionalEngagement is a business concept with its own identity and lifecycle. It captures information
-      that must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate ProfessionalEngagement records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Contract, Project,
-      Timesheet. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical ProfessionalEngagement record represents one identifiable business occurrence or master-data object
-      that can be referenced by related CEDM processes.
+    summary: A client engagement under which professional services are planned, delivered, measured and billed.
+    businessMeaning: An engagement is the commercial frame for a piece of service work. It names the client, the contract that governs it and the project that runs it, and it collects the timesheets that become billable time, so work can be tracked from proposal to completion.
+    usage: Created by the account or engagement manager; read by delivery, finance and billing.
+    relationshipContext: An engagement is for one client, may rest on a contract and a project, and gathers the timesheets booked against it.
+    lifecycle: An engagement is proposed, becomes active when agreed, may be put on hold and resumed, and ends completed or cancelled. Completed and cancelled are final.
+    example: Engagement ENG-2026-014 for Northwind is proposed in January, active from February and completed in June.
 specification:
   version: 0.1.0
   status: draft

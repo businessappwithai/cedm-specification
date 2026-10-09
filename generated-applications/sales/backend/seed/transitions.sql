@@ -345,24 +345,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('08246066-6464-54e7-8de7-78c2e896d2dc', 'bus_customer', 'status', 'BLOCKED', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LeadLifecycle: NEW → QUALIFYING (mark_qualifying)
+-- LeadLifecycle: NEW → QUALIFYING (start_qualifying)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4808fd5d-d1ef-52e6-9de6-702ea7f8f39d', 'bus_lead', 'status', 'NEW', 'QUALIFYING', 'mark_qualifying', TRUE, NOW())
+VALUES ('4808fd5d-d1ef-52e6-9de6-702ea7f8f39d', 'bus_lead', 'status', 'NEW', 'QUALIFYING', 'start_qualifying', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LeadLifecycle: QUALIFYING → QUALIFIED (mark_qualified)
+-- LeadLifecycle: NEW → DISQUALIFIED (disqualify)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cf1f5803-e38c-5120-8376-052b0691ecbb', 'bus_lead', 'status', 'QUALIFYING', 'QUALIFIED', 'mark_qualified', TRUE, NOW())
+VALUES ('8d0e4489-a69e-5ce7-a5f1-a26d8fb2b960', 'bus_lead', 'status', 'NEW', 'DISQUALIFIED', 'disqualify', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LeadLifecycle: QUALIFIED → DISQUALIFIED (mark_disqualified)
+-- LeadLifecycle: NEW → LOST (mark_lost)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('963995e2-4290-520f-96cd-398665b056df', 'bus_lead', 'status', 'QUALIFIED', 'DISQUALIFIED', 'mark_disqualified', TRUE, NOW())
+VALUES ('550d1ac2-1ab5-58fb-8c7e-9052d71dff3b', 'bus_lead', 'status', 'NEW', 'LOST', 'mark_lost', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LeadLifecycle: DISQUALIFIED → CONVERTED (mark_converted)
+-- LeadLifecycle: QUALIFYING → QUALIFIED (qualify)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0d858f5a-3e57-504e-949d-588138123c7b', 'bus_lead', 'status', 'DISQUALIFIED', 'CONVERTED', 'mark_converted', TRUE, NOW())
+VALUES ('cf1f5803-e38c-5120-8376-052b0691ecbb', 'bus_lead', 'status', 'QUALIFYING', 'QUALIFIED', 'qualify', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LeadLifecycle: QUALIFYING → DISQUALIFIED (disqualify)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9936dc41-7719-5ea8-b8f8-c0526980fef9', 'bus_lead', 'status', 'QUALIFYING', 'DISQUALIFIED', 'disqualify', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LeadLifecycle: QUALIFYING → LOST (mark_lost)
@@ -370,84 +375,69 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('bad0982c-1a5e-5d7e-b1d4-e93e7ac8c533', 'bus_lead', 'status', 'QUALIFYING', 'LOST', 'mark_lost', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- LeadLifecycle: QUALIFIED → CONVERTED (convert)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f77e4bd3-3777-5b6a-9980-71358c193507', 'bus_lead', 'status', 'QUALIFIED', 'CONVERTED', 'convert', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LeadLifecycle: QUALIFIED → DISQUALIFIED (disqualify)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('963995e2-4290-520f-96cd-398665b056df', 'bus_lead', 'status', 'QUALIFIED', 'DISQUALIFIED', 'disqualify', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- LeadLifecycle: QUALIFIED → LOST (mark_lost)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('cd3e88da-5c47-5d88-8a12-3b7c41e2394f', 'bus_lead', 'status', 'QUALIFIED', 'LOST', 'mark_lost', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LeadLifecycle: DISQUALIFIED → LOST (mark_lost)
+-- OpportunityLifecycle: QUALIFICATION → DISCOVERY (advance)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('db998558-305f-5c8c-9597-36c30a79ce0e', 'bus_lead', 'status', 'DISQUALIFIED', 'LOST', 'mark_lost', TRUE, NOW())
+VALUES ('f2afb041-0786-5365-a94b-01e7cd07a86d', 'bus_opportunity', 'stage', 'QUALIFICATION', 'DISCOVERY', 'advance', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LeadLifecycle: CONVERTED → LOST (mark_lost)
+-- OpportunityLifecycle: DISCOVERY → PROPOSAL (advance)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('130c6400-ed35-57b6-9b98-77862e8ffc2c', 'bus_lead', 'status', 'CONVERTED', 'LOST', 'mark_lost', TRUE, NOW())
+VALUES ('b6e17ac6-b83f-5ef1-9704-aea1e92e33fd', 'bus_opportunity', 'stage', 'DISCOVERY', 'PROPOSAL', 'advance', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: QUALIFICATION → DISCOVERY (mark_discovery)
+-- OpportunityLifecycle: PROPOSAL → NEGOTIATION (advance)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f2afb041-0786-5365-a94b-01e7cd07a86d', 'bus_opportunity', 'stage', 'QUALIFICATION', 'DISCOVERY', 'mark_discovery', TRUE, NOW())
+VALUES ('ca893a2e-1ee4-594d-9cc8-64a0644aa100', 'bus_opportunity', 'stage', 'PROPOSAL', 'NEGOTIATION', 'advance', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: DISCOVERY → PROPOSAL (mark_proposal)
+-- OpportunityLifecycle: NEGOTIATION → PROPOSAL (revise_proposal)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b6e17ac6-b83f-5ef1-9704-aea1e92e33fd', 'bus_opportunity', 'stage', 'DISCOVERY', 'PROPOSAL', 'mark_proposal', TRUE, NOW())
+VALUES ('1ddc372a-7380-5912-803c-b412634e8f36', 'bus_opportunity', 'stage', 'NEGOTIATION', 'PROPOSAL', 'revise_proposal', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: PROPOSAL → WON (mark_won)
+-- OpportunityLifecycle: PROPOSAL → WON (win)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('46824208-73e7-5e90-8021-c3330f800852', 'bus_opportunity', 'stage', 'PROPOSAL', 'WON', 'mark_won', TRUE, NOW())
+VALUES ('46824208-73e7-5e90-8021-c3330f800852', 'bus_opportunity', 'stage', 'PROPOSAL', 'WON', 'win', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: DISCOVERY → NEGOTIATION (mark_negotiation)
+-- OpportunityLifecycle: NEGOTIATION → WON (win)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d9e902c5-55f9-5538-b977-92ddb874c108', 'bus_opportunity', 'stage', 'DISCOVERY', 'NEGOTIATION', 'mark_negotiation', TRUE, NOW())
+VALUES ('f37952eb-21f6-586e-9766-f9a3378cefda', 'bus_opportunity', 'stage', 'NEGOTIATION', 'WON', 'win', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: NEGOTIATION → DISCOVERY (resume)
+-- OpportunityLifecycle: QUALIFICATION → LOST (lose)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('51e1222b-13a4-5e60-8182-6331d88cc339', 'bus_opportunity', 'stage', 'NEGOTIATION', 'DISCOVERY', 'resume', TRUE, NOW())
+VALUES ('f04baaee-7999-59ae-8e9e-b68ab982f51a', 'bus_opportunity', 'stage', 'QUALIFICATION', 'LOST', 'lose', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: PROPOSAL → NEGOTIATION (mark_negotiation)
+-- OpportunityLifecycle: DISCOVERY → LOST (lose)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ca893a2e-1ee4-594d-9cc8-64a0644aa100', 'bus_opportunity', 'stage', 'PROPOSAL', 'NEGOTIATION', 'mark_negotiation', TRUE, NOW())
+VALUES ('a06fee98-1139-5764-a458-512d53df1b0f', 'bus_opportunity', 'stage', 'DISCOVERY', 'LOST', 'lose', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: NEGOTIATION → PROPOSAL (resume)
+-- OpportunityLifecycle: PROPOSAL → LOST (lose)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1ddc372a-7380-5912-803c-b412634e8f36', 'bus_opportunity', 'stage', 'NEGOTIATION', 'PROPOSAL', 'resume', TRUE, NOW())
+VALUES ('3ee97474-62ee-58d6-93fe-91f6736267aa', 'bus_opportunity', 'stage', 'PROPOSAL', 'LOST', 'lose', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- OpportunityLifecycle: WON → NEGOTIATION (mark_negotiation)
+-- OpportunityLifecycle: NEGOTIATION → LOST (lose)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('baf6d8fb-9923-5ebc-bf57-638eca98c075', 'bus_opportunity', 'stage', 'WON', 'NEGOTIATION', 'mark_negotiation', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- OpportunityLifecycle: NEGOTIATION → WON (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f37952eb-21f6-586e-9766-f9a3378cefda', 'bus_opportunity', 'stage', 'NEGOTIATION', 'WON', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- OpportunityLifecycle: DISCOVERY → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a06fee98-1139-5764-a458-512d53df1b0f', 'bus_opportunity', 'stage', 'DISCOVERY', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- OpportunityLifecycle: PROPOSAL → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3ee97474-62ee-58d6-93fe-91f6736267aa', 'bus_opportunity', 'stage', 'PROPOSAL', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- OpportunityLifecycle: WON → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3e150524-9463-50f8-93d1-a0d0b6be8d4f', 'bus_opportunity', 'stage', 'WON', 'LOST', 'mark_lost', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- OpportunityLifecycle: NEGOTIATION → LOST (mark_lost)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0b3b6afd-03b0-54a5-81b5-30c25b9afbf7', 'bus_opportunity', 'stage', 'NEGOTIATION', 'LOST', 'mark_lost', TRUE, NOW())
+VALUES ('0b3b6afd-03b0-54a5-81b5-30c25b9afbf7', 'bus_opportunity', 'stage', 'NEGOTIATION', 'LOST', 'lose', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- QuotationLifecycle: DRAFT → SUBMITTED (submit)
@@ -460,29 +450,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('0ed3b072-2a3b-5160-9e59-013179cada4b', 'bus_quotation', 'status', 'SUBMITTED', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- QuotationLifecycle: DRAFT → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a94d2388-a509-5ae6-bf6b-672a31979b6a', 'bus_quotation', 'status', 'DRAFT', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- QuotationLifecycle: SUBMITTED → REJECTED (reject)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('38581455-4218-5e91-806b-6657ab1ba0de', 'bus_quotation', 'status', 'SUBMITTED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- QuotationLifecycle: ACCEPTED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f615d63c-295e-5005-91cc-3a63a8567a5c', 'bus_quotation', 'status', 'ACCEPTED', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- QuotationLifecycle: SUBMITTED → EXPIRED (expire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('9280cb6b-1957-58b6-aa09-4fa1b01af2a6', 'bus_quotation', 'status', 'SUBMITTED', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- QuotationLifecycle: ACCEPTED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0bb9a22e-a814-518e-94f7-ebd29b141c2d', 'bus_quotation', 'status', 'ACCEPTED', 'EXPIRED', 'expire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- QuotationLifecycle: DRAFT → CANCELLED (cancel)
@@ -493,11 +468,6 @@ ON CONFLICT DO NOTHING;
 -- QuotationLifecycle: SUBMITTED → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('b43365ca-a29d-5170-9a0e-e421262529e1', 'bus_quotation', 'status', 'SUBMITTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- QuotationLifecycle: ACCEPTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b70f43dc-77df-5d82-ac54-275985f592aa', 'bus_quotation', 'status', 'ACCEPTED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SalesOrderLifecycle: DRAFT → CONFIRMED (confirm)
@@ -745,9 +715,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('47aa182e-dd02-5735-9ae4-a4b28753d901', 'bus_customer_return', 'status', 'DRAFT', 'AUTHORIZED', 'authorize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: AUTHORIZED → IN_TRANSIT (mark_in_transit)
+-- CustomerReturnLifecycle: AUTHORIZED → IN_TRANSIT (ship_back)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('71a18ce7-6a67-5c02-805c-28fd98fbf94b', 'bus_customer_return', 'status', 'AUTHORIZED', 'IN_TRANSIT', 'mark_in_transit', TRUE, NOW())
+VALUES ('71a18ce7-6a67-5c02-805c-28fd98fbf94b', 'bus_customer_return', 'status', 'AUTHORIZED', 'IN_TRANSIT', 'ship_back', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CustomerReturnLifecycle: IN_TRANSIT → RECEIVED (receive)
@@ -755,74 +725,59 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('3853341e-f9a4-53c3-9b8c-292140e03e72', 'bus_customer_return', 'status', 'IN_TRANSIT', 'RECEIVED', 'receive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: RECEIVED → COMPLETED (complete)
+-- CustomerReturnLifecycle: RECEIVED → INSPECTION_PENDING (send_to_inspection)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('999e297d-6a33-5d34-aa1e-2b8284cd1f0c', 'bus_customer_return', 'status', 'RECEIVED', 'COMPLETED', 'complete', TRUE, NOW())
+VALUES ('a83aaea0-6139-5eaa-a677-71d0fab8741d', 'bus_customer_return', 'status', 'RECEIVED', 'INSPECTION_PENDING', 'send_to_inspection', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: COMPLETED → DISPOSITIONED (mark_dispositioned)
+-- CustomerReturnLifecycle: RECEIVED → DISPOSITIONED (disposition)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cc4a5586-0db9-523f-aea9-f71ce1851967', 'bus_customer_return', 'status', 'COMPLETED', 'DISPOSITIONED', 'mark_dispositioned', TRUE, NOW())
+VALUES ('322d7190-1fa4-5d4f-b8b9-18813930ac32', 'bus_customer_return', 'status', 'RECEIVED', 'DISPOSITIONED', 'disposition', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: AUTHORIZED → INSPECTION_PENDING (mark_inspection_pending)
+-- CustomerReturnLifecycle: INSPECTION_PENDING → DISPOSITIONED (disposition)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6d39b05d-0820-5672-ab38-fd98009dfac2', 'bus_customer_return', 'status', 'AUTHORIZED', 'INSPECTION_PENDING', 'mark_inspection_pending', TRUE, NOW())
+VALUES ('61efd788-13be-5792-ab80-ab2e14562a58', 'bus_customer_return', 'status', 'INSPECTION_PENDING', 'DISPOSITIONED', 'disposition', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: INSPECTION_PENDING → AUTHORIZED (resume)
+-- CustomerReturnLifecycle: DISPOSITIONED → COMPLETED (complete)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7c937655-cdac-5578-acba-dea380dc9fc8', 'bus_customer_return', 'status', 'INSPECTION_PENDING', 'AUTHORIZED', 'resume', TRUE, NOW())
+VALUES ('04a40742-8423-596b-a7db-ffa63db73804', 'bus_customer_return', 'status', 'DISPOSITIONED', 'COMPLETED', 'complete', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: IN_TRANSIT → INSPECTION_PENDING (mark_inspection_pending)
+-- CustomerReturnLifecycle: AUTHORIZED → EXCEPTION (raise_exception)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ce3b395c-46b3-5996-93d1-9e522e50bc29', 'bus_customer_return', 'status', 'IN_TRANSIT', 'INSPECTION_PENDING', 'mark_inspection_pending', TRUE, NOW())
+VALUES ('a4128e70-c461-57ca-b05b-52bc1016a904', 'bus_customer_return', 'status', 'AUTHORIZED', 'EXCEPTION', 'raise_exception', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: INSPECTION_PENDING → IN_TRANSIT (resume)
+-- CustomerReturnLifecycle: IN_TRANSIT → EXCEPTION (raise_exception)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('288b3892-3590-5ee8-9189-a58cb2ca1e82', 'bus_customer_return', 'status', 'INSPECTION_PENDING', 'IN_TRANSIT', 'resume', TRUE, NOW())
+VALUES ('eb4ae54b-7f9b-508d-9407-624ea57a3973', 'bus_customer_return', 'status', 'IN_TRANSIT', 'EXCEPTION', 'raise_exception', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: RECEIVED → INSPECTION_PENDING (mark_inspection_pending)
+-- CustomerReturnLifecycle: RECEIVED → EXCEPTION (raise_exception)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a83aaea0-6139-5eaa-a677-71d0fab8741d', 'bus_customer_return', 'status', 'RECEIVED', 'INSPECTION_PENDING', 'mark_inspection_pending', TRUE, NOW())
+VALUES ('a722e537-95e7-54cb-804d-ec181dcc39f5', 'bus_customer_return', 'status', 'RECEIVED', 'EXCEPTION', 'raise_exception', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: INSPECTION_PENDING → RECEIVED (resume)
+-- CustomerReturnLifecycle: INSPECTION_PENDING → EXCEPTION (raise_exception)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b6d803d2-1131-5d77-a784-876888eb5c75', 'bus_customer_return', 'status', 'INSPECTION_PENDING', 'RECEIVED', 'resume', TRUE, NOW())
+VALUES ('6d9d360c-e2dc-5f17-b3d0-074359d5d931', 'bus_customer_return', 'status', 'INSPECTION_PENDING', 'EXCEPTION', 'raise_exception', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: AUTHORIZED → EXCEPTION (mark_exception)
+-- CustomerReturnLifecycle: EXCEPTION → AUTHORIZED (resume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a4128e70-c461-57ca-b05b-52bc1016a904', 'bus_customer_return', 'status', 'AUTHORIZED', 'EXCEPTION', 'mark_exception', TRUE, NOW())
+VALUES ('2e206929-a424-5d30-a6a7-a4605a620400', 'bus_customer_return', 'status', 'EXCEPTION', 'AUTHORIZED', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: EXCEPTION → AUTHORIZED (resolve_exception)
+-- CustomerReturnLifecycle: EXCEPTION → IN_TRANSIT (resume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2e206929-a424-5d30-a6a7-a4605a620400', 'bus_customer_return', 'status', 'EXCEPTION', 'AUTHORIZED', 'resolve_exception', TRUE, NOW())
+VALUES ('5d45af24-1971-5aba-9ebc-cd25aa7092be', 'bus_customer_return', 'status', 'EXCEPTION', 'IN_TRANSIT', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CustomerReturnLifecycle: IN_TRANSIT → EXCEPTION (mark_exception)
+-- CustomerReturnLifecycle: EXCEPTION → RECEIVED (resume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('eb4ae54b-7f9b-508d-9407-624ea57a3973', 'bus_customer_return', 'status', 'IN_TRANSIT', 'EXCEPTION', 'mark_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- CustomerReturnLifecycle: EXCEPTION → IN_TRANSIT (resolve_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('5d45af24-1971-5aba-9ebc-cd25aa7092be', 'bus_customer_return', 'status', 'EXCEPTION', 'IN_TRANSIT', 'resolve_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- CustomerReturnLifecycle: RECEIVED → EXCEPTION (mark_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a722e537-95e7-54cb-804d-ec181dcc39f5', 'bus_customer_return', 'status', 'RECEIVED', 'EXCEPTION', 'mark_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- CustomerReturnLifecycle: EXCEPTION → RECEIVED (resolve_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c030d995-e664-52ec-aec5-9207fd93a41e', 'bus_customer_return', 'status', 'EXCEPTION', 'RECEIVED', 'resolve_exception', TRUE, NOW())
+VALUES ('c030d995-e664-52ec-aec5-9207fd93a41e', 'bus_customer_return', 'status', 'EXCEPTION', 'RECEIVED', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CustomerReturnLifecycle: DRAFT → CANCELLED (cancel)
@@ -833,21 +788,6 @@ ON CONFLICT DO NOTHING;
 -- CustomerReturnLifecycle: AUTHORIZED → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('a5390224-8c28-51cb-86a0-b58a557d9815', 'bus_customer_return', 'status', 'AUTHORIZED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- CustomerReturnLifecycle: IN_TRANSIT → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3e412657-0af3-5c74-9216-981a56006a85', 'bus_customer_return', 'status', 'IN_TRANSIT', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- CustomerReturnLifecycle: RECEIVED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('29b77958-4be3-5672-a635-5b446fb3226a', 'bus_customer_return', 'status', 'RECEIVED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- CustomerReturnLifecycle: INSPECTION_PENDING → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('72ff87e6-cf76-5145-ad61-e17ec4aa407c', 'bus_customer_return', 'status', 'INSPECTION_PENDING', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CustomerReturnLifecycle: EXCEPTION → CANCELLED (cancel)
@@ -1029,10 +969,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('e3c0cec7-5dfd-5c2e-a113-aa24fb5f6f8b', 'bus_lead', 'status', 'QUALIFIED', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('354e48a1-5ec2-5438-b4a2-3de8b6f39b4f', 'bus_lead', 'status', 'DISQUALIFIED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('354e48a1-5ec2-5438-b4a2-3de8b6f39b4f', 'bus_lead', 'status', 'DISQUALIFIED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('c6a7455c-61be-5b2b-95c0-6a75ed6d7761', 'bus_lead', 'status', 'CONVERTED', FALSE, FALSE, 50, TRUE, NOW())
+VALUES ('c6a7455c-61be-5b2b-95c0-6a75ed6d7761', 'bus_lead', 'status', 'CONVERTED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('4234bff0-b8d2-506c-b578-26c0e2caf2f0', 'bus_lead', 'status', 'LOST', FALSE, TRUE, 60, TRUE, NOW())
@@ -1052,7 +992,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('ee10669a-0956-56f7-aeaa-78bc8e64a719', 'bus_opportunity', 'stage', 'NEGOTIATION', FALSE, FALSE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('31376911-b0a0-579e-9ded-99f01cea034f', 'bus_opportunity', 'stage', 'WON', FALSE, FALSE, 50, TRUE, NOW())
+VALUES ('31376911-b0a0-579e-9ded-99f01cea034f', 'bus_opportunity', 'stage', 'WON', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('f438929c-722a-5543-97c7-ec6d19d214b1', 'bus_opportunity', 'stage', 'LOST', FALSE, TRUE, 60, TRUE, NOW())
@@ -1066,7 +1006,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('bdde8151-f311-5605-a0b7-56bdc7e2773b', 'bus_quotation', 'status', 'SUBMITTED', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('1c8cc3e7-7902-58cb-92a6-7b0298249c3b', 'bus_quotation', 'status', 'ACCEPTED', FALSE, FALSE, 30, TRUE, NOW())
+VALUES ('1c8cc3e7-7902-58cb-92a6-7b0298249c3b', 'bus_quotation', 'status', 'ACCEPTED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('364e6282-b86c-5b77-9bb2-4aee6a167d76', 'bus_quotation', 'status', 'REJECTED', FALSE, TRUE, 40, TRUE, NOW())
@@ -1205,10 +1145,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('f61e4af0-b6d2-5b23-a6bb-8795892a2330', 'bus_customer_return', 'status', 'INSPECTION_PENDING', FALSE, FALSE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('39e77861-938d-5e34-b424-56034b79ee48', 'bus_customer_return', 'status', 'DISPOSITIONED', FALSE, TRUE, 60, TRUE, NOW())
+VALUES ('39e77861-938d-5e34-b424-56034b79ee48', 'bus_customer_return', 'status', 'DISPOSITIONED', FALSE, FALSE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('2430f640-3e14-51b7-868c-e96c9b1d558e', 'bus_customer_return', 'status', 'COMPLETED', FALSE, FALSE, 70, TRUE, NOW())
+VALUES ('2430f640-3e14-51b7-868c-e96c9b1d558e', 'bus_customer_return', 'status', 'COMPLETED', FALSE, TRUE, 70, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('25a5ac58-1201-519a-903d-9ba62ed7a9c1', 'bus_customer_return', 'status', 'CANCELLED', FALSE, TRUE, 80, TRUE, NOW())

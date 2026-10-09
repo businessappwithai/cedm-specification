@@ -7,19 +7,17 @@ entity:
     icon: database
   identity: {key: prospectId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Prospect., businessMeaning: Identifies one governed Prospect record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Prospect., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+    - {name: prospectId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the prospect, constant for its life.', usage: Generated on creation; follow-up activity refers to it., relationshipContext: Referenced by activities and by the lead made from it.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The short code of the prospect, such as PRS-0192.', usage: Used in lists and imports; unique where used., relationshipContext: Read with the party's name to identify the prospect.}}
   relationships:
-  - {name: party, target: Party, cardinality: '1', ownership: reference, help: {summary: Party represented by prospect., businessMeaning: Supplies canonical person/organization identity., usage: CRM qualification and deduplication., cardinalityMeaning: Exactly one Party., workflowRole: Qualification may create Lead without duplicating Party.}}
+    - {name: party, target: Party, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'The prospect is the sales state of exactly one party, so contact details are held once on the party.', summary: Party represented by prospect., businessMeaning: Supplies canonical person/organization identity., usage: CRM qualification and deduplication., workflowRole: Qualification may create Lead without duplicating Party.}}
   invariants:
-  - {id: PROSPECT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: PROSPECT-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
-    purpose: Provide canonical implementation-neutral semantics for Prospect across enterprise applications.
-    businessMeaning: A potential customer or account that has been identified but is not yet qualified as a Lead or established as a Customer.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A potential customer that has been identified but is not yet qualified as a lead or established as a customer.
+    businessMeaning: A prospect is the earliest stage of a sales relationship. Recording it lets the business keep track of who it hopes to win before any qualification effort is spent, and decide later whether to promote it to a lead or drop it.
+    usage: Created by sales or marketing from lists, events or referrals; read by sales when deciding whom to pursue.
+    relationshipContext: A prospect is the sales state of one party, which holds the name and contact details.
+    lifecycle: A prospect is recorded, then either qualified onward as a lead or left. Contact history is kept either way.
+    example: A regional distributor met at a trade show is recorded as a prospect until a salesperson qualifies it.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROSPECT}

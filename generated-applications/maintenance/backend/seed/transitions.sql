@@ -370,6 +370,36 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('0dad858c-6361-511f-9724-9dd65884444a', 'bus_asset', 'status', 'HELD', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- MeterLifecycle: DRAFT → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('fe347911-f97c-52d6-bb4b-0fdea58ce293', 'bus_meter', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MeterLifecycle: ACTIVE → OUT_OF_SERVICE (take_out_of_service)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ef84ba83-4a89-5d98-88f7-78c5dc555317', 'bus_meter', 'status', 'ACTIVE', 'OUT_OF_SERVICE', 'take_out_of_service', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MeterLifecycle: OUT_OF_SERVICE → ACTIVE (return_to_service)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f739af16-e029-5902-98e1-1ba78b1bc9ad', 'bus_meter', 'status', 'OUT_OF_SERVICE', 'ACTIVE', 'return_to_service', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MeterLifecycle: DRAFT → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c4aaf709-3a02-5e30-8638-c391ed63dd89', 'bus_meter', 'status', 'DRAFT', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MeterLifecycle: ACTIVE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('3c3b6e5e-c796-5f94-ad18-f18fe537d282', 'bus_meter', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MeterLifecycle: OUT_OF_SERVICE → RETIRED (retire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('84d545cc-345c-5d06-878a-d1759b5565c2', 'bus_meter', 'status', 'OUT_OF_SERVICE', 'RETIRED', 'retire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- MaintenancePlanLifecycle: DRAFT → ACTIVE (activate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('0cccee42-efa7-5b3f-8c4c-fb3cbeddedd2', 'bus_maintenance_plan', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
@@ -400,9 +430,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('bd6de1e5-7b6f-5ff0-8d26-09d19cfd2ae1', 'bus_maintenance_plan', 'status', 'SUSPENDED', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MaintenanceWorkOrderLifecycle: PLANNED → OPEN (open)
+-- MaintenanceWorkOrderLifecycle: OPEN → PLANNED (plan)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('093287a1-c1f0-5e7c-8c7e-16611f2bb8ed', 'bus_maintenance_work_order', 'status', 'PLANNED', 'OPEN', 'open', TRUE, NOW())
+VALUES ('2399d750-2dec-5fd2-b838-1bf56f4c776c', 'bus_maintenance_work_order', 'status', 'OPEN', 'PLANNED', 'plan', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MaintenanceWorkOrderLifecycle: PLANNED → ASSIGNED (assign)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('16c35327-126e-5e44-81c9-a8e52de30027', 'bus_maintenance_work_order', 'status', 'PLANNED', 'ASSIGNED', 'assign', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- MaintenanceWorkOrderLifecycle: OPEN → ASSIGNED (assign)
@@ -420,24 +455,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('b1aa744f-02ba-52bc-8d22-92b3338c6da7', 'bus_maintenance_work_order', 'status', 'IN_PROGRESS', 'COMPLETED', 'complete', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MaintenanceWorkOrderLifecycle: OPEN → ON_HOLD (hold)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a46b2c65-29c8-5e8b-a555-b4c347d596bb', 'bus_maintenance_work_order', 'status', 'OPEN', 'ON_HOLD', 'hold', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MaintenanceWorkOrderLifecycle: ON_HOLD → OPEN (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1df2b5fe-9fa4-5ed1-8526-3ed6912b0644', 'bus_maintenance_work_order', 'status', 'ON_HOLD', 'OPEN', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- MaintenanceWorkOrderLifecycle: ASSIGNED → ON_HOLD (hold)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('4d152567-63d7-518b-bf87-3a58ce194554', 'bus_maintenance_work_order', 'status', 'ASSIGNED', 'ON_HOLD', 'hold', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MaintenanceWorkOrderLifecycle: ON_HOLD → ASSIGNED (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ae5180f1-484f-5c41-b61e-22d86f7f39c5', 'bus_maintenance_work_order', 'status', 'ON_HOLD', 'ASSIGNED', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- MaintenanceWorkOrderLifecycle: IN_PROGRESS → ON_HOLD (hold)
@@ -445,14 +465,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('712cafec-e0ff-51e7-a794-92c5d18cae77', 'bus_maintenance_work_order', 'status', 'IN_PROGRESS', 'ON_HOLD', 'hold', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- MaintenanceWorkOrderLifecycle: ON_HOLD → ASSIGNED (resume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ae5180f1-484f-5c41-b61e-22d86f7f39c5', 'bus_maintenance_work_order', 'status', 'ON_HOLD', 'ASSIGNED', 'resume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- MaintenanceWorkOrderLifecycle: ON_HOLD → IN_PROGRESS (resume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('13476bc8-ca04-5ad3-9696-5adee64601b7', 'bus_maintenance_work_order', 'status', 'ON_HOLD', 'IN_PROGRESS', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- MaintenanceWorkOrderLifecycle: PLANNED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c785432e-a9bc-57fd-8335-de9de7fc5813', 'bus_maintenance_work_order', 'status', 'PLANNED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- MaintenanceWorkOrderLifecycle: OPEN → CANCELLED (cancel)
@@ -460,19 +480,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('734f5e24-94b7-5dba-a469-3d973c2e594c', 'bus_maintenance_work_order', 'status', 'OPEN', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- MaintenanceWorkOrderLifecycle: PLANNED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c785432e-a9bc-57fd-8335-de9de7fc5813', 'bus_maintenance_work_order', 'status', 'PLANNED', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- MaintenanceWorkOrderLifecycle: ASSIGNED → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('b492174e-3897-5f80-9aec-cc9f8d24921d', 'bus_maintenance_work_order', 'status', 'ASSIGNED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- MaintenanceWorkOrderLifecycle: IN_PROGRESS → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4d710040-7539-5142-ac6f-87a3684e99cf', 'bus_maintenance_work_order', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- MaintenanceWorkOrderLifecycle: ON_HOLD → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('71fbbcbf-97be-5276-82de-a9560df58ee6', 'bus_maintenance_work_order', 'status', 'ON_HOLD', 'CANCELLED', 'cancel', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- MaintenanceWorkOrderLifecycle: IN_PROGRESS → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4d710040-7539-5142-ac6f-87a3684e99cf', 'bus_maintenance_work_order', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RepairEstimateLifecycle: DRAFT → SUBMITTED (submit)
@@ -774,6 +799,20 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('ada5350b-30e9-5536-91de-0b6af761e760', 'bus_asset', 'status', 'RETIRED', FALSE, TRUE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- MeterLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('dca172e9-882f-5ab6-bfc8-2dd6754423bd', 'bus_meter', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('6e3aa62e-ee1d-5746-97ac-a457b242fcc2', 'bus_meter', 'status', 'ACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('c828e887-8f1b-5080-81be-6a5372371333', 'bus_meter', 'status', 'OUT_OF_SERVICE', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('ffae25ff-2433-57da-8de2-c408301167eb', 'bus_meter', 'status', 'RETIRED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- MaintenancePlanLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('88b9348b-4de0-53c2-b82d-f26923379983', 'bus_maintenance_plan', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
@@ -790,10 +829,10 @@ ON CONFLICT DO NOTHING;
 
 -- MaintenanceWorkOrderLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('26f2808a-6b51-5b4d-8542-f13bdaae10ff', 'bus_maintenance_work_order', 'status', 'OPEN', FALSE, FALSE, 10, TRUE, NOW())
+VALUES ('26f2808a-6b51-5b4d-8542-f13bdaae10ff', 'bus_maintenance_work_order', 'status', 'OPEN', TRUE, FALSE, 10, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('2f43a9fc-da7e-5f0f-b5d7-48fa6ed8eba9', 'bus_maintenance_work_order', 'status', 'PLANNED', TRUE, FALSE, 20, TRUE, NOW())
+VALUES ('2f43a9fc-da7e-5f0f-b5d7-48fa6ed8eba9', 'bus_maintenance_work_order', 'status', 'PLANNED', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('7009374f-0ecb-5605-ba30-da56329aa056', 'bus_maintenance_work_order', 'status', 'ASSIGNED', FALSE, FALSE, 30, TRUE, NOW())

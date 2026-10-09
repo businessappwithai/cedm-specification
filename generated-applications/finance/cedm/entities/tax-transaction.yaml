@@ -7,16 +7,25 @@ entity:
     icon: percent
   identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxTransaction., businessMeaning: Identifies one governed TaxTransaction record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxTransaction., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the tax transaction, constant for its life.', businessMeaning: Lets returns and the source document point at the same tax record., usage: Generated on creation., relationshipContext: Referenced by returns.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the tax transaction is in reporting.
+        businessMeaning: Shows whether the tax has been reported.
+        usage: Starts as DRAFT; moved by tax staff and returns.
+        relationshipContext: Only active transactions are included in a return.
+        valueSemantics:
+          DRAFT: Calculated and not yet confirmed.
+          ACTIVE: Confirmed and due to be reported.
+          COMPLETED: Reported or settled. A final state.
+          CANCELLED: Withdrawn, for example after a credit. A final state.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation the tax is reported by., usage: Chosen from the source document., cardinalityMeaning: At most one organisation., workflowRole: Decides which company's return includes it.}}
   invariants:
-  - {id: TAX-TRANSACTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: TAX-TRANSACTION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Tax Transaction Lifecycle
     attribute: status
@@ -66,12 +75,10 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
-    purpose: Provide canonical enterprise semantics for TaxTransaction while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed tax consequence derived from a taxable business transaction and retained separately from payment and general-ledger posting.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: The tax consequence of a taxable business transaction, kept apart from payment and ledger posting.
+    businessMeaning: A tax transaction records how much tax arose on a sale or purchase and under what treatment. Keeping it on its own lets tax be reported and checked without changing the payment or accounting records.
+    usage: Created automatically from taxable documents; read by tax returns and audit.
+    relationshipContext: A tax transaction may belong to an organisation and follows a taxable document.
+    lifecycle: A tax transaction is drafted, becomes active when reportable and completed once reported. It may be cancelled before. Completed and cancelled are final.
+    example: The 20 tax charged on invoice INV-3041 is recorded as a tax transaction for the March VAT return.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-TRANSACTION}

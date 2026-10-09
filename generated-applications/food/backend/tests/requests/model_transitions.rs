@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:51.168Z
+//! Generated: 2026-10-09T06:44:20.345Z
 //! Project: food
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -75,15 +75,13 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "ASSIGNED", "FAILED"),
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
-    ("bus_food_batch", "status", "PLANNED", "RELEASED"),
-    ("bus_food_batch", "status", "RELEASED", "CONSUMED"),
-    ("bus_food_batch", "status", "RELEASED", "QUARANTINED"),
+    ("bus_food_batch", "status", "PLANNED", "QUARANTINED"),
     ("bus_food_batch", "status", "QUARANTINED", "RELEASED"),
-    ("bus_food_batch", "status", "PLANNED", "REJECTED"),
-    ("bus_food_batch", "status", "RELEASED", "REJECTED"),
     ("bus_food_batch", "status", "QUARANTINED", "REJECTED"),
-    ("bus_food_batch", "status", "RELEASED", "EXPIRED"),
     ("bus_food_batch", "status", "QUARANTINED", "EXPIRED"),
+    ("bus_food_batch", "status", "RELEASED", "QUARANTINED"),
+    ("bus_food_batch", "status", "RELEASED", "CONSUMED"),
+    ("bus_food_batch", "status", "RELEASED", "EXPIRED"),
     ("bus_product", "status", "DRAFT", "ACTIVE"),
     ("bus_product", "status", "ACTIVE", "BLOCKED"),
     ("bus_product", "status", "BLOCKED", "ACTIVE"),

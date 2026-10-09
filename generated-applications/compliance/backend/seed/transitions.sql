@@ -390,14 +390,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('a90873c0-8aa0-5bad-aa2f-dfbbbe3fd816', 'bus_control', 'status', 'INACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: IDENTIFIED → ASSESSED (mark_assessed)
+-- RiskLifecycle: IDENTIFIED → ASSESSED (assess)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('dfb9cea7-4af7-52ee-b4c4-ae4c27f963f3', 'bus_risk', 'status', 'IDENTIFIED', 'ASSESSED', 'mark_assessed', TRUE, NOW())
+VALUES ('dfb9cea7-4af7-52ee-b4c4-ae4c27f963f3', 'bus_risk', 'status', 'IDENTIFIED', 'ASSESSED', 'assess', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: ASSESSED → MITIGATING (mark_mitigating)
+-- RiskLifecycle: ASSESSED → MITIGATING (mitigate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d49019cd-78e2-58d0-9d8d-4e05cf18b035', 'bus_risk', 'status', 'ASSESSED', 'MITIGATING', 'mark_mitigating', TRUE, NOW())
+VALUES ('d49019cd-78e2-58d0-9d8d-4e05cf18b035', 'bus_risk', 'status', 'ASSESSED', 'MITIGATING', 'mitigate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RiskLifecycle: ASSESSED → ACCEPTED (accept)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('db2e5b1b-fee7-51d5-ab3c-305f3e35478a', 'bus_risk', 'status', 'ASSESSED', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RiskLifecycle: MITIGATING → ACCEPTED (accept)
@@ -410,24 +415,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('b3e8aee0-e617-591e-8df6-44c2d30e2ac7', 'bus_risk', 'status', 'ACCEPTED', 'CLOSED', 'close', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: IDENTIFIED → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: MITIGATING → CLOSED (close)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('fc215e51-d2d4-5280-89fc-e11d652db939', 'bus_risk', 'status', 'IDENTIFIED', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('84a89ae4-9464-5383-b403-198d1d1fe3d7', 'bus_risk', 'status', 'MITIGATING', 'CLOSED', 'close', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: ASSESSED → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: IDENTIFIED → MATERIALIZED (materialize)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9284b828-4182-5816-bbb4-3d199fbb8d7d', 'bus_risk', 'status', 'ASSESSED', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('fc215e51-d2d4-5280-89fc-e11d652db939', 'bus_risk', 'status', 'IDENTIFIED', 'MATERIALIZED', 'materialize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: MITIGATING → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: ASSESSED → MATERIALIZED (materialize)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a51b3c1a-5270-5746-bbab-cdb4f9e0b129', 'bus_risk', 'status', 'MITIGATING', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('9284b828-4182-5816-bbb4-3d199fbb8d7d', 'bus_risk', 'status', 'ASSESSED', 'MATERIALIZED', 'materialize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- RiskLifecycle: ACCEPTED → MATERIALIZED (mark_materialized)
+-- RiskLifecycle: MITIGATING → MATERIALIZED (materialize)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6a2250de-cd95-5df4-a5a6-5dcf726d175b', 'bus_risk', 'status', 'ACCEPTED', 'MATERIALIZED', 'mark_materialized', TRUE, NOW())
+VALUES ('a51b3c1a-5270-5746-bbab-cdb4f9e0b129', 'bus_risk', 'status', 'MITIGATING', 'MATERIALIZED', 'materialize', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- RiskLifecycle: ACCEPTED → MATERIALIZED (materialize)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6a2250de-cd95-5df4-a5a6-5dcf726d175b', 'bus_risk', 'status', 'ACCEPTED', 'MATERIALIZED', 'materialize', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- RiskTreatmentLifecycle: DRAFT → ACTIVE (activate)

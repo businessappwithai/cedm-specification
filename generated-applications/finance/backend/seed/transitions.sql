@@ -755,9 +755,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('9bf95589-08b4-5ed6-a7f8-b9e6fb7d49c1', 'bus_credit_note', 'status', 'APPROVED', 'POSTED', 'post', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CreditNoteLifecycle: POSTED → PARTIALLY_APPLIED (mark_partially_applied)
+-- CreditNoteLifecycle: POSTED → PARTIALLY_APPLIED (apply)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2c429cc2-76cd-5ce9-b852-76c315870b48', 'bus_credit_note', 'status', 'POSTED', 'PARTIALLY_APPLIED', 'mark_partially_applied', TRUE, NOW())
+VALUES ('2c429cc2-76cd-5ce9-b852-76c315870b48', 'bus_credit_note', 'status', 'POSTED', 'PARTIALLY_APPLIED', 'apply', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CreditNoteLifecycle: POSTED → FULLY_APPLIED (apply)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('24acb6e4-f393-531c-9b02-367a283f3903', 'bus_credit_note', 'status', 'POSTED', 'FULLY_APPLIED', 'apply', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CreditNoteLifecycle: PARTIALLY_APPLIED → FULLY_APPLIED (apply)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('fe6dab10-0716-548a-9609-a1f48ac047e0', 'bus_credit_note', 'status', 'PARTIALLY_APPLIED', 'FULLY_APPLIED', 'apply', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CreditNoteLifecycle: POSTED → REFUND_DUE (mark_refund_due)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('027acb9a-295d-5d9b-9611-9cbbd10aedad', 'bus_credit_note', 'status', 'POSTED', 'REFUND_DUE', 'mark_refund_due', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CreditNoteLifecycle: PARTIALLY_APPLIED → REFUND_DUE (mark_refund_due)
@@ -765,14 +780,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('26e06d98-4ef9-544e-a8c9-db0dc19df715', 'bus_credit_note', 'status', 'PARTIALLY_APPLIED', 'REFUND_DUE', 'mark_refund_due', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CreditNoteLifecycle: REFUND_DUE → FULLY_APPLIED (mark_fully_applied)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f0ac8d21-c916-574d-8533-3fbc7ddd1e69', 'bus_credit_note', 'status', 'REFUND_DUE', 'FULLY_APPLIED', 'mark_fully_applied', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- CreditNoteLifecycle: REFUND_DUE → REFUNDED (refund)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('3d3612f1-0f9c-5d29-8d06-c00be0f5991d', 'bus_credit_note', 'status', 'REFUND_DUE', 'REFUNDED', 'refund', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CreditNoteLifecycle: REFUND_DUE → PARTIALLY_APPLIED (apply)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ffbdc3ff-7bc7-567d-86a1-bb7cd461c2f4', 'bus_credit_note', 'status', 'REFUND_DUE', 'PARTIALLY_APPLIED', 'apply', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CreditNoteLifecycle: REFUND_DUE → FULLY_APPLIED (apply)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('f0ac8d21-c916-574d-8533-3fbc7ddd1e69', 'bus_credit_note', 'status', 'REFUND_DUE', 'FULLY_APPLIED', 'apply', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CreditNoteLifecycle: DRAFT → CANCELLED (cancel)
@@ -785,24 +805,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('d474bc77-5fd2-5976-a79d-7da932c1fd05', 'bus_credit_note', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CreditNoteLifecycle: POSTED → CANCELLED (cancel)
+-- CreditNoteLifecycle: POSTED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d87a23a8-1dda-5a89-8f9d-0a884fe3b419', 'bus_credit_note', 'status', 'POSTED', 'CANCELLED', 'cancel', TRUE, NOW())
+VALUES ('0daa0f26-93d0-565c-9508-098e198269c9', 'bus_credit_note', 'status', 'POSTED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CreditNoteLifecycle: PARTIALLY_APPLIED → CANCELLED (cancel)
+-- CreditNoteLifecycle: PARTIALLY_APPLIED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d63155d4-0aeb-5eb1-8cf2-6cb9fe0e524b', 'bus_credit_note', 'status', 'PARTIALLY_APPLIED', 'CANCELLED', 'cancel', TRUE, NOW())
+VALUES ('ee4aa2e4-8193-546a-a0b3-563c9192c7a9', 'bus_credit_note', 'status', 'PARTIALLY_APPLIED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- CreditNoteLifecycle: REFUND_DUE → CANCELLED (cancel)
+-- CreditNoteLifecycle: FULLY_APPLIED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cc674e2e-bf2c-5a2c-bdd6-75f9be9a5bb7', 'bus_credit_note', 'status', 'REFUND_DUE', 'CANCELLED', 'cancel', TRUE, NOW())
+VALUES ('80e528ff-5081-5776-85c8-da87f5971658', 'bus_credit_note', 'status', 'FULLY_APPLIED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CreditNoteLifecycle: REFUND_DUE → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('679718d8-f6bc-58dd-b5ab-d9c52e5d6ca6', 'bus_credit_note', 'status', 'REFUND_DUE', 'REVERSED', 'reverse', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- CreditNoteLifecycle: REFUNDED → REVERSED (reverse)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4904984f-f0bc-5adc-a9ea-52be7bc9936f', 'bus_credit_note', 'status', 'REFUNDED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CreditNoteApplicationLifecycle: DRAFT → ACTIVE (activate)
@@ -1549,13 +1574,13 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('d69d8431-476f-5e3b-a22e-4d25a62f3ef3', 'bus_credit_note', 'status', 'PARTIALLY_APPLIED', FALSE, FALSE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('f483538d-b201-5d6f-b746-9e53ac4141fc', 'bus_credit_note', 'status', 'FULLY_APPLIED', FALSE, TRUE, 50, TRUE, NOW())
+VALUES ('f483538d-b201-5d6f-b746-9e53ac4141fc', 'bus_credit_note', 'status', 'FULLY_APPLIED', FALSE, FALSE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('9550fa0c-7618-566a-8867-a0787ae73731', 'bus_credit_note', 'status', 'REFUND_DUE', FALSE, FALSE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('ceaf632b-a443-506d-950d-35b2bcc0699a', 'bus_credit_note', 'status', 'REFUNDED', FALSE, TRUE, 70, TRUE, NOW())
+VALUES ('ceaf632b-a443-506d-950d-35b2bcc0699a', 'bus_credit_note', 'status', 'REFUNDED', FALSE, FALSE, 70, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('7abb1edc-07a4-5464-b941-83c5a96be305', 'bus_credit_note', 'status', 'CANCELLED', FALSE, TRUE, 80, TRUE, NOW())

@@ -23,11 +23,11 @@ enums:
     values: [FEMALE, MALE, NON_BINARY, OTHER, UNSPECIFIED]
     table: true
     descriptions:
-      FEMALE: The gender of the person is female; set it when that is what the business means for this record.
-      MALE: The gender of the person is male; set it when that is what the business means for this record.
-      NON_BINARY: The gender of the person is non binary; set it when that is what the business means for this record.
-      OTHER: The gender of the person is other; set it when that is what the business means for this record.
-      UNSPECIFIED: The gender of the person is unspecified; set it when that is what the business means for this record.
+      FEMALE: Identifies as female.
+      MALE: Identifies as male.
+      NON_BINARY: Identifies as neither exclusively male nor female.
+      OTHER: Identifies in another way.
+      UNSPECIFIED: Not stated or not collected.
   - name: PersonPartyType
     values: [PERSON, ORGANIZATION]
     table: true
@@ -46,22 +46,22 @@ enums:
     values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
     table: true
     descriptions:
-      ENTERPRISE: The organization type of the organization is enterprise; set it when that is what the business means for this record.
-      COMPANY: The organization type of the organization is company; set it when that is what the business means for this record.
-      BUSINESS_UNIT: The organization type of the organization is business unit; set it when that is what the business means for this record.
-      DIVISION: The organization type of the organization is division; set it when that is what the business means for this record.
-      DEPARTMENT: The organization type of the organization is department; set it when that is what the business means for this record.
-      BRANCH: The organization type of the organization is branch; set it when that is what the business means for this record.
-      SUBSIDIARY: The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-      OTHER: The organization type of the organization is other; set it when that is what the business means for this record.
+      ENTERPRISE: The top-level body, such as a group or corporation.
+      COMPANY: A legal company.
+      BUSINESS_UNIT: A business division with its own results.
+      DIVISION: A major part of the organisation.
+      DEPARTMENT: A functional unit.
+      BRANCH: A local office or branch.
+      SUBSIDIARY: A company controlled by another.
+      OTHER: Any other organised body.
   - name: OrganizationStatus
     values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
     table: true
     descriptions:
-      DRAFT: The status of the organization is draft; set it when that is what the business means for this record.
-      ACTIVE: The status of the organization is active; set it when that is what the business means for this record.
-      INACTIVE: The status of the organization is inactive; set it when that is what the business means for this record.
-      RETIRED: The status of the organization is retired; set it when that is what the business means for this record.
+      DRAFT: Being set up; not yet in use.
+      ACTIVE: In use.
+      INACTIVE: Temporarily not in use; can be reactivated.
+      RETIRED: Closed; kept for history. A final state.
   - name: OrganizationPartyType
     values: [PERSON, ORGANIZATION]
     table: true
@@ -72,183 +72,183 @@ enums:
     values: [CUSTOMER, SUPPLIER, EMPLOYEE, PARTNER, CARRIER, AGENT, CONTRACTOR, OWNER, INVESTOR, OTHER]
     table: true
     descriptions:
-      CUSTOMER: The role type of the party role is customer; set it when that is what the business means for this record.
-      SUPPLIER: The role type of the party role is supplier; set it when that is what the business means for this record.
-      EMPLOYEE: The role type of the party role is employee; set it when that is what the business means for this record.
-      PARTNER: The role type of the party role is partner; set it when that is what the business means for this record.
-      CARRIER: The role type of the party role is carrier; set it when that is what the business means for this record.
-      AGENT: The role type of the party role is agent; set it when that is what the business means for this record.
-      CONTRACTOR: The role type of the party role is contractor; set it when that is what the business means for this record.
-      OWNER: The role type of the party role is owner; set it when that is what the business means for this record.
-      INVESTOR: The role type of the party role is investor; set it when that is what the business means for this record.
-      OTHER: The role type of the party role is other; set it when that is what the business means for this record.
+      CUSTOMER: Buys from the organisation.
+      SUPPLIER: Sells to the organisation.
+      EMPLOYEE: Works for the organisation.
+      PARTNER: A business partner or reseller.
+      CARRIER: Transports goods for the organisation.
+      AGENT: Acts on behalf of the organisation or its customers.
+      CONTRACTOR: Provides services under a contract.
+      OWNER: Owns property or a share in the organisation.
+      INVESTOR: Provides capital.
+      OTHER: Any other role.
   - name: PartyRoleStatus
     values: [ACTIVE, INACTIVE, EXPIRED]
     table: true
     descriptions:
-      ACTIVE: The status of the party role is active; set it when that is what the business means for this record.
-      INACTIVE: The status of the party role is inactive; set it when that is what the business means for this record.
-      EXPIRED: The status of the party role is expired; set it when that is what the business means for this record.
+      ACTIVE: The party currently holds the role.
+      INACTIVE: Dormant but may resume.
+      EXPIRED: Ended; kept for history. A final state.
   - name: AddressAddressType
     values: [RESIDENTIAL, BUSINESS, BILLING, SHIPPING, REGISTERED, POSTAL, OTHER]
     table: true
     descriptions:
-      RESIDENTIAL: The address type of the address is residential; set it when that is what the business means for this record.
-      BUSINESS: The address type of the address is business; set it when that is what the business means for this record.
-      BILLING: The address type of the address is billing; set it when that is what the business means for this record.
-      SHIPPING: The address type of the address is shipping; set it when that is what the business means for this record.
-      REGISTERED: The address type of the address is registered; set it when that is what the business means for this record.
-      POSTAL: The address type of the address is postal; set it when that is what the business means for this record.
-      OTHER: The address type of the address is other; set it when that is what the business means for this record.
+      RESIDENTIAL: A private home address.
+      BUSINESS: A place of business or office.
+      BILLING: Where invoices and statements are sent.
+      SHIPPING: Where goods are delivered.
+      REGISTERED: The official registered address of a legal entity.
+      POSTAL: A mailing address such as a post office box.
+      OTHER: Any purpose not listed.
   - name: AddressStatus
     values: [ACTIVE, INACTIVE, RETIRED]
     table: true
     descriptions:
-      ACTIVE: The status of the address is active; set it when that is what the business means for this record.
-      INACTIVE: The status of the address is inactive; set it when that is what the business means for this record.
-      RETIRED: The status of the address is retired; set it when that is what the business means for this record.
+      ACTIVE: Valid and available for new documents.
+      INACTIVE: Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
+      RETIRED: No longer valid; kept only as history and in past documents.
   - name: LocationLocationType
     values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
     table: true
     descriptions:
-      SITE: The location type of the location is site; set it when that is what the business means for this record.
-      WAREHOUSE: The location type of the location is warehouse; set it when that is what the business means for this record.
-      STORE: The location type of the location is store; set it when that is what the business means for this record.
-      OFFICE: The location type of the location is office; set it when that is what the business means for this record.
-      FACTORY: The location type of the location is factory; set it when that is what the business means for this record.
-      YARD: The location type of the location is yard; set it when that is what the business means for this record.
-      PORT: The location type of the location is port; set it when that is what the business means for this record.
-      DEPOT: The location type of the location is depot; set it when that is what the business means for this record.
-      VIRTUAL: The location type of the location is virtual; set it when that is what the business means for this record.
-      OTHER: The location type of the location is other; set it when that is what the business means for this record.
+      SITE: A geographic site that may contain several buildings.
+      WAREHOUSE: A building or area for storing goods.
+      STORE: A retail outlet.
+      OFFICE: A place where office work is done.
+      FACTORY: A place where goods are made.
+      YARD: An open area for storing or staging equipment or containers.
+      PORT: A harbour or terminal.
+      DEPOT: A base for vehicles and equipment.
+      VIRTUAL: A logical place with no physical presence, such as an online store.
+      OTHER: Any other kind of place.
   - name: LocationStatus
     values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
     table: true
     descriptions:
-      PLANNED: The status of the location is planned; set it when that is what the business means for this record.
-      ACTIVE: The status of the location is active; set it when that is what the business means for this record.
-      INACTIVE: The status of the location is inactive; set it when that is what the business means for this record.
-      CLOSED: The status of the location is closed; set it when that is what the business means for this record.
-      RETIRED: The status of the location is retired; set it when that is what the business means for this record.
+      PLANNED: Expected but not yet in use.
+      ACTIVE: In use.
+      INACTIVE: Temporarily not used.
+      CLOSED: Closed down.
+      RETIRED: Removed from use altogether. A final state.
   - name: CurrencyStatus
     values: [ACTIVE, INACTIVE, RETIRED]
     table: true
     descriptions:
-      ACTIVE: Available for normal financial activity.
-      INACTIVE: Temporarily unavailable for new normal activity.
-      RETIRED: No longer available for new normal activity while historical financial records remain valid.
+      ACTIVE: Available for use on new prices, documents and payments.
+      INACTIVE: Temporarily not offered, for example while a market is closed; it can be reactivated.
+      RETIRED: No longer in use, such as a replaced national currency; historical amounts keep it.
   - name: ExchangeRateRateType
     values: [SPOT, CONTRACT, DAILY, MONTHLY, ACCOUNTING, CUSTOM]
     table: true
     descriptions:
-      SPOT: Market or transaction-time conversion rate.
-      CONTRACT: Rate established by an agreement or commercial contract.
-      DAILY: Published daily rate for a defined business date.
-      MONTHLY: Published rate intended for a defined monthly reporting period.
-      ACCOUNTING: Rate designated by accounting policy for ledger translation or reporting.
-      CUSTOM: Controlled rate established for a specific business purpose.
+      SPOT: The market rate at a moment in time.
+      CONTRACT: A rate fixed by agreement with a counterparty.
+      DAILY: The rate published for a business day.
+      MONTHLY: An average or closing rate for a month.
+      ACCOUNTING: A rate set by the finance team for ledger translation.
+      CUSTOM: Any other rate defined by policy.
   - name: ExchangeRateStatus
     values: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
     table: true
     descriptions:
-      DRAFT: The status of the exchange rate is draft; set it when that is what the business means for this record.
-      ACTIVE: The status of the exchange rate is active; set it when that is what the business means for this record.
-      EXPIRED: The status of the exchange rate is expired; set it when that is what the business means for this record.
-      CANCELLED: The status of the exchange rate is cancelled; set it when that is what the business means for this record.
+      DRAFT: Being prepared; not yet used.
+      ACTIVE: In force and usable for conversion.
+      EXPIRED: Its validity period has ended; kept for past conversions.
+      CANCELLED: Withdrawn; must not be used.
   - name: UnitOfMeasureCategory
     values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
     table: true
     descriptions:
-      QUANTITY: The category of the unit of measure is quantity; set it when that is what the business means for this record.
-      LENGTH: The category of the unit of measure is length; set it when that is what the business means for this record.
-      AREA: The category of the unit of measure is area; set it when that is what the business means for this record.
-      VOLUME: The category of the unit of measure is volume; set it when that is what the business means for this record.
-      MASS: The category of the unit of measure is mass; set it when that is what the business means for this record.
-      TIME: The category of the unit of measure is time; set it when that is what the business means for this record.
-      COUNT: The category of the unit of measure is count; set it when that is what the business means for this record.
-      CURRENCY: The category of the unit of measure is currency; set it when that is what the business means for this record.
-      OTHER: The category of the unit of measure is other; set it when that is what the business means for this record.
+      QUANTITY: A general count or quantity of items.
+      LENGTH: A distance, such as metres or inches.
+      AREA: A surface, such as square metres.
+      VOLUME: A capacity, such as litres.
+      MASS: A weight, such as kilograms or tonnes.
+      TIME: A duration, such as hours or days.
+      COUNT: A number of discrete things, such as each or dozen.
+      CURRENCY: A monetary unit used as a measure.
+      OTHER: A unit that fits no other category.
   - name: UnitOfMeasureStatus
     values: [ACTIVE, INACTIVE, RETIRED]
     table: true
     descriptions:
-      ACTIVE: The status of the unit of measure is active; set it when that is what the business means for this record.
-      INACTIVE: The status of the unit of measure is inactive; set it when that is what the business means for this record.
-      RETIRED: The status of the unit of measure is retired; set it when that is what the business means for this record.
+      ACTIVE: Available for use on products and documents.
+      INACTIVE: Not offered for now; can be reactivated.
+      RETIRED: No longer used; kept for history. A final state.
   - name: TaskTaskType
     values: [USER, SYSTEM, APPROVAL, DECISION, NOTIFICATION, SCRIPT, OTHER]
     table: true
     descriptions:
-      USER: Represents the user state or classification in the context of Task.
-      SYSTEM: Represents the system state or classification in the context of Task.
-      APPROVAL: Represents the approval state or classification in the context of Task.
-      DECISION: Represents the decision state or classification in the context of Task.
-      NOTIFICATION: Represents the notification state or classification in the context of Task.
-      SCRIPT: Represents the script state or classification in the context of Task.
-      OTHER: Represents the other state or classification in the context of Task.
+      USER: Work done by a person.
+      SYSTEM: A step run automatically.
+      APPROVAL: A person must approve or refuse something.
+      DECISION: A choice that decides the path.
+      NOTIFICATION: A message to be sent.
+      SCRIPT: A script run by the system.
+      OTHER: Work that fits no other type.
   - name: TaskStatus
     values: [CREATED, READY, ASSIGNED, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED, FAILED]
     table: true
     descriptions:
-      CREATED: Represents the created state or classification in the context of Task.
-      READY: Represents the ready state or classification in the context of Task.
-      ASSIGNED: Represents the assigned state or classification in the context of Task.
-      IN_PROGRESS: Represents the in progress state or classification in the context of Task.
-      BLOCKED: Represents the blocked state or classification in the context of Task.
-      COMPLETED: Represents the completed state or classification in the context of Task.
-      CANCELLED: Represents the cancelled state or classification in the context of Task.
-      FAILED: Represents the failed state or classification in the context of Task.
+      CREATED: Recorded and not yet ready.
+      READY: Ready to be picked up.
+      ASSIGNED: Given to someone.
+      IN_PROGRESS: Being worked.
+      BLOCKED: Cannot proceed until something is resolved.
+      COMPLETED: Done. A final state.
+      CANCELLED: No longer needed. A final state.
+      FAILED: Could not be done. A final state.
   - name: TaskPriority
     values: [LOW, NORMAL, HIGH, CRITICAL]
     table: true
     descriptions:
-      LOW: Represents the low state or classification in the context of Task.
-      NORMAL: Represents the normal state or classification in the context of Task.
-      HIGH: Represents the high state or classification in the context of Task.
-      CRITICAL: Represents the critical state or classification in the context of Task.
+      LOW: Can wait.
+      NORMAL: Ordinary priority.
+      HIGH: Do ahead of normal work.
+      CRITICAL: Do immediately.
   - name: ERPStatus
     values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
     table: true
     descriptions:
-      DRAFT: Represents the draft state or classification in the context of ERP.
-      ACTIVE: Represents the active state or classification in the context of ERP.
-      SUSPENDED: Represents the suspended state or classification in the context of ERP.
-      RETIRED: Represents the retired state or classification in the context of ERP.
+      DRAFT: Being configured; not yet live.
+      ACTIVE: Live and in use.
+      SUSPENDED: Paused, for example during a migration; no new business activity.
+      RETIRED: Closed down; kept for history.
   - name: OrganizationMembershipStatus
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
     table: true
     descriptions:
-      PENDING: Awaiting activation or decision.
-      ACTIVE: Currently effective or executing.
-      COMPLETED: Successfully concluded.
-      CANCELLED: Terminated without normal completion.
+      PENDING: Offered or requested, not yet effective.
+      ACTIVE: In force; the person belongs to the organisation.
+      COMPLETED: Ended normally. A final state.
+      CANCELLED: Withdrawn before it took effect. A final state.
   - name: ApprovalStatus
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
     table: true
     descriptions:
-      PENDING: Awaiting activation or decision.
-      ACTIVE: Currently effective or executing.
-      COMPLETED: Successfully concluded.
-      CANCELLED: Terminated without normal completion.
+      PENDING: Requested and waiting to be picked up.
+      ACTIVE: Under review by the approver.
+      COMPLETED: Decided; the decision is final evidence.
+      CANCELLED: Withdrawn by the requester before a decision.
   - name: AssignmentStatus
     values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
     table: true
     descriptions:
-      PENDING: Awaiting activation or decision.
-      ACTIVE: Currently effective or executing.
-      COMPLETED: Successfully concluded.
-      CANCELLED: Terminated without normal completion.
+      PENDING: Offered but not yet accepted or in effect.
+      ACTIVE: In effect; the assignee is responsible for the work.
+      COMPLETED: The work is done and the responsibility ended.
+      CANCELLED: Withdrawn or replaced before completion.
   - name: BusinessTransactionStatus
     values: [DRAFT, OPEN, APPROVED, POSTED, COMPLETED, CANCELLED, REVERSED]
     table: true
     descriptions:
-      DRAFT: Represents the draft state or classification in the context of BusinessTransaction.
-      OPEN: Represents the open state or classification in the context of BusinessTransaction.
-      APPROVED: Represents the approved state or classification in the context of BusinessTransaction.
-      POSTED: Represents the posted state or classification in the context of BusinessTransaction.
-      COMPLETED: Represents the completed state or classification in the context of BusinessTransaction.
-      CANCELLED: Represents the cancelled state or classification in the context of BusinessTransaction.
-      REVERSED: Represents the reversed state or classification in the context of BusinessTransaction.
+      DRAFT: Being entered; nothing is committed.
+      OPEN: Submitted and awaiting approval.
+      APPROVED: Authorised but not yet posted.
+      POSTED: Recorded in the books; it can now only be reversed, not edited.
+      COMPLETED: Fully performed and closed out.
+      CANCELLED: Withdrawn before being posted; no effect on the books.
+      REVERSED: Posted and then undone by a reversing transaction; the original stays on record.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -269,23 +269,23 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: The stable internal identity of the party. Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships. Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations. PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity. Required because every party must have one stable identity.
+        help: The stable internal identity of the party. Identifies the real-world person or organization represented by this record without changing when the party changes roles or business relationships. Used as the identity anchor for party roles, addresses, transactions, contracts, ownership, audit, and integrations. PartyId identifies the root party; role-specific identifiers such as Customer.customerId must not be used as substitutes for party identity.
       - name: party_type
         type: string
         enum: PartyPartyType
-        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.
       - name: display_name
         type: string(300)
-        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.
       - name: status
         type: string
         enum: PartyStatus
-        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.
+        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid.
         default: ACTIVE
       - name: external_reference
         type: string(200)
         optional: true
-        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.
       - name: e_rp_id
         type: string
         fk: true
@@ -304,113 +304,112 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record. required for specialization traceability.
+        help: Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record.
       - name: party_id
         type: string
         fk: true
         unique: true
-        help: Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactions and roles use one stable person identity. Required to prevent duplicate identity.
+        help: Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactions and roles use one stable person identity.
       - name: title
         type: string(50)
         optional: true
-        help: Personal title. documents and presentation. presentation attribute. supports person display. optional.
+        help: Personal title. documents and presentation. presentation attribute. supports person display.
       - name: given_name
         type: string(150)
-        help: Given name. identity and documents. intrinsic person identity. identification. required.
+        help: Given name. identity and documents. intrinsic person identity. identification.
       - name: middle_name
         type: string(150)
         optional: true
-        help: Middle name. identity and documents. intrinsic person identity. identification. optional.
+        help: Middle name. identity and documents. intrinsic person identity. identification.
       - name: family_name
         type: string(150)
-        help: Family name. identity and documents. intrinsic person identity. identification. required.
+        help: Family name. identity and documents. intrinsic person identity. identification.
       - name: preferred_name
         type: string(150)
         optional: true
-        help: Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.
+        help: Preferred display name. communication and UI. presentation not canonical identity. human interaction.
       - name: date_of_birth
         type: date
         optional: true
-        help: Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.
+        help: Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.
       - name: gender
         type: string
         optional: true
         enum: PersonGender
-        help: Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for this record. The gender of the person is male; set it when that is what the business means for this record. The gender of the person is non binary; set it when that is what the business means for this record. The gender of the person is other; set it when that is what the business means for this record. The gender of the person is unspecified; set it when that is what the business means for this record.
+        help: The person's gender as recorded for the organisation's purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as neither exclusively male nor female. Identifies in another way. Not stated or not collected. person attribute and not role. process-specific.
       - name: nationality_id
         type: string
         fk: true
         references: Country
         optional: true
-        help: The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.
+        help: The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
       - name: party_type
         type: string
         enum: PersonPartyType
-        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.
       - name: display_name
         type: string(300)
-        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.
       - name: status
         type: string
         enum: PersonStatus
-        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid. Required because downstream processes must know whether participation is currently permitted.
+        help: Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account maintenance, compliance, and deactivation processes. A party may remain historically referenced after becoming INACTIVE, BLOCKED, or RETIRED; lifecycle state therefore does not imply deletion. The party is available for normal business participation. The party is retained but is not normally eligible for new activity. Business activity is restricted pending resolution of a business, risk, compliance, or operational condition. The party relationship is permanently ended for normal operational use while historical references remain valid.
         default: ACTIVE
       - name: external_reference
         type: string(200)
         optional: true
-        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.
   - name: Organization
     help: Organization is the organizational specialization of Party, not an independent party identity or business role. Party identifies who the organization is; Organization describes intrinsic organizational structure; PartyRole describes how it participates; Customer and Supplier provide commercial behavior. Used across sales, procurement, finance, logistics, contracts, compliance, HR, and enterprise hierarchy. Party → Organization provides identity specialization. Party → PartyRole provides participation. Customer/Supplier must not create duplicate Party identities. Create/maintain Party → create Organization specialization → establish organizational hierarchy → assign PartyRole → apply specialized commercial qualification → permit transactions. Master-data changes affect future eligibility and presentation while historical transactions retain their original context. Organization follows its own master-data lifecycle while remaining subordinate to Party identity consistency. Retirement does not delete historical transactions or roles. One company exists as one Party and one Organization specialization, while holding CUSTOMER and SUPPLIER PartyRoles with separate commercial controls.
     icon: building-2
-    parent: ERP
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the Organization specialization. Used to navigate organizational identity details from the underlying Party. Party.partyId remains the canonical party identity; organizationId identifies the specialization record. Provides stable reference for organization-specific information. Required for specialization traceability.
+        help: Stable identity of the Organization specialization. Used to navigate organizational identity details from the underlying Party. Party.partyId remains the canonical party identity; organizationId identifies the specialization record. Provides stable reference for organization-specific information.
       - name: party_id
         type: string
         fk: true
         unique: true
-        help: Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when partyType is ORGANIZATION. Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization. Required to prevent duplicate party identity.
+        help: Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when partyType is ORGANIZATION. Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization.
       - name: code
         type: string(50)
-        help: Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope. Provides operational reference for organization hierarchy and business context. Required where the organization participates in governed operational processes.
+        help: Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope. Provides operational reference for organization hierarchy and business context.
       - name: name
         type: string(200)
-        help: Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required for operational recognition.
+        help: Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
       - name: organization_type
         type: string
         enum: OrganizationOrganizationType
-        help: Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules. Required for organizational interpretation. The organization type of the organization is enterprise; set it when that is what the business means for this record. The organization type of the organization is company; set it when that is what the business means for this record. The organization type of the organization is business unit; set it when that is what the business means for this record. The organization type of the organization is division; set it when that is what the business means for this record. The organization type of the organization is department; set it when that is what the business means for this record. The organization type of the organization is branch; set it when that is what the business means for this record. The organization type of the organization is subsidiary; set it when that is what the business means for this record. The organization type of the organization is other; set it when that is what the business means for this record.
+        help: The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organised body. Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.
       - name: status
         type: string
         enum: OrganizationStatus
-        help: Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships. Required for eligibility checks. The status of the organization is draft; set it when that is what the business means for this record. The status of the organization is active; set it when that is what the business means for this record. The status of the organization is inactive; set it when that is what the business means for this record. The status of the organization is retired; set it when that is what the business means for this record.
-        default: ACTIVE
+        help: Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.
+        default: DRAFT
       - name: legal_name
         type: string(300)
         optional: true
-        help: Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the organization is not a legal entity or the information is not yet known.
+        help: Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
       - name: registration_number
         type: string(100)
         optional: true
-        help: Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verification and compliance controls. Optional for organizational units without separate registration.
+        help: Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verification and compliance controls.
       - name: tax_identifier
         type: string(100)
         optional: true
-        help: Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule applicability and statutory reporting. Optional when no tax identifier applies or is known.
+        help: Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule applicability and statutory reporting.
       - name: party_type
         type: string
         enum: OrganizationPartyType
-        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body. Required because the party's specialization and applicable business semantics depend on it.
+        help: Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Organization details and to drive validation, forms, search, reporting, and role assignment. PERSON requires the Person specialization; ORGANIZATION requires the Organization specialization. The party represents an individual human being. The party represents a legal, commercial, governmental, nonprofit, or other organized body.
       - name: display_name
         type: string(300)
-        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations. Required so every party can be unambiguously presented to users and business processes.
+        help: The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, transactions, reports, notifications, and user interfaces. It is a presentation identity for the Party and does not replace legal names, person names, or organization registration names stored by specializations.
       - name: external_reference
         type: string(200)
         optional: true
-        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context. Optional when no external system identity exists or when the external identity is maintained elsewhere.
+        help: An identifier assigned to the party by an external system or business partner. Preserves a cross-system identity that allows CEDM to reconcile a party with another master-data system. Used for integrations, migration, reconciliation, EDI, synchronization, and external lookup. It is not the canonical CEDM identity; Party.partyId remains the internal identity while externalReference provides interoperability context.
       - name: person_id
         type: string
         fk: true
@@ -425,6 +424,7 @@ entities:
         type: string
         fk: true
         references: ERP
+        optional: true
         help: The ERP this Organization belongs to.
   - name: PartyRole
     help: The bridge between stable Party identity and contextual business participation. Party answers who the actor is; PartyRole answers how that actor participates; Customer and Supplier add role-specific commercial behavior. Foundation for sales, procurement, employment, logistics, ownership, contracts, finance, and relationship management. Customer and Supplier specialize PartyRole. Party identity is never duplicated in those specializations. Transaction entities should retain the role context that was effective when the transaction was created or confirmed. Party onboarding → PartyRole creation → role-specific qualification/controls → transaction eligibility → transaction creation → transaction lifecycle. Role changes affect future eligibility but preserve historical role attribution. Create role → validate scope/eligibility → activate → optionally inactivate/expire → preserve historical references. A role ending does not end the Party or unrelated roles. One organization can be a Customer and Supplier simultaneously. Its Party record is shared; each PartyRole has its own roleType, scope, lifecycle, and specialized controls. A SalesOrder references the Customer role while a PurchaseOrder references the Supplier role.
@@ -433,31 +433,31 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Immutable identity of this specific role relationship. Referenced by specialized entities and transactions requiring the party in a defined business capacity. Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId. Provides the stable role reference used throughout the role lifecycle. Required for independent role traceability.
+        help: The identity of the role, separate from the identity of the party. Generated on creation; customer and supplier records refer to it. Distinct from Party.partyId and specialized identifiers such as Customer.customerId or Supplier.supplierId. Provides the stable role reference used throughout the role lifecycle.
       - name: party_id
         type: string
         fk: true
-        help: Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity. Required because a role cannot exist without a participant.
+        help: The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
       - name: role_type
         type: string
         enum: PartyRoleRoleType
-        help: Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process. Required for contextual participation. The role type of the party role is customer; set it when that is what the business means for this record. The role type of the party role is supplier; set it when that is what the business means for this record. The role type of the party role is employee; set it when that is what the business means for this record. The role type of the party role is partner; set it when that is what the business means for this record. The role type of the party role is carrier; set it when that is what the business means for this record. The role type of the party role is agent; set it when that is what the business means for this record. The role type of the party role is contractor; set it when that is what the business means for this record. The role type of the party role is owner; set it when that is what the business means for this record. The role type of the party role is investor; set it when that is what the business means for this record. The role type of the party role is other; set it when that is what the business means for this record.
+        help: The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business partner or reseller. Transports goods for the organisation. Acts on behalf of the organisation or its customers. Provides services under a contract. Owns property or a share in the organisation. Provides capital. Any other role. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.
       - name: code
         type: string(100)
         optional: true
-        help: Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when partyRoleId is sufficient.
+        help: An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
       - name: valid_from
         type: date
         optional: true
-        help: Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role. Optional for immediately effective roles.
+        help: The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
       - name: valid_to
         type: date
         optional: true
-        help: Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution. Optional for open-ended roles.
+        help: The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
       - name: status
         type: string
         enum: PartyRoleStatus
-        help: Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity. Required for role eligibility decisions. The status of the party role is active; set it when that is what the business means for this record. The status of the party role is inactive; set it when that is what the business means for this record. The status of the party role is expired; set it when that is what the business means for this record.
+        help: Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.
         default: ACTIVE
       - name: person_id
         type: string
@@ -470,95 +470,95 @@ entities:
         optional: true
         help: Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. Determines which organization can use the role for applicable transactions and policies.
   - name: PartyRelationship
-    help: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: "A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way. Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when. Created when a relationship is established; ended when it stops; read by sales, compliance and customer service. A relationship runs from one Party to another. Code and identity stay stable, and the relationship's history is kept when it ends or changes. \"Subsidiary of\": Acme Ltd is a subsidiary of Acme Holdings from 1 January 2019."
     icon: users
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of PartyRelationship. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this PartyRelationship is referenced. Required.
+        help: The identity of the relationship. Generated on creation; documents and reports refer to it.
       - name: code
         type: string(100)
-        help: Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
       - name: name
         type: string(300)
-        help: Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: A description of the relationship. Shown in party views.
       - name: from_party_id
         type: string
         fk: true
         references: Party
-        help: Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+        help: "The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship."
   - name: LegalEntity
-    help: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories. Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession. Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit. Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    help: A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings. Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties. Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers. Contracts, filings and accounting books refer to the legal entity. Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicitly. Acme Holdings GmbH, a limited company registered in Germany.
     icon: database
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of LegalEntity. Identifies one governed LegalEntity record. Governance, workflow, reporting and audit. Referenced by compatible enterprise records. Required.
+        help: The identity of the legal entity. Generated on registration.
       - name: occurred_at
         type: datetime
         optional: true
-        help: Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.
+        help: When the entity was formed, or its record took effect. Set from the registration data.
   - name: BusinessUnit
-    help: A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded explicitly so earlier reports are not silently changed. The Consumer Electronics division of a manufacturer, with its own budget and profit target.
     icon: table
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of BusinessUnit. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this BusinessUnit is referenced. Required.
+        help: The identity of the business unit. Generated on creation; budgets, transactions and reports refer to it.
       - name: code
         type: string(100)
-        help: Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
       - name: name
         type: string(300)
-        help: Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: The full name of the unit. Shown in organisation charts and management reports.
       - name: organization_id
         type: string
         fk: true
-        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+        help: The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
   - name: Department
-    help: A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.
     icon: table
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Department. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Department is referenced. Required.
+        help: The identity of the department. Generated on creation; people, positions and budgets refer to it.
       - name: code
         type: string(100)
-        help: Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
       - name: name
         type: string(300)
-        help: Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: The name of the department. Shown in organisation charts and on documents.
       - name: organization_id
         type: string
         fk: true
-        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+        help: "The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure."
   - name: Address
-    help: Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at transaction time and preserve the result where historical reproduction is required. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only. Active → inactive/retired. Retirement prevents new normal use but does not remove historical references or snapshots. A Customer changes its billing address. The Customer master now points to the new active address, while already issued Invoices retain the address effective when they were issued.
+    help: A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City, so it follows the geography lists, and may be used by a Party or a Location. Addresses are active, can be made inactive and reactivated, and are retired when finished with. Retirement stops new use but never removes the address from past documents. A customer moves its billing address; the customer record now points to the new active address while already issued invoices keep the address that applied when they were issued. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.
     icon: map-pin
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: "The address id of the address: an identifier the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its address id."
+        help: The permanent system identity of the address. Generated on creation; parties, locations and document snapshots refer to the address through it.
       - name: address_type
         type: string
         enum: AddressAddressType
-        help: "The address type of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its address type. The address type of the address is residential; set it when that is what the business means for this record. The address type of the address is business; set it when that is what the business means for this record. The address type of the address is billing; set it when that is what the business means for this record. The address type of the address is shipping; set it when that is what the business means for this record. The address type of the address is registered; set it when that is what the business means for this record. The address type of the address is postal; set it when that is what the business means for this record. The address type of the address is other; set it when that is what the business means for this record."
+        help: The purpose for which the address is used. Chosen when the address is created and used to pick the right address for a document, such as BILLING for invoices and SHIPPING for deliveries. A private home address. A place of business or office. Where invoices and statements are sent. Where goods are delivered. The official registered address of a legal entity. A mailing address such as a post office box. Any purpose not listed.
       - name: line1
         type: string(200)
-        help: "The line1 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its line1."
+        help: The first line of the street address, usually building number and street. Entered by the person maintaining the address; printed on labels and documents.
       - name: line2
         type: string(200)
         optional: true
-        help: "The line2 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own."
+        help: An optional second address line, such as a suite, unit or floor. Filled when line 1 is not enough to find the exact delivery point.
       - name: line3
         type: string(200)
         optional: true
-        help: "The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own."
+        help: An optional third address line for additional delivery details. Rarely used; kept for countries and carriers whose formats need more than two lines.
       - name: city_name
         type: string(150)
         optional: true
@@ -566,29 +566,29 @@ entities:
       - name: postal_code
         type: string(30)
         optional: true
-        help: "The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own."
+        help: The postal or ZIP code of the address. Entered according to the country's format; used for delivery, tax zones and distance calculation.
       - name: latitude
         type: decimal
         optional: true
-        help: "The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own."
+        help: The north-south position of the address on the earth in decimal degrees, from -90 to 90. Optional; filled by geocoding for mapping and routing. Must stay within -90 to 90.
       - name: longitude
         type: decimal
         optional: true
-        help: "The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own."
+        help: The east-west position of the address on the earth in decimal degrees, from -180 to 180. Optional; filled by geocoding for mapping and routing. Must stay within -180 to 180.
       - name: is_primary
         type: boolean
-        help: "The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its is primary."
+        help: Marks the address a party or location uses by default for its address type. Set by the person maintaining addresses; at most one active primary address of each type applies per party or location, and it is the one documents pick unless told otherwise.
         default: "false"
       - name: status
         type: string
         enum: AddressStatus
-        help: "The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relationships; it is not meaningful on its own. Required: a address cannot be understood without its status. The status of the address is active; set it when that is what the business means for this record. The status of the address is inactive; set it when that is what the business means for this record. The status of the address is retired; set it when that is what the business means for this record."
+        help: Whether the address may still be used for new business. Changed by data stewards; selection lists offer only ACTIVE addresses. Valid and available for new documents. Temporarily not offered, for example while a move is being confirmed; it can be reactivated. No longer valid; kept only as history and in past documents.
         default: ACTIVE
       - name: party_id
         type: string
         fk: true
         optional: true
-        help: Party that maintains or uses this reusable address. Provides party master-data context for address selection.
+        help: The party that uses or maintains this address. Set when a party's address is added; used to find a party's addresses and pick the effective one. At most one party; an address being prepared may have none yet. Supplies the party context for selecting an address.
       - name: person_id
         type: string
         fk: true
@@ -602,76 +602,76 @@ entities:
       - name: country_id
         type: string
         fk: true
-        help: The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.
+        help: The country the address is in. Chosen first; it sets the address format and narrows the states and cities offered. Exactly one country is required. Settles the format, tax and trade rules that apply to the address. Every address names its country, which settles the format, tax and trade rules that apply to it.
       - name: state_province_id
         type: string
         fk: true
         narrowedBy: [country_id]
         optional: true
-        help: The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address's own country.
+        help: The state, province or equivalent division the address is in. Chosen after the country, from that country's divisions. At most one; some countries have no divisions in the list. Must belong to the address's own country. Must be a division of the address's own country.
       - name: city_id
         type: string
         fk: true
         narrowedBy: [state_province_id, country_id]
         optional: true
-        help: The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address's own country, and of its state or province where one is stated.
+        help: The city the address is in, chosen from the list. Chosen after the state or province; use the city name field only when the city is not listed. At most one. Must belong to the address's own country, and to its state or province where one is given. Must be a city of the address's own country, and of its state or province where one is stated.
   - name: ContactPoint
-    help: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team's email address invoices@acme.example, recorded for a customer.
     icon: database
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of ContactPoint. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this ContactPoint is referenced. Required.
+        help: The identity of the contact point. Generated on creation; messages and preferences refer to it.
       - name: code
         type: string(100)
-        help: Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
       - name: name
         type: string(300)
-        help: Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
       - name: party_id
         type: string
         fk: true
-        help: Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+        help: The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
   - name: Location
-    help: "Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context. Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices. A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred."
+    help: "A physical or logical place where resources, activities, stock, services or organisational operations are situated. Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place. Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting. A location may sit within a parent Location with children beneath it, has an Address and may belong to an Organization. A location is planned, becomes active when in use, may be inactive for a time, and is closed or retired when no longer used. History and references remain valid. The Rotterdam distribution centre, a warehouse location within the Netherlands site, with its own address. Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context."
     icon: map-pin
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: "The location id of the location: an identifier the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its location id."
+        help: The identity of the location, which stays the same when its name or code changes. Generated on creation; assets, stock and documents refer to the location through it.
       - name: code
         type: string(100)
         unique: true
-        help: "The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its code."
+        help: The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
       - name: name
         type: string(200)
-        help: "The name of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its name."
+        help: The name people use for the place. Shown in lists, maps and documents.
       - name: location_type
         type: string
         enum: LocationLocationType
-        help: "The location type of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its location type. The location type of the location is site; set it when that is what the business means for this record. The location type of the location is warehouse; set it when that is what the business means for this record. The location type of the location is store; set it when that is what the business means for this record. The location type of the location is office; set it when that is what the business means for this record. The location type of the location is factory; set it when that is what the business means for this record. The location type of the location is yard; set it when that is what the business means for this record. The location type of the location is port; set it when that is what the business means for this record. The location type of the location is depot; set it when that is what the business means for this record. The location type of the location is virtual; set it when that is what the business means for this record. The location type of the location is other; set it when that is what the business means for this record."
+        help: What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place.
       - name: status
         type: string
         enum: LocationStatus
-        help: "The status of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own. Required: a location cannot be understood without its status. The status of the location is planned; set it when that is what the business means for this record. The status of the location is active; set it when that is what the business means for this record. The status of the location is inactive; set it when that is what the business means for this record. The status of the location is closed; set it when that is what the business means for this record. The status of the location is retired; set it when that is what the business means for this record."
-        default: ACTIVE
+        help: Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.
+        default: PLANNED
       - name: address_id
         type: string
         fk: true
         optional: true
-        help: "The address id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own."
+        help: The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
       - name: parent_location_id
         type: string
         fk: true
         optional: true
-        help: "The parent location id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relationships; it is not meaningful on its own."
+        help: The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
       - name: organization_id
         type: string
         fk: true
         optional: true
-        help: Links a location to organization, the organization it relates to. Chosen from the existing organization records when the location is created or edited. A location has at most one organization in this role. Lets the location be found from, and reported with, its organization.
+        help: The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
       - name: e_rp_id
         type: string
         fk: true
@@ -679,7 +679,7 @@ entities:
         optional: true
         help: The ERP this Location belongs to.
   - name: Country
-    help: A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.
+    help: A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
     icon: globe
     data:
       key: code
@@ -2176,11 +2176,11 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Country. Cross-domain reference, integration and audit. Used wherever this Country is referenced. Required.
+        help: The identity of the country record, independent of its ISO codes. Generated when the country is loaded; addresses, states and cities refer to the country through it.
       - name: code
         type: string(2)
         unique: true
-        help: The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.
+        help: The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it.
       - name: alpha3
         type: string(3)
         optional: true
@@ -2191,7 +2191,7 @@ entities:
         help: The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
       - name: name
         type: string(300)
-        help: The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.
+        help: The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
       - name: phone_code
         type: string(20)
         optional: true
@@ -2202,7 +2202,7 @@ entities:
         optional: true
         help: The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency follow the country chosen on an address.
   - name: StateProvince
-    help: A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country.
+    help: A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. "California" belongs to the United States and contains cities such as Los Angeles. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
     icon: map
     data:
       key: code
@@ -6843,14 +6843,14 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of StateProvince. Cross-domain reference, integration and audit. Used wherever this StateProvince is referenced. Required.
+        help: The identity of the state or province, constant for its life. Generated on load; addresses refer to it. Referenced by addresses and cities.
       - name: code
         type: string(10)
         unique: true
-        help: The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.
+        help: The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
       - name: name
         type: string(200)
-        help: The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.
+        help: The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key.
       - name: subdivision_type
         type: string(100)
         optional: true
@@ -6860,7 +6860,7 @@ entities:
         fk: true
         help: The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
   - name: City
-    help: "A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or province, which belongs to a country). Seeded from the common CEDM specification; changed only by an administrator, and a retired value stays on the records that carry it. Address capture, party onboarding, tax and trade determination, reporting. A shipping address in a named city, state and country."
+    help: "A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes."
     icon: building-2
     data:
       key: code
@@ -13128,14 +13128,14 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of City. Cross-domain reference, integration and audit. Used wherever this City is referenced. Required.
+        help: The identity of the city record. Generated when the city is loaded; addresses refer to the city through it.
       - name: code
         type: string(80)
         unique: true
-        help: "The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required."
+        help: "The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart."
       - name: name
         type: string(200)
-        help: "The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required."
+        help: "The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name."
       - name: population
         type: integer
         optional: true
@@ -13159,7 +13159,7 @@ entities:
       - name: country_id
         type: string
         fk: true
-        help: The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.
+        help: Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
       - name: state_province_id
         type: string
         fk: true
@@ -13167,7 +13167,7 @@ entities:
         optional: true
         help: The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state of a city must be a division of the city's own country.
   - name: Language
-    help: A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: A language used for localisation, communication preferences, content and reporting. People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in. Loaded from the standard language registry; chosen on user profiles, documents and messages. Parties, users and content refer to a language; the language itself depends on nothing. Code and identity stay stable, and history is never silently rewritten. English, with code en.
     icon: languages
     data:
       key: code
@@ -13544,14 +13544,14 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Language. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Language is referenced. Required.
+        help: The identity of the language record. Generated when the language is loaded.
       - name: code
         type: string(2)
         unique: true
-        help: Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
       - name: name
         type: string(300)
-        help: Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: The name of the language in English. Shown in language pick-lists.
   - name: Currency
     help: Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
     icon: coins
@@ -14274,28 +14274,28 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency. Required for unambiguous monetary interpretation.
+        help: Stable identity of the currency master record. Referenced by monetary transactions and financial master data. Identifies the currency definition, not a monetary amount or an exchange-rate observation. Allows Product pricing, SalesOrder, Invoice, Payment, BankTransaction, PaymentAllocation, and accounting records to resolve the same currency.
       - name: code
         type: string(3)
         unique: true
-        help: Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows. Required for interoperable monetary representation.
+        help: Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Provides the currency identity carried through order, invoice, payment, bank, and ledger workflows.
       - name: name
         type: string(100)
-        help: Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Required for usable currency master data.
+        help: The name of the currency, such as Euro or US Dollar. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users.
       - name: symbol
         type: string(10)
         optional: true
-        help: Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without affecting financial calculations. Optional where no standard symbol or display policy exists.
+        help: Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without affecting financial calculations.
       - name: decimal_places
         type: integer
-        help: Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy. Supplies a currency-level precision baseline to monetary workflows. Required because monetary amounts must have predictable representation.
+        help: Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or financial-system rules may be stricter; this field does not itself define rounding policy. Supplies a currency-level precision baseline to monetary workflows.
         default: "2"
         min: 0
         max: 6
       - name: status
         type: string
         enum: CurrencyStatus
-        help: Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies. Available for normal financial activity. Temporarily unavailable for new normal activity. No longer available for new normal activity while historical financial records remain valid. Required for transaction eligibility.
+        help: Available for use on new prices, documents and payments. Temporarily not offered, for example while a market is closed; it can be reactivated. No longer in use, such as a replaced national currency; historical amounts keep it. Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that currency. New transactions should use ACTIVE currencies unless an authorized legacy exception applies.
         default: ACTIVE
   - name: ExchangeRate
     help: Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permitted. Source Money + source Currency → select valid ExchangeRate by rate type/effective time/source → convert → target Money → preserve ExchangeRate reference and rounding result. The selected rate becomes historical evidence of the conversion decision. Rate is created or imported, activated for its validity window, expires or is cancelled, while historical transactions retain the original rate reference. A customer invoice is USD 1,000 and payment is EUR. An approved EUR-to-USD ExchangeRate is selected according to settlement policy. The Payment remains EUR, the Invoice remains USD, PaymentAllocation records the conversion context, and accounting retains the rate used rather than later recalculating the historical settlement.
@@ -14304,39 +14304,39 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used. Required for traceable currency conversion.
-      - name: from_currency
+        help: Stable identity of the exchange-rate observation or published rate record. Referenced by PaymentAllocation, accounting conversions, reporting, and other multi-currency calculations. Identifies one rate record rather than a currency or monetary amount. Provides auditable linkage from a converted amount back to the rate used.
+      - name: from_currency_id
         type: string
         fk: true
         references: Currency
-        help: Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion. Required to prevent ambiguous conversion direction.
-      - name: to_currency
+        help: Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value in an explicit conversion.
+      - name: to_currency_id
         type: string
         fk: true
         references: Currency
-        help: Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value. Required for an auditable conversion.
+        help: Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather than assuming arithmetic equivalence. Identifies the currency of the resulting Money value.
       - name: rate
         type: decimal
-        help: Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType. Supplies the mathematical conversion input used by settlement and accounting calculations. Required for conversion.
+        help: Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be interpreted with fromCurrency, toCurrency, effectiveAt, and rateType. Supplies the mathematical conversion input used by settlement and accounting calculations.
       - name: rate_type
         type: string
         enum: ExchangeRateRateType
-        help: Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event. Market or transaction-time conversion rate. Rate established by an agreement or commercial contract. Published daily rate for a defined business date. Published rate intended for a defined monthly reporting period. Rate designated by accounting policy for ledger translation or reporting. Controlled rate established for a specific business purpose. Required to preserve conversion context.
+        help: The market rate at a moment in time. A rate fixed by agreement with a counterparty. The rate published for a business day. An average or closing rate for a month. A rate set by the finance team for ledger translation. Any other rate defined by policy. Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not automatically replace a contractual or accounting rate. Controls which rate is eligible for a conversion event.
       - name: effective_at
         type: datetime
-        help: Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates change over time. Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion. Required for temporal validity.
+        help: Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates change over time. Supports deterministic selection and audit of the rate used by PaymentAllocation and accounting conversion.
       - name: expires_at
         type: datetime
         optional: true
-        help: Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations. Optional for rates whose validity is governed by another period convention.
+        help: Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
       - name: source
         type: string(200)
-        help: Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicable. Allows users and systems to reproduce or validate the conversion decision. Required for financial traceability.
+        help: Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicable. Allows users and systems to reproduce or validate the conversion decision.
       - name: status
         type: string
         enum: ExchangeRateStatus
-        help: Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them. Required for controlled rate selection. The status of the exchange rate is draft; set it when that is what the business means for this record. The status of the exchange rate is active; set it when that is what the business means for this record. The status of the exchange rate is expired; set it when that is what the business means for this record. The status of the exchange rate is cancelled; set it when that is what the business means for this record.
-        default: ACTIVE
+        help: Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates where policy does not permit them.
+        default: DRAFT
   - name: UnitOfMeasure
     help: Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.
     icon: list
@@ -14344,293 +14344,293 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the unit-of-measure definition. Referenced by Product, transaction lines, inventory, and conversion rules. Identifies the measurement definition rather than a quantity value. Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted. Required for unambiguous measurement semantics.
+        help: Stable identity of the unit-of-measure definition. Referenced by Product, transaction lines, inventory, and conversion rules. Identifies the measurement definition rather than a quantity value. Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted.
       - name: code
         type: string(30)
         unique: true
-        help: Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting. Required for operational interoperability.
+        help: Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting.
       - name: name
         type: string(100)
-        help: Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business users. Required for clear business interpretation.
+        help: Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business users.
       - name: symbol
         type: string(20)
         optional: true
-        help: Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities. Optional when the unit has no standard symbol or display policy does not require one.
+        help: Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantities.
       - name: category
         type: string
         enum: UnitOfMeasureCategory
-        help: Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities. Required to establish dimensional compatibility. The category of the unit of measure is quantity; set it when that is what the business means for this record. The category of the unit of measure is length; set it when that is what the business means for this record. The category of the unit of measure is area; set it when that is what the business means for this record. The category of the unit of measure is volume; set it when that is what the business means for this record. The category of the unit of measure is mass; set it when that is what the business means for this record. The category of the unit of measure is time; set it when that is what the business means for this record. The category of the unit of measure is count; set it when that is what the business means for this record. The category of the unit of measure is currency; set it when that is what the business means for this record. The category of the unit of measure is other; set it when that is what the business means for this record.
+        help: A general count or quantity of items. A distance, such as metres or inches. A surface, such as square metres. A capacity, such as litres. A weight, such as kilograms or tonnes. A duration, such as hours or days. A number of discrete things, such as each or dozen. A monetary unit used as a measure. A unit that fits no other category. Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
       - name: conversion_factor
         type: decimal
         optional: true
-        help: Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation. Optional for base units or units whose conversion requires a dedicated rule.
+        help: Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversion rule overrides the default. Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation. Supplies the conversion used by new and eligible future quantity transactions after dependency validation.
       - name: base_unit_id
         type: string
         fk: true
         references: UnitOfMeasure
         optional: true
-        help: Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities. Optional for a base unit itself.
+        help: Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities.
       - name: status
         type: string
         enum: UnitOfMeasureStatus
-        help: Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists. Required for transaction eligibility. The status of the unit of measure is active; set it when that is what the business means for this record. The status of the unit of measure is inactive; set it when that is what the business means for this record. The status of the unit of measure is retired; set it when that is what the business means for this record.
+        help: Available for use on products and documents. Not offered for now; can be reactivated. No longer used; kept for history. A final state. Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
         default: ACTIVE
   - name: Calendar
-    help: A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: "A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations. Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree. Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count. Locations, teams, contracts and schedules point to the calendar that governs their working days. A calendar's code and identity stay stable. Changes to holidays apply from their effective date and do not rewrite history. The German national business calendar, with weekends and public holidays marked non-working."
     icon: calendar
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Calendar. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Calendar is referenced. Required.
+        help: The identity of the calendar. Generated on creation; schedules and rules refer to the calendar through it.
       - name: code
         type: string(100)
-        help: Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
       - name: name
         type: string(300)
-        help: Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: The descriptive name of the calendar. Shown wherever a calendar is chosen.
   - name: Attachment
-    help: A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions. Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved. Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation. Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    help: A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record. A signed delivery note PDF is attached to a shipment record by the driver's handheld at delivery.
     icon: paperclip
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Attachment. Identifies one governed record independently of mutable labels or state. Governance, workflow, integration and audit. Referenced by related enterprise records. Required.
+        help: The identity of the attachment record. Generated on creation; links to the supported record and audit entries use it.
       - name: effective_at
         type: datetime
         optional: true
-        help: Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate effective timestamp.
+        help: When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
   - name: Task
-    help: Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical Task record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    help: A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All three end states are final. A task "Approve purchase order PO-5120" is assigned to a manager and completed the same day.
     icon: list-checks
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Identifies the task record associated with this Task. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The identity of the task, constant for its life. Generated on creation; workflow and audit records refer to it.
       - name: code
         type: string(100)
-        help: A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The code of the task, such as TASK-0042. Used in lists and notifications.
       - name: name
         type: string(300)
-        help: The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: A short statement of the work. Shown on to-do lists.
       - name: description
         type: string(2000)
         optional: true
-        help: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: Details of what must be done. Read by the assignee.
       - name: task_type
         type: string
         enum: TaskTaskType
-        help: Captures the business meaning of task type for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the user state or classification in the context of Task. Represents the system state or classification in the context of Task. Represents the approval state or classification in the context of Task. Represents the decision state or classification in the context of Task. Represents the notification state or classification in the context of Task. Represents the script state or classification in the context of Task. Represents the other state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script run by the system. Work that fits no other type.
       - name: status
         type: string
         enum: TaskStatus
-        help: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the created state or classification in the context of Task. Represents the ready state or classification in the context of Task. Represents the assigned state or classification in the context of Task. Represents the in progress state or classification in the context of Task. Represents the blocked state or classification in the context of Task. Represents the completed state or classification in the context of Task. Represents the cancelled state or classification in the context of Task. Represents the failed state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final state. Could not be done. A final state.
         default: CREATED
       - name: priority
         type: string
         enum: TaskPriority
-        help: Captures the business meaning of priority for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the low state or classification in the context of Task. Represents the normal state or classification in the context of Task. Represents the high state or classification in the context of Task. Represents the critical state or classification in the context of Task. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.
         default: NORMAL
       - name: due_at
         type: datetime
         optional: true
-        help: Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
       - name: started_at
         type: datetime
         optional: true
-        help: Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
       - name: completed_at
         type: datetime
         optional: true
-        help: Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
       - name: assignee_id
         type: string
         fk: true
         references: Party
         optional: true
-        help: Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        help: The person responsible for the task. Chosen when assigned. At most one assignee. Decides whose list it is on.
       - name: organization_id
         type: string
         fk: true
         optional: true
-        help: Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        help: The organisation the task is for. Chosen when it concerns a unit. At most one organisation. Groups tasks by unit.
   - name: ERP
-    help: Represents a root business entity called ERP within the CEDM business model. ERP is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate ERP records. The entity participates in a wider business graph through relationships with Organization, Party, Location, Product, BusinessProcess, Workflow, Document. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical ERP record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    help: "The root record of an enterprise application context, naming the installation and the defaults for everything managed inside it. An ERP installation needs one place that says what it is, which currency it reports in and which time zone and language apply. Every organisation, party, product and process belongs to that context, so this record is where scoping starts. Created once when an installation is set up; read as the context for every other record and changed rarely, by administrators. The context aggregates its Organizations and holds the shared Parties, Locations, Products, Business Processes, Workflows and Documents that those organisations use. A context is drafted while being configured, becomes active when it goes live, may be suspended, and is retired when it is closed down. Reactivation after retirement needs an explicit policy. The Acme Group installation: euro reporting currency, Central European time, English locale, containing six legal entities."
     icon: table
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Identifies the erp record associated with this ERP. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The identity of the installation, fixed for its whole life. Generated at setup; scoped records carry it so data from different installations never mixes.
       - name: code
         type: string(50)
         unique: true
-        help: A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The short unique code of the installation, such as ACME-PROD. Chosen at setup; used in integrations and environment names, so it should not change.
       - name: name
         type: string(200)
-        help: The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The name of the installation as users see it. Shown in the application header and on reports.
       - name: description
         type: string(2000)
         optional: true
-        help: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: A description of what the installation covers and who it is for. Written by the administrator; helps new users tell environments apart.
       - name: status
         type: string
         enum: ERPStatus
-        help: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the draft state or classification in the context of ERP. Represents the active state or classification in the context of ERP. Represents the suspended state or classification in the context of ERP. Represents the retired state or classification in the context of ERP. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
-        default: ACTIVE
+        help: Whether the installation is being set up, live, paused or closed. Moved by administrators; only ACTIVE installations accept business transactions. Being configured; not yet live. Live and in use. Paused, for example during a migration; no new business activity. Closed down; kept for history.
+        default: DRAFT
       - name: base_currency_id
         type: string
         fk: true
         references: Currency
         optional: true
-        help: Captures the business meaning of base currency for the ERP. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: The currency in which the installation reports consolidated figures. Chosen at setup; other currencies are converted to it for group reporting.
       - name: timezone
         type: string(64)
         optional: true
-        help: Captures the business meaning of timezone for the ERP. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: The default time zone for displaying and interpreting dates and times. Chosen at setup; users and organisations may override it.
       - name: locale
         type: string(35)
         optional: true
-        help: Captures the business meaning of locale for the ERP. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating ERP records, where applicable. Its meaning is specific to ERP; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: The default language and regional formatting for the installation. Chosen at setup; controls number, date and currency formats where a user has no preference.
   - name: Team
-    help: A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability. Provide a canonical enterprise representation with stable identity and governed semantics. A governed collaborative organizational grouping used to assign people, roles, work, ownership, and accountability. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: A collaborative grouping of people used to assign work, roles, ownership and accountability. Teams let work and responsibility be given to a group rather than a single person, and let access and reporting follow the group. A team belongs to an organisation, so each unit manages its own groups. Set up by managers or administrators; chosen on tasks and records; read in reports. A team belongs to one organisation. A team is created, used while it works together, and left unused when disbanded. History keeps its name. The "Warehouse Leeds" team is responsible for stock counts at the Leeds site.
     icon: table
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Team. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Team is referenced. Required.
+        help: The identity of the team, constant when it is renamed. Lets assignments and ownership point at the team rather than its name. Generated on creation. Referenced by tasks and records owned by the team.
       - name: code
         type: string(100)
-        help: Governed business code for Team. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The short code of the team, such as WH-LDS. Gives a stable way to refer to the team in imports and rules. Unique; used in imports and rules. Read with the name.
       - name: name
         type: string(300)
-        help: Human-readable name of Team. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: The name of the team as people know it. What people look for when assigning work. Shown on assignments. Read with the organisation.
       - name: organization_id
         type: string
         fk: true
-        help: Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+        help: The organisation the team belongs to. Chosen when the team is created. Exactly one organisation. Decides whose structure the team is part of.
   - name: OrganizationMembership
-    help: A governed relationship connecting a User or Party to an Organization with membership status and role context. Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains. A governed relationship connecting a User or Party to an Organization with membership status and role context. Used when enterprise work requires explicit responsibility, state, authorization, or control evidence. Connects to business objects and workflow participants without replacing their domain transaction history. Progresses through governed states with immutable audit evidence for completed or cancelled work. Workflow orchestration, approval, assignment, escalation, access governance, and audit. Cross-domain enterprise process control.
+    help: "A relationship that connects a user or party to an organisation, with its membership status and role context. People belong to organisations in different ways: as staff, partners, members or contractors. The membership says that a person belongs, in what capacity and whether it is current, which access and responsibilities are then based on. Created when someone is invited or added; activated on acceptance; ended when they leave; read by access control and administration. A membership links a User or Party to an Organization. A membership is pending until accepted, active while in force, completed when it ends normally and cancelled if withdrawn before it began. State changes keep auditable history and do not duplicate effects. A consultant added to a client organisation for the duration of a project."
     icon: building-2
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of OrganizationMembership. Identifies one governed OrganizationMembership record independently of mutable status. Workflow, authorization, integration and audit. Referenced by related enterprise processes. Required.
+        help: The identity of the membership. Generated on creation; role assignments and audit entries refer to it.
       - name: status
         type: string
         enum: OrganizationMembershipStatus
-        help: Governed lifecycle state of OrganizationMembership. Indicates current workflow/control usability. Execution and audit. Terminal history is retained. Awaiting activation or decision. Currently effective or executing. Successfully concluded. Terminated without normal completion. Required.
+        help: Whether the person currently belongs to the organisation. Moved by administrators or the invitation process; access based on membership applies only while ACTIVE. Offered or requested, not yet effective. In force; the person belongs to the organisation. Ended normally. A final state. Withdrawn before it took effect. A final state.
   - name: Classification
-    help: A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics. Provide a canonical enterprise representation with stable identity and governed semantics. A governed reusable classification scheme or category value used to consistently classify enterprise records without embedding uncontrolled free-text semantics. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable. Master-data governance, transaction validation, reporting, integration, and audit. Enterprise configuration and cross-domain business workflows.
+    help: 'A reusable classification scheme or category value that classifies records consistently instead of by free-text labels. Free-text categories drift: one person writes "Premium", another "premium". A classification gives the organisation one agreed list, so reporting, rules and searches group things the same way. Maintained by data stewards; chosen by users on the records they classify; read by reports and rules that group by category. Many kinds of record can point at a classification, which is what lets different domains share one vocabulary. Code and identity stay stable, and history is never silently rewritten when a classification is renamed or retired. Customer segment "Enterprise", used to group accounts in sales reports and pricing rules.'
     icon: layers
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Classification. Identifies the governed concept independently of mutable labels. Cross-domain reference, integration and audit. Used wherever this Classification is referenced. Required.
+        help: The identity of the classification value. Generated on creation; classified records refer to it.
       - name: code
         type: string(100)
-        help: Governed business code for Classification. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
+        help: The stable code of the classification, such as ENTERPRISE. Assigned by the steward; used in rules and integrations, so it should not change.
       - name: name
         type: string(300)
-        help: Human-readable name of Classification. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+        help: The display name of the classification. Shown in pick-lists and reports; can be reworded without changing the code.
   - name: Approval
-    help: A governed approval decision or approval request associated with a business object, process, task, or controlled change. Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains. A governed approval decision or approval request associated with a business object, process, task, or controlled change. Used when enterprise work requires explicit responsibility, state, authorization, or control evidence. Connects to business objects and workflow participants without replacing their domain transaction history. Progresses through governed states with immutable audit evidence for completed or cancelled work. Workflow orchestration, approval, assignment, escalation, access governance, and audit. Cross-domain enterprise process control.
+    help: A request for, or the outcome of, an approval decision about a business object, process, task or controlled change. Approvals are the checkpoints where a person with authority says yes or no. Recording them as data, not email, shows who approved what and when, and lets processes wait for or react to the decision. Created when something needs sign-off, decided by the approver, and read afterwards by anyone who needs to show the control was applied. An approval refers to the thing it approves and to the approver; workflow and access governance use it to gate steps. An approval is pending when requested, active while under review, completed once decided and cancelled if the request is withdrawn. The decision is evidence and is not rewritten. A purchase order above the buyer's limit goes to the finance director for approval before it can be sent to the supplier. Workflow orchestration, approval, assignment, escalation, access governance, and audit.
     icon: table
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Approval. Identifies one governed Approval record independently of mutable status. Workflow, authorization, integration and audit. Referenced by related enterprise processes. Required.
+        help: The permanent system identity of the approval. Generated on request; workflow steps and audit entries refer to the approval through it.
       - name: status
         type: string
         enum: ApprovalStatus
-        help: Governed lifecycle state of Approval. Indicates current workflow/control usability. Execution and audit. Terminal history is retained. Awaiting activation or decision. Currently effective or executing. Successfully concluded. Terminated without normal completion. Required.
+        help: Where the approval request is in its path to a decision. Moved by the approver and the workflow; a gated step proceeds only when the approval is COMPLETED with a positive decision. Requested and waiting to be picked up. Under review by the approver. Decided; the decision is final evidence. Withdrawn by the requester before a decision.
   - name: Assignment
-    help: A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context. Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains. A governed allocation of responsibility for a Task or workflow activity to an eligible user, role, team, or organizational context. Used when enterprise work requires explicit responsibility, state, authorization, or control evidence. Connects to business objects and workflow participants without replacing their domain transaction history. Progresses through governed states with immutable audit evidence for completed or cancelled work. Workflow orchestration, approval, assignment, escalation, access governance, and audit. Cross-domain enterprise process control.
+    help: The allocation of responsibility for a task or workflow activity to an eligible user, role, team or organisational context. Work only gets done when someone is responsible for it. An assignment records who that is, so tasks do not stall unowned and ownership changes leave a trail. Created when a task is routed, claimed or reassigned; read by work queues, escalation rules and audits of workload. An assignment connects a task or activity to the person or group who must act on it. An assignment is pending when offered, active once accepted or in effect, completed when the work is done, and cancelled if withdrawn or reassigned. History is kept; a reassignment is a new record. A claims task is assigned to the Claims Team queue, accepted by an adjuster and completed when the claim is decided. Workflow orchestration, approval, assignment, escalation, access governance, and audit.
     icon: table
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Assignment. Identifies one governed Assignment record independently of mutable status. Workflow, authorization, integration and audit. Referenced by related enterprise processes. Required.
+        help: The identity of the assignment. Generated on creation; escalations and history refer to it.
       - name: status
         type: string
         enum: AssignmentStatus
-        help: Governed lifecycle state of Assignment. Indicates current workflow/control usability. Execution and audit. Terminal history is retained. Awaiting activation or decision. Currently effective or executing. Successfully concluded. Terminated without normal completion. Required.
+        help: Where the assignment stands in its life. Moved by the workflow and by the assignee; work queues show ACTIVE assignments. Offered but not yet accepted or in effect. In effect; the assignee is responsible for the work. The work is done and the responsibility ended. Withdrawn or replaced before completion.
   - name: Activity
-    help: A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities. Provide canonical implementation-neutral semantics for Activity across enterprise applications. A governed CRM interaction or planned action such as a call, meeting, email, visit, or follow-up associated with commercial parties and opportunities. Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies. Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records. Created and progressed through governed business workflow; completed history is retained and corrections are explicit. Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit. Enterprise sales and supply-chain operations.
+    help: A planned or completed customer-facing interaction, such as a call, meeting, email, visit or follow-up, recorded against a party or opportunity. Activities are the trail of contact behind a commercial relationship. They show what was done for a customer or prospect, by whom and what comes next, so sales and service teams do not work blind. Logged by sales and service staff as they plan or complete interactions, and by integrations such as email and calendar sync; read when preparing for a contact or reviewing account history. Activities connect to the commercial parties and opportunities they concern, which gives the interaction its business meaning. An activity is planned, then completed when it happens or cancelled if it does not. Completed activities are history and are not rewritten; a follow-up is a new activity. A product demo meeting with the buyer's procurement team, scheduled for Tuesday and logged as completed with a note to send a proposal.
     icon: activity
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of Activity. Identifies one governed Activity record. Transactions, integration, reporting and audit. Referenced by compatible cross-domain workflows. Required.
+        help: The permanent system identity of the activity. Generated when the activity is logged; notes, follow-ups and reports refer to it.
       - name: code
         type: string(120)
         optional: true
-        help: Business reference for Activity. Human or integration-friendly reference where applicable. Search, exchange and reporting. Does not replace immutable identity. Optional when another transaction reference supplies business identity.
+        help: An optional reference number or code for the activity. Used when an external system, such as a calendar or telephony system, supplies its own reference, so the same interaction is not logged twice.
   - name: BusinessEvent
-    help: An immutable semantic record that a meaningful business fact occurred, suitable for cross-domain publication without replacing the source transaction. Provide canonical implementation-neutral integration semantics for BusinessEvent. An immutable semantic record that a meaningful business fact occurred, suitable for cross-domain publication without replacing the source transaction. Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit. Carries or routes evidence derived from authoritative domain transactions without replacing those source records. Created and processed through governed integration states; attempts and finalized evidence are retained. Event publication, messaging, endpoint delivery, retry, dead-letter handling, reconciliation, and audit. Enterprise application integration and event-driven workflows.
+    help: An immutable record that a meaningful business fact occurred, published for other domains without replacing the original transaction. Business events let one part of the organisation tell the rest that something happened, such as an order shipped or a payment settled, without those parts sharing databases. The event is a stable, auditable announcement of the fact. Written when a governed fact is confirmed; consumed by other systems and processes that react to it, and kept for audit. An event refers to the transaction that caused it but does not replace it; consumers rely on the event rather than reading the source system. An event is final when written. A correction is a new event, and delivery retries must not create duplicate effects downstream. Event "OrderShipped" for order SO-20413, published when the carrier confirmed pick-up, consumed by invoicing and customer notification. Used for event publication, message exchange, delivery, retry, reconciliation, integration operations, and audit.
     icon: activity
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of BusinessEvent. Identifies one governed integration record. Integration, event processing, reporting and audit. Referenced by compatible integration workflows. Required.
+        help: The identity of the event, also used by consumers to ignore a delivery they have already processed. Generated when the event is written; consumers store it to make processing idempotent, and audit queries use it to find the event.
       - name: occurred_at
         type: datetime
         optional: true
-        help: Effective or occurrence time where applicable. Anchors integration evidence in chronology. Processing and audit. Does not replace source transaction timestamps. Optional for endpoint/master definitions.
+        help: When the business fact happened, as opposed to when it was published. Set from the source transaction's time; consumers order and window events by it.
   - name: BusinessTransaction
-    help: Represents a core business transaction called BusinessTransaction within the CEDM business model. BusinessTransaction is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate BusinessTransaction records. The entity participates in a wider business graph through relationships with Organization, Party, Product, Document, Location. These relationships provide the context needed to interpret the record rather than treating its fields as isolated database columns. The entity lifecycle is governed by its status, invariants, and related business processes. State changes must preserve the declared business meaning and relationships. A typical BusinessTransaction record represents one identifiable business occurrence or master-data object that can be referenced by related CEDM processes.
+    help: "A recorded business transaction that commits, changes or represents a business state or obligation, in a form common to every domain. Many different activities, such as sales, purchases, transfers and adjustments, share the same bones: a number, a date, an amount, the parties and products involved, and a status. This record carries those common facts so they can be reported, audited and reversed uniformly. Created when a business transaction is entered or generated by a process; moved through approval and posting; read for history, exposure and reporting. A transaction belongs to an Organization, involves Parties and Products, may be evidenced by a Document and may take place at a Location; its amounts are in one Currency. A transaction is drafted, opened, approved and posted, and finally completed. It can be cancelled before it is posted. Once posted it is never edited: an error is corrected by reversing it and entering a new one. Transaction SO-20413, a sale of 40 units to a retailer, approved on Monday, posted to the ledger on Tuesday and completed when delivery was confirmed."
     icon: file-text
     attributes:
       - name: id
         type: uuid
         pk: true
-        help: Identifies the transaction record associated with this BusinessTransaction. The identifier connects this record to the corresponding CEDM entity so related processes can resolve the correct business object. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The identity of the transaction. Generated on creation; documents, postings and reversals refer to the transaction through it.
       - name: transaction_number
         type: string(100)
-        help: Captures the business meaning of transaction number for the BusinessTransaction. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The number under which the transaction is known to users and partners. Allocated from a number series for its type; unique within the owning context and transaction type, and quoted on documents.
       - name: transaction_type
         type: string(100)
-        help: Captures the business meaning of transaction type for the BusinessTransaction. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The kind of transaction, such as SALE, PURCHASE, TRANSFER or ADJUSTMENT. Chosen when the transaction is created; decides numbering, approval rules and how posting treats the amount.
       - name: transaction_date
         type: datetime
-        help: Records the business date associated with the transaction. It is used in chronology, eligibility, scheduling, reporting, and related business rules. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: The business date and time of the transaction. Entered or defaulted to now; used for period assignment, reporting and the order of events.
       - name: status
         type: string
         enum: BusinessTransactionStatus
-        help: The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Represents the draft state or classification in the context of BusinessTransaction. Represents the open state or classification in the context of BusinessTransaction. Represents the approved state or classification in the context of BusinessTransaction. Represents the posted state or classification in the context of BusinessTransaction. Represents the completed state or classification in the context of BusinessTransaction. Represents the cancelled state or classification in the context of BusinessTransaction. Represents the reversed state or classification in the context of BusinessTransaction. Required because the business model cannot reliably interpret the record for its declared purpose without this value.
+        help: How far the transaction has progressed from draft to completion. Moved by the business process as steps are performed; posted transactions are no longer changed. Being entered; nothing is committed. Submitted and awaiting approval. Authorised but not yet posted. Recorded in the books; it can now only be reversed, not edited. Fully performed and closed out. Withdrawn before being posted; no effect on the books. Posted and then undone by a reversing transaction; the original stays on record.
         default: DRAFT
       - name: currency_id
         type: string
         fk: true
         optional: true
-        help: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted and aggregated consistently. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. This field connects BusinessTransaction to Currency. The reference establishes business context between the two entities and lets processes navigate from this record to the related Currency. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: The currency in which the transaction's amounts are expressed. Set when the transaction is created; the total and any line amounts are in this currency.
       - name: total_amount
         type: decimal
         optional: true
-        help: Captures the business meaning of total amount for the BusinessTransaction. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: The total value of the transaction in its currency. Calculated from its lines or entered; non-negative unless the transaction type explicitly allows signed amounts.
       - name: reference_number
         type: string(200)
         optional: true
-        help: Captures the business meaning of reference number for the BusinessTransaction. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating, reporting on, or integrating BusinessTransaction records, where applicable. Its meaning is specific to BusinessTransaction; it must be interpreted with the entity's relationships, lifecycle, and business rules rather than as an isolated technical value. Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+        help: An external reference for the transaction, such as a customer's purchase order number. Entered to link the transaction to a partner's document; used for search and reconciliation.
       - name: organization_id
         type: string
         fk: true
         optional: true
-        help: Connects BusinessTransaction to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a BusinessTransaction. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        help: The organisation on whose behalf the transaction is made. Set when the transaction is created; scopes numbering, approvals and ledger postings. At most one organisation; when none is given the transaction belongs to the default business context. Determines whose books and permissions apply.
       - name: location_id
         type: string
         fk: true
         optional: true
-        help: Connects BusinessTransaction to Location so related business context can be navigated and enforced. Used when processes need to find or reason about Location records associated with a BusinessTransaction. The declared cardinality 0..1 expresses how many related records may participate in the relationship. The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities, ownership, conditions, and invariants.
+        help: The place at which the transaction occurred or applies. Set when location matters for tax, stock or reporting. At most one location. Drives location-specific rules such as tax and inventory.
   - name: PartyPartyType
     help: "The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15427,16 +15427,6 @@ relationships:
     to: ExchangeRate
     toCardinality: zero-or-more
     label: exchange_rates_to
-  - from: Currency
-    fromCardinality: exactly-one
-    to: ExchangeRate
-    toCardinality: zero-or-more
-    label: from_currency_ref
-  - from: Currency
-    fromCardinality: exactly-one
-    to: ExchangeRate
-    toCardinality: zero-or-more
-    label: to_currency_ref
   - from: UnitOfMeasure
     fromCardinality: exactly-one
     to: UnitOfMeasure
@@ -16039,17 +16029,23 @@ stateMachines:
     entity: ERP
     states: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
     initial: DRAFT
+    final: [RETIRED]
     transitions:
       - from: DRAFT
         to: ACTIVE
+        trigger: activate
       - from: ACTIVE
         to: SUSPENDED
+        trigger: suspend
       - from: SUSPENDED
         to: ACTIVE
+        trigger: resume
       - from: ACTIVE
         to: RETIRED
+        trigger: retire
       - from: SUSPENDED
         to: RETIRED
+        trigger: retire
   - name: OrganizationMembershipLifecycle
     title: Organization Membership Lifecycle
     entity: OrganizationMembership
@@ -16112,7 +16108,7 @@ stateMachines:
     entity: BusinessTransaction
     states: [DRAFT, OPEN, APPROVED, POSTED, COMPLETED, CANCELLED, REVERSED]
     initial: DRAFT
-    final: [COMPLETED, CANCELLED, REVERSED]
+    final: [CANCELLED, REVERSED]
     transitions:
       - from: DRAFT
         to: OPEN
@@ -16136,9 +16132,9 @@ stateMachines:
         to: CANCELLED
         trigger: cancel
       - from: POSTED
-        to: CANCELLED
-        trigger: cancel
-      - from: POSTED
+        to: REVERSED
+        trigger: reverse
+      - from: COMPLETED
         to: REVERSED
         trigger: reverse
 sagas:

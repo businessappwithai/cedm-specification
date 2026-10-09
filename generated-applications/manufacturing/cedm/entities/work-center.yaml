@@ -7,22 +7,31 @@ entity:
     icon: database
   identity: {key: workCenterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the manufacturing resource., businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing work-center code., businessMeaning: Operational identifier used in manufacturing plans and execution., usage: "Scheduling, dispatching, reporting, and integration.", relationshipContext: Unique within its manufacturing context., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Descriptive work-center name., businessMeaning: Communicates the resource function to planners and operators., usage: Planning and execution UI/reporting., relationshipContext: Complements the stable code., requiredMeaning: Required.}}
-  - {name: capacityPerHour, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Nominal output or processing capacity per hour., businessMeaning: Planning assumption for finite or rough-cut scheduling., usage: Capacity planning and schedule feasibility., relationshipContext: Actual execution is captured separately., optionalMeaning: Optional when capacity is not quantity-based.}}
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
-    help: {summary: Operational eligibility of the work center., businessMeaning: Controls whether new work may be scheduled or executed., usage: Scheduling and maintenance coordination., relationshipContext: Existing historical operations remain valid., valueSemantics: {ACTIVE: Available subject to capacity., INACTIVE: Temporarily unavailable., MAINTENANCE: Unavailable due to maintenance., RETIRED: Permanently unavailable for new work.}, requiredMeaning: Required.}
+    - {name: workCenterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the manufacturing resource., businessMeaning: Identifies the capacity resource independently of location or routing., usage: "Scheduling, costing, execution, and reporting.", relationshipContext: Referenced by routing and production operations.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing work-center code., businessMeaning: Operational identifier used in manufacturing plans and execution., usage: "Scheduling, dispatching, reporting, and integration.", relationshipContext: Unique within its manufacturing context.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Descriptive work-center name., businessMeaning: Communicates the resource function to planners and operators., usage: Planning and execution UI/reporting., relationshipContext: Complements the stable code.}}
+    - {name: capacityPerHour, type: decimal, required: false, precision: 20, scale: 6, help: {summary: Nominal output or processing capacity per hour., businessMeaning: Planning assumption for finite or rough-cut scheduling., usage: Capacity planning and schedule feasibility., relationshipContext: Actual execution is captured separately.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
+      help:
+        valueSemantics:
+          ACTIVE: Available for scheduling production.
+          INACTIVE: Not scheduled for now; can be reactivated.
+          MAINTENANCE: Out of use for servicing.
+          RETIRED: No longer used. A final state.
+        summary: Operational eligibility of the work center.
+        businessMeaning: Controls whether new work may be scheduled or executed.
+        usage: Scheduling and maintenance coordination.
+        relationshipContext: Existing historical operations remain valid.
   relationships:
-  - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Physical or organizational location of the resource., businessMeaning: Places manufacturing capacity within the operating network., usage: "Scheduling, material staging, and reporting.", cardinalityMeaning: Optional for virtual or pooled resources., workflowRole: Location eligibility constrains execution.}}
-  - {name: routingOperations, target: Operation, cardinality: 0..*, ownership: reference, help: {summary: Standard operations assigned to this resource., businessMeaning: Defines where process steps are normally performed., usage: Routing and capacity planning., cardinalityMeaning: Many operation definitions may use a work center., workflowRole: Routing assignment feeds production execution.}}
+    - {name: location, target: Location, cardinality: "0..1", ownership: reference, help: {summary: Physical or organizational location of the resource., businessMeaning: Places manufacturing capacity within the operating network., usage: "Scheduling, material staging, and reporting.", cardinalityMeaning: Optional for virtual or pooled resources., workflowRole: Location eligibility constrains execution.}}
+    - {name: routingOperations, target: Operation, cardinality: 0..*, ownership: reference, help: {summary: Standard operations assigned to this resource., businessMeaning: Defines where process steps are normally performed., usage: Routing and capacity planning., cardinalityMeaning: Many operation definitions may use a work center., workflowRole: Routing assignment feeds production execution.}}
   invariants:
-  - {id: WORK-CENTER-001, rule: capacityPerHour must be greater than zero when specified.}
-  - {id: WORK-CENTER-002, rule: "INACTIVE, MAINTENANCE, or RETIRED work centers cannot receive new execution without an authorized exception."}
+    - {id: WORK-CENTER-001, rule: capacityPerHour must be greater than zero when specified.}
+    - {id: WORK-CENTER-002, rule: "INACTIVE, MAINTENANCE, or RETIRED work centers cannot receive new execution without an authorized exception."}
   lifecycle:
     title: Work Center Lifecycle
     attribute: status

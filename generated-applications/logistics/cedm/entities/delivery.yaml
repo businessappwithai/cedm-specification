@@ -7,19 +7,17 @@ entity:
     icon: truck
   identity: {key: deliveryId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Delivery., businessMeaning: Identifies one governed Delivery record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Delivery., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+    - {name: deliveryId, type: uuid, required: true, immutable: true, help: {summary: The identity of the delivery record., usage: Generated on creation; proof-of-delivery documents and invoices refer to it.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: "The reference of the delivery, often the carrier's proof-of-delivery number.", usage: Entered on confirmation of handover; used in customer queries.}}
   relationships:
-  - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., cardinalityMeaning: Exactly one Shipment., workflowRole: Event must not silently rewrite prior shipment evidence.}}
+    - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one shipment: a delivery is the final handover of a single shipment.', summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., workflowRole: Event must not silently rewrite prior shipment evidence.}}
   invariants:
-  - {id: DELIVERY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: DELIVERY-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient.
-    purpose: Provide canonical implementation-neutral semantics for Delivery across enterprise applications.
-    businessMeaning: A governed delivery execution record proving handoff of shipped goods to an eligible destination or recipient.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: The record that shipped goods were handed over to a destination or recipient.
+    businessMeaning: A shipment is not finished when it leaves; it is finished when someone receives it. The delivery is the proof of that handover, which settles disputes and triggers invoicing.
+    usage: Created when the carrier confirms handover; read by customer service, finance and claims.
+    relationshipContext: Each delivery belongs to one Shipment and records its final handover.
+    lifecycle: Changes and retries preserve the evidence and never duplicate downstream effects such as invoicing.
+    example: Pallet delivery signed for by the receiving clerk at 14:20 on Thursday.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DELIVERY}

@@ -7,83 +7,82 @@ entity:
     icon: factory
   identity: {key: supplierCreditNoteId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierCreditNoteId, type: uuid, required: true, immutable: true, help: {summary: Immutable identity of the supplier credit note., businessMeaning: Identifies the financial adjustment independently of its number source return claim invoice application and accounting entries., usage: Used for accounts payable reconciliation audit tax and integration., workflowRole: Stable identity across drafting approval posting application and reversal., requiredMeaning: Required.}}
-  - {name: creditNoteNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier credit reference., businessMeaning: Identifies the credit document for supplier communication and financial reconciliation., usage: Used by accounts payable suppliers auditors and integrations., workflowRole: Correlates internal adjustment with external supplier documentation., requiredMeaning: Required.}}
-  - {name: creditNoteDate, type: date, required: true, help: {summary: Effective date of supplier credit adjustment., businessMeaning: Establishes financial chronology and applicable accounting/tax period., usage: Payable aging tax reporting and period control., workflowRole: Anchors recognition of adjustment., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values:
-    - DRAFT
-    - APPROVED
-    - POSTED
-    - PARTIALLY_APPLIED
-    - FULLY_APPLIED
-    - CANCELLED
-    - REVERSED
-    help:
-      summary: Lifecycle state of supplier credit.
-      businessMeaning: Separates preparation authorization accounting recognition and application against supplier claims.
-      usage: Controls posting payable reconciliation and reversal.
-      relationshipContext: Status does not change original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution history.
-      workflowRole: POSTED establishes adjustment; application states reflect controlled consumption.
-      requiredMeaning: Required.
-      valueSemantics:
-        DRAFT: The status of the supplier credit note is draft; set it when that is what the business means for this record.
-        APPROVED: The status of the supplier credit note is approved; set it when that is what the business means for this record.
-        POSTED: The status of the supplier credit note is posted; set it when that is what the business means for this record.
-        PARTIALLY_APPLIED: The status of the supplier credit note is partially applied; set it when that is what the business
-          means for this record.
-        FULLY_APPLIED: The status of the supplier credit note is fully applied; set it when that is what the business means
-          for this record.
-        CANCELLED: The status of the supplier credit note is cancelled; set it when that is what the business means for this
-          record.
-        REVERSED: The status of the supplier credit note is reversed; set it when that is what the business means for this record.
-  - {name: currencyId, type: reference, target: Currency, required: true, immutableAfterPosting: true, help: {summary: Currency in which supplier credit is denominated., businessMeaning: Defines monetary denomination of adjustment., usage: Payable reconciliation accounting tax and application., workflowRole: Qualifies all credit monetary values., requiredMeaning: Required.}}
-  - {name: subtotal, type: Money, required: true, help: {summary: Credit value before applicable tax., businessMeaning: Pre-tax reduction derived from credit lines., usage: Tax calculation and reconciliation., workflowRole: Feeds total credit calculation., requiredMeaning: Required.}}
-  - {name: taxAmount, type: Money, required: true, default: {amount: 0}, help: {summary: Tax component reversed or adjusted., businessMeaning: Tax correction associated with credited value., usage: Tax reporting and accounting reconciliation., workflowRole: Contributes to total credit., requiredMeaning: "Required, including zero."}}
-  - {name: totalAmount, type: Money, required: true, help: {summary: Total payable reduction represented by supplier credit., businessMeaning: Financial value recognized as credit against supplier exposure., usage: Accounts payable reconciliation statements and accounting., workflowRole: Determines maximum adjustment available for application., requiredMeaning: Required.}}
-  - {name: amountApplied, type: Money, required: true, default: {amount: 0}, help: {summary: Portion of supplier credit already applied to payable claims., businessMeaning: Separates credit created from portion consumed against invoices., usage: Drives open credit and payable reconciliation., relationshipContext: Must reconcile with active SupplierCreditNoteApplication records., workflowRole: Changes only through explicit application/reversal events., requiredMeaning: Required.}}
-  - {name: amountUnapplied, type: Money, required: true, default: {amount: 0}, help: {summary: Remaining supplier credit not yet applied., businessMeaning: Available credit exposure under policy., usage: Future invoice application or supplier settlement/refund processing., workflowRole: Reconciles totalAmount less active applications., requiredMeaning: Required.}}
+    - {name: supplierCreditNoteId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the credit note, constant for its life.', businessMeaning: Identifies the financial adjustment independently of its number source return claim invoice application and accounting entries., usage: Used for accounts payable reconciliation audit tax and integration., workflowRole: Stable identity across drafting approval posting application and reversal.}}
+    - {name: creditNoteNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business-facing supplier credit reference., businessMeaning: Identifies the credit document for supplier communication and financial reconciliation., usage: Used by accounts payable suppliers auditors and integrations., workflowRole: Correlates internal adjustment with external supplier documentation.}}
+    - {name: creditNoteDate, type: date, required: true, help: {summary: Effective date of supplier credit adjustment., businessMeaning: Establishes financial chronology and applicable accounting/tax period., usage: Payable aging tax reporting and period control., workflowRole: Anchors recognition of adjustment.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - APPROVED
+        - POSTED
+        - PARTIALLY_APPLIED
+        - FULLY_APPLIED
+        - CANCELLED
+        - REVERSED
+      help:
+        valueSemantics:
+          DRAFT: Drafted by the buyer and not yet approved.
+          APPROVED: Accepted and ready to post.
+          POSTED: Recorded in the accounts; available to apply to invoices.
+          PARTIALLY_APPLIED: Part of the credit has reduced invoices.
+          FULLY_APPLIED: The whole credit has been used. A final state.
+          CANCELLED: Withdrawn before posting. A final state.
+          REVERSED: A posted credit undone by a reversing entry. A final state.
+        summary: Lifecycle state of supplier credit.
+        businessMeaning: Separates preparation authorization accounting recognition and application against supplier claims.
+        usage: Controls posting payable reconciliation and reversal.
+        relationshipContext: Status does not change original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution history.
+        workflowRole: POSTED establishes adjustment; application states reflect controlled consumption.
+    - {name: currencyId, type: reference, target: Currency, required: true, immutableAfterPosting: true, help: {summary: Currency in which supplier credit is denominated., businessMeaning: Defines monetary denomination of adjustment., usage: Payable reconciliation accounting tax and application., workflowRole: Qualifies all credit monetary values.}}
+    - {name: subtotal, type: Money, required: true, help: {summary: Credit value before applicable tax., businessMeaning: Pre-tax reduction derived from credit lines., usage: Tax calculation and reconciliation., workflowRole: Feeds total credit calculation.}}
+    - {name: taxAmount, type: Money, required: true, default: {amount: 0}, help: {summary: Tax component reversed or adjusted., businessMeaning: Tax correction associated with credited value., usage: Tax reporting and accounting reconciliation., workflowRole: Contributes to total credit.}}
+    - {name: totalAmount, type: Money, required: true, help: {summary: Total payable reduction represented by supplier credit., businessMeaning: Financial value recognized as credit against supplier exposure., usage: Accounts payable reconciliation statements and accounting., workflowRole: Determines maximum adjustment available for application.}}
+    - {name: amountApplied, type: Money, required: true, default: {amount: 0}, help: {summary: Portion of supplier credit already applied to payable claims., businessMeaning: Separates credit created from portion consumed against invoices., usage: Drives open credit and payable reconciliation., relationshipContext: Must reconcile with active SupplierCreditNoteApplication records., workflowRole: Changes only through explicit application/reversal events.}}
+    - {name: amountUnapplied, type: Money, required: true, default: {amount: 0}, help: {summary: Remaining supplier credit not yet applied., businessMeaning: Available credit exposure under policy., usage: Future invoice application or supplier settlement/refund processing., workflowRole: Reconciles totalAmount less active applications.}}
   relationships:
-  - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier associated with the credit., businessMeaning: Identifies supplier whose payable exposure is reduced., usage: Payables and supplier statements., workflowRole: Reconciles source Invoice SupplierClaim and SupplierReturn context.}}
-  - {name: sourceReturn, target: SupplierReturn, cardinality: 0..1, ownership: reference, help: {summary: Supplier return that caused the credit., businessMeaning: Connects financial adjustment to physical reverse-procurement event., usage: Return-to-credit traceability and approval., workflowRole: Provides return eligibility evidence.}}
-  - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Supplier claim supporting the credit., businessMeaning: Connects the financial adjustment to the business case and evidence for recovery., usage: Claim resolution audit and reconciliation., workflowRole: Provides case context for credit authorization.}}
-  - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution that approved this credit remedy., businessMeaning: Connects the credit to the controlled decision authorizing the financial recovery., usage: Governance approval execution tracking and claim closure., workflowRole: Supplies execution mandate for CREDIT resolution.}}
-  - {name: lines, target: SupplierCreditNoteLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed credit components and original financial evidence., businessMeaning: Explain which supplier invoice values are reduced., usage: Calculation tax audit and reconciliation., workflowRole: Feed subtotal tax and total.}}
-  - {name: invoices, target: Invoice, cardinality: 1..*, ownership: reference, help: {summary: Supplier invoices whose payable claims are reduced., businessMeaning: Identifies original claims without modifying them., usage: Application and payable reconciliation., workflowRole: Controls eligible application.}}
-  - {name: applications, target: SupplierCreditNoteApplication, cardinality: 0..*, ownership: reference, help: {summary: Explicit applications of this supplier credit against eligible purchase invoices., businessMeaning: Records exactly how the posted credit is consumed without rewriting original invoice history., usage: Supports accounts payable supplier statements reconciliation audit reversal and remaining-credit calculation., cardinalityMeaning: A supplier credit may be unapplied partially applied or consumed through multiple controlled applications., workflowRole: Active applications drive amountApplied and amountUnapplied and application status.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries recognizing supplier credit., businessMeaning: Separates accounting recognition from credit document., usage: Payable expense/inventory tax and audit accounting., workflowRole: Posted credit requires balanced accounting recognition.}}
+    - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier associated with the credit., businessMeaning: Identifies supplier whose payable exposure is reduced., usage: Payables and supplier statements., workflowRole: Reconciles source Invoice SupplierClaim and SupplierReturn context.}}
+    - {name: sourceReturn, target: SupplierReturn, cardinality: 0..1, ownership: reference, help: {summary: Supplier return that caused the credit., businessMeaning: Connects financial adjustment to physical reverse-procurement event., usage: Return-to-credit traceability and approval., workflowRole: Provides return eligibility evidence.}}
+    - {name: supplierClaim, target: SupplierClaim, cardinality: 0..1, ownership: reference, help: {summary: Supplier claim supporting the credit., businessMeaning: Connects the financial adjustment to the business case and evidence for recovery., usage: Claim resolution audit and reconciliation., workflowRole: Provides case context for credit authorization.}}
+    - {name: supplierClaimResolution, target: SupplierClaimResolution, cardinality: 0..1, ownership: reference, help: {summary: Authorized claim resolution that approved this credit remedy., businessMeaning: Connects the credit to the controlled decision authorizing the financial recovery., usage: Governance approval execution tracking and claim closure., workflowRole: Supplies execution mandate for CREDIT resolution.}}
+    - {name: lines, target: SupplierCreditNoteLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed credit components and original financial evidence., businessMeaning: Explain which supplier invoice values are reduced., usage: Calculation tax audit and reconciliation., workflowRole: Feed subtotal tax and total.}}
+    - {name: invoices, target: Invoice, cardinality: 1..*, ownership: reference, help: {summary: Supplier invoices whose payable claims are reduced., businessMeaning: Identifies original claims without modifying them., usage: Application and payable reconciliation., workflowRole: Controls eligible application.}}
+    - {name: applications, target: SupplierCreditNoteApplication, cardinality: 0..*, ownership: reference, help: {summary: Explicit applications of this supplier credit against eligible purchase invoices., businessMeaning: Records exactly how the posted credit is consumed without rewriting original invoice history., usage: Supports accounts payable supplier statements reconciliation audit reversal and remaining-credit calculation., cardinalityMeaning: A supplier credit may be unapplied partially applied or consumed through multiple controlled applications., workflowRole: Active applications drive amountApplied and amountUnapplied and application status.}}
+    - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Accounting entries recognizing supplier credit., businessMeaning: Separates accounting recognition from credit document., usage: Payable expense/inventory tax and audit accounting., workflowRole: Posted credit requires balanced accounting recognition.}}
   invariants:
-  - {id: SUPPLIER-CREDIT-001, rule: A POSTED supplier credit must contain at least one line.}
-  - {id: SUPPLIER-CREDIT-002, rule: totalAmount must reconcile with line values tax and rounding evidence.}
-  - {id: SUPPLIER-CREDIT-003, rule: amountApplied must not exceed totalAmount except under explicitly governed correction policy.}
-  - {id: SUPPLIER-CREDIT-004, rule: amountUnapplied must equal totalAmount less active SupplierCreditNoteApplication source-side amounts under configured rounding policy.}
-  - {id: SUPPLIER-CREDIT-005, rule: Return-originated credit must reference eligible SupplierReturn evidence and cannot exceed approved credit value.}
-  - {id: SUPPLIER-CREDIT-006, rule: Original Invoice and InvoiceLine records remain immutable; crediting them occurs through explicit adjustment/application evidence.}
-  - {id: SUPPLIER-CREDIT-007, rule: POSTED credit notes are immutable except through explicit reversal or compensating adjustment workflows.}
-  - {id: SUPPLIER-CREDIT-008, rule: Posting must be idempotent and must not create duplicate accounting adjustments on retry.}
-  - {id: SUPPLIER-CREDIT-009, rule: amountApplied must reconcile with active SupplierCreditNoteApplication records and application status must reflect the resulting remaining amount.}
-  - {id: SUPPLIER-CREDIT-010, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize CREDIT and the credit amount must not exceed the approved recovery amount."}
-  - {id: SUPPLIER-CREDIT-NOTE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
-  - {id: SUPPLIER-CREDIT-NOTE-EXE-002, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
-  - {id: SUPPLIER-CREDIT-NOTE-EXE-003, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
+    - {id: SUPPLIER-CREDIT-001, rule: A POSTED supplier credit must contain at least one line.}
+    - {id: SUPPLIER-CREDIT-002, rule: totalAmount must reconcile with line values tax and rounding evidence.}
+    - {id: SUPPLIER-CREDIT-003, rule: amountApplied must not exceed totalAmount except under explicitly governed correction policy.}
+    - {id: SUPPLIER-CREDIT-004, rule: amountUnapplied must equal totalAmount less active SupplierCreditNoteApplication source-side amounts under configured rounding policy.}
+    - {id: SUPPLIER-CREDIT-005, rule: Return-originated credit must reference eligible SupplierReturn evidence and cannot exceed approved credit value.}
+    - {id: SUPPLIER-CREDIT-006, rule: Original Invoice and InvoiceLine records remain immutable; crediting them occurs through explicit adjustment/application evidence.}
+    - {id: SUPPLIER-CREDIT-007, rule: POSTED credit notes are immutable except through explicit reversal or compensating adjustment workflows.}
+    - {id: SUPPLIER-CREDIT-008, rule: Posting must be idempotent and must not create duplicate accounting adjustments on retry.}
+    - {id: SUPPLIER-CREDIT-009, rule: amountApplied must reconcile with active SupplierCreditNoteApplication records and application status must reflect the resulting remaining amount.}
+    - {id: SUPPLIER-CREDIT-010, rule: "When SupplierClaimResolution is linked, its resolutionType must authorize CREDIT and the credit amount must not exceed the approved recovery amount."}
+    - {id: SUPPLIER-CREDIT-NOTE-EXE-001, rule: "Subtotal cannot be negative.", violatedWhen: "subtotal != null and subtotal < 0", message: "Subtotal cannot be negative."}
+    - {id: SUPPLIER-CREDIT-NOTE-EXE-002, rule: "Tax Amount cannot be negative.", violatedWhen: "tax_amount != null and tax_amount < 0", message: "Tax Amount cannot be negative."}
+    - {id: SUPPLIER-CREDIT-NOTE-EXE-003, rule: "Total Amount cannot be negative.", violatedWhen: "total_amount != null and total_amount < 0", message: "Total Amount cannot be negative."}
   lifecycle:
     title: Supplier Credit Note Lifecycle
     attribute: status
     states: [DRAFT, APPROVED, POSTED, PARTIALLY_APPLIED, FULLY_APPLIED, CANCELLED, REVERSED]
     initial: DRAFT
-    terminal: [FULLY_APPLIED, CANCELLED, REVERSED]
+    terminal:
+      - FULLY_APPLIED
+      - CANCELLED
+      - REVERSED
     transitions:
       - {from: DRAFT, to: APPROVED, action: approve}
       - {from: APPROVED, to: POSTED, action: post}
-      - {from: POSTED, to: PARTIALLY_APPLIED, action: mark_partially_applied}
-      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: mark_fully_applied}
+      - {from: POSTED, to: PARTIALLY_APPLIED, action: apply}
+      - {from: POSTED, to: FULLY_APPLIED, action: apply}
+      - {from: PARTIALLY_APPLIED, to: FULLY_APPLIED, action: apply}
       - {from: DRAFT, to: CANCELLED, action: cancel}
       - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: POSTED, to: CANCELLED, action: cancel}
-      - {from: PARTIALLY_APPLIED, to: CANCELLED, action: cancel}
+      - {from: POSTED, to: REVERSED, action: reverse}
       - {from: PARTIALLY_APPLIED, to: REVERSED, action: reverse}
   workflows:
     - name: FollowUpRequired

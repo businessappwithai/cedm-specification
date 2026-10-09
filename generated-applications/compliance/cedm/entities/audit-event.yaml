@@ -7,18 +7,16 @@ entity:
     icon: activity
   identity: {key: auditEventId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: auditEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AuditEvent., businessMeaning: Identifies one governed record independently of mutable labels or state., usage: "Governance, workflow, integration and audit.", relationshipContext: Referenced by related enterprise records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Time at which this record becomes effective or evidentially applicable., businessMeaning: Establishes temporal business meaning., usage: "Lifecycle, audit and reporting.", relationshipContext: Does not rewrite earlier effective evidence., optionalMeaning: Optional when lifecycle does not require a separate effective timestamp.}}
+    - {name: auditEventId, type: uuid, required: true, immutable: true, help: {summary: The identity of the audit event., usage: Generated when the event is written; cases and investigations cite events by it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the audited action took place., usage: 'Set from the time of the action, not the time of writing; events are ordered by it when reconstructing a sequence.'}}
   relationships: []
   invariants:
-  - {id: AUDIT-EVENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
+    - {id: AUDIT-EVENT-001, rule: Finalized historical evidence must not be silently rewritten; corrections or supersession require explicit governed records.}
   help:
-    summary: An immutable evidence record describing a significant governed action, state change, access, decision, or control event.
-    purpose: Provide durable, implementation-neutral governance semantics for AuditEvent.
-    businessMeaning: An immutable evidence record describing a significant governed action, state change, access, decision, or control event.
-    whenUsed: Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable.
-    howItRelates: Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source transactions.
-    lifecycleUsage: Created under governance, reviewed or finalized where applicable, and retained or superseded with history preserved.
-    commonProcesses: Contract management, document control, audit, compliance assessment, risk governance, approval, and remediation.
-    commonExamples: Enterprise agreements, controlled records, audit evidence, compliance findings, and lifecycle changes.
+    summary: An immutable record of a significant action, state change, access, decision or control event.
+    businessMeaning: 'Audit events are the evidence that something happened: who did what, to what, and when. They cannot be edited, which is exactly what makes them usable as proof.'
+    usage: Written automatically whenever a governed action occurs; read by auditors, security teams and investigations to reconstruct what took place.
+    relationshipContext: Events point to the record or action they describe and the actor responsible; audit cases cite them as evidence.
+    lifecycle: An event is final the moment it is written. A mistake is explained by a later event, never by changing the original.
+    example: Event recorded when a finance manager approved a payment run, showing the approver, the time and the run approved.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AUDIT-EVENT}

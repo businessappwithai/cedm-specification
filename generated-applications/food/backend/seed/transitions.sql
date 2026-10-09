@@ -310,19 +310,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('6a698953-364a-5521-a9ad-0080a395ffc3', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FoodBatchLifecycle: PLANNED → RELEASED (release)
+-- FoodBatchLifecycle: PLANNED → QUARANTINED (receive)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ba852e81-66b8-55f5-bd85-9b780f960854', 'bus_food_batch', 'status', 'PLANNED', 'RELEASED', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- FoodBatchLifecycle: RELEASED → CONSUMED (consume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3f26af54-54ba-5b63-a837-b81d23bfc868', 'bus_food_batch', 'status', 'RELEASED', 'CONSUMED', 'consume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- FoodBatchLifecycle: RELEASED → QUARANTINED (quarantine)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('587a652d-f972-546c-85e5-baadfad45c58', 'bus_food_batch', 'status', 'RELEASED', 'QUARANTINED', 'quarantine', TRUE, NOW())
+VALUES ('460c93e5-1e5a-5539-90be-57292448b5cf', 'bus_food_batch', 'status', 'PLANNED', 'QUARANTINED', 'receive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- FoodBatchLifecycle: QUARANTINED → RELEASED (release)
@@ -330,29 +320,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('0e0f88ba-66cd-5d57-bce7-70a9e809eba3', 'bus_food_batch', 'status', 'QUARANTINED', 'RELEASED', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FoodBatchLifecycle: PLANNED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9fec06dc-b818-5b72-a421-de4dfb1614e1', 'bus_food_batch', 'status', 'PLANNED', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- FoodBatchLifecycle: RELEASED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cd48f305-7948-5f59-bab4-aadc5716411f', 'bus_food_batch', 'status', 'RELEASED', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- FoodBatchLifecycle: QUARANTINED → REJECTED (reject)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('1ce2c408-dec0-5a8c-8389-180875a5115a', 'bus_food_batch', 'status', 'QUARANTINED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FoodBatchLifecycle: RELEASED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a7afdc0d-0cca-533f-8d50-4fe1c870a40c', 'bus_food_batch', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- FoodBatchLifecycle: QUARANTINED → EXPIRED (expire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('4ac82b5f-e8d4-5ca7-858e-09f4c3bd1adb', 'bus_food_batch', 'status', 'QUARANTINED', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FoodBatchLifecycle: RELEASED → QUARANTINED (quarantine)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('587a652d-f972-546c-85e5-baadfad45c58', 'bus_food_batch', 'status', 'RELEASED', 'QUARANTINED', 'quarantine', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FoodBatchLifecycle: RELEASED → CONSUMED (consume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('3f26af54-54ba-5b63-a837-b81d23bfc868', 'bus_food_batch', 'status', 'RELEASED', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FoodBatchLifecycle: RELEASED → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('a7afdc0d-0cca-533f-8d50-4fe1c870a40c', 'bus_food_batch', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProductLifecycle: DRAFT → ACTIVE (activate)

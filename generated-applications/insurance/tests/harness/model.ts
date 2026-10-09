@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:12:00.018Z
+ * Generated: 2026-10-09T06:44:39.096Z
  * Project: insurance
  */
 
@@ -334,17 +334,16 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_insurance_claim",
     statusField: "status",
     initial: "REPORTED",
-    terminal: ["CLOSED", "DENIED"],
+    terminal: ["DENIED", "CLOSED"],
     edges: [
-      { from: "REPORTED", to: "UNDER_REVIEW", trigger: "review" },
+      { from: "REPORTED", to: "UNDER_REVIEW", trigger: "start_review" },
+      { from: "REPORTED", to: "DENIED", trigger: "deny" },
       { from: "UNDER_REVIEW", to: "APPROVED", trigger: "approve" },
-      { from: "APPROVED", to: "PARTIALLY_APPROVED", trigger: "mark_partially_approved" },
+      { from: "UNDER_REVIEW", to: "PARTIALLY_APPROVED", trigger: "approve_partially" },
+      { from: "UNDER_REVIEW", to: "DENIED", trigger: "deny" },
+      { from: "APPROVED", to: "SETTLED", trigger: "settle" },
       { from: "PARTIALLY_APPROVED", to: "SETTLED", trigger: "settle" },
       { from: "SETTLED", to: "CLOSED", trigger: "close" },
-      { from: "REPORTED", to: "DENIED", trigger: "deny" },
-      { from: "UNDER_REVIEW", to: "DENIED", trigger: "deny" },
-      { from: "APPROVED", to: "DENIED", trigger: "deny" },
-      { from: "PARTIALLY_APPROVED", to: "DENIED", trigger: "deny" },
     ],
   },
 ];

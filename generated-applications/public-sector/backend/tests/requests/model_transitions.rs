@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:44.295Z
+//! Generated: 2026-10-09T06:45:40.110Z
 //! Project: public-sector
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -78,15 +78,11 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_government_case", "status", "DRAFT", "OPEN"),
     ("bus_government_case", "status", "OPEN", "UNDER_REVIEW"),
     ("bus_government_case", "status", "UNDER_REVIEW", "APPROVED"),
-    ("bus_government_case", "status", "APPROVED", "CLOSED"),
-    ("bus_government_case", "status", "DRAFT", "DENIED"),
-    ("bus_government_case", "status", "OPEN", "DENIED"),
     ("bus_government_case", "status", "UNDER_REVIEW", "DENIED"),
-    ("bus_government_case", "status", "APPROVED", "DENIED"),
+    ("bus_government_case", "status", "APPROVED", "CLOSED"),
     ("bus_government_case", "status", "DRAFT", "CANCELLED"),
     ("bus_government_case", "status", "OPEN", "CANCELLED"),
     ("bus_government_case", "status", "UNDER_REVIEW", "CANCELLED"),
-    ("bus_government_case", "status", "APPROVED", "CANCELLED"),
 ];
 
 /// The entity and starting state of the first machine, for the live check.

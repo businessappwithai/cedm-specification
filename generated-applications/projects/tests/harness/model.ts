@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:12:34.731Z
+ * Generated: 2026-10-09T06:45:37.060Z
  * Project: projects
  */
 
@@ -145,58 +145,68 @@ export const modelEnums: ModelEnum[] = [
     values: ["PROPOSED", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"],
   },
   {
-    name: "ProjectPhaseStatus",
+    name: "ProjectCostCostType",
     referenceId: 1019,
+    values: ["LABOR", "MATERIAL", "EXPENSE", "SERVICE", "OVERHEAD", "OTHER"],
+  },
+  {
+    name: "ProjectCostStatus",
+    referenceId: 1020,
+    values: ["DRAFT", "APPROVED", "POSTED", "REVERSED", "CANCELLED"],
+  },
+  {
+    name: "ProjectPhaseStatus",
+    referenceId: 1021,
     values: ["PLANNED", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "ProjectStatus",
-    referenceId: 1020,
+    referenceId: 1022,
     values: ["DRAFT", "PLANNED", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED", "CLOSED"],
   },
   {
     name: "ProjectTaskPriority",
-    referenceId: 1021,
+    referenceId: 1023,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "ProjectTaskStatus",
-    referenceId: 1022,
+    referenceId: 1024,
     values: ["NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED"],
   },
   {
     name: "ResourceAssignmentStatus",
-    referenceId: 1023,
+    referenceId: 1025,
     values: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1024,
+    referenceId: 1026,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1025,
+    referenceId: 1027,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1026,
+    referenceId: 1028,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "TimesheetStatus",
-    referenceId: 1027,
+    referenceId: 1029,
     values: ["DRAFT", "ACTIVE", "COMPLETED", "CANCELLED"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1028,
+    referenceId: 1030,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1029,
+    referenceId: 1031,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -397,15 +407,16 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_milestone",
     statusField: "status",
     initial: "PLANNED",
-    terminal: ["CANCELLED"],
+    terminal: ["ACHIEVED", "MISSED", "CANCELLED"],
     edges: [
-      { from: "PLANNED", to: "AT_RISK", trigger: "mark_at_risk" },
-      { from: "AT_RISK", to: "ACHIEVED", trigger: "mark_achieved" },
-      { from: "ACHIEVED", to: "MISSED", trigger: "mark_missed" },
+      { from: "PLANNED", to: "AT_RISK", trigger: "flag_at_risk" },
+      { from: "AT_RISK", to: "PLANNED", trigger: "recover" },
+      { from: "PLANNED", to: "ACHIEVED", trigger: "achieve" },
+      { from: "AT_RISK", to: "ACHIEVED", trigger: "achieve" },
+      { from: "PLANNED", to: "MISSED", trigger: "miss" },
+      { from: "AT_RISK", to: "MISSED", trigger: "miss" },
       { from: "PLANNED", to: "CANCELLED", trigger: "cancel" },
       { from: "AT_RISK", to: "CANCELLED", trigger: "cancel" },
-      { from: "ACHIEVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "MISSED", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {
@@ -432,6 +443,20 @@ export const stateMachines: StateMachine[] = [
       { from: "ACTIVE", to: "COMPLETED", trigger: "complete" },
       { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
       { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "ProjectCost",
+    tableName: "bus_project_cost",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["REVERSED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "APPROVED", trigger: "approve" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "APPROVED", to: "POSTED", trigger: "post" },
+      { from: "APPROVED", to: "CANCELLED", trigger: "cancel" },
+      { from: "POSTED", to: "REVERSED", trigger: "reverse" },
     ],
   },
   {

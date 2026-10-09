@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:10.717Z
+//! Generated: 2026-10-09T06:44:46.341Z
 //! Project: legal
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -68,7 +68,12 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["INACTIVE", "RETIRED"],
     ),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
-    ("Contract", "status", "DRAFT", &["APPROVAL", "CANCELLED"]),
+    (
+        "Contract",
+        "status",
+        "DRAFT",
+        &["NEGOTIATION", "APPROVAL", "CANCELLED"],
+    ),
     (
         "ContractObligation",
         "status",

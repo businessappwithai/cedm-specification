@@ -330,69 +330,64 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('4f9aaf4a-b36e-52a4-bbaf-7dff066e6d31', 'bus_hotel', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: AVAILABLE → OCCUPIED (mark_occupied)
+-- HotelRoomLifecycle: AVAILABLE → RESERVED (reserve)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('85468f51-cf45-59de-ab22-ba54c90e53e7', 'bus_hotel_room', 'status', 'AVAILABLE', 'OCCUPIED', 'mark_occupied', TRUE, NOW())
+VALUES ('8beb1bb5-ee21-59f7-bb39-314a3177bd47', 'bus_hotel_room', 'status', 'AVAILABLE', 'RESERVED', 'reserve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: OCCUPIED → RESERVED (reserve)
+-- HotelRoomLifecycle: RESERVED → AVAILABLE (release)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('bcac79d0-02cf-5958-af56-655315fb118f', 'bus_hotel_room', 'status', 'OCCUPIED', 'RESERVED', 'reserve', TRUE, NOW())
+VALUES ('4177362e-abc4-561b-893a-e6909968be4e', 'bus_hotel_room', 'status', 'RESERVED', 'AVAILABLE', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: OCCUPIED → CLEANING (mark_cleaning)
+-- HotelRoomLifecycle: RESERVED → OCCUPIED (check_in)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f6c5776c-c8b7-594e-8ba6-a5fc83568d15', 'bus_hotel_room', 'status', 'OCCUPIED', 'CLEANING', 'mark_cleaning', TRUE, NOW())
+VALUES ('d03d25c6-a12a-5e42-9011-78880c24c3a5', 'bus_hotel_room', 'status', 'RESERVED', 'OCCUPIED', 'check_in', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: CLEANING → OCCUPIED (finish_cleaning)
+-- HotelRoomLifecycle: AVAILABLE → OCCUPIED (check_in)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d1055e62-6285-5c8e-ad51-162facbd7c2f', 'bus_hotel_room', 'status', 'CLEANING', 'OCCUPIED', 'finish_cleaning', TRUE, NOW())
+VALUES ('85468f51-cf45-59de-ab22-ba54c90e53e7', 'bus_hotel_room', 'status', 'AVAILABLE', 'OCCUPIED', 'check_in', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: RESERVED → CLEANING (mark_cleaning)
+-- HotelRoomLifecycle: OCCUPIED → CLEANING (check_out)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0bd93696-cd70-527d-8a2f-8a427275d228', 'bus_hotel_room', 'status', 'RESERVED', 'CLEANING', 'mark_cleaning', TRUE, NOW())
+VALUES ('f6c5776c-c8b7-594e-8ba6-a5fc83568d15', 'bus_hotel_room', 'status', 'OCCUPIED', 'CLEANING', 'check_out', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: CLEANING → RESERVED (finish_cleaning)
+-- HotelRoomLifecycle: CLEANING → AVAILABLE (mark_clean)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('18db5c20-5113-5430-8822-23c2d6287740', 'bus_hotel_room', 'status', 'CLEANING', 'RESERVED', 'finish_cleaning', TRUE, NOW())
+VALUES ('1e09d710-3e98-548f-9eeb-69cc7324d814', 'bus_hotel_room', 'status', 'CLEANING', 'AVAILABLE', 'mark_clean', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: OCCUPIED → OUT_OF_SERVICE (mark_out_of_service)
+-- HotelRoomLifecycle: AVAILABLE → OUT_OF_SERVICE (take_out_of_service)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b1f406ae-eeb5-5769-8170-6eb0ffaf4f18', 'bus_hotel_room', 'status', 'OCCUPIED', 'OUT_OF_SERVICE', 'mark_out_of_service', TRUE, NOW())
+VALUES ('19a2040b-1c51-50c7-af8e-b7c33107f76e', 'bus_hotel_room', 'status', 'AVAILABLE', 'OUT_OF_SERVICE', 'take_out_of_service', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: OUT_OF_SERVICE → OCCUPIED (return_to_service)
+-- HotelRoomLifecycle: CLEANING → OUT_OF_SERVICE (take_out_of_service)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('705b8610-2e28-5c34-8d41-e333299437af', 'bus_hotel_room', 'status', 'OUT_OF_SERVICE', 'OCCUPIED', 'return_to_service', TRUE, NOW())
+VALUES ('36699ea6-2cba-5d7b-8535-4fe057fb2aa0', 'bus_hotel_room', 'status', 'CLEANING', 'OUT_OF_SERVICE', 'take_out_of_service', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: RESERVED → OUT_OF_SERVICE (mark_out_of_service)
+-- HotelRoomLifecycle: OUT_OF_SERVICE → AVAILABLE (return_to_service)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a03a2389-2223-5846-a82f-05af119f5d84', 'bus_hotel_room', 'status', 'RESERVED', 'OUT_OF_SERVICE', 'mark_out_of_service', TRUE, NOW())
+VALUES ('f7a07f16-f316-5c33-889c-48a8df437bcd', 'bus_hotel_room', 'status', 'OUT_OF_SERVICE', 'AVAILABLE', 'return_to_service', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelRoomLifecycle: OUT_OF_SERVICE → RESERVED (return_to_service)
+-- HotelReservationLifecycle: REQUESTED → RESERVED (confirm)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3ceefe6d-0aa2-5df2-9044-ff031afb9c4e', 'bus_hotel_room', 'status', 'OUT_OF_SERVICE', 'RESERVED', 'return_to_service', TRUE, NOW())
+VALUES ('484f15ca-d0ec-586d-8404-43890931c6c8', 'bus_hotel_reservation', 'status', 'REQUESTED', 'RESERVED', 'confirm', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelReservationLifecycle: REQUESTED → RESERVED (reserve)
+-- HotelReservationLifecycle: RESERVED → CHECKED_IN (check_in)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('484f15ca-d0ec-586d-8404-43890931c6c8', 'bus_hotel_reservation', 'status', 'REQUESTED', 'RESERVED', 'reserve', TRUE, NOW())
+VALUES ('65800014-1e9e-512e-8268-697f48196133', 'bus_hotel_reservation', 'status', 'RESERVED', 'CHECKED_IN', 'check_in', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelReservationLifecycle: RESERVED → CHECKED_IN (mark_checked_in)
+-- HotelReservationLifecycle: CHECKED_IN → CHECKED_OUT (check_out)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('65800014-1e9e-512e-8268-697f48196133', 'bus_hotel_reservation', 'status', 'RESERVED', 'CHECKED_IN', 'mark_checked_in', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- HotelReservationLifecycle: CHECKED_IN → CHECKED_OUT (mark_checked_out)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('03e68ac5-05fb-5d58-a807-5db2f77d2c7a', 'bus_hotel_reservation', 'status', 'CHECKED_IN', 'CHECKED_OUT', 'mark_checked_out', TRUE, NOW())
+VALUES ('03e68ac5-05fb-5d58-a807-5db2f77d2c7a', 'bus_hotel_reservation', 'status', 'CHECKED_IN', 'CHECKED_OUT', 'check_out', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HotelReservationLifecycle: REQUESTED → CANCELLED (cancel)
@@ -405,29 +400,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('6f38e50e-d517-5d33-8954-9e506495d8eb', 'bus_hotel_reservation', 'status', 'RESERVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HotelReservationLifecycle: CHECKED_IN → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4616cbad-82a2-5aa1-af3b-127cd62fc9fc', 'bus_hotel_reservation', 'status', 'CHECKED_IN', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- HotelReservationLifecycle: CHECKED_OUT → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('785911e9-770a-5e09-b948-e0e639c96df5', 'bus_hotel_reservation', 'status', 'CHECKED_OUT', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- HotelReservationLifecycle: RESERVED → NO_SHOW (mark_no_show)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('6b2ca3e4-4c74-5d9c-a8a9-47321a1e1d9f', 'bus_hotel_reservation', 'status', 'RESERVED', 'NO_SHOW', 'mark_no_show', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- HotelReservationLifecycle: CHECKED_IN → NO_SHOW (mark_no_show)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('98952551-cc48-51cc-8ee0-6f868d6154b9', 'bus_hotel_reservation', 'status', 'CHECKED_IN', 'NO_SHOW', 'mark_no_show', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- HotelReservationLifecycle: CHECKED_OUT → NO_SHOW (mark_no_show)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('045719b7-f793-5602-9e52-e90e3607ff1c', 'bus_hotel_reservation', 'status', 'CHECKED_OUT', 'NO_SHOW', 'mark_no_show', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states
@@ -601,7 +576,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('6bd1bbac-ed73-5cd8-9070-a9faeff37816', 'bus_hotel_reservation', 'status', 'CHECKED_IN', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('948ae94f-29de-5a35-975c-2f8d3e13c2cb', 'bus_hotel_reservation', 'status', 'CHECKED_OUT', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('948ae94f-29de-5a35-975c-2f8d3e13c2cb', 'bus_hotel_reservation', 'status', 'CHECKED_OUT', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('0b420e85-4b9a-51aa-9fc4-cbb9fc743870', 'bus_hotel_reservation', 'status', 'CANCELLED', FALSE, TRUE, 50, TRUE, NOW())

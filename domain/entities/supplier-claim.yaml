@@ -13,7 +13,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: OPEN
+      default: DRAFT
       values:
         - DRAFT
         - OPEN

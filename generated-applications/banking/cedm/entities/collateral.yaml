@@ -7,19 +7,17 @@ entity:
     icon: database
   identity: {key: collateralId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Collateral., businessMeaning: Identifies one governed Collateral record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: collateralId, type: uuid, required: true, immutable: true, help: {summary: The identity of the collateral record., usage: Generated on creation; valuations and releases refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the pledge took effect., usage: Set at registration; the loan is considered secured from this moment.}}
   relationships:
-  - {name: bankLoan, target: BankLoan, cardinality: 0..1, ownership: reference, help: {summary: Loan secured by collateral., businessMeaning: Connects pledged value to credit exposure., usage: Credit risk and lending., cardinalityMeaning: Optional when securing a Facility or other exposure., workflowRole: Release/substitution requires governed lifecycle evidence.}}
+    - {name: bankLoan, target: BankLoan, cardinality: 0..1, ownership: reference, help: {summary: The loan the collateral secures., usage: Set when the pledge is registered., cardinalityMeaning: At most one loan; collateral may secure another type of facility instead., workflowRole: Links the security to the exposure it covers., businessMeaning: Connects pledged value to credit exposure.}}
   invariants:
-  - {id: COLLATERAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: COLLATERAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
-    purpose: Provide canonical enterprise semantics for Collateral.
-    businessMeaning: A governed asset, guarantee, or other value pledged or assigned to secure a BankLoan, Facility, or other credit exposure.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: An asset, guarantee or other value pledged to secure a loan, facility or other credit exposure.
+    businessMeaning: Collateral is what the lender can fall back on if the borrower fails to repay. Recording it, with the exposure it secures, lets risk and credit teams see how well covered a loan is.
+    usage: Registered when security is taken; revalued over time; read by credit risk and collections.
+    relationshipContext: Collateral secures a BankLoan or other facility; its value offsets the exposure.
+    lifecycle: Collateral is taken, held, and released when the exposure is repaid. Corrections are recorded explicitly, not by editing past valuations.
+    example: A commercial property pledged against a five-year business loan, valued at 400,000.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-COLLATERAL}

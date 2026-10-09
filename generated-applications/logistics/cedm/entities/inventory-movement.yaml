@@ -11,123 +11,137 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: inventoryMovementId
-    type: uuid
-    required: true
-    immutable: true
-    help: {summary: Immutable identity of the inventory event., usage: "Used for stock-ledger traceability, audit, reconciliation, integration and investigation.", relationshipContext: "Identifies the event independently of Product, location, quantity and originating transaction.", workflowRole: "Every receipt, issue, transfer, return, adjustment, reservation and release uses this identity for audit and balance reconciliation.", requiredMeaning: Required.}
-  - name: movementNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help: {summary: Human-facing inventory movement reference., usage: "Used by warehouse operators, inventory controllers, auditors and integrations.", relationshipContext: Distinct from Product and source transaction numbers., workflowRole: Traces stock change from execution through reconciliation., requiredMeaning: Required.}
-  - name: movementType
-    type: enum
-    required: true
-    values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
-    help:
-      summary: Identifies inventory operation and state transition.
-      usage: Determines how on-hand, reserved, available and location balances change.
-      relationshipContext: Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable.
-      workflowRole: Maps business workflow outcomes to inventory ledger.
-      valueSemantics:
-        RECEIPT: Accepted inbound quantity becomes inventory at a target location.
-        ISSUE: Quantity leaves available inventory for shipment, consumption, maintenance, production or authorized outbound use.
-        TRANSFER: Quantity moves between inventory locations.
-        ADJUSTMENT: Quantity is corrected through approved reconciliation.
-        RETURN: Previously controlled quantity is returned or otherwise processed under return semantics.
-        RESERVATION: Quantity is committed to demand without physical movement.
-        RELEASE: Previous reservation is removed.
-      requiredMeaning: Required.
-  - name: quantity
-    type: decimal
-    required: true
-    precision: 20
-    scale: 6
-    help: {summary: Quantity affected by the inventory event., usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release., requiredMeaning: Required.}
-  - name: movementDate
-    type: datetime
-    required: true
-    help: {summary: Timestamp at which inventory event is recognized., usage: "Stock history, period-end balances, reporting, audit and reconciliation.", relationshipContext: Distinct from source order date and record creation timestamp., workflowRole: Establishes effective chronology., requiredMeaning: Required.}
-  - name: reason
-    type: string
-    required: false
-    maxLength: 500
-    help: {summary: Business explanation for movement., usage: "Audit, investigation, approval and reporting.", relationshipContext: Supplements movementType and source relationships., workflowRole: "Especially important for adjustments, returns and exceptions.", optionalMeaning: Optional when source context fully explains event.}
+    - name: inventoryMovementId
+      type: uuid
+      required: true
+      immutable: true
+      help: {summary: Immutable identity of the inventory event., usage: "Used for stock-ledger traceability, audit, reconciliation, integration and investigation.", relationshipContext: "Identifies the event independently of Product, location, quantity and originating transaction.", workflowRole: "Every receipt, issue, transfer, return, adjustment, reservation and release uses this identity for audit and balance reconciliation."}
+    - name: movementNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The document number of the stock movement.
+        usage: Allocated from a number series; unique; printed on goods documents and used in audits.
+        relationshipContext: Distinct from Product and source transaction numbers.
+        workflowRole: Traces stock change from execution through reconciliation.
+    - name: movementType
+      type: enum
+      required: true
+      values: [RECEIPT, ISSUE, TRANSFER, ADJUSTMENT, RETURN, RESERVATION, RELEASE]
+      help:
+        valueSemantics:
+          RECEIPT: Stock arrives, for example from a supplier or production.
+          ISSUE: Stock leaves, for example to a customer or to production.
+          TRANSFER: Stock moves from one location to another.
+          ADJUSTMENT: Quantity is corrected after a count or an investigation.
+          RETURN: Stock comes back from a customer or is returned to a supplier.
+          RESERVATION: Stock is set aside for a demand without moving.
+          RELEASE: A reservation is withdrawn and the stock becomes available again.
+        summary: Identifies inventory operation and state transition.
+        usage: Determines how on-hand, reserved, available and location balances change.
+        relationshipContext: Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable.
+        workflowRole: Maps business workflow outcomes to inventory ledger.
+    - name: quantity
+      type: decimal
+      required: true
+      precision: 20
+      scale: 6
+      help: {summary: Quantity affected by the inventory event., usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.}
+    - name: movementDate
+      type: datetime
+      required: true
+      help: {summary: Timestamp at which inventory event is recognized., usage: "Stock history, period-end balances, reporting, audit and reconciliation.", relationshipContext: Distinct from source order date and record creation timestamp., workflowRole: Establishes effective chronology.}
+    - name: reason
+      type: string
+      required: false
+      maxLength: 500
+      help: {summary: Business explanation for movement., usage: "Audit, investigation, approval and reporting.", relationshipContext: Supplements movementType and source relationships., workflowRole: "Especially important for adjustments, returns and exceptions."}
   relationships:
-  - name: product
-    target: Product
-    cardinality: '1'
-    ownership: reference
-    help: {summary: Product whose inventory state is affected., usage: "Connects event to product master, units and policies.", cardinalityMeaning: Exactly one product is affected., workflowRole: Identifies stock item.}
-  - name: sourceLocation
-    target: InventoryLocation
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Location from which inventory is removed or transferred., usage: "Transfer, issue and return-to-supplier reconciliation.", cardinalityMeaning: Optional for inbound movements from outside network., workflowRole: Required when stock leaves an internal location.}
-  - name: targetLocation
-    target: InventoryLocation
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Location into which inventory is received or transferred., usage: "Receipts, put-away, transfers and returns.", cardinalityMeaning: Optional for issues leaving the network., workflowRole: Required when stock increases at an internal location.}
-  - name: party
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Party associated with inventory event when ownership or custody matters., usage: "Supplier receipts, customer returns, consignment and audit.", cardinalityMeaning: Optional for internal movements., workflowRole: Connects event to external party.}
-  - name: relatedTransaction
-    target: BusinessTransaction
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Business transaction causing or justifying stock change., usage: "Traceability to purchasing, sales, maintenance, shipment, returns or adjustment.", cardinalityMeaning: Optional for physical counts and internal reconciliation., workflowRole: Bridges operational workflow and inventory ledger.}
-  - name: supplierReturnLine
-    target: SupplierReturnLine
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Supplier return line authorizing this inventory movement when stock is being returned to a supplier., businessMeaning: Identifies the exact reverse-procurement quantity and source receipt evidence that justifies the stock reduction., usage: "Supports supplier-return execution, duplicate prevention, audit and reconciliation.", cardinalityMeaning: At most one SupplierReturnLine is the direct business source of a movement., workflowRole: Requires return-to-supplier movement to remain attributable to approved return quantity and prevents unexplained stock reductions.}
-  - name: shipmentLine
-    target: ShipmentLine
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Shipment line associated with this inventory event when logistics execution applies., businessMeaning: Preserves line-level transport-to-stock provenance., usage: "Dispatch, transfer, receipt reconciliation, claims, and audit.", cardinalityMeaning: Optional for inventory events unrelated to shipment execution., workflowRole: "Product, quantity, UOM and direction must reconcile with shipment execution and source transaction."}
-  - name: lot
-    target: Lot
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Lot identity carried by this movement when the Product is lot-controlled., businessMeaning: Preserves batch genealogy through every stock event., usage: "Traceability, expiry, quality, recall, and reconciliation.", cardinalityMeaning: Optional for products not requiring lot control., workflowRole: Lot Product and movement Product must agree.}
-  - name: serialNumbers
-    target: SerialNumber
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Individually serialized units carried by this movement., businessMeaning: Preserves unit-level custody and location history., usage: "Scanning, shipment, service, return, recall, and audit.", cardinalityMeaning: Zero or more serials depending on serialization policy., workflowRole: Serial count/quantity must reconcile with movement quantity under product policy.}
-  - name: materialIssue
-    target: MaterialIssue
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Manufacturing material-consumption transaction causing this stock event., businessMeaning: Explains production reason for component issue., usage: "Genealogy, costing, and reconciliation.", cardinalityMeaning: Optional outside manufacturing consumption., workflowRole: "Product, quantity, lot and serial evidence must reconcile."}
-  - name: productionReceipt
-    target: ProductionReceipt
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Manufacturing output transaction causing this stock receipt., businessMeaning: Explains production reason for finished/semi-finished stock increase., usage: "Genealogy, costing, quality, and reconciliation.", cardinalityMeaning: Optional outside manufacturing output., workflowRole: "Product, quantity, lot and serial evidence must reconcile."}
-  - name: scrap
-    target: Scrap
-    cardinality: 0..1
-    ownership: reference
-    help: {summary: Manufacturing scrap transaction causing this stock reduction when applicable., businessMeaning: Explains the governed production-loss reason for stock decrease., usage: "Yield, costing, quality and inventory reconciliation.", cardinalityMeaning: Optional outside manufacturing scrap or when process loss never entered inventory., workflowRole: "Product, quantity, lot and serial evidence must reconcile and posting must be idempotent."}
-  - {name: inventoryTransfer, target: InventoryTransfer, cardinality: "0..1", ownership: reference, help: {summary: Transfer authorization causing this relocation event., businessMeaning: Explains source/target relocation purpose., usage: Transfer reconciliation and audit., cardinalityMeaning: Optional outside controlled transfer., workflowRole: "Product, locations, quantity, lot and serial must reconcile."}}
-  - {name: inventoryAdjustment, target: InventoryAdjustment, cardinality: 0..1, ownership: reference, help: {summary: Approved discrepancy correction causing this adjustment event., businessMeaning: Supplies reason and evidence for stock correction., usage: Count reconciliation and audit., cardinalityMeaning: Optional outside adjustment., workflowRole: Signed ledger effect must reconcile with approved delta.}}
+    - name: product
+      target: Product
+      cardinality: '1'
+      ownership: reference
+      help: {summary: Product whose inventory state is affected., usage: "Connects event to product master, units and policies.", cardinalityMeaning: Exactly one product is affected., workflowRole: Identifies stock item.}
+    - name: sourceLocation
+      target: InventoryLocation
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Location from which inventory is removed or transferred., usage: "Transfer, issue and return-to-supplier reconciliation.", cardinalityMeaning: Optional for inbound movements from outside network., workflowRole: Required when stock leaves an internal location.}
+    - name: targetLocation
+      target: InventoryLocation
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Location into which inventory is received or transferred., usage: "Receipts, put-away, transfers and returns.", cardinalityMeaning: Optional for issues leaving the network., workflowRole: Required when stock increases at an internal location.}
+    - name: party
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Party associated with inventory event when ownership or custody matters., usage: "Supplier receipts, customer returns, consignment and audit.", cardinalityMeaning: Optional for internal movements., workflowRole: Connects event to external party.}
+    - name: relatedTransaction
+      target: BusinessTransaction
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Business transaction causing or justifying stock change., usage: "Traceability to purchasing, sales, maintenance, shipment, returns or adjustment.", cardinalityMeaning: Optional for physical counts and internal reconciliation., workflowRole: Bridges operational workflow and inventory ledger.}
+    - name: supplierReturnLine
+      target: SupplierReturnLine
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Supplier return line authorizing this inventory movement when stock is being returned to a supplier., businessMeaning: Identifies the exact reverse-procurement quantity and source receipt evidence that justifies the stock reduction., usage: "Supports supplier-return execution, duplicate prevention, audit and reconciliation.", cardinalityMeaning: At most one SupplierReturnLine is the direct business source of a movement., workflowRole: Requires return-to-supplier movement to remain attributable to approved return quantity and prevents unexplained stock reductions.}
+    - name: shipmentLine
+      target: ShipmentLine
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Shipment line associated with this inventory event when logistics execution applies., businessMeaning: Preserves line-level transport-to-stock provenance., usage: "Dispatch, transfer, receipt reconciliation, claims, and audit.", cardinalityMeaning: Optional for inventory events unrelated to shipment execution., workflowRole: "Product, quantity, UOM and direction must reconcile with shipment execution and source transaction."}
+    - name: lot
+      target: Lot
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Lot identity carried by this movement when the Product is lot-controlled., businessMeaning: Preserves batch genealogy through every stock event., usage: "Traceability, expiry, quality, recall, and reconciliation.", cardinalityMeaning: Optional for products not requiring lot control., workflowRole: Lot Product and movement Product must agree.}
+    - name: serialNumbers
+      target: SerialNumber
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Individually serialized units carried by this movement., businessMeaning: Preserves unit-level custody and location history., usage: "Scanning, shipment, service, return, recall, and audit.", cardinalityMeaning: Zero or more serials depending on serialization policy., workflowRole: Serial count/quantity must reconcile with movement quantity under product policy.}
+    - name: materialIssue
+      target: MaterialIssue
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Manufacturing material-consumption transaction causing this stock event., businessMeaning: Explains production reason for component issue., usage: "Genealogy, costing, and reconciliation.", cardinalityMeaning: Optional outside manufacturing consumption., workflowRole: "Product, quantity, lot and serial evidence must reconcile."}
+    - name: productionReceipt
+      target: ProductionReceipt
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Manufacturing output transaction causing this stock receipt., businessMeaning: Explains production reason for finished/semi-finished stock increase., usage: "Genealogy, costing, quality, and reconciliation.", cardinalityMeaning: Optional outside manufacturing output., workflowRole: "Product, quantity, lot and serial evidence must reconcile."}
+    - name: scrap
+      target: Scrap
+      cardinality: 0..1
+      ownership: reference
+      help: {summary: Manufacturing scrap transaction causing this stock reduction when applicable., businessMeaning: Explains the governed production-loss reason for stock decrease., usage: "Yield, costing, quality and inventory reconciliation.", cardinalityMeaning: Optional outside manufacturing scrap or when process loss never entered inventory., workflowRole: "Product, quantity, lot and serial evidence must reconcile and posting must be idempotent."}
+    - {name: inventoryTransfer, target: InventoryTransfer, cardinality: "0..1", ownership: reference, help: {summary: Transfer authorization causing this relocation event., businessMeaning: Explains source/target relocation purpose., usage: Transfer reconciliation and audit., cardinalityMeaning: Optional outside controlled transfer., workflowRole: "Product, locations, quantity, lot and serial must reconcile."}}
+    - {name: inventoryAdjustment, target: InventoryAdjustment, cardinality: 0..1, ownership: reference, help: {summary: Approved discrepancy correction causing this adjustment event., businessMeaning: Supplies reason and evidence for stock correction., usage: Count reconciliation and audit., cardinalityMeaning: Optional outside adjustment., workflowRole: Signed ledger effect must reconcile with approved delta.}}
+    - name: inventoryItem
+      target: InventoryItem
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Inventory-control profile under which this movement was posted.
+        businessMeaning: Preserves the stock-policy context used to authorize the event.
+        usage: Policy validation, audit, reconciliation and integration.
+        cardinalityMeaning: Optional for historical or transitional events; governed new movements should normally identify the applicable InventoryItem.
+        workflowRole: Movement posting validates InventoryItem status, stocking UOM and negative-stock policy without allowing later policy changes to rewrite history.
+
   invariants:
-  - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
-  - {id: INVENTORY-MOVEMENT-002, rule: "TRANSFER requires sourceLocation and targetLocation, and they must differ."}
-  - {id: INVENTORY-MOVEMENT-003, rule: RECEIPT requires targetLocation when inventory is location-managed.}
-  - {id: INVENTORY-MOVEMENT-004, rule: ISSUE requires sufficient available quantity unless authorized negative-inventory policy applies.}
-  - {id: INVENTORY-MOVEMENT-005, rule: RELEASE must correspond to an existing reservation according to allocation policy.}
-  - {id: INVENTORY-MOVEMENT-006, rule: A posted inventory movement is immutable historical evidence; correction uses authorized subsequent adjustment or reversal.}
-  - {id: INVENTORY-MOVEMENT-007, rule: "A movement attributable to SupplierReturnLine must use the returned Product, compatible UOM and executed quantity authorized by that line."}
-  - {id: INVENTORY-MOVEMENT-008, rule: Supplier-return inventory reduction must be posted exactly once for each executed return disposition identity; retries must be idempotent.}
-  - {id: INVENTORY-MOVEMENT-009, rule: "A SupplierReturnLine cannot be marked physically completed until required attributable inventory movement posting succeeds, unless an explicit non-stock or authorized exception workflow applies."}
+    - {id: INVENTORY-MOVEMENT-001, rule: quantity must be greater than zero.}
+    - {id: INVENTORY-MOVEMENT-002, rule: "TRANSFER requires sourceLocation and targetLocation, and they must differ."}
+    - {id: INVENTORY-MOVEMENT-003, rule: RECEIPT requires targetLocation when inventory is location-managed.}
+    - {id: INVENTORY-MOVEMENT-004, rule: ISSUE requires sufficient available quantity unless authorized negative-inventory policy applies.}
+    - {id: INVENTORY-MOVEMENT-005, rule: RELEASE must correspond to an existing reservation according to allocation policy.}
+    - {id: INVENTORY-MOVEMENT-006, rule: A posted inventory movement is immutable historical evidence; correction uses authorized subsequent adjustment or reversal.}
+    - {id: INVENTORY-MOVEMENT-007, rule: "A movement attributable to SupplierReturnLine must use the returned Product, compatible UOM and executed quantity authorized by that line."}
+    - {id: INVENTORY-MOVEMENT-008, rule: Supplier-return inventory reduction must be posted exactly once for each executed return disposition identity; retries must be idempotent.}
+    - {id: INVENTORY-MOVEMENT-009, rule: "A SupplierReturnLine cannot be marked physically completed until required attributable inventory movement posting succeeds, unless an explicit non-stock or authorized exception workflow applies."}
   help:
     summary: Represents one auditable change to inventory state, including stock reductions caused by supplier returns.
     businessMeaning: InventoryMovement is the event ledger from which InventoryBalance is maintained. SupplierReturnLine is the operational authorization for supplier-return quantity; InventoryMovement is the physical stock consequence.

@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:20.401Z
+//! Generated: 2026-10-09T06:45:00.645Z
 //! Project: maintenance
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -87,13 +87,25 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_asset", "status", "ACTIVE", "RETIRED"),
     ("bus_asset", "status", "UNDER_MAINTENANCE", "RETIRED"),
     ("bus_asset", "status", "HELD", "RETIRED"),
+    ("bus_meter", "status", "DRAFT", "ACTIVE"),
+    ("bus_meter", "status", "ACTIVE", "OUT_OF_SERVICE"),
+    ("bus_meter", "status", "OUT_OF_SERVICE", "ACTIVE"),
+    ("bus_meter", "status", "DRAFT", "RETIRED"),
+    ("bus_meter", "status", "ACTIVE", "RETIRED"),
+    ("bus_meter", "status", "OUT_OF_SERVICE", "RETIRED"),
     ("bus_maintenance_plan", "status", "DRAFT", "ACTIVE"),
     ("bus_maintenance_plan", "status", "ACTIVE", "SUSPENDED"),
     ("bus_maintenance_plan", "status", "SUSPENDED", "ACTIVE"),
     ("bus_maintenance_plan", "status", "DRAFT", "RETIRED"),
     ("bus_maintenance_plan", "status", "ACTIVE", "RETIRED"),
     ("bus_maintenance_plan", "status", "SUSPENDED", "RETIRED"),
-    ("bus_maintenance_work_order", "status", "PLANNED", "OPEN"),
+    ("bus_maintenance_work_order", "status", "OPEN", "PLANNED"),
+    (
+        "bus_maintenance_work_order",
+        "status",
+        "PLANNED",
+        "ASSIGNED",
+    ),
     ("bus_maintenance_work_order", "status", "OPEN", "ASSIGNED"),
     (
         "bus_maintenance_work_order",
@@ -107,19 +119,11 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
         "IN_PROGRESS",
         "COMPLETED",
     ),
-    ("bus_maintenance_work_order", "status", "OPEN", "ON_HOLD"),
-    ("bus_maintenance_work_order", "status", "ON_HOLD", "OPEN"),
     (
         "bus_maintenance_work_order",
         "status",
         "ASSIGNED",
         "ON_HOLD",
-    ),
-    (
-        "bus_maintenance_work_order",
-        "status",
-        "ON_HOLD",
-        "ASSIGNED",
     ),
     (
         "bus_maintenance_work_order",
@@ -131,15 +135,21 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
         "bus_maintenance_work_order",
         "status",
         "ON_HOLD",
+        "ASSIGNED",
+    ),
+    (
+        "bus_maintenance_work_order",
+        "status",
+        "ON_HOLD",
         "IN_PROGRESS",
     ),
+    ("bus_maintenance_work_order", "status", "OPEN", "CANCELLED"),
     (
         "bus_maintenance_work_order",
         "status",
         "PLANNED",
         "CANCELLED",
     ),
-    ("bus_maintenance_work_order", "status", "OPEN", "CANCELLED"),
     (
         "bus_maintenance_work_order",
         "status",
@@ -149,13 +159,13 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     (
         "bus_maintenance_work_order",
         "status",
-        "IN_PROGRESS",
+        "ON_HOLD",
         "CANCELLED",
     ),
     (
         "bus_maintenance_work_order",
         "status",
-        "ON_HOLD",
+        "IN_PROGRESS",
         "CANCELLED",
     ),
     ("bus_repair_estimate", "status", "DRAFT", "SUBMITTED"),

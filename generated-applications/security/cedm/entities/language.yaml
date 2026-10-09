@@ -8,19 +8,17 @@ entity:
   referenceData: reference-data/language.yaml
   identity: {key: languageId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Language., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this Language is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: Governed business code for Language., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of Language., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: The identity of the language record., usage: Generated when the language is loaded.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: 'The two-letter ISO 639-1 code of the language, such as en or de.', usage: Taken from the standard; unique; used in locale settings and APIs.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the language in English., usage: Shown in language pick-lists.}}
   relationships: []
   invariants:
-  - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed language reference used for localization, communication preferences, content, and reporting.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed language reference used for localization, communication preferences, content, and reporting.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A language used for localisation, communication preferences, content and reporting.
+    businessMeaning: People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in.
+    usage: Loaded from the standard language registry; chosen on user profiles, documents and messages.
+    relationshipContext: Parties, users and content refer to a language; the language itself depends on nothing.
+    lifecycle: Code and identity stay stable, and history is never silently rewritten.
+    example: English, with code en.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LANGUAGE}

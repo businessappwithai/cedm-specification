@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:07.235Z
+//! Generated: 2026-10-09T06:44:41.738Z
 //! Project: inventory
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -42,14 +42,15 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("ExchangeRate", "status", "EXPIRED"),
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
-    ("InventoryReservation", "status", "CONSUMED"),
+    ("InventoryItem", "status", "DISCONTINUED"),
+    ("InventoryReservation", "status", "RELEASED"),
     ("InventoryTransfer", "status", "COMPLETED"),
     ("Lot", "status", "CONSUMED"),
-    ("SerialNumber", "status", "RETURNED"),
+    ("SerialNumber", "status", "CONSUMED"),
     ("Product", "status", "DISCONTINUED"),
     ("Warehouse", "status", "CLOSED"),
     ("Putaway", "status", "COMPLETED"),
-    ("Picking", "status", "CANCELLED"),
+    ("Picking", "status", "PICKED"),
     ("Packing", "status", "CANCELLED"),
     ("Wave", "status", "COMPLETED"),
 ];
@@ -76,10 +77,16 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     (
+        "InventoryItem",
+        "status",
+        "DRAFT",
+        &["ACTIVE", "DISCONTINUED"],
+    ),
+    (
         "InventoryReservation",
         "status",
         "PENDING",
-        &["ACTIVE", "CANCELLED"],
+        &["ACTIVE", "CANCELLED", "EXPIRED"],
     ),
     (
         "InventoryTransfer",
@@ -87,13 +94,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "PLANNED",
         &["RELEASED", "CANCELLED"],
     ),
-    ("Lot", "status", "ACTIVE", &["HOLD", "REJECTED"]),
     (
-        "SerialNumber",
+        "Lot",
         "status",
-        "EXPECTED",
-        &["AVAILABLE", "RETIRED"],
+        "ACTIVE",
+        &["HOLD", "QUARANTINED", "CONSUMED", "EXPIRED", "CLOSED"],
     ),
+    ("SerialNumber", "status", "EXPECTED", &["AVAILABLE"]),
     (
         "Product",
         "status",

@@ -7,22 +7,31 @@ entity:
     icon: database
   identity: {key: routingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the routing version., businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business routing code., businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition., requiredMeaning: Required.}}
-  - {name: version, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
-    help: {summary: Governance state of routing., businessMeaning: Controls eligibility for new production release., usage: Engineering change and manufacturing control., relationshipContext: Historical orders retain prior routing evidence., valueSemantics: {DRAFT: Being prepared., ACTIVE: Eligible for production., SUSPENDED: Temporarily blocked., OBSOLETE: Superseded for new use.}, requiredMeaning: Required.}
+    - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the routing version., businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business routing code., businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition.}}
+    - {name: routingVersion, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
+      help:
+        summary: Whether the process definition may be used for production.
+        valueSemantics:
+          DRAFT: Being defined; not yet usable.
+          ACTIVE: Approved for production.
+          SUSPENDED: Temporarily withdrawn from use.
+          OBSOLETE: Superseded or no longer used. A final state.
+        businessMeaning: Controls eligibility for new production release.
+        usage: Engineering change and manufacturing control.
+        relationshipContext: Historical orders retain prior routing evidence.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Output Product this routing produces., businessMeaning: Associates process definition with manufactured item., usage: Planning and production release., cardinalityMeaning: Exactly one output Product., workflowRole: Must match work-order output.}}
-  - {name: operations, target: Operation, cardinality: "1..*", ownership: aggregate, help: {summary: Ordered standard process steps., businessMeaning: Defines how production is performed., usage: "Scheduling, costing, execution, and quality gates.", cardinalityMeaning: Active routing requires at least one operation., workflowRole: Operations are instantiated/executed under ManufacturingWorkOrder.}}
+    - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Output Product this routing produces., businessMeaning: Associates process definition with manufactured item., usage: Planning and production release., cardinalityMeaning: Exactly one output Product., workflowRole: Must match work-order output.}}
+    - {name: operations, target: Operation, cardinality: "1..*", ownership: aggregate, help: {summary: Ordered standard process steps., businessMeaning: Defines how production is performed., usage: "Scheduling, costing, execution, and quality gates.", cardinalityMeaning: Active routing requires at least one operation., workflowRole: Operations are instantiated/executed under ManufacturingWorkOrder.}}
   invariants:
-  - {id: ROUTING-001, rule: code and version must be unique within the applicable manufacturing context.}
-  - {id: ROUTING-002, rule: ACTIVE routing must contain at least one valid ordered Operation.}
-  - {id: ROUTING-003, rule: Released production must preserve the effective routing version and must not be silently changed by later master-data revisions.}
+    - {id: ROUTING-001, rule: code and routingVersion must be unique within the applicable manufacturing context.}
+    - {id: ROUTING-002, rule: ACTIVE routing must contain at least one valid ordered Operation.}
+    - {id: ROUTING-003, rule: Released production must preserve the effective routing routingVersion and must not be silently changed by later master-data revisions.}
   lifecycle:
     title: Routing Lifecycle
     attribute: status

@@ -11,61 +11,54 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: riskTreatmentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the RiskTreatment record.
-      businessMeaning: Identifies one governed RiskTreatment independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing Risk context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
-  - name: riskTreatmentCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 120
-    help:
-      summary: Human-readable business reference for the RiskTreatment.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help:
-      summary: Lifecycle state of the RiskTreatment.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
-      valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+    - name: riskTreatmentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the treatment, constant for its life.
+        usage: Generated on creation; reviews refer to it.
+        relationshipContext: Connects this record to its governing Risk context and downstream evidence.
+    - name: riskTreatmentCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 120
+      help:
+        summary: The code of the treatment, such as RT-021-1.
+        usage: Unique; quoted in risk reviews and audit.
+        relationshipContext: Read with the risk code.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the treatment is.
+        usage: Starts as DRAFT; moved by the owner.
+        valueSemantics:
+          DRAFT: Proposed and not yet approved.
+          ACTIVE: Approved and being carried out.
+          COMPLETED: The action is done. A final state.
+          CANCELLED: No longer needed. A final state.
+        relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
   relationships:
-  - name: context
-    target: Risk
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Governing Risk associated with this RiskTreatment.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every RiskTreatment belongs to exactly one governing Risk in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+    - name: context
+      target: Risk
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The risk the treatment responds to.
+        usage: Chosen when the treatment is created.
+        cardinalityMeaning: Exactly one risk; a treatment for two risks is recorded twice.
+        context: Keeps the response attached to the risk it addresses.
   invariants:
-  - id: RISK-TREATMENT-001
-    rule: The governing Risk relationship is required and must reference a valid record.
-  - id: RISK-TREATMENT-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: RISK-TREATMENT-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - id: RISK-TREATMENT-001
+      rule: The governing Risk relationship is required and must reference a valid record.
+    - id: RISK-TREATMENT-002
+      rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
+    - id: RISK-TREATMENT-003
+      rule: Creation and lifecycle transitions must be idempotent and auditable.
   lifecycle:
     title: Risk Treatment Lifecycle
     attribute: status
@@ -97,13 +90,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents RiskTreatment as a first-class governed CEDM business concept.
-    businessMeaning: A governed treatment or response planned and executed to modify, accept, transfer, avoid, or monitor a Risk.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: Risk supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A RiskTreatment is created for a valid Risk, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: An action planned and carried out to reduce, accept, transfer, avoid or monitor a risk.
+    businessMeaning: A treatment is how the organisation responds to a risk it has assessed. Recording it with an owner and a status shows that each risk has an answer, what that answer is and whether it has been done.
+    usage: Raised by the risk owner; carried out by the named people; read by governance and audit.
+    relationshipContext: A treatment belongs to exactly one risk and goes with it.
+    lifecycle: A treatment is drafted, active while the work is done and completed when finished. It may be cancelled if no longer needed. Completed and cancelled are final.
+    example: To treat the supplier concentration risk, qualify a second source by 30 June.
 specification:
   version: 0.1.0
   status: draft

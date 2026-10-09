@@ -61,7 +61,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: PLANNED
       values: [PLANNED, ACTIVE, UNDER_MAINTENANCE, HELD, DISPOSED, RETIRED]
       help:
         summary: The lifecycle state describing whether the asset is planned, operational, temporarily unavailable, disposed, or retired.

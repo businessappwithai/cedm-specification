@@ -11,7 +11,7 @@
  *                       only relevant rows are loaded client-side
  * 4. TranslationProvider — i18n
  *
- * Generated: 2026-10-04T01:12:45.372Z
+ * Generated: 2026-10-09T06:45:55.281Z
  */
 
 import React, { type ReactNode, useEffect, useState } from 'react';

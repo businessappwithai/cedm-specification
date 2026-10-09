@@ -8,182 +8,173 @@ entity:
     icon: building-2
   identity: {key: organizationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: organizationId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the Organization specialization.
-      usage: Used to navigate organizational identity details from the underlying Party.
-      relationshipContext: Party.partyId remains the canonical party identity; organizationId identifies the specialization record.
-      workflowRole: Provides stable reference for organization-specific information.
-      requiredMeaning: Required for specialization traceability.
-  - name: partyId
-    type: reference
-    target: Party
-    required: true
-    unique: true
-    immutable: true
-    help:
-      summary: Canonical Party identity represented by this Organization specialization.
-      usage: Connects organizational details to the shared Party identity used by all roles and transactions.
-      relationshipContext: One Party may have exactly one Organization specialization when partyType is ORGANIZATION.
-      workflowRole: Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization.
-      requiredMeaning: Required to prevent duplicate party identity.
-  - name: code
-    type: string
-    required: true
-    maxLength: 50
-    help:
-      summary: Business code for the organization within its governed business context.
-      usage: Used for operations, reporting, integrations, and organizational selection.
-      relationshipContext: Code is not the canonical Party identity and uniqueness is governed by organization scope.
-      workflowRole: Provides operational reference for organization hierarchy and business context.
-      requiredMeaning: Required where the organization participates in governed operational processes.
-  - name: name
-    type: string
-    required: true
-    maxLength: 200
-    help:
-      summary: Common organizational name used in business operations.
-      usage: Used in search, forms, reports, documents, and transactions.
-      relationshipContext: LegalName may differ and provides formal legal identity.
-      workflowRole: Provides human-readable organizational identification.
-      requiredMeaning: Required for operational recognition.
-  - name: organizationType
-    type: enum
-    required: true
-    values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
-    help:
-      summary: Classifies the organizational structure represented by the specialization.
-      usage: Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration.
-      relationshipContext: Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations.
-      workflowRole: Controls applicable organizational hierarchy and operating-context rules.
-      requiredMeaning: Required for organizational interpretation.
-      valueSemantics:
-        ENTERPRISE: The organization type of the organization is enterprise; set it when that is what the business means for this record.
-        COMPANY: The organization type of the organization is company; set it when that is what the business means for this record.
-        BUSINESS_UNIT: The organization type of the organization is business unit; set it when that is what the business means for this record.
-        DIVISION: The organization type of the organization is division; set it when that is what the business means for this record.
-        DEPARTMENT: The organization type of the organization is department; set it when that is what the business means for this record.
-        BRANCH: The organization type of the organization is branch; set it when that is what the business means for this record.
-        SUBSIDIARY: The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-        OTHER: The organization type of the organization is other; set it when that is what the business means for this record.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
-    help:
-      summary: Lifecycle of the organizational specialization.
-      usage: Controls whether the organization can normally be selected as an organizational context.
-      relationshipContext: Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity.
-      workflowRole: Governs organizational use while preserving historical relationships.
-      requiredMeaning: Required for eligibility checks.
-      valueSemantics:
-        DRAFT: The status of the organization is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the organization is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the organization is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the organization is retired; set it when that is what the business means for this record.
-  - name: legalName
-    type: string
-    required: false
-    maxLength: 300
-    help:
-      summary: Formal legal name of the organization.
-      usage: Used for contracts, invoices, tax, regulatory reporting, and legal documentation.
-      relationshipContext: LegalName is distinct from the operational name.
-      workflowRole: Supplies legal presentation and compliance context.
-      optionalMeaning: Optional when the organization is not a legal entity or the information is not yet known.
-  - name: registrationNumber
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Registration identifier assigned by a competent authority.
-      usage: Used for legal verification, compliance, tax, and integrations.
-      relationshipContext: Registration number identifies the organization in an external legal system, not in CEDM.
-      workflowRole: Supports identity verification and compliance controls.
-      optionalMeaning: Optional for organizational units without separate registration.
-  - name: taxIdentifier
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Tax identifier applicable to the organization in a relevant jurisdiction.
-      usage: Used for tax determination, invoices, reporting, and compliance.
-      relationshipContext: Tax identity may vary by jurisdiction and should not replace Party identity.
-      workflowRole: Supports tax-rule applicability and statutory reporting.
-      optionalMeaning: Optional when no tax identifier applies or is known.
-  - name: createdAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help: {summary: CEDM creation timestamp, usage: audit and synchronization, relationshipContext: record lifecycle only, requiredMeaning: required for traceability.}
-  - name: createdBy
-    type: reference
-    target: Party
-    required: false
-    systemManaged: true
-    help: {summary: Actor that created the record, usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when source cannot identify actor.}
-  - name: updatedAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help: {summary: Latest CEDM modification timestamp, usage: synchronization and audit, relationshipContext: record modification only, requiredMeaning: required for change tracking.}
-  - name: updatedBy
-    type: reference
-    target: Party
-    required: false
-    systemManaged: true
-    help: {summary: Actor responsible for latest modification, usage: audit, relationshipContext: actor not subject, optionalMeaning: optional when unavailable.}
+    - name: organizationId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the Organization specialization.
+        usage: Used to navigate organizational identity details from the underlying Party.
+        relationshipContext: Party.partyId remains the canonical party identity; organizationId identifies the specialization record.
+        workflowRole: Provides stable reference for organization-specific information.
+    - name: partyId
+      type: reference
+      target: Party
+      required: true
+      unique: true
+      immutable: true
+      help:
+        summary: Canonical Party identity represented by this Organization specialization.
+        usage: Connects organizational details to the shared Party identity used by all roles and transactions.
+        relationshipContext: One Party may have exactly one Organization specialization when partyType is ORGANIZATION.
+        workflowRole: Ensures Customer, Supplier, Owner, and other roles resolve to the same underlying organization.
+    - name: code
+      type: string
+      required: true
+      maxLength: 50
+      help:
+        summary: Business code for the organization within its governed business context.
+        usage: Used for operations, reporting, integrations, and organizational selection.
+        relationshipContext: Code is not the canonical Party identity and uniqueness is governed by organization scope.
+        workflowRole: Provides operational reference for organization hierarchy and business context.
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: Common organizational name used in business operations.
+        usage: Used in search, forms, reports, documents, and transactions.
+        relationshipContext: LegalName may differ and provides formal legal identity.
+        workflowRole: Provides human-readable organizational identification.
+    - name: organizationType
+      type: enum
+      required: true
+      values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
+      help:
+        valueSemantics:
+          ENTERPRISE: The top-level body, such as a group or corporation.
+          COMPANY: A legal company.
+          BUSINESS_UNIT: A business division with its own results.
+          DIVISION: A major part of the organisation.
+          DEPARTMENT: A functional unit.
+          BRANCH: A local office or branch.
+          SUBSIDIARY: A company controlled by another.
+          OTHER: Any other organised body.
+        summary: Classifies the organizational structure represented by the specialization.
+        usage: Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration.
+        relationshipContext: Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations.
+        workflowRole: Controls applicable organizational hierarchy and operating-context rules.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+      help:
+        valueSemantics:
+          DRAFT: Being set up; not yet in use.
+          ACTIVE: In use.
+          INACTIVE: Temporarily not in use; can be reactivated.
+          RETIRED: Closed; kept for history. A final state.
+        summary: Lifecycle of the organizational specialization.
+        usage: Controls whether the organization can normally be selected as an organizational context.
+        relationshipContext: Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity.
+        workflowRole: Governs organizational use while preserving historical relationships.
+    - name: legalName
+      type: string
+      required: false
+      maxLength: 300
+      help:
+        summary: Formal legal name of the organization.
+        usage: Used for contracts, invoices, tax, regulatory reporting, and legal documentation.
+        relationshipContext: LegalName is distinct from the operational name.
+        workflowRole: Supplies legal presentation and compliance context.
+    - name: registrationNumber
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: Registration identifier assigned by a competent authority.
+        usage: Used for legal verification, compliance, tax, and integrations.
+        relationshipContext: Registration number identifies the organization in an external legal system, not in CEDM.
+        workflowRole: Supports identity verification and compliance controls.
+    - name: taxIdentifier
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: Tax identifier applicable to the organization in a relevant jurisdiction.
+        usage: Used for tax determination, invoices, reporting, and compliance.
+        relationshipContext: Tax identity may vary by jurisdiction and should not replace Party identity.
+        workflowRole: Supports tax-rule applicability and statutory reporting.
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help: {summary: CEDM creation timestamp, usage: audit and synchronization, relationshipContext: record lifecycle only}
+    - name: createdBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+      help: {summary: Actor that created the record, usage: audit, relationshipContext: actor not subject}
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help: {summary: Latest CEDM modification timestamp, usage: synchronization and audit, relationshipContext: record modification only}
+    - name: updatedBy
+      type: reference
+      target: Party
+      required: false
+      systemManaged: true
+      help: {summary: Actor responsible for latest modification, usage: audit, relationshipContext: actor not subject}
   relationships:
-  - name: party
-    target: Party
-    cardinality: '1'
-    ownership: reference
-    inverse: organization
-    help:
-      summary: Canonical Party represented by this Organization specialization.
-      usage: Provides shared identity for all PartyRoles.
-      cardinalityMeaning: Exactly one Party is represented.
-      workflowRole: Connects intrinsic organization identity to commercial and operational roles.
-  - name: parentOrganization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Immediate parent organizational unit.
-      usage: Supports enterprise hierarchy and organizational scope.
-      cardinalityMeaning: Zero or one immediate parent.
-      workflowRole: Determines inherited organizational context where explicitly supported.
-  - name: childOrganizations
-    target: Organization
-    cardinality: 0..*
-    ownership: reference
-    inverse: parentOrganization
-    help:
-      summary: Immediate child organizational units.
-      usage: Supports hierarchy navigation and organizational reporting.
-      cardinalityMeaning: Zero or many children.
-      workflowRole: Maintains the organizational graph.
-  - name: addresses
-    target: Address
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Organization addresses, usage: billing/service/legal/contact processes, cardinalityMeaning: zero or many, workflowRole: supplies location context.}
-  - name: locations
-    target: Location
-    cardinality: 0..*
-    ownership: reference
-    help: {summary: Organization operating locations, usage: logistics/service/organizational processes, cardinalityMeaning: zero or many, workflowRole: supplies operational location context.}
+    - name: party
+      target: Party
+      cardinality: '1'
+      ownership: reference
+      inverse: organization
+      help:
+        summary: Canonical Party represented by this Organization specialization.
+        usage: Provides shared identity for all PartyRoles.
+        cardinalityMeaning: Exactly one Party is represented.
+        workflowRole: Connects intrinsic organization identity to commercial and operational roles.
+    - name: parentOrganization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Immediate parent organizational unit.
+        usage: Supports enterprise hierarchy and organizational scope.
+        cardinalityMeaning: Zero or one immediate parent.
+        workflowRole: Determines inherited organizational context where explicitly supported.
+    - name: childOrganizations
+      target: Organization
+      cardinality: 0..*
+      ownership: reference
+      inverse: parentOrganization
+      help:
+        summary: Immediate child organizational units.
+        usage: Supports hierarchy navigation and organizational reporting.
+        cardinalityMeaning: Zero or many children.
+        workflowRole: Maintains the organizational graph.
+    - name: addresses
+      target: Address
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Organization addresses, usage: billing/service/legal/contact processes, cardinalityMeaning: zero or many, workflowRole: supplies location context.}
+    - name: locations
+      target: Location
+      cardinality: 0..*
+      ownership: reference
+      help: {summary: Organization operating locations, usage: logistics/service/organizational processes, cardinalityMeaning: zero or many, workflowRole: supplies operational location context.}
   invariants:
-  - {id: ORG-001, rule: partyType must equal ORGANIZATION for the referenced Party.}
-  - {id: ORG-002, rule: An Organization cannot be its own parent.}
-  - {id: ORG-003, rule: The organizational hierarchy must not contain cycles.}
-  - {id: ORG-004, rule: One Party cannot have multiple Organization specializations.}
-  - {id: ORG-005, rule: Organization status alone must not authorize a transaction; Party and applicable PartyRole eligibility must also permit it.}
-  - {id: ORG-006, rule: Organizational hierarchy or master-data changes must not rewrite historical transaction organizational context.}
+    - {id: ORG-001, rule: partyType must equal ORGANIZATION for the referenced Party.}
+    - {id: ORG-002, rule: An Organization cannot be its own parent.}
+    - {id: ORG-003, rule: The organizational hierarchy must not contain cycles.}
+    - {id: ORG-004, rule: One Party cannot have multiple Organization specializations.}
+    - {id: ORG-005, rule: Organization status alone must not authorize a transaction; Party and applicable PartyRole eligibility must also permit it.}
+    - {id: ORG-006, rule: Organizational hierarchy or master-data changes must not rewrite historical transaction organizational context.}
   lifecycle:
     title: Organization Lifecycle
     attribute: status

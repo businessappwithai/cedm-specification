@@ -7,18 +7,16 @@ entity:
     icon: database
   identity: {key: legalEntityId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalEntity., businessMeaning: Identifies one governed LegalEntity record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+    - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: The identity of the legal entity., usage: Generated on registration.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: 'When the entity was formed, or its record took effect.', usage: Set from the registration data.}}
   relationships: []
   invariants:
-  - {id: LEGAL-ENTITY-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: LEGAL-ENTITY-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
-    summary: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings.
-    purpose: Provide canonical governance semantics for LegalEntity.
-    businessMeaning: A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings.
+    businessMeaning: Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties.
+    usage: Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers.
+    relationshipContext: Contracts, filings and accounting books refer to the legal entity.
+    lifecycle: Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicitly.
+    example: Acme Holdings GmbH, a limited company registered in Germany.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-ENTITY}

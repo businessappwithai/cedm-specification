@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:11:42.183Z
+ * Generated: 2026-10-09T06:44:11.060Z
  * Project: enterprise
  */
 
@@ -332,13 +332,13 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_erp",
     statusField: "status",
     initial: "DRAFT",
-    terminal: [],
+    terminal: ["RETIRED"],
     edges: [
-      { from: "DRAFT", to: "ACTIVE", trigger: "" },
-      { from: "ACTIVE", to: "SUSPENDED", trigger: "" },
-      { from: "SUSPENDED", to: "ACTIVE", trigger: "" },
-      { from: "ACTIVE", to: "RETIRED", trigger: "" },
-      { from: "SUSPENDED", to: "RETIRED", trigger: "" },
+      { from: "DRAFT", to: "ACTIVE", trigger: "activate" },
+      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
+      { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
+      { from: "ACTIVE", to: "RETIRED", trigger: "retire" },
+      { from: "SUSPENDED", to: "RETIRED", trigger: "retire" },
     ],
   },
   {
@@ -385,7 +385,7 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_business_transaction",
     statusField: "status",
     initial: "DRAFT",
-    terminal: ["COMPLETED", "CANCELLED", "REVERSED"],
+    terminal: ["CANCELLED", "REVERSED"],
     edges: [
       { from: "DRAFT", to: "OPEN", trigger: "open" },
       { from: "OPEN", to: "APPROVED", trigger: "approve" },
@@ -394,8 +394,8 @@ export const stateMachines: StateMachine[] = [
       { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
       { from: "OPEN", to: "CANCELLED", trigger: "cancel" },
       { from: "APPROVED", to: "CANCELLED", trigger: "cancel" },
-      { from: "POSTED", to: "CANCELLED", trigger: "cancel" },
       { from: "POSTED", to: "REVERSED", trigger: "reverse" },
+      { from: "COMPLETED", to: "REVERSED", trigger: "reverse" },
     ],
   },
 ];

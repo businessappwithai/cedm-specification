@@ -7,16 +7,25 @@ entity:
     icon: percent
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of TaxRegistration., businessMeaning: Identifies one governed TaxRegistration record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of TaxRegistration., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the registration, constant for its life.', businessMeaning: Lets documents and returns point at the registration., usage: Generated on creation., relationshipContext: Referenced by returns and invoices.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Whether the registration is valid for use.
+        businessMeaning: Prevents tax numbers that have lapsed from appearing on documents.
+        usage: Starts as DRAFT; set by tax staff.
+        relationshipContext: Only active registrations are printed on invoices.
+        valueSemantics:
+          DRAFT: Applied for or being recorded; not yet valid.
+          ACTIVE: Valid and in use.
+          COMPLETED: Ended, for example after deregistration. A final state.
+          CANCELLED: Withdrawn before use. A final state.
   relationships:
-  - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: Organization to which tax record applies., businessMeaning: Establishes taxpayer/reporting context., usage: Tax determination and reporting., cardinalityMeaning: Optional for globally reusable tax reference data., workflowRole: Transactional tax evidence must use compatible registration/jurisdiction.}}
+    - {name: organization, target: Organization, cardinality: 0..1, ownership: reference, help: {summary: The organisation that holds the registration., usage: Chosen when recorded., cardinalityMeaning: At most one organisation., workflowRole: Decides which company files returns.}}
   invariants:
-  - {id: TAX-REGISTRATION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: TAX-REGISTRATION-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Tax Registration Lifecycle
     attribute: status
@@ -48,12 +57,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
-    purpose: Provide canonical enterprise semantics for TaxRegistration while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed registration of a Party or Organization with a TaxJurisdiction and tax authority.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: The registration of a party or organisation with a tax jurisdiction and its tax authority.
+    businessMeaning: A registration is the tax identity the business holds in a place, such as a VAT number. Recording it shows where the business may charge and must report tax and which number to print on invoices.
+    usage: Maintained by tax staff; read when invoicing and filing returns.
+    relationshipContext: A registration may belong to an organisation and is held in a jurisdiction.
+    lifecycle: A registration is drafted, active while valid and completed when it ends. It may be cancelled before use. Completed and cancelled are final.
+    example: The company's VAT registration in Germany, active since March 2022.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-TAX-REGISTRATION}

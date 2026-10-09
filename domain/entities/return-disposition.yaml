@@ -53,7 +53,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: AUTHORIZED
+      default: DRAFT
       values:
         - DRAFT
         - AUTHORIZED

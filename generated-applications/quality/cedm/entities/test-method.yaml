@@ -7,24 +7,24 @@ entity:
     icon: flask-conical
   identity: {key: testMethodId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: testMethodId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the governed test method., businessMeaning: Identifies one reusable procedure independently of plans and measurements., usage: "Quality planning, laboratory execution, audit, and integration.", relationshipContext: Referenced by quality configurations and test evidence., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of the test method., businessMeaning: Human-readable controlled identifier for the procedure., usage: "Authoring, execution, reporting, and integration.", relationshipContext: Remains stable within its governed version., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable test-method name., businessMeaning: States the procedure understood by quality and laboratory personnel., usage: "Instructions, forms, reports, and training.", relationshipContext: Complements the controlled code., requiredMeaning: Required.}}
-  - {name: instructions, type: string, required: false, maxLength: 10000, help: {summary: Governed execution instructions., businessMeaning: Describes how evidence must be produced., usage: "Laboratory and inspection execution, reproducibility, and audit.", relationshipContext: May be supplemented by controlled external procedures., optionalMeaning: Optional when instructions are maintained in a linked governed document.}}
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
-    help: {summary: Lifecycle state of the method., businessMeaning: Controls whether the procedure may be selected for new governed work., usage: Method governance and execution gating., relationshipContext: Historical evidence retains the method/version used., valueSemantics: {DRAFT: Being authored and not normally executable., ACTIVE: Approved for governed use., SUSPENDED: Temporarily unavailable for new use., RETIRED: No longer selected for new work but retained historically.}, requiredMeaning: Required.}
+    - {name: testMethodId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the governed test method., businessMeaning: Identifies one reusable procedure independently of plans and measurements., usage: "Quality planning, laboratory execution, audit, and integration.", relationshipContext: Referenced by quality configurations and test evidence.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Business code of the test method., businessMeaning: Human-readable controlled identifier for the procedure., usage: "Authoring, execution, reporting, and integration.", relationshipContext: Remains stable within its governed version.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable test-method name., businessMeaning: States the procedure understood by quality and laboratory personnel., usage: "Instructions, forms, reports, and training.", relationshipContext: Complements the controlled code.}}
+    - {name: instructions, type: string, required: false, maxLength: 10000, help: {summary: Governed execution instructions., businessMeaning: Describes how evidence must be produced., usage: "Laboratory and inspection execution, reproducibility, and audit.", relationshipContext: May be supplemented by controlled external procedures.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
+      help: {summary: Lifecycle state of the method., businessMeaning: Controls whether the procedure may be selected for new governed work., usage: Method governance and execution gating., relationshipContext: Historical evidence retains the method/version used., valueSemantics: {DRAFT: Being authored and not normally executable., ACTIVE: Approved for governed use., SUSPENDED: Temporarily unavailable for new use., RETIRED: No longer selected for new work but retained historically.}}
   relationships:
-  - {name: qualityPlanCharacteristics, target: QualityPlanCharacteristic, cardinality: 0..*, ownership: reference, help: {summary: Plan-specific requirements using this method., businessMeaning: Shows where the reusable procedure is mandated., usage: Impact analysis and execution., cardinalityMeaning: A method may govern zero or many plan characteristics., context: Plan configuration supplies limits and requiredness.}}
-  - {name: measurements, target: QualityMeasurement, cardinality: "0..*", ownership: reference, help: {summary: Historical observations produced using this method., businessMeaning: Links procedure definition to resulting evidence., usage: "Reproducibility, audit, analytics, and investigations.", cardinalityMeaning: A method may produce many measurements., context: Measurement preserves execution evidence.}}
+    - {name: qualityPlanCharacteristics, target: QualityPlanCharacteristic, cardinality: 0..*, ownership: reference, help: {summary: Plan-specific requirements using this method., businessMeaning: Shows where the reusable procedure is mandated., usage: Impact analysis and execution., cardinalityMeaning: A method may govern zero or many plan characteristics., context: Plan configuration supplies limits and requiredness.}}
+    - {name: measurements, target: QualityMeasurement, cardinality: "0..*", ownership: reference, help: {summary: Historical observations produced using this method., businessMeaning: Links procedure definition to resulting evidence., usage: "Reproducibility, audit, analytics, and investigations.", cardinalityMeaning: A method may produce many measurements., context: Measurement preserves execution evidence.}}
   invariants:
-  - {id: TEST-METHOD-001, rule: code must be unique in the governed quality namespace.}
-  - {id: TEST-METHOD-002, rule: Only ACTIVE methods may be newly assigned to governed quality execution except through an authorized exception.}
-  - {id: TEST-METHOD-003, rule: Suspending or retiring a method triggers impact analysis for active plan characteristics and open inspections.}
-  - {id: TEST-METHOD-004, rule: Historical measurements must retain the method identity applicable when executed and must not be silently reinterpreted by later method changes.}
+    - {id: TEST-METHOD-001, rule: code must be unique in the governed quality namespace.}
+    - {id: TEST-METHOD-002, rule: Only ACTIVE methods may be newly assigned to governed quality execution except through an authorized exception.}
+    - {id: TEST-METHOD-003, rule: Suspending or retiring a method triggers impact analysis for active plan characteristics and open inspections.}
+    - {id: TEST-METHOD-004, rule: Historical measurements must retain the method identity applicable when executed and must not be silently reinterpreted by later method changes.}
   lifecycle:
     title: Test Method Lifecycle
     attribute: status

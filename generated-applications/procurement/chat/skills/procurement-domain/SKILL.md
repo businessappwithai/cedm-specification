@@ -14,27 +14,27 @@ Everything below is the application's own description of itself, taken from the 
 
 ### Address
 
-Reusable address master data with explicit rules for ownership, primary selection, lifecycle, and historical transaction evidence. Address is reusable master data, but an address printed on an issued invoice, shipment, order, or other historical document is transaction evidence and must remain reproducible even if the master address changes. Supports Party, Organization, Customer, Supplier, Location, order, fulfillment, invoicing, taxation, shipping, reporting, and integration workflows. Party and Location may reuse an Address. Operational documents should resolve the effective address at tra…
+A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City,…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Address Type** (required, one of the Address Address Type values) — The address type of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its r…
-  - **Line1** (required) — The line1 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
-  - **Line2** — The line2 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
-  - **Line3** — The line3 of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relation…
+  - **Address Type** (required, one of the Address Address Type values) — The purpose for which the address is used. Chosen when the address is created and used to pick the right address for a document, such as BILLING for invoices and SHIPPING for deliveries. A private home address. A place of business or offic…
+  - **Line1** (required) — The first line of the street address, usually building number and street. Entered by the person maintaining the address; printed on labels and documents.
+  - **Line2** — An optional second address line, such as a suite, unit or floor. Filled when line 1 is not enough to find the exact delivery point.
+  - **Line3** — An optional third address line for additional delivery details. Rarely used; kept for countries and carriers whose formats need more than two lines.
   - **City Name** — The name of the town or locality when it is not in the list of cities. Filled only when no city can be chosen; leave it empty when the city is picked from the list. Stands in for the city relationship; an address states one or the other.
-  - **Postal Code** — The postal code of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its re…
-  - **Latitude** — The latitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its rela…
-  - **Longitude** — The longitude of the address: a number the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its rel…
-  - **Is Primary** (required) — The is primary of the address: a yes/no indicator the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields…
-  - **Status** (required, one of the Address Status values) — The status of the address: a value the business records on it. Entered or maintained when a address is created or changed; shown on its form and available to search and reports. Read together with the address's other fields and its relatio…
-  - **Party** (a Party) — Party that maintains or uses this reusable address. Provides party master-data context for address selection.
+  - **Postal Code** — The postal or ZIP code of the address. Entered according to the country's format; used for delivery, tax zones and distance calculation.
+  - **Latitude** — The north-south position of the address on the earth in decimal degrees, from -90 to 90. Optional; filled by geocoding for mapping and routing. Must stay within -90 to 90.
+  - **Longitude** — The east-west position of the address on the earth in decimal degrees, from -180 to 180. Optional; filled by geocoding for mapping and routing. Must stay within -180 to 180.
+  - **Is Primary** (required) — Marks the address a party or location uses by default for its address type. Set by the person maintaining addresses; at most one active primary address of each type applies per party or location, and it is the one documents pick unless tol…
+  - **Status** (required, one of the Address Status values) — Whether the address may still be used for new business. Changed by data stewards; selection lists offer only ACTIVE addresses. Valid and available for new documents. Temporarily not offered, for example while a move is being confirmed; it…
+  - **Party** (a Party) — The party that uses or maintains this address. Set when a party's address is added; used to find a party's addresses and pick the effective one. At most one party; an address being prepared may have none yet. Supplies the party context for…
   - **Person** (a Person) — The Person this Address belongs to.
   - **Organization** (a Organization) — The Organization this Address belongs to.
-  - **Country** (required, a Country) — The country the address is in. Chosen from the list of countries; the states and cities offered are narrowed by it. Exactly one country. Every address names its country, which settles the format, tax and trade rules that apply to it.
-  - **State Province** (a State Province) — The state, province or equivalent division the address is in. Chosen after the country, from the divisions of that country. At most one; some countries have no divisions in the list. Must be a division of the address's own country.
-  - **City** (a City) — The city the address is in, chosen from the list. Chosen after the state or province, from the cities of that division or country; use the city name field when the city is not listed. At most one. Must be a city of the address's own countr…
+  - **Country** (required, a Country) — The country the address is in. Chosen first; it sets the address format and narrows the states and cities offered. Exactly one country is required. Settles the format, tax and trade rules that apply to the address. Every address names its…
+  - **State Province** (a State Province) — The state, province or equivalent division the address is in. Chosen after the country, from that country's divisions. At most one; some countries have no divisions in the list. Must belong to the address's own country. Must be a division…
+  - **City** (a City) — The city the address is in, chosen from the list. Chosen after the state or province; use the city name field only when the city is not listed. At most one. Must belong to the address's own country, and to its state or province where one i…
   - **Supplier** (a Supplier) — The Supplier this Address belongs to.
 
 ### Address Address Type
@@ -65,73 +65,73 @@ Fields:
 
 ### Attachment
 
-A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Provide durable, implementation-neutral governance semantics for Attachment. A governed file or content attachment associated with an enterprise record while preserving content identity and audit provenance. Used in contracts, documents, governance, compliance, risk, legal, service, finance, or audit workflows where applicable. Connects authoritative business records to controlled lifecycle, evidence, findings, and downstream remediation without replacing source t…
+A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evide…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Effective At** — Time at which this record becomes effective or evidentially applicable. Establishes temporal business meaning. Lifecycle, audit and reporting. Does not rewrite earlier effective evidence. Optional when lifecycle does not require a separate…
+  - **Effective At** — When the attachment became part of the record. Set when the file is attached; used to show what evidence existed at a given moment.
 
 ### Business Unit
 
-A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit representing a major business, division, line, or operating segment within an Organization. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and…
+A major business, division, product line or operating segment within an organisation. Business units are how a large organisation divides its activity for management and reporting. They let results, budgets and responsibility be assigned to a meaningful segment rather than to the organisation as a whole. Defined by management and finance; assigned to people, transactions and budgets; read when reporting by segment. Each business unit belongs to one Organization and groups the work and results of one part of it. A business unit keeps its code and identity stable. Reorganisations are recorded e…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for BusinessUnit. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of BusinessUnit. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Organization** (required, a Organization) — Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
+  - **Name** (required) — The full name of the unit. Shown in organisation charts and management reports.
+  - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
 
 ### Calendar
 
-A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Provide a canonical enterprise representation with stable identity and governed semantics. A governed calendar defining business dates, working days, holidays, and time-control semantics for planning and operational processes. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained throu…
+A calendar that defines business dates, working days, holidays and time-control rules used for planning and operations. Whether a date counts as a working day is not obvious: it depends on region, industry and company. A calendar states that explicitly, so due dates, delivery promises and schedules all agree. Maintained by administrators; referenced by schedulers, service-level calculations and planning when they need to know which days count. Locations, teams, contracts and schedules point to the calendar that governs their working days. A calendar's code and identity stay stable. Changes to…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Calendar. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Calendar. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
+  - **Name** (required) — The descriptive name of the calendar. Shown wherever a calendar is chosen.
 
 ### City
 
-A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Give every application the same governed list, so a place or code means one thing across the enterprise. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addres…
+A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart. Required.
-  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name. Required.
+  - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart.
+  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name.
   - **Population** — The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
   - **Latitude** — Latitude in degrees, north positive. Maps and distance. Describes the city only.
   - **Longitude** — Longitude in degrees, east positive. Maps and distance. Describes the city only.
   - **Timezone** — The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.
   - **Is Capital** — Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
-  - **Country** (required, a Country) — The country the city is in. Chosen first; the cities offered are those of that country. Every city belongs to exactly one country. A city is narrowed by its country, and by its state where it has one.
+  - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
 
 ### Contact Point
 
-A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Provide a canonical enterprise representation with stable identity and governed semantics. A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained…
+A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team's email address invoices@acme.example, re…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for ContactPoint. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of ContactPoint. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Party** (required, a Party) — Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — A short reference for the contact point. Assigned or imported; stays stable so integrations can match it.
+  - **Name** (required) — A descriptive label for the endpoint, such as Head office switchboard. Shown wherever contact points are listed.
+  - **Party** (required, a Party) — The party the endpoint belongs to. Set when the endpoint is added. Exactly one party; each endpoint has one owner. Lets communications find the right channel for a party.
 
 ### Country
 
-A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Give every application the same governed list, so a place or code means one thing across the enterprise. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each oth…
+A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it. Required.
+  - **Code** (required) — The two-letter ISO 3166-1 code, such as US or DE. Search, integration and reporting; stored on nothing else, because records point at the country itself. Unique; a state or province and a city belong to a country through it.
   - **Alpha3** — The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.
   - **Numeric Code** — The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
-  - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key. Required.
+  - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
   - **Phone Code** — The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
 
@@ -143,10 +143,10 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — Three-letter business currency code, normally an ISO 4217 code where one exists. Used in documents, APIs, integrations, reports, pricing, banking, and accounting. Code identifies the denomination and is not an exchange rate or amount. Prov…
-  - **Name** (required) — Human-readable currency name. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context to business users. Requ…
+  - **Name** (required) — The name of the currency, such as Euro or US Dollar. Used in user interfaces, documents, reports, master-data management, and integrations. Describes the currency identified by code and currencyId. Provides understandable monetary context…
   - **Symbol** — Common display symbol for the currency. Used in user interfaces, customer documents, reports, and formatted amounts. Presentation metadata; it must not be used as the canonical currency identity. Improves human-readable display without aff…
   - **Decimal Places** (required) — Standard number of decimal places normally used when representing amounts in this currency. Used for amount formatting, rounding, validation, invoicing, payment processing, and accounting presentation. Transaction-specific precision or fin…
-  - **Status** (required, one of the Currency Status values) — Controls whether the currency is available for new monetary transactions. Used by pricing, order, invoicing, payment, banking, and accounting validation. Retiring a currency must not invalidate historical transactions expressed in that cur…
+  - **Status** (required, one of the Currency Status values) — Available for use on new prices, documents and payments. Temporarily not offered, for example while a market is closed; it can be reactivated. No longer in use, such as a replaced national currency; historical amounts keep it. Controls whe…
 
 ### Currency Status
 
@@ -163,14 +163,14 @@ Fields:
 
 ### Department
 
-A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Provide a canonical enterprise representation with stable identity and governed semantics. A governed organizational unit grouping people, positions, responsibilities, and work within an Organization or BusinessUnit. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled change…
+A unit of an organisation that groups people, positions, responsibilities and work. Departments are how people are organised day to day. They define reporting lines, budgets and responsibilities. Defined by HR and management; assigned to people and positions; used in reporting and approvals. A department belongs to an Organization (or one of its business units). Code and identity stay stable. Reorganisations are recorded explicitly so earlier reports do not change. The Accounts Payable department of the finance function.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Department. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Department. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **Organization** (required, a Organization) — Governing Organization context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Organization. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
+  - **Name** (required) — The name of the department. Shown in organisation charts and on documents.
+  - **Organization** (required, a Organization) — The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.
 
 ### Exchange Rate
 
@@ -182,11 +182,11 @@ Fields:
   - **From Currency** (required, a Currency) — Currency from which an amount is converted. Identifies the source denomination of the monetary amount being converted. Must differ from toCurrency for a meaningful exchange-rate conversion. Identifies the currency of the source Money value…
   - **To Currency** (required, a Currency) — Currency into which an amount is converted. Identifies the target denomination of the converted monetary amount. Conversion direction is from fromCurrency to toCurrency; reversing the direction requires an appropriate inverse rate rather t…
   - **Rate** (required) — Positive conversion factor that expresses how much target currency corresponds to one unit of source currency under this rate convention. Used to calculate converted monetary amounts while preserving the declared direction. Must always be…
-  - **Rate Type** (required, one of the Exchange Rate Rate Type values) — Classifies the business purpose and provenance context of the exchange rate. Used to select an appropriate rate according to transaction and accounting policy. Different workflows may require different rate types; a spot rate must not auto…
+  - **Rate Type** (required, one of the Exchange Rate Rate Type values) — The market rate at a moment in time. A rate fixed by agreement with a counterparty. The rate published for a business day. An average or closing rate for a month. A rate set by the finance team for ledger translation. Any other rate define…
   - **Effective At** (required) — Date and time from which the exchange rate is applicable under its rate policy. Used to select the correct rate for a transaction, settlement, or accounting event. A rate without an effective time cannot be reliably reproduced when rates c…
-  - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations…
+  - **Expires At** — Optional end of the period during which the rate is valid. Used to prevent application of expired rates. When supplied, expiresAt must be later than effectiveAt. Defines the rate's validity window for transaction and reporting calculations.
   - **Source** (required) — Identifies the provider or business authority from which the rate was obtained. Used for audit, reconciliation, regulatory reporting, and rate governance. Source identifies provenance; it does not by itself determine which rate is applicab…
-  - **Status** (required, one of the Exchange Rate Status values) — Lifecycle state of the exchange-rate record. Used by conversion services to determine whether a rate may be applied. Historical calculations retain the rate record even after it expires. Prevents use of draft, cancelled, or expired rates w…
+  - **Status** (required, one of the Exchange Rate Status values) — Being prepared; not yet used. In force and usable for conversion. Its validity period has ended; kept for past conversions. Withdrawn; must not be used. Lifecycle state of the exchange-rate record. Used by conversion services to determine…
 
 ### Exchange Rate Rate Type
 
@@ -216,19 +216,19 @@ Fields:
 
 ### Goods Receipt
 
-Controlled receiving document whose line evidence establishes original fulfillment and eligible basis for later supplier returns. GoodsReceipt is the fulfillment bridge between PurchaseOrder commitment and accepted inventory/service. SupplierReturn is a later reverse-procurement event that consumes eligible accepted receipt evidence without rewriting it. Receiving, warehouse operations, procurement, quality, supplier management, accounts payable, inventory control, three-way matching and supplier returns. PurchaseOrder is the commitment. GoodsReceiptLine is actual receipt/disposition evidence…
+A record that goods or services ordered on a purchase order have arrived, with evidence of what was received, accepted and rejected. Receiving is the moment a purchase becomes real. The goods receipt says what physically arrived against the order, what passed inspection and what did not, so stock, supplier payment and returns can all rely on it. Created at the dock when a delivery arrives; inspected; accepted or rejected; read by purchasing, warehouse and accounts payable. A receipt answers a PurchaseOrder from a Supplier, has GoodsReceiptLines, creates InventoryMovements, supports Invoice ma…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Receipt Number** (required) — Human-facing receiving reference. Identifies the receipt in warehouse and supplier operations. Documents, audit, matching and return processing. Distinct from SupplierReturn.returnNumber and PurchaseOrder number. Provides operational refer…
-  - **Receipt Date** (required) — Date and time the receipt was recorded. Establishes receiving chronology. Inventory history, procurement, matching and audit. Distinct from later SupplierReturn.returnDate. Anchors original receipt evidence. Required.
-  - **Status** (required, one of the Goods Receipt Status values) — Controlled receiving-document lifecycle state. Indicates whether receipt evidence can affect fulfillment and inventory. Controls receiving progression and authorized corrections. SupplierReturn is a later reverse-procurement event and does…
-  - **Received Quantity** (required) — Total quantity physically recorded as received. Sum of line received quantities. Receiving and audit. SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone. Provides original physical receipt bas…
-  - **Accepted Quantity** (required) — Quantity accepted after receiving controls. Sum of line accepted quantities that may become inventory. Inventory posting, PO fulfillment and invoice matching. SupplierReturnLine eligibility is normally based on accepted quantity and subseq…
-  - **Notes** — Receiving notes and operational context. Human-readable context for receipt exceptions or inspection. Operations and audit. Does not replace structured disposition or return evidence. Supports review. Optional.
-  - **Supplier** (required, a Supplier) — Supplier that delivered the receipt. Identifies the commercial party responsible for the delivery. Receiving, procurement, audit and supplier return processing. Supplies supplier context for subsequent returns.
-  - **Purchase Order** (required, a Purchase Order) — Procurement commitment fulfilled by this receipt. Connects received goods to what was ordered. Receiving, fulfillment, matching and supplier return eligibility. Supplies original procurement context.
+  - **Receipt Number** (required) — The receipt number printed on the delivery note and used in the warehouse. Allocated from a number series; unique. Identifies the receipt in warehouse and supplier operations. Distinct from SupplierReturn.returnNumber and PurchaseOrder num…
+  - **Receipt Date** (required) — The date and time the goods arrived. Recorded at the dock; determines stock availability and supplier performance. Establishes receiving chronology. Distinct from later SupplierReturn.returnDate. Anchors original receipt evidence.
+  - **Status** (required, one of the Goods Receipt Status values) — How far receipt and inspection have progressed. Moved by warehouse and quality staff. Being prepared before the delivery is confirmed. Delivery confirmed and counted. Held until a quality inspection is done. All received quantity accepted…
+  - **Received Quantity** (required) — The total quantity counted at receipt. Calculated from the lines. Sum of line received quantities. SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone. Provides original physical receipt basis.
+  - **Accepted Quantity** (required) — The total quantity accepted into stock. Calculated from the lines; never more than the received quantity. Sum of line accepted quantities that may become inventory. SupplierReturnLine eligibility is normally based on accepted quantity and…
+  - **Notes** — Remarks about the delivery, such as damage or discrepancies. Free text written by the receiving clerk. Human-readable context for receipt exceptions or inspection. Does not replace structured disposition or return evidence. Supports review.
+  - **Supplier** (required, a Supplier) — The supplier that delivered the goods. Set from the purchase order. Supplier performance is measured on receipts. Identifies the commercial party responsible for the delivery.
+  - **Purchase Order** (required, a Purchase Order) — The purchase order the delivery answers. Selected at receiving. Receipts close the order's open quantities. Connects received goods to what was ordered.
   - **Supplier Claim** (a Supplier Claim) — The SupplierClaim this GoodsReceipt belongs to.
   - **Supplier Performance Assessment** (a Supplier Performance Assessment) — The SupplierPerformanceAssessment this GoodsReceipt belongs to.
 
@@ -254,11 +254,11 @@ Represents a formal financial claim and its controlled settlement and adjustment
 Readable by every signed-in person.
 
 Fields:
-  - **Invoice Number** (required) — Business-facing invoice reference. Identifier communicated to customers, suppliers, tax authorities, and financial operations. Used in documents, statements, reconciliation, collections, payables, and integrations. Distinct from invoiceId…
+  - **Invoice Number** (required) — The number printed on the invoice, by which customer and supplier refer to it. Identifier communicated to customers, suppliers, tax authorities, and financial operations. Used in documents, statements, reconciliation, collections, payables…
   - **Invoice Date** (required) — Accounting and commercial date assigned to the invoice. Establishes the date used for financial chronology and applicable billing and tax rules. Used for accounting periods, tax, payment-term calculation, aging, reporting, and reconciliati…
   - **Due Date** — Transaction-level date by which the claim is expected to be settled. Result of applying the effective PaymentTerm and due-date basis to the invoice. Drives aging, collections, cash forecasting, and payment planning. PaymentTerm is policy;…
-  - **Invoice Type** (required, one of the Invoice Invoice Type values) — Defines the commercial direction and accounting nature of the invoice document. Determines whether the document establishes a receivable, payable, or adjustment. Used by accounting, tax, receivables, payables, matching, and reporting. Must…
-  - **Status** (required, one of the Invoice Status values) — Lifecycle state of the financial claim. Indicates whether the claim is being prepared, outstanding, settled, overdue, cancelled, or voided. Controls issuance, settlement, aging, cancellation, reporting, and accounting workflows. PaymentAll…
+  - **Invoice Type** (required, one of the Invoice Invoice Type values) — An invoice the organisation issues to a customer for goods or services supplied. An invoice the organisation receives from a supplier. A document that reduces what is owed under an earlier invoice. A document that increases what is owed un…
+  - **Status** (required, one of the Invoice Status values) — Being prepared; not yet sent and not yet part of the receivables. Sent or recorded; the amount is now owed and due by its due date. Part of the amount has been settled by payments or credits. Fully settled. A final state. Past its due date…
   - **Currency** (required, a Currency) — Currency denomination shared by the invoice's monetary values. Defines the monetary denomination of the claim and its calculated totals. Used for accounting, payment allocation, tax, reconciliation, reporting, and credit or debit adjustmen…
   - **Subtotal** (required) — Aggregate of invoice line amounts before document-level tax and other applicable document adjustments. Represents the pre-tax financial base derived from invoice lines after line-level pricing treatment. Used for tax calculation, accountin…
   - **Discount Amount** (required) — Aggregate document-level discount applied after applicable line pricing and before taxable base where policy requires. Represents a document-level reduction distinct from line-level discounts and settlement discounts. Used for invoice calc…
@@ -316,37 +316,37 @@ Fields:
 
 ### Language
 
-A governed language reference used for localization, communication preferences, content, and reporting. Provide a canonical enterprise representation with stable identity and governed semantics. A governed language reference used for localization, communication preferences, content, and reporting. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preserving a single canonical identity. Created under governance, maintained through controlled changes, and retired or superseded without rewriti…
+A language used for localisation, communication preferences, content and reporting. People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in. Loaded from the standard language registry; chosen on user profiles, documents and messages. Parties, users and content refer to a language; the language itself depends on nothing. Code and identity stay stable, and history is never silently rewritten. English, with code en.
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for Language. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of Language. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
+  - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
+  - **Name** (required) — The name of the language in English. Shown in language pick-lists.
 
 ### Legal Entity
 
-A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Provide canonical governance semantics for LegalEntity. A legally recognized organization or person capable of holding rights, obligations, registrations, contracts, assets, liabilities, or filings. Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable. Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histori…
+A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings. Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties. Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers. Contracts, filings and accounting books refer to the legal entity. Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicit…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Occurred At** — Effective occurrence or assessment time where applicable. Anchors temporal evidence. Chronology, reporting and audit. Historical timing is not silently rewritten. Optional when the concept is a standing master or future obligation.
+  - **Occurred At** — When the entity was formed, or its record took effect. Set from the registration data.
 
 ### Location
 
-Core location master with hierarchical, geographic, organizational, and lifecycle context. Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation. Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes. Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must r…
+A physical or logical place where resources, activities, stock, services or organisational operations are situated. Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place. Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting. A location may sit within a parent Location with children…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relati…
-  - **Name** (required) — The name of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its relati…
-  - **Location Type** (required, one of the Location Location Type values) — The location type of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and i…
-  - **Status** (required, one of the Location Status values) — The status of the location: a value the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's other fields and its rela…
-  - **Address** (a Address) — The address id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the location's othe…
-  - **Parent Location** (a Location) — The parent location id of the location: a link to another record the business records on it. Entered or maintained when a location is created or changed; shown on its form and available to search and reports. Read together with the locatio…
-  - **Organization** (a Organization) — Links a location to organization, the organization it relates to. Chosen from the existing organization records when the location is created or edited. A location has at most one organization in this role. Lets the location be found from,…
+  - **Code** (required) — The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
+  - **Name** (required) — The name people use for the place. Shown in lists, maps and documents.
+  - **Location Type** (required, one of the Location Location Type values) — What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A p…
+  - **Status** (required, one of the Location Status values) — Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.
+  - **Address** (a Address) — The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
+  - **Parent Location** (a Location) — The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
+  - **Organization** (a Organization) — The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
   - **Product** (a Product) — The Product this Location belongs to.
 
 ### Location Location Type
@@ -384,10 +384,10 @@ Readable by every signed-in person.
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when part…
   - **Code** (required) — Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope.…
-  - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification. Required f…
-  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Custo…
-  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must perm…
-  - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context. Optional when the…
+  - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
+  - **Organization Type** (required, one of the Organization Organization Type values) — The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organi…
+  - **Status** (required, one of the Organization Status values) — Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an org…
+  - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
   - **Registration Number** — Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verifica…
   - **Tax Identifier** — Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule appli…
   - **Party Type** (required, one of the Organization Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
@@ -462,14 +462,14 @@ Fields:
 
 ### Party Relationship
 
-A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Provide a canonical enterprise representation with stable identity and governed semantics. A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship. Used whenever enterprise processes need this concept as controlled master or reference data. Referenced by compatible domain entities and workflows while preser…
+A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way. Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when. Created when a relationship is established; ended when it stops; read by sales, compliance and customer service. A relationship runs from one Party to another. Code and identity stay stable, and the relationship's…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Governed business code for PartyRelationship. Human and integration-friendly identifier. Search, configuration, exchange and reporting. Unique within its governing context according to policy. Required.
-  - **Name** (required) — Human-readable name of PartyRelationship. Communicates the concept to business users. UI, documents and reports. Does not replace immutable identity. Required.
-  - **From Party** (required, a Party) — Governing Party context for this record. Establishes ownership and enterprise context. Authorization, reporting and workflow. Exactly one Party. Referenced workflows must remain compatible with governing context.
+  - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
+  - **Name** (required) — A description of the relationship. Shown in party views.
+  - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
 
 ### Party Role
 
@@ -478,12 +478,12 @@ The bridge between stable Party identity and contextual business participation. 
 Readable by every signed-in person.
 
 Fields:
-  - **Party** (required, a Party) — Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back t…
-  - **Role Type** (required, one of the Party Role Role Type values) — Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. S…
-  - **Code** — Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when…
-  - **Valid From** — Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a…
-  - **Valid To** — Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use…
-  - **Status** (required, one of the Party Role Status values) — Operational lifecycle of the PartyRole relationship. Controls whether the role can normally participate in new transactions, assignments, or authorizations. Role status is independent of Party.status and other PartyRole statuses. ACTIVE pe…
+  - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
+  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business…
+  - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
+  - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
+  - **Valid To** — The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
+  - **Status** (required, one of the Party Role Status values) — Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTI…
   - **Person** (a Person) — The Person this PartyRole belongs to.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
@@ -534,14 +534,14 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactio…
-  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display. optional.
-  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification. required.
-  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification. optional.
-  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification. required.
-  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction. optional.
-  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable. optional.
-  - **Gender** (one of the Person Gender values) — Gender classification where required by the business process. permitted business processes only. person attribute and not role. process-specific. optional. The gender of the person is female; set it when that is what the business means for…
-  - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific. Optional.
+  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display.
+  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification.
+  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification.
+  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification.
+  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction.
+  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.
+  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as ne…
+  - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
   - **Party Type** (required, one of the Person Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
   - **Display Name** (required) — The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, t…
   - **Status** (required, one of the Person Status values) — Controls whether the party may participate in new business activity. Represents the operational lifecycle of the party relationship with the enterprise, not the party's legal existence. Used by onboarding, transaction validation, account m…
@@ -588,20 +588,20 @@ Fields:
 
 ### Product
 
-Canonical product master with mandatory downstream dependency propagation and transaction-time preservation rules. Product defines what is offered or managed; transaction entities define occurrences. Master changes affect future eligibility and dependent open workflows, not completed historical facts. Central to catalog, pricing, sales, procurement, inventory, manufacturing, logistics, fulfillment, invoicing, tax, service, subscriptions, and analytics. Product connects to ProductCategory, Supplier, UnitOfMeasure, Location, demand, procurement, inventory state/events, and billing. Transaction…
+A canonical business offering or managed item that can be bought, sold, stocked, consumed, delivered or subscribed to, and that other processes refer to. Product is the shared definition of what the business deals in. Sales, purchasing, stock, manufacturing and finance all refer to the same product record, so a price, a stock level and an invoice line are about the same thing. Created by product management when an item enters the catalogue; maintained over its life; referenced on almost every order, movement and invoice line. A product belongs to a ProductCategory and Brand, is supplied by Su…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its relations…
-  - **Name** (required) — The name of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its relations…
-  - **Description** — The description of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its re…
-  - **Product Type** (required, one of the Product Product Type values) — The product type of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its r…
-  - **Status** (required, one of the Product Status values) — The status of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its relatio…
-  - **Sku** — The sku of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its relationsh…
-  - **Unit Of Measure** (a Unit Of Measure) — The unit of measure of the product: a link to another record the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's ot…
-  - **Standard Price** — The standard price of the product: a monetary amount the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fiel…
-  - **Tax Category** — The tax category of the product: a value the business records on it. Entered or maintained when a product is created or changed; shown on its form and available to search and reports. Read together with the product's other fields and its r…
+  - **Code** (required) — The code by which staff and systems name the product. Unique; assigned by product management and used in orders, price lists and integrations.
+  - **Name** (required) — The name of the product as shown to users and customers. Shown in catalogues, on documents and in search results.
+  - **Description** — A longer description of what the product is. Written by product management; used on websites, quotes and datasheets.
+  - **Product Type** (required, one of the Product Product Type values) — What kind of offering the product is, which decides how it is bought, stocked and delivered. Chosen on creation; stock rules apply only to physical types. A finished physical item that is bought or sold and held in stock. A raw material or…
+  - **Status** (required, one of the Product Status values) — Whether the product can currently be traded. Set by product management; new orders are accepted only for ACTIVE products. Being set up; not yet tradable. Available for ordinary trading. Being phased out; existing stock may be sold but it i…
+  - **Sku** — The stock-keeping unit code used in warehouses and on retail systems. Assigned at creation; printed on labels and scanned during handling.
+  - **Unit Of Measure** (a Unit Of Measure) — The base unit in which the product is counted, such as each or kilogram. Chosen on creation; stock and order quantities are converted to it.
+  - **Standard Price** — The standard selling price of the product. Set by pricing; quotes and orders start from it before discounts.
+  - **Tax Category** — The tax category that decides how the product is taxed. Chosen on creation; tax rules look it up when documents are priced.
   - **Currency** (a Currency) — The Currency this Product belongs to.
 
 ### Product Product Type
@@ -637,9 +637,9 @@ Represents the formal commercial procurement commitment between a buying organiz
 Readable by every signed-in person.
 
 Fields:
-  - **Order Number** (required) — Human-facing procurement reference. Used by buyers, suppliers, receiving, accounts payable and integrations. Business reference distinct from technical purchaseOrderId. Correlates procurement activity across systems. Required for operation…
-  - **Order Date** (required) — Date and time the procurement commitment is created or issued. Supports chronology, approval, reporting and reconciliation. Distinct from requested delivery, receipt, return, invoice and payment dates. Anchors the commitment lifecycle. Req…
-  - **Status** (required, one of the Purchase Order Status values) — Lifecycle state of the procurement commitment. Controls authorization, issuance, fulfillment, cancellation and closure. PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.…
+  - **Order Number** (required) — Human-facing procurement reference. Used by buyers, suppliers, receiving, accounts payable and integrations. Business reference distinct from technical purchaseOrderId. Correlates procurement activity across systems.
+  - **Order Date** (required) — Date and time the procurement commitment is created or issued. Supports chronology, approval, reporting and reconciliation. Distinct from requested delivery, receipt, return, invoice and payment dates. Anchors the commitment lifecycle.
+  - **Status** (required, one of the Purchase Order Status values) — Being prepared by the buyer; not yet binding. Authorised internally and ready to send. Issued to the supplier. Some of the ordered quantity has been received and accepted; the rest is outstanding. Everything required has been received and…
   - **Currency** (a Currency) — Currency qualifying order monetary values. Used for pricing, totals, invoice matching, supplier credit calculation and financial reporting. Qualifies amounts and does not identify Supplier or Product.
   - **Requested Delivery Date** — Buyer's requested delivery or completion date. Used for supplier communication and fulfillment planning. A request, not proof of actual receipt or return. Supports delivery planning.
   - **Total Amount** — Order-level value derived from committed lines and commercial adjustments. Used for approval, budget, supplier commitment and invoice reconciliation. Must reconcile with PurchaseOrderLine values and currencyId.
@@ -650,7 +650,7 @@ Fields:
   - **Delivery Location** (a Location) — Intended operational destination for ordered goods or services. Used for receiving and logistics planning.
   - **Supplier Performance Assessment** (a Supplier Performance Assessment) — The SupplierPerformanceAssessment this PurchaseOrder belongs to.
 
-Line items — **Purchase Order Line**: kept inside each Purchase Order and reached by opening it, never on their own. Represents one measurable procurement commitment and its accumulated fulfillment, billing and reverse-fulfillment state. PurchaseOrderLine states what the buyer committed to purchase. GoodsReceiptLine records receipt. SupplierReturnLine records subsequent reversal. InvoiceLine records supplier clai…
+Line items — **Purchase Order Line**: kept inside each Purchase Order and reached by opening it, never on their own. One item ordered on a purchase order, with the quantity, price and the progress of receipt, invoicing and return. The line is where the commitment is made precise: which product, how many, at what price and from what source. It keeps the price as agreed at the time and tracks what has since arrived…
 
 ### Purchase Order Line Price Source
 
@@ -715,10 +715,10 @@ Governs solicitation of supplier offers for approved procurement demand. Purchas
 Readable by every signed-in person.
 
 Fields:
-  - **Rfq Number** (required) — Business-facing RFQ reference. Identifies the solicitation to buyers and suppliers. Supplier communication, comparison, reports, and audit. Distinct from requisition and purchase-order numbers. Correlates supplier responses. Required.
-  - **Issued At** — Time the RFQ was formally issued. Establishes when suppliers were invited to respond. Sourcing chronology and response-window control. Distinct from demand approval and award time. Optional while draft.
-  - **Response Due At** — Deadline for supplier responses. Defines the normal competitive response window. Supplier communication, late-response policy, and sourcing SLA. Does not itself award business. Optional when sourcing policy has no fixed deadline.
-  - **Status** (required, one of the Request For Quotation Status values) — Lifecycle state of the RFQ. Controls solicitation, response, closure, and award behavior. Sourcing workflow and governance. Award does not itself create a supplier commitment; PurchaseOrder does. Being prepared. Open to invited supplier re…
+  - **Rfq Number** (required) — Business-facing RFQ reference. Identifies the solicitation to buyers and suppliers. Supplier communication, comparison, reports, and audit. Distinct from requisition and purchase-order numbers. Correlates supplier responses.
+  - **Issued At** — Time the RFQ was formally issued. Establishes when suppliers were invited to respond. Sourcing chronology and response-window control. Distinct from demand approval and award time.
+  - **Response Due At** — Deadline for supplier responses. Defines the normal competitive response window. Supplier communication, late-response policy, and sourcing SLA. Does not itself award business.
+  - **Status** (required, one of the Request For Quotation Status values) — Being prepared; not yet sent to suppliers. Sent to the suppliers, who may now respond. The response period has ended; quotations are being compared. A supplier has been chosen. A final state. Withdrawn without an award. A final state. Life…
 
 Line items — **Request For Quotation Line**: kept inside each Request For Quotation and reached by opening it, never on their own. Line-level bridge from approved procurement demand to comparable supplier offers. The RFQ header controls the sourcing event; this line defines exactly what is being sourced. Strategic sourcing, competitive bids, services procurement, award allocation, and audit. PurchaseRequisitionLine supplies de…
 
@@ -737,13 +737,13 @@ Fields:
 
 ### State Province
 
-A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Give every application the same governed list, so a place or code means one thing across the enterprise. A first-level division of a country — a state, province, region, territory or equivalent — from the ISO 3166-2 registry. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes. Referenced by addresses, parties, products and documents; related entities narrow each other (a city belongs to a state or p…
+A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. "California" belongs to the United States and contains cities suc…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to. Required.
-  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key. Required.
+  - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
+  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
 
@@ -754,17 +754,17 @@ Represents the procurement-facing role of a Party that supplies business inputs 
 Readable by every signed-in person.
 
 Fields:
-  - **Party Role** (required, a Party Role) — PartyRole backing the Supplier specialization. Navigates to common party identity and role information. Supplier must not duplicate Party identity. Supplies shared party context to procurement and financial workflows. Required for role spe…
+  - **Party Role** (required, a Party Role) — PartyRole backing the Supplier specialization. Navigates to common party identity and role information. Supplier must not duplicate Party identity. Supplies shared party context to procurement and financial workflows.
   - **Supplier Code** (required) — Enterprise supplier business reference. Used on purchase orders receipts invoices returns credits payments claims portals reports and integrations. Distinct from legal name and external registration identifiers. Identifies the supplier acr…
-  - **Supplier Type** (one of the Supplier Supplier Type values) — Classification of supplier relationship. Supports onboarding compliance tax contracting and reporting. Does not replace Party identity classification. Supplies supplier classification to procurement policy. Optional. The supplier type of t…
-  - **Qualification Status** (one of the Supplier Qualification Status values) — Procurement qualification state. Controls sourcing eligibility and supplier governance. Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment evidence. Gates new procurement commitments while…
-  - **Payment Terms** — Default supplier settlement policy. Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting. Transaction or contract terms may override the default. Supplies default payable timing. Optional.
-  - **Status** (required, one of the Supplier Status values) — Supplier relationship lifecycle state. Controls procurement eligibility. Historical transactions remain valid after state changes. New procurement return claim-resolution and performance workflows must evaluate status. Required for eligibi…
-  - **Party** (required, a Party) — Identifies the underlying person or organization performing this role. Provides common identity without duplicating Party data. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back t…
-  - **Role Type** (required, one of the Supplier Role Type values) — Defines the business capacity in which the Party participates. Determines specialized capabilities, policies, workflows, and validations. Separate from Party.partyType, which describes whether the participant is a person or organization. S…
-  - **Code** — Optional business-context identifier for this role instance. Supports operational search, integrations, reports, and legacy references. Identifies the role instance and must not replace Party or specialized role identifiers. Optional when…
-  - **Valid From** — Date from which this role is eligible for ordinary business processing. Used by eligibility and transaction validation. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a…
-  - **Valid To** — Date after which the role is no longer normally eligible for new business processing. Used by eligibility, renewal, reporting, and expiry workflows. Historical transactions may continue referencing the role after validTo. Prevents new use…
+  - **Supplier Type** (one of the Supplier Supplier Type values) — A person supplying in their own name. A commercial company. A public body. Another unit of the same group. A supplier that fits no other type. Classification of supplier relationship. Supports onboarding compliance tax contracting and repo…
+  - **Qualification Status** (one of the Supplier Qualification Status values) — Not yet assessed. Assessment is under way. Approved to supply. Approval withdrawn for a time. Not approved to supply. Procurement qualification state. Controls sourcing eligibility and supplier governance. Qualification is distinct from ma…
+  - **Payment Terms** — Default supplier settlement policy. Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting. Transaction or contract terms may override the default. Supplies default payable timing.
+  - **Status** (required, one of the Supplier Status values) — Available for ordering. Not currently used; can be reactivated. Orders and payments are stopped. No longer used; kept for history. A final state. Supplier relationship lifecycle state. Controls procurement eligibility. Historical transacti…
+  - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
+  - **Role Type** (required, one of the Supplier Role Type values) — The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business…
+  - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
+  - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
+  - **Valid To** — The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
 ### Supplier Claim
@@ -774,12 +774,12 @@ Provides a formal auditable case for supplier-related quality or commercial reco
 Readable by every signed-in person.
 
 Fields:
-  - **Claim Number** (required) — Business-facing supplier claim reference. Identifies the claim for procurement quality and supplier communication. Used in correspondence investigations reporting and reconciliation. Distinct from PurchaseOrder GoodsReceipt Invoice Supplie…
+  - **Claim Number** (required) — The number of the claim, such as SCL-0231. Identifies the claim for procurement quality and supplier communication. Used in correspondence investigations reporting and reconciliation. Distinct from PurchaseOrder GoodsReceipt Invoice Suppli…
   - **Claim Date** (required) — Date and time the claim was raised. Establishes when the organization formally asserted the supplier issue. Supports SLA measurement dispute aging supplier performance and audit. Distinct from receipt inspection return resolution and finan…
-  - **Status** (required, one of the Supplier Claim Status values) — Lifecycle state of the supplier claim. Indicates whether the issue is being prepared investigated accepted disputed resolved or closed. Controls investigation supplier response settlement and escalation. Claim status is independent from Su…
-  - **Claim Type** (required, one of the Supplier Claim Claim Type values) — Classification of the supplier issue. States the principal business nature of the claim. Drives routing evidence requirements supplier scorecards and analytics. May be supported by QualityInspection or receiving evidence and may result in…
+  - **Status** (required, one of the Supplier Claim Status values) — Where the claim is in review and settlement. Being prepared; not yet sent to the supplier. Raised with the supplier and awaiting review. Being assessed by the supplier or the buyer. The supplier accepts the claim in full. The supplier acce…
+  - **Claim Type** (required, one of the Supplier Claim Claim Type values) — What the claim is about. Goods do not meet the quality required. Goods arrived damaged. Less was delivered than ordered. More was delivered than ordered. A different item was delivered. A fault covered by warranty. A service was not perfor…
   - **Claimed Amount** — Financial value asserted by the organization in the claim. Represents requested or estimated monetary recovery before supplier agreement or final adjustment. Supports negotiation exposure reporting and recovery analysis. It is not an accou…
-  - **Resolution Code** (one of the Supplier Claim Resolution Code values) — Agreed outcome category of the supplier claim. Records the high-level outcome without itself executing the resulting transaction. Supports supplier performance recovery analytics and downstream workflow routing. Detailed authorization is r…
+  - **Resolution Code** (one of the Supplier Claim Resolution Code values) — The outcome agreed for the claim. Nothing further is done. The supplier sends replacement goods. The goods are repaired. The goods are returned to the supplier. The supplier issues a credit. The buyer raises a debit adjustment. The price i…
   - **Notes** — Additional claim narrative and investigation context. Records information not represented by structured fields. Supplier communication investigation escalation and audit. Complements structured inspection receipt invoice and return evidenc…
   - **Supplier** (required, a Supplier) — Supplier against whom the claim is raised. Identifies the external party responsible for the disputed supply or service. Supports communication scorecards recovery and escalation. Supplies supplier qualification and commercial context.
   - **Purchase Order** (a Purchase Order) — Procurement commitment associated with the claim. Connects the supplier issue to the original purchasing commitment. Supports contractual price and quantity investigation. Supplies commercial source evidence.
@@ -806,9 +806,9 @@ Readable by every signed-in person.
 
 Fields:
   - **Resolution Number** (required) — Human-facing resolution reference. Identifies the resolution decision for operational and supplier communication. Used in approvals correspondence reconciliation and audit. Distinct from the SupplierClaim claimNumber and downstream transac…
-  - **Resolution Date** (required) — Date and time the resolution was authorized. Establishes when the agreed remedy became effective. SLA reporting audit and financial control. Anchors downstream execution. Required.
-  - **Resolution Type** (required, one of the Supplier Claim Resolution Resolution Type values) — Authorized remedy for the supplier claim. Defines what outcome was agreed without itself executing the remedy. Routes downstream workflows and measures recovery outcomes. RETURN may require SupplierReturn; CREDIT may require SupplierCredit…
-  - **Status** (required, one of the Supplier Claim Resolution Status values) — Lifecycle state of the resolution. Separates decision approval from execution and completion. Controls downstream work and claim closure. Resolution status does not replace SupplierClaim or downstream transaction statuses. Gates execution…
+  - **Resolution Date** (required) — Date and time the resolution was authorized. Establishes when the agreed remedy became effective. SLA reporting audit and financial control. Anchors downstream execution.
+  - **Resolution Type** (required, one of the Supplier Claim Resolution Resolution Type values) — The remedy agreed. Nothing further is done. The supplier sends replacement goods. The goods are repaired. The goods are returned to the supplier. The supplier issues a credit. The buyer raises a debit adjustment. The price is reduced. The…
+  - **Status** (required, one of the Supplier Claim Resolution Status values) — Where the resolution is in being carried out. Proposed and not yet approved. Agreed and ready to carry out. Being carried out. Some of the remedy is done. The remedy is fully done. A final state. Could not be carried out. A final state. Wi…
   - **Approved Amount** — Monetary recovery authorized by the resolution. Defines the financial amount expected from the agreed remedy. Supplier recovery and reconciliation. Not itself a credit note debit note or cash receipt; execution requires the appropriate fin…
   - **Supplier** (a Supplier) — The Supplier this SupplierClaimResolution belongs to.
   - **Supplier Claim** (required, a Supplier Claim) — Supplier claim being resolved. Connects the remedy to the case and evidence that established the issue. Claim closure and audit. Supplies authoritative case context.
@@ -874,14 +874,14 @@ Readable by every signed-in person.
 
 Fields:
   - **Credit Note Number** (required) — Business-facing supplier credit reference. Identifies the credit document for supplier communication and financial reconciliation. Used by accounts payable suppliers auditors and integrations. Correlates internal adjustment with external s…
-  - **Credit Note Date** (required) — Effective date of supplier credit adjustment. Establishes financial chronology and applicable accounting/tax period. Payable aging tax reporting and period control. Anchors recognition of adjustment. Required.
-  - **Status** (required, one of the Supplier Credit Note Status values) — Lifecycle state of supplier credit. Separates preparation authorization accounting recognition and application against supplier claims. Controls posting payable reconciliation and reversal. Status does not change original Invoice GoodsRece…
-  - **Currency** (required, a Currency) — Currency in which supplier credit is denominated. Defines monetary denomination of adjustment. Payable reconciliation accounting tax and application. Qualifies all credit monetary values. Required.
-  - **Subtotal** (required) — Credit value before applicable tax. Pre-tax reduction derived from credit lines. Tax calculation and reconciliation. Feeds total credit calculation. Required.
-  - **Tax Amount** (required) — Tax component reversed or adjusted. Tax correction associated with credited value. Tax reporting and accounting reconciliation. Contributes to total credit. Required, including zero.
-  - **Total Amount** (required) — Total payable reduction represented by supplier credit. Financial value recognized as credit against supplier exposure. Accounts payable reconciliation statements and accounting. Determines maximum adjustment available for application. Req…
+  - **Credit Note Date** (required) — Effective date of supplier credit adjustment. Establishes financial chronology and applicable accounting/tax period. Payable aging tax reporting and period control. Anchors recognition of adjustment.
+  - **Status** (required, one of the Supplier Credit Note Status values) — Drafted by the buyer and not yet approved. Accepted and ready to post. Recorded in the accounts; available to apply to invoices. Part of the credit has reduced invoices. The whole credit has been used. A final state. Withdrawn before posti…
+  - **Currency** (required, a Currency) — Currency in which supplier credit is denominated. Defines monetary denomination of adjustment. Payable reconciliation accounting tax and application. Qualifies all credit monetary values.
+  - **Subtotal** (required) — Credit value before applicable tax. Pre-tax reduction derived from credit lines. Tax calculation and reconciliation. Feeds total credit calculation.
+  - **Tax Amount** (required) — Tax component reversed or adjusted. Tax correction associated with credited value. Tax reporting and accounting reconciliation. Contributes to total credit.
+  - **Total Amount** (required) — Total payable reduction represented by supplier credit. Financial value recognized as credit against supplier exposure. Accounts payable reconciliation statements and accounting. Determines maximum adjustment available for application.
   - **Amount Applied** (required) — Portion of supplier credit already applied to payable claims. Separates credit created from portion consumed against invoices. Drives open credit and payable reconciliation. Must reconcile with active SupplierCreditNoteApplication records.…
-  - **Amount Unapplied** (required) — Remaining supplier credit not yet applied. Available credit exposure under policy. Future invoice application or supplier settlement/refund processing. Reconciles totalAmount less active applications. Required.
+  - **Amount Unapplied** (required) — Remaining supplier credit not yet applied. Available credit exposure under policy. Future invoice application or supplier settlement/refund processing. Reconciles totalAmount less active applications.
   - **Supplier** (required, a Supplier) — Supplier associated with the credit. Identifies supplier whose payable exposure is reduced. Payables and supplier statements. Reconciles source Invoice SupplierClaim and SupplierReturn context.
   - **Supplier Claim** (a Supplier Claim) — Supplier claim supporting the credit. Connects the financial adjustment to the business case and evidence for recovery. Claim resolution audit and reconciliation. Provides case context for credit authorization.
   - **Supplier Claim Resolution** (a Supplier Claim Resolution) — Authorized claim resolution that approved this credit remedy. Connects the credit to the controlled decision authorizing the financial recovery. Governance approval execution tracking and claim closure. Supplies execution mandate for CREDI…
@@ -900,7 +900,7 @@ Fields:
   - **Invoice Amount** (required) — Amount by which the purchase Invoice payable claim is reduced. Represents the target-side financial effect on the payable. Drives payable exposure and reconciliation. Must use the Invoice currency and may differ from supplierCreditAmount o…
   - **Exchange Rate** (a Exchange Rate) — Exchange rate used when supplier credit and invoice currencies differ. Preserves conversion evidence for cross-currency supplier credit application. Supports audit and reproducibility. Required for permitted cross-currency applications. Co…
   - **Applied At** (required) — Timestamp when the supplier credit application became effective. Establishes adjustment chronology. Supports accounting periods, supplier statements, audit and reconciliation. Distinct from SupplierCreditNoteDate and InvoiceDate. Determine…
-  - **Status** (required, one of the Supplier Credit Note Application Status values) — Lifecycle state of the supplier credit application. Indicates whether the application currently reduces payable exposure. Controls SupplierCreditNote and Invoice projections. SupplierCreditNote and Invoice statuses remain independent histo…
+  - **Status** (required, one of the Supplier Credit Note Application Status values) — Whether the application is in force. Prepared and not yet applied. Applied against the invoice, reducing what is owed. Undone by a reversing application. A final state. Withdrawn before it was applied. A final state. Indicates whether the…
   - **Reversal Of Application** (a Supplier Credit Note Application) — Prior supplier credit application reversed by this record. Links correction to the original payable adjustment application. Supports audit and controlled reallocation. Reversal is a new historical event and does not edit the original. Enab…
   - **Supplier Credit Note** (required, a Supplier Credit Note) — Supplier credit note supplying the payable reduction. Identifies the authorized supplier financial credit being consumed. Supports payable reconciliation and supplier statements. Exactly one SupplierCreditNote supplies each application. Su…
   - **Invoice** (required, a Invoice) — Purchase Invoice receiving the payable reduction. Identifies the supplier claim whose exposure is reduced. Supports accounts payable, reconciliation and supplier statements. Exactly one Invoice is targeted. Supplies eligible payable exposu…
@@ -940,10 +940,10 @@ Readable by every signed-in person.
 Fields:
   - **Debit Note Number** (required) — Human-facing supplier debit reference. Identifies the debit adjustment in supplier correspondence and financial operations. Used for reconciliation supplier statements audit and integrations. Distinct from supplier claim purchase order inv…
   - **Debit Note Date** (required) — Effective date of the supplier debit adjustment. Establishes financial chronology and accounting or tax period. Period control reconciliation reporting and supplier communication. Distinct from claim resolution invoice return and payment d…
-  - **Status** (required, one of the Supplier Debit Note Status values) — Lifecycle state of the supplier debit adjustment. Separates preparation authorization accounting recognition application dispute and reversal. Controls posting payable reconciliation and supplier dispute workflows. Status does not alter or…
+  - **Status** (required, one of the Supplier Debit Note Status values) — Drafted by the buyer and not yet approved. Accepted internally and ready to post. Recorded in the accounts; available to offset what the buyer owes. Part of the debit has been offset against invoices. The whole debit has been used. A final…
   - **Currency** (required, a Currency) — Currency in which debit amounts are denominated. Defines the monetary denomination of the adjustment. Accounting reconciliation supplier settlement and reporting. Cross-currency application requires explicit ExchangeRate evidence. Qualifie…
-  - **Subtotal** (required) — Pre-tax value of the supplier debit adjustment. Aggregate financial increase before applicable tax. Calculation tax and reconciliation. Feeds totalAmount. Required.
-  - **Tax Amount** (required) — Tax component associated with the debit adjustment. Represents applicable tax added to the adjustment. Tax reporting accounting and reconciliation. Contributes to totalAmount. Required including zero.
+  - **Subtotal** (required) — Pre-tax value of the supplier debit adjustment. Aggregate financial increase before applicable tax. Calculation tax and reconciliation. Feeds totalAmount.
+  - **Tax Amount** (required) — Tax component associated with the debit adjustment. Represents applicable tax added to the adjustment. Tax reporting accounting and reconciliation. Contributes to totalAmount.
   - **Total Amount** (required) — Total supplier debit adjustment. Financial amount by which supplier-related recoverable exposure is increased. Accounts payable supplier settlement accounting and reconciliation. It is an adjustment, not a replacement for the original supp…
   - **Amount Applied** (required) — Portion of the supplier debit recognized against eligible supplier payable claims. Tracks how much posted debit has been consumed by active SupplierDebitNoteApplication records. Reconciliation supplier statements and reporting. SupplierDeb…
   - **Amount Remaining** (required) — Unapplied portion of the posted supplier debit. Represents debit value still available for payable application or governed settlement handling. Reconciliation supplier statements and resolution tracking. Determines whether the debit is ful…
@@ -963,8 +963,8 @@ Fields:
   - **Supplier Debit Amount** (required) — Amount of the supplier debit consumed by this application in debit-note currency. Defines the portion of the posted debit allocated to this payable claim. Reconciliation and remaining-amount calculation. May differ from invoiceAmount when…
   - **Invoice Amount** (required) — Amount of payable exposure reduced on the target invoice. Records the invoice-currency effect of the debit application. Accounts payable reconciliation and audit. Must reconcile to supplierDebitAmount using the recorded exchange rate when…
   - **Exchange Rate** (a Exchange Rate) — Exchange-rate evidence used when debit and invoice currencies differ. Provides reproducible conversion between application currencies. Accounting, tax, reconciliation and audit. Required for cross-currency application under policy. Determi…
-  - **Applied At** (required) — Time the debit application became effective. Establishes settlement chronology. Period control, audit, supplier statements and reconciliation. Anchors the application event. Required.
-  - **Status** (required, one of the Supplier Debit Note Application Status values) — Lifecycle state of the debit application. Separates preparation from effective application and later reversal. Controls payable projections and remaining debit balance. Application status does not replace SupplierDebitNote or Invoice statu…
+  - **Applied At** (required) — Time the debit application became effective. Establishes settlement chronology. Period control, audit, supplier statements and reconciliation. Anchors the application event.
+  - **Status** (required, one of the Supplier Debit Note Application Status values) — Prepared and not yet applied. Applied against the invoice, reducing what is payable. Undone by a reversing application. A final state. Withdrawn before it was applied. A final state. Lifecycle state of the debit application. Separates prep…
   - **Reversal Of Application** (a Supplier Debit Note Application) — Prior application being reversed. Provides explicit lineage for a corrective reversal. Audit, reconciliation and error correction. Reversal is a new event and does not mutate the original application. Links compensating evidence to the pri…
   - **Supplier Debit Note** (required, a Supplier Debit Note) — Posted supplier debit being applied. Identifies the source financial adjustment. Remaining-balance and audit reconciliation. Supplies available debit amount and supplier context.
   - **Invoice** (required, a Invoice) — Supplier payable invoice receiving the debit application. Identifies the eligible original payable claim whose outstanding exposure is reduced. Accounts payable, reconciliation and supplier statements. Supplies target claim and currency co…
@@ -1005,10 +1005,10 @@ Fields:
   - **Assessment Number** (required) — Human-facing assessment reference. Identifies the performance evaluation for operational and supplier communication. Review meetings, supplier scorecards, audit and reporting. Distinct from supplierCode, claimNumber and purchase order numb…
   - **Assessment Date** (required) — Date on which the assessment is formally recorded. Establishes the governance point at which the evaluated performance becomes an assessment record. Supplier reviews, audit, reporting and decision chronology. Anchors approval and follow-up…
   - **Period Start** (required) — Beginning of the performance evaluation period. Defines the historical window from which performance evidence is evaluated. Score calculation, supplier comparison and trend reporting. Evidence transactions must fall within or be explicitly…
-  - **Period End** (required) — End of the performance evaluation period. Defines the closing boundary of the performance evidence window. Score calculation, reporting and supplier review. Completes the assessment scope. Required.
-  - **Status** (required, one of the Supplier Performance Assessment Status values) — Lifecycle state of the supplier performance assessment. Separates calculation, review, approval, publication and replacement of scorecard results. Controls whether the assessment may be changed or consumed by supplier governance. Does not…
+  - **Period End** (required) — End of the performance evaluation period. Defines the closing boundary of the performance evidence window. Score calculation, reporting and supplier review. Completes the assessment scope.
+  - **Status** (required, one of the Supplier Performance Assessment Status values) — Where the assessment is in review and publication. Scores and notes are still being compiled. Under review by procurement or quality. Accepted and ready to publish. Shared with the supplier and used in decisions. Replaced by a later assess…
   - **Overall Score** — Aggregate supplier performance score for the assessment scope. Represents the governed result of the configured supplier scorecard calculation. Supplier ranking, sourcing decisions, escalation and trend analysis. Must be derived from defin…
-  - **Rating** (one of the Supplier Performance Assessment Rating values) — Interpreted supplier performance rating. Converts the approved score or governed assessment criteria into a business-facing performance category. Supplier segmentation, review cadence and improvement decisions. Rating is an assessment conc…
+  - **Rating** (one of the Supplier Performance Assessment Rating values) — Consistently exceeds requirements. Meets requirements with few issues. Meets the minimum required. Falls short in places; a plan is needed. Fails requirements; action is required. Interpreted supplier performance rating. Converts the appro…
   - **Notes** — Qualitative context supporting the assessment. Records material observations, explanations or agreed context that structured scores do not capture. Supplier review, audit and improvement planning. Supplements but does not replace measurabl…
   - **Supplier** (required, a Supplier) — Supplier being evaluated. Identifies the external party whose performance is assessed. Supplier governance, sourcing and improvement management. Supplies the master relationship and qualification context.
 
@@ -1058,10 +1058,10 @@ Preserves a supplier's commercial response to governed sourcing. SupplierQuotati
 Readable by every signed-in person.
 
 Fields:
-  - **Quotation Number** (required) — Supplier or sourcing reference for the offer. Human-facing identifier of the commercial response. Communication, comparison, order conversion, and audit. Scoped with supplier where supplier numbering is not globally unique. Required.
-  - **Submitted At** (required) — Time the supplier response was received or submitted. Establishes offer chronology and deadline compliance. Sourcing governance and audit. Distinct from RFQ issue and purchase-order dates. Required.
-  - **Valid Until** — Last date on which the commercial offer remains valid. Defines the supplier's price/terms validity window. Award eligibility and purchase-order conversion. Expiry does not rewrite historical offer evidence. Optional if no explicit expiry a…
-  - **Total Amount** — Total offered commercial amount. Summarizes the supplier offer for comparison. Sourcing analysis, approvals, and order conversion. Must reconcile with detailed offer basis when line detail is modeled. Optional while offer pricing is incomp…
+  - **Quotation Number** (required) — Supplier or sourcing reference for the offer. Human-facing identifier of the commercial response. Communication, comparison, order conversion, and audit. Scoped with supplier where supplier numbering is not globally unique.
+  - **Submitted At** (required) — Time the supplier response was received or submitted. Establishes offer chronology and deadline compliance. Sourcing governance and audit. Distinct from RFQ issue and purchase-order dates.
+  - **Valid Until** — Last date on which the commercial offer remains valid. Defines the supplier's price/terms validity window. Award eligibility and purchase-order conversion. Expiry does not rewrite historical offer evidence.
+  - **Total Amount** — Total offered commercial amount. Summarizes the supplier offer for comparison. Sourcing analysis, approvals, and order conversion. Must reconcile with detailed offer basis when line detail is modeled.
   - **Status** (required, one of the Supplier Quotation Status values) — Evaluation state of the supplier offer. Controls whether the response is pending, selected, rejected, expired, or withdrawn. Comparison and award workflow. ACCEPTED authorizes downstream conversion but PurchaseOrder remains the commitment.…
   - **Supplier** (required, a Supplier) — Supplier making the offer. Identifies the commercial counterparty candidate. Qualification, comparison, award, and performance analysis. Exactly one supplier owns the response. Must be eligible under sourcing policy.
   - **Request For Quotation** (required, a Request For Quotation) — RFQ answered by this offer. Supplies the governed solicitation and demand context. Comparison and audit. Every sourcing response belongs to exactly one RFQ. Defines requirements and eligible sourcing context.
@@ -1101,8 +1101,8 @@ Coordinates the controlled reversal of accepted procurement fulfillment while pr
 Readable by every signed-in person.
 
 Fields:
-  - **Return Number** (required) — Human-facing supplier return reference. Operational identifier communicated to warehouse staff and the supplier. Used for logistics, supplier communication, investigation and reconciliation. Distinct from the original purchase order, recei…
-  - **Status** (required, one of the Supplier Return Status values) — Lifecycle state of the supplier return. Indicates authorization, transport, supplier receipt, completion or controlled exception. Controls logistics, inventory and financial workflows. Return status does not itself reverse inventory or acc…
+  - **Return Number** (required) — The number of the return, such as RTS-0219. Operational identifier communicated to warehouse staff and the supplier. Used for logistics, supplier communication, investigation and reconciliation. Distinct from the original purchase order, r…
+  - **Status** (required, one of the Supplier Return Status values) — Where the return is, from authorisation to completion. Being prepared; not yet authorised. Approved to be sent back. On its way to the supplier. The supplier has taken delivery. Credit or replacement is settled. A final state. Withdrawn be…
   - **Return Date** (required) — Business timestamp for initiating the supplier return. Establishes the chronology of the reverse-procurement event. Supports logistics, audit, reporting and supplier claims. Distinct from original receipt date and supplier acceptance date.…
   - **Reason Code** — Reason for returning received goods to the supplier. Classifies defects, over-receipt, wrong item, damage, commercial rejection or other causes. Supports quality, supplier performance, warranty, claims and analytics. Explains why the retur…
   - **Supplier** (required, a Supplier) — Supplier to whom the goods are being returned. Identifies the external party receiving the returned goods. Supports authorization, logistics, supplier claims and payable reconciliation. Must normally agree with the source PurchaseOrder and…
@@ -1180,22 +1180,22 @@ Fields:
 
 ### Task
 
-Represents a process runtime entity called Task within the CEDM business model. Task is a business concept with its own identity and lifecycle. It captures information that must remain understandable independently of a database, API, or user interface. Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find, change, or relate Task records. The entity participates in a wider business graph through relationships with Workflow, Party, Organization, Document. These relationships provide the context needed to interpret the record rather tha…
+A discrete unit of business work performed by a person, organisation, system or workflow participant. Tasks are how work is handed out and tracked, whether a person must act or a system step must run. Their type, status, owner and dates show what is waiting, what is stuck and what is done. Created by people or workflows; picked up by assignees; read by managers and reports. A task may belong to a workflow, an assignee, an organisation and a related document. A task is created, becomes ready, is assigned and worked, and ends completed, cancelled or failed. It may be blocked and resumed. All th…
 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — A human-readable business code used to identify or reference the record in operational processes and integrations. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meani…
-  - **Name** (required) — The human-readable name used by people, reports, searches, and related business processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its meaning is specific to Task;…
-  - **Description** — A business description that explains the purpose, scope, or meaning of the record to users and downstream processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task records, where applicable. Its mea…
-  - **Task Type** (required, one of the Task Task Type values) — Captures the business meaning of task type for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating…
-  - **Status** (required, one of the Task Status values) — The lifecycle state of the record. It controls which business actions are normally permitted and how the record is treated by related processes. Used when creating, reviewing, searching, validating, reporting on, or integrating Task record…
-  - **Priority** (required, one of the Task Priority values) — Captures the business meaning of priority for the Task. It is interpreted together with the entity's other attributes and relationships to support the processes that manage this record. Used when creating, reviewing, searching, validating,…
-  - **Due At** — Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Task r…
-  - **Started At** — Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating Ta…
-  - **Completed At** — Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities. Used when creating, reviewing, searching, validating, reporting on, or integrating…
-  - **Assignee** (a Party) — Connects Task to Party so related business context can be navigated and enforced. Used when processes need to find or reason about Party records associated with a Task. The declared cardinality 0..1 expresses how many related records may p…
-  - **Organization** (a Organization) — Connects Task to Organization so related business context can be navigated and enforced. Used when processes need to find or reason about Organization records associated with a Task. The declared cardinality 0..1 expresses how many related…
+  - **Code** (required) — The code of the task, such as TASK-0042. Used in lists and notifications.
+  - **Name** (required) — A short statement of the work. Shown on to-do lists.
+  - **Description** — Details of what must be done. Read by the assignee.
+  - **Task Type** (required, one of the Task Task Type values) — The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script…
+  - **Status** (required, one of the Task Status values) — Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final stat…
+  - **Priority** (required, one of the Task Priority values) — How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.
+  - **Due At** — Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Started At** — Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Completed At** — Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
+  - **Assignee** (a Party) — The person responsible for the task. Chosen when assigned. At most one assignee. Decides whose list it is on.
+  - **Organization** (a Organization) — The organisation the task is for. Chosen when it concerns a unit. At most one organisation. Groups tasks by unit.
 
 ### Task Priority
 
@@ -1246,10 +1246,10 @@ Fields:
   - **Code** (required) — Standard business code for the unit, such as EACH, KG, L, HOUR, or DAY. Used in forms, integrations, documents, validation, and quantity display. Code identifies the unit definition; it does not represent a conversion or quantity itself. U…
   - **Name** (required) — Human-readable name of the measurement unit. Used in user interfaces, reports, documents, catalogs, and search. Describes the unit definition identified by code and unitOfMeasureId. Provides understandable measurement context to business u…
   - **Symbol** — Standard display symbol for the unit. Used for compact display in documents, labels, reports, and interfaces. Symbol is presentation metadata and does not replace the canonical unit code. Improves human-readable representation of quantitie…
-  - **Category** (required, one of the Unit Of Measure Category values) — Defines the dimensional family of the unit. Prevents invalid conversions and supports dimensional validation. Conversion is valid only between compatible dimensions under the applicable conversion model. Used when validating Product, Sales…
+  - **Category** (required, one of the Unit Of Measure Category values) — A general count or quantity of items. A distance, such as metres or inches. A surface, such as square metres. A capacity, such as litres. A weight, such as kilograms or tonnes. A duration, such as hours or days. A number of discrete things…
   - **Conversion Factor** — Default multiplicative factor relating this unit to its base unit when a simple linear conversion applies. Defines a master conversion used for future quantity interpretation. Used for quantity conversion when no context-specific conversio…
   - **Base Unit** (a Unit Of Measure) — Identifies the canonical base unit against which this derived unit is normally converted. Supports standardized quantity storage and conversion. A derived unit belongs to the same dimensional category as its base unit. Provides the common…
-  - **Status** (required, one of the Unit Of Measure Status values) — Controls whether the unit can be used for new transactions. Used by master-data validation and transaction entry. Retiring a unit must not invalidate historical quantities already recorded with that unit. New quantity-bearing transactions…
+  - **Status** (required, one of the Unit Of Measure Status values) — Available for use on products and documents. Not offered for now; can be reactivated. No longer used; kept for history. A final state. Controls whether the unit can be used for new transactions. Used by master-data validation and transacti…
 
 ### Unit Of Measure Category
 
@@ -1281,109 +1281,109 @@ Fields:
 
 ### Address Address Type
 
-- **RESIDENTIAL** — The address type of the address is residential; set it when that is what the business means for this record.
-- **BUSINESS** — The address type of the address is business; set it when that is what the business means for this record.
-- **BILLING** — The address type of the address is billing; set it when that is what the business means for this record.
-- **SHIPPING** — The address type of the address is shipping; set it when that is what the business means for this record.
-- **REGISTERED** — The address type of the address is registered; set it when that is what the business means for this record.
-- **POSTAL** — The address type of the address is postal; set it when that is what the business means for this record.
-- **OTHER** — The address type of the address is other; set it when that is what the business means for this record.
+- **RESIDENTIAL** — A private home address.
+- **BUSINESS** — A place of business or office.
+- **BILLING** — Where invoices and statements are sent.
+- **SHIPPING** — Where goods are delivered.
+- **REGISTERED** — The official registered address of a legal entity.
+- **POSTAL** — A mailing address such as a post office box.
+- **OTHER** — Any purpose not listed.
 
 ### Address Status
 
-- **ACTIVE** — The status of the address is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the address is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the address is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Valid and available for new documents.
+- **INACTIVE** — Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
+- **RETIRED** — No longer valid; kept only as history and in past documents.
 
 ### Currency Status
 
-- **ACTIVE** — Available for normal financial activity.
-- **INACTIVE** — Temporarily unavailable for new normal activity.
-- **RETIRED** — No longer available for new normal activity while historical financial records remain valid.
+- **ACTIVE** — Available for use on new prices, documents and payments.
+- **INACTIVE** — Temporarily not offered, for example while a market is closed; it can be reactivated.
+- **RETIRED** — No longer in use, such as a replaced national currency; historical amounts keep it.
 
 ### Exchange Rate Rate Type
 
-- **SPOT** — Market or transaction-time conversion rate.
-- **CONTRACT** — Rate established by an agreement or commercial contract.
-- **DAILY** — Published daily rate for a defined business date.
-- **MONTHLY** — Published rate intended for a defined monthly reporting period.
-- **ACCOUNTING** — Rate designated by accounting policy for ledger translation or reporting.
-- **CUSTOM** — Controlled rate established for a specific business purpose.
+- **SPOT** — The market rate at a moment in time.
+- **CONTRACT** — A rate fixed by agreement with a counterparty.
+- **DAILY** — The rate published for a business day.
+- **MONTHLY** — An average or closing rate for a month.
+- **ACCOUNTING** — A rate set by the finance team for ledger translation.
+- **CUSTOM** — Any other rate defined by policy.
 
 ### Exchange Rate Status
 
-- **DRAFT** — The status of the exchange rate is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the exchange rate is active; set it when that is what the business means for this record.
-- **EXPIRED** — The status of the exchange rate is expired; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the exchange rate is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Being prepared; not yet used.
+- **ACTIVE** — In force and usable for conversion.
+- **EXPIRED** — Its validity period has ended; kept for past conversions.
+- **CANCELLED** — Withdrawn; must not be used.
 
 ### Goods Receipt Status
 
-- **DRAFT** — The status of the goods receipt is draft; set it when that is what the business means for this record.
-- **RECEIVED** — The status of the goods receipt is received; set it when that is what the business means for this record.
-- **INSPECTION PENDING** — The status of the goods receipt is inspection pending; set it when that is what the business means for this record.
-- **ACCEPTED** — The status of the goods receipt is accepted; set it when that is what the business means for this record.
-- **PARTIALLY ACCEPTED** — The status of the goods receipt is partially accepted; set it when that is what the business means for this record.
-- **REJECTED** — The status of the goods receipt is rejected; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the goods receipt is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Being prepared before the delivery is confirmed.
+- **RECEIVED** — Delivery confirmed and counted.
+- **INSPECTION PENDING** — Held until a quality inspection is done.
+- **ACCEPTED** — All received quantity accepted into stock. A final state.
+- **PARTIALLY ACCEPTED** — Some accepted, the rest rejected. A final state.
+- **REJECTED** — Refused entirely and returned or held. A final state.
+- **CANCELLED** — Withdrawn before confirmation. A final state.
 
 ### Invoice Invoice Type
 
-- **SALES** — The invoice type of the invoice is sales; set it when that is what the business means for this record.
-- **PURCHASE** — The invoice type of the invoice is purchase; set it when that is what the business means for this record.
-- **CREDIT NOTE** — The invoice type of the invoice is credit note; set it when that is what the business means for this record.
-- **DEBIT NOTE** — The invoice type of the invoice is debit note; set it when that is what the business means for this record.
+- **SALES** — An invoice the organisation issues to a customer for goods or services supplied.
+- **PURCHASE** — An invoice the organisation receives from a supplier.
+- **CREDIT NOTE** — A document that reduces what is owed under an earlier invoice.
+- **DEBIT NOTE** — A document that increases what is owed under an earlier invoice.
 
 ### Invoice Line Matching Status
 
-- **NOT APPLICABLE** — The matching status of the invoice line is not applicable; set it when that is what the business means for this record.
-- **UNMATCHED** — The matching status of the invoice line is unmatched; set it when that is what the business means for this record.
-- **MATCHED** — The matching status of the invoice line is matched; set it when that is what the business means for this record.
-- **PARTIALLY MATCHED** — The matching status of the invoice line is partially matched; set it when that is what the business means for this record.
-- **EXCEPTION** — The matching status of the invoice line is exception; set it when that is what the business means for this record.
-- **WAIVED** — The matching status of the invoice line is waived; set it when that is what the business means for this record.
+- **NOT APPLICABLE** — The line does not need matching, for example a sales invoice line.
+- **UNMATCHED** — Not yet compared with the purchase order and goods receipt.
+- **MATCHED** — Quantity and price agree with the order and receipt within tolerance.
+- **PARTIALLY MATCHED** — Some of the line's quantity or amount agrees; the rest does not.
+- **EXCEPTION** — A difference outside tolerance needs a decision.
+- **WAIVED** — The difference was accepted by an authorised approver.
 
 ### Invoice Status
 
-- **DRAFT** — Claim is being prepared and is not issued.
-- **ISSUED** — Claim is formally outstanding.
-- **PARTIALLY PAID** — Active settlement evidence covers part of the amount due after authorized adjustments.
-- **PAID** — Active settlement evidence and authorized adjustments fully satisfy the claim under policy.
-- **OVERDUE** — Claim remains outstanding after its due date.
-- **CANCELLED** — Claim has been cancelled under authorized controls.
-- **VOID** — Claim has been invalidated under accounting controls.
+- **DRAFT** — Being prepared; not yet sent and not yet part of the receivables.
+- **ISSUED** — Sent or recorded; the amount is now owed and due by its due date.
+- **PARTIALLY PAID** — Part of the amount has been settled by payments or credits.
+- **PAID** — Fully settled. A final state.
+- **OVERDUE** — Past its due date with an amount still outstanding.
+- **CANCELLED** — Withdrawn before it became effective. A final state.
+- **VOID** — Cancelled after issue by a controlled process that keeps the original on record. A final state.
 
 ### Location Location Type
 
-- **SITE** — The location type of the location is site; set it when that is what the business means for this record.
-- **WAREHOUSE** — The location type of the location is warehouse; set it when that is what the business means for this record.
-- **STORE** — The location type of the location is store; set it when that is what the business means for this record.
-- **OFFICE** — The location type of the location is office; set it when that is what the business means for this record.
-- **FACTORY** — The location type of the location is factory; set it when that is what the business means for this record.
-- **YARD** — The location type of the location is yard; set it when that is what the business means for this record.
-- **PORT** — The location type of the location is port; set it when that is what the business means for this record.
-- **DEPOT** — The location type of the location is depot; set it when that is what the business means for this record.
-- **VIRTUAL** — The location type of the location is virtual; set it when that is what the business means for this record.
-- **OTHER** — The location type of the location is other; set it when that is what the business means for this record.
+- **SITE** — A geographic site that may contain several buildings.
+- **WAREHOUSE** — A building or area for storing goods.
+- **STORE** — A retail outlet.
+- **OFFICE** — A place where office work is done.
+- **FACTORY** — A place where goods are made.
+- **YARD** — An open area for storing or staging equipment or containers.
+- **PORT** — A harbour or terminal.
+- **DEPOT** — A base for vehicles and equipment.
+- **VIRTUAL** — A logical place with no physical presence, such as an online store.
+- **OTHER** — Any other kind of place.
 
 ### Location Status
 
-- **PLANNED** — The status of the location is planned; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the location is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the location is inactive; set it when that is what the business means for this record.
-- **CLOSED** — The status of the location is closed; set it when that is what the business means for this record.
-- **RETIRED** — The status of the location is retired; set it when that is what the business means for this record.
+- **PLANNED** — Expected but not yet in use.
+- **ACTIVE** — In use.
+- **INACTIVE** — Temporarily not used.
+- **CLOSED** — Closed down.
+- **RETIRED** — Removed from use altogether. A final state.
 
 ### Organization Organization Type
 
-- **ENTERPRISE** — The organization type of the organization is enterprise; set it when that is what the business means for this record.
-- **COMPANY** — The organization type of the organization is company; set it when that is what the business means for this record.
-- **BUSINESS UNIT** — The organization type of the organization is business unit; set it when that is what the business means for this record.
-- **DIVISION** — The organization type of the organization is division; set it when that is what the business means for this record.
-- **DEPARTMENT** — The organization type of the organization is department; set it when that is what the business means for this record.
-- **BRANCH** — The organization type of the organization is branch; set it when that is what the business means for this record.
-- **SUBSIDIARY** — The organization type of the organization is subsidiary; set it when that is what the business means for this record.
-- **OTHER** — The organization type of the organization is other; set it when that is what the business means for this record.
+- **ENTERPRISE** — The top-level body, such as a group or corporation.
+- **COMPANY** — A legal company.
+- **BUSINESS UNIT** — A business division with its own results.
+- **DIVISION** — A major part of the organisation.
+- **DEPARTMENT** — A functional unit.
+- **BRANCH** — A local office or branch.
+- **SUBSIDIARY** — A company controlled by another.
+- **OTHER** — Any other organised body.
 
 ### Organization Party Type
 
@@ -1392,10 +1392,10 @@ Fields:
 
 ### Organization Status
 
-- **DRAFT** — The status of the organization is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the organization is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the organization is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the organization is retired; set it when that is what the business means for this record.
+- **DRAFT** — Being set up; not yet in use.
+- **ACTIVE** — In use.
+- **INACTIVE** — Temporarily not in use; can be reactivated.
+- **RETIRED** — Closed; kept for history. A final state.
 
 ### Party Party Type
 
@@ -1404,22 +1404,22 @@ Fields:
 
 ### Party Role Role Type
 
-- **CUSTOMER** — The role type of the party role is customer; set it when that is what the business means for this record.
-- **SUPPLIER** — The role type of the party role is supplier; set it when that is what the business means for this record.
-- **EMPLOYEE** — The role type of the party role is employee; set it when that is what the business means for this record.
-- **PARTNER** — The role type of the party role is partner; set it when that is what the business means for this record.
-- **CARRIER** — The role type of the party role is carrier; set it when that is what the business means for this record.
-- **AGENT** — The role type of the party role is agent; set it when that is what the business means for this record.
-- **CONTRACTOR** — The role type of the party role is contractor; set it when that is what the business means for this record.
-- **OWNER** — The role type of the party role is owner; set it when that is what the business means for this record.
-- **INVESTOR** — The role type of the party role is investor; set it when that is what the business means for this record.
-- **OTHER** — The role type of the party role is other; set it when that is what the business means for this record.
+- **CUSTOMER** — Buys from the organisation.
+- **SUPPLIER** — Sells to the organisation.
+- **EMPLOYEE** — Works for the organisation.
+- **PARTNER** — A business partner or reseller.
+- **CARRIER** — Transports goods for the organisation.
+- **AGENT** — Acts on behalf of the organisation or its customers.
+- **CONTRACTOR** — Provides services under a contract.
+- **OWNER** — Owns property or a share in the organisation.
+- **INVESTOR** — Provides capital.
+- **OTHER** — Any other role.
 
 ### Party Role Status
 
-- **ACTIVE** — The status of the party role is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the party role is inactive; set it when that is what the business means for this record.
-- **EXPIRED** — The status of the party role is expired; set it when that is what the business means for this record.
+- **ACTIVE** — The party currently holds the role.
+- **INACTIVE** — Dormant but may resume.
+- **EXPIRED** — Ended; kept for history. A final state.
 
 ### Party Status
 
@@ -1430,11 +1430,11 @@ Fields:
 
 ### Person Gender
 
-- **FEMALE** — The gender of the person is female; set it when that is what the business means for this record.
-- **MALE** — The gender of the person is male; set it when that is what the business means for this record.
-- **NON BINARY** — The gender of the person is non binary; set it when that is what the business means for this record.
-- **OTHER** — The gender of the person is other; set it when that is what the business means for this record.
-- **UNSPECIFIED** — The gender of the person is unspecified; set it when that is what the business means for this record.
+- **FEMALE** — Identifies as female.
+- **MALE** — Identifies as male.
+- **NON BINARY** — Identifies as neither exclusively male nor female.
+- **OTHER** — Identifies in another way.
+- **UNSPECIFIED** — Not stated or not collected.
 
 ### Person Party Type
 
@@ -1450,40 +1450,40 @@ Fields:
 
 ### Product Product Type
 
-- **GOOD** — The product type of the product is good; set it when that is what the business means for this record.
-- **MATERIAL** — The product type of the product is material; set it when that is what the business means for this record.
-- **SERVICE** — The product type of the product is service; set it when that is what the business means for this record.
-- **SUBSCRIPTION** — The product type of the product is subscription; set it when that is what the business means for this record.
-- **ASSET** — The product type of the product is asset; set it when that is what the business means for this record.
-- **BUNDLE** — The product type of the product is bundle; set it when that is what the business means for this record.
-- **OTHER** — The product type of the product is other; set it when that is what the business means for this record.
+- **GOOD** — A finished physical item that is bought or sold and held in stock.
+- **MATERIAL** — A raw material or component consumed in production.
+- **SERVICE** — Work performed for a customer, not held in stock.
+- **SUBSCRIPTION** — A recurring entitlement billed on a schedule.
+- **ASSET** — A durable item the business keeps and depreciates.
+- **BUNDLE** — A package of other products sold together.
+- **OTHER** — Anything else that is traded.
 
 ### Product Status
 
-- **DRAFT** — The status of the product is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the product is active; set it when that is what the business means for this record.
-- **DISCONTINUED** — The status of the product is discontinued; set it when that is what the business means for this record.
-- **BLOCKED** — The status of the product is blocked; set it when that is what the business means for this record.
-- **RETIRED** — The status of the product is retired; set it when that is what the business means for this record.
+- **DRAFT** — Being set up; not yet tradable.
+- **ACTIVE** — Available for ordinary trading.
+- **DISCONTINUED** — Being phased out; existing stock may be sold but it is not reordered. A final state.
+- **BLOCKED** — Temporarily barred from trading, for example during a quality or compliance issue.
+- **RETIRED** — Removed from the catalogue; kept for history. A final state.
 
 ### Purchase Order Line Price Source
 
-- **PRICE LIST** — The price source of the purchase order line is price list; set it when that is what the business means for this record.
-- **CONTRACT** — The price source of the purchase order line is contract; set it when that is what the business means for this record.
-- **SUPPLIER AGREEMENT** — The price source of the purchase order line is supplier agreement; set it when that is what the business means for this record.
-- **QUOTATION** — The price source of the purchase order line is quotation; set it when that is what the business means for this record.
-- **MANUAL** — The price source of the purchase order line is manual; set it when that is what the business means for this record.
-- **OTHER** — The price source of the purchase order line is other; set it when that is what the business means for this record.
+- **PRICE LIST** — Taken from the supplier's price list.
+- **CONTRACT** — Taken from a contract with the supplier.
+- **SUPPLIER AGREEMENT** — Taken from a standing supplier agreement.
+- **QUOTATION** — Taken from an accepted supplier quotation.
+- **MANUAL** — Entered by the buyer.
+- **OTHER** — Determined some other way.
 
 ### Purchase Order Status
 
-- **DRAFT** — Being prepared.
-- **APPROVED** — Internally authorized.
-- **SENT** — Communicated to Supplier.
-- **PARTIALLY RECEIVED** — Some committed quantity accepted while outstanding fulfillment remains.
-- **RECEIVED** — Required fulfillment accepted under policy.
-- **CANCELLED** — Remaining commitment terminated.
-- **CLOSED** — Required operational and financial processing complete.
+- **DRAFT** — Being prepared by the buyer; not yet binding.
+- **APPROVED** — Authorised internally and ready to send.
+- **SENT** — Issued to the supplier.
+- **PARTIALLY RECEIVED** — Some of the ordered quantity has been received and accepted; the rest is outstanding.
+- **RECEIVED** — Everything required has been received and accepted.
+- **CANCELLED** — The remaining commitment has been withdrawn. A final state.
+- **CLOSED** — Receiving and invoicing are complete. A final state.
 
 ### Purchase Requisition Status
 
@@ -1497,132 +1497,132 @@ Fields:
 
 ### Request For Quotation Status
 
-- **DRAFT** — Being prepared.
-- **ISSUED** — Open to invited supplier responses.
-- **CLOSED** — Response collection ended without final award state.
-- **AWARDED** — One or more responses were selected for downstream commitment.
-- **CANCELLED** — Sourcing request terminated.
+- **DRAFT** — Being prepared; not yet sent to suppliers.
+- **ISSUED** — Sent to the suppliers, who may now respond.
+- **CLOSED** — The response period has ended; quotations are being compared.
+- **AWARDED** — A supplier has been chosen. A final state.
+- **CANCELLED** — Withdrawn without an award. A final state.
 
 ### Supplier Claim Claim Type
 
-- **QUALITY** — The claim type of the supplier claim is quality; set it when that is what the business means for this record.
-- **DAMAGE** — The claim type of the supplier claim is damage; set it when that is what the business means for this record.
-- **SHORTAGE** — The claim type of the supplier claim is shortage; set it when that is what the business means for this record.
-- **OVERAGE** — The claim type of the supplier claim is overage; set it when that is what the business means for this record.
-- **WRONG ITEM** — The claim type of the supplier claim is wrong item; set it when that is what the business means for this record.
-- **WARRANTY** — The claim type of the supplier claim is warranty; set it when that is what the business means for this record.
-- **SERVICE** — The claim type of the supplier claim is service; set it when that is what the business means for this record.
-- **COMMERCIAL** — The claim type of the supplier claim is commercial; set it when that is what the business means for this record.
-- **DELIVERY** — The claim type of the supplier claim is delivery; set it when that is what the business means for this record.
-- **DOCUMENTATION** — The claim type of the supplier claim is documentation; set it when that is what the business means for this record.
-- **OTHER** — The claim type of the supplier claim is other; set it when that is what the business means for this record.
+- **QUALITY** — Goods do not meet the quality required.
+- **DAMAGE** — Goods arrived damaged.
+- **SHORTAGE** — Less was delivered than ordered.
+- **OVERAGE** — More was delivered than ordered.
+- **WRONG ITEM** — A different item was delivered.
+- **WARRANTY** — A fault covered by warranty.
+- **SERVICE** — A service was not performed as agreed.
+- **COMMERCIAL** — A dispute about price or terms.
+- **DELIVERY** — Late or failed delivery.
+- **DOCUMENTATION** — Missing or wrong paperwork.
+- **OTHER** — A claim that fits no other type.
 
 ### Supplier Claim Resolution Code
 
-- **NO ACTION** — The resolution code of the supplier claim is no action; set it when that is what the business means for this record.
-- **REPLACEMENT** — The resolution code of the supplier claim is replacement; set it when that is what the business means for this record.
-- **REPAIR** — The resolution code of the supplier claim is repair; set it when that is what the business means for this record.
-- **RETURN** — The resolution code of the supplier claim is return; set it when that is what the business means for this record.
-- **CREDIT** — The resolution code of the supplier claim is credit; set it when that is what the business means for this record.
-- **DEBIT ADJUSTMENT** — The resolution code of the supplier claim is debit adjustment; set it when that is what the business means for this record.
-- **PRICE ADJUSTMENT** — The resolution code of the supplier claim is price adjustment; set it when that is what the business means for this record.
-- **ACCEPTED EXCEPTION** — The resolution code of the supplier claim is accepted exception; set it when that is what the business means for this record.
-- **REJECTED** — The resolution code of the supplier claim is rejected; set it when that is what the business means for this record.
+- **NO ACTION** — Nothing further is done.
+- **REPLACEMENT** — The supplier sends replacement goods.
+- **REPAIR** — The goods are repaired.
+- **RETURN** — The goods are returned to the supplier.
+- **CREDIT** — The supplier issues a credit.
+- **DEBIT ADJUSTMENT** — The buyer raises a debit adjustment.
+- **PRICE ADJUSTMENT** — The price is reduced.
+- **ACCEPTED EXCEPTION** — The buyer accepts the goods as they are.
+- **REJECTED** — The claim was refused.
 
 ### Supplier Claim Resolution Resolution Type
 
-- **NO ACTION** — The resolution type of the supplier claim resolution is no action; set it when that is what the business means for this record.
-- **REPLACEMENT** — The resolution type of the supplier claim resolution is replacement; set it when that is what the business means for this record.
-- **REPAIR** — The resolution type of the supplier claim resolution is repair; set it when that is what the business means for this record.
-- **RETURN** — The resolution type of the supplier claim resolution is return; set it when that is what the business means for this record.
-- **CREDIT** — The resolution type of the supplier claim resolution is credit; set it when that is what the business means for this record.
-- **DEBIT ADJUSTMENT** — The resolution type of the supplier claim resolution is debit adjustment; set it when that is what the business means for this record.
-- **PRICE ADJUSTMENT** — The resolution type of the supplier claim resolution is price adjustment; set it when that is what the business means for this record.
-- **CASH RECOVERY** — The resolution type of the supplier claim resolution is cash recovery; set it when that is what the business means for this record.
-- **ACCEPTED EXCEPTION** — The resolution type of the supplier claim resolution is accepted exception; set it when that is what the business means for this record.
+- **NO ACTION** — Nothing further is done.
+- **REPLACEMENT** — The supplier sends replacement goods.
+- **REPAIR** — The goods are repaired.
+- **RETURN** — The goods are returned to the supplier.
+- **CREDIT** — The supplier issues a credit.
+- **DEBIT ADJUSTMENT** — The buyer raises a debit adjustment.
+- **PRICE ADJUSTMENT** — The price is reduced.
+- **CASH RECOVERY** — The supplier pays back in cash.
+- **ACCEPTED EXCEPTION** — The buyer accepts the goods as they are.
 
 ### Supplier Claim Resolution Status
 
-- **DRAFT** — The status of the supplier claim resolution is draft; set it when that is what the business means for this record.
-- **APPROVED** — The status of the supplier claim resolution is approved; set it when that is what the business means for this record.
-- **IN EXECUTION** — The status of the supplier claim resolution is in execution; set it when that is what the business means for this record.
-- **PARTIALLY EXECUTED** — The status of the supplier claim resolution is partially executed; set it when that is what the business means for this record.
-- **EXECUTED** — The status of the supplier claim resolution is executed; set it when that is what the business means for this record.
-- **FAILED** — The status of the supplier claim resolution is failed; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier claim resolution is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Proposed and not yet approved.
+- **APPROVED** — Agreed and ready to carry out.
+- **IN EXECUTION** — Being carried out.
+- **PARTIALLY EXECUTED** — Some of the remedy is done.
+- **EXECUTED** — The remedy is fully done. A final state.
+- **FAILED** — Could not be carried out. A final state.
+- **CANCELLED** — Withdrawn. A final state.
 
 ### Supplier Claim Status
 
-- **DRAFT** — The status of the supplier claim is draft; set it when that is what the business means for this record.
-- **OPEN** — The status of the supplier claim is open; set it when that is what the business means for this record.
-- **UNDER REVIEW** — The status of the supplier claim is under review; set it when that is what the business means for this record.
-- **ACCEPTED** — The status of the supplier claim is accepted; set it when that is what the business means for this record.
-- **PARTIALLY ACCEPTED** — The status of the supplier claim is partially accepted; set it when that is what the business means for this record.
-- **REJECTED** — The status of the supplier claim is rejected; set it when that is what the business means for this record.
-- **RESOLVED** — The status of the supplier claim is resolved; set it when that is what the business means for this record.
-- **CLOSED** — The status of the supplier claim is closed; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier claim is cancelled; set it when that is what the business means for this record.
-- **ESCALATED** — The status of the supplier claim is escalated; set it when that is what the business means for this record.
+- **DRAFT** — Being prepared; not yet sent to the supplier.
+- **OPEN** — Raised with the supplier and awaiting review.
+- **UNDER REVIEW** — Being assessed by the supplier or the buyer.
+- **ACCEPTED** — The supplier accepts the claim in full.
+- **PARTIALLY ACCEPTED** — The supplier accepts part of the claim.
+- **REJECTED** — The supplier refuses the claim. A final state.
+- **RESOLVED** — The agreed remedy has been carried out.
+- **CLOSED** — Finished and archived. A final state.
+- **CANCELLED** — Withdrawn by the buyer. A final state.
+- **ESCALATED** — Passed to a higher level because it is not agreed.
 
 ### Supplier Credit Note Application Status
 
-- **DRAFT** — The status of the supplier credit note application is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the supplier credit note application is active; set it when that is what the business means for this record.
-- **REVERSED** — The status of the supplier credit note application is reversed; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier credit note application is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Prepared and not yet applied.
+- **ACTIVE** — Applied against the invoice, reducing what is owed.
+- **REVERSED** — Undone by a reversing application. A final state.
+- **CANCELLED** — Withdrawn before it was applied. A final state.
 
 ### Supplier Credit Note Status
 
-- **DRAFT** — The status of the supplier credit note is draft; set it when that is what the business means for this record.
-- **APPROVED** — The status of the supplier credit note is approved; set it when that is what the business means for this record.
-- **POSTED** — The status of the supplier credit note is posted; set it when that is what the business means for this record.
-- **PARTIALLY APPLIED** — The status of the supplier credit note is partially applied; set it when that is what the business means for this record.
-- **FULLY APPLIED** — The status of the supplier credit note is fully applied; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier credit note is cancelled; set it when that is what the business means for this record.
-- **REVERSED** — The status of the supplier credit note is reversed; set it when that is what the business means for this record.
+- **DRAFT** — Drafted by the buyer and not yet approved.
+- **APPROVED** — Accepted and ready to post.
+- **POSTED** — Recorded in the accounts; available to apply to invoices.
+- **PARTIALLY APPLIED** — Part of the credit has reduced invoices.
+- **FULLY APPLIED** — The whole credit has been used. A final state.
+- **CANCELLED** — Withdrawn before posting. A final state.
+- **REVERSED** — A posted credit undone by a reversing entry. A final state.
 
 ### Supplier Debit Note Application Status
 
-- **DRAFT** — The status of the supplier debit note application is draft; set it when that is what the business means for this record.
-- **ACTIVE** — The status of the supplier debit note application is active; set it when that is what the business means for this record.
-- **REVERSED** — The status of the supplier debit note application is reversed; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier debit note application is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Prepared and not yet applied.
+- **ACTIVE** — Applied against the invoice, reducing what is payable.
+- **REVERSED** — Undone by a reversing application. A final state.
+- **CANCELLED** — Withdrawn before it was applied. A final state.
 
 ### Supplier Debit Note Status
 
-- **DRAFT** — The status of the supplier debit note is draft; set it when that is what the business means for this record.
-- **APPROVED** — The status of the supplier debit note is approved; set it when that is what the business means for this record.
-- **POSTED** — The status of the supplier debit note is posted; set it when that is what the business means for this record.
-- **PARTIALLY APPLIED** — The status of the supplier debit note is partially applied; set it when that is what the business means for this record.
-- **FULLY APPLIED** — The status of the supplier debit note is fully applied; set it when that is what the business means for this record.
-- **DISPUTED** — The status of the supplier debit note is disputed; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier debit note is cancelled; set it when that is what the business means for this record.
-- **REVERSED** — The status of the supplier debit note is reversed; set it when that is what the business means for this record.
+- **DRAFT** — Drafted by the buyer and not yet approved.
+- **APPROVED** — Accepted internally and ready to post.
+- **POSTED** — Recorded in the accounts; available to offset what the buyer owes.
+- **PARTIALLY APPLIED** — Part of the debit has been offset against invoices.
+- **FULLY APPLIED** — The whole debit has been used. A final state.
+- **DISPUTED** — The supplier disputes the debit.
+- **CANCELLED** — Withdrawn before posting. A final state.
+- **REVERSED** — A posted debit undone by a reversing entry. A final state.
 
 ### Supplier Performance Assessment Rating
 
-- **EXCELLENT** — The rating of the supplier performance assessment is excellent; set it when that is what the business means for this record.
-- **GOOD** — The rating of the supplier performance assessment is good; set it when that is what the business means for this record.
-- **ACCEPTABLE** — The rating of the supplier performance assessment is acceptable; set it when that is what the business means for this record.
-- **NEEDS IMPROVEMENT** — The rating of the supplier performance assessment is needs improvement; set it when that is what the business means for this record.
-- **UNSATISFACTORY** — The rating of the supplier performance assessment is unsatisfactory; set it when that is what the business means for this record.
+- **EXCELLENT** — Consistently exceeds requirements.
+- **GOOD** — Meets requirements with few issues.
+- **ACCEPTABLE** — Meets the minimum required.
+- **NEEDS IMPROVEMENT** — Falls short in places; a plan is needed.
+- **UNSATISFACTORY** — Fails requirements; action is required.
 
 ### Supplier Performance Assessment Status
 
-- **DRAFT** — The status of the supplier performance assessment is draft; set it when that is what the business means for this record.
-- **IN REVIEW** — The status of the supplier performance assessment is in review; set it when that is what the business means for this record.
-- **APPROVED** — The status of the supplier performance assessment is approved; set it when that is what the business means for this record.
-- **PUBLISHED** — The status of the supplier performance assessment is published; set it when that is what the business means for this record.
-- **SUPERSEDED** — The status of the supplier performance assessment is superseded; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier performance assessment is cancelled; set it when that is what the business means for this record.
+- **DRAFT** — Scores and notes are still being compiled.
+- **IN REVIEW** — Under review by procurement or quality.
+- **APPROVED** — Accepted and ready to publish.
+- **PUBLISHED** — Shared with the supplier and used in decisions.
+- **SUPERSEDED** — Replaced by a later assessment. A final state.
+- **CANCELLED** — Withdrawn. A final state.
 
 ### Supplier Qualification Status
 
-- **NOT REVIEWED** — The qualification status of the supplier is not reviewed; set it when that is what the business means for this record.
-- **PENDING** — The qualification status of the supplier is pending; set it when that is what the business means for this record.
-- **QUALIFIED** — The qualification status of the supplier is qualified; set it when that is what the business means for this record.
-- **SUSPENDED** — The qualification status of the supplier is suspended; set it when that is what the business means for this record.
-- **DISQUALIFIED** — The qualification status of the supplier is disqualified; set it when that is what the business means for this record.
+- **NOT REVIEWED** — Not yet assessed.
+- **PENDING** — Assessment is under way.
+- **QUALIFIED** — Approved to supply.
+- **SUSPENDED** — Approval withdrawn for a time.
+- **DISQUALIFIED** — Not approved to supply.
 
 ### Supplier Quotation Line Award Status
 
@@ -1642,93 +1642,93 @@ Fields:
 
 ### Supplier Return Line Disposition
 
-- **RETURN TO SUPPLIER** — The disposition of the supplier return line is return to supplier; set it when that is what the business means for this record.
-- **REJECTED** — The disposition of the supplier return line is rejected; set it when that is what the business means for this record.
-- **EXCEPTION** — The disposition of the supplier return line is exception; set it when that is what the business means for this record.
+- **RETURN TO SUPPLIER** — The quantity is sent back for credit or replacement.
+- **REJECTED** — The quantity is refused and stays with the supplier.
+- **EXCEPTION** — The quantity is handled outside the normal return.
 
 ### Supplier Return Status
 
-- **DRAFT** — The status of the supplier return is draft; set it when that is what the business means for this record.
-- **AUTHORIZED** — The status of the supplier return is authorized; set it when that is what the business means for this record.
-- **IN TRANSIT** — The status of the supplier return is in transit; set it when that is what the business means for this record.
-- **RECEIVED BY SUPPLIER** — The status of the supplier return is received by supplier; set it when that is what the business means for this record.
-- **COMPLETED** — The status of the supplier return is completed; set it when that is what the business means for this record.
-- **CANCELLED** — The status of the supplier return is cancelled; set it when that is what the business means for this record.
-- **EXCEPTION** — The status of the supplier return is exception; set it when that is what the business means for this record.
+- **DRAFT** — Being prepared; not yet authorised.
+- **AUTHORIZED** — Approved to be sent back.
+- **IN TRANSIT** — On its way to the supplier.
+- **RECEIVED BY SUPPLIER** — The supplier has taken delivery.
+- **COMPLETED** — Credit or replacement is settled. A final state.
+- **CANCELLED** — Withdrawn before it was sent. A final state.
+- **EXCEPTION** — Problem with the return needing a decision.
 
 ### Supplier Role Type
 
-- **CUSTOMER** — The role type of the party role is customer; set it when that is what the business means for this record.
-- **SUPPLIER** — The role type of the party role is supplier; set it when that is what the business means for this record.
-- **EMPLOYEE** — The role type of the party role is employee; set it when that is what the business means for this record.
-- **PARTNER** — The role type of the party role is partner; set it when that is what the business means for this record.
-- **CARRIER** — The role type of the party role is carrier; set it when that is what the business means for this record.
-- **AGENT** — The role type of the party role is agent; set it when that is what the business means for this record.
-- **CONTRACTOR** — The role type of the party role is contractor; set it when that is what the business means for this record.
-- **OWNER** — The role type of the party role is owner; set it when that is what the business means for this record.
-- **INVESTOR** — The role type of the party role is investor; set it when that is what the business means for this record.
-- **OTHER** — The role type of the party role is other; set it when that is what the business means for this record.
+- **CUSTOMER** — Buys from the organisation.
+- **SUPPLIER** — Sells to the organisation.
+- **EMPLOYEE** — Works for the organisation.
+- **PARTNER** — A business partner or reseller.
+- **CARRIER** — Transports goods for the organisation.
+- **AGENT** — Acts on behalf of the organisation or its customers.
+- **CONTRACTOR** — Provides services under a contract.
+- **OWNER** — Owns property or a share in the organisation.
+- **INVESTOR** — Provides capital.
+- **OTHER** — Any other role.
 
 ### Supplier Status
 
-- **ACTIVE** — The status of the supplier is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the supplier is inactive; set it when that is what the business means for this record.
-- **BLOCKED** — The status of the supplier is blocked; set it when that is what the business means for this record.
-- **RETIRED** — The status of the supplier is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Available for ordering.
+- **INACTIVE** — Not currently used; can be reactivated.
+- **BLOCKED** — Orders and payments are stopped.
+- **RETIRED** — No longer used; kept for history. A final state.
 
 ### Supplier Supplier Type
 
-- **INDIVIDUAL** — The supplier type of the supplier is individual; set it when that is what the business means for this record.
-- **BUSINESS** — The supplier type of the supplier is business; set it when that is what the business means for this record.
-- **GOVERNMENT** — The supplier type of the supplier is government; set it when that is what the business means for this record.
-- **INTERNAL** — The supplier type of the supplier is internal; set it when that is what the business means for this record.
-- **OTHER** — The supplier type of the supplier is other; set it when that is what the business means for this record.
+- **INDIVIDUAL** — A person supplying in their own name.
+- **BUSINESS** — A commercial company.
+- **GOVERNMENT** — A public body.
+- **INTERNAL** — Another unit of the same group.
+- **OTHER** — A supplier that fits no other type.
 
 ### Task Priority
 
-- **LOW** — Represents the low state or classification in the context of Task.
-- **NORMAL** — Represents the normal state or classification in the context of Task.
-- **HIGH** — Represents the high state or classification in the context of Task.
-- **CRITICAL** — Represents the critical state or classification in the context of Task.
+- **LOW** — Can wait.
+- **NORMAL** — Ordinary priority.
+- **HIGH** — Do ahead of normal work.
+- **CRITICAL** — Do immediately.
 
 ### Task Status
 
-- **CREATED** — Represents the created state or classification in the context of Task.
-- **READY** — Represents the ready state or classification in the context of Task.
-- **ASSIGNED** — Represents the assigned state or classification in the context of Task.
-- **IN PROGRESS** — Represents the in progress state or classification in the context of Task.
-- **BLOCKED** — Represents the blocked state or classification in the context of Task.
-- **COMPLETED** — Represents the completed state or classification in the context of Task.
-- **CANCELLED** — Represents the cancelled state or classification in the context of Task.
-- **FAILED** — Represents the failed state or classification in the context of Task.
+- **CREATED** — Recorded and not yet ready.
+- **READY** — Ready to be picked up.
+- **ASSIGNED** — Given to someone.
+- **IN PROGRESS** — Being worked.
+- **BLOCKED** — Cannot proceed until something is resolved.
+- **COMPLETED** — Done. A final state.
+- **CANCELLED** — No longer needed. A final state.
+- **FAILED** — Could not be done. A final state.
 
 ### Task Task Type
 
-- **USER** — Represents the user state or classification in the context of Task.
-- **SYSTEM** — Represents the system state or classification in the context of Task.
-- **APPROVAL** — Represents the approval state or classification in the context of Task.
-- **DECISION** — Represents the decision state or classification in the context of Task.
-- **NOTIFICATION** — Represents the notification state or classification in the context of Task.
-- **SCRIPT** — Represents the script state or classification in the context of Task.
-- **OTHER** — Represents the other state or classification in the context of Task.
+- **USER** — Work done by a person.
+- **SYSTEM** — A step run automatically.
+- **APPROVAL** — A person must approve or refuse something.
+- **DECISION** — A choice that decides the path.
+- **NOTIFICATION** — A message to be sent.
+- **SCRIPT** — A script run by the system.
+- **OTHER** — Work that fits no other type.
 
 ### Unit Of Measure Category
 
-- **QUANTITY** — The category of the unit of measure is quantity; set it when that is what the business means for this record.
-- **LENGTH** — The category of the unit of measure is length; set it when that is what the business means for this record.
-- **AREA** — The category of the unit of measure is area; set it when that is what the business means for this record.
-- **VOLUME** — The category of the unit of measure is volume; set it when that is what the business means for this record.
-- **MASS** — The category of the unit of measure is mass; set it when that is what the business means for this record.
-- **TIME** — The category of the unit of measure is time; set it when that is what the business means for this record.
-- **COUNT** — The category of the unit of measure is count; set it when that is what the business means for this record.
-- **CURRENCY** — The category of the unit of measure is currency; set it when that is what the business means for this record.
-- **OTHER** — The category of the unit of measure is other; set it when that is what the business means for this record.
+- **QUANTITY** — A general count or quantity of items.
+- **LENGTH** — A distance, such as metres or inches.
+- **AREA** — A surface, such as square metres.
+- **VOLUME** — A capacity, such as litres.
+- **MASS** — A weight, such as kilograms or tonnes.
+- **TIME** — A duration, such as hours or days.
+- **COUNT** — A number of discrete things, such as each or dozen.
+- **CURRENCY** — A monetary unit used as a measure.
+- **OTHER** — A unit that fits no other category.
 
 ### Unit Of Measure Status
 
-- **ACTIVE** — The status of the unit of measure is active; set it when that is what the business means for this record.
-- **INACTIVE** — The status of the unit of measure is inactive; set it when that is what the business means for this record.
-- **RETIRED** — The status of the unit of measure is retired; set it when that is what the business means for this record.
+- **ACTIVE** — Available for use on products and documents.
+- **INACTIVE** — Not offered for now; can be reactivated.
+- **RETIRED** — No longer used; kept for history. A final state.
 
 ## Lifecycles
 
@@ -1938,28 +1938,19 @@ Moves:
 ### Goods Receipt — Goods Receipt Lifecycle
 
 Starts at **DRAFT**.
-Final: **REJECTED**, **CANCELLED**.
+Final: **ACCEPTED**, **PARTIALLY ACCEPTED**, **REJECTED**, **CANCELLED**.
 
 Moves:
 - DRAFT → RECEIVED (Receive)
+- RECEIVED → INSPECTION PENDING (Send To Inspection)
 - RECEIVED → ACCEPTED (Accept)
-- ACCEPTED → PARTIALLY ACCEPTED (Mark Partially Accepted)
-- RECEIVED → INSPECTION PENDING (Mark Inspection Pending)
-- INSPECTION PENDING → RECEIVED (Resume)
-- ACCEPTED → INSPECTION PENDING (Mark Inspection Pending)
-- INSPECTION PENDING → ACCEPTED (Resume)
-- PARTIALLY ACCEPTED → INSPECTION PENDING (Mark Inspection Pending)
-- INSPECTION PENDING → PARTIALLY ACCEPTED (Resume)
-- DRAFT → REJECTED (Reject)
+- RECEIVED → PARTIALLY ACCEPTED (Accept Partially)
 - RECEIVED → REJECTED (Reject)
-- ACCEPTED → REJECTED (Reject)
-- PARTIALLY ACCEPTED → REJECTED (Reject)
+- INSPECTION PENDING → ACCEPTED (Accept)
+- INSPECTION PENDING → PARTIALLY ACCEPTED (Accept Partially)
 - INSPECTION PENDING → REJECTED (Reject)
 - DRAFT → CANCELLED (Cancel)
 - RECEIVED → CANCELLED (Cancel)
-- ACCEPTED → CANCELLED (Cancel)
-- PARTIALLY ACCEPTED → CANCELLED (Cancel)
-- INSPECTION PENDING → CANCELLED (Cancel)
 
 ### Supplier Claim — Supplier Claim Lifecycle
 
@@ -1969,22 +1960,20 @@ Final: **CLOSED**, **REJECTED**, **CANCELLED**.
 Moves:
 - DRAFT → OPEN (Open)
 - OPEN → UNDER REVIEW (Review)
-- UNDER REVIEW → ACCEPTED (Accept)
-- ACCEPTED → PARTIALLY ACCEPTED (Mark Partially Accepted)
-- PARTIALLY ACCEPTED → ESCALATED (Mark Escalated)
-- ESCALATED → RESOLVED (Resolve)
-- RESOLVED → CLOSED (Close)
-- DRAFT → REJECTED (Reject)
 - OPEN → REJECTED (Reject)
+- UNDER REVIEW → ACCEPTED (Accept)
+- UNDER REVIEW → PARTIALLY ACCEPTED (Partially Accept)
 - UNDER REVIEW → REJECTED (Reject)
-- ACCEPTED → REJECTED (Reject)
-- PARTIALLY ACCEPTED → REJECTED (Reject)
+- UNDER REVIEW → ESCALATED (Escalate)
+- ESCALATED → ACCEPTED (Accept)
+- ESCALATED → PARTIALLY ACCEPTED (Partially Accept)
 - ESCALATED → REJECTED (Reject)
+- ACCEPTED → RESOLVED (Resolve)
+- PARTIALLY ACCEPTED → RESOLVED (Resolve)
+- RESOLVED → CLOSED (Close)
 - DRAFT → CANCELLED (Cancel)
 - OPEN → CANCELLED (Cancel)
 - UNDER REVIEW → CANCELLED (Cancel)
-- ACCEPTED → CANCELLED (Cancel)
-- PARTIALLY ACCEPTED → CANCELLED (Cancel)
 - ESCALATED → CANCELLED (Cancel)
 
 ### Supplier Claim Resolution — Supplier Claim Resolution Lifecycle
@@ -2013,12 +2002,12 @@ Final: **FULLY APPLIED**, **CANCELLED**, **REVERSED**.
 Moves:
 - DRAFT → APPROVED (Approve)
 - APPROVED → POSTED (Post)
-- POSTED → PARTIALLY APPLIED (Mark Partially Applied)
-- PARTIALLY APPLIED → FULLY APPLIED (Mark Fully Applied)
+- POSTED → PARTIALLY APPLIED (Apply)
+- POSTED → FULLY APPLIED (Apply)
+- PARTIALLY APPLIED → FULLY APPLIED (Apply)
 - DRAFT → CANCELLED (Cancel)
 - APPROVED → CANCELLED (Cancel)
-- POSTED → CANCELLED (Cancel)
-- PARTIALLY APPLIED → CANCELLED (Cancel)
+- POSTED → REVERSED (Reverse)
 - PARTIALLY APPLIED → REVERSED (Reverse)
 
 ### Supplier Credit Note Application — Supplier Credit Note Application Lifecycle
@@ -2040,15 +2029,17 @@ Final: **FULLY APPLIED**, **CANCELLED**, **REVERSED**.
 Moves:
 - DRAFT → APPROVED (Approve)
 - APPROVED → POSTED (Post)
-- POSTED → PARTIALLY APPLIED (Mark Partially Applied)
-- PARTIALLY APPLIED → DISPUTED (Mark Disputed)
-- DISPUTED → FULLY APPLIED (Mark Fully Applied)
+- POSTED → PARTIALLY APPLIED (Apply)
+- POSTED → FULLY APPLIED (Apply)
+- PARTIALLY APPLIED → FULLY APPLIED (Apply)
+- POSTED → DISPUTED (Dispute)
+- PARTIALLY APPLIED → DISPUTED (Dispute)
+- DISPUTED → POSTED (Resolve)
+- DISPUTED → REVERSED (Reverse)
 - DRAFT → CANCELLED (Cancel)
 - APPROVED → CANCELLED (Cancel)
-- POSTED → CANCELLED (Cancel)
-- PARTIALLY APPLIED → CANCELLED (Cancel)
-- DISPUTED → CANCELLED (Cancel)
-- DISPUTED → REVERSED (Reverse)
+- POSTED → REVERSED (Reverse)
+- PARTIALLY APPLIED → REVERSED (Reverse)
 
 ### Supplier Debit Note Application — Supplier Debit Note Application Lifecycle
 

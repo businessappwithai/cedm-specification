@@ -1,7 +1,7 @@
 /**
  * Harness barrel — suites import everything from here.
  *
- * Generated: 2026-10-04T01:12:59.197Z
+ * Generated: 2026-10-09T06:46:17.748Z
  * Project: supply-chain
  */
 

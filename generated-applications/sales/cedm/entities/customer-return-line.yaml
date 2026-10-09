@@ -7,188 +7,179 @@ entity:
     icon: user-round
   identity: {key: customerReturnLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: customerReturnLineId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Immutable identity of the customer return line.
-      businessMeaning: Identifies one returned-item detail independently of the parent return, source order line, inventory movement or credit note.
-      usage: Used for quantity reconciliation, inventory posting, credit calculation and audit.
-      relationshipContext: Stable bridge identity across reverse-fulfillment and financial workflows.
-      workflowRole: Carries source quantity through receipt, disposition and downstream credit processing.
-      requiredMeaning: Required for traceability.
-  - name: lineNumber
-    type: integer
-    required: true
-    minimum: 1
-    help:
-      summary: Sequence number of the line within the CustomerReturn.
-      businessMeaning: Identifies the line for operational documents and reconciliation.
-      usage: Used in return documents, receiving and audit.
-      relationshipContext: Unique within the parent return and independent of SalesOrderLine or InvoiceLine numbering.
-      workflowRole: Supports deterministic return reconstruction.
-      requiredMeaning: Required for line identification.
-  - name: quantityReturned
-    type: decimal
-    required: true
-    precision: 20
-    scale: 6
-    help:
-      summary: Quantity physically or contractually returned for this line.
-      businessMeaning: Establishes the quantity subject to inspection and disposition.
-      usage: Used for return validation, inventory and financial eligibility.
-      relationshipContext: Must be supported by prior fulfillment evidence and cannot automatically become inventory or credit.
-      workflowRole: Feeds disposition quantities and potential credit calculation.
-      requiredMeaning: Required because a return line must represent a quantity or equivalent source value.
-  - name: quantityRestocked
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help:
-      summary: Quantity accepted for unrestricted restocking.
-      businessMeaning: Represents returned goods approved to re-enter unrestricted inventory.
-      usage: Drives positive InventoryMovement posting.
-      relationshipContext: Must be a component of quantityReturned and is the only disposition component eligible for unrestricted stock.
-      workflowRole: Creates the inventory consequence after disposition approval.
-      requiredMeaning: Required as zero when none is restocked.
-  - name: quantityQuarantined
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help:
-      summary: Quantity placed into restricted or quarantine inventory.
-      businessMeaning: Represents returned goods requiring further inspection or controlled handling.
-      usage: Supports quality and restricted inventory workflows.
-      relationshipContext: Does not increase unrestricted available inventory.
-      workflowRole: Drives restricted disposition workflow.
-      requiredMeaning: Required as zero when none is quarantined.
-  - name: quantityToRepair
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help:
-      summary: Quantity routed to repair or refurbishment.
-      businessMeaning: Represents goods that require a repair process before any future stock disposition.
-      usage: Supports maintenance/repair work orders and inventory control.
-      relationshipContext: Does not directly create unrestricted stock.
-      workflowRole: Drives repair workflow and later disposition.
-      requiredMeaning: Required as zero when none is routed to repair.
-  - name: quantityScrapped
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 6
-    help:
-      summary: Quantity approved for scrap or disposal.
-      businessMeaning: Represents returned goods that will not return to saleable inventory.
-      usage: Supports disposal, environmental controls and inventory adjustment.
-      relationshipContext: Does not increase unrestricted available inventory.
-      workflowRole: Drives authorized disposal and inventory adjustment.
-      requiredMeaning: Required as zero when none is scrapped.
-  - name: disposition
-    type: enum
-    required: true
-    values: [PENDING, RESTOCK, QUARANTINE, REPAIR, SCRAP, MIXED]
-    help:
-      summary: Physical disposition assigned after inspection of returned goods.
-      businessMeaning: Determines what operational path the returned quantity follows.
-      usage: Drives inventory, quality, repair and disposal processing.
-      relationshipContext: Distinct from return reason and financial credit reason.
-      workflowRole: Determines authoritative InventoryMovement or downstream workflow.
-      requiredMeaning: Required to prevent ambiguous physical treatment.
-      valueSemantics:
-        PENDING: The disposition of the customer return line is pending; set it when that is what the business means for this record.
-        RESTOCK: The disposition of the customer return line is restock; set it when that is what the business means for this record.
-        QUARANTINE: The disposition of the customer return line is quarantine; set it when that is what the business means for this record.
-        REPAIR: The disposition of the customer return line is repair; set it when that is what the business means for this record.
-        SCRAP: The disposition of the customer return line is scrap; set it when that is what the business means for this record.
-        MIXED: The disposition of the customer return line is mixed; set it when that is what the business means for this record.
-  - name: approvedCreditAmount
-    type: Money
-    required: false
-    help:
-      summary: Maximum financial credit approved for this return line under applicable policy.
-      businessMeaning: Provides the financial eligibility basis consumed by CreditNoteLine; it is not itself a posted credit.
-      usage: Supports customer credit calculation, approval and audit.
-      relationshipContext: Must reconcile with original InvoiceLine pricing/tax evidence and must not mutate the invoice.
-      workflowRole: Limits return-based CreditNoteLine credit unless a separate authorized adjustment applies.
-      optionalMeaning: Optional when the return has no financial credit consequence.
+    - name: customerReturnLineId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the return line.
+        businessMeaning: Identifies one returned-item detail independently of the parent return, source order line, inventory movement or credit note.
+        usage: Used for quantity reconciliation, inventory posting, credit calculation and audit.
+        relationshipContext: Stable bridge identity across reverse-fulfillment and financial workflows.
+        workflowRole: Carries source quantity through receipt, disposition and downstream credit processing.
+    - name: lineNumber
+      type: integer
+      required: true
+      minimum: 1
+      help:
+        summary: Sequence number of the line within the CustomerReturn.
+        businessMeaning: Identifies the line for operational documents and reconciliation.
+        usage: Used in return documents, receiving and audit.
+        relationshipContext: Unique within the parent return and independent of SalesOrderLine or InvoiceLine numbering.
+        workflowRole: Supports deterministic return reconstruction.
+    - name: quantityReturned
+      type: decimal
+      required: true
+      precision: 20
+      scale: 6
+      help:
+        summary: Quantity physically or contractually returned for this line.
+        businessMeaning: Establishes the quantity subject to inspection and disposition.
+        usage: Used for return validation, inventory and financial eligibility.
+        relationshipContext: Must be supported by prior fulfillment evidence and cannot automatically become inventory or credit.
+        workflowRole: Feeds disposition quantities and potential credit calculation.
+    - name: quantityRestocked
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help:
+        summary: Quantity accepted for unrestricted restocking.
+        businessMeaning: Represents returned goods approved to re-enter unrestricted inventory.
+        usage: Drives positive InventoryMovement posting.
+        relationshipContext: Must be a component of quantityReturned and is the only disposition component eligible for unrestricted stock.
+        workflowRole: Creates the inventory consequence after disposition approval.
+    - name: quantityQuarantined
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help:
+        summary: Quantity placed into restricted or quarantine inventory.
+        businessMeaning: Represents returned goods requiring further inspection or controlled handling.
+        usage: Supports quality and restricted inventory workflows.
+        relationshipContext: Does not increase unrestricted available inventory.
+        workflowRole: Drives restricted disposition workflow.
+    - name: quantityToRepair
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help:
+        summary: Quantity routed to repair or refurbishment.
+        businessMeaning: Represents goods that require a repair process before any future stock disposition.
+        usage: Supports maintenance/repair work orders and inventory control.
+        relationshipContext: Does not directly create unrestricted stock.
+        workflowRole: Drives repair workflow and later disposition.
+    - name: quantityScrapped
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 6
+      help:
+        summary: Quantity approved for scrap or disposal.
+        businessMeaning: Represents returned goods that will not return to saleable inventory.
+        usage: Supports disposal, environmental controls and inventory adjustment.
+        relationshipContext: Does not increase unrestricted available inventory.
+        workflowRole: Drives authorized disposal and inventory adjustment.
+    - name: disposition
+      type: enum
+      required: true
+      values: [PENDING, RESTOCK, QUARANTINE, REPAIR, SCRAP, MIXED]
+      help:
+        valueSemantics:
+          PENDING: No decision has been made yet.
+          RESTOCK: The goods are put back into saleable stock.
+          QUARANTINE: The goods are held apart pending a quality decision.
+          REPAIR: The goods are sent for repair.
+          SCRAP: The goods are written off and disposed of.
+          MIXED: Different quantities of the line have different decisions.
+        summary: Physical disposition assigned after inspection of returned goods.
+        businessMeaning: Determines what operational path the returned quantity follows.
+        usage: Drives inventory, quality, repair and disposal processing.
+        relationshipContext: Distinct from return reason and financial credit reason.
+        workflowRole: Determines authoritative InventoryMovement or downstream workflow.
+    - name: approvedCreditAmount
+      type: Money
+      required: false
+      help:
+        summary: Maximum financial credit approved for this return line under applicable policy.
+        businessMeaning: Provides the financial eligibility basis consumed by CreditNoteLine; it is not itself a posted credit.
+        usage: Supports customer credit calculation, approval and audit.
+        relationshipContext: Must reconcile with original InvoiceLine pricing/tax evidence and must not mutate the invoice.
+        workflowRole: Limits return-based CreditNoteLine credit unless a separate authorized adjustment applies.
   relationships:
-  - name: customerReturn
-    target: CustomerReturn
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Parent return containing this returned quantity detail.
-      businessMeaning: Establishes the authorization and lifecycle context.
-      usage: Supports return processing and completion.
-      workflowRole: Parent lifecycle coordinates this line's processing.
-  - name: salesOrderLine
-    target: SalesOrderLine
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Original sales commitment line against which the return is validated.
-      businessMeaning: Identifies the demand and fulfillment quantity being reversed.
-      usage: Supports eligibility and fulfillment reconciliation.
-      workflowRole: Supplies original ordered and fulfilled context.
-  - name: invoiceLines
-    target: InvoiceLine
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Original billed lines potentially supporting the financial credit.
-      businessMeaning: Provides historical monetary, pricing and tax evidence for the returned quantity.
-      usage: Supports credit calculation, audit and reconciliation.
-      workflowRole: Supplies source financial evidence to CreditNoteLine.
-  - name: returnDispositions
-    target: ReturnDisposition
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Controlled disposition decisions covering all or part of this returned quantity.
-      businessMeaning: Records explicit restock, quarantine, repair, scrap, reject, accept, or other governed operational outcomes for the line.
-      usage: Partial disposition, quality traceability, inventory execution, reconciliation, and audit.
-      cardinalityMeaning: A return line may have multiple dispositions when its quantity is split across operational outcomes.
-      workflowRole: Disposition quantities must reconcile to the line and authorize, but never replace, resulting InventoryMovement evidence.
-  - name: inventoryMovements
-    target: InventoryMovement
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Inventory events resulting from approved physical disposition.
-      businessMeaning: Records the actual stock consequence of the return line.
-      usage: Supports stock ledger, warehouse reconciliation and audit.
-      workflowRole: Only accepted disposition creates the appropriate movement; return authorization or receipt alone does not.
-  - name: creditNoteLines
-    target: CreditNoteLine
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Financial adjustment lines generated from this return line.
-      businessMeaning: Connects approved return credit eligibility to the resulting financial document.
-      usage: Supports return-to-credit audit, reconciliation and correction.
-      cardinalityMeaning: A return line may produce no credit or multiple controlled credit-note lines.
-      workflowRole: CreditNoteLine consumes approvedCreditAmount and source InvoiceLine evidence.
+    - name: customerReturn
+      target: CustomerReturn
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Parent return containing this returned quantity detail.
+        businessMeaning: Establishes the authorization and lifecycle context.
+        usage: Supports return processing and completion.
+        workflowRole: Parent lifecycle coordinates this line's processing.
+    - name: salesOrderLine
+      target: SalesOrderLine
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Original sales commitment line against which the return is validated.
+        businessMeaning: Identifies the demand and fulfillment quantity being reversed.
+        usage: Supports eligibility and fulfillment reconciliation.
+        workflowRole: Supplies original ordered and fulfilled context.
+    - name: invoiceLines
+      target: InvoiceLine
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Original billed lines potentially supporting the financial credit.
+        businessMeaning: Provides historical monetary, pricing and tax evidence for the returned quantity.
+        usage: Supports credit calculation, audit and reconciliation.
+        workflowRole: Supplies source financial evidence to CreditNoteLine.
+    - name: returnDispositions
+      target: ReturnDisposition
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Controlled disposition decisions covering all or part of this returned quantity.
+        businessMeaning: Records explicit restock, quarantine, repair, scrap, reject, accept, or other governed operational outcomes for the line.
+        usage: Partial disposition, quality traceability, inventory execution, reconciliation, and audit.
+        cardinalityMeaning: A return line may have multiple dispositions when its quantity is split across operational outcomes.
+        workflowRole: Disposition quantities must reconcile to the line and authorize, but never replace, resulting InventoryMovement evidence.
+    - name: inventoryMovements
+      target: InventoryMovement
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Inventory events resulting from approved physical disposition.
+        businessMeaning: Records the actual stock consequence of the return line.
+        usage: Supports stock ledger, warehouse reconciliation and audit.
+        workflowRole: Only accepted disposition creates the appropriate movement; return authorization or receipt alone does not.
+    - name: creditNoteLines
+      target: CreditNoteLine
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Financial adjustment lines generated from this return line.
+        businessMeaning: Connects approved return credit eligibility to the resulting financial document.
+        usage: Supports return-to-credit audit, reconciliation and correction.
+        cardinalityMeaning: A return line may produce no credit or multiple controlled credit-note lines.
+        workflowRole: CreditNoteLine consumes approvedCreditAmount and source InvoiceLine evidence.
   invariants:
-  - {id: CUSTOMER-RETURN-LINE-001, rule: quantityReturned must be greater than zero.}
-  - {id: CUSTOMER-RETURN-LINE-002, rule: quantityRestocked + quantityQuarantined + quantityToRepair + quantityScrapped must equal quantityReturned unless an explicit pending disposition exists.}
-  - {id: CUSTOMER-RETURN-LINE-003, rule: quantityReturned must not exceed the eligible previously fulfilled quantity without an authorized exception.}
-  - {id: CUSTOMER-RETURN-LINE-004, rule: Only quantityRestocked may create unrestricted positive inventory movement.}
-  - {id: CUSTOMER-RETURN-LINE-005, rule: "Quarantined, repair and scrapped quantities must follow their respective restricted, work-order or disposal workflows and cannot be treated as unrestricted stock."}
-  - {id: CUSTOMER-RETURN-LINE-006, rule: Restock posting must be idempotent and attributable to this return-line disposition.}
-  - {id: CUSTOMER-RETURN-LINE-007, rule: "Approved credit amount must follow applicable billing, original transaction price, tax, discount and return policy and must not directly mutate the original InvoiceLine."}
-  - {id: CUSTOMER-RETURN-LINE-008, rule: "Changes to SalesOrderLine, Product, UnitOfMeasure, Shipment or Invoice that affect an open return line require controlled revalidation."}
-  - {id: CUSTOMER-RETURN-LINE-009, rule: Corrections after disposition posting require compensating inventory or financial events rather than destructive mutation.}
-  - {id: CUSTOMER-RETURN-LINE-010, rule: A return-based CreditNoteLine must reference this line and must not exceed approvedCreditAmount unless an explicitly authorized non-return adjustment is separately evidenced.}
+    - {id: CUSTOMER-RETURN-LINE-001, rule: quantityReturned must be greater than zero.}
+    - {id: CUSTOMER-RETURN-LINE-002, rule: quantityRestocked + quantityQuarantined + quantityToRepair + quantityScrapped must equal quantityReturned unless an explicit pending disposition exists.}
+    - {id: CUSTOMER-RETURN-LINE-003, rule: quantityReturned must not exceed the eligible previously fulfilled quantity without an authorized exception.}
+    - {id: CUSTOMER-RETURN-LINE-004, rule: Only quantityRestocked may create unrestricted positive inventory movement.}
+    - {id: CUSTOMER-RETURN-LINE-005, rule: "Quarantined, repair and scrapped quantities must follow their respective restricted, work-order or disposal workflows and cannot be treated as unrestricted stock."}
+    - {id: CUSTOMER-RETURN-LINE-006, rule: Restock posting must be idempotent and attributable to this return-line disposition.}
+    - {id: CUSTOMER-RETURN-LINE-007, rule: "Approved credit amount must follow applicable billing, original transaction price, tax, discount and return policy and must not directly mutate the original InvoiceLine."}
+    - {id: CUSTOMER-RETURN-LINE-008, rule: "Changes to SalesOrderLine, Product, UnitOfMeasure, Shipment or Invoice that affect an open return line require controlled revalidation."}
+    - {id: CUSTOMER-RETURN-LINE-009, rule: Corrections after disposition posting require compensating inventory or financial events rather than destructive mutation.}
+    - {id: CUSTOMER-RETURN-LINE-010, rule: A return-based CreditNoteLine must reference this line and must not exceed approvedCreditAmount unless an explicitly authorized non-return adjustment is separately evidenced.}
   help:
     summary: Quantity-level return evidence connecting returned goods to original fulfillment, disposition, inventory and financial adjustment.
     businessMeaning: CustomerReturnLine explains exactly what quantity came back and what happened to it. It does not itself move inventory or issue a credit.

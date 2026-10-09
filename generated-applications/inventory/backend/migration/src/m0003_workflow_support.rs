@@ -201,6 +201,14 @@ ALTER TABLE bus_task
 
 CREATE INDEX IF NOT EXISTS idx_bus_task_doc_status ON bus_task (doc_status);
 
+ALTER TABLE bus_inventory_item
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_inventory_item_doc_status ON bus_inventory_item (doc_status);
+
 ALTER TABLE bus_inventory_balance
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -529,6 +537,14 @@ ALTER TABLE bus_task_priority
 
 CREATE INDEX IF NOT EXISTS idx_bus_task_priority_doc_status ON bus_task_priority (doc_status);
 
+ALTER TABLE bus_inventory_item_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_inventory_item_status_doc_status ON bus_inventory_item_status (doc_status);
+
 ALTER TABLE bus_inventory_movement_movement_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -847,6 +863,14 @@ ALTER TABLE bus_attachment
 DROP INDEX IF EXISTS idx_bus_task_doc_status;
 
 ALTER TABLE bus_task
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_inventory_item_doc_status;
+
+ALTER TABLE bus_inventory_item
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -1175,6 +1199,14 @@ ALTER TABLE bus_task_status
 DROP INDEX IF EXISTS idx_bus_task_priority_doc_status;
 
 ALTER TABLE bus_task_priority
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_inventory_item_status_doc_status;
+
+ALTER TABLE bus_inventory_item_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

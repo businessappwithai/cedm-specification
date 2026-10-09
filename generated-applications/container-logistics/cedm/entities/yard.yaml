@@ -11,90 +11,86 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: yardId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: The immutable CEDM identity of the managed yard facility.
-      businessMeaning: Identifies one operational yard regardless of the containers, blocks, slots, operators, or activities currently associated with it.
-      usage: Used by yard operations, location management, movements, inventory, reporting, access, planning, and integrations to anchor yard-specific records.
-      relationshipContext: YardBlock, Location, Container, and yard movement records use the yard as operational context. Configuration changes must not change this identity.
-      requiredMeaning: Required because subordinate yard structures and operational records need an unambiguous facility identity.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: The operational business code used to identify the yard.
-      businessMeaning: Provides the concise facility reference used by operators, transport partners, EDI messages, reports, integrations, and searches.
-      usage: Used in gate, movement, inventory, shipment, location, and reporting processes where a yard must be selected or communicated.
-      relationshipContext: Code identifies the facility; the YardBlock/YardBay/YardTier/YardSlot hierarchy identifies the exact physical storage position.
-      requiredMeaning: Required because operational systems need a stable human-facing facility identifier.
-  - name: name
-    type: string
-    required: true
-    maxLength: 200
-    help:
-      summary: The human-readable name of the yard facility.
-      businessMeaning: Identifies the facility in user interfaces, reports, documents, maps, and business communications.
-      usage: Supports operational search and reporting where a descriptive name is preferable to a technical code.
-      relationshipContext: Names the facility identified by yardId and code; it is not the technical identity and should not be used as a unique key.
-      requiredMeaning: Required for clear human interpretation of the facility.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
-    help:
-      summary: The controlled operational lifecycle state of the yard.
-      businessMeaning: Determines whether the facility is being prepared, accepting normal operations, temporarily restricted, or closed.
-      usage: Controls new allocations, inbound movements, gate activity, planning, and other operational actions.
-      relationshipContext: Yard status provides facility-level availability; individual YardSlot status and Container status provide more granular operational constraints.
-      valueSemantics:
-        PLANNED: Facility exists in the master model but is not available for normal yard transactions.
-        ACTIVE: Facility can perform normal operations subject to capacity, safety, equipment, and process constraints.
-        SUSPENDED: Normal operations are temporarily restricted because of incidents, maintenance, weather, regulatory action, or another controlled reason.
-        CLOSED: Facility is no longer available for normal operations; closure activities may still be performed under controlled processes.
-      requiredMeaning: Required because the facility's ability to accept new work must be explicit.
+    - name: yardId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable CEDM identity of the managed yard facility.
+        businessMeaning: Identifies one operational yard regardless of the containers, blocks, slots, operators, or activities currently associated with it.
+        usage: Used by yard operations, location management, movements, inventory, reporting, access, planning, and integrations to anchor yard-specific records.
+        relationshipContext: YardBlock, Location, Container, and yard movement records use the yard as operational context. Configuration changes must not change this identity.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The operational business code used to identify the yard.
+        businessMeaning: Provides the concise facility reference used by operators, transport partners, EDI messages, reports, integrations, and searches.
+        usage: Used in gate, movement, inventory, shipment, location, and reporting processes where a yard must be selected or communicated.
+        relationshipContext: Code identifies the facility; the YardBlock/YardBay/YardTier/YardSlot hierarchy identifies the exact physical storage position.
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The human-readable name of the yard facility.
+        businessMeaning: Identifies the facility in user interfaces, reports, documents, maps, and business communications.
+        usage: Supports operational search and reporting where a descriptive name is preferable to a technical code.
+        relationshipContext: Names the facility identified by yardId and code; it is not the technical identity and should not be used as a unique key.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, ACTIVE, SUSPENDED, CLOSED]
+      help:
+        summary: The controlled operational lifecycle state of the yard.
+        businessMeaning: Determines whether the facility is being prepared, accepting normal operations, temporarily restricted, or closed.
+        usage: Controls new allocations, inbound movements, gate activity, planning, and other operational actions.
+        relationshipContext: Yard status provides facility-level availability; individual YardSlot status and Container status provide more granular operational constraints.
+        valueSemantics:
+          PLANNED: Facility exists in the master model but is not available for normal yard transactions.
+          ACTIVE: Facility can perform normal operations subject to capacity, safety, equipment, and process constraints.
+          SUSPENDED: Normal operations are temporarily restricted because of incidents, maintenance, weather, regulatory action, or another controlled reason.
+          CLOSED: Facility is no longer available for normal operations; closure activities may still be performed under controlled processes.
   relationships:
-  - name: location
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Associates the yard with its primary geographic or business Location.
-      usage: Provides address, coordinates, jurisdiction, routing, mapping, and regional context.
-      cardinalityMeaning: Each yard has exactly one primary Location in this model.
-      context: Location answers where the facility is; Yard answers what container-yard operational capabilities exist at that location.
-  - name: blocks
-    target: YardBlock
-    cardinality: 1..*
-    ownership: aggregate
-    help:
-      summary: Defines the first operational subdivision of the yard's physical storage hierarchy.
-      usage: Supports capacity planning, zoning, allocation, navigation, equipment segregation, and movement planning.
-      cardinalityMeaning: An operational yard contains one or more blocks under this model.
-      context: YardBlock belongs to this yard hierarchy and should not be interpreted as an independent facility.
-  - name: containers
-    target: Container
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Provides the set of containers currently associated with the yard as a facility-level operational view.
-      usage: Supports yard inventory, visibility, dwell analysis, capacity, gate operations, and operational reporting.
-      cardinalityMeaning: A yard may contain zero or many containers at any point in time.
-      context: This is a facility-level association; exact physical placement is determined by the container's current YardSlot and the yard hierarchy.
+    - name: location
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Associates the yard with its primary geographic or business Location.
+        usage: Provides address, coordinates, jurisdiction, routing, mapping, and regional context.
+        cardinalityMeaning: Each yard has exactly one primary Location in this model.
+        context: Location answers where the facility is; Yard answers what container-yard operational capabilities exist at that location.
+    - name: blocks
+      target: YardBlock
+      cardinality: 1..*
+      ownership: aggregate
+      help:
+        summary: Defines the first operational subdivision of the yard's physical storage hierarchy.
+        usage: Supports capacity planning, zoning, allocation, navigation, equipment segregation, and movement planning.
+        cardinalityMeaning: An operational yard contains one or more blocks under this model.
+        context: YardBlock belongs to this yard hierarchy and should not be interpreted as an independent facility.
+    - name: containers
+      target: Container
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: Provides the set of containers currently associated with the yard as a facility-level operational view.
+        usage: Supports yard inventory, visibility, dwell analysis, capacity, gate operations, and operational reporting.
+        cardinalityMeaning: A yard may contain zero or many containers at any point in time.
+        context: This is a facility-level association; exact physical placement is determined by the container's current YardSlot and the yard hierarchy.
   invariants:
-  - id: YARD-001
-    rule: code must be unique within the organization's yard operating context.
-  - id: YARD-002
-    rule: An ACTIVE yard must have a valid Location and at least one operational storage subdivision.
-  - id: YARD-003
-    rule: SUSPENDED or CLOSED yards must not accept new normal inbound allocations or movements unless an explicit exception workflow permits them.
-  - id: YARD-004
-    rule: Changing Yard status must not delete historical container positions or movement records.
+    - id: YARD-001
+      rule: code must be unique within the organization's yard operating context.
+    - id: YARD-002
+      rule: An ACTIVE yard must have a valid Location and at least one operational storage subdivision.
+    - id: YARD-003
+      rule: SUSPENDED or CLOSED yards must not accept new normal inbound allocations or movements unless an explicit exception workflow permits them.
+    - id: YARD-004
+      rule: Changing Yard status must not delete historical container positions or movement records.
   lifecycle:
     title: Yard Lifecycle
     attribute: status

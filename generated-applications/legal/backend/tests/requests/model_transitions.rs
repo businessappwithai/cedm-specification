@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:10.713Z
+//! Generated: 2026-10-09T06:44:46.336Z
 //! Project: legal
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -75,29 +75,20 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "ASSIGNED", "FAILED"),
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
+    ("bus_contract", "status", "DRAFT", "NEGOTIATION"),
     ("bus_contract", "status", "DRAFT", "APPROVAL"),
-    ("bus_contract", "status", "APPROVAL", "ACTIVE"),
-    ("bus_contract", "status", "APPROVAL", "NEGOTIATION"),
     ("bus_contract", "status", "NEGOTIATION", "APPROVAL"),
-    ("bus_contract", "status", "ACTIVE", "NEGOTIATION"),
-    ("bus_contract", "status", "NEGOTIATION", "ACTIVE"),
-    ("bus_contract", "status", "APPROVAL", "SUSPENDED"),
-    ("bus_contract", "status", "SUSPENDED", "APPROVAL"),
+    ("bus_contract", "status", "APPROVAL", "NEGOTIATION"),
+    ("bus_contract", "status", "APPROVAL", "ACTIVE"),
     ("bus_contract", "status", "ACTIVE", "SUSPENDED"),
     ("bus_contract", "status", "SUSPENDED", "ACTIVE"),
-    ("bus_contract", "status", "APPROVAL", "EXPIRED"),
     ("bus_contract", "status", "ACTIVE", "EXPIRED"),
-    ("bus_contract", "status", "NEGOTIATION", "EXPIRED"),
     ("bus_contract", "status", "SUSPENDED", "EXPIRED"),
-    ("bus_contract", "status", "APPROVAL", "TERMINATED"),
     ("bus_contract", "status", "ACTIVE", "TERMINATED"),
-    ("bus_contract", "status", "NEGOTIATION", "TERMINATED"),
     ("bus_contract", "status", "SUSPENDED", "TERMINATED"),
     ("bus_contract", "status", "DRAFT", "CANCELLED"),
-    ("bus_contract", "status", "APPROVAL", "CANCELLED"),
-    ("bus_contract", "status", "ACTIVE", "CANCELLED"),
     ("bus_contract", "status", "NEGOTIATION", "CANCELLED"),
-    ("bus_contract", "status", "SUSPENDED", "CANCELLED"),
+    ("bus_contract", "status", "APPROVAL", "CANCELLED"),
     ("bus_contract_obligation", "status", "OPEN", "IN_PROGRESS"),
     (
         "bus_contract_obligation",

@@ -54,7 +54,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: DRAFT
       values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
       help:
         summary: Whether the product can currently be traded.

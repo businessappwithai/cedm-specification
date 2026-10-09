@@ -7,24 +7,34 @@ entity:
     icon: file-text
   identity: {key: packingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: Stable packing-task identity., businessMeaning: Identifies one governed packaging execution., usage: "Fulfillment, labeling, shipment preparation and audit.", relationshipContext: Links picked goods to handling unit and shipment., requiredMeaning: Required.}}
-  - {name: packedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity confirmed packed., businessMeaning: Measures goods prepared for transport., usage: Shipment readiness and reconciliation., relationshipContext: Must not exceed eligible picked quantity., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values: [PLANNED, IN_PROGRESS, PACKED, CANCELLED, EXCEPTION]
-    help: {summary: Packing task state., businessMeaning: Controls packaging workflow., usage: WMS and shipping readiness., relationshipContext: PACKED is not dispatch/delivery evidence., valueSemantics: {PLANNED: Awaiting work., IN_PROGRESS: Packaging underway., PACKED: Confirmed complete., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    - {name: packingId, type: uuid, required: true, immutable: true, help: {summary: The identity of the packing task., usage: Generated on creation; shipments and handling units refer to it., businessMeaning: Identifies one governed packaging execution., relationshipContext: Links picked goods to handling unit and shipment.}}
+    - {name: packedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The quantity of goods put into the package., usage: Entered or scanned as goods are packed; compared with the picked quantity., businessMeaning: Measures goods prepared for transport., relationshipContext: Must not exceed eligible picked quantity.}}
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, IN_PROGRESS, PACKED, CANCELLED, EXCEPTION]
+      help:
+        summary: Where the packing task stands.
+        usage: Updated by packers.
+        valueSemantics:
+          PLANNED: Created, not yet started.
+          IN_PROGRESS: Packers are filling packages.
+          PACKED: Finished and ready to ship.
+          CANCELLED: Called off. A final state.
+          EXCEPTION: Held because something is wrong, such as a shortage or damage.
+        businessMeaning: Controls packaging workflow.
+        relationshipContext: PACKED is not dispatch/delivery evidence.
   relationships:
-  - {name: picking, target: Picking, cardinality: 0..1, ownership: reference, help: {summary: Pick task supplying goods., businessMeaning: Preserves pick-to-pack provenance., usage: Fulfillment reconciliation., cardinalityMeaning: Optional for packing not driven by a single pick., workflowRole: Packed quantity cannot exceed eligible picked quantity.}}
-  - {name: handlingUnit, target: HandlingUnit, cardinality: "1", ownership: reference, help: {summary: Package/pallet/tote receiving packed goods., businessMeaning: Establishes physical logistics identity., usage: "Labels, staging, loading and tracking.", cardinalityMeaning: Exactly one target handling unit per packing record., workflowRole: Contents/custody remain traceable.}}
-  - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: Shipment for which package is prepared., businessMeaning: Connects warehouse packaging to transport., usage: Shipment readiness and loading., cardinalityMeaning: Optional before shipment assignment., workflowRole: Packing does not dispatch shipment.}}
-  - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Shipment product line represented by packed quantity., businessMeaning: Preserves line-level fulfillment provenance., usage: Packing and dispatch reconciliation., cardinalityMeaning: Optional for mixed/general packing records., workflowRole: Product/UOM/quantity must reconcile.}}
+    - {name: picking, target: Picking, cardinality: 0..1, ownership: reference, help: {summary: The pick that supplied the goods., usage: Linked when packing follows a pick., cardinalityMeaning: At most one picking., workflowRole: Confirms that what is packed matches what was picked., businessMeaning: Preserves pick-to-pack provenance.}}
+    - {name: handlingUnit, target: HandlingUnit, cardinality: "1", ownership: reference, help: {summary: 'The package, carton or pallet that the goods go into.', usage: Chosen when packing starts., cardinalityMeaning: 'Exactly one handling unit: each packing task fills one package.', workflowRole: Gives the package contents and its identity., businessMeaning: Establishes physical logistics identity.}}
+    - {name: shipment, target: Shipment, cardinality: 0..1, ownership: reference, help: {summary: The shipment the package will be part of., usage: Linked when assigned to a delivery., cardinalityMeaning: At most one shipment., workflowRole: Adds the package to a delivery., businessMeaning: Connects warehouse packaging to transport.}}
+    - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: The shipment line that the packed goods satisfy., usage: Linked to tie packed goods to order lines., cardinalityMeaning: At most one shipment line., workflowRole: Shows which order line the goods fulfil., businessMeaning: Preserves line-level fulfillment provenance.}}
   invariants:
-  - {id: PACKING-001, rule: packedQuantity must be greater than zero.}
-  - {id: PACKING-002, rule: Packed quantity must not exceed eligible picked or shipment quantity and must preserve lot/serial identity where controlled.}
-  - {id: PACKING-003, rule: "Packing must not itself create inventory issue, dispatch, delivery, invoice or payment effects."}
-  - {id: PACKING-EXE-001, rule: "Packed Quantity cannot be negative.", violatedWhen: "packed_quantity != null and packed_quantity < 0", message: "Packed Quantity cannot be negative."}
+    - {id: PACKING-001, rule: packedQuantity must be greater than zero.}
+    - {id: PACKING-002, rule: Packed quantity must not exceed eligible picked or shipment quantity and must preserve lot/serial identity where controlled.}
+    - {id: PACKING-003, rule: "Packing must not itself create inventory issue, dispatch, delivery, invoice or payment effects."}
+    - {id: PACKING-EXE-001, rule: "Packed Quantity cannot be negative.", violatedWhen: "packed_quantity != null and packed_quantity < 0", message: "Packed Quantity cannot be negative."}
   lifecycle:
     title: Packing Lifecycle
     attribute: status
@@ -80,9 +90,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Warehouse packaging execution between picking and shipping.
-    businessMeaning: Packing establishes physical package composition/readiness; Shipment and InventoryMovement separately govern transport and stock effects.
-    usage: Fulfillment, package labeling, staging, carrier handoff and traceability.
-    relationshipContext: Picking supplies goods; HandlingUnit identifies package; Shipment/ShipmentLine supply transport context.
-    lifecycle: Planned → in progress → packed, cancelled or exception.
+    summary: A warehouse task that groups picked goods into handling units and prepares them for shipment, keeping line, lot, serial, quantity and package traceability.
+    businessMeaning: Between picking and shipping, goods are put into boxes, cartons or pallets. Packing records which goods went into which package, so the customer's shipment is complete and any item can be traced to its package.
+    usage: Created when picked goods are ready to be packed; completed when packages are closed; read by shipping and customer service.
+    relationshipContext: Packing follows a Picking, fills a HandlingUnit and prepares a Shipment (and its lines).
+    lifecycle: Packing is planned, in progress while packages are filled, and packed when finished. It can be cancelled, or flagged as an exception when something does not match.
+    example: Eight cartons packed for order SO-20413 on the evening shift.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PACKING}

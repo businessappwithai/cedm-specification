@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:34.790Z
+//! Generated: 2026-10-09T06:45:24.500Z
 //! Project: procurement
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -47,7 +47,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("RequestForQuotation", "status", "AWARDED"),
     ("SupplierQuotation", "status", "REJECTED"),
     ("PurchaseOrder", "status", "CLOSED"),
-    ("GoodsReceipt", "status", "REJECTED"),
+    ("GoodsReceipt", "status", "ACCEPTED"),
     ("SupplierClaim", "status", "CLOSED"),
     ("SupplierClaimResolution", "status", "EXECUTED"),
     ("SupplierCreditNote", "status", "FULLY_APPLIED"),
@@ -115,14 +115,9 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "GoodsReceipt",
         "status",
         "DRAFT",
-        &["RECEIVED", "REJECTED", "CANCELLED"],
+        &["RECEIVED", "CANCELLED"],
     ),
-    (
-        "SupplierClaim",
-        "status",
-        "DRAFT",
-        &["OPEN", "REJECTED", "CANCELLED"],
-    ),
+    ("SupplierClaim", "status", "DRAFT", &["OPEN", "CANCELLED"]),
     (
         "SupplierClaimResolution",
         "status",

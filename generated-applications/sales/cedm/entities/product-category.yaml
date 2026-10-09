@@ -12,50 +12,43 @@ entity:
       required: true
       immutable: true
       help:
-        summary: "The product category id of the product category: an identifier the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its product category id."
+        summary: The identity of the category, constant when it is renamed or moved.
+        usage: Generated on creation; products and child categories refer to it.
     - name: code
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: "The code of the product category: a value the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its code."
+        summary: The code of the category, such as PT-CORDLESS.
+        usage: Unique; used in imports and reports.
     - name: name
       type: string
       required: true
       maxLength: 200
       help:
-        summary: "The name of the product category: a value the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
-        requiredMeaning: "Required: a product category cannot be understood without its name."
+        summary: The name of the category as shown in navigation.
+        usage: Shown in catalogues and filters.
     - name: description
       type: string
       required: false
       maxLength: 2000
       help:
-        summary: "The description of the product category: a value the business records on it."
-        usage: Entered or maintained when a product category is created or changed; shown on its form and available to search and reports.
-        relationshipContext: Read together with the product category's other fields and its relationships; it is not meaningful on its own.
+        summary: A description of what belongs in the category.
+        usage: Helps product managers classify consistently.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, INACTIVE, RETIRED]
       help:
-        summary: Lifecycle state controlling whether the category can be used for new classification.
-        usage: Set when a category is created and changed as it is taken out of use; filters which categories a product can be classified under.
-        workflowRole: Status changes trigger validation of dependent Products and any rules that consume category classification.
+        summary: Whether the category is in use.
+        usage: Set by product management; only ACTIVE categories are offered for new products.
         valueSemantics:
-          ACTIVE: The status of the product category is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the product category is inactive; set it when that is what the business means for this record.
-          RETIRED: The status of the product category is retired; set it when that is what the business means for this record.
+          ACTIVE: Available for classifying products.
+          INACTIVE: Temporarily not offered; can be reactivated.
+          RETIRED: No longer used; kept for history. A final state.
+        workflowRole: Status changes trigger validation of dependent Products and any rules that consume category classification.
   relationships:
     - name: parentCategory
       target: ProductCategory
@@ -63,25 +56,27 @@ entity:
       ownership: reference
       inverse: childCategories
       help:
-        summary: Links a product category to product category, the parent category it relates to.
-        usage: Chosen from the existing product category records when the product category is created or edited.
-        cardinalityMeaning: A product category has at most one product category in this role.
-        context: Lets the product category be found from, and reported with, its product category.
+        summary: The category that contains this one.
+        usage: Chosen to place the category in the tree.
+        cardinalityMeaning: At most one parent; a top-level category has none.
+        workflowRole: Lets reports roll up from sub-categories to broader groups.
     - name: childCategories
       target: ProductCategory
       cardinality: 0..*
       ownership: reference
       inverse: parentCategory
       help:
-        summary: Links a product category to product category, the child categories it relates to.
-        usage: Chosen from the existing product category records when the product category is created or edited.
-        cardinalityMeaning: A product category has any number of product category in this role.
-        context: Lets the product category be found from, and reported with, its product category.
+        summary: The categories directly beneath this one.
+        usage: Read to expand a group in navigation.
+        cardinalityMeaning: Any number, including none for a leaf category.
+        workflowRole: The tree seen from the top.
     - name: products
       target: Product
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to list the products in the category.
+        cardinalityMeaning: Any number of products.
         summary: Products classified directly under this category.
         workflowRole: Category changes must identify affected Products before becoming effective.
   invariants:
@@ -104,12 +99,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents one governed node in the Product classification hierarchy.
-    businessMeaning: ProductCategory provides taxonomy rather than operational state. It groups Products so people and systems can navigate, report, analyze, and govern the portfolio consistently.
-    usage: Product master-data management, catalogs, sales, procurement, inventory, reporting, analytics, search, tax, pricing, and eligibility rules where explicitly configured.
-    relationshipContext: Product references a category to establish classification. Parent and child categories form the taxonomy. Category hierarchy is distinct from Product composition, BillOfMaterial structure, or organizational hierarchy.
+    summary: A node in the product taxonomy that organises products for assortment, reporting, purchasing, sales, stock and analysis.
+    businessMeaning: Categories let people browse and report on products in groups, such as Power Tools within Hardware. They make the catalogue navigable and let rules and reports apply to a whole group instead of product by product.
+    usage: Maintained by product management; chosen on each product; read by navigation, reports and rules.
+    relationshipContext: Categories form a tree through parent and child categories, and group Products.
+    lifecycle: A category is active while used, can be inactive for a time, and is retired when withdrawn. Products keep their history.
+    example: '"Cordless tools", a child of "Power tools", containing drills and drivers.'
     workflowContext: Category create/update/retire → validate hierarchy → identify affected Products → identify dependent tax/pricing/sourcing/inventory/reporting rules → validate open workflows → activate change → preserve historical transaction classification.
     changePropagation: Code/name/description changes primarily affect presentation and integration; parent/status/semantic changes can affect Product eligibility and downstream rules and therefore require dependency analysis.
-    lifecycle: Categories can be introduced, activated, made inactive, and retired. Lifecycle changes govern future classification without deleting historical product relationships or transaction evidence.
-    example: If "Dry Containers" moves from "Shipping Containers" to another parent, the Product master classification can change for future reporting, but an already issued invoice or historical sales report that requires point-in-time classification must retain the classification effective when the transaction occurred.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-PRODUCT-CATEGORY}

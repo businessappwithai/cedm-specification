@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-04T01:12:18.256Z
+//! Generated: 2026-10-09T06:45:05.906Z
 //! Project: manufacturing
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -1255,14 +1255,14 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
-                name: "from_currency",
+                name: "from_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
                 max_length: None,
             },
             FieldMeta {
-                name: "to_currency",
+                name: "to_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
@@ -1619,6 +1619,13 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: Some(100),
             },
             FieldMeta {
+                name: "bom_version",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("bom_version", false),
+                max_length: Some(30),
+            },
+            FieldMeta {
                 name: "status",
                 field_type: FieldType::from_model("string", false),
                 required: true,
@@ -1722,6 +1729,13 @@ pub static ENTITIES: &[EntityMeta] = &[
                 required: true,
                 ref_table: ref_table_for("code", false),
                 max_length: Some(100),
+            },
+            FieldMeta {
+                name: "routing_version",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("routing_version", false),
+                max_length: Some(50),
             },
             FieldMeta {
                 name: "status",

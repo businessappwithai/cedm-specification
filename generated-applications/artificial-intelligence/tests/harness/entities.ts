@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-04T01:11:15.071Z
+ * Generated: 2026-10-09T06:43:21.264Z
  * Project: artificial-intelligence
  */
 
@@ -1250,7 +1250,7 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
       },
       {
-        name: "from_currency",
+        name: "from_currency_id",
         displayName: "From Currency",
         type: "string",
         required: true,
@@ -1259,7 +1259,7 @@ export const entities: EntityMeta[] = [
         references: "Currency",
       },
       {
-        name: "to_currency",
+        name: "to_currency_id",
         displayName: "To Currency",
         type: "string",
         required: true,
@@ -1612,6 +1612,15 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: false,
         enumReferenceId: 1001,
+      },
+      {
+        name: "model_version",
+        displayName: "Model Version",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 50,
       },
       {
         name: "status",
@@ -3659,20 +3668,6 @@ export const relationships: RelationshipMeta[] = [
   },
   {
     name: "exchange_rates_to",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "from_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "to_currency_ref",
     sourceEntity: "Currency",
     targetEntity: "ExchangeRate",
     cardinality: "oneToMany",

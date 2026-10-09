@@ -35,7 +35,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: PENDING
       values:
         - PENDING
         - ACTIVE

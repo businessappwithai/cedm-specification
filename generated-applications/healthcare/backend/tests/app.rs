@@ -10,7 +10,7 @@
 //! stack, the JWT extractors and the Application Dictionary exactly as a
 //! deployed instance would — no server process, no separate toolchain.
 //!
-//! Generated: 2026-10-04T01:11:51.485Z
+//! Generated: 2026-10-09T06:44:24.453Z
 //! Project: healthcare
 
 mod requests;

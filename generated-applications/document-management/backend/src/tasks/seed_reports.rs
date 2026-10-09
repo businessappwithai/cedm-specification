@@ -15,7 +15,7 @@
 //! ordering matters only so the reports have something to answer with when
 //! somebody opens one.
 //!
-//! Generated: 2026-10-04T01:11:31.274Z
+//! Generated: 2026-10-09T06:43:53.093Z
 //! Project: document-management
 
 use loco_rs::prelude::*;

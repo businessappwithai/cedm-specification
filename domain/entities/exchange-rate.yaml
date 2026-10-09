@@ -96,7 +96,7 @@ entity:
     - name: status
       type: enum
       required: true
-      default: ACTIVE
+      default: DRAFT
       values: [DRAFT, ACTIVE, EXPIRED, CANCELLED]
       help:
         valueSemantics:

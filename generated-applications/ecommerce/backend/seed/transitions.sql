@@ -310,24 +310,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('cf31c1fd-e8c7-53cd-8ecd-aaaab1fd42b5', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ShoppingCartLifecycle: ACTIVE → CHECKED_OUT (mark_checked_out)
+-- ShoppingCartLifecycle: ACTIVE → CHECKED_OUT (check_out)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('719d5581-6008-5d12-9435-d5a20b64c782', 'bus_shopping_cart', 'status', 'ACTIVE', 'CHECKED_OUT', 'mark_checked_out', TRUE, NOW())
+VALUES ('719d5581-6008-5d12-9435-d5a20b64c782', 'bus_shopping_cart', 'status', 'ACTIVE', 'CHECKED_OUT', 'check_out', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ShoppingCartLifecycle: CHECKED_OUT → ABANDONED (mark_abandoned)
+-- ShoppingCartLifecycle: ACTIVE → ABANDONED (abandon)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ffcd2fd4-038b-552f-a6c6-304c57073a00', 'bus_shopping_cart', 'status', 'CHECKED_OUT', 'ABANDONED', 'mark_abandoned', TRUE, NOW())
+VALUES ('f71ce964-2f2e-57c4-9838-ce43ba057087', 'bus_shopping_cart', 'status', 'ACTIVE', 'ABANDONED', 'abandon', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ShoppingCartLifecycle: CHECKED_OUT → EXPIRED (expire)
+-- ShoppingCartLifecycle: ACTIVE → EXPIRED (expire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('eeb1536d-a14a-5d9c-b4d1-de1a2500be4c', 'bus_shopping_cart', 'status', 'CHECKED_OUT', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- ShoppingCartLifecycle: ABANDONED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a1052d0c-0703-5bbb-ae78-18261d770e23', 'bus_shopping_cart', 'status', 'ABANDONED', 'EXPIRED', 'expire', TRUE, NOW())
+VALUES ('43a3eca0-8a7e-547c-875d-8642854f60a0', 'bus_shopping_cart', 'status', 'ACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProductVariantLifecycle: DRAFT → ACTIVE (activate)
@@ -554,10 +549,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('8bfacbf7-274e-5357-b9a0-d3cdeb1427e2', 'bus_shopping_cart', 'status', 'ACTIVE', TRUE, FALSE, 10, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('0bc21da8-0a15-521c-930b-31712f3a2ca4', 'bus_shopping_cart', 'status', 'CHECKED_OUT', FALSE, FALSE, 20, TRUE, NOW())
+VALUES ('0bc21da8-0a15-521c-930b-31712f3a2ca4', 'bus_shopping_cart', 'status', 'CHECKED_OUT', FALSE, TRUE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('2c251d90-501d-58d7-840e-2841b8338ffe', 'bus_shopping_cart', 'status', 'ABANDONED', FALSE, FALSE, 30, TRUE, NOW())
+VALUES ('2c251d90-501d-58d7-840e-2841b8338ffe', 'bus_shopping_cart', 'status', 'ABANDONED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('6da1a203-12a8-5d0b-beab-5fedaf07f7a3', 'bus_shopping_cart', 'status', 'EXPIRED', FALSE, TRUE, 40, TRUE, NOW())

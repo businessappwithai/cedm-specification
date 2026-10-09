@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:29:51.172Z
+//! Generated: 2026-10-09T06:44:20.354Z
 //! Project: food
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -67,7 +67,7 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["INACTIVE", "RETIRED"],
     ),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
-    ("FoodBatch", "status", "PLANNED", &["RELEASED", "REJECTED"]),
+    ("FoodBatch", "status", "PLANNED", &["QUARANTINED"]),
     (
         "Product",
         "status",
