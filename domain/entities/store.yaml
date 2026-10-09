@@ -43,13 +43,13 @@ entity:
         - CLOSED
         - RETIRED
       help:
-        summary: Whether the store is trading.
-        usage: Starts as PLANNED; moved by retail operations.
+        summary: Whether the store is being prepared, trading, shut or permanently withdrawn.
+        usage: Starts as PLANNED; retail operations move it to ACTIVE on opening and to CLOSED or RETIRED, which decides whether it can take sales.
         valueSemantics:
-          PLANNED: Intended; not yet open.
-          ACTIVE: Open and trading.
-          CLOSED: Stopped trading. A final state.
-          RETIRED: Removed from the network. A final state.
+          PLANNED: The store is being set up and is not yet open for trade.
+          ACTIVE: The store is open and trading, and can take sales and hold stock.
+          CLOSED: The store has stopped trading, temporarily or for good, and takes no new sales. A final state.
+          RETIRED: The store has been permanently withdrawn from the network and kept only for history. A final state.
   relationships:
     - name: location
       target: Location

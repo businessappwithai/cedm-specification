@@ -22,9 +22,9 @@ entity:
       required: true
       minimum: 1
       help:
-        summary: Business sequence number within the CreditNote.
+        summary: The position of this line within its credit note, counting from one.
+        usage: Assigned when the line is added; it orders the lines on the printed document and lets integrations and reconciliation refer to one line.
         businessMeaning: Orders the adjustment details for document presentation and audit.
-        usage: Used for documents, reconciliation and integrations.
         relationshipContext: Unique within the parent CreditNote and independent of original InvoiceLine.lineNumber.
         workflowRole: Supports deterministic document reconstruction.
     - name: quantity
@@ -70,9 +70,9 @@ entity:
       type: Money
       required: true
       help:
-        summary: Taxable base of the credited line.
+        summary: The part of the credited line value on which tax is calculated.
+        usage: Calculated from the credited quantity and price; it must agree with the original invoice line's tax treatment, and tax reports read it.
         businessMeaning: Amount to which applicable tax treatment is applied for the credit.
-        usage: Used for tax reporting and accounting.
         relationshipContext: Must reconcile with original InvoiceLine tax treatment or authorized correction policy.
         workflowRole: Feeds credited tax calculation.
     - name: taxAmount

@@ -13,13 +13,13 @@ entity:
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the subscription is.
-        usage: Starts as DRAFT; moved by account management.
+        summary: "Where the customer's subscription is in its life: being set up, running, finished or cancelled."
+        usage: Starts as DRAFT; account management activates it at sign-up, and billing and entitlements apply only while it is active.
         valueSemantics:
-          DRAFT: Being set up; no service yet.
-          ACTIVE: Running; the customer is entitled to the service.
-          COMPLETED: The term ended normally. A final state.
-          CANCELLED: Ended early. A final state.
+          DRAFT: The subscription is being set up and does not yet bill or grant access.
+          ACTIVE: The subscription is running; charges are billed and entitlements are granted.
+          COMPLETED: The subscription reached its end date or fulfilled its term. A final state.
+          CANCELLED: The subscription was ended early by the customer or the business. A final state.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer who subscribes., usage: Chosen when created., cardinalityMeaning: At most one customer; empty until identified., workflowRole: Decides who is billed and served.}}
   invariants:

@@ -29,8 +29,8 @@ entity:
       required: true
       maxLength: 200
       help:
-        summary: The name of the rule.
-        usage: Shown when a tax treatment is chosen.
+        summary: The descriptive name of the tax rule, such as Standard VAT on domestic goods.
+        usage: Entered by tax administrators; shown wherever a rule is chosen or explained, and should say what the rule covers.
         relationshipContext: Read by tax staff.
     - name: rate
       type: decimal
@@ -95,13 +95,13 @@ entity:
         - INACTIVE
         - RETIRED
       help:
-        summary: Whether the rule is in use.
-        usage: Starts as DRAFT; set by tax staff.
+        summary: Shows whether the tax rule is being drafted, applied to transactions, paused, or withdrawn.
+        usage: Moved by tax administrators; only active rules inside their validity dates are used to determine tax.
         valueSemantics:
-          DRAFT: Being defined; not applied.
-          ACTIVE: In force and applied.
-          INACTIVE: Not applied for the time being.
-          RETIRED: Replaced or withdrawn. A final state.
+          DRAFT: The rule is being prepared and is not used for tax determination.
+          ACTIVE: The rule is in force and applied to qualifying transactions within its validity dates.
+          INACTIVE: The rule is switched off for now but can be reactivated.
+          RETIRED: The rule has been withdrawn permanently and is kept for history. A final state.
   relationships:
     - name: jurisdiction
       target: Location

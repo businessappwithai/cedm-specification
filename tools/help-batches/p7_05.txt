@@ -1,0 +1,51 @@
+@ SupplierClaimResolution
+a resolutionNumber
+s: The business reference of the resolution decision, used with the supplier and internal teams.
+u: Assigned when the resolution is drafted; unique; quoted in approvals, correspondence and reconciliation, and distinct from the claim number.
+a resolutionDate
+s: The date and time the agreed remedy was authorized and became effective.
+u: Set at approval; used for SLA reporting and financial control, and it anchors the start of downstream execution.
+a resolutionType
+s: The remedy agreed with the supplier for the claim, such as replacement, credit or cash recovery.
+u: Chosen when the resolution is drafted; it routes the downstream work and decides which execution evidence is required.
+v NO_ACTION: The claim was reviewed and no remedy is owed or taken.
+v REPLACEMENT: The supplier will deliver replacement goods or service for the faulty ones.
+v REPAIR: The supplier will repair the faulty goods and return them.
+v RETURN: The goods are returned to the supplier, which normally needs a SupplierReturn.
+v CREDIT: The supplier issues a credit note that reduces what is owed to it.
+v DEBIT_ADJUSTMENT: The buyer raises a debit note against the supplier to recover the amount.
+v PRICE_ADJUSTMENT: The price of the supplied goods is reduced and the goods are kept.
+v CASH_RECOVERY: The supplier pays the agreed amount back as cash, evidenced by a Payment.
+v ACCEPTED_EXCEPTION: The buyer accepts the nonconformity as an approved exception without recovery.
+a status
+s: How far the agreed remedy has been carried out, from draft and approval to execution or failure.
+u: Starts as DRAFT; approval releases the downstream work, and the status shows whether the required consequences completed.
+v DRAFT: The resolution is being prepared and has not been authorized.
+v APPROVED: The remedy is authorized but execution has not started.
+v IN_EXECUTION: Downstream work such as returns, credits or payments is under way.
+v PARTIALLY_EXECUTED: Part of the remedy has been carried out and the rest is outstanding.
+v EXECUTED: Every required consequence of the remedy is complete. A final state.
+v FAILED: Execution could not be completed, for example because the supplier did not comply. A final state.
+v CANCELLED: The resolution was withdrawn before completion. A final state.
+a approvedAmount
+s: The money the organization is authorized to recover from the supplier under this resolution.
+u: Set at approval from the negotiated outcome; it is the target that credit notes, debit notes or payments are reconciled against.
+
+@ SupplierClaim
+a claimType
+s: The main nature of the claim, such as quality, damage, shortage or a commercial dispute.
+u: Chosen when the claim is opened; it drives routing, required evidence, supplier scorecards and analytics.
+v QUALITY: Goods or services do not meet quality or specification requirements.
+v DAMAGE: Goods arrived damaged or were damaged in transit or handling.
+v SHORTAGE: Less was delivered than ordered or invoiced.
+v OVERAGE: More was delivered than ordered, creating excess stock.
+v WRONG_ITEM: A different product from the one ordered was delivered.
+v WARRANTY: A defect is claimed under the supplier's warranty after acceptance.
+v SERVICE: A purchased service was not performed as agreed.
+v COMMERCIAL: The dispute concerns price, terms or charges rather than the goods.
+v DELIVERY: Goods arrived late, early or to the wrong place.
+v DOCUMENTATION: Required certificates, invoices or paperwork are missing or wrong.
+v OTHER: A claim that fits none of the other types, explained in the notes.
+a notes
+s: Free-text narrative of the claim, covering what happened and what was discussed with the supplier.
+u: Written by the claim handler and updated during investigation; supports escalation and audit but should not replace structured fields.

@@ -16,6 +16,8 @@ entity:
       default: DRAFT
       values: [DRAFT, ASSESSED, INVOICED, PAID, WAIVED, CANCELLED]
       help:
+        summary: Where the education fee stands, from preparation and assessment through invoicing to settlement, waiver or cancellation.
+        usage: Moved by student accounts and billing staff; reports read it to separate open charges from settled ones.
         valueSemantics:
           DRAFT: Being prepared; not yet charged to the student.
           ASSESSED: Charged to the student but not yet invoiced.
@@ -23,9 +25,7 @@ entity:
           PAID: Settled, with payment evidence reconciled against the invoice. A final state.
           WAIVED: Excused by the institution, so the student owes nothing. A final state.
           CANCELLED: Withdrawn because it was raised in error or no longer applies. A final state.
-        summary: Lifecycle state of the education fee.
         businessMeaning: Distinguishes preparation, assessment, billing, settlement and waived/cancelled outcomes.
-        usage: Student accounts, billing and reporting.
         relationshipContext: PAID normally reconciles through Invoice and Payment evidence rather than direct mutation.
   relationships:
     - {name: student, target: EducationStudent, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one student: a fee is always charged to a specific learner.', summary: Student to whom the fee is assessed., businessMeaning: Establishes education account responsibility., usage: "Student accounts, billing and reporting.", workflowRole: Student status and fee policy constrain new assessments.}}

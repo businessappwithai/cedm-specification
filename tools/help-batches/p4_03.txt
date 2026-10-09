@@ -1,0 +1,68 @@
+@ Opportunity
+a opportunityNumber
+s: The human-readable reference of the sales opportunity, such as OPP-2026-0142, used in conversation and reporting.
+u: Allocated automatically on creation and kept unique; sales staff quote it in quotes, forecasts and pipeline reviews.
+@ Organization
+a organizationType
+s: Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch.
+u: Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created.
+v ENTERPRISE: The top-level group or enterprise that owns every other organizational unit beneath it.
+v COMPANY: A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+v BUSINESS_UNIT: A unit organized around a line of business or market, which may span several legal entities.
+v DIVISION: A large internal division grouping departments under a common head or function.
+v DEPARTMENT: A functional team within a company or division, such as finance or warehouse operations.
+v BRANCH: A geographically separate office, store or site operating under a parent organization.
+v SUBSIDIARY: A company controlled by a parent organization but trading as a separate legal entity.
+v OTHER: A structure that fits none of the other types and is explained in its name or description.
+a status
+s: Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions.
+u: Controls whether the organization can normally be selected as an organizational scope; set by master-data staff.
+v DRAFT: The organization is being set up and is not yet available for use in transactions.
+v ACTIVE: The organization is in use and can be selected as an organizational scope in new records.
+v INACTIVE: The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+v RETIRED: The organization has been permanently closed or merged away and cannot be selected again. A final state.
+a createdAt
+s: The date and time at which the organization record was first created in the system.
+u: Set once by the system on creation and never changed; used for audit trails and incremental synchronization.
+a createdBy
+s: The party, user or integration that created the organization record.
+u: Set by the system from the authenticated actor on creation; used in audit to trace who introduced the record.
+a updatedAt
+s: The date and time of the latest change made to the organization record.
+u: Refreshed by the system on every modification; used for synchronization with other systems and for audit review.
+a updatedBy
+s: The party, user or integration that made the latest change to the organization record.
+u: Set by the system from the authenticated actor on each update; used in audit to identify who last changed it.
+r addresses
+s: The postal and contact addresses associated with the organization, such as legal, billing, shipping and service addresses.
+u: Added by master-data staff as addresses are registered; selected on invoices, orders, deliveries and correspondence.
+n: Any number of addresses, since an organization may have several sites and several purposes for each.
+w: Supplies the addresses that billing, shipping, service and contact processes choose from for this organization.
+@ Packing
+a status
+s: Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception.
+u: Updated by packers as work starts and finishes; shipping may proceed only once the task is packed.
+@ PartyRelationship
+a name
+s: A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group.
+u: Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
+@ PartyRole
+a roleType
+s: The kind of role the party plays, such as customer, supplier, employee or partner.
+u: Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail.
+v CUSTOMER: The party buys goods or services from the organization and is handled in sales and receivables.
+v SUPPLIER: The party sells goods or services to the organization and is handled in procurement and payables.
+v EMPLOYEE: The party works for the organization under an employment relationship.
+v PARTNER: The party collaborates with the organization commercially, such as a reseller or alliance member.
+v CARRIER: The party transports goods or people for the organization.
+v AGENT: The party acts on behalf of the organization or of another party, usually for a commission.
+v CONTRACTOR: The party provides labour or services under a contract rather than as an employee.
+v OWNER: The party holds an ownership or beneficial interest in an asset or organization.
+v INVESTOR: The party provides capital to the organization in return for a financial return or equity stake.
+v OTHER: A role that fits none of the listed kinds and is explained in the role code or description.
+a validTo
+s: The last date on which the role still applies to the party.
+u: Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused.
+a status
+s: Whether the party currently holds the role and may be used in it.
+u: Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends.

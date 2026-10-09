@@ -13,14 +13,14 @@ entity:
       required: true
       values: [PARENT, LEGAL_GUARDIAN, CAREGIVER, SPONSOR, OTHER]
       help:
-        summary: How the guardian is related to or responsible for the student.
-        usage: Chosen when recorded; may determine consent and contact rights.
         valueSemantics:
           PARENT: A biological or adoptive parent.
           LEGAL_GUARDIAN: A person appointed with legal responsibility for the student.
           CAREGIVER: A person who cares for the student day to day without legal guardianship.
           SPONSOR: A person or body that supports the student financially.
-          OTHER: Any other relationship.
+          OTHER: Any relationship to the student not covered by the other types.
+        summary: How the guardian is related to or responsible for the student.
+        usage: Chosen when recorded; may determine consent and contact rights.
         businessMeaning: Guides communication, authorization and responsibility policy.
         relationshipContext: Does not replace legal evidence required by local policy.
     - name: status

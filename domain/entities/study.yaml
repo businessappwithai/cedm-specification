@@ -7,24 +7,24 @@ entity:
   identity: {key: studyId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: studyId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the study, constant for its life.', businessMeaning: Identifies one organized research investigation independently of its component experiments and measurements., usage: "Research operations, reporting and audit.", relationshipContext: Protocol supplies governed method while ResearchProject supplies portfolio context.}}
-    - {name: studyCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The code of the study, such as ST-2026-04.', businessMeaning: Operational identifier for study execution and integration., usage: "Search, documents, reporting and audit.", relationshipContext: Distinct from Protocol and Experiment codes.}}
-    - {name: title, type: string, required: true, maxLength: 500, help: {summary: The title of the study., businessMeaning: States the investigation focus., usage: "Planning, reporting and communication.", relationshipContext: Protocol and project provide additional governance context.}}
+    - {name: studyCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The short code of the study, such as ST-2026-04, used to find it quickly.', usage: 'Assigned when the study is planned; unique; used in documents, reports and integrations, and distinct from protocol and experiment codes.', businessMeaning: Operational identifier for study execution and integration., relationshipContext: Distinct from Protocol and Experiment codes.}}
+    - {name: title, type: string, required: true, maxLength: 500, help: {summary: The descriptive title stating what the study investigates., usage: 'Written by the study lead when the study is planned; shown in lists and reports and may be refined, unlike the code.', businessMeaning: States the investigation focus., relationshipContext: Protocol and project provide additional governance context.}}
     - name: status
       type: enum
       required: true
       default: PLANNED
       values: [PLANNED, ACTIVE, SUSPENDED, COMPLETED, CANCELLED, ARCHIVED]
       help:
-        summary: Where the study is.
+        summary: The stage of the study from planning through execution, completion and archiving, or cancellation.
+        usage: Starts as PLANNED; the study lead moves it as work begins, pauses or ends, and it controls whether evidence can be collected.
         valueSemantics:
-          PLANNED: Approved to run but not started.
-          ACTIVE: Experiments are being run.
-          SUSPENDED: Paused; can be resumed.
-          COMPLETED: All work is done; reporting remains.
-          CANCELLED: Stopped before completion. A final state.
-          ARCHIVED: Closed out and kept for record. A final state.
+          PLANNED: The study is approved for planning but execution has not started.
+          ACTIVE: The study is being executed and experiments and observations are being collected.
+          SUSPENDED: Work is paused, for example for a protocol amendment, and may resume later.
+          COMPLETED: Execution has finished and results are final, awaiting archiving.
+          CANCELLED: The study was stopped before completion and will not resume. A final state.
+          ARCHIVED: The completed study is retained as a read-only record. A final state.
         businessMeaning: Controls execution and evidence collection progression.
-        usage: "Research workflow and audit."
         relationshipContext: Completed evidence remains immutable.
   relationships:
     - {name: project, target: ResearchProject, cardinality: "1", ownership: reference, help: {summary: The research project the study is part of., cardinalityMeaning: A study belongs to exactly one research project., businessMeaning: "Supplies sponsorship, portfolio and accountability context.", usage: Research governance and reporting., workflowRole: Project state constrains study execution.}}

@@ -13,9 +13,9 @@ entity:
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Whether the jurisdiction is in use.
+        summary: Shows whether this tax jurisdiction record is still being prepared, in force, or no longer in use.
+        usage: Moved by tax administrators; only active jurisdictions are offered when determining tax, and completed or cancelled ones are kept for history.
         businessMeaning: Stops tax being worked out against a place that no longer applies.
-        usage: Starts as DRAFT; set by tax staff.
         relationshipContext: Only active jurisdictions are used in calculation.
         valueSemantics:
           DRAFT: Being defined; not yet used.
