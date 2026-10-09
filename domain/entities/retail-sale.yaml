@@ -45,14 +45,14 @@ entity:
         - VOIDED
         - REFUNDED
       help:
-        summary: Where the sale is.
-        usage: Starts as OPEN at the till; completed on payment.
-        relationshipContext: Only completed sales count in takings.
+        summary: How far the sale has progressed from being rung up to being paid or reversed.
+        usage: Starts as OPEN at the till and moves to COMPLETED on payment; a later refund or a void closes it.
         valueSemantics:
-          OPEN: Being rung up; not yet paid.
-          COMPLETED: Paid and receipted.
-          VOIDED: Abandoned before completion. A final state.
-          REFUNDED: Returned and paid back. A final state.
+          OPEN: Being rung up at the till; payment has not yet been taken.
+          COMPLETED: Paid in full and the receipt issued to the shopper.
+          VOIDED: Abandoned before payment was taken. A final state.
+          REFUNDED: The goods were returned and the shopper was paid back. A final state.
+        relationshipContext: Only completed sales count in takings.
     - name: totalAmount
       type: decimal
       required: true

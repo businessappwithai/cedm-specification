@@ -1,0 +1,42 @@
+@ InsuredParty
+a status
+s: Whether this party's insured or beneficiary relationship to the policy is currently in force.
+u: Set by policy administration; coverage checks and claims only treat ACTIVE relationships as eligible, while ended ones stay as historical evidence.
+@ InventoryBalance
+a quantityReserved
+s: The part of the on-hand stock for this product and location that is already promised to approved demand.
+u: Maintained from reservation events, not edited by hand; available stock is on-hand less this quantity, so allocation and fulfilment planning read it.
+@ InventoryItem
+a inventoryItemId
+s: The stable identity of the inventory-control profile for one product, constant for its whole life.
+u: Generated on creation; integrations, planning runs, reports and audit entries refer to the profile through it rather than by product code.
+a safetyStockQuantity
+s: The minimum buffer of stock the business wants to keep on hand to absorb demand or supply variation.
+u: Set by planners per item; replenishment and shortage planning treat falling below it as an exception, and it must not be negative.
+a reorderPointQuantity
+s: The stock level at which a new purchase or production order should be considered to avoid running out.
+u: Set by planners from lead time and demand; replenishment, MRP and exception reports compare available stock with it, and it is normally above safety stock.
+a allowNegativeInventory
+s: Whether stock of this item may be issued while recorded stock is zero, leaving the balance below zero for a time.
+u: Set by inventory governance; when false, an issue larger than available stock is refused, and when true it is allowed and reported as an exception.
+@ InventoryLocation
+a locationType
+s: The kind of stock-holding position this location is, such as a bin, shelf, rack or quarantine area.
+u: Chosen when the location is created; it decides which warehouse processes, such as putaway, picking or quality holds, may use the position.
+v RECEIVING: Where goods wait after arrival, before they are checked and put away.
+v BIN: A small storage compartment holding loose items.
+v SHELF: A shelf position for storing cartons or small goods by hand.
+v RACK: A pallet rack position holding palletised goods.
+v FLOOR: A position on the warehouse floor, such as block stacking.
+v PICK: A forward position from which customer orders are picked.
+v STAGING: Where orders are gathered and checked before loading.
+v QUARANTINE: Where stock is held apart pending a quality decision.
+v YARD_SLOT: A slot in the outside yard for trailers, containers or bulky goods.
+v OTHER: Any other kind of stock-holding position.
+@ InventoryMovement
+a quantity
+s: The amount of stock this movement adds to or removes from the inventory position, in the item's stock unit.
+u: Entered or computed when the movement is prepared; once posted it is immutable and drives balance changes, and a mistake is corrected by a compensating movement.
+a reason
+s: The business explanation for why the stock moved, such as a damaged-goods write-off or a return to supplier.
+u: Entered by the person or process that creates the movement; auditors, approvers and investigators read it to understand adjustments and unusual stock changes.

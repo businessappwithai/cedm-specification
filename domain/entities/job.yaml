@@ -7,7 +7,7 @@ entity:
     icon: briefcase
   identity: {key: jobId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: The identity of the job definition., usage: Generated on creation; positions refer to it., businessMeaning: Identifies reusable work definition., relationshipContext: Positions may reference Job.}}
+    - {name: jobId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the job definition, constant for its whole life.', usage: 'Generated on creation; positions, assignments and audit entries refer to the job through this identifier rather than through its title.', businessMeaning: Identifies reusable work definition., relationshipContext: Positions may reference Job.}}
     - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: "The job code in the organisation's job catalogue, such as ACC-SR.", usage: Unique; assigned by HR and used in reports and pay structures., businessMeaning: Human/integration classification identifier., relationshipContext: Independent of employee/position identity.}}
     - {name: title, type: string, required: true, maxLength: 300, help: {summary: The standard title of the job., usage: 'Shown on job advertisements, contracts and organisation charts.', businessMeaning: Names the reusable work role., relationshipContext: Position may have contextual display title.}}
     - name: status

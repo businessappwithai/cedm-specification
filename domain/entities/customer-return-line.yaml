@@ -45,9 +45,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: Quantity accepted for unrestricted restocking.
+        summary: How many returned units passed inspection and may go back into unrestricted, saleable stock.
+        usage: Entered at disposition by the warehouse; it alone drives the positive stock movement, and it is part of the quantity returned.
         businessMeaning: Represents returned goods approved to re-enter unrestricted inventory.
-        usage: Drives positive InventoryMovement posting.
         relationshipContext: Must be a component of quantityReturned and is the only disposition component eligible for unrestricted stock.
         workflowRole: Creates the inventory consequence after disposition approval.
     - name: quantityQuarantined
@@ -57,9 +57,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: Quantity placed into restricted or quarantine inventory.
+        summary: How many returned units are held in restricted stock until further inspection or controlled handling.
+        usage: Entered at disposition by quality staff; it never adds to available stock, and it is part of the quantity returned.
         businessMeaning: Represents returned goods requiring further inspection or controlled handling.
-        usage: Supports quality and restricted inventory workflows.
         relationshipContext: Does not increase unrestricted available inventory.
         workflowRole: Drives restricted disposition workflow.
     - name: quantityToRepair
@@ -69,9 +69,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: Quantity routed to repair or refurbishment.
+        summary: How many returned units are sent for repair or refurbishment before any decision on their stock.
+        usage: Entered at disposition; it may raise a repair work order and adds nothing to unrestricted stock, and it is part of the quantity returned.
         businessMeaning: Represents goods that require a repair process before any future stock disposition.
-        usage: Supports maintenance/repair work orders and inventory control.
         relationshipContext: Does not directly create unrestricted stock.
         workflowRole: Drives repair workflow and later disposition.
     - name: quantityScrapped
@@ -81,9 +81,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: Quantity approved for scrap or disposal.
+        summary: How many returned units are approved for scrap or disposal and will never return to saleable stock.
+        usage: Entered at disposition by the warehouse; it feeds disposal and inventory write-off, and it is part of the quantity returned.
         businessMeaning: Represents returned goods that will not return to saleable inventory.
-        usage: Supports disposal, environmental controls and inventory adjustment.
         relationshipContext: Does not increase unrestricted available inventory.
         workflowRole: Drives authorized disposal and inventory adjustment.
     - name: disposition

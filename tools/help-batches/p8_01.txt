@@ -1,0 +1,45 @@
+@ SupplierPerformanceAssessment
+a assessmentNumber
+s: The human-facing reference of one supplier performance assessment, such as SPA-2026-Q2-014, quoted in review meetings.
+u: Assigned when the assessment is opened; unique across assessments, and used in scorecards, audit trails, review minutes and follow-up actions.
+a periodStart
+s: The first day of the window whose procurement, delivery and quality evidence is scored in this assessment.
+u: Set when the assessment is defined; evidence is counted only from this date, and it must not fall after the period end.
+a periodEnd
+s: The last day of the evaluation window, closing the range of evidence the assessment scores.
+u: Set with the period start; transactions after this date are excluded, and trend reports compare successive periods by it.
+a rating
+s: The business grade given to the supplier once the overall score and governing criteria have been interpreted.
+u: Chosen by the reviewer or derived from the approved score; it drives supplier segmentation, review cadence and whether improvement actions are opened.
+v EXCELLENT: Performance consistently exceeds expectations on delivery, quality and service; the supplier is a candidate for preferred status.
+v GOOD: Performance meets expectations with only minor, isolated shortfalls that need no formal action.
+v ACCEPTABLE: Performance is adequate overall but has gaps that are monitored at the next review.
+v NEEDS_IMPROVEMENT: Performance falls short of requirements and an improvement plan or corrective action is expected.
+v UNSATISFACTORY: Performance is unacceptable and escalation, sourcing restriction or exit review is considered.
+a notes
+s: Free-text observations that explain the scores, record agreed context and capture points the figures do not show.
+u: Entered by the reviewer before approval; read by category managers and auditors alongside the evidence, and never a substitute for it.
+
+@ SupplierQuotationLine
+a supplierQuotationLineId
+s: The permanent system identity of one line of a supplier's quotation, unaffected by renumbering or later edits.
+u: Generated on creation and never changed; award decisions, order lines and audit entries refer to the offer line through it.
+a lineNumber
+s: The position of this line within its supplier quotation, matching how the supplier laid out its offer.
+u: Entered or assigned in sequence; unique within the quotation, and quoted when comparing bids or discussing a line with the supplier.
+a offeredQuantity
+s: How much of the requested item the supplier commits to supply at the quoted price, in the stated unit of measure.
+u: Entered from the supplier's response; it may be less than the requested quantity, and the award allocates against it.
+a unitPrice
+s: The price per unit of measure the supplier quoted, kept as offer evidence in the currency it was quoted.
+u: Entered from the response; compared across bidders, negotiated, and copied to the order line on award without reading supplier master prices.
+a promisedDate
+s: The date by which the supplier says it will deliver or complete the offered quantity.
+u: Entered from the response; used to compare lead times between bidders and to set the expected date on any resulting order line.
+a awardStatus
+s: How far the buyer has selected this offer line, from awaiting decision through full or partial acceptance to rejection.
+u: Updated by the sourcing team during award; accepted quantities may then be converted into purchase order lines, split across suppliers where needed.
+v PENDING: The offer line has been received but no award decision has been made yet.
+v ACCEPTED: The offer line is selected in full and may be converted to a purchase order line.
+v PARTIALLY_ACCEPTED: Only part of the offered quantity is selected, with the remainder awarded elsewhere or not needed.
+v REJECTED: The offer line was not selected and will not produce a purchase commitment.

@@ -7,24 +7,24 @@ entity:
     icon: file-text
   identity: {key: putawayId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: putawayId, type: uuid, required: true, immutable: true, help: {summary: Stable putaway-task identity., businessMeaning: Identifies one directed storage action., usage: Receiving and WMS execution., relationshipContext: Connects source staging to target storage.}}
-    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed for storage., businessMeaning: Defines task execution quantity., usage: Putaway confirmation and variance., relationshipContext: Must reconcile with transfer/movement.}}
+    - {name: putawayId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent, system-generated identity of this warehouse task to store received or staged inventory.', usage: 'Generated on creation and never changed; receiving, warehouse execution and the inventory movements it produces refer to it.', businessMeaning: Identifies one directed storage action., relationshipContext: Connects source staging to target storage.}}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The amount of stock the worker is directed to move into the target storage location., usage: Set when the task is planned and must be above zero; confirmation compares the quantity actually stored to this to show variances., businessMeaning: Defines task execution quantity., relationshipContext: Must reconcile with transfer/movement.}}
     - name: status
       type: enum
       required: true
       default: PLANNED
       values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED, EXCEPTION]
       help:
+        summary: Where this storage task stands on the warehouse floor, from proposed to confirmed.
+        usage: Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final.
         valueSemantics:
-          PLANNED: Proposed.
+          PLANNED: Proposed by the system but not yet released to the floor.
           RELEASED: Released to the warehouse floor for a worker to carry out.
-          IN_PROGRESS: Being executed.
-          COMPLETED: Confirmed and reconciled.
+          IN_PROGRESS: Being carried out by a worker right now.
+          COMPLETED: Confirmed by the worker and reconciled to inventory movements. A final state.
           CANCELLED: Withdrawn before the stock was moved. A final state.
           EXCEPTION: Could not be completed as planned, for example the target was full; needs a decision.
-        summary: Putaway task state.
         businessMeaning: Controls executable storage work.
-        usage: WMS orchestration.
         relationshipContext: Completion alone does not alter stock without inventory posting.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each putaway moves one product; a mixed pallet is split into one putaway per product., summary: Product being stored., businessMeaning: Identifies handled inventory., usage: Location eligibility., workflowRole: Must match transfer.}}

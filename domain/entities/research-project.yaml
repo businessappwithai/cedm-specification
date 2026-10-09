@@ -33,8 +33,8 @@ entity:
       required: true
       maxLength: 500
       help:
-        summary: The title of the project.
-        usage: Shown in lists and reports.
+        summary: The name that describes the research initiative and its subject.
+        usage: Entered by the project lead when the project is proposed; shown in project lists, funding reports and publications.
         relationshipContext: Read by the team and by management.
     - name: objective
       type: string
@@ -56,16 +56,16 @@ entity:
         - CANCELLED
         - ARCHIVED
       help:
-        summary: Where the project is.
-        usage: Starts as PLANNED; moved by the project lead.
-        relationshipContext: Decides whether new studies and experiments can start.
+        summary: The stage of the research project, from approval through active work to closure.
+        usage: Starts as PLANNED and is moved by the project lead; it determines whether experiments and resources may be scheduled against the project.
         valueSemantics:
-          PLANNED: Approved to proceed but not yet started.
-          ACTIVE: Work is under way.
-          COMPLETED: The objective has been addressed; reporting remains.
-          SUSPENDED: Paused; can be resumed.
-          CANCELLED: Stopped before completion. A final state.
-          ARCHIVED: Closed out and kept for record. A final state.
+          PLANNED: Approved to proceed but work has not yet started.
+          ACTIVE: Work is under way and experiments are being run.
+          COMPLETED: The objective has been addressed; reporting and write-up remain.
+          SUSPENDED: Paused for a reason such as funding or resources; it can be resumed.
+          CANCELLED: Stopped before completion and will not resume. A final state.
+          ARCHIVED: Closed out and kept as a record. A final state.
+        relationshipContext: Decides whether new studies and experiments can start.
   relationships:
     - name: organization
       target: Organization

@@ -1,0 +1,74 @@
+@ Protocol
+a protocolId
+s: The permanent, system-generated identity of this research protocol, constant across its amendments.
+u: Generated on creation and never changed; studies, experiments, assays and audit records refer to the protocol through it for reproducibility.
+a title
+s: The descriptive title of the protocol, naming the scientific procedure it defines.
+u: Entered by the protocol author; shown in protocol lists, study plans and reports so scientists can pick the right method.
+a status
+s: Whether the protocol is cleared for new research execution, still being written, withdrawn or retired.
+u: Moved by research governance; only APPROVED protocols can be applied to new studies, and RETIRED is final.
+@ PurchaseOrderLine
+a receivedQuantity
+s: The total quantity of this line that has physically arrived from the supplier so far, accepted or not.
+u: Increased by goods receipt lines; compared with the ordered quantity to show what is outstanding, and never negative.
+a returnedQuantity
+s: The total quantity of this line that has been sent back to the supplier after receipt.
+u: Increased by supplier return lines; must not exceed what was accepted unless an exception is authorised, and does not reopen the original commitment.
+a priceSource
+s: Where the unit price on this line came from, such as a price list, a contract or a buyer's manual entry.
+u: Recorded when the price is determined; supports audit, spend analysis and supplier negotiation by showing which agreement justified the price.
+v PRICE_LIST: Taken from the supplier's published price list in force at the time.
+v CONTRACT: Taken from a negotiated contract with the supplier.
+v SUPPLIER_AGREEMENT: Taken from a standing supplier agreement covering repeat purchases.
+v QUOTATION: Taken from a supplier quotation that the buyer accepted.
+v MANUAL: Typed in by the buyer without a supporting agreement.
+v OTHER: Determined in some other way not covered by the listed sources.
+a priceDeterminedAt
+s: The date and time at which the price on this line was fixed.
+u: Recorded when the price is determined; lets later audits tell which effective-dated price applied even after price lists change.
+@ PurchaseOrder
+a orderNumber
+s: The human-facing procurement reference quoted by the buyer and supplier for this order.
+u: Assigned when the order is created and unique; used by buyers, suppliers, receiving, accounts payable and integrations to find it.
+a status
+s: Where the purchase commitment stands from draft through issue, receipt and closure.
+u: Moved by buyers, approvers and receiving; controls authorisation, issuing, cancellation and closure, and cancelled and closed are final.
+v DRAFT: Being prepared by the buyer; not yet binding on anyone.
+v APPROVED: Authorised internally and ready to be sent to the supplier.
+v SENT: Issued to the supplier, who is now expected to deliver.
+v PARTIALLY_RECEIVED: Some of the ordered quantity has been received and accepted; the rest is outstanding.
+v RECEIVED: Everything required has been received and accepted.
+v CANCELLED: The remaining commitment has been withdrawn. A final state.
+v CLOSED: Receiving and invoicing are complete. A final state.
+a requestedDeliveryDate
+s: The date by which the buyer asks the supplier to deliver the goods or complete the service.
+u: Entered by the buyer and communicated to the supplier; receiving and planners use it to expect arrivals and chase late orders.
+r organization
+s: The buying organization that issues the order and is committed to pay for it.
+u: Chosen when the order is created; decides which legal entity, budget, tax rules and approvals apply to the purchase.
+n: At most one organization: the buyer is a single legal entity, and it may be unset on an early draft.
+w: Identifies the buyer for authorisation, budgeting and reporting.
+t: Ties the commitment to a legal entity for tax and budget.
+r deliveryLocation
+s: The place where the ordered goods are to be delivered or the service performed.
+u: Chosen by the buyer; receiving, logistics planning and the supplier's dispatch use it to route the delivery.
+n: At most one delivery location per order; a single order is delivered to one place and may be unset.
+w: Tells receiving where to expect the goods.
+t: Directs the supplier's dispatch to the receiving site.
+@ Putaway
+a putawayId
+s: The permanent, system-generated identity of this warehouse task to store received or staged inventory.
+u: Generated on creation and never changed; receiving, warehouse execution and the inventory movements it produces refer to it.
+a quantity
+s: The amount of stock the worker is directed to move into the target storage location.
+u: Set when the task is planned and must be above zero; confirmation compares the quantity actually stored to this to show variances.
+a status
+s: Where this storage task stands on the warehouse floor, from proposed to confirmed.
+u: Driven by warehouse orchestration and workers; completion needs movement evidence and completed and cancelled are final.
+v PLANNED: Proposed by the system but not yet released to the floor.
+v RELEASED: Released to the warehouse floor for a worker to carry out.
+v IN_PROGRESS: Being carried out by a worker right now.
+v COMPLETED: Confirmed by the worker and reconciled to inventory movements. A final state.
+v CANCELLED: Withdrawn before the stock was moved. A final state.
+v EXCEPTION: Could not be completed as planned, for example the target was full; needs a decision.

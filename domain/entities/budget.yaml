@@ -15,16 +15,16 @@ entity:
       default: DRAFT
       values: [DRAFT, SUBMITTED, APPROVED, ACTIVE, SUPERSEDED, CLOSED]
       help:
+        summary: How far the budget has progressed through preparation, approval, use and replacement.
+        usage: Moved by the budget owner and approvers; only active budgets control spending, and later changes need a new revision.
         valueSemantics:
           DRAFT: Being prepared by the budget owner; figures may change freely.
           SUBMITTED: Sent for approval; changes are held while it is reviewed.
           APPROVED: Accepted by the authorising body but not yet the live control.
           ACTIVE: The live budget against which spending is monitored.
-          SUPERSEDED: Replaced by a later version; kept as the record of what was once approved.
-          CLOSED: The period is over and the budget is closed for comparison with actuals.
-        summary: Budget governance state.
+          SUPERSEDED: Replaced by a later version; kept as the record of what was once approved. A final state.
+          CLOSED: The period is over and the budget is closed for comparison with actuals. A final state.
         businessMeaning: Controls editability and authoritative planning use.
-        usage: Approval and control.
         relationshipContext: Actual accounting remains in JournalEntry.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {usage: Set when the budget is created; determines whose spending the budget limits., cardinalityMeaning: 'Exactly one organisation: a budget always plans the money of a single organisation.', summary: Organization owning budget., businessMeaning: Defines planning boundary., workflowRole: Accounting dimensions must belong to compatible context.}}

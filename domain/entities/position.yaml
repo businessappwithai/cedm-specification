@@ -16,23 +16,23 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the position.
-        usage: Generated on creation; employment records refer to it.
+        summary: The permanent, system-generated identity of this organizational seat, independent of who holds it or what it is called.
+        usage: Generated on creation and never changed; employment records, headcount plans and reporting lines refer to the position through it.
     - name: code
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: The position number.
-        usage: Unique; used in headcount plans.
+        summary: The position number that headcount plans, budgets and requisitions use to name this seat unambiguously.
+        usage: Assigned by HR when the position is approved; must be unique and is quoted in recruitment, budgeting and workforce reports.
     - name: title
       type: string
       required: true
       maxLength: 200
       help:
-        summary: The title of the position.
-        usage: Shown on charts and advertisements.
+        summary: The working title of the seat, such as Senior Accountant, as it appears on charts and job advertisements.
+        usage: Entered by HR when the position is created; shown on organisation charts and in vacancy postings, and may be refined while it is open.
     - name: status
       type: enum
       required: true
@@ -44,8 +44,8 @@ entity:
         - CLOSED
         - RETIRED
       help:
-        summary: Whether the position can be filled.
-        usage: Set by HR.
+        summary: Whether the seat is currently open, occupied, held back or removed from the structure.
+        usage: Set by HR as the seat is filled, frozen, closed or retired; recruitment can only target an OPEN position.
         valueSemantics:
           OPEN: Approved and vacant, or available to be filled.
           FILLED: Occupied by an employee.
@@ -56,8 +56,8 @@ entity:
       type: date
       required: false
       help:
-        summary: The first date the position exists.
-        usage: Set when approved.
+        summary: The first date on which the position exists in the organization structure and may be filled.
+        usage: Set when the position is approved; headcount reports use it with the end date to show the structure as it stood on any day.
     - name: effectiveTo
       type: date
       required: false

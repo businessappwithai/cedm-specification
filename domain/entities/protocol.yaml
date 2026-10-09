@@ -6,23 +6,23 @@ entity:
   ui: {icon: scroll-text}
   identity: {key: protocolId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: protocolId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the research protocol., businessMeaning: Identifies one governed procedure definition independently of executions., usage: "Research planning, study execution, audit and reproducibility.", relationshipContext: Studies and Experiments execute against a Protocol version.}}
+    - {name: protocolId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent, system-generated identity of this research protocol, constant across its amendments.', usage: 'Generated on creation and never changed; studies, experiments, assays and audit records refer to the protocol through it for reproducibility.', businessMeaning: Identifies one governed procedure definition independently of executions., relationshipContext: Studies and Experiments execute against a Protocol version.}}
     - {name: protocolCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The code of the protocol, such as PR-117.', usage: 'Unique; quoted in studies, experiments and reports.', businessMeaning: Operational identifier for scientific and regulatory traceability., relationshipContext: Distinct from Study and Experiment identifiers.}}
-    - {name: title, type: string, required: true, maxLength: 500, help: {summary: The title of the protocol., usage: Shown in lists and on reports., businessMeaning: States the research procedure or objective to users., relationshipContext: Detailed methods remain in protocol content or Documents.}}
+    - {name: title, type: string, required: true, maxLength: 500, help: {summary: 'The descriptive title of the protocol, naming the scientific procedure it defines.', usage: 'Entered by the protocol author; shown in protocol lists, study plans and reports so scientists can pick the right method.', businessMeaning: States the research procedure or objective to users., relationshipContext: Detailed methods remain in protocol content or Documents.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, SUSPENDED, RETIRED]
       help:
+        summary: Whether the protocol is cleared for new research execution, still being written, withdrawn or retired.
+        usage: Moved by research governance; only APPROVED protocols can be applied to new studies, and RETIRED is final.
         valueSemantics:
           DRAFT: Being written; not yet approved for use.
           APPROVED: Cleared for use by studies and experiments.
           SUSPENDED: Withdrawn from use for a time, for example pending a review.
           RETIRED: Superseded or no longer used. A final state.
-        summary: Lifecycle state controlling use for new research execution.
         businessMeaning: "Separates preparation, approved use, temporary suspension and retirement."
-        usage: Research governance and audit.
         relationshipContext: Historical executions retain the protocol version applied.
   relationships:
     - {name: project, target: ResearchProject, cardinality: "0..1", ownership: reference, help: {summary: Research project governing this Protocol., businessMeaning: Supplies program context and accountability., usage: "Portfolio, governance and reporting.", cardinalityMeaning: Optional for reusable protocols., workflowRole: Project state constrains new protocol use.}}

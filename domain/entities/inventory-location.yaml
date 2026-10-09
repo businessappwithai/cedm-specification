@@ -37,19 +37,19 @@ entity:
         - YARD_SLOT
         - OTHER
       help:
-        summary: What kind of stock-holding position this is.
-        usage: Chosen when the location is created; decides which processes may use it.
+        summary: The kind of stock-holding position this location is, such as a bin, shelf, rack or quarantine area.
+        usage: Chosen when the location is created; it decides which warehouse processes, such as putaway, picking or quality holds, may use the position.
         valueSemantics:
-          RECEIVING: Where goods wait after arrival, before putaway.
-          BIN: A small storage compartment.
-          SHELF: A shelf position.
-          RACK: A pallet rack position.
-          FLOOR: A position on the floor, such as block stacking.
-          PICK: A forward position from which orders are picked.
-          STAGING: Where orders are gathered before loading.
+          RECEIVING: Where goods wait after arrival, before they are checked and put away.
+          BIN: A small storage compartment holding loose items.
+          SHELF: A shelf position for storing cartons or small goods by hand.
+          RACK: A pallet rack position holding palletised goods.
+          FLOOR: A position on the warehouse floor, such as block stacking.
+          PICK: A forward position from which customer orders are picked.
+          STAGING: Where orders are gathered and checked before loading.
           QUARANTINE: Where stock is held apart pending a quality decision.
-          YARD_SLOT: A slot in the outside yard.
-          OTHER: Any other kind of position.
+          YARD_SLOT: A slot in the outside yard for trailers, containers or bulky goods.
+          OTHER: Any other kind of stock-holding position.
     - name: status
       type: enum
       required: true

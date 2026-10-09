@@ -47,15 +47,15 @@ entity:
       default: PLANNED
       values: [PLANNED, BOOKED, IN_TRANSIT, DELIVERED, CANCELLED, EXCEPTION]
       help:
+        summary: The operational stage of the shipment, from planning through booking, transit and delivery, or to exception or cancellation.
+        usage: Starts as PLANNED and moves as logistics staff book, dispatch and deliver; it controls tracking and downstream fulfilment, not stock.
         valueSemantics:
-          PLANNED: Intended; no transport is booked.
-          BOOKED: A carrier is booked and a date agreed.
-          IN_TRANSIT: On its way.
-          DELIVERED: Arrived at the destination. A final state.
-          CANCELLED: Called off before delivery. A final state.
-          EXCEPTION: Delayed or damaged; needs a decision.
-        summary: Operational execution state of the shipment.
-        usage: Controls booking, dispatch, tracking, delivery, exception and cancellation actions.
+          PLANNED: The shipment is being prepared; no carrier has been booked and nothing has left the origin.
+          BOOKED: A carrier and a slot are confirmed, but the goods have not yet left the origin.
+          IN_TRANSIT: The goods have been dispatched and are travelling between origin and destination.
+          DELIVERED: The goods arrived at the destination and delivery was confirmed. A final state.
+          CANCELLED: The shipment was called off before completion and will not move. A final state.
+          EXCEPTION: Something has gone wrong, such as a delay, damage or a refused delivery, and the shipment needs attention before it continues.
         relationshipContext: Status is not inventory status and does not itself prove customer acceptance or invoice payment.
         workflowRole: Drives permitted logistics transitions and downstream fulfillment/movement workflows.
     - name: plannedDate
@@ -69,16 +69,16 @@ entity:
       type: date
       required: false
       help:
-        summary: The date the shipment was actually delivered.
-        usage: Set on delivery.
+        summary: The date the shipment actually arrived and was delivered, as opposed to the date planned.
+        usage: Entered when delivery is confirmed; compared with the planned date to measure carrier punctuality and customer service.
         relationshipContext: Gives the delivery performance.
     - name: trackingReference
       type: string
       required: false
       maxLength: 200
       help:
-        summary: The carrier's tracking number.
-        usage: Entered when booked; given to the customer.
+        summary: The carrier's tracking or waybill number that identifies this consignment in the carrier's own system.
+        usage: Entered when the shipment is booked and given to the customer; staff use it to look up the shipment's progress.
         relationshipContext: Used to follow the shipment.
   relationships:
     - name: lines

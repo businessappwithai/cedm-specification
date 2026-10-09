@@ -37,15 +37,15 @@ entity:
         - EQUIPMENT
         - OTHER
       help:
-        summary: The kind of lease, which decides accounting and legal treatment.
-        usage: Chosen at creation.
+        summary: The kind of lease, which decides its accounting and legal treatment.
+        usage: Chosen when the lease is created and not expected to change; finance uses it to decide how payments and the asset are recorded.
         valueSemantics:
           OPERATING: A lease where the lessor keeps the risks and rewards of ownership.
           FINANCE: A lease that transfers substantially all the risks and rewards of ownership to the lessee.
-          COMMERCIAL: A lease of business premises.
-          RESIDENTIAL: A lease of a home.
-          EQUIPMENT: A lease of machinery or vehicles.
-          OTHER: Any other lease.
+          COMMERCIAL: A lease of business premises such as offices, shops or industrial units.
+          RESIDENTIAL: A lease of a home to a tenant for living in.
+          EQUIPMENT: A lease of machinery, vehicles or other movable equipment.
+          OTHER: Any lease that fits none of the other types, described in its terms.
     - name: startDate
       type: date
       required: true
@@ -70,15 +70,15 @@ entity:
         - TERMINATED
         - CANCELLED
       help:
-        summary: Where the lease stands.
-        usage: Moved by the lessor or property manager.
+        summary: Where the lease stands, from negotiation through occupation to its end.
+        usage: Moved by the lessor or property manager; rent is charged only while the lease is ACTIVE, and ended leases stay on record.
         valueSemantics:
-          DRAFT: Being negotiated or prepared.
-          ACTIVE: In force.
+          DRAFT: Being negotiated or prepared and not yet binding.
+          ACTIVE: In force, with the lessee entitled to use the property or asset and rent falling due.
           SUSPENDED: Paused, for example during a dispute or an agreed rent holiday.
-          EXPIRED: Ran to its end date. A final state.
-          TERMINATED: Ended early. A final state.
-          CANCELLED: Withdrawn before it started. A final state.
+          EXPIRED: Ran to its agreed end date. A final state.
+          TERMINATED: Ended early by agreement or breach. A final state.
+          CANCELLED: Withdrawn before it ever started. A final state.
     - name: periodicAmount
       type: money
       required: false

@@ -16,11 +16,11 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
       help:
-        summary: Whether the practitioner is cleared to work.
+        summary: Whether the practitioner is cleared to work in this organisation.
         usage: Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders.
         valueSemantics:
-          DRAFT: Being credentialed; not yet cleared.
-          ACTIVE: Cleared to practise.
+          DRAFT: Being credentialed; licence and affiliation checks are not complete, so no clinical work yet.
+          ACTIVE: Cleared to practise here; can be scheduled, appointed and place orders.
           SUSPENDED: Barred while a licence or conduct matter is reviewed.
           INACTIVE: Not currently practising here but may return.
           RETIRED: No longer a practitioner here. A final state.

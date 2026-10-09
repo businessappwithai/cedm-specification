@@ -6,37 +6,37 @@ entity:
   ui: {icon: clock-3}
   identity: {key: attendanceId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of attendance evidence., businessMeaning: Identifies one attendance record independently of later approval or correction., usage: "Timekeeping, payroll, scheduling, reporting and audit.", relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact.}}
-    - {name: attendanceDate, type: date, required: true, help: {summary: Business date to which attendance evidence applies., businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., usage: "Timekeeping, payroll and reporting.", relationshipContext: Must align with applicable Employment and work schedule.}}
+    - {name: attendanceId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one attendance record for a person on a date., usage: 'Generated on creation; payroll results, leave checks and corrections refer to the record through it.', businessMeaning: Identifies one attendance record independently of later approval or correction., relationshipContext: Corrections preserve original evidence rather than reusing identity for a different fact.}}
+    - {name: attendanceDate, type: date, required: true, help: {summary: 'The calendar date the presence, absence or work being recorded belongs to, regardless of when it was entered.', usage: 'Entered by the person, supervisor or timekeeping device; payroll periods, class registers and reports group records by it.', businessMeaning: Establishes the work or absence day used for scheduling and payroll interpretation., relationshipContext: Must align with applicable Employment and work schedule.}}
     - name: attendanceType
       type: enum
       required: true
       values: [PRESENT, ABSENT, LEAVE, REMOTE, HOLIDAY, OFF_DAY, OTHER]
       help:
-        summary: Business interpretation of the attendance record.
-        businessMeaning: Distinguishes work presence and governed non-work categories.
-        usage: Timekeeping, scheduling, payroll and reporting.
-        relationshipContext: LEAVE should reconcile to an approved LeaveRequest where policy requires one.
+        summary: How the day is classified, such as present, absent, on leave, working remotely or a holiday.
+        usage: Set at recording; leave must match approved leave evidence, and payroll and scheduling read it to treat the day correctly.
         valueSemantics:
           PRESENT: The attendance subject participated or was present in the expected work or education context.
           ABSENT: The attendance subject was absent without another more specific governed category.
           LEAVE: Absence is attributable to governed leave.
           REMOTE: The attendance subject participated from an approved remote context.
           HOLIDAY: Date is treated as a governed holiday.
-          OFF_DAY: Scheduled non-working day.
+          OFF_DAY: Scheduled non-working day, such as a weekend or rostered rest day.
           OTHER: Another governed attendance classification.
-    - {name: clockInAt, type: datetime, required: false, help: {summary: Recorded start timestamp for worked time., businessMeaning: Timekeeping evidence used when interval capture applies., usage: "Attendance, overtime and payroll.", relationshipContext: Must not be after clockOutAt when both are supplied.}}
-    - {name: clockOutAt, type: datetime, required: false, help: {summary: Recorded end timestamp for worked time., businessMeaning: Completes a captured work interval., usage: "Attendance, overtime and payroll.", relationshipContext: Must not precede clockInAt when both are supplied.}}
-    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Governed worked-time quantity., businessMeaning: Summarized hours attributable to attendance evidence., usage: "Payroll, utilization and reporting.", relationshipContext: Should reconcile to captured intervals and policy when available.}}
+        businessMeaning: Distinguishes work presence and governed non-work categories.
+        relationshipContext: LEAVE should reconcile to an approved LeaveRequest where policy requires one.
+    - {name: clockInAt, type: datetime, required: false, help: {summary: 'The moment the person started work or arrived, as captured by a clock, device or manual entry.', usage: 'Optional; paired with the clock-out to derive worked hours, and compared with the schedule for lateness and overtime.', businessMeaning: Timekeeping evidence used when interval capture applies., relationshipContext: Must not be after clockOutAt when both are supplied.}}
+    - {name: clockOutAt, type: datetime, required: false, help: {summary: 'The moment the person finished work or left, as captured by a clock, device or manual entry.', usage: 'Optional but never earlier than the clock-in; used with it to derive worked hours, overtime and early departure.', businessMeaning: Completes a captured work interval., relationshipContext: Must not precede clockInAt when both are supplied.}}
+    - {name: workedHours, type: decimal, required: false, precision: 12, scale: 4, help: {summary: 'The number of hours counted as worked on the date, after breaks and rounding rules.', usage: 'Calculated from the clock times or entered by a supervisor; non-negative, and read by payroll, utilisation and workforce reports.', businessMeaning: Summarized hours attributable to attendance evidence., relationshipContext: Should reconcile to captured intervals and policy when available.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, RECORDED, APPROVED, CANCELLED]
       help:
-        summary: Governance state of attendance evidence.
+        summary: Whether the record is provisional, captured, or approved for payroll and other downstream use.
+        usage: Moved by the person and their supervisor; payroll only relies on approved records and later corrections need corrective evidence.
         businessMeaning: Separates provisional capture from approved payroll-eligible evidence.
-        usage: Supervisor review, payroll gating and audit.
         relationshipContext: APPROVED evidence is historical and corrected through follow-up records.
         valueSemantics:
           DRAFT: Record is incomplete or provisional.

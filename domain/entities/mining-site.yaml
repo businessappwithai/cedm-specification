@@ -16,23 +16,23 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the site.
-        usage: Generated on registration.
+        summary: The permanent identifier of the mining site record, which stays the same through exploration, production and closure.
+        usage: Generated on registration; production records, permits and safety events refer to the site through this value.
     - name: siteCode
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: The code of the site, such as KIR-01.
-        usage: Unique; used in production reports.
+        summary: The short unique code that operations use to name the site, such as KIR-01, in reports and feeds.
+        usage: Assigned by operations management at registration and kept unique; production reports and shift handovers quote it.
     - name: name
       type: string
       required: true
       maxLength: 300
       help:
-        summary: The name of the site.
-        usage: Shown in reports.
+        summary: The full name by which the mine or extraction site is known to staff, regulators and the public.
+        usage: Entered at registration by operations management; shown in production reports, permits and map views of the sites.
     - name: resourceType
       type: string
       required: true
@@ -51,14 +51,14 @@ entity:
         - SUSPENDED
         - CLOSED
       help:
-        summary: The stage of the site's life.
-        usage: Set by operations management.
+        summary: The stage of the site's life, from exploration through development and production to closure.
+        usage: Set by operations management as each stage is approved; production is recorded only while the site is active.
         valueSemantics:
-          EXPLORATION: Being surveyed to prove a resource.
-          DEVELOPMENT: Being prepared for production.
-          ACTIVE: In production.
-          SUSPENDED: Production paused.
-          CLOSED: Permanently closed. A final state.
+          EXPLORATION: The site is being surveyed and drilled to prove whether the resource can be extracted economically.
+          DEVELOPMENT: The resource is proven and infrastructure is being built, but commercial extraction has not yet begun.
+          ACTIVE: The site is in production and extracting the resource, and output is recorded against it.
+          SUSPENDED: Extraction has been paused, for example for safety, weather, price or permit reasons, and is expected to resume.
+          CLOSED: The site has permanently stopped extraction and is in closure or rehabilitation. A final state.
   relationships:
     - name: location
       target: Location

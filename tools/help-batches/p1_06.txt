@@ -1,0 +1,35 @@
+@ Employee
+a status
+s: Whether the person is currently working, away on leave, or has left the organisation.
+u: Set by HR when employment changes; payroll and access rules read it, and the two leaver states close the record.
+v ACTIVE: Employed and currently working for the organisation.
+v ON_LEAVE: Employed but away on approved leave, so not currently working.
+v TERMINATED: Employment ended by dismissal, resignation or end of contract. A final state.
+v RETIRED: Left the organisation on retirement. A final state.
+r person
+u: Chosen when the employee is hired; personal details are read from that person and are not copied onto the employee.
+r organization
+s: The organisation that employs the person in this employee role.
+u: Set by HR at hiring; payroll, reporting lines and headcount are read through it, and it stays empty for an unattached record.
+n: At most one organisation, because an employee record belongs to a single employer at a time.
+@ Employment
+a employmentType
+s: The contractual basis on which the person is employed, such as full time or on a fixed-term contract.
+u: Chosen at hiring; it decides benefits, working time, notice periods and how the person is counted in workforce reports.
+v FULL_TIME: A standard full-time contract with the organisation's normal working hours.
+v PART_TIME: A contract for fewer hours than full time, usually with pro-rated pay and benefits.
+v CONTRACT: A fixed-term or project contract that ends on a set date or at completion.
+v TEMPORARY: Short-term or seasonal work covering a peak or an absence.
+v INTERN: A student or trainee placement for learning rather than a permanent role.
+v OTHER: Any other employment arrangement not covered by the listed kinds.
+a status
+s: Where the employment stands, from agreed but not started through in force to ended.
+u: Moved by HR; pay, leave and attendance run only while it is ACTIVE, and a terminated one is kept for history.
+r employee
+u: Set when the employment is created; pay, leave and attendance are measured against this person's employment.
+r employer
+u: Chosen when the employment is created; it identifies the legal employer that carries the obligations of the contract.
+r position
+s: The position in the organisation structure that the person fills under this employment.
+u: Assigned by HR at hiring and changed on a transfer; it places the person in a reporting line and cost centre.
+n: At most one position, because someone fills a single position under one employment, and it may be unassigned.

@@ -29,13 +29,13 @@ entity:
       default: ACTIVE
       values: [ACTIVE, SUSPENDED, ENDED]
       help:
+        summary: Whether this party's insured or beneficiary relationship to the policy is currently in force.
+        usage: Set by policy administration; coverage checks and claims only treat ACTIVE relationships as eligible, while ended ones stay as historical evidence.
         valueSemantics:
           ACTIVE: Covered under the policy.
           SUSPENDED: Cover paused for this party.
           ENDED: No longer covered. A final state.
-        summary: Lifecycle state of the insured-party relationship.
         businessMeaning: Controls new eligibility while preserving historical claim evidence.
-        usage: "Coverage checks, claims and policy servicing."
         relationshipContext: Coverage may apply only during a subset of policy period.
   relationships:
     - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: The person or organisation holding the insured role., usage: Chosen when added to the policy., cardinalityMeaning: 'Exactly one party: each role is held by a specific person or organisation.', workflowRole: 'Identifies who is covered, or who is paid, under the policy.', businessMeaning: Reuses common identity and contact data.}}

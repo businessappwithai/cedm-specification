@@ -24,8 +24,8 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The lead's reference number.
-        usage: Allocated on creation; unique; quoted by sales staff.
+        summary: The reference number that identifies this prospective customer or opportunity before it has been qualified.
+        usage: Allocated by the system when the lead is created; unique, never reused, and quoted by sales staff in follow-up and reports.
     - name: status
       type: enum
       required: true
@@ -38,8 +38,8 @@ entity:
         - CONVERTED
         - LOST
       help:
-        summary: How far the lead has been worked.
-        usage: Moved by sales.
+        summary: How far the sales team has worked the lead, from first contact to conversion or loss.
+        usage: Moved by sales as it is qualified; a qualified lead can be converted into an opportunity, while disqualified, converted and lost leads are not worked again.
         valueSemantics:
           NEW: Captured but not yet worked.
           QUALIFYING: Being assessed for fit and interest.
@@ -60,8 +60,8 @@ entity:
       precision: 20
       scale: 4
       help:
-        summary: The potential value of the business.
-        usage: Estimated by sales; used to prioritise.
+        summary: The potential revenue sales expects if the lead becomes a customer, in the lead's currency.
+        usage: Estimated by the salesperson and revised as the lead is qualified; sales managers use it to prioritise effort and forecast the pipeline.
     - name: createdAt
       type: datetime
       required: true

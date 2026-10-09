@@ -45,14 +45,14 @@ entity:
         - HIGH
         - CRITICAL
       help:
-        summary: How serious the incident is.
-        usage: Set at triage and revised as facts emerge.
-        relationshipContext: Decides priority and who is told.
+        summary: How serious the incident is judged to be, based on the harm done or threatened.
+        usage: Set at triage by the security team and revised as facts emerge; it drives escalation, response deadlines and notification duties.
         valueSemantics:
-          LOW: Minor, with no real harm.
-          MEDIUM: Limited harm that needs follow-up.
-          HIGH: Serious harm or exposure.
-          CRITICAL: Severe harm needing immediate action.
+          LOW: Minor, with no real harm or exposure.
+          MEDIUM: Limited harm that needs follow-up but not urgent action.
+          HIGH: Serious harm or exposure that needs prompt response.
+          CRITICAL: Severe harm needing immediate action and senior escalation.
+        relationshipContext: Decides priority and who is told.
     - name: status
       type: enum
       required: true
@@ -64,15 +64,15 @@ entity:
         - RESOLVED
         - CLOSED
       help:
-        summary: Where the incident is in its handling.
-        usage: Starts as OPEN; moved by the investigator.
-        relationshipContext: Decides whether response work is still due.
+        summary: How far the incident has progressed through handling, from report to review.
+        usage: Starts as OPEN and is moved by the investigator as work proceeds; closure follows resolution and a review.
         valueSemantics:
           OPEN: Reported and not yet being worked.
-          INVESTIGATING: Being investigated.
-          CONTAINED: The spread has been stopped; cause still to be dealt with.
-          RESOLVED: The cause is dealt with.
+          INVESTIGATING: Under active investigation to establish what happened and how far it reached.
+          CONTAINED: The spread has been stopped, but the cause is still to be dealt with.
+          RESOLVED: The cause has been dealt with and normal service restored.
           CLOSED: Reviewed and finished. A final state.
+        relationshipContext: Decides whether response work is still due.
     - name: detectedAt
       type: datetime
       required: true

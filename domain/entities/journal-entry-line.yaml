@@ -48,8 +48,8 @@ entity:
       required: false
       maxLength: 500
       help:
-        summary: A note about this line.
-        usage: Shown in ledger drill-downs.
+        summary: A short note explaining what this single debit or credit line records.
+        usage: Typed by the person or process posting the entry; shown when a user drills down from a ledger balance to the underlying lines.
   relationships:
     - name: journalEntry
       target: JournalEntry

@@ -1,0 +1,23 @@
+@ QualityPlanCharacteristic
+a lowerLimit
+s: The smallest numeric measurement this plan accepts for the characteristic; anything below it fails.
+u: Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not exceed the upper limit.
+a upperLimit
+s: The largest numeric measurement this plan accepts for the characteristic; anything above it fails.
+u: Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not fall below the lower limit.
+@ QuotationLine
+a quantity
+s: The number of units of the product or service offered to the customer on this line.
+u: Entered by the salesperson, multiplied by the unit price to give the line value, and carried onto the order if the customer accepts.
+@ RegulatorySubmission
+a decisionAt
+s: The date and time the regulatory authority announced its decision on the submission.
+u: Recorded by regulatory affairs when the submission is approved or rejected; empty while it is pending, and used to track authority turnaround.
+@ Renewal
+a status
+s: The stage the renewal has reached on the way to a new term.
+u: Starts as DRAFT and is moved by account management as the customer is approached and a decision is reached; filters renewal pipeline reports.
+v DRAFT: Being prepared by account management; nothing has been offered or committed to the customer.
+v ACTIVE: Offered to or confirmed with the customer and now being carried out.
+v COMPLETED: The new term is in place and the entitlement continues. A final state.
+v CANCELLED: The customer chose not to continue, so no new term starts. A final state.

@@ -7,17 +7,17 @@ entity:
     icon: book-open
   identity: {key: ledgerId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: The identity of the ledger., usage: Generated on creation; entries refer to it.}}
+    - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the accounting ledger, constant for the life of the books.', usage: 'Generated on creation; journal entries, periods and reports refer to the ledger through it.'}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Whether the ledger is open for entries.
-        usage: Moved by finance.
+        summary: Whether the ledger is currently open to receive journal entries.
+        usage: Moved by finance as books are opened and closed; postings are accepted only while ACTIVE, and finished ledgers are kept for reporting.
         valueSemantics:
-          DRAFT: Being set up; not yet accepting entries.
-          ACTIVE: Open for posting.
+          DRAFT: Being set up and not yet accepting entries.
+          ACTIVE: Open for posting journal entries.
           COMPLETED: Closed for good after the final period. A final state.
           CANCELLED: Set up but never used. A final state.
   relationships:

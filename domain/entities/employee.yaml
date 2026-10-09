@@ -58,19 +58,20 @@ entity:
         - TERMINATED
         - RETIRED
       help:
-        summary: Whether the person is currently working.
-        usage: Set by HR.
+        summary: Whether the person is currently working, away on leave, or has left the organisation.
+        usage: Set by HR when employment changes; payroll and access rules read it, and the two leaver states close the record.
         valueSemantics:
-          ACTIVE: Employed and working.
-          ON_LEAVE: Employed but away on approved leave.
+          ACTIVE: Employed and currently working for the organisation.
+          ON_LEAVE: Employed but away on approved leave, so not currently working.
           TERMINATED: Employment ended by dismissal, resignation or end of contract. A final state.
-          RETIRED: Left on retirement. A final state.
+          RETIRED: Left the organisation on retirement. A final state.
   relationships:
     - name: person
       target: Person
       cardinality: '1'
       ownership: reference
       help:
+        usage: Chosen when the employee is hired; personal details are read from that person and are not copied onto the employee.
         summary: The person who is the employee.
         cardinalityMeaning: 'Exactly one person: an employee role is held by a specific individual.'
     - name: organization
@@ -78,8 +79,9 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
-        summary: The organisation that employs them.
-        cardinalityMeaning: At most one organisation.
+        summary: The organisation that employs the person in this employee role.
+        usage: Set by HR at hiring; payroll, reporting lines and headcount are read through it, and it stays empty for an unattached record.
+        cardinalityMeaning: At most one organisation, because an employee record belongs to a single employer at a time.
     - name: leaveRequests
       target: LeaveRequest
       cardinality: 0..*

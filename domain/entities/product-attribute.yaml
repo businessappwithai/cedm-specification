@@ -7,15 +7,28 @@ entity:
     icon: package
   identity: {key: productAttributeId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: productAttributeId, type: uuid, required: true, immutable: true, help: {summary: Stable attribute-definition identity., businessMeaning: Identifies a reusable product characteristic independently of labels., usage: "PIM, variant configuration, search and integration.", relationshipContext: Attribute values are interpreted against this definition.}}
-    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: Governed attribute code., businessMeaning: Stable business/integration identifier., usage: PIM schemas and APIs., relationshipContext: Unique across governed attribute namespace.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable attribute name., businessMeaning: Explains characteristic to users., usage: "Forms, catalog and search.", relationshipContext: Presentation metadata for stable definition.}}
+    - {name: productAttributeId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent, system-generated identity of this reusable product characteristic definition.', usage: 'Generated on creation and never changed; product data management, variant configuration, search and integrations refer to the attribute through it.', businessMeaning: Identifies a reusable product characteristic independently of labels., relationshipContext: Attribute values are interpreted against this definition.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The governed short code that names the characteristic, such as COLOR or SIZE, in schemas and interfaces.', usage: 'Assigned by product data governance and unique; used by catalogue schemas, import files and APIs instead of the display name.', businessMeaning: Stable business/integration identifier., relationshipContext: Unique across governed attribute namespace.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The human-readable name of the characteristic, such as Colour, shown wherever people see or filter by it.', usage: 'Entered by product data governance; appears on product forms, catalogue pages, filters and search facets.', businessMeaning: Explains characteristic to users., relationshipContext: Presentation metadata for stable definition.}}
     - name: valueType
       type: enum
       required: true
       values: [STRING, INTEGER, DECIMAL, BOOLEAN, DATE, DATETIME, ENUM, REFERENCE]
-      help: {summary: Permitted value representation., businessMeaning: Controls how values are validated/interpreted., usage: PIM validation and UI generation., relationshipContext: ENUM/REFERENCE require governed supporting semantics., valueSemantics: {STRING: Text value., INTEGER: Whole number., DECIMAL: Numeric decimal., BOOLEAN: True/false., DATE: Calendar date., DATETIME: Timestamp., ENUM: Controlled choice., REFERENCE: Reference to governed master.}}
-    - {name: variantDefining, type: boolean, required: true, default: false, help: {summary: Whether attribute participates in variant uniqueness., businessMeaning: Distinguishes configuration options from descriptive attributes., usage: Variant generation and validation., relationshipContext: Variant-defining values form a unique configuration under Product.}}
+      help:
+        summary: The kind of value this characteristic holds, which decides how entered values are validated and displayed.
+        usage: Chosen when the attribute is defined and used by product data validation and form generation; changing it needs impact analysis on stored values.
+        valueSemantics:
+          STRING: Free text such as a model name or finish description.
+          INTEGER: A whole number such as a pack count or number of drawers.
+          DECIMAL: A number with a fractional part such as a weight or length.
+          BOOLEAN: A yes or no flag such as waterproof or serialised.
+          DATE: A calendar date such as a launch or best-before date.
+          DATETIME: A date with a time of day, such as a release timestamp.
+          ENUM: One choice from a controlled list of permitted values such as a colour.
+          REFERENCE: A pointer to a governed master record such as a brand or material.
+        businessMeaning: Controls how values are validated/interpreted.
+        relationshipContext: ENUM/REFERENCE require governed supporting semantics.
+    - {name: variantDefining, type: boolean, required: true, default: false, help: {summary: 'Whether different values of this characteristic make separate product variants, as size and colour do.', usage: 'Set by product data governance; variant generation uses it to build combinations, and changing it needs review of existing variants.', businessMeaning: Distinguishes configuration options from descriptive attributes., relationshipContext: Variant-defining values form a unique configuration under Product.}}
   invariants:
     - {id: PRODUCT-ATTRIBUTE-001, rule: code must be unique.}
     - {id: PRODUCT-ATTRIBUTE-002, rule: Attribute values must conform to valueType and governed constraints.}

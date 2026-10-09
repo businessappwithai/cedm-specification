@@ -7,20 +7,20 @@ entity:
     icon: package
   identity: {key: productLifecycleId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: productLifecycleId, type: uuid, required: true, immutable: true, help: {summary: The identity of the lifecycle record., usage: Generated on creation., businessMeaning: Identifies one governed product state transition., relationshipContext: Supplements current Product.status with historical evidence.}}
+    - {name: productLifecycleId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent, system-generated identity of this lifecycle change record for a product.', usage: Generated on creation and never changed; the audit trail of a product's status changes is made of these records., businessMeaning: Identifies one governed product state transition., relationshipContext: Supplements current Product.status with historical evidence.}}
     - {name: effectiveAt, type: datetime, required: true, help: {summary: When the new status took effect., usage: Set by the user making the change; the status on any date is the latest record effective by then., businessMeaning: Establishes point-in-time product eligibility., relationshipContext: Historical transactions use status effective at relevant time.}}
     - name: lifecycleStatus
       type: enum
       required: true
       values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
       help:
-        summary: The status the product moved to.
-        usage: Chosen when the change is made.
+        summary: The lifecycle status the product moved to at the effective time of this record.
+        usage: Chosen when the change is made; restrictive moves need checks of open orders and stock, and earlier records are never rewritten.
         valueSemantics:
-          DRAFT: The product is being set up.
-          ACTIVE: The product is available for ordinary trading.
-          DISCONTINUED: The product is being phased out.
-          BLOCKED: The product is temporarily barred from trading.
+          DRAFT: The product is still being set up and is not yet available for trading.
+          ACTIVE: The product is available for ordinary buying and selling.
+          DISCONTINUED: The product is being phased out and no new trading should begin.
+          BLOCKED: The product is temporarily barred from trading until the issue is resolved.
           RETIRED: The product is permanently removed from the catalogue.
         businessMeaning: Governs future product eligibility.
         relationshipContext: Reconciles to current Product.status.

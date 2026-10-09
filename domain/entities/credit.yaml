@@ -13,13 +13,13 @@ entity:
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Whether the credit is being prepared, available, used up, or withdrawn.
-        usage: Moved by billing; only ACTIVE credits can be applied.
+        summary: Whether the credit is being prepared, available to use, used up, or withdrawn.
+        usage: Moved by billing staff; only an ACTIVE credit can be applied to a charge or invoice.
         valueSemantics:
-          DRAFT: Being prepared; cannot yet be applied.
-          ACTIVE: Issued and available to apply.
-          COMPLETED: Fully applied or expired; nothing remains.
-          CANCELLED: Withdrawn before use.
+          DRAFT: Being prepared by billing; it cannot yet be applied to any charge.
+          ACTIVE: Issued and available to apply against what the customer owes.
+          COMPLETED: Fully applied or expired, so nothing remains to use. A final state.
+          CANCELLED: Withdrawn before it was used up, leaving no usable value. A final state.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer to whom the credit is owed., usage: Set when the credit is issued; it can be applied only to that customer's charges., cardinalityMeaning: At most one customer; an unassigned credit is a draft not yet attached to anyone., workflowRole: Decides whose charges the credit can reduce.}}
   invariants:

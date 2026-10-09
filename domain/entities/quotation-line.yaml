@@ -29,8 +29,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The quantity offered.
-        usage: Entered by sales; priced against the unit price.
+        summary: The number of units of the product or service offered to the customer on this line.
+        usage: Entered by the salesperson, multiplied by the unit price to give the line value, and carried onto the order if the customer accepts.
         relationshipContext: Carried to the order line if accepted.
     - name: unitPrice
       type: Money

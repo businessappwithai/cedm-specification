@@ -14,25 +14,32 @@ entity:
       required: true
       values: [QUIZ, EXAM, ASSIGNMENT, PROJECT, PRACTICAL, ORAL, OTHER]
       help:
-        summary: Business category of the evaluated learning activity.
+        summary: The form the evaluation takes, such as a quiz, formal exam, coursework assignment, project, practical or oral.
+        usage: Chosen by the educator; the gradebook uses it to weight and group results and learners see it when planning their work.
+        valueSemantics:
+          QUIZ: Short-form evaluation, usually low weighted and taken in class.
+          EXAM: Formal examination taken under controlled, timed conditions.
+          ASSIGNMENT: Coursework submitted by the learner for marking.
+          PROJECT: Project-based evaluation completed over an extended period.
+          PRACTICAL: Practical or laboratory evaluation of applied skills.
+          ORAL: Oral evaluation, such as a viva or spoken presentation.
+          OTHER: Another governed assessment type not covered by the listed forms.
         businessMeaning: Supports policy, weighting and reporting without embedding every pedagogy rule.
-        usage: Gradebook, planning and analytics.
         relationshipContext: Max score and grading policy may vary by type.
-        valueSemantics: {QUIZ: Short-form evaluation., EXAM: Formal examination., ASSIGNMENT: Submitted coursework., PROJECT: Project-based evaluation., PRACTICAL: Practical or laboratory evaluation., ORAL: Oral evaluation., OTHER: Another governed assessment type.}
-    - {name: maxScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Maximum raw score when numeric scoring applies., businessMeaning: Defines the scoring scale for learner Grade values., usage: "Grade calculation and reporting.", relationshipContext: Optional for rubric or categorical assessments.}}
-    - {name: dueAt, type: datetime, required: false, help: {summary: Planned submission or assessment deadline., businessMeaning: Establishes timing expectation., usage: "Scheduling, learner communication and late-policy evaluation.", relationshipContext: Must be compatible with Class delivery period under policy.}}
+    - {name: maxScore, type: decimal, required: false, precision: 12, scale: 4, help: {summary: 'The highest raw score a learner can earn on this assessment, for example 100 for a percentage-marked exam.', usage: Set by the educator when numeric scoring applies and must be positive; grades are expressed against it to compute percentages., businessMeaning: Defines the scoring scale for learner Grade values., relationshipContext: Optional for rubric or categorical assessments.}}
+    - {name: dueAt, type: datetime, required: false, help: {summary: The deadline by which learners must submit or sit the assessment., usage: Set when the assessment is drafted or published; learner reminders use it and late-submission policy is judged against it., businessMeaning: Establishes timing expectation., relationshipContext: Must be compatible with Class delivery period under policy.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, PUBLISHED, CLOSED, CANCELLED]
       help:
-        summary: Whether learners can see the assessment and whether grades may still be entered against it.
         valueSemantics:
           DRAFT: Being prepared by the educator; not visible to learners and not gradeable.
-          PUBLISHED: Active for eligible learners.
-          CLOSED: Assessment is complete for ordinary new grading.
-          CANCELLED: Assessment was cancelled.
+          PUBLISHED: Active for eligible learners, who can see it and be graded on it.
+          CLOSED: Assessment is complete for ordinary new grading. A final state.
+          CANCELLED: Assessment was withdrawn and will not be graded. A final state.
+        summary: Whether learners can see the assessment and whether grades may still be entered against it.
         businessMeaning: Controls learner visibility and grading eligibility.
         usage: "Assessment workflow and reporting."
         relationshipContext: Grades against CLOSED assessments remain historical.

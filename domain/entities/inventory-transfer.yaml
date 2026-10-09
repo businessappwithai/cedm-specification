@@ -7,7 +7,7 @@ entity:
     icon: boxes
   identity: {key: inventoryTransferId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: inventoryTransferId, type: uuid, required: true, immutable: true, help: {summary: The identity of the transfer., usage: Generated on creation; movements refer to it., businessMeaning: Identifies one governed relocation independently of stock postings., relationshipContext: Groups attributable InventoryMovement events.}}
+    - {name: inventoryTransferId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the transfer, constant from planning through receipt.', usage: 'Generated on creation; the stock movements that carry out the transfer, and any audit entries, refer to it by this value.', businessMeaning: Identifies one governed relocation independently of stock postings., relationshipContext: Groups attributable InventoryMovement events.}}
     - {name: transferNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: The document number of the transfer., usage: Allocated from a number series; unique; printed on the transfer order., businessMeaning: Operational identifier for relocation work., relationshipContext: Distinct from movement numbers.}}
     - {name: requestedQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The quantity that is to be moved., usage: Set when planned; the movements carry out the quantity actually moved., businessMeaning: Defines transfer demand., relationshipContext: Interpreted with Product and traceability identities.}}
     - name: status
@@ -16,14 +16,14 @@ entity:
       default: PLANNED
       values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
       help:
-        summary: How far the transfer has progressed.
-        usage: Moved by the warehouse.
+        summary: How far the transfer of stock between locations has progressed, from request to receipt.
+        usage: Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot be changed.
         valueSemantics:
-          PLANNED: Requested and not yet released.
-          RELEASED: Released to the warehouse for execution.
-          IN_PROGRESS: Goods are moving.
-          COMPLETED: Received at the target. A final state.
-          CANCELLED: Withdrawn. A final state.
+          PLANNED: Requested but not yet released, so no warehouse work has been assigned.
+          RELEASED: Released to the warehouse, which may now begin execution.
+          IN_PROGRESS: The goods have been picked and are moving between the two locations.
+          COMPLETED: The goods have been received at the target location. A final state.
+          CANCELLED: Withdrawn before completion, with no further stock change. A final state.
         businessMeaning: Controls warehouse execution eligibility.
         relationshipContext: Posted movements remain immutable regardless of header state.
   relationships:

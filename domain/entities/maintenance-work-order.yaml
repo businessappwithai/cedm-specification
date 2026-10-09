@@ -29,8 +29,8 @@ entity:
       required: true
       values: [INSPECTION, PREVENTIVE, CORRECTIVE, REPAIR, EMERGENCY]
       help:
-        summary: The kind of work.
-        usage: Chosen on creation; affects priority rules and reporting.
+        summary: The kind of maintenance work this order covers, from routine inspection to emergency repair.
+        usage: Chosen on creation; it affects priority rules, approval and how cost and downtime are reported.
         valueSemantics:
           INSPECTION: A check of condition without repair.
           PREVENTIVE: Planned work to prevent failure.
@@ -44,16 +44,16 @@ entity:
       default: OPEN
       values: [OPEN, PLANNED, ASSIGNED, IN_PROGRESS, ON_HOLD, COMPLETED, CANCELLED]
       help:
-        summary: Where the work stands.
-        usage: Moved by planners and technicians.
+        summary: Where the work stands, from request through scheduling and execution to completion.
+        usage: Moved by planners and technicians; assigned work is started by a technician, and completed or cancelled orders can no longer be changed.
         valueSemantics:
           OPEN: Requested and waiting to be planned.
-          PLANNED: Scheduled for a date.
+          PLANNED: Scheduled for a date with the work defined.
           ASSIGNED: Given to a technician or crew.
-          IN_PROGRESS: Work has started.
-          ON_HOLD: Paused, for example waiting for parts.
-          COMPLETED: Done. A final state.
-          CANCELLED: Withdrawn. A final state.
+          IN_PROGRESS: Work has started on the asset.
+          ON_HOLD: Paused, for example while waiting for parts.
+          COMPLETED: Done and signed off. A final state.
+          CANCELLED: Withdrawn before completion. A final state.
         relationshipContext: Work-order status describes the maintenance instruction and execution; it does not by itself prove that an Asset is operational, repaired, or returned to service.
     - name: priority
       type: enum
@@ -61,8 +61,8 @@ entity:
       default: NORMAL
       values: [LOW, NORMAL, HIGH, CRITICAL]
       help:
-        summary: How urgent the work is.
-        usage: Set at request; planners schedule in priority order.
+        summary: How urgent the work is relative to other open work orders.
+        usage: Set when the work is requested and sometimes raised by planners; technicians are scheduled in priority order and critical orders interrupt routine work.
         valueSemantics:
           LOW: Can wait until convenient.
           NORMAL: To be done in the usual course.
@@ -80,15 +80,15 @@ entity:
       type: datetime
       required: false
       help:
-        summary: When the work is due to be done.
-        usage: Set when planned.
+        summary: The date and time at which the work is due to be carried out.
+        usage: Set by the planner when the order is scheduled; technician calendars are built from it and lateness is measured against it.
         relationshipContext: It represents a plan and may differ from the actual execution start recorded elsewhere or inferred from status history.
     - name: completedAt
       type: datetime
       required: false
       help:
-        summary: When the work was finished.
-        usage: Set on completion; used for downtime and cost.
+        summary: The date and time at which the work was finished and the asset handed back.
+        usage: Set on completion; downtime, labour cost and compliance reports read it, and it should not precede the start of the work.
         relationshipContext: Completion means the work-order scope has been accepted; it does not necessarily mean the Asset has returned to service if a separate commissioning or release process exists.
     - name: description
       type: string

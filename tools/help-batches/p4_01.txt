@@ -1,0 +1,55 @@
+@ Medication
+a medicationId
+s: The permanent identifier of the medication record in the formulary, which never changes after it is created.
+u: Generated on creation; prescriptions, dispensing records and safety alerts refer to the medication through this value.
+a status
+s: Whether the medication is currently available to be prescribed from the formulary.
+u: Set by pharmacy when a drug is added, suspended or withdrawn; prescribing lists offer only medications that are active.
+v ACTIVE: The medication is on the formulary and prescribers may choose it when writing new prescriptions.
+v INACTIVE: The medication is temporarily withheld from prescribing, for example during a supply shortage, and may return to use.
+v RETIRED: The medication has been permanently withdrawn from the formulary and cannot be prescribed again. A final state.
+@ MeterReading
+a meterReadingId
+s: The permanent identifier of one reading taken from a meter, which never changes after the reading is recorded.
+u: Generated on creation; billing lines and corrections refer to the reading through this value, so it is never reused.
+a readingType
+s: Records whether the value was physically read, estimated by the utility, or entered later to correct an earlier reading.
+u: Set at entry; billing prefers actual readings, and a corrected reading replaces the value it supersedes in consumption.
+v ACTUAL: The value was read directly from the meter by a person or a smart device.
+v ESTIMATED: The value was calculated by the utility because the meter could not be read, and awaits a real reading.
+v CORRECTED: The value replaces an earlier wrong reading and is used instead of it when consumption is calculated.
+a quality
+s: Indicates how far the reading can be trusted, based on validation checks or the reader's own judgement.
+u: Set by automatic validation or the reader; billing normally uses only good readings and reviews suspect ones first.
+v GOOD: The reading passed validation and can be used for consumption and billing.
+v SUSPECT: The reading looks unusual, such as a jump or a fall, and needs review before it is used.
+v INVALID: The reading was found to be wrong and is excluded from consumption and billing calculations.
+@ Meter
+a meterType
+s: The kind of quantity the meter measures, such as running hours, distance travelled, energy or temperature.
+u: Chosen when the meter is created; it decides the expected unit of measure and how maintenance plans read the value.
+v HOURS: Counts running or operating time, used for equipment serviced by hours of use.
+v DISTANCE: Counts distance travelled, such as the kilometres on a vehicle odometer.
+v CYCLES: Counts completed operating cycles, such as press strokes or door openings.
+v ENERGY: Measures energy consumed or produced, such as kilowatt hours on an electricity meter.
+v VOLUME: Measures a quantity of fluid or gas passed, such as litres of fuel or water.
+v COUNT: Counts discrete items or events, such as units produced or visitors passing a gate.
+v PRESSURE: Measures pressure in a system, such as a boiler or hydraulic line, to watch for out-of-range conditions.
+v TEMPERATURE: Measures temperature of equipment or a room, used to detect overheating or cold-chain breaches.
+v OTHER: Measures a quantity not covered by the other types; the unit of measure then defines its meaning.
+a status
+s: Whether the meter is in service and expected to receive readings, or has been faulted or withdrawn.
+u: Set by maintenance engineering as the meter is commissioned, repaired or removed; new readings are accepted only while active.
+a lastReadingValue
+s: The most recent value recorded for the meter, held on the meter for quick reference without reading history.
+u: Updated automatically from new readings; maintenance plans compare it with thresholds, and it must match a stored reading.
+@ Milestone
+a milestoneId
+s: The permanent identifier of the milestone within the project plan, which never changes once it is created.
+u: Generated on creation; tasks and status reports refer to the milestone through this value rather than its name.
+a name
+s: A short descriptive name for the checkpoint, such as Go-live or Design approved, as the team will refer to it.
+u: Set by the project manager when planning; shown on plans, dashboards and status reports so stakeholders recognise it.
+a status
+s: Shows whether the milestone is on course, in danger of slipping, reached, missed or no longer wanted.
+u: Updated by the project manager at status reviews; achieved, missed and cancelled end the milestone and roll up to the project.

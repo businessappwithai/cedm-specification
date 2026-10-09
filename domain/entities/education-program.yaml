@@ -44,15 +44,15 @@ entity:
         - TRAINING
         - OTHER
       help:
-        summary: The kind of qualification the program leads to.
-        usage: Chosen at creation; drives admission rules and credit requirements.
+        summary: The kind of qualification the program leads to, such as a degree, diploma or certificate.
+        usage: Chosen when the program is created; it drives admission rules, credit requirements and how graduates are described.
         valueSemantics:
-          DEGREE: A university-level degree.
-          DIPLOMA: A diploma-level qualification.
-          CERTIFICATE: A shorter certificate.
-          COURSE: A stand-alone course treated as a program.
-          TRAINING: Vocational or workplace training.
-          OTHER: Any other kind of program.
+          DEGREE: A university-level degree awarded on completing a full course of study.
+          DIPLOMA: A diploma-level qualification, usually shorter or more applied than a degree.
+          CERTIFICATE: A shorter certificate recognising completion of a focused body of study.
+          COURSE: A stand-alone course that is treated as a program of its own.
+          TRAINING: Vocational or workplace training that leads to a defined skill.
+          OTHER: Any other kind of program that fits none of the above.
     - name: status
       type: enum
       required: true
@@ -63,13 +63,13 @@ entity:
         - SUSPENDED
         - RETIRED
       help:
-        summary: Whether the program is open to students.
-        usage: Set by the institution; only ACTIVE programs accept new enrolments.
+        summary: Whether the program is being designed, open to students, closed for now, or withdrawn.
+        usage: Set by the institution; only an ACTIVE program accepts new enrolments, and retired programs stay for graduates' records.
         valueSemantics:
-          DRAFT: Being designed; not yet open.
-          ACTIVE: Open for enrolment.
-          SUSPENDED: Temporarily closed to new enrolments.
-          RETIRED: Withdrawn permanently; kept for graduates' records.
+          DRAFT: Being designed; not yet open to students.
+          ACTIVE: Open for enrolment and accepting new students.
+          SUSPENDED: Temporarily closed to new enrolments, with current students unaffected.
+          RETIRED: Withdrawn permanently but kept for graduates' records. A final state.
   relationships:
     - name: institution
       target: Organization

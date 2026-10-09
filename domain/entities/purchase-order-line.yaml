@@ -53,8 +53,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The quantity physically received so far.
-        usage: Increased by goods receipt lines.
+        summary: The total quantity of this line that has physically arrived from the supplier so far, accepted or not.
+        usage: Increased by goods receipt lines; compared with the ordered quantity to show what is outstanding, and never negative.
         relationshipContext: Compared with accepted quantity to find rejections.
     - name: acceptedQuantity
       type: decimal
@@ -73,8 +73,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The quantity sent back to the supplier.
-        usage: Increased by supplier return lines.
+        summary: The total quantity of this line that has been sent back to the supplier after receipt.
+        usage: Increased by supplier return lines; must not exceed what was accepted unless an exception is authorised, and does not reopen the original commitment.
         relationshipContext: Reduces the accepted quantity that is payable.
     - name: outstandingQuantity
       type: decimal
@@ -97,21 +97,25 @@ entity:
         - MANUAL
         - OTHER
       help:
+        summary: Where the unit price on this line came from, such as a price list, a contract or a buyer's manual entry.
+        usage: Recorded when the price is determined; supports audit, spend analysis and supplier negotiation by showing which agreement justified the price.
         valueSemantics:
-          PRICE_LIST: Taken from the supplier's price list.
-          CONTRACT: Taken from a contract with the supplier.
-          SUPPLIER_AGREEMENT: Taken from a standing supplier agreement.
-          QUOTATION: Taken from an accepted supplier quotation.
-          MANUAL: Entered by the buyer.
-          OTHER: Determined some other way.
-        summary: Source used to determine procurement price.
-        usage: Supports audit, spend analysis and supplier negotiations.
+          PRICE_LIST: Taken from the supplier's published price list in force at the time.
+          CONTRACT: Taken from a negotiated contract with the supplier.
+          SUPPLIER_AGREEMENT: Taken from a standing supplier agreement covering repeat purchases.
+          QUOTATION: Taken from a supplier quotation that the buyer accepted.
+          MANUAL: Typed in by the buyer without a supporting agreement.
+          OTHER: Determined in some other way not covered by the listed sources.
         relationshipContext: Does not replace transaction-time unitPrice.
         workflowRole: Explains price determination.
     - name: priceDeterminedAt
       type: datetime
       required: false
-      help: {summary: Time at which effective purchase price was determined., usage: Supports effective-dated pricing and audit., relationshipContext: Distinct from PurchaseOrder creation time., workflowRole: Anchors commercial pricing evidence.}
+      help:
+        summary: The date and time at which the price on this line was fixed.
+        usage: Recorded when the price is determined; lets later audits tell which effective-dated price applied even after price lists change.
+        relationshipContext: Distinct from PurchaseOrder creation time.
+        workflowRole: Anchors commercial pricing evidence.
   relationships:
     - name: purchaseOrder
       target: PurchaseOrder

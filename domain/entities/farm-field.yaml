@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the field.
-        usage: Generated on creation.
+        summary: The permanent identity of the field, unchanged when its code, farm or crop changes.
+        usage: Generated on creation; crop plantings, work plans and harvest records refer to the field by this value.
     - name: fieldCode
       type: string
       required: true
@@ -31,15 +31,15 @@ entity:
       precision: 18
       scale: 4
       help:
-        summary: The size of the field.
-        usage: Measured or surveyed; read with the unit.
+        summary: The surveyed size of the field, a decimal measure that is meaningful only together with its unit.
+        usage: Entered from a land survey or boundary measurement and revised if the boundary changes; always read with the unit of measure.
     - name: areaUnit
       type: reference
       target: UnitOfMeasure
       required: false
       help:
-        summary: The unit in which the area is expressed.
-        usage: Chosen with the area.
+        summary: The unit of measure, such as hectare or acre, in which the field's area is expressed.
+        usage: Chosen from the unit of measure list when the area is recorded, so farms can compare and total fields correctly.
     - name: soilType
       type: string
       required: false
@@ -56,12 +56,12 @@ entity:
         - FALLOW
         - INACTIVE
       help:
-        summary: What the field is doing.
-        usage: Set by the farm.
+        summary: Whether the field is in cultivation, resting between crops, or out of use altogether.
+        usage: Set by the farm as land is planted, rested or withdrawn; it determines whether the field appears in planting plans.
         valueSemantics:
-          ACTIVE: In cultivation.
-          FALLOW: Resting without a crop to restore the soil.
-          INACTIVE: Out of use.
+          ACTIVE: In cultivation and available for planting, treatment and harvest.
+          FALLOW: Resting without a crop to restore the soil, and expected to return to cultivation.
+          INACTIVE: Taken out of use and not planned for cropping.
   relationships:
     - name: farm
       target: Farm

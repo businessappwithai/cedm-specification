@@ -33,14 +33,14 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, SUPERSEDED, CANCELLED]
       help:
+        summary: Whether the pay arrangement is still being prepared, in force, replaced or withdrawn.
+        usage: Moved by HR; only active arrangements feed payroll, and those used by completed payroll are never rewritten.
         valueSemantics:
           DRAFT: Being prepared; not yet used by payroll.
-          ACTIVE: In force for the employment.
-          SUPERSEDED: Replaced by a later arrangement; kept as history.
-          CANCELLED: Withdrawn before it took effect.
-        summary: Lifecycle state of the compensation arrangement.
+          ACTIVE: In force for the employment and used by payroll.
+          SUPERSEDED: Replaced by a later arrangement; kept as history. A final state.
+          CANCELLED: Withdrawn before it took effect. A final state.
         businessMeaning: Distinguishes preparation, current effectiveness, historical replacement and cancellation.
-        usage: HCM workflow and payroll eligibility.
         relationshipContext: Historical payroll continues to reference the terms effective at calculation time.
   relationships:
     - {name: employment, target: Employment, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one employment; a compensation arrangement belongs to a single employment., summary: Employment relationship governed by these compensation terms., businessMeaning: Anchors remuneration to an employer-employee relationship., usage: "HCM, payroll and workforce planning.", workflowRole: Effective dates must be compatible with Employment eligibility.}}

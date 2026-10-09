@@ -90,8 +90,8 @@ entity:
       immutable: true
       systemManaged: true
       help:
-        summary: When the installation record was created.
-        usage: Set by the system and never edited.
+        summary: The date and time the installation record was first created.
+        usage: Set by the system when the record is created and never edited; it marks when the application context came into being.
     - name: createdBy
       type: reference
       target: Party
@@ -106,8 +106,8 @@ entity:
       required: true
       systemManaged: true
       help:
-        summary: When the installation record last changed.
-        usage: Set by the system on every change.
+        summary: The date and time the installation record was last changed.
+        usage: Set by the system on every change; it shows administrators when defaults such as currency or time zone were last altered.
     - name: updatedBy
       type: reference
       target: Party

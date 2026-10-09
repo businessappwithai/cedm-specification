@@ -16,30 +16,30 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the campaign.
-        usage: Generated on creation; donations refer to it.
+        summary: The permanent identifier of the campaign record, constant from planning to completion.
+        usage: Generated on creation; donations, documents and reports refer to the campaign through this value.
     - name: campaignCode
       type: string
       required: true
       unique: true
       maxLength: 100
       help:
-        summary: The code of the campaign, such as WINTER26.
-        usage: Unique; used in appeal tracking.
+        summary: The short unique code of the campaign, such as WINTER26, used to tag appeals and gifts.
+        usage: Assigned by the fundraising team and kept unique; printed on response forms so incoming gifts can be traced to the appeal.
     - name: name
       type: string
       required: true
       maxLength: 300
       help:
-        summary: The name of the campaign.
-        usage: Shown in reports and donor communications.
+        summary: The public-facing title of the campaign as donors and supporters will see it.
+        usage: Entered at planning; shown in reports, donor communications and the campaign list for the fundraising team.
     - name: objective
       type: string
       required: false
       maxLength: 2000
       help:
-        summary: What the campaign aims to achieve.
-        usage: Written at planning; read when judging results.
+        summary: A statement of what the campaign is meant to achieve, such as funding a programme or recruiting volunteers.
+        usage: Written at planning by the fundraising team and read when judging results against the intended purpose.
     - name: targetAmount
       type: decimal
       required: false
@@ -58,13 +58,13 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
+        summary: Shows whether the campaign is still being planned, is running, has finished or was abandoned.
+        usage: Updated by the fundraising team; gifts are normally accepted while active, and completed or cancelled ends the campaign.
         valueSemantics:
           PLANNED: Being prepared and not yet launched.
           ACTIVE: Running and accepting gifts.
           COMPLETED: Finished. A final state.
           CANCELLED: Called off. A final state.
-        summary: Where the campaign is.
-        usage: Updated by the fundraising team.
   relationships:
     - name: organization
       target: Organization

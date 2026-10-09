@@ -7,7 +7,7 @@ entity:
   identity: {key: driverId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: driverId, type: uuid, required: true, immutable: true, help: {summary: "The identity of the driver role, independent of the person's other roles.", businessMeaning: Identifies one transportation operating role independently of Person identity., usage: "Fleet operations, dispatch, compliance, fuel and audit.", relationshipContext: Person supplies common identity while Driver supplies operating authorization context.}}
-    - {name: driverCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The driver's code in dispatch and fleet systems., businessMeaning: Operational identifier for dispatch and integration., usage: "Search, scheduling, fuel and reporting.", relationshipContext: Distinct from license number and Person identifiers.}}
+    - {name: driverCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The short code that identifies this driver in dispatch and fleet systems., usage: 'Assigned when the driver is set up; used in scheduling, fuel records and reports, and unrelated to licence or person identifiers.', businessMeaning: Operational identifier for dispatch and integration., relationshipContext: Distinct from license number and Person identifiers.}}
     - {name: licenseNumber, type: string, required: false, maxLength: 160, help: {summary: The number of the driving licence that authorises the person to drive., usage: Entered from the licence document; checked against expiry and class., businessMeaning: Supports operating eligibility and compliance., relationshipContext: Jurisdiction/class/expiry may require additional governed attributes or documents.}}
     - name: status
       type: enum
@@ -15,15 +15,15 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, INACTIVE, RETIRED]
       help:
+        summary: Whether the driver is being onboarded, cleared to drive, barred for now, dormant, or gone.
+        usage: Moved by fleet and compliance staff; only an ACTIVE driver is offered for assignment, and past trips keep their driver.
         valueSemantics:
           DRAFT: Being onboarded; not yet cleared to drive.
           ACTIVE: Authorised and available for assignment.
           SUSPENDED: Temporarily barred, for example after an incident or lapsed qualification.
           INACTIVE: Not currently driving but may return.
           RETIRED: No longer a driver; kept for history.
-        summary: Lifecycle state controlling ordinary driver assignment.
         businessMeaning: "Separates setup, active eligibility, temporary restriction, inactivity and retirement."
-        usage: "Dispatch, safety and compliance."
         relationshipContext: Historical trips and fuel transactions retain Driver attribution.
   relationships:
     - {name: person, target: Person, cardinality: "1", ownership: reference, help: {summary: The person who holds the driver role., cardinalityMeaning: 'Exactly one person: the role is held by a specific individual.', businessMeaning: Reuses common identity without duplicating Person data., usage: "Dispatch, contact and audit.", workflowRole: Identity changes do not rewrite historical Driver evidence.}}

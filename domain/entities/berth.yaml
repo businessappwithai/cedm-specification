@@ -15,14 +15,14 @@ entity:
       default: ACTIVE
       values: [ACTIVE, RESTRICTED, OUT_OF_SERVICE, RETIRED]
       help:
+        summary: Whether the berth can currently take vessels, and with what limits, through to being permanently withdrawn.
+        usage: Set by port planners as conditions change; vessel scheduling consults it before assigning a voyage, and safety restrictions are applied through it.
         valueSemantics:
           ACTIVE: Open for ordinary vessel assignments.
           RESTRICTED: Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval.
           OUT_OF_SERVICE: Temporarily unusable, for example for dredging or repair; no new assignments.
-          RETIRED: Permanently removed from use; kept for history of past assignments.
-        summary: Operational availability state of the Berth.
+          RETIRED: Permanently removed from use; kept for history of past assignments. A final state.
         businessMeaning: Controls ordinary new vessel assignments.
-        usage: "Port planning and safety."
         relationshipContext: Historical vessel use remains valid after status changes.
   relationships:
     - {name: port, target: Port, cardinality: "1", ownership: reference, help: {summary: The port in which the berth is located., cardinalityMeaning: Exactly one port; a berth cannot be shared between ports., businessMeaning: Establishes terminal ownership and operational context., usage: "Port planning and reporting.", workflowRole: Berth assignments occur within this Port.}}

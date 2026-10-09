@@ -53,8 +53,8 @@ entity:
       precision: 24
       scale: 12
       help:
-        summary: Numeric discount value interpreted according to method.
-        usage: Used to calculate a transaction discount.
+        summary: The size of the discount, read as a percentage or a money amount depending on the rule's method.
+        usage: Set by pricing staff; for a percentage method it is the percent taken off, for a fixed-amount method it is money in the rule's currency.
         relationshipContext: For PERCENTAGE this is a percentage; for FIXED_AMOUNT this is a monetary value whose currency must be explicitly defined.
         workflowRole: Produces the transaction-level discount amount from the eligible base.
     - name: currencyId

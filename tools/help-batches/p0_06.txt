@@ -1,0 +1,20 @@
+@ Control
+a frequency
+v CONTINUOUS: Operates all the time, for example an automated system check.
+v DAILY: Performed once every working day by the control owner.
+v WEEKLY: Performed once every week, such as a weekly exception report review.
+v MONTHLY: Performed once every month, often at period close.
+v QUARTERLY: Performed once every quarter of the year.
+v ANNUAL: Performed once a year.
+v EVENT_DRIVEN: Performed when a particular event occurs.
+v AD_HOC: Performed as needed, with no fixed schedule.
+@ CorrectiveAction
+a status
+s: Where the action stands from being raised, assigned and carried out to verification and closure.
+u: Moved by the action owner and quality reviewer; completion needs the completed date and, where required, an effective verification.
+v OPEN: Raised but not yet assigned.
+v ASSIGNED: Given to an owner, who has not started.
+v IN_PROGRESS: Being carried out by the owner, with implementation not yet finished.
+v VERIFICATION: Done and waiting for an effectiveness check.
+v COMPLETED: Done and, where required, verified effective. A final state.
+v CANCELLED: Withdrawn and not carried out. A final state.

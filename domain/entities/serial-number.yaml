@@ -8,27 +8,27 @@ entity:
   identity: {key: serialNumberId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: serialNumberId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the serialized unit., businessMeaning: Identifies the unit independently of its printed serial code., usage: "Inventory, service, warranty, asset, recall, and audit.", relationshipContext: One serialized identity represents one governed physical unit.}}
-    - {name: serialCode, type: string, required: true, maxLength: 200, help: {summary: Business/manufacturer serial identifier., businessMeaning: Operational code used to recognize the individual unit., usage: "Scanning, receiving, picking, shipment, service, returns, and warranty.", relationshipContext: Uniqueness is governed for the Product or global namespace.}}
+    - {name: serialCode, type: string, required: true, maxLength: 200, help: {summary: 'The code stamped on or issued for one physical unit, so it can be told apart from others of the same product.', usage: 'Scanned at receiving, picking, shipment, service and return; unique per product and used for warranty and traceability.', businessMeaning: Operational code used to recognize the individual unit., relationshipContext: Uniqueness is governed for the Product or global namespace.}}
     - name: status
       type: enum
       required: true
       default: EXPECTED
       values: [EXPECTED, AVAILABLE, RESERVED, IN_TRANSIT, INSTALLED, CONSUMED, RETURNED, QUARANTINED, SCRAPPED, RETIRED]
       help:
+        summary: Where the individual unit stands in its life, from expected through stock and use to end of life.
+        usage: Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced.
         valueSemantics:
-          EXPECTED: Announced but not yet received.
-          AVAILABLE: In stock and free to use.
-          RESERVED: Set aside for an order or job.
-          IN_TRANSIT: On its way between places.
-          INSTALLED: Fitted at a customer or on equipment.
-          CONSUMED: Used up. A final state.
-          RETURNED: Sent back and awaiting a decision.
-          QUARANTINED: Held apart pending a decision.
+          EXPECTED: Announced on an inbound order but not yet received.
+          AVAILABLE: In stock and free to be reserved or shipped.
+          RESERVED: Set aside for a particular order or job.
+          IN_TRANSIT: On its way between locations or to a customer.
+          INSTALLED: Fitted at a customer site or on equipment.
+          CONSUMED: Used up in production or service. A final state.
+          RETURNED: Sent back by a customer and awaiting a decision.
+          QUARANTINED: Held apart pending a quality or safety decision.
           SCRAPPED: Destroyed or written off. A final state.
           RETIRED: Taken out of service for good. A final state.
-        summary: Operational lifecycle state of the serialized unit.
         businessMeaning: Controls eligibility and custody transitions for the individual unit.
-        usage: "Allocation, shipment, service, returns, and disposal."
         relationshipContext: Status is reconciled from authoritative business and inventory events rather than freely edited.
   relationships:
     - {name: product, target: Product, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each serial number belongs to one product; the same number on another product is a different unit., summary: Product model represented by the serial., businessMeaning: Defines the standardized item type., usage: Validation and master-data context., workflowRole: Every serial movement must use the same Product.}}

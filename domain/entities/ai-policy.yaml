@@ -33,13 +33,13 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the policy stands, from drafting to adoption and closure.
-        usage: Moved by the governance function; only ACTIVE policies are enforced when a model is approved or deployed.
         valueSemantics:
           DRAFT: Being written and reviewed; not yet enforceable.
           ACTIVE: Adopted and enforced for the model it governs.
-          COMPLETED: Superseded or run its course; no longer enforced for new decisions but kept as the record of past ones.
-          CANCELLED: Withdrawn before adoption.
+          COMPLETED: Superseded or run its course; no longer enforced for new decisions but kept as the record of past ones. A final state.
+          CANCELLED: Withdrawn before it was adopted, so it never governed any model decision. A final state.
+        summary: Where the policy stands, from drafting to adoption and closure.
+        usage: Moved by the governance function; only ACTIVE policies are enforced when a model is approved or deployed.
         relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
   relationships:
     - name: context

@@ -6,28 +6,38 @@ entity:
   ui: {icon: heart-handshake}
   identity: {key: settlementId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: settlementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim settlement transaction., businessMeaning: Identifies one discharge of insurance liability independently of claim approval and payment execution., usage: "Claims payment, reconciliation, reporting and audit.", relationshipContext: InsuranceClaim supplies liability context while Payment may provide financial execution evidence.}}
-    - {name: settlementNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the settlement, such as STL-3041.', businessMeaning: Operational identifier for claims finance and reconciliation., usage: "Search, communication and integration.", relationshipContext: Distinct from claim and payment numbers.}}
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {relationshipContext: Compared with the approved claim amount and the payment made., summary: Monetary liability discharged by this Settlement., businessMeaning: Represents settlement value attributable to the claim., usage: "Claims, reserves, accounting and reporting."}}
+    - {name: settlementId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of one claim settlement transaction, assigned once and never changed.', usage: 'Generated on creation; payments, reconciliation reports and audit entries refer to it even if the settlement number is corrected.', businessMeaning: Identifies one discharge of insurance liability independently of claim approval and payment execution., relationshipContext: InsuranceClaim supplies liability context while Payment may provide financial execution evidence.}}
+    - {name: settlementNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The business reference of the settlement, such as STL-3041, used by claims finance to find it.', usage: Assigned when the settlement is drafted; unique; quoted in correspondence with the claimant and in integrations with accounting., businessMeaning: Operational identifier for claims finance and reconciliation., relationshipContext: Distinct from claim and payment numbers.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: 'The monetary liability this settlement discharges, stated in the settlement currency.', usage: Entered by the claims handler from the approved claim lines; it must not exceed approved liability and is reported against reserves., relationshipContext: Compared with the approved claim amount and the payment made., businessMeaning: Represents settlement value attributable to the claim.}}
     - name: method
       type: enum
       required: true
       values: [PAYMENT, SERVICE, OFFSET, RECOVERY, OTHER]
-      help: {summary: Method by which claim liability is discharged., businessMeaning: Distinguishes cash payment from non-cash or recovery settlement semantics., usage: "Claims operations, accounting and reporting.", relationshipContext: Payment relationship is expected when method is PAYMENT under policy., valueSemantics: {PAYMENT: Monetary payment discharges liability., SERVICE: Insurer-arranged service discharges liability., OFFSET: Liability is settled through offset., RECOVERY: Recovery transaction adjusts settlement economics., OTHER: Another governed method.}}
+      help:
+        summary: 'How the approved claim liability is discharged: by payment, service, offset, recovery or another agreed route.'
+        usage: Chosen when the settlement is drafted; decides whether a Payment is expected and how accounting records the discharge.
+        valueSemantics:
+          PAYMENT: Liability is discharged by a cash payment to the claimant, which should be linked to a Payment.
+          SERVICE: Liability is discharged by providing a service, such as a repair or replacement, instead of money.
+          OFFSET: Liability is discharged by netting it against an amount the claimant owes, with no cash movement.
+          RECOVERY: Liability is discharged through recovery from a third party, such as a subrogation or salvage recovery.
+          OTHER: Liability is discharged by a method not listed here, with the arrangement described in the claim notes.
+        businessMeaning: Distinguishes cash payment from non-cash or recovery settlement semantics.
+        relationshipContext: Payment relationship is expected when method is PAYMENT under policy.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, EXECUTED, VOID]
       help:
-        summary: Where the settlement is in approval and execution.
+        summary: Where the settlement stands between preparation, approval, execution and voiding.
+        usage: Starts as DRAFT; claims finance approves and then executes it, and an executed settlement must reconcile to its payment or service evidence.
         valueSemantics:
           DRAFT: Being prepared; nothing is committed.
           APPROVED: Approved and ready to be carried out.
           EXECUTED: Paid or otherwise discharged. A final state.
           VOID: Cancelled and of no effect. A final state.
         businessMeaning: "Separates preparation, approval, execution and voiding."
-        usage: Claims finance and audit.
         relationshipContext: EXECUTED must reconcile to payment/service evidence where applicable.
   relationships:
     - {name: claim, target: InsuranceClaim, cardinality: "1", ownership: reference, help: {cardinalityMeaning: A settlement discharges one insurance claim; separate claims are settled separately., summary: InsuranceClaim whose liability is settled., businessMeaning: Supplies approved claim context., usage: "Claims payment and reconciliation.", workflowRole: Settlement must not exceed approved liability except governed adjustments.}}

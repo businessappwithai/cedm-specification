@@ -16,14 +16,14 @@ entity:
       default: DRAFT
       values: [DRAFT, DUE, INVOICED, PAID, WAIVED, CANCELLED]
       help:
-        summary: Where the premium stands.
-        usage: Moved by policy billing and finance.
+        summary: Where this premium stands between being calculated, billed to the policyholder and settled, waived or withdrawn.
+        usage: Moved by policy billing and finance; PAID must be backed by settled payment evidence and the three closing states are final.
         valueSemantics:
-          DRAFT: Calculated but not yet due.
-          DUE: Payable now.
-          INVOICED: Included on an invoice to the policyholder.
-          PAID: Received. A final state.
-          WAIVED: Excused by the insurer. A final state.
+          DRAFT: Calculated but not yet due and not yet billed to anyone.
+          DUE: Payable now; the due date has been assessed and collection can begin.
+          INVOICED: Included on an invoice to the policyholder and awaiting payment.
+          PAID: Received and reconciled against payment. A final state.
+          WAIVED: Excused by the insurer so no payment is expected. A final state.
           CANCELLED: Withdrawn, for example because the policy was cancelled. A final state.
         businessMeaning: "Distinguishes preparation, due, billed, settled, waived and cancelled states."
         relationshipContext: PAID must reconcile to financial settlement evidence.

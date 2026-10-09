@@ -75,14 +75,14 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, RETIRED]
       help:
-        summary: Whether the rule is in force.
-        businessMeaning: Controls whether the rule can be selected for new sample executions.
-        usage: Governance, authoring, and inspection execution.
-        relationshipContext: Retired rules remain available for historical sample traceability.
+        summary: Whether this sampling rule may currently be chosen when a sample is drawn.
+        usage: Starts as DRAFT and is moved by quality owners; inspections only select ACTIVE rules, and retired rules stay as evidence of past inspections.
         valueSemantics:
-          DRAFT: Rule is being prepared and is not normally selectable.
-          ACTIVE: Rule is approved for sampling execution.
-          RETIRED: Rule is no longer selected for new sampling but remains historical evidence.
+          DRAFT: Being prepared and normally not selectable for inspection.
+          ACTIVE: Approved and available when sampling is carried out.
+          RETIRED: No longer chosen for new sampling but kept as evidence for past inspections. A final state.
+        businessMeaning: Controls whether the rule can be selected for new sample executions.
+        relationshipContext: Retired rules remain available for historical sample traceability.
   relationships:
     - name: samplingPlan
       target: SamplingPlan

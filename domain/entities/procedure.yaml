@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the procedure record.
-        usage: Generated on creation.
+        summary: The permanent, system-generated identity of this procedure record, whether planned or already performed.
+        usage: Generated on creation and never changed; orders, encounters, notes and billing lines refer to the procedure through it.
     - name: codeSystem
       type: string
       required: true
@@ -37,8 +37,8 @@ entity:
       required: true
       maxLength: 1000
       help:
-        summary: A plain-language description of the procedure.
-        usage: Entered or filled from the coding system.
+        summary: A plain-language description of the procedure so clinicians and billers can read what was done without decoding the code.
+        usage: Entered by the care team or filled from the coding system when a code is chosen; printed on reports and patient summaries.
     - name: status
       type: enum
       required: true
@@ -49,19 +49,19 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
-        summary: Where the procedure stands.
-        usage: Updated by the care team.
+        summary: Where the procedure stands from being scheduled through being carried out or called off.
+        usage: Updated by the care team as the procedure starts, finishes or is cancelled; COMPLETED and CANCELLED are final.
         valueSemantics:
-          PLANNED: Scheduled but not yet started.
-          IN_PROGRESS: Being performed.
-          COMPLETED: Done. A final state.
-          CANCELLED: Not carried out. A final state.
+          PLANNED: Scheduled but not yet started; resources and consent may still be arranged.
+          IN_PROGRESS: Currently being performed on the patient by the care team.
+          COMPLETED: Carried out and documented. A final state.
+          CANCELLED: Not carried out, whether withdrawn before or abandoned. A final state.
     - name: performedAt
       type: datetime
       required: false
       help:
-        summary: When the procedure was performed.
-        usage: Recorded when it takes place.
+        summary: The date and time at which the procedure was actually carried out on the patient.
+        usage: Recorded by the care team when the procedure takes place; left empty while planned and used for the clinical timeline and billing.
   relationships:
     - name: encounter
       target: HealthcareEncounter

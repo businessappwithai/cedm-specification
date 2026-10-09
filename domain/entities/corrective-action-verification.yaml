@@ -22,7 +22,12 @@ entity:
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Human-facing verification reference., businessMeaning: Identifies the verification event for quality operations and audit., usage: Reporting approval audit and supplier communication., relationshipContext: Distinct from actionNumber and nonconformance number., workflowRole: Correlates verification evidence throughout closure.}
+      help:
+        summary: The unique reference number that quality staff and suppliers quote for this effectiveness check.
+        usage: Assigned when the verification is raised; used in approvals, audit trails and supplier correspondence.
+        businessMeaning: Identifies the verification event for quality operations and audit.
+        relationshipContext: Distinct from actionNumber and nonconformance number.
+        workflowRole: Correlates verification evidence throughout closure.
     - name: verificationDate
       type: datetime
       required: true
@@ -36,14 +41,14 @@ entity:
         - INEFFECTIVE
         - NOT_VERIFIABLE
       help:
+        summary: The verifier's conclusion on whether the action achieved its intended result.
+        usage: Recorded when verification completes; an effective result can support closing the action, while other results force further work or an exception.
         valueSemantics:
           EFFECTIVE: The action achieved its intended result and the problem has not recurred.
           PARTIALLY_EFFECTIVE: The action helped but did not fully remove the problem; further action is needed.
           INEFFECTIVE: The action did not work and the problem persists or has returned.
           NOT_VERIFIABLE: Effectiveness cannot be established, for example because there is not yet enough evidence.
-        summary: Outcome of effectiveness verification.
         businessMeaning: States whether the action achieved its intended quality outcome.
-        usage: Controls corrective-action completion recurrence handling and escalation.
         relationshipContext: Does not rewrite original Nonconformance or CorrectiveAction evidence.
         workflowRole: Determines whether action may be completed or must be reopened.
     - name: status
@@ -57,15 +62,15 @@ entity:
         - REOPENED
         - CANCELLED
       help:
+        summary: Where the verification is, from being raised through the check to completion, reopening or cancellation.
+        usage: Moved by the independent verifier; a verification can only complete once a result and findings are recorded.
         valueSemantics:
           OPEN: Raised but not started.
           IN_PROGRESS: The verification is being carried out.
-          COMPLETED: Finished with a result and findings recorded.
+          COMPLETED: Finished with a result and findings recorded. A final state.
           REOPENED: Reopened because new evidence or a recurrence needs further verification.
-          CANCELLED: Withdrawn and not carried out.
-        summary: Lifecycle state of verification.
+          CANCELLED: Withdrawn and not carried out. A final state.
         businessMeaning: Separates preparation evaluation completion and follow-up.
-        usage: Quality governance and audit.
         workflowRole: COMPLETED records final verification evidence; REOPENED signals additional action is required.
     - name: findings
       type: string

@@ -67,6 +67,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Used to group every returned line under one return document and to inherit its supplier, status and approval context.
         summary: Parent reverse-procurement transaction containing this line.
         businessMeaning: Supplies supplier, authorization and overall lifecycle context.
         workflowRole: Controls whether this line may execute.
@@ -75,6 +76,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Used to trace the returned quantity back to the original commitment and to reverse its price and ordered quantity.
         summary: Original procurement commitment associated with the returned item.
         businessMeaning: Identifies what was originally ordered.
         workflowRole: Supplies product, UOM and commercial context.
@@ -83,6 +85,7 @@ entity:
       cardinality: 1..*
       ownership: reference
       help:
+        usage: Used to show which received lots are being sent back, so returned quantity cannot exceed what was actually accepted.
         summary: Accepted receipt evidence from which this return quantity originates.
         businessMeaning: Establishes the physical receipt history supporting the return.
         workflowRole: Supplies authoritative eligibility and quantity evidence.
@@ -101,6 +104,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Used to find the supplier charges that must be reduced or credited when goods are returned after invoicing.
         summary: Supplier invoice lines financially associated with the returned goods.
         businessMeaning: Identifies claims that may require a supplier credit.
         workflowRole: Supplies original transaction-value and tax evidence for financial adjustment.
@@ -119,6 +123,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Used to verify that stock leaving the warehouse for the supplier is recorded and reconciles with the quantity returned.
         summary: Inventory ledger events that remove returned goods from organizational stock.
         businessMeaning: Records physical stock consequence independently of the return instruction.
         workflowRole: Authoritative evidence that the physical reversal was posted.
@@ -127,6 +132,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Used to match the credit the supplier issues for this returned quantity against the approved credit amount.
         summary: Financial adjustment lines generated from this supplier return line.
         businessMeaning: Connects approved physical returns to payable reductions.
         workflowRole: Provides explicit financial evidence without modifying original InvoiceLine history.

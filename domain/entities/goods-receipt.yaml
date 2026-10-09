@@ -23,20 +23,20 @@ entity:
         - REJECTED
         - CANCELLED
       help:
-        summary: How far receipt and inspection have progressed.
-        usage: Moved by warehouse and quality staff.
+        summary: How far the receipt has progressed from preparation through counting and inspection to a final decision.
+        usage: Moved by warehouse and quality staff; accounts payable matches invoices only against receipts that were accepted.
         valueSemantics:
           DRAFT: Being prepared before the delivery is confirmed.
-          RECEIVED: Delivery confirmed and counted.
+          RECEIVED: Delivery confirmed and counted at the dock.
           INSPECTION_PENDING: Held until a quality inspection is done.
           ACCEPTED: All received quantity accepted into stock. A final state.
-          PARTIALLY_ACCEPTED: Some accepted, the rest rejected. A final state.
+          PARTIALLY_ACCEPTED: Some quantity accepted and the rest rejected. A final state.
           REJECTED: Refused entirely and returned or held. A final state.
-          CANCELLED: Withdrawn before confirmation. A final state.
+          CANCELLED: Withdrawn before receipt was confirmed. A final state.
         businessMeaning: Indicates whether receipt evidence can affect fulfillment and inventory.
         relationshipContext: SupplierReturn is a later reverse-procurement event and does not rewrite receipt status.
         workflowRole: Controls receiving progression and authorized corrections.
-    - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: The total quantity counted at receipt., usage: Calculated from the lines., businessMeaning: Sum of line received quantities., relationshipContext: "SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone.", workflowRole: Provides original physical receipt basis.}}
+    - {name: receivedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: The total quantity counted at the dock across all lines of the receipt., usage: Calculated from the receipt lines rather than typed in; purchasing compares it with the ordered quantity., businessMeaning: Sum of line received quantities., relationshipContext: "SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone.", workflowRole: Provides original physical receipt basis.}}
     - {name: acceptedQuantity, type: decimal, required: true, default: 0, precision: 20, scale: 6, help: {summary: The total quantity accepted into stock., usage: Calculated from the lines; never more than the received quantity., businessMeaning: Sum of line accepted quantities that may become inventory., relationshipContext: SupplierReturnLine eligibility is normally based on accepted quantity and subsequent prior returns., workflowRole: Provides authoritative accepted receipt basis for later supplier returns.}}
     - {name: notes, type: string, required: false, maxLength: 2000, help: {summary: 'Remarks about the delivery, such as damage or discrepancies.', usage: Free text written by the receiving clerk., businessMeaning: Human-readable context for receipt exceptions or inspection., relationshipContext: Does not replace structured disposition or return evidence., workflowRole: Supports review.}}
   relationships:

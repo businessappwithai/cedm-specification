@@ -1,0 +1,50 @@
+@ Ledger
+a ledgerId
+s: The stable identity of the accounting ledger, constant for the life of the books.
+u: Generated on creation; journal entries, periods and reports refer to the ledger through it.
+a status
+s: Whether the ledger is currently open to receive journal entries.
+u: Moved by finance as books are opened and closed; postings are accepted only while ACTIVE, and finished ledgers are kept for reporting.
+v DRAFT: Being set up and not yet accepting entries.
+v ACTIVE: Open for posting journal entries.
+v COMPLETED: Closed for good after the final period. A final state.
+v CANCELLED: Set up but never used. A final state.
+@ LegalCase
+a legalCaseId
+s: The stable identity of the legal case, constant through its proceedings.
+u: Generated when the case is recorded; documents, hearings, costs and the parent legal matter refer to it.
+@ LegalEntity
+a legalEntityId
+s: The stable identity of the legal entity, kept even when its name or registration details change.
+u: Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.
+@ Location
+a name
+s: The name by which people refer to the place, such as Rotterdam Depot.
+u: Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+a locationType
+v SITE: A geographic site that may contain several buildings.
+v WAREHOUSE: A building or area for storing goods.
+v STORE: A retail outlet where goods are sold to customers.
+v OFFICE: A place where office work is done.
+v FACTORY: A place where goods are made.
+v YARD: An open area for storing or staging equipment or containers.
+v PORT: A harbour or terminal.
+v DEPOT: A base for vehicles and equipment.
+v VIRTUAL: A logical place with no physical presence, such as an online store.
+v OTHER: Any other kind of place.
+a status
+v PLANNED: Expected but not yet in use.
+v ACTIVE: In use and offered for new assignments.
+v INACTIVE: Temporarily not used but expected to return to service.
+v CLOSED: Closed down, with no new assignments but history kept.
+v RETIRED: Removed from use altogether. A final state.
+a createdAt
+s: The date and time at which the location record was first created.
+u: Set automatically by the system and never edited; it supports audit and ordering of newly added places.
+a updatedAt
+s: The date and time at which the location record was last changed.
+u: Set automatically on each change; synchronisation jobs and reviewers use it to find recently altered locations.
+@ LossEvent
+a lossEventId
+s: The stable identity of the recorded loss, constant through reassessment and recovery.
+u: Generated when the loss is recorded; recoveries, incident links and risk analyses refer to it.

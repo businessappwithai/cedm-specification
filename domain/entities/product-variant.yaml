@@ -8,7 +8,7 @@ entity:
   identity: {key: productVariantId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: productVariantId, type: uuid, required: true, immutable: true, help: {summary: The identity of the variant., usage: Generated on creation; stock and order lines refer to it., businessMeaning: Identifies one governed product configuration independently of its SKU., relationshipContext: Belongs to exactly one parent Product.}}
-    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: The code of the variant., usage: Unique; assigned by product management., businessMeaning: Human/integration identifier for the configuration., relationshipContext: Distinct from parent Product code.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The unique business code of this variation, such as a size and colour combination, distinct from its parent product.', usage: 'Assigned by product management and unique across variants; used on orders, stock and price lists to name the exact variation.', businessMeaning: Human/integration identifier for the configuration., relationshipContext: Distinct from parent Product code.}}
     - {name: sku, type: string, required: false, maxLength: 100, help: {summary: The stock-keeping unit of the variant., usage: Printed on labels and scanned in the warehouse., businessMeaning: Operational inventory/commercial identifier where variants are stocked separately., relationshipContext: Does not replace immutable variant identity.}}
     - name: status
       type: enum
@@ -16,14 +16,14 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, BLOCKED, DISCONTINUED, RETIRED]
       help:
-        summary: Whether the variant can be traded.
-        usage: Set by product management; only ACTIVE variants can be ordered.
+        summary: Whether this variant can be traded.
+        usage: Set by product management; only ACTIVE variants can be ordered, and discontinued and retired variants are final.
         valueSemantics:
-          DRAFT: Being set up.
-          ACTIVE: Available for trading.
-          BLOCKED: Temporarily barred from trading.
-          DISCONTINUED: Being phased out. A final state.
-          RETIRED: Removed from the catalogue. A final state.
+          DRAFT: Being set up and not yet offered for sale or purchase.
+          ACTIVE: Available for trading and can be ordered, stocked and sold.
+          BLOCKED: Temporarily barred from trading until the hold is lifted.
+          DISCONTINUED: Being phased out and no longer to be introduced. A final state.
+          RETIRED: Removed from the catalogue for good. A final state.
         businessMeaning: Controls future eligibility of this configuration.
         relationshipContext: Parent Product restrictions also apply.
   relationships:

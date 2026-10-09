@@ -30,9 +30,9 @@ entity:
       required: false
       maxLength: 300
       help:
-        summary: The descriptive name of the gate.
+        summary: The descriptive name of the gate, such as North Truck Gate, as staff and drivers know it.
+        usage: Entered at set-up and shown on operations screens and reports; it can change while the gate code stays the key.
         businessMeaning: Helps staff recognise the checkpoint, for example Main Truck Gate or Rail Gate.
-        usage: "Shown on operations screens and reports."
         relationshipContext: The gate code remains the operational key when the name is changed.
     - name: gateType
       type: enum

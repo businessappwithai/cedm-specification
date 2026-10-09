@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The short name of the control.
-        usage: Shown in registers and test plans.
+        summary: The short name of the control as it appears in the control register, such as Monthly bank reconciliation review.
+        usage: Written by the risk and compliance team when the control is defined; shown in registers, test plans and audit reports.
     - name: description
       type: string
       required: true
@@ -69,17 +69,17 @@ entity:
         - EVENT_DRIVEN
         - AD_HOC
       help:
-        summary: How often the control operates.
-        usage: Set by the control owner; testers use it to decide how many occurrences to sample.
         valueSemantics:
           CONTINUOUS: Operates all the time, for example an automated system check.
-          DAILY: Performed every day.
-          WEEKLY: Performed every week.
-          MONTHLY: Performed every month.
-          QUARTERLY: Performed every quarter.
+          DAILY: Performed once every working day by the control owner.
+          WEEKLY: Performed once every week, such as a weekly exception report review.
+          MONTHLY: Performed once every month, often at period close.
+          QUARTERLY: Performed once every quarter of the year.
           ANNUAL: Performed once a year.
           EVENT_DRIVEN: Performed when a particular event occurs.
           AD_HOC: Performed as needed, with no fixed schedule.
+        summary: How often the control operates.
+        usage: Set by the control owner; testers use it to decide how many occurrences to sample.
     - name: status
       type: enum
       required: true

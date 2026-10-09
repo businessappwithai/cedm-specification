@@ -1,0 +1,50 @@
+@ BusinessProcess
+r ownerOrganization
+u: Named by process management when the process is defined; the owner approves changes to it and answers for how well it performs.
+r workflows
+u: Linked when a workflow is built to carry out the process, so analysts can see which automations implement each step.
+r tasks
+u: Tasks are attached as the process runs; managers read them to see progress, workload and where work is waiting.
+r documents
+u: Attached by the process owner so staff can open the current procedure, form or policy while they carry out the process.
+@ BusinessUnit
+a name
+s: The full name of the business unit, as it appears in the organisation's structure and management accounts.
+u: Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
+@ Calendar
+a name
+s: The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar.
+u: Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
+@ CashPosition
+a cashPositionId
+s: The permanent system identity of one cash snapshot for a bank account at a cut-off time.
+u: Generated when the position is calculated; forecasts, funding decisions and audit trails refer to that snapshot through it.
+a asOf
+s: The date and time of the cut-off for which balances and pending items were calculated.
+u: Chosen when the snapshot is taken, such as end of day or an intraday check; the position must be reproducible from evidence at that moment.
+@ CertificateOfAnalysis
+a certificateOfAnalysisId
+s: The permanent system identity of one certificate of analysis.
+u: Generated on creation; shipments, receipts and customer exchanges refer to the certificate through it, whatever its printed number.
+a certificateNumber
+s: The unique number printed on the certificate, which customers and auditors quote when asking for it.
+u: Assigned by quality when the certificate is drafted; used for search, document exchange and audit, and never reused.
+a issuedAt
+s: The date and time the certificate was released to its recipient, such as a customer or receiving site.
+u: Recorded when the status becomes issued and required by then; customers and auditors rely on it as the release date.
+a status
+s: Where the certificate stands in controlled release, from drafting to issue and eventual replacement or withdrawal.
+u: Moved by quality staff; only issued certificates are sent to customers, and corrections create a replacement rather than an edit.
+v DRAFT: Being prepared from the inspection results; not yet approved.
+v APPROVED: Approved by quality but not yet released to the customer.
+v ISSUED: Released to the recipient; it now stands as evidence.
+v SUPERSEDED: Replaced by a corrected certificate; kept for history. A final state.
+v VOID: Withdrawn because it was wrong or issued in error; kept for history. A final state.
+@ ChemicalBatch
+a status
+v PLANNED: Scheduled to be produced or received; no material exists yet.
+v QUARANTINED: Present but held until quality checks pass; not usable.
+v RELEASED: Passed quality checks and available for use.
+v REJECTED: Failed quality checks; must not be used. A final state.
+v EXPIRED: Past its expiry date and no longer usable. A final state.
+v CONSUMED: Fully used up, with no material left to issue. A final state.

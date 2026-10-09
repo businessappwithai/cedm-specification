@@ -45,16 +45,16 @@ entity:
         - WAREHOUSE
         - OTHER
       help:
-        summary: What kind of space the facility is.
-        usage: Chosen at registration; drives the maintenance programme and reporting category.
         valueSemantics:
-          BUILDING: A single building.
+          BUILDING: A single constructed building, such as a head office or clinic, managed as one place.
           SITE: A site containing several buildings or outdoor areas.
           CAMPUS: A large site with many buildings under one management.
           OFFICE: A space used mainly for office work.
           PLANT: A production or processing plant.
           WAREHOUSE: A storage and distribution facility.
           OTHER: Any other managed space.
+        summary: What kind of space the facility is.
+        usage: Chosen at registration; drives the maintenance programme and reporting category.
     - name: status
       type: enum
       required: true
@@ -65,13 +65,13 @@ entity:
         - INACTIVE
         - CLOSED
       help:
-        summary: Whether the facility is in use.
-        usage: Set by facilities management; service requests are accepted only for ACTIVE facilities.
         valueSemantics:
           PLANNED: Approved but not yet open.
-          ACTIVE: In operation.
+          ACTIVE: In operation, and the only state in which service requests are accepted.
           INACTIVE: Temporarily out of use, for example during renovation.
           CLOSED: Permanently closed. A final state.
+        summary: Whether the facility is in use.
+        usage: Set by facilities management; service requests are accepted only for ACTIVE facilities.
   relationships:
     - name: location
       target: Location

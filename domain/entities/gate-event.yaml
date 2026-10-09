@@ -7,12 +7,21 @@ entity:
   identity: {key: gateEventId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: gateEventId, type: uuid, required: true, immutable: true, help: {summary: The identity of this gate occurrence., usage: 'Generated on capture; verification, reversal and visit records refer to it.', businessMeaning: Identifies one terminal entry/exit occurrence independently of current container or vehicle state., relationshipContext: Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects.}}
-    - {name: occurredAt, type: datetime, required: true, help: {summary: Timestamp of the gate occurrence., businessMeaning: Establishes custody and terminal chronology., usage: "Tracking, dwell, security and audit.", relationshipContext: Must preserve source event time independently of ingestion time.}}
+    - {name: occurredAt, type: datetime, required: true, help: {summary: 'The moment the container, vehicle or visit passed through the gate or was processed there.', usage: "Taken from the gate system's own timestamp; dwell time, security review and billing disputes are resolved against it.", businessMeaning: Establishes custody and terminal chronology., relationshipContext: Must preserve source event time independently of ingestion time.}}
     - name: direction
       type: enum
       required: true
       values: [IN, OUT, INTERNAL, OTHER]
-      help: {summary: Direction or category of gate movement., businessMeaning: "Determines whether the event represents entry, exit or another gate-controlled movement.", usage: "Custody, yard inventory and reporting.", relationshipContext: ContainerVisit/Movement must reconcile to direction., valueSemantics: {IN: Entry into controlled area., OUT: Exit from controlled area., INTERNAL: Internal gate-controlled transition., OTHER: Another governed gate direction.}}
+      help:
+        summary: Whether the movement entered the controlled area, left it, or passed between internal zones.
+        usage: Set by the gate system at capture; yard inventory and custody transfer change according to it.
+        valueSemantics:
+          IN: Entry into the controlled terminal area, which starts the subject's time inside.
+          OUT: Exit from the controlled terminal area, which ends the subject's time inside.
+          INTERNAL: A gate-controlled move between zones inside the terminal, with no entry or exit.
+          OTHER: Another governed gate occurrence that is neither entry, exit nor internal move.
+        businessMeaning: "Determines whether the event represents entry, exit or another gate-controlled movement."
+        relationshipContext: ContainerVisit/Movement must reconcile to direction.
     - name: status
       type: enum
       required: true

@@ -53,9 +53,9 @@ entity:
       target: UnitOfMeasure
       required: true
       help:
-        summary: Unit in which the sample quantity is expressed.
+        summary: The unit in which the sample quantity is expressed, such as grams, millilitres or pieces.
+        usage: Chosen by the inspector when the sample is taken; quantities are reconciled, converted and reported against it, and it stays fixed for audit.
         businessMeaning: Gives semantic meaning to the selected sample quantity.
-        usage: Reconciliation, reporting, conversion, and audit.
         relationshipContext: Must be compatible with the source population and governing sampling configuration.
     - name: status
       type: enum

@@ -47,8 +47,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The amount emitted, in the stated unit.
-        usage: Entered or calculated; zero or more.
+        summary: The amount of gas or pollutant released, measured or calculated, in the unit the record states.
+        usage: Entered from a meter reading or calculated from activity data; never negative, and it is totalled in sustainability reports.
     - name: unitOfMeasureId
       type: reference
       target: UnitOfMeasure
@@ -82,6 +82,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Chosen when the emission is recorded; it decides whose carbon total and reporting boundary the emission counts towards.
         summary: The organisation responsible for the emission.
         cardinalityMeaning: 'Exactly one organisation: every emission is attributed to a reporting entity.'
     - name: location
@@ -89,6 +90,7 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
+        usage: Set when the release can be tied to a site; site-level reports and regional limits read it, and it is left empty otherwise.
         summary: The site where the emission occurred.
         cardinalityMeaning: At most one location; some emissions, such as air travel, have no single site.
     - name: product
@@ -96,6 +98,7 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
+        usage: Set when the release can be assigned to a product's production or use; product carbon footprints are summed through it.
         summary: The product whose production or use caused the emission.
         cardinalityMeaning: At most one product; most emissions are not attributed to a product.
   invariants:

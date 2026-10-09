@@ -34,8 +34,8 @@ entity:
       required: false
       maxLength: 2000
       help:
-        summary: A description of what belongs in the category.
-        usage: Helps product managers classify consistently.
+        summary: A description of what kinds of products belong in the category and where its boundary lies.
+        usage: Written by product managers when the category is created; helps people classify new products consistently and choose between similar categories.
     - name: status
       type: enum
       required: true

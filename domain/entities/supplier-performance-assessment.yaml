@@ -22,7 +22,12 @@ entity:
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Human-facing assessment reference., businessMeaning: Identifies the performance evaluation for operational and supplier communication., usage: "Review meetings, supplier scorecards, audit and reporting.", relationshipContext: "Distinct from supplierCode, claimNumber and purchase order numbers.", workflowRole: Correlates evidence and decisions throughout the assessment lifecycle.}
+      help:
+        summary: The human-facing reference of one supplier performance assessment, such as SPA-2026-Q2-014, quoted in review meetings.
+        usage: Assigned when the assessment is opened; unique across assessments, and used in scorecards, audit trails, review minutes and follow-up actions.
+        businessMeaning: Identifies the performance evaluation for operational and supplier communication.
+        relationshipContext: "Distinct from supplierCode, claimNumber and purchase order numbers."
+        workflowRole: Correlates evidence and decisions throughout the assessment lifecycle.
     - name: assessmentDate
       type: date
       required: true
@@ -30,11 +35,20 @@ entity:
     - name: periodStart
       type: date
       required: true
-      help: {summary: Beginning of the performance evaluation period., businessMeaning: Defines the historical window from which performance evidence is evaluated., usage: "Score calculation, supplier comparison and trend reporting.", relationshipContext: Evidence transactions must fall within or be explicitly associated with this evaluation scope., workflowRole: Establishes assessment boundaries.}
+      help:
+        summary: The first day of the window whose procurement, delivery and quality evidence is scored in this assessment.
+        usage: Set when the assessment is defined; evidence is counted only from this date, and it must not fall after the period end.
+        businessMeaning: Defines the historical window from which performance evidence is evaluated.
+        relationshipContext: Evidence transactions must fall within or be explicitly associated with this evaluation scope.
+        workflowRole: Establishes assessment boundaries.
     - name: periodEnd
       type: date
       required: true
-      help: {summary: End of the performance evaluation period., businessMeaning: Defines the closing boundary of the performance evidence window., usage: "Score calculation, reporting and supplier review.", workflowRole: Completes the assessment scope.}
+      help:
+        summary: The last day of the evaluation window, closing the range of evidence the assessment scores.
+        usage: Set with the period start; transactions after this date are excluded, and trend reports compare successive periods by it.
+        businessMeaning: Defines the closing boundary of the performance evidence window.
+        workflowRole: Completes the assessment scope.
     - name: status
       type: enum
       required: true
@@ -75,22 +89,26 @@ entity:
         - NEEDS_IMPROVEMENT
         - UNSATISFACTORY
       help:
+        summary: The business grade given to the supplier once the overall score and governing criteria have been interpreted.
+        usage: Chosen by the reviewer or derived from the approved score; it drives supplier segmentation, review cadence and whether improvement actions are opened.
         valueSemantics:
-          EXCELLENT: Consistently exceeds requirements.
-          GOOD: Meets requirements with few issues.
-          ACCEPTABLE: Meets the minimum required.
-          NEEDS_IMPROVEMENT: Falls short in places; a plan is needed.
-          UNSATISFACTORY: Fails requirements; action is required.
-        summary: Interpreted supplier performance rating.
+          EXCELLENT: Performance consistently exceeds expectations on delivery, quality and service; the supplier is a candidate for preferred status.
+          GOOD: Performance meets expectations with only minor, isolated shortfalls that need no formal action.
+          ACCEPTABLE: Performance is adequate overall but has gaps that are monitored at the next review.
+          NEEDS_IMPROVEMENT: Performance falls short of requirements and an improvement plan or corrective action is expected.
+          UNSATISFACTORY: Performance is unacceptable and escalation, sourcing restriction or exit review is considered.
         businessMeaning: Converts the approved score or governed assessment criteria into a business-facing performance category.
-        usage: Supplier segmentation, review cadence and improvement decisions.
         relationshipContext: Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or commercial evidence.
         workflowRole: Supports governance actions and escalation.
     - name: notes
       type: string
       required: false
       maxLength: 4000
-      help: {summary: Qualitative context supporting the assessment., businessMeaning: "Records material observations, explanations or agreed context that structured scores do not capture.", usage: "Supplier review, audit and improvement planning.", workflowRole: Supplements but does not replace measurable evidence.}
+      help:
+        summary: Free-text observations that explain the scores, record agreed context and capture points the figures do not show.
+        usage: Entered by the reviewer before approval; read by category managers and auditors alongside the evidence, and never a substitute for it.
+        businessMeaning: "Records material observations, explanations or agreed context that structured scores do not capture."
+        workflowRole: Supplements but does not replace measurable evidence.
   relationships:
     - name: supplier
       target: Supplier

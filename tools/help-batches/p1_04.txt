@@ -1,0 +1,22 @@
+@ DiscountRule
+a value
+s: The size of the discount, read as a percentage or a money amount depending on the rule's method.
+u: Set by pricing staff; for a percentage method it is the percent taken off, for a fixed-amount method it is money in the rule's currency.
+@ DocumentClassification
+a documentClassificationId
+s: The stable identity of one classification, such as Confidential or Contract Record.
+u: Generated when the classification is created; documents point to it so retention and access controls follow the label.
+@ Document
+a title
+s: The heading of the document as readers know it, such as the subject of a letter or report.
+u: Entered by the author or the originating process; shown in lists and search results, so it should say what the document is.
+a updatedAt
+s: The date and time the document record was last changed.
+u: Set by the system on every change, never typed in; reviewers use it to tell whether they hold the latest version.
+@ Driver
+a driverCode
+s: The short code that identifies this driver in dispatch and fleet systems.
+u: Assigned when the driver is set up; used in scheduling, fuel records and reports, and unrelated to licence or person identifiers.
+a status
+s: Whether the driver is being onboarded, cleared to drive, barred for now, dormant, or gone.
+u: Moved by fleet and compliance staff; only an ACTIVE driver is offered for assignment, and past trips keep their driver.

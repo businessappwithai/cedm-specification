@@ -83,6 +83,7 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
+        usage: Named by process management when the process is defined; the owner approves changes to it and answers for how well it performs.
         summary: The part of the organisation accountable for the process.
         cardinalityMeaning: At most one owner; a process without an owner is a gap to resolve.
     - name: workflows
@@ -90,6 +91,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Linked when a workflow is built to carry out the process, so analysts can see which automations implement each step.
         summary: The workflows that automate or carry out the process.
         cardinalityMeaning: Any number, as one process can be realised by several workflows.
     - name: tasks
@@ -97,6 +99,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Tasks are attached as the process runs; managers read them to see progress, workload and where work is waiting.
         summary: The tasks that make up the process's work.
         cardinalityMeaning: Any number, accumulating as the process is run.
     - name: documents
@@ -104,6 +107,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Attached by the process owner so staff can open the current procedure, form or policy while they carry out the process.
         summary: The documents that describe or support the process, such as procedures and forms.
         cardinalityMeaning: Any number.
   invariants:

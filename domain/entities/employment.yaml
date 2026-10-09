@@ -29,15 +29,15 @@ entity:
         - INTERN
         - OTHER
       help:
-        summary: The basis on which the person is employed.
-        usage: Chosen at hiring; decides benefits, working time and notice.
+        summary: The contractual basis on which the person is employed, such as full time or on a fixed-term contract.
+        usage: Chosen at hiring; it decides benefits, working time, notice periods and how the person is counted in workforce reports.
         valueSemantics:
-          FULL_TIME: A standard full-time contract.
-          PART_TIME: A contract for fewer than full-time hours.
-          CONTRACT: A fixed-term or project contract.
-          TEMPORARY: Short-term or seasonal work.
-          INTERN: A student or trainee placement.
-          OTHER: Any other arrangement.
+          FULL_TIME: A standard full-time contract with the organisation's normal working hours.
+          PART_TIME: A contract for fewer hours than full time, usually with pro-rated pay and benefits.
+          CONTRACT: A fixed-term or project contract that ends on a set date or at completion.
+          TEMPORARY: Short-term or seasonal work covering a peak or an absence.
+          INTERN: A student or trainee placement for learning rather than a permanent role.
+          OTHER: Any other employment arrangement not covered by the listed kinds.
     - name: startDate
       type: date
       required: true
@@ -60,8 +60,8 @@ entity:
         - SUSPENDED
         - TERMINATED
       help:
-        summary: Where the employment stands.
-        usage: Moved by HR.
+        summary: Where the employment stands, from agreed but not started through in force to ended.
+        usage: Moved by HR; pay, leave and attendance run only while it is ACTIVE, and a terminated one is kept for history.
         valueSemantics:
           PENDING: Agreed but not yet started.
           ACTIVE: In force; the person is employed.
@@ -73,6 +73,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Set when the employment is created; pay, leave and attendance are measured against this person's employment.
         summary: The employee the employment is for.
         cardinalityMeaning: 'Exactly one employee: an employment relationship binds a specific individual.'
     - name: employer
@@ -80,6 +81,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Chosen when the employment is created; it identifies the legal employer that carries the obligations of the contract.
         summary: The organisation that employs the person.
         cardinalityMeaning: 'Exactly one employer: the legal entity that carries the obligations of employment.'
     - name: position
@@ -87,8 +89,9 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
-        summary: The position the person fills.
-        cardinalityMeaning: At most one position.
+        summary: The position in the organisation structure that the person fills under this employment.
+        usage: Assigned by HR at hiring and changed on a transfer; it places the person in a reporting line and cost centre.
+        cardinalityMeaning: At most one position, because someone fills a single position under one employment, and it may be unassigned.
     - name: compensationHistory
       target: Compensation
       cardinality: 0..*

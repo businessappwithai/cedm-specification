@@ -7,7 +7,7 @@ entity:
     icon: file-text
   identity: {key: documentClassificationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the classification., usage: Generated on creation; documents refer to it.}}
+    - {name: documentClassificationId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of one classification, such as Confidential or Contract Record.', usage: Generated when the classification is created; documents point to it so retention and access controls follow the label.}}
     - {name: effectiveAt, type: datetime, required: false, help: {summary: When the classification and its controls take effect., usage: Set when it is defined or revised.}}
   relationships: []
   invariants:

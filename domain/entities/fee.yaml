@@ -8,8 +8,8 @@ entity:
   attributes:
     - {name: feeId, type: uuid, required: true, immutable: true, help: {summary: The identity of the fee., usage: Generated on creation; invoices and payments refer to it., businessMeaning: Identifies one education charge independently of invoice and payment records., relationshipContext: Invoice may later formalize the receivable claim.}}
     - {name: feeCode, type: string, required: true, maxLength: 120, help: {summary: 'The code of the fee type, such as TUITION-2026 or LAB.', usage: Chosen when the fee is assessed., businessMeaning: "Identifies tuition, laboratory, transport or other governed education charge category.", relationshipContext: Code may repeat across students while feeId remains unique.}}
-    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: The amount charged., usage: Calculated from the fee schedule., businessMeaning: Education charge value before or alongside invoice creation., relationshipContext: Currency relationship makes value unambiguous.}}
-    - {name: dueDate, type: date, required: false, help: {summary: The date payment is due., usage: Set when assessed., businessMeaning: Supports collection and aging without replacing invoice payment terms., relationshipContext: Invoice terms may provide authoritative receivable due date after invoicing.}}
+    - {name: amount, type: decimal, required: true, precision: 20, scale: 4, help: {summary: "The monetary value of the fee, charged to the student in the fee's currency.", usage: 'Calculated from the fee schedule when assessed; it must not be negative, and credits are modelled explicitly.', businessMeaning: Education charge value before or alongside invoice creation., relationshipContext: Currency relationship makes value unambiguous.}}
+    - {name: dueDate, type: date, required: false, help: {summary: The date by which the student or payer is expected to settle the fee., usage: Set when the fee is assessed from the term calendar; collections and aging reports read it to find overdue charges., businessMeaning: Supports collection and aging without replacing invoice payment terms., relationshipContext: Invoice terms may provide authoritative receivable due date after invoicing.}}
     - name: status
       type: enum
       required: true
@@ -17,12 +17,12 @@ entity:
       values: [DRAFT, ASSESSED, INVOICED, PAID, WAIVED, CANCELLED]
       help:
         valueSemantics:
-          DRAFT: Being prepared; not yet charged.
+          DRAFT: Being prepared; not yet charged to the student.
           ASSESSED: Charged to the student but not yet invoiced.
-          INVOICED: Included on an invoice.
-          PAID: Settled.
-          WAIVED: Excused by the institution.
-          CANCELLED: Withdrawn.
+          INVOICED: Included on an invoice that now carries the receivable claim.
+          PAID: Settled, with payment evidence reconciled against the invoice. A final state.
+          WAIVED: Excused by the institution, so the student owes nothing. A final state.
+          CANCELLED: Withdrawn because it was raised in error or no longer applies. A final state.
         summary: Lifecycle state of the education fee.
         businessMeaning: Distinguishes preparation, assessment, billing, settlement and waived/cancelled outcomes.
         usage: Student accounts, billing and reporting.

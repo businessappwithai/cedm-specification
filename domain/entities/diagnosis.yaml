@@ -69,6 +69,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Set when the clinician records the finding; it shows when and in which visit the condition was identified, and who was involved.
         summary: The encounter in which the diagnosis was made.
         cardinalityMeaning: 'Exactly one encounter: each entry is made during a specific visit.'
     - name: patient
@@ -76,6 +77,7 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
+        usage: Set from the encounter when the diagnosis is recorded; it adds the condition to the patient's history and drives treatment and coding.
         summary: The patient who has the condition.
         cardinalityMeaning: "Exactly one patient: a diagnosis always belongs to a person's record."
   help:

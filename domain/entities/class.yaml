@@ -6,10 +6,10 @@ entity:
   ui: {icon: school}
   identity: {key: classId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: The identity of the class offering., businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., usage: "Scheduling, enrollment, attendance, assessment and reporting.", relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance.}}
+    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one scheduled class offering., usage: 'Generated on creation; enrolments, attendance and assessments refer to the class through it.', businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance.}}
     - {name: classCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The code by which the offering is known in timetables and registration, such as BIO101-A-2026F.', businessMeaning: Operational code for one course offering., usage: "Schedules, registers, search and integration.", relationshipContext: Distinct from EducationCourse code.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the offering as shown to students., businessMeaning: Identifies the teaching group to learners and staff., usage: "Schedules, portals and reports.", relationshipContext: May derive from course name plus section or term.}}
-    - {name: startDate, type: date, required: false, help: {summary: The first day of the offering., businessMeaning: Establishes delivery period., usage: "Scheduling, enrollment eligibility and reporting.", relationshipContext: Must not follow endDate.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The name of the offering as students and instructors see it, such as Biology 101, Autumn Section B.', usage: 'Entered when the class is planned; shown in timetables, learner portals and reports.', businessMeaning: Identifies the teaching group to learners and staff., relationshipContext: May derive from course name plus section or term.}}
+    - {name: startDate, type: date, required: false, help: {summary: The first day on which teaching for the class takes place., usage: Set when scheduling; enrolment eligibility is judged against it and it must not come after the end date., businessMeaning: Establishes delivery period., relationshipContext: Must not follow endDate.}}
     - {name: endDate, type: date, required: false, help: {summary: The last day of the offering., usage: Entered at scheduling; must not be earlier than the start date., businessMeaning: Closes the delivery period.}}
     - name: status
       type: enum
@@ -17,15 +17,15 @@ entity:
       default: DRAFT
       values: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
       help:
+        summary: Where the offering is, from planning through enrolment and teaching to completion or cancellation.
+        usage: Moved by the school administrator as the term proceeds; enrolment is only accepted while open, and attendance only once teaching begins.
         valueSemantics:
           DRAFT: Being planned; not yet visible to students.
-          OPEN: Open for enrolment.
-          IN_PROGRESS: Teaching has started.
-          COMPLETED: Finished; results are final and kept as delivery evidence.
-          CANCELLED: Called off before completion.
-        summary: Lifecycle state of the class offering.
+          OPEN: Open for enrolment, with teaching not yet begun.
+          IN_PROGRESS: Teaching has started and attendance and assessments are being recorded.
+          COMPLETED: Finished; results are final and kept as delivery evidence. A final state.
+          CANCELLED: Called off before completion. A final state.
         businessMeaning: Controls enrollment and delivery progression.
-        usage: Scheduling, enrollment, attendance and reporting.
         relationshipContext: Completed class history remains immutable evidence.
   relationships:
     - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one course; a class is always an offering of a single course., summary: Reusable course definition delivered by this Class., businessMeaning: Separates curriculum from one scheduled offering., usage: "Catalog, scheduling and reporting.", workflowRole: Course eligibility constrains new Class offerings.}}

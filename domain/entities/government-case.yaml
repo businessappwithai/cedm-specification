@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the case.
-        usage: Generated on creation.
+        summary: The permanent identity of the case, kept for its whole life from draft to closure.
+        usage: Generated on creation; tasks, documents, decisions and audit entries refer to the case by this value.
     - name: caseNumber
       type: string
       required: true
@@ -46,12 +46,12 @@ entity:
         - CLOSED
         - CANCELLED
       help:
-        summary: Where the case stands.
-        usage: Moved by caseworkers.
+        summary: Where the case stands, from preparation through review to a decision or withdrawal.
+        usage: Moved by caseworkers as the matter is submitted, assessed and decided; applicants and auditors read it to follow progress.
         valueSemantics:
           DRAFT: Being prepared by or for the applicant.
           OPEN: Submitted and awaiting review.
-          UNDER_REVIEW: Being assessed.
+          UNDER_REVIEW: Being assessed by a caseworker against the rules that apply.
           APPROVED: The matter was decided in the applicant's favour.
           DENIED: The matter was refused. A final state.
           CLOSED: Completed after approval. A final state.
@@ -60,8 +60,8 @@ entity:
       type: datetime
       required: true
       help:
-        summary: When the case was opened.
-        usage: Set on submission; statutory deadlines run from it.
+        summary: The date and time at which the case was submitted and formally opened.
+        usage: Set on submission; statutory service deadlines and ageing reports run from this moment.
     - name: closedAt
       type: datetime
       required: false

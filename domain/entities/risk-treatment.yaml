@@ -34,13 +34,13 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the treatment is.
-        usage: Starts as DRAFT; moved by the owner.
+        summary: How far the planned action on the risk has progressed.
+        usage: Starts as DRAFT and is moved by the treatment owner; only approved, active treatments are counted when residual risk is assessed.
         valueSemantics:
-          DRAFT: Proposed and not yet approved.
-          ACTIVE: Approved and being carried out.
-          COMPLETED: The action is done. A final state.
-          CANCELLED: No longer needed. A final state.
+          DRAFT: Proposed and not yet approved by the risk owner.
+          ACTIVE: Approved and the work is being carried out.
+          COMPLETED: The action has been done and its effect can be assessed. A final state.
+          CANCELLED: No longer needed or abandoned before completion. A final state.
         relationshipContext: Status changes can affect related Risk workflows but never erase historical evidence.
   relationships:
     - name: context

@@ -1,0 +1,47 @@
+@ InventoryReservation
+a createdAt
+s: The date and time at which stock was first committed to the demand by this reservation.
+u: Set automatically by the system when the record is created and never edited; it orders competing reservations and supports audit of allocation decisions.
+a updatedAt
+s: The date and time at which the reservation was last changed, for example confirmed, partly consumed or released.
+u: Set automatically on every change; integrations and planners use it to find recently altered reservations and to detect stale reads.
+@ InventoryTransfer
+a inventoryTransferId
+s: The stable identity of the transfer, constant from planning through receipt.
+u: Generated on creation; the stock movements that carry out the transfer, and any audit entries, refer to it by this value.
+a status
+s: How far the transfer of stock between locations has progressed, from request to receipt.
+u: Moved by the warehouse as work is released, goods are picked and moved, and the target location receives them; completed or cancelled transfers cannot be changed.
+v PLANNED: Requested but not yet released, so no warehouse work has been assigned.
+v RELEASED: Released to the warehouse, which may now begin execution.
+v IN_PROGRESS: The goods have been picked and are moving between the two locations.
+v COMPLETED: The goods have been received at the target location. A final state.
+v CANCELLED: Withdrawn before completion, with no further stock change. A final state.
+@ InvoiceLine
+a lineNumber
+s: The position of this line within its invoice, starting at one and used to reference the line.
+u: Assigned in sequence when the line is added; it fixes the order of lines on the printed invoice and lets credits and audit entries point to one line.
+a quantity
+s: The number of units originally billed on this line, in the unit of the billed product or service.
+u: Set when the line is created; invoice matching, credit notes and return-eligibility checks compare other quantities against it.
+a discountAmount
+s: The money value of the discount originally applied to this line before tax.
+u: Recorded when the line is calculated; tax and credit calculations reuse it so a later credit reproduces the original charge exactly.
+a description
+s: The text describing what was billed on this line, as it appeared on the invoice.
+u: Copied from the product or typed by the biller; it is printed on invoice documents and read in audit, and is kept even if the product later changes.
+@ Job
+a jobId
+s: The stable identity of the job definition, constant for its whole life.
+u: Generated on creation; positions, assignments and audit entries refer to the job through this identifier rather than through its title.
+@ JournalEntryLine
+a description
+s: A short note explaining what this single debit or credit line records.
+u: Typed by the person or process posting the entry; shown when a user drills down from a ledger balance to the underlying lines.
+@ Language
+a languageId
+s: The stable identity of the language record, constant even if its name or code is later corrected.
+u: Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.
+a name
+s: The English name of the language, such as French or Portuguese.
+u: Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
