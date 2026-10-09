@@ -42,6 +42,14 @@ entity:
   invariants:
     - {id: GUARDIAN-001, rule: A Guardian must reference a valid Party and at least one EducationStudent.}
     - {id: GUARDIAN-002, rule: "Historical consent, communication or financial evidence is not rewritten merely because guardian status later becomes INACTIVE."}
+  lifecycle:
+    title: Guardian Lifecycle
+    attribute: status
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - {from: ACTIVE, to: INACTIVE, action: deactivate}
+      - {from: INACTIVE, to: ACTIVE, action: reactivate}
   help:
     summary: A person who is authorised or expected to act for, support, receive communications about, or be responsible for one or more students.
     businessMeaning: Schools deal with parents and carers as well as pupils. The guardian record states who may be contacted, who may authorise things such as trips or collections, and how they relate to the student.
