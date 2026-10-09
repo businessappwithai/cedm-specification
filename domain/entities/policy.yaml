@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The title of the policy.
-        usage: Shown in policy libraries.
+        summary: The title of the policy as staff will see it in the policy library, such as Acceptable Use Policy.
+        usage: Set by the policy owner when drafting; shown in the policy library, audit reports and training material.
     - name: description
       type: string
       required: false
@@ -53,8 +53,8 @@ entity:
       default: '1.0'
       maxLength: 30
       help:
-        summary: The revision of the policy text.
-        usage: Incremented at each revision.
+        summary: The revision number of the policy text, such as 1.0 or 2.3, which tells readers which wording applies.
+        usage: Incremented by the owner at each revision, so audits and training can cite the exact version staff acknowledged.
     - name: status
       type: enum
       required: true
@@ -66,20 +66,20 @@ entity:
         - SUSPENDED
         - RETIRED
       help:
-        summary: Where the policy stands.
-        usage: Moved by the owner and approvers.
+        summary: Shows where the policy is in its life, from draft through approval and enforcement to retirement.
+        usage: Moved by the owner and approvers; staff are held to a policy only while it is active.
         valueSemantics:
-          DRAFT: Being written.
-          APPROVED: Approved but not yet in force.
-          ACTIVE: In force.
-          SUSPENDED: Temporarily not applied.
-          RETIRED: Withdrawn. A final state.
+          DRAFT: The policy text is being written and is not yet binding or approved.
+          APPROVED: The policy has been formally approved but is not yet in force, awaiting its effective date.
+          ACTIVE: The policy is in force and staff and systems are expected to comply with it.
+          SUSPENDED: The policy is temporarily not enforced, for example while it is revised, and may be reinstated.
+          RETIRED: The policy has been withdrawn or replaced and no longer applies. A final state.
     - name: effectiveFrom
       type: date
       required: false
       help:
-        summary: The first date the policy applies.
-        usage: Set at approval.
+        summary: The first date on which the policy applies and staff are expected to comply.
+        usage: Set at approval, usually in the future; the policy becomes enforceable from this date and not before.
     - name: effectiveTo
       type: date
       required: false
