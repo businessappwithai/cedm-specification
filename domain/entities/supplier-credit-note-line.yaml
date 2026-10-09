@@ -21,9 +21,9 @@ entity:
       required: true
       minimum: 1
       help:
-        summary: Sequence number within the supplier credit note.
+        summary: The position of this line within its supplier credit note.
+        usage: Assigned in sequence when the line is added; unique within the note and used to refer to the line in review and posting.
         businessMeaning: Provides deterministic document ordering.
-        usage: Used in credit documents and reconciliation.
         workflowRole: Identifies the line during approval and posting.
     - name: quantity
       type: decimal
@@ -31,9 +31,9 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: Quantity to which the supplier credit relates.
+        summary: The quantity of the original goods or service that this credit line relates to.
+        usage: Entered from the returned or adjusted quantity; it must reconcile with the supplier return line when the credit follows a return.
         businessMeaning: Connects the financial adjustment to a returned or otherwise adjusted quantity.
-        usage: Supports quantity/value reconciliation.
         relationshipContext: Must reconcile with eligible SupplierReturnLine quantity where return-originated.
         workflowRole: Supports credit calculation.
     - name: unitPrice
@@ -48,35 +48,35 @@ entity:
       type: Money
       required: true
       help:
-        summary: Gross credited value before discount and tax adjustments.
+        summary: The credited value before discount and tax, normally quantity times the original unit price.
+        usage: Calculated from quantity and unit price; it feeds the taxable amount and is checked in payable reconciliation.
         businessMeaning: Represents the value of the credited transaction component.
-        usage: Supports calculation and reconciliation.
         workflowRole: Feeds net taxable credit calculation.
     - name: discountAmount
       type: Money
       required: true
       default: {amount: 0}
       help:
-        summary: Discount component reversed or adjusted on the credited value.
+        summary: The part of the original discount that is reversed or adjusted on this credited value.
+        usage: Defaults to zero; copied from the original invoice treatment so the credit can be reproduced and reconciled.
         businessMeaning: Preserves the original transaction discount treatment.
-        usage: Supports reproducibility and reconciliation.
         workflowRole: Reduces the applicable credit base.
     - name: taxableAmount
       type: Money
       required: true
       help:
-        summary: Taxable base of the supplier credit line.
+        summary: The base amount on which tax is reversed or adjusted for this credit line.
+        usage: Calculated as gross amount less discount; tax reporting and accounting read it to compute the tax component.
         businessMeaning: Amount to which applicable tax reversal or adjustment applies.
-        usage: Supports tax and accounting reconciliation.
         workflowRole: Feeds tax calculation.
     - name: taxAmount
       type: Money
       required: true
       default: {amount: 0}
       help:
-        summary: Tax component of the supplier credit line.
+        summary: The tax reversed or adjusted on this credit line, zero when no tax applies.
+        usage: Calculated from the taxable amount using the original invoice tax treatment; it is added into the net line amount and tax reports.
         businessMeaning: Reverses or adjusts tax associated with the credited amount.
-        usage: Supports tax reporting and accounting.
         workflowRole: Contributes to line total.
     - name: netAmount
       type: Money
@@ -92,14 +92,17 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
-        summary: Parent supplier credit document.
+        summary: The credit note document to which this line belongs.
+        usage: Set when the line is created and not changed afterwards; the note supplies the supplier, currency and posting state.
+        cardinalityMeaning: Every line belongs to exactly one credit note and cannot exist on its own.
+        workflowRole: Whether a line may still be edited or posted depends on the lifecycle state of its parent note.
         businessMeaning: Supplies supplier, currency and lifecycle context.
-        workflowRole: Controls whether the line may be posted.
     - name: supplierReturnLine
       target: SupplierReturnLine
       cardinality: 0..1
       ownership: reference
       help:
+        usage: Chosen when the credit is caused by a return; it supplies the approved returned quantity that the credit may not exceed.
         summary: Return line that caused the credit.
         businessMeaning: Connects financial adjustment to physical reverse procurement.
         workflowRole: Supplies approved quantity and credit eligibility.
@@ -108,6 +111,7 @@ entity:
       cardinality: 0..1
       ownership: reference
       help:
+        usage: Chosen so the credit can copy the original price, discount and tax; payables staff use it to trace the credit back to the invoiced amount.
         summary: Original supplier invoice line being financially adjusted.
         businessMeaning: Preserves traceability to the original payable claim.
         workflowRole: Supplies original price, discount, tax and amount evidence.

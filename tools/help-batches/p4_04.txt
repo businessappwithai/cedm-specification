@@ -1,0 +1,51 @@
+@ Payment
+a currencyId
+s: The currency in which the payment amount is denominated, such as EUR or USD.
+u: Chosen when the payment is created; used to pick exchange rates, validate allocations and reconcile to the bank account.
+a paymentMethod
+s: Describes how the money is physically moved, such as by bank transfer, card, cheque or cash.
+u: Chosen when the payment is created; decides how it is processed, which fees apply and how it is reconciled.
+v CASH: Money is handed over in notes and coins and recorded against a cash box or till.
+v BANK_TRANSFER: Funds move between bank accounts by credit transfer and are matched to a bank statement line.
+v CARD: Payment is taken or made on a debit or credit card, normally through a processor that charges fees.
+v CHEQUE: Payment is made by a paper cheque that is issued or banked and clears after a delay.
+v DIRECT_DEBIT: Funds are collected from the payer's bank account under a standing mandate the payer has authorised.
+v OTHER: Payment uses a method not listed here, with the detail held in the external reference.
+@ PaymentAllocation
+a status
+s: Shows whether the allocation is still being prepared, is settling the invoice, or has been undone.
+u: Moved by accounts receivable or payable; only active allocations reduce the amount outstanding on the invoice.
+@ Payroll
+a periodStart
+s: The first calendar day of the pay period that this payroll result covers.
+u: Taken from the payroll calendar when the run is created; attendance, leave and compensation are picked up from this date.
+a grossAmount
+s: The total pay earned in the period before tax, contributions and other deductions are taken off.
+u: Calculated from compensation terms, hours worked and approved leave; the net amount is derived from it by deductions.
+a status
+s: Shows how far the payroll has moved from draft calculation through approval and posting to payment.
+u: Moved by payroll staff; only approved results are posted to the ledger, and only posted results are paid or reversed.
+@ Permission
+a permissionId
+s: The permanent identifier of the permission, which never changes even if its code or description is edited.
+u: Generated on creation; roles and access checks refer to the permission through this value.
+a code
+s: The unique code of the permission, such as purchase_order:approve, combining the resource and the operation.
+u: Defined by security administrators and kept unique; programs and access checks look the permission up by this code.
+a action
+s: The kind of operation on the resource that this permission allows its holder to perform.
+u: Chosen when the permission is defined; together with the resource it forms the capability checked at each protected step.
+v CREATE: The holder may create new records of the resource.
+v READ: The holder may view records of the resource without changing them.
+v UPDATE: The holder may change existing records of the resource.
+v DELETE: The holder may remove records of the resource.
+v EXECUTE: The holder may run an operation or process on the resource, such as starting a job.
+v APPROVE: The holder may approve records of the resource that are waiting for a decision.
+v EXPORT: The holder may extract records of the resource out of the system, for example to a file.
+v ADMINISTER: The holder may configure the resource and manage who else may use it.
+a status
+s: Shows whether the permission can currently be granted to roles and is honoured in access checks.
+u: Set by security administrators; inactive permissions are suspended and retired ones are removed from use.
+v ACTIVE: The permission can be added to roles and is honoured whenever access is checked.
+v INACTIVE: The permission is suspended and cannot be newly granted, but may be switched back on.
+v RETIRED: The permission has been withdrawn permanently and is no longer granted or checked. A final state.

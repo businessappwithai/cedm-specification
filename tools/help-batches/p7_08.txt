@@ -1,0 +1,29 @@
+@ SupplierDebitNoteApplication
+a appliedAt
+s: The date and time the debit became effective against the target invoice.
+u: Set when the application is activated and not changed; it decides the accounting period and appears on supplier statements.
+a status
+s: Whether this application of a supplier debit is being prepared, in force, reversed or cancelled.
+u: Starts as DRAFT; payables staff activate it to reduce the invoice, which also changes the debit's remaining balance.
+a reversalOfApplicationId
+s: Points to the earlier application of supplier debit that this record undoes.
+u: Set only on a correcting record; the original application is left unchanged so the audit trail stays complete.
+
+@ SupplierDebitNoteLine
+a supplierDebitNoteLineId
+s: The stable identity of one line of a supplier debit, constant for its life.
+u: Generated on creation; accounting, reconciliation and integrations refer to it even if line numbers change.
+a lineNumber
+s: The position of the line within its debit note.
+u: Assigned in sequence when the line is added; unique within the note and used in review and reconciliation.
+a unitPrice
+s: The price per unit used to calculate a quantity-based debit.
+u: Taken from the original commercial evidence such as the invoice line, not the current price list; blank for non-quantity debits.
+a taxAmount
+s: The tax associated with this debit line, zero where none applies.
+u: Calculated from the gross amount using the original tax treatment; it feeds tax reporting and the net line amount.
+a netAmount
+s: The final amount of this debit line, being gross amount adjusted for tax.
+u: Calculated; the debit note total is the sum of these amounts, and payables and supplier reconciliation read it.
+r supplierDebitNote
+u: Set when the line is created; the note supplies the supplier, currency and lifecycle that decide whether the line can be posted.
