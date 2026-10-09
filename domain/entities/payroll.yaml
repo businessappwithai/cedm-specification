@@ -9,9 +9,9 @@ entity:
   attributes:
     - {name: payrollId, type: uuid, required: true, immutable: true, help: {summary: The identity of the payroll result., usage: Generated on calculation; payslips and postings refer to it., businessMeaning: Identifies one governed payroll calculation independently of employee and payment., relationshipContext: Root identity for payroll evidence.}}
     - {name: payrollNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The number of the payroll result, shown on the payslip.', usage: Allocated from a number series; unique., businessMeaning: Identifies the payroll calculation or result operationally., relationshipContext: Distinct from Payment and JournalEntry references.}}
-    - {name: periodStart, type: date, required: true, help: {summary: The first day of the pay period., usage: Set by the payroll calendar., businessMeaning: Defines the first date whose approved employment inputs belong to the calculation., relationshipContext: Must not follow periodEnd.}}
+    - {name: periodStart, type: date, required: true, help: {summary: The first calendar day of the pay period that this payroll result covers., usage: 'Taken from the payroll calendar when the run is created; attendance, leave and compensation are picked up from this date.', businessMeaning: Defines the first date whose approved employment inputs belong to the calculation., relationshipContext: Must not follow periodEnd.}}
     - {name: periodEnd, type: date, required: true, help: {summary: The last day of the pay period., usage: Set by the payroll calendar; after the start date., businessMeaning: Defines the final date included in the calculation., relationshipContext: Must be on or after periodStart.}}
-    - {name: grossAmount, type: Money, required: true, help: {summary: The total pay before deductions., usage: 'Calculated from compensation, hours worked and leave.', businessMeaning: Records total earnings recognized by the payroll calculation., relationshipContext: Must reconcile with governed earning inputs.}}
+    - {name: grossAmount, type: Money, required: true, help: {summary: 'The total pay earned in the period before tax, contributions and other deductions are taken off.', usage: 'Calculated from compensation terms, hours worked and approved leave; the net amount is derived from it by deductions.', businessMeaning: Records total earnings recognized by the payroll calculation., relationshipContext: Must reconcile with governed earning inputs.}}
     - {name: netAmount, type: Money, required: true, help: {summary: The amount payable to the employee after deductions., usage: 'Calculated from the gross amount less tax, contributions and other deductions.', businessMeaning: Establishes the payroll settlement obligation before Payment execution., relationshipContext: Payment settles this obligation but is separate evidence.}}
     - name: status
       type: enum
@@ -19,8 +19,8 @@ entity:
       default: DRAFT
       values: [DRAFT, CALCULATED, APPROVED, POSTED, PAID, REVERSED]
       help:
-        summary: How far the payroll has progressed.
-        usage: Moved by payroll staff.
+        summary: Shows how far the payroll has moved from draft calculation through approval and posting to payment.
+        usage: Moved by payroll staff; only approved results are posted to the ledger, and only posted results are paid or reversed.
         valueSemantics:
           DRAFT: Created; not yet calculated.
           CALCULATED: Gross-to-net calculation done and awaiting review.

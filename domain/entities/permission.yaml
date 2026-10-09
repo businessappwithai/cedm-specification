@@ -16,16 +16,16 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the permission.
-        usage: Generated on creation; roles refer to it.
+        summary: The permanent identifier of the permission, which never changes even if its code or description is edited.
+        usage: Generated on creation; roles and access checks refer to the permission through this value.
     - name: code
       type: string
       required: true
       unique: true
       maxLength: 200
       help:
-        summary: The code of the permission, such as purchase_order:approve.
-        usage: Unique; used in access checks.
+        summary: The unique code of the permission, such as purchase_order:approve, combining the resource and the operation.
+        usage: Defined by security administrators and kept unique; programs and access checks look the permission up by this code.
     - name: resource
       type: string
       required: true
@@ -46,17 +46,17 @@ entity:
         - EXPORT
         - ADMINISTER
       help:
-        summary: The operation the permission allows.
-        usage: Chosen at definition.
+        summary: The kind of operation on the resource that this permission allows its holder to perform.
+        usage: Chosen when the permission is defined; together with the resource it forms the capability checked at each protected step.
         valueSemantics:
-          CREATE: Create new records.
-          READ: View records.
-          UPDATE: Change records.
-          DELETE: Remove records.
-          EXECUTE: Run an operation or process.
-          APPROVE: Approve a pending item.
-          EXPORT: Export data.
-          ADMINISTER: Manage the resource's configuration and access.
+          CREATE: The holder may create new records of the resource.
+          READ: The holder may view records of the resource without changing them.
+          UPDATE: The holder may change existing records of the resource.
+          DELETE: The holder may remove records of the resource.
+          EXECUTE: The holder may run an operation or process on the resource, such as starting a job.
+          APPROVE: The holder may approve records of the resource that are waiting for a decision.
+          EXPORT: The holder may extract records of the resource out of the system, for example to a file.
+          ADMINISTER: The holder may configure the resource and manage who else may use it.
     - name: status
       type: enum
       required: true
@@ -66,12 +66,12 @@ entity:
         - INACTIVE
         - RETIRED
       help:
-        summary: Whether the permission can be granted.
-        usage: Set by security administrators.
+        summary: Shows whether the permission can currently be granted to roles and is honoured in access checks.
+        usage: Set by security administrators; inactive permissions are suspended and retired ones are removed from use.
         valueSemantics:
-          ACTIVE: Available and enforced.
-          INACTIVE: Temporarily not granted.
-          RETIRED: Withdrawn. A final state.
+          ACTIVE: The permission can be added to roles and is honoured whenever access is checked.
+          INACTIVE: The permission is suspended and cannot be newly granted, but may be switched back on.
+          RETIRED: The permission has been withdrawn permanently and is no longer granted or checked. A final state.
   relationships:
     - name: roles
       target: Role

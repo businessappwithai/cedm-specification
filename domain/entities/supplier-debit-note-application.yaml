@@ -30,7 +30,11 @@ entity:
       type: datetime
       required: true
       immutable: true
-      help: {summary: Time the debit application became effective., businessMeaning: Establishes settlement chronology., usage: "Period control, audit, supplier statements and reconciliation.", workflowRole: Anchors the application event.}
+      help:
+        summary: The date and time the debit became effective against the target invoice.
+        usage: Set when the application is activated and not changed; it decides the accounting period and appears on supplier statements.
+        businessMeaning: Establishes settlement chronology.
+        workflowRole: Anchors the application event.
     - name: status
       type: enum
       required: true
@@ -41,14 +45,14 @@ entity:
         - REVERSED
         - CANCELLED
       help:
+        summary: Whether this application of a supplier debit is being prepared, in force, reversed or cancelled.
+        usage: Starts as DRAFT; payables staff activate it to reduce the invoice, which also changes the debit's remaining balance.
         valueSemantics:
           DRAFT: Prepared and not yet applied.
           ACTIVE: Applied against the invoice, reducing what is payable.
           REVERSED: Undone by a reversing application. A final state.
           CANCELLED: Withdrawn before it was applied. A final state.
-        summary: Lifecycle state of the debit application.
         businessMeaning: Separates preparation from effective application and later reversal.
-        usage: Controls payable projections and remaining debit balance.
         relationshipContext: Application status does not replace SupplierDebitNote or Invoice status.
         workflowRole: ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence.
     - name: reversalOfApplicationId
@@ -56,7 +60,12 @@ entity:
       target: SupplierDebitNoteApplication
       required: false
       immutable: true
-      help: {summary: Prior application being reversed., businessMeaning: Provides explicit lineage for a corrective reversal., usage: "Audit, reconciliation and error correction.", relationshipContext: Reversal is a new event and does not mutate the original application., workflowRole: Links compensating evidence to the prior application.}
+      help:
+        summary: Points to the earlier application of supplier debit that this record undoes.
+        usage: Set only on a correcting record; the original application is left unchanged so the audit trail stays complete.
+        businessMeaning: Provides explicit lineage for a corrective reversal.
+        relationshipContext: Reversal is a new event and does not mutate the original application.
+        workflowRole: Links compensating evidence to the prior application.
   relationships:
     - {name: supplierDebitNote, target: SupplierDebitNote, cardinality: '1', ownership: reference, help: {summary: Posted supplier debit being applied., businessMeaning: Identifies the source financial adjustment., usage: Remaining-balance and audit reconciliation., workflowRole: Supplies available debit amount and supplier context.}}
     - {name: invoice, target: Invoice, cardinality: "1", ownership: reference, help: {summary: Supplier payable invoice receiving the debit application., businessMeaning: Identifies the eligible original payable claim whose outstanding exposure is reduced., usage: "Accounts payable, reconciliation and supplier statements.", workflowRole: Supplies target claim and currency context.}}

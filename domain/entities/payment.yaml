@@ -80,7 +80,12 @@ entity:
       target: Currency
       required: true
       immutableAfterPosting: true
-      help: {summary: Currency denomination of the payment., businessMeaning: Defines interpretation of payment amount., usage: "Allocation, exchange-rate selection, bank reconciliation, accounting and reporting.", relationshipContext: May differ from invoice or credit currency only with explicit ExchangeRate evidence., workflowRole: Establishes source currency.}
+      help:
+        summary: The currency in which the payment amount is denominated, such as EUR or USD.
+        usage: Chosen when the payment is created; used to pick exchange rates, validate allocations and reconcile to the bank account.
+        businessMeaning: Defines interpretation of payment amount.
+        relationshipContext: May differ from invoice or credit currency only with explicit ExchangeRate evidence.
+        workflowRole: Establishes source currency.
     - name: paymentMethod
       type: enum
       required: true
@@ -92,15 +97,15 @@ entity:
         - DIRECT_DEBIT
         - OTHER
       help:
-        summary: How the money is moved.
-        usage: Chosen when the payment is created; decides processing and fees.
+        summary: Describes how the money is physically moved, such as by bank transfer, card, cheque or cash.
+        usage: Chosen when the payment is created; decides how it is processed, which fees apply and how it is reconciled.
         valueSemantics:
-          CASH: Notes and coins.
-          BANK_TRANSFER: An electronic transfer between bank accounts.
-          CARD: A payment card.
-          CHEQUE: A paper cheque.
-          DIRECT_DEBIT: A debit collected under a mandate.
-          OTHER: Any other method.
+          CASH: Money is handed over in notes and coins and recorded against a cash box or till.
+          BANK_TRANSFER: Funds move between bank accounts by credit transfer and are matched to a bank statement line.
+          CARD: Payment is taken or made on a debit or credit card, normally through a processor that charges fees.
+          CHEQUE: Payment is made by a paper cheque that is issued or banked and clears after a delay.
+          DIRECT_DEBIT: Funds are collected from the payer's bank account under a standing mandate the payer has authorised.
+          OTHER: Payment uses a method not listed here, with the detail held in the external reference.
         businessMeaning: Describes how money moves rather than which obligation it settles.
         relationshipContext: Refund or supplier-credit settlement method must satisfy applicable policy.
         workflowRole: Determines expected settlement evidence.
