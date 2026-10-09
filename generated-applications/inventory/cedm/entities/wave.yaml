@@ -7,14 +7,24 @@ entity:
     icon: file-text
   identity: {key: waveId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: waveId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the wave, constant for its life.', businessMeaning: Identifies one coordinated work release., usage: WMS planning and execution., relationshipContext: Groups tasks without replacing individual evidence.}}
-    - {name: waveNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The number of the wave, such as WV-2026-0412.', businessMeaning: Operational identifier for grouped work., usage: Warehouse planning and reporting., relationshipContext: Distinct from task and shipment identifiers.}}
+    - {name: waveId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identifier of the wave, unchanged while its tasks and status change.', usage: Generated on creation; pick and putaway tasks carry it to show which release batch they belong to., businessMeaning: Identifies one coordinated work release., relationshipContext: Groups tasks without replacing individual evidence.}}
+    - {name: waveNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The number of the wave, such as WV-2026-0412, shown to supervisors and pickers.', usage: 'Unique; assigned when the wave is planned and used on task lists, labour planning and reporting for the shift.', businessMeaning: Operational identifier for grouped work., relationshipContext: Distinct from task and shipment identifiers.}}
     - name: status
       type: enum
       required: true
       default: PLANNED
       values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CANCELLED]
-      help: {summary: Wave orchestration state., businessMeaning: Controls grouped task release and closure., usage: WMS execution., relationshipContext: Wave completion cannot substitute for task or inventory evidence., valueSemantics: {PLANNED: Work being grouped., RELEASED: Tasks authorized., IN_PROGRESS: Tasks executing., COMPLETED: Included work reconciled., CANCELLED: Remaining work terminated.}}
+      help:
+        summary: How far the batch of warehouse work has progressed, from planning through release to completion.
+        usage: Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished.
+        valueSemantics:
+          PLANNED: Orders and tasks are grouped but not yet released to the floor.
+          RELEASED: Released to the floor and ready for workers to start.
+          IN_PROGRESS: Workers are executing the picking, putaway or packing tasks.
+          COMPLETED: All the wave's work is done. A final state.
+          CANCELLED: The wave was abandoned and its tasks released for other planning. A final state.
+        businessMeaning: Controls grouped task release and closure.
+        relationshipContext: Wave completion cannot substitute for task or inventory evidence.
   relationships:
     - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each wave is run in one warehouse., summary: Warehouse executing wave., businessMeaning: Defines operating facility., usage: Labor/task orchestration., workflowRole: Included tasks must be compatible with warehouse.}}
     - {name: picks, target: Picking, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: Any number of picking tasks are released with a wave., summary: Pick tasks grouped in wave., businessMeaning: Coordinates inventory-selection work., usage: Batch/zone/order picking., workflowRole: Each pick retains independent execution evidence.}}

@@ -8,9 +8,9 @@ entity:
   referenceData: reference-data/language.yaml
   identity: {key: languageId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: The identity of the language record., usage: Generated when the language is loaded.}}
+    - {name: languageId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the language record, constant even if its name or code is later corrected.', usage: 'Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.'}}
     - {name: code, type: string, required: true, unique: true, maxLength: 2, help: {summary: 'The two-letter ISO 639-1 code of the language, such as en or de.', usage: Taken from the standard; unique; used in locale settings and APIs.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the language in English., usage: Shown in language pick-lists.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The English name of the language, such as French or Portuguese.', usage: 'Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.'}}
   relationships: []
   invariants:
     - {id: LANGUAGE-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}

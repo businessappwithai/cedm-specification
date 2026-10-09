@@ -13,18 +13,18 @@ entity:
       required: true
       values: [HOURS, DISTANCE, CYCLES, ENERGY, VOLUME, COUNT, PRESSURE, TEMPERATURE, OTHER]
       help:
-        summary: What the meter measures.
-        usage: Chosen at creation; determines the expected unit and behaviour.
+        summary: The kind of quantity the meter measures, such as running hours, distance travelled, energy or temperature.
+        usage: Chosen when the meter is created; it decides the expected unit of measure and how maintenance plans read the value.
         valueSemantics:
-          HOURS: Operating time.
-          DISTANCE: Distance travelled.
-          CYCLES: Operating cycles, such as lifts or starts.
-          ENERGY: Energy used.
-          VOLUME: Volume consumed or produced.
-          COUNT: A simple count.
-          PRESSURE: Pressure.
-          TEMPERATURE: Temperature.
-          OTHER: Any other measure.
+          HOURS: Counts running or operating time, used for equipment serviced by hours of use.
+          DISTANCE: Counts distance travelled, such as the kilometres on a vehicle odometer.
+          CYCLES: Counts completed operating cycles, such as press strokes or door openings.
+          ENERGY: Measures energy consumed or produced, such as kilowatt hours on an electricity meter.
+          VOLUME: Measures a quantity of fluid or gas passed, such as litres of fuel or water.
+          COUNT: Counts discrete items or events, such as units produced or visitors passing a gate.
+          PRESSURE: Measures pressure in a system, such as a boiler or hydraulic line, to watch for out-of-range conditions.
+          TEMPERATURE: Measures temperature of equipment or a room, used to detect overheating or cold-chain breaches.
+          OTHER: Measures a quantity not covered by the other types; the unit of measure then defines its meaning.
         businessMeaning: Defines how readings are interpreted and which maintenance or operational rules may consume them.
         relationshipContext: UnitOfMeasure provides the quantitative unit.
     - name: status
@@ -33,8 +33,8 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, OUT_OF_SERVICE, RETIRED]
       help:
-        summary: Whether the meter is in use.
-        usage: Set by maintenance engineering.
+        summary: Whether the meter is in service and expected to receive readings, or has been faulted or withdrawn.
+        usage: Set by maintenance engineering as the meter is commissioned, repaired or removed; new readings are accepted only while active.
         valueSemantics:
           DRAFT: Being defined; not yet read.
           ACTIVE: In use and being read.
@@ -42,7 +42,7 @@ entity:
           RETIRED: No longer used. A final state.
         businessMeaning: Controls whether new readings should normally be accepted.
         relationshipContext: Historical readings remain valid after status changes.
-    - {name: lastReadingValue, type: decimal, required: false, precision: 20, scale: 6, help: {summary: The most recent reading., usage: Updated from readings; maintenance plans compare it with thresholds., businessMeaning: Current observed value rather than authoritative reading history., relationshipContext: Must remain traceable to reading evidence.}}
+    - {name: lastReadingValue, type: decimal, required: false, precision: 20, scale: 6, help: {summary: 'The most recent value recorded for the meter, held on the meter for quick reference without reading history.', usage: 'Updated automatically from new readings; maintenance plans compare it with thresholds, and it must match a stored reading.', businessMeaning: Current observed value rather than authoritative reading history., relationshipContext: Must remain traceable to reading evidence.}}
     - {name: lastReadingAt, type: datetime, required: false, help: {summary: When the most recent reading was taken., usage: Updated with each reading; shows how current the value is., businessMeaning: Indicates freshness of current meter state., relationshipContext: Must correspond to the projected latest reading value.}}
   relationships:
     - {name: asset, target: Asset, cardinality: "0..1", ownership: reference, help: {summary: The asset that the meter measures., usage: Linked where the quantity belongs to equipment., cardinalityMeaning: At most one asset; a meter may instead measure a location., workflowRole: Lets usage trigger maintenance for the asset., businessMeaning: Connects usage or condition evidence to a durable managed resource.}}

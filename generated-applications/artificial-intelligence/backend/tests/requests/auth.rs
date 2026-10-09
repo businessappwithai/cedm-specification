@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-09T06:43:19.393Z
+//! Generated: 2026-10-09T08:30:10.019Z
 //! Project: artificial-intelligence
 
 use serde_json::{json, Value};

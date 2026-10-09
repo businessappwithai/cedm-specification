@@ -34,6 +34,8 @@ entity:
       default: DRAFT
       values: [DRAFT, AUTHORIZED, IN_TRANSIT, RECEIVED, INSPECTION_PENDING, DISPOSITIONED, COMPLETED, CANCELLED, EXCEPTION]
       help:
+        summary: Where the return stands, from request and authorisation through transport, receipt, inspection and completion.
+        usage: Moved by customer service and the warehouse; it controls what may happen next but does not itself change stock or invoices.
         valueSemantics:
           DRAFT: Being prepared; not yet authorised.
           AUTHORIZED: Approved by the seller; the customer may send the goods back.
@@ -44,9 +46,7 @@ entity:
           COMPLETED: All physical and financial effects are done.
           CANCELLED: Withdrawn before completion; no effects remain.
           EXCEPTION: Held because something went wrong, such as damage or a missing item, and needs a decision.
-        summary: Lifecycle state of the authorized customer return.
         businessMeaning: Controls progression through transport, receipt, inspection, disposition, inventory and financial adjustment.
-        usage: Controls return processing and completion decisions.
         relationshipContext: Return status does not itself change inventory or invoice balances.
         workflowRole: Coordinates dependent return workflows; CreditNote posting is a separate financial state.
     - name: returnDate
@@ -73,9 +73,9 @@ entity:
       required: false
       maxLength: 2000
       help:
-        summary: Additional operational context for the return.
+        summary: Free-text remarks about the return, such as damage seen on arrival or what the customer said.
+        usage: Written by customer service or warehouse staff for colleagues and audit; the facts that matter are held in structured fields.
         businessMeaning: Captures information not represented by structured return fields.
-        usage: Supports warehouse, customer service and audit review.
         relationshipContext: Notes supplement but do not replace structured evidence.
         workflowRole: Provides contextual information during exception handling.
   relationships:

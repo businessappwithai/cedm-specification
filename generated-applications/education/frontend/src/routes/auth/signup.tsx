@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:44:02.195Z
+ * Generated: 2026-10-09T08:30:50.966Z
  * Project: education
  */
 

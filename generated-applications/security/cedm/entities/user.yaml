@@ -25,8 +25,8 @@ entity:
       unique: true
       maxLength: 200
       help:
-        summary: The name used to sign in.
-        usage: Unique; entered at sign in.
+        summary: The sign-in name the user types to authenticate, distinct from the permanent user identifier.
+        usage: Unique across the application; chosen at registration or by an administrator and entered at every sign-in, so changing it affects how the person logs in.
         relationshipContext: Read with the linked party for display.
     - name: status
       type: enum

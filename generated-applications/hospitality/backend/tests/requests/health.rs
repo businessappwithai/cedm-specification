@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-09T06:44:29.038Z
+//! Generated: 2026-10-09T08:31:19.092Z
 //! Project: hospitality
 
 use serde_json::Value;

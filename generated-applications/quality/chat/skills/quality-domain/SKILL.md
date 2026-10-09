@@ -79,7 +79,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
-  - **Name** (required) — The full name of the unit. Shown in organisation charts and management reports.
+  - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
 
 ### Calendar
@@ -90,7 +90,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
-  - **Name** (required) — The descriptive name of the calendar. Shown wherever a calendar is chosen.
+  - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
 
 ### Certificate Of Analysis
 
@@ -99,9 +99,9 @@ Controlled certificate presenting quality evidence for governed material. Certif
 Readable by every signed-in person.
 
 Fields:
-  - **Certificate Number** (required) — The unique number printed on the certificate. Controlled number used to identify the issued certificate. Documents, search, exchange, and audit. Distinct from inspection and shipment numbers.
-  - **Issued At** — When the certificate was issued to its recipient. Establishes when the quality statement became externally or operationally effective. Compliance, customer documentation, and audit. Required once status is ISSUED.
-  - **Status** (required, one of the Certificate Of Analysis Status values) — Being prepared from the inspection results; not yet approved. Approved by quality but not yet released to the customer. Released to the recipient; it now stands as evidence. Replaced by a corrected certificate; kept for history. Withdrawn…
+  - **Certificate Number** (required) — The unique number printed on the certificate, which customers and auditors quote when asking for it. Assigned by quality when the certificate is drafted; used for search, document exchange and audit, and never reused. Controlled number use…
+  - **Issued At** — The date and time the certificate was released to its recipient, such as a customer or receiving site. Recorded when the status becomes issued and required by then; customers and auditors rely on it as the release date. Establishes when th…
+  - **Status** (required, one of the Certificate Of Analysis Status values) — Where the certificate stands in controlled release, from drafting to issue and eventual replacement or withdrawal. Moved by quality staff; only issued certificates are sent to customers, and corrections create a replacement rather than an…
 
 ### Certificate Of Analysis Status
 
@@ -118,18 +118,18 @@ Fields:
 
 ### City
 
-A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an a…
 
 Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart.
-  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name.
-  - **Population** — The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
-  - **Latitude** — Latitude in degrees, north positive. Maps and distance. Describes the city only.
-  - **Longitude** — Longitude in degrees, east positive. Maps and distance. Describes the city only.
+  - **Name** (required) — The city's name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a cit…
+  - **Population** — The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.
+  - **Latitude** — The city's north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.
+  - **Longitude** — The city's east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.
   - **Timezone** — The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.
-  - **Is Capital** — Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
+  - **Is Capital** — Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
   - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
 
@@ -151,12 +151,12 @@ Represents a controlled quality action from assignment through implementation an
 Readable by every signed-in person.
 
 Fields:
-  - **Action Number** (required) — Human-facing corrective-action reference. Identifies the action for quality teams, responsible parties and auditors. Communication, reporting, CAPA tracking and integration. Distinct from the originating nonconformance number and verificat…
-  - **Action Type** (required, one of the Corrective Action Action Type values) — Immediate action to stop the problem spreading, such as quarantining stock. Fixing the specific nonconforming item or condition. Removing the root cause so the problem does not recur. Action to prevent a similar problem elsewhere before it…
+  - **Action Number** (required) — The unique reference number by which people refer to the action in CAPA meetings and reports. Assigned when the action is raised; quoted in supplier communication, tracking dashboards and integrations. Identifies the action for quality tea…
+  - **Action Type** (required, one of the Corrective Action Action Type values) — The purpose of the action: containing a problem, fixing the item, removing its cause, or preventing recurrence elsewhere. Chosen by the quality owner; decides what evidence is expected, who reviews it and how effectiveness is judged. Immed…
   - **Description** (required) — Detailed statement of what the action will accomplish. Defines scope, intended outcome and work required to address the quality issue. Assignment, execution, audit and effectiveness assessment. Must remain traceable to the associated Nonco…
-  - **Status** (required, one of the Corrective Action Status values) — Raised but not yet assigned. Given to an owner, who has not started. Being carried out. Done and waiting for an effectiveness check. Done and, where required, verified effective. Withdrawn and not carried out. Lifecycle state of the action…
-  - **Due Date** — Target date for action implementation. Defines when the responsible party is expected to complete implementation. Work planning, escalation, SLA reporting and quality governance. Distinct from completedDate and verificationDate. Supports o…
-  - **Completed Date** — Date implementation was formally completed. Records when the action work was declared complete, subject to any required effectiveness verification. CAPA metrics, audit and chronology. Does not replace verification evidence where effectiven…
+  - **Status** (required, one of the Corrective Action Status values) — Where the action stands from being raised, assigned and carried out to verification and closure. Moved by the action owner and quality reviewer; completion needs the completed date and, where required, an effective verification. Raised but…
+  - **Due Date** — The date by which the action should be implemented. Agreed when the action is assigned; drives reminders and escalation, and overdue counts in quality governance reports. Defines when the responsible party is expected to complete implement…
+  - **Completed Date** — The date implementation was formally finished, which may differ from the verification date. Recorded when the action completes and required then; CAPA metrics measure time to complete against the due date. Records when the action work was…
   - **Nonconformance** (a Nonconformance) — Quality issue that caused or requires this action. Connects the action to the deviation and its containment, disposition and closure requirements. CAPA traceability, root-cause analysis and audit. Supplies the problem context the action is…
   - **Owner** (a Party) — Party accountable for implementing the action. Identifies the responsible person or organization for execution. Assignment, escalation and accountability. Owns implementation evidence and completion proposal.
 
@@ -193,10 +193,10 @@ Provides independent auditable evidence that a corrective or preventive action a
 Readable by every signed-in person.
 
 Fields:
-  - **Verification Number** (required) — Human-facing verification reference. Identifies the verification event for quality operations and audit. Reporting approval audit and supplier communication. Distinct from actionNumber and nonconformance number. Correlates verification evi…
+  - **Verification Number** (required) — The unique reference number that quality staff and suppliers quote for this effectiveness check. Assigned when the verification is raised; used in approvals, audit trails and supplier correspondence. Identifies the verification event for q…
   - **Verification Date** (required) — Date and time effectiveness verification was performed. Establishes when evidence was evaluated against the intended outcome. Audit SLA quality reporting and closure chronology. Anchors the verification event.
-  - **Result** (required, one of the Corrective Action Verification Result values) — The action achieved its intended result and the problem has not recurred. The action helped but did not fully remove the problem; further action is needed. The action did not work and the problem persists or has returned. Effectiveness can…
-  - **Status** (required, one of the Corrective Action Verification Status values) — Raised but not started. The verification is being carried out. Finished with a result and findings recorded. Reopened because new evidence or a recurrence needs further verification. Withdrawn and not carried out. Lifecycle state of verifi…
+  - **Result** (required, one of the Corrective Action Verification Result values) — The verifier's conclusion on whether the action achieved its intended result. Recorded when verification completes; an effective result can support closing the action, while other results force further work or an exception. The action achi…
+  - **Status** (required, one of the Corrective Action Verification Status values) — Where the verification is, from being raised through the check to completion, reopening or cancellation. Moved by the independent verifier; a verification can only complete once a result and findings are recorded. Raised but not started. T…
   - **Findings** (required) — Evidence and observations supporting the verification result. Explains what was checked and why the result was reached. Audit quality review supplier improvement and recurrence analysis. Supports effectiveness decision.
   - **Verified By** (required, a Party) — Party accountable for performing or approving effectiveness verification. Establishes accountability for the verification decision. Audit trail quality governance and segregation of duties. Provides verification authority.
   - **Nonconformance** (a Nonconformance) — Nonconformance for which the action was established. Connects effectiveness evidence to the original quality deviation. Issue closure and recurrence analysis. Provides context for determining whether the underlying issue is controlled.
@@ -230,7 +230,7 @@ Fields:
 
 ### Country
 
-A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
@@ -239,7 +239,7 @@ Fields:
   - **Alpha3** — The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.
   - **Numeric Code** — The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
   - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
-  - **Phone Code** — The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
+  - **Phone Code** — The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to…
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
 
 ### Currency
@@ -276,8 +276,8 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
-  - **Name** (required) — The name of the department. Shown in organisation charts and on documents.
-  - **Organization** (required, a Organization) — The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.
+  - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
 
 ### Exchange Rate
 
@@ -331,7 +331,7 @@ Fields:
   - **Sample Number** (required) — Human-facing identifier for the selected inspection sample. Provides an operational reference for labeling, handling, testing, and audit. Inspection execution, laboratory handling, reports, and traceability. Identifies the executed sample…
   - **Selected At** (required) — Time at which the sample was selected from the eligible population. Establishes when the actual sampling event occurred. Chain of custody, audit, reproducibility, and inspection chronology. Distinct from QualityInspection.inspectionDate an…
   - **Quantity** (required) — Quantity represented by the selected sample. States how much material or how many units the sample represents under its unit of measure. Sample reconciliation, measurement scope, inventory traceability, and audit. Must reconcile with the e…
-  - **Unit Of Measure** (required, a Unit Of Measure) — Unit in which the sample quantity is expressed. Gives semantic meaning to the selected sample quantity. Reconciliation, reporting, conversion, and audit. Must be compatible with the source population and governing sampling configuration.
+  - **Unit Of Measure** (required, a Unit Of Measure) — The unit in which the sample quantity is expressed, such as grams, millilitres or pieces. Chosen by the inspector when the sample is taken; quantities are reconciled, converted and reported against it, and it stays fixed for audit. Gives s…
   - **Status** (required, one of the Inspection Sample Status values) — Drawn from the population and waiting to be tested. Under test; measurements are being taken. Testing finished and results recorded. Found unsuitable, for example damaged or mislabelled, and excluded. A final state. Discarded or consumed a…
   - **Selection Basis** — Evidence or description of how this particular sample was selected. Preserves the operational selection basis needed to reproduce or audit the sampling event. Compliance, audit, supplier disputes, and statistical review. Complements the au…
   - **Quality Inspection** (required, a Quality Inspection) — Exactly one inspection: a sample is drawn for a particular inspection and has no meaning outside it. QualityInspection for which this sample was selected. Provides the execution context and population being inspected. Sample traceability,…
@@ -359,7 +359,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
-  - **Name** (required) — The name of the language in English. Shown in language pick-lists.
+  - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
 
 ### Legal Entity
 
@@ -378,9 +378,9 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
-  - **Name** (required) — The name people use for the place. Shown in lists, maps and documents.
-  - **Location Type** (required, one of the Location Location Type values) — What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A p…
-  - **Status** (required, one of the Location Status values) — Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.
+  - **Name** (required) — The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+  - **Location Type** (required, one of the Location Location Type values) — A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or sta…
+  - **Status** (required, one of the Location Status values) — Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the pla…
   - **Address** (a Address) — The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
   - **Parent Location** (a Location) — The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
   - **Organization** (a Organization) — The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
@@ -420,10 +420,10 @@ Readable by every signed-in person.
 Fields:
   - **Number** (required) — The unique reference by which the deviation is cited in reports and corrective actions. Identifies the issue for quality and supplier operations. Audit, reporting, CAPA and dispute handling. Human-recognizable issue reference.
   - **Severity** (required, one of the Nonconformance Severity values) — How serious the deviation is. Set by quality at review; drives containment and escalation. Minor deviation with little effect. Notable deviation needing correction. Serious deviation affecting product or customers. Dangerous or legally sig…
-  - **Status** (required, one of the Nonconformance Status values) — Where the nonconformance is in its handling. Moved by quality staff. Recorded but not yet reviewed. Being investigated. Affected goods are isolated so the problem cannot spread. Corrective actions are under way to remove the cause. Resolve…
-  - **Description** (required) — Detailed explanation of the deviation. States what requirement or expected result was not met. Investigation, supplier communication, CAPA and audit. Provides issue evidence.
-  - **Detected At** (required) — Time the deviation was detected. Establishes chronology for containment and corrective action. Audit and quality analytics. Anchors issue occurrence.
-  - **Closed At** — Time the issue was formally closed. Establishes completion chronology. Quality performance and audit. Required for closure.
+  - **Status** (required, one of the Nonconformance Status values) — Shows how far the quality deviation has progressed through review, containment, corrective action and closure. Moved by quality staff as the investigation advances; closing requires corrective action, and rejection ends a report that was n…
+  - **Description** (required) — A full account of what went wrong, naming the requirement or expected result that was not met. Written by whoever raises the issue and refined during review; read in investigation, supplier communication and audit. States what requirement…
+  - **Detected At** (required) — The date and time when the deviation was first noticed, which may precede the time it was entered. Entered when the issue is raised; containment and corrective action deadlines are measured from it in quality analytics. Establishes chronol…
+  - **Closed At** — The date and time when the deviation was formally closed or rejected by quality. Set when the status becomes closed or rejected; left empty while the issue is open, and used to measure time to resolve. Establishes completion chronology. Re…
   - **Inspection** (a Quality Inspection) — Inspection that detected or evidenced the deviation. Connects issue to objective quality evaluation. Investigation and audit. Provides detection evidence.
   - **Owner** (a Party) — Party accountable for issue management. Identifies responsible quality owner or organizational party. Escalation, CAPA and audit. Owns investigation and closure.
 
@@ -463,8 +463,8 @@ Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when part…
   - **Code** (required) — Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope.…
   - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
-  - **Organization Type** (required, one of the Organization Organization Type values) — The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organi…
-  - **Status** (required, one of the Organization Status values) — Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an org…
+  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the u…
+  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organizatio…
   - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
   - **Registration Number** — Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verifica…
   - **Tax Identifier** — Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule appli…
@@ -546,7 +546,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
-  - **Name** (required) — A description of the relationship. Shown in party views.
+  - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
 
 ### Party Role
@@ -557,11 +557,11 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
-  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business…
+  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
   - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
   - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
-  - **Valid To** — The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
-  - **Status** (required, one of the Party Role Status values) — Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTI…
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
+  - **Status** (required, one of the Party Role Status values) — Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may res…
   - **Person** (a Person) — The Person this PartyRole belongs to.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
@@ -612,13 +612,13 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactio…
-  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display.
-  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification.
-  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification.
-  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification.
-  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction.
-  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.
-  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as ne…
+  - **Title** — The honorific or personal title used before the person's name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.
+  - **Given Name** (required) — The person's first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Middle Name** — Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.
+  - **Family Name** (required) — The person's family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Preferred Name** — The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonic…
+  - **Date Of Birth** — The person's date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject…
+  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The p…
   - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
   - **Party Type** (required, one of the Person Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
   - **Display Name** (required) — The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, t…
@@ -674,8 +674,8 @@ Fields:
   - **Code** (required) — The short code of the characteristic, such as WEIGHT or PURITY. Provides a stable human-readable identifier such as WEIGHT, TEMPERATURE, LENGTH, or APPEARANCE. Used in quality plans, measurements, reports, integrations, and validation rule…
   - **Name** (required) — The name of the property being checked, as inspectors know it. States what property the characteristic represents in language understandable to quality personnel and other users. Used in quality-plan authoring, inspection screens, reports,…
   - **Description** — Detailed explanation of the characteristic and its intended interpretation. Clarifies exactly what is observed and prevents different processes from interpreting the same code differently. Quality-plan design, inspection execution, audit,…
-  - **Data Type** (required, one of the Quality Characteristic Data Type values) — Data representation expected for observations of this characteristic. Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid. Controls QualityMeasurement value selection, validation, user-…
-  - **Status** (required, one of the Quality Characteristic Status values) — Lifecycle state of the reusable characteristic definition. Controls whether the characteristic may be newly assigned to quality plans and used for new measurements. Governance, authoring, validation, and retirement control. Retiring a char…
+  - **Data Type** (required, one of the Quality Characteristic Data Type values) — The kind of value that observations of this characteristic take, which fixes how measurements are entered and checked. Chosen when the characteristic is defined; quality measurements, forms and analytics follow it, and it should not change…
+  - **Status** (required, one of the Quality Characteristic Status values) — Whether this reusable characteristic definition is still being prepared, approved for use or retired. Moved by quality governance; only ACTIVE characteristics can be assigned to new quality plans, and RETIRED is final but stays readable. C…
   - **Evaluation Method** — General method or interpretation approach for observing this characteristic. Describes the expected measurement or observation approach when a reusable default is appropriate. Provides guidance for quality-plan authoring and inspection exe…
 
 ### Quality Characteristic Data Type
@@ -711,12 +711,12 @@ Represents a quality inspection and its controlled sampling, measurements, resul
 Readable by every signed-in person.
 
 Fields:
-  - **Inspection Number** (required) — Business-facing inspection reference. Identifies the inspection in quality operations and audit. Quality records, supplier disputes and reporting. Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber. Provides human-rec…
+  - **Inspection Number** (required) — The business-facing reference quoted for this inspection in quality records and with suppliers. Assigned when the inspection is raised and unique; used in supplier disputes, release decisions and quality reporting. Identifies the inspectio…
   - **Inspection Date** (required) — Date and time inspection was performed or initiated. Establishes quality chronology. Audit, release, supplier performance and compliance. May occur after receipt or return authorization and before final disposition. Anchors inspection evid…
-  - **Status** (required, one of the Quality Inspection Status values) — Raised and not yet started. Samples are being taken and measured. The goods met every requirement. A final state. The goods did not meet the requirements. A final state. Passed only with conditions, awaiting a decision on release. The insp…
+  - **Status** (required, one of the Quality Inspection Status values) — Where the inspection stands from being raised through sampling to a final verdict. Moved by inspectors; it controls release and disposition workflows, and passed, failed and cancelled are final. Raised and not yet started; waiting for an i…
   - **Result** (one of the Quality Inspection Result values) — Every measured characteristic was within its limits. At least one characteristic was outside its limits. Acceptable only if a stated condition is met. The result of the quality inspection is not tested; set it when that is what the busines…
-  - **Disposition** (one of the Quality Inspection Disposition values) — Release the goods for use or sale. Accept the goods into stock. Refuse the goods. Hold the goods apart until a decision is made. Send the goods back to the supplier. Correct the goods so they meet the requirement. Repair the goods to a usa…
-  - **Notes** — Inspection observations and supporting context. Records qualitative evidence not represented by structured measurements. Quality review, supplier disputes and audit. Complements QualityMeasurement, InspectionSample and Nonconformance; does…
+  - **Disposition** (one of the Quality Inspection Disposition values) — The decision on what to do with the inspected goods. Set after a result is recorded; it drives inventory availability, supplier returns, repair, scrap and release. Release the goods for use or sale. Accept the goods into stock. Refuse the…
+  - **Notes** — The inspector's observations and supporting context that the recorded results do not capture. Free text entered during or after inspection; read in quality reviews, supplier disputes and audits. Records qualitative evidence not represented…
   - **Quality Plan** (a Quality Plan) — Quality plan governing this inspection. Identifies requirements, characteristics, sampling policies and test procedures. Determines inspection scope and acceptance criteria. Provides expected quality controls.
   - **Inspector** (a Party) — Party performing or accountable for inspection. Identifies inspector or quality authority. Accountability, audit and compliance. Provides execution responsibility.
 
@@ -766,17 +766,17 @@ Structured auditable evidence for one quality characteristic observed during a Q
 Readable by every signed-in person.
 
 Fields:
-  - **Measurement Number** (required) — Human-facing measurement reference. Provides an operational identifier for one observation. Inspection review, audit and integration. Distinct from the parent inspection number. Supports individual observation traceability.
+  - **Measurement Number** (required) — The human-facing reference that identifies this one measurement within inspection records. Assigned when the measurement is captured and unique; used by reviewers, auditors and integrations to cite it. Provides an operational identifier fo…
   - **Characteristic Code** (required) — Snapshot of the quality characteristic business code evaluated by this observation. Preserves the human-readable characteristic identifier applicable when evidence was captured. Audit, reporting, exports and legacy integration. Must corres…
-  - **Measured Value** — Numeric value observed during inspection. Records the factual quantitative observation before evaluation. Acceptance evaluation, trend analysis and audit. Requires a compatible unit for dimensional characteristics. Supplies evidence used a…
-  - **Measured Text** — Categorical or textual observation. Records observations such as color, grade, appearance or classification. Quality evaluation where numeric measurement is inappropriate. Used instead of measuredValue for categorical characteristics. Supp…
-  - **Unit Of Measure** (a Unit Of Measure) — Unit in which a numeric measurement is expressed. Defines the dimensional interpretation of measuredValue. Comparison, conversion, reporting and audit. Must be compatible with the linked QualityPlanCharacteristic and QualityCharacteristic.…
+  - **Measured Value** — The numeric value actually observed during the inspection, such as a weight or temperature. Entered for numeric characteristics together with the unit; compared with the limits to give the result, and exclusive with measured text. Records…
+  - **Measured Text** — The categorical or textual observation made, such as a colour grade or appearance remark. Entered for characteristics that are not numeric; used in evaluation where a number does not apply, and exclusive with measured value. Records observ…
+  - **Unit Of Measure** (a Unit Of Measure) — The unit, such as kilograms or degrees Celsius, in which the numeric measured value is expressed. Chosen with a numeric value; used to compare against limits, convert between units and report consistently. Defines the dimensional interpret…
   - **Lower Limit** — Snapshot of the lower acceptance boundary applicable when the measurement was evaluated. Preserves the criterion used to evaluate the historical observation. Audit, reproducibility and review. Normally copied from QualityPlanCharacteristic…
   - **Upper Limit** — Snapshot of the upper acceptance boundary applicable when the measurement was evaluated. Preserves the criterion used to evaluate the historical observation. Audit, reproducibility and review. Normally copied from QualityPlanCharacteristic…
-  - **Result** (required, one of the Quality Measurement Result values) — The measured value is within its limits. The measured value is outside its limits. Within tolerance only under a stated condition. The result of the quality measurement is not evaluated; set it when that is what the business means for this…
-  - **Measured At** (required) — Time when the observation was captured. Establishes chronology of the measured fact. Traceability, sampling, compliance and audit. Distinct from QualityInspection.inspectionDate. Preserves temporal measurement evidence.
-  - **Method** — Method or procedure used to obtain the observation. Identifies how the measurement or test was performed. Reproducibility, laboratory audit and compliance. Should align with the linked QualityPlanCharacteristic method where applicable. Est…
-  - **Notes** — Supporting context for the observation. Captures anomalies or conditions not represented structurally. Review and audit. Complements measured values and result without replacing them. Provides supporting evidence.
+  - **Result** (required, one of the Quality Measurement Result values) — The verdict on this measurement when compared with its governing acceptance criterion. Set when the value is evaluated; inspections use it to complete, raise nonconformances and feed quality analytics. The measured value is within its limi…
+  - **Measured At** (required) — The date and time at which the observation was actually taken. Captured with the measurement; supports sampling traceability, compliance checks and audit of when results were obtained. Establishes chronology of the measured fact. Distinct…
+  - **Method** — The method or procedure used to obtain the observation, such as a named test standard or instrument routine. Entered by the inspector; lets others reproduce the test and lets laboratory audits confirm the right method was used. Identifies…
+  - **Notes** — Supporting context for this observation, such as sample condition or instrument remarks. Free text entered by the inspector; read during review and audit to explain unusual values. Captures anomalies or conditions not represented structura…
   - **Quality Characteristic** (a Quality Characteristic) — Reusable quality property observed by this measurement. Identifies the semantic property independently of a particular plan. Traceability, analytics, reuse, and audit. Should agree with the QualityCharacteristic reached through qualityPlan…
   - **Quality Plan Characteristic** (a Quality Plan Characteristic) — Plan-specific requirement used to interpret and evaluate this measurement. Identifies the exact configured characteristic, limits, method, unit, and requiredness governing the observation. Requirement traceability, acceptance evaluation, a…
   - **Test Method** (a Test Method) — Governed test procedure used to produce this observation. Identifies the authoritative reusable method applied during measurement. Reproducibility, compliance, laboratory audit, and analytics. Optional when no reusable controlled method ap…
@@ -818,8 +818,8 @@ Readable by every signed-in person.
 Fields:
   - **Sequence Number** (required) — Execution or presentation order of this quality characteristic within the plan. Determines where the characteristic appears in inspection instructions and can support ordered sampling or testing. Inspection forms, operator guidance, report…
   - **Required** (required) — Indicates whether evidence for this characteristic is mandatory for the governing plan. Determines whether the absence of a measurement can prevent inspection completion. Inspection validation, completion gating, audit, and exception handl…
-  - **Lower Limit** — Plan-specific lower acceptance boundary for a numeric characteristic. Defines the minimum acceptable value under this particular QualityPlan. Automated evaluation and inspection review. Applies only to the linked QualityCharacteristic in t…
-  - **Upper Limit** — Plan-specific upper acceptance boundary for a numeric characteristic. Defines the maximum acceptable value under this particular QualityPlan. Automated evaluation and inspection review. Applies only to the linked QualityCharacteristic in t…
+  - **Lower Limit** — The smallest numeric measurement this plan accepts for the characteristic; anything below it fails. Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not exceed the upper lim…
+  - **Upper Limit** — The largest numeric measurement this plan accepts for the characteristic; anything above it fails. Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not fall below the lower…
   - **Target Value** — Preferred numeric target for the characteristic under this plan. Represents the desired value rather than the minimum or maximum acceptance boundary. Process optimization, inspection guidance, analytics, and trend analysis. Must be compati…
   - **Unit Of Measure** (a Unit Of Measure) — Unit used for numeric limits and target values in this plan configuration. Gives dimensional meaning to the configured numeric criteria. Measurement evaluation, conversion, reporting, and audit. Must be dimensionally compatible with the Qu…
   - **Method** — Plan-specific procedure or method required to evaluate the characteristic. Defines how the characteristic must be observed when this plan is executed. Inspection instructions, reproducibility, compliance, and audit. May refine or override…
@@ -851,8 +851,8 @@ Readable by every signed-in person.
 Fields:
   - **Disposition Code** (required, one of the Return Disposition Disposition Code values) — Return the goods to saleable stock. Hold the goods apart until a decision is made. Send the goods back to the supplier. Correct the goods so they meet the requirement. Repair the goods to a usable condition. Destroy or write off the goods.…
   - **Disposition Date** (required) — Timestamp when the disposition became effective. Establishes chronology for the physical return decision. Supports audit, warehouse processing, SLA measurement and reconciliation. Distinct from returnDate, receiptDate and financial adjustm…
-  - **Quantity** (required) — Quantity covered by this disposition. States how much returned material receives this outcome. Supports partial dispositions and inventory execution. Must reconcile with the related return line quantity and its UnitOfMeasure. Controls the…
-  - **Status** (required, one of the Return Disposition Status values) — Being prepared; the outcome is not yet decided. Approved and ready to be carried out. The disposition has been carried out and stock adjusted. A final state. Withdrawn before it was carried out. A final state. Could not be carried out as a…
+  - **Quantity** (required) — How many units of the returned goods this disposition decision covers. Entered by the returns handler; partial quantities allow one return to be split across outcomes, and inventory is adjusted by this amount. States how much returned mate…
+  - **Status** (required, one of the Return Disposition Status values) — The stage of the disposition decision, from proposal through approval to physical execution. Starts as DRAFT and is moved by the authorising user and warehouse; inventory movements are only allowed once it is AUTHORIZED. Being prepared; th…
   - **Reason Code** — Business reason supporting the selected disposition. Explains why the returned quantity received the selected operational outcome. Used for quality analysis, supplier/customer disputes and reporting. May derive from return reason or inspec…
   - **Nonconformance** (a Nonconformance) — The Nonconformance this ReturnDisposition belongs to.
   - **Quality Inspection** (a Quality Inspection) — Quality inspection supporting the disposition decision. Links the operational outcome to quality evidence where inspection is required. Supports release, quarantine, rejection, repair, scrap and return decisions. Provides controlled eviden…
@@ -892,7 +892,7 @@ Readable by every signed-in person.
 Fields:
   - **Code** (required) — The short code of the plan, such as SP-AQL-1.5. Provides a stable operational reference for a governed sampling definition. Plan selection, inspection authoring, reports, and integrations. Identifies the sampling definition rather than an…
   - **Name** (required) — The name inspectors know the plan by. Explains the purpose of the sampling strategy. Quality authoring, inspection execution, training, reporting, and audit. Describes the overall sampling definition whose detailed rules are represented by…
-  - **Method** (required, one of the Sampling Plan Method values) — General method used to select inspection samples. Defines the governed selection approach rather than leaving sampling to operator discretion. Sampling execution, compliance, reproducibility, and audit. SamplingRule refines the method with…
+  - **Method** (required, one of the Sampling Plan Method values) — The general way samples are picked from the population being inspected. Chosen when the plan is authored; it fixes how sampling is executed and makes selections reproducible and auditable. Every applicable unit is inspected, with no sampli…
   - **Status** (required, one of the Sampling Plan Status values) — Whether the plan may be used in quality plans. Controls whether the sampling definition may be assigned to new governed inspections. Governance, authoring, inspection planning, and retirement. Retirement preserves historical inspection evi…
 
 ### Sampling Plan Method
@@ -934,7 +934,7 @@ Fields:
   - **Sample Size** (required) — Number of units or observations to select when this rule applies. Defines the required sample quantity before the inspection can satisfy the sampling requirement. Sample selection, inspection execution, and completion gating. Must not exce…
   - **Acceptance Number** — Maximum number of failing sampled units permitted for acceptance under this rule. Defines the failure threshold for acceptance-sampling plans. Automated sample evaluation and inspection decision support. Used with rejectionNumber and sampl…
   - **Rejection Number** — Number of failing sampled units at which the sampled population is rejected. Defines the rejection threshold for acceptance-sampling plans. Automated evaluation and inspection decision support. Must be greater than acceptanceNumber when bo…
-  - **Status** (required, one of the Sampling Rule Status values) — Whether the rule is in force. Controls whether the rule can be selected for new sample executions. Governance, authoring, and inspection execution. Retired rules remain available for historical sample traceability. Rule is being prepared a…
+  - **Status** (required, one of the Sampling Rule Status values) — Whether this sampling rule may currently be chosen when a sample is drawn. Starts as DRAFT and is moved by quality owners; inspections only select ACTIVE rules, and retired rules stay as evidence of past inspections. Being prepared and nor…
   - **Sampling Plan** (required, a Sampling Plan) — SamplingPlan that owns this conditional sampling rule. Provides the overall sampling method and governance context. Rule selection, execution, traceability, and audit. Every rule belongs to exactly one SamplingPlan. The plan supplies the m…
   - **Quality Plan** (a Quality Plan) — QualityPlan in which this rule is specifically used when a direct plan association is needed. Provides explicit traceability from a sampling rule to the quality plan it supports. Plan impact analysis, reporting, governance, and integration…
 
@@ -959,7 +959,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
-  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key.
+  - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
 
@@ -970,12 +970,12 @@ A discrete unit of business work performed by a person, organisation, system or 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the task, such as TASK-0042. Used in lists and notifications.
-  - **Name** (required) — A short statement of the work. Shown on to-do lists.
-  - **Description** — Details of what must be done. Read by the assignee.
+  - **Code** (required) — The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
+  - **Name** (required) — A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
+  - **Description** — Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
   - **Task Type** (required, one of the Task Task Type values) — The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script…
-  - **Status** (required, one of the Task Status values) — Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final stat…
-  - **Priority** (required, one of the Task Priority values) — How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.
+  - **Status** (required, one of the Task Status values) — Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The…
+  - **Priority** (required, one of the Task Priority values) — How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business…
   - **Due At** — Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   - **Started At** — Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   - **Completed At** — Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
@@ -1028,10 +1028,10 @@ Reusable governed procedure for producing quality evidence. TestMethod separates
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — Business code of the test method. Human-readable controlled identifier for the procedure. Authoring, execution, reporting, and integration. Remains stable within its governed version.
-  - **Name** (required) — Human-readable test-method name. States the procedure understood by quality and laboratory personnel. Instructions, forms, reports, and training. Complements the controlled code.
-  - **Instructions** — Governed execution instructions. Describes how evidence must be produced. Laboratory and inspection execution, reproducibility, and audit. May be supplemented by controlled external procedures.
-  - **Status** (required, one of the Test Method Status values) — Lifecycle state of the method. Controls whether the procedure may be selected for new governed work. Method governance and execution gating. Historical evidence retains the method/version used. Being authored and not normally executable. A…
+  - **Code** (required) — The controlled business code identifying the test method, such as TM-HPLC-012. Assigned when the method is authored; unique, and quoted on inspection plans, results and laboratory records to show which procedure was used. Human-readable co…
+  - **Name** (required) — The readable name of the test method as quality and laboratory staff know it. Entered by method owners; shown when planning inspections and recording results. States the procedure understood by quality and laboratory personnel. Complements…
+  - **Instructions** — The step-by-step procedure, equipment and acceptance approach that testers follow to produce valid evidence. Written and reviewed under document control; testers follow it exactly, and changes are made through a new version, not silent edi…
+  - **Status** (required, one of the Test Method Status values) — Shows whether the test method is being authored, available for use, paused, or withdrawn. Moved by quality owners; only active methods may be selected for new inspections, and past results keep the method they used. The method is being wri…
 
 ### Test Method Status
 
@@ -1110,8 +1110,8 @@ Fields:
 - **DRAFT** — Being prepared from the inspection results; not yet approved.
 - **APPROVED** — Approved by quality but not yet released to the customer.
 - **ISSUED** — Released to the recipient; it now stands as evidence.
-- **SUPERSEDED** — Replaced by a corrected certificate; kept for history.
-- **VOID** — Withdrawn because it was wrong or issued in error; kept for history.
+- **SUPERSEDED** — Replaced by a corrected certificate; kept for history. A final state.
+- **VOID** — Withdrawn because it was wrong or issued in error; kept for history. A final state.
 
 ### Corrective Action Action Type
 
@@ -1124,10 +1124,10 @@ Fields:
 
 - **OPEN** — Raised but not yet assigned.
 - **ASSIGNED** — Given to an owner, who has not started.
-- **IN PROGRESS** — Being carried out.
+- **IN PROGRESS** — Being carried out by the owner, with implementation not yet finished.
 - **VERIFICATION** — Done and waiting for an effectiveness check.
-- **COMPLETED** — Done and, where required, verified effective.
-- **CANCELLED** — Withdrawn and not carried out.
+- **COMPLETED** — Done and, where required, verified effective. A final state.
+- **CANCELLED** — Withdrawn and not carried out. A final state.
 
 ### Corrective Action Verification Result
 
@@ -1140,9 +1140,9 @@ Fields:
 
 - **OPEN** — Raised but not started.
 - **IN PROGRESS** — The verification is being carried out.
-- **COMPLETED** — Finished with a result and findings recorded.
+- **COMPLETED** — Finished with a result and findings recorded. A final state.
 - **REOPENED** — Reopened because new evidence or a recurrence needs further verification.
-- **CANCELLED** — Withdrawn and not carried out.
+- **CANCELLED** — Withdrawn and not carried out. A final state.
 
 ### Currency Status
 
@@ -1179,7 +1179,7 @@ Fields:
 
 - **SITE** — A geographic site that may contain several buildings.
 - **WAREHOUSE** — A building or area for storing goods.
-- **STORE** — A retail outlet.
+- **STORE** — A retail outlet where goods are sold to customers.
 - **OFFICE** — A place where office work is done.
 - **FACTORY** — A place where goods are made.
 - **YARD** — An open area for storing or staging equipment or containers.
@@ -1191,9 +1191,9 @@ Fields:
 ### Location Status
 
 - **PLANNED** — Expected but not yet in use.
-- **ACTIVE** — In use.
-- **INACTIVE** — Temporarily not used.
-- **CLOSED** — Closed down.
+- **ACTIVE** — In use and offered for new assignments.
+- **INACTIVE** — Temporarily not used but expected to return to service.
+- **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
 
 ### Nonconformance Severity
@@ -1205,23 +1205,23 @@ Fields:
 
 ### Nonconformance Status
 
-- **OPEN** — Recorded but not yet reviewed.
-- **UNDER REVIEW** — Being investigated.
-- **CONTAINED** — Affected goods are isolated so the problem cannot spread.
-- **CORRECTIVE ACTION** — Corrective actions are under way to remove the cause.
-- **CLOSED** — Resolved and verified. A final state.
-- **REJECTED** — Reviewed and found not to be a nonconformance. A final state.
+- **OPEN** — The deviation has been recorded and nobody has yet started to investigate it.
+- **UNDER REVIEW** — Quality staff are assessing the deviation to confirm what happened, how serious it is and who owns it.
+- **CONTAINED** — Affected material has been isolated or held so that it cannot reach customers or production while the cause is addressed.
+- **CORRECTIVE ACTION** — Actions to remove the cause and prevent recurrence are being carried out and checked.
+- **CLOSED** — The deviation was resolved and its corrective actions were verified as effective. A final state.
+- **REJECTED** — Review found no real deviation, or a duplicate report, so no further action is taken. A final state.
 
 ### Organization Organization Type
 
-- **ENTERPRISE** — The top-level body, such as a group or corporation.
-- **COMPANY** — A legal company.
-- **BUSINESS UNIT** — A business division with its own results.
-- **DIVISION** — A major part of the organisation.
-- **DEPARTMENT** — A functional unit.
-- **BRANCH** — A local office or branch.
-- **SUBSIDIARY** — A company controlled by another.
-- **OTHER** — Any other organised body.
+- **ENTERPRISE** — The top-level group or enterprise that owns every other organizational unit beneath it.
+- **COMPANY** — A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+- **BUSINESS UNIT** — A unit organized around a line of business or market, which may span several legal entities.
+- **DIVISION** — A large internal division grouping departments under a common head or function.
+- **DEPARTMENT** — A functional team within a company or division, such as finance or warehouse operations.
+- **BRANCH** — A geographically separate office, store or site operating under a parent organization.
+- **SUBSIDIARY** — A company controlled by a parent organization but trading as a separate legal entity.
+- **OTHER** — A structure that fits none of the other types and is explained in its name or description.
 
 ### Organization Party Type
 
@@ -1230,10 +1230,10 @@ Fields:
 
 ### Organization Status
 
-- **DRAFT** — Being set up; not yet in use.
-- **ACTIVE** — In use.
-- **INACTIVE** — Temporarily not in use; can be reactivated.
-- **RETIRED** — Closed; kept for history. A final state.
+- **DRAFT** — The organization is being set up and is not yet available for use in transactions.
+- **ACTIVE** — The organization is in use and can be selected as an organizational scope in new records.
+- **INACTIVE** — The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+- **RETIRED** — The organization has been permanently closed or merged away and cannot be selected again. A final state.
 
 ### Party Party Type
 
@@ -1242,16 +1242,16 @@ Fields:
 
 ### Party Role Role Type
 
-- **CUSTOMER** — Buys from the organisation.
-- **SUPPLIER** — Sells to the organisation.
-- **EMPLOYEE** — Works for the organisation.
-- **PARTNER** — A business partner or reseller.
-- **CARRIER** — Transports goods for the organisation.
-- **AGENT** — Acts on behalf of the organisation or its customers.
-- **CONTRACTOR** — Provides services under a contract.
-- **OWNER** — Owns property or a share in the organisation.
-- **INVESTOR** — Provides capital.
-- **OTHER** — Any other role.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Party Role Status
 
@@ -1268,11 +1268,11 @@ Fields:
 
 ### Person Gender
 
-- **FEMALE** — Identifies as female.
-- **MALE** — Identifies as male.
-- **NON BINARY** — Identifies as neither exclusively male nor female.
-- **OTHER** — Identifies in another way.
-- **UNSPECIFIED** — Not stated or not collected.
+- **FEMALE** — The person identifies and is recorded as female.
+- **MALE** — The person identifies and is recorded as male.
+- **NON BINARY** — The person identifies as neither exclusively male nor exclusively female.
+- **OTHER** — The person identifies in a way not covered by the other values.
+- **UNSPECIFIED** — The gender is not recorded, because it was not needed or the person chose not to say.
 
 ### Person Party Type
 
@@ -1289,9 +1289,9 @@ Fields:
 ### Quality Characteristic Data Type
 
 - **DECIMAL** — A numeric observation that may contain fractional values.
-- **INTEGER** — A whole-number observation.
+- **INTEGER** — A whole-number observation such as a count of defects in a sample.
 - **STRING** — A textual or categorical observation represented as text.
-- **BOOLEAN** — A true/false observation.
+- **BOOLEAN** — A true or false observation such as seal intact.
 - **ENUM** — An observation selected from a governed set of allowed values.
 
 ### Quality Characteristic Status
@@ -1304,13 +1304,13 @@ Fields:
 
 - **RELEASE** — Release the goods for use or sale.
 - **ACCEPT** — Accept the goods into stock.
-- **REJECT** — Refuse the goods.
+- **REJECT** — Refuse the goods because they failed to meet requirements.
 - **QUARANTINE** — Hold the goods apart until a decision is made.
 - **RETURN TO SUPPLIER** — Send the goods back to the supplier.
 - **REWORK** — Correct the goods so they meet the requirement.
 - **REPAIR** — Repair the goods to a usable condition.
 - **SCRAP** — Destroy or write off the goods.
-- **CONDITIONAL RELEASE** — The disposition of the quality inspection is conditional release; set it when that is what the business means for this record.
+- **CONDITIONAL RELEASE** — Release the goods for use only under stated conditions that must be met.
 
 ### Quality Inspection Result
 
@@ -1321,7 +1321,7 @@ Fields:
 
 ### Quality Inspection Status
 
-- **OPEN** — Raised and not yet started.
+- **OPEN** — Raised and not yet started; waiting for an inspector.
 - **IN PROGRESS** — Samples are being taken and measured.
 - **PASSED** — The goods met every requirement. A final state.
 - **FAILED** — The goods did not meet the requirements. A final state.
@@ -1333,7 +1333,7 @@ Fields:
 - **PASS** — The measured value is within its limits.
 - **FAIL** — The measured value is outside its limits.
 - **CONDITIONAL** — Within tolerance only under a stated condition.
-- **NOT EVALUATED** — The result of the quality measurement is not evaluated; set it when that is what the business means for this record.
+- **NOT EVALUATED** — No verdict has been given yet because it was not compared with a criterion.
 
 ### Quality Plan Status
 
@@ -1356,21 +1356,21 @@ Fields:
 
 ### Return Disposition Status
 
-- **DRAFT** — Being prepared; the outcome is not yet decided.
-- **AUTHORIZED** — Approved and ready to be carried out.
-- **EXECUTED** — The disposition has been carried out and stock adjusted. A final state.
+- **DRAFT** — Being prepared; the outcome is not yet decided or approved.
+- **AUTHORIZED** — Approved and ready for the warehouse to carry out.
+- **EXECUTED** — Carried out and the stock adjusted to match. A final state.
 - **CANCELLED** — Withdrawn before it was carried out. A final state.
-- **EXCEPTION** — Could not be carried out as authorised and needs a decision.
+- **EXCEPTION** — Could not be carried out as authorised and needs a manual decision.
 
 ### Sampling Plan Method
 
-- **CENSUS** — Every applicable unit is inspected.
-- **RANDOM** — Units are selected randomly from the eligible population.
-- **SYSTEMATIC** — Units are selected using a defined interval or systematic pattern.
-- **STRATIFIED** — Population is divided into defined strata and samples are selected within them.
-- **FIXED SIZE** — A fixed number of units is selected.
-- **PERCENTAGE** — A defined proportion of the population is selected.
-- **ACCEPTANCE SAMPLING** — Sample size and acceptance/rejection criteria are governed by an acceptance-sampling scheme.
+- **CENSUS** — Every applicable unit is inspected, with no sampling.
+- **RANDOM** — Units are picked at random from the eligible population.
+- **SYSTEMATIC** — Units are picked at a fixed interval, such as every tenth one.
+- **STRATIFIED** — The population is split into defined groups and samples are taken within each.
+- **FIXED SIZE** — A set number of units is picked regardless of lot size.
+- **PERCENTAGE** — A defined proportion of the population is picked.
+- **ACCEPTANCE SAMPLING** — Sample size and accept or reject limits come from a formal acceptance-sampling scheme.
 
 ### Sampling Plan Status
 
@@ -1381,27 +1381,27 @@ Fields:
 
 ### Sampling Rule Status
 
-- **DRAFT** — Rule is being prepared and is not normally selectable.
-- **ACTIVE** — Rule is approved for sampling execution.
-- **RETIRED** — Rule is no longer selected for new sampling but remains historical evidence.
+- **DRAFT** — Being prepared and normally not selectable for inspection.
+- **ACTIVE** — Approved and available when sampling is carried out.
+- **RETIRED** — No longer chosen for new sampling but kept as evidence for past inspections. A final state.
 
 ### Task Priority
 
-- **LOW** — Can wait.
-- **NORMAL** — Ordinary priority.
-- **HIGH** — Do ahead of normal work.
-- **CRITICAL** — Do immediately.
+- **LOW** — Can wait behind other work without business impact.
+- **NORMAL** — Standard urgency, handled in the ordinary course of work.
+- **HIGH** — Needs prompt attention ahead of normal work.
+- **CRITICAL** — Needs immediate action because delay causes serious business impact.
 
 ### Task Status
 
-- **CREATED** — Recorded and not yet ready.
-- **READY** — Ready to be picked up.
-- **ASSIGNED** — Given to someone.
-- **IN PROGRESS** — Being worked.
-- **BLOCKED** — Cannot proceed until something is resolved.
-- **COMPLETED** — Done. A final state.
-- **CANCELLED** — No longer needed. A final state.
-- **FAILED** — Could not be done. A final state.
+- **CREATED** — The task exists but is not yet ready to be picked up.
+- **READY** — The task is released and waiting for someone to be assigned.
+- **ASSIGNED** — A person or party has been given the task but has not started it.
+- **IN PROGRESS** — The assignee is actively working on the task.
+- **BLOCKED** — Work is held up by a dependency, missing input or decision.
+- **COMPLETED** — The work was done as required. A final state.
+- **CANCELLED** — The task was withdrawn before completion. A final state.
+- **FAILED** — The task ended without achieving its result and needs follow-up elsewhere. A final state.
 
 ### Task Task Type
 
@@ -1415,10 +1415,10 @@ Fields:
 
 ### Test Method Status
 
-- **DRAFT** — Being authored and not normally executable.
-- **ACTIVE** — Approved for governed use.
-- **SUSPENDED** — Temporarily unavailable for new use.
-- **RETIRED** — No longer selected for new work but retained historically.
+- **DRAFT** — The method is being written and cannot yet be used for governed work.
+- **ACTIVE** — The method is approved and may be selected for new inspections and tests.
+- **SUSPENDED** — Use is paused, for example pending a deviation or recalibration, and may resume.
+- **RETIRED** — The method is withdrawn permanently and kept for history. A final state.
 
 ### Unit Of Measure Category
 

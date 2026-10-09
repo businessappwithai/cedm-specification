@@ -7,7 +7,7 @@ entity:
     icon: settings
   identity: {key: processDefinitionId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: processDefinitionId, type: uuid, required: true, immutable: true, help: {summary: The identity of the process definition., usage: Generated on creation; instances refer to it.}}
+    - {name: processDefinitionId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent, system-generated identity of this versioned business process definition.', usage: Generated on creation and never changed; running process instances and activities refer to the definition they were started from through it.}}
     - name: status
       type: enum
       required: true

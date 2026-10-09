@@ -50,15 +50,15 @@ entity:
         - EXPIRED
         - CONSUMED
       help:
-        summary: Whether the batch may be used.
-        usage: Set by quality and production; only RELEASED batches may be issued to production or sold.
         valueSemantics:
           PLANNED: Scheduled to be produced or received; no material exists yet.
           QUARANTINED: Present but held until quality checks pass; not usable.
           RELEASED: Passed quality checks and available for use.
-          REJECTED: Failed quality checks; must not be used.
-          EXPIRED: Past its expiry date; no longer usable.
-          CONSUMED: Fully used up.
+          REJECTED: Failed quality checks; must not be used. A final state.
+          EXPIRED: Past its expiry date and no longer usable. A final state.
+          CONSUMED: Fully used up, with no material left to issue. A final state.
+        summary: Whether the batch may be used.
+        usage: Set by quality and production; only RELEASED batches may be issued to production or sold.
   relationships:
     - name: product
       target: Product

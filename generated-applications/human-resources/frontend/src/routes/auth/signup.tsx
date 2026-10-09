@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:44:34.597Z
+ * Generated: 2026-10-09T08:31:25.045Z
  * Project: human-resources
  */
 

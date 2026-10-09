@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:45:12.521Z
+ * Generated: 2026-10-09T08:32:02.422Z
  * Project: media
  */
 

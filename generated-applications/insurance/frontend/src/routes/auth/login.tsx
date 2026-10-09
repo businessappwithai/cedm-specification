@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T06:44:38.913Z
+ * Generated: 2026-10-09T08:31:29.348Z
  * Project: insurance
  */
 

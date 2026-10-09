@@ -30,16 +30,16 @@ entity:
         - BIOMETRIC
         - OTHER
       help:
-        summary: The way in which this identity authenticates.
-        usage: Chosen when it is created; decides how the sign-in is checked.
+        summary: The authentication method this identity uses to prove who the user is when signing in or calling the application.
+        usage: Chosen by a security administrator when the identity is created; it decides which checks run at sign-in and which other fields must be filled.
         valueSemantics:
-          PASSWORD: A password held by the application.
-          SSO: A single sign-on account from the organisation's identity provider.
-          OAUTH: An account at an external OAuth provider.
-          API_KEY: A key used by software to call the application.
-          CERTIFICATE: A client certificate.
-          BIOMETRIC: A fingerprint, face or similar trait.
-          OTHER: Any other mechanism.
+          PASSWORD: A secret password held and verified by the application itself.
+          SSO: A single sign-on account vouched for by the organisation's identity provider.
+          OAUTH: An account at an external OAuth provider that the application trusts to confirm the person.
+          API_KEY: A key presented by software to call the application on behalf of a service or integration.
+          CERTIFICATE: A client certificate whose private key proves identity, typically for machines or high-assurance staff access.
+          BIOMETRIC: A fingerprint, face scan or similar physical trait checked by a device or service.
+          OTHER: Any authentication mechanism not covered by the other types, described in the identity's notes.
     - name: externalSubject
       type: string
       required: false

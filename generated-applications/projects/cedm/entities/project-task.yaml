@@ -32,8 +32,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: A short statement of the work.
-        usage: Shown on boards and in schedules.
+        summary: A short statement of the work item that team members can read at a glance, such as Prepare site survey.
+        usage: Entered by the planner or task owner; shown on boards, schedules and time sheets, and kept brief while detail goes elsewhere.
         relationshipContext: Read by the assignee and the reviewer.
     - name: status
       type: enum
@@ -65,14 +65,14 @@ entity:
         - HIGH
         - CRITICAL
       help:
-        summary: How urgent the task is relative to others.
-        usage: Set when planned; used to order work and to escalate.
-        relationshipContext: Read alongside the due date when scheduling.
+        summary: How urgent this task is relative to the other tasks of the project.
+        usage: Set when planned and revised as the schedule changes; used to order work queues and decide which delays to escalate.
         valueSemantics:
-          LOW: Can wait without affecting delivery.
-          NORMAL: Ordinary priority.
-          HIGH: Should be done ahead of normal work.
-          CRITICAL: Delays the project if not done now.
+          LOW: Can wait without affecting delivery of the project.
+          NORMAL: Ordinary priority, scheduled in turn with other work.
+          HIGH: Should be done ahead of normal work to protect the schedule.
+          CRITICAL: Delays the project if not done now and needs immediate attention.
+        relationshipContext: Read alongside the due date when scheduling.
     - name: startDate
       type: date
       required: false

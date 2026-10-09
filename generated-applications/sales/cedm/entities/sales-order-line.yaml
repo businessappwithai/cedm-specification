@@ -29,8 +29,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The quantity ordered.
-        usage: Entered by sales; allocation and shipment are measured against it.
+        summary: The number of units of the product or service the customer ordered on this line.
+        usage: Entered by sales; stock allocation, shipment and invoicing are all measured against it, and it drives the line amount.
         relationshipContext: Compared with allocated and fulfilled quantity.
     - name: quantityFulfilled
       type: decimal
@@ -39,8 +39,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The quantity shipped so far.
-        usage: Increased by shipments; cannot exceed the ordered quantity.
+        summary: How many units of the ordered quantity have been shipped or delivered so far.
+        usage: Increased by each shipment and never above the ordered quantity; the line is fulfilled when it equals the quantity.
         relationshipContext: Reaching the ordered quantity completes the line.
     - name: quantityAllocated
       type: decimal
@@ -59,7 +59,11 @@ entity:
     - name: discountAmount
       type: Money
       required: false
-      help: {summary: Approved transaction-time discount amount., usage: Reconciles net commercial value and invoice calculations., relationshipContext: Currency must match order pricing currency., workflowRole: Preserves the concession actually granted rather than relying on current DiscountRule.}
+      help:
+        summary: The money taken off this line by the discount agreed when the order was taken.
+        usage: Set when the price is determined and approved under discount policy; subtracted in the line amount and shown on invoices.
+        relationshipContext: Currency must match order pricing currency.
+        workflowRole: Preserves the concession actually granted rather than relying on current DiscountRule.
     - name: taxAmount
       type: Money
       required: false
@@ -67,7 +71,11 @@ entity:
     - name: lineAmount
       type: Money
       required: true
-      help: {summary: Calculated commercial value of the line., usage: "Supports order totals, invoicing, credit and reporting.", relationshipContext: "Must reconcile with pricing, discount, tax and rounding policy.", workflowRole: Financial baseline for downstream billing and reconciliation.}
+      help:
+        summary: The net value of the line after quantity, price, discount and tax have been worked out.
+        usage: Calculated by the system rather than typed; summed into order totals, invoiced, and used for credit checks and reporting.
+        relationshipContext: "Must reconcile with pricing, discount, tax and rounding policy."
+        workflowRole: Financial baseline for downstream billing and reconciliation.
     - name: priceSource
       type: enum
       required: false
@@ -95,8 +103,8 @@ entity:
       type: datetime
       required: false
       help:
-        summary: When the price was fixed.
-        usage: Set when the price is determined and kept.
+        summary: The date and time the unit price for this line was fixed.
+        usage: Stamped when pricing runs and kept, so a later price list change does not alter what the customer was quoted.
         relationshipContext: Used to explain which price list was in force.
   relationships:
     - name: salesOrder

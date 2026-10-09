@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-09T06:46:38.073Z
+//! Generated: 2026-10-09T08:33:25.998Z
 //! Project: travel
 
 use serde_json::{json, Value};

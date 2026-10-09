@@ -24,8 +24,8 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The number quoted by the claimant and the insurer.
-        usage: Allocated on registration; unique.
+        summary: The reference number that identifies the claim for both the claimant and the insurer in all correspondence.
+        usage: Allocated by the system when the claim is registered; unique, never reused, and quoted on every call, letter and payment.
     - name: lossDate
       type: date
       required: false
@@ -42,8 +42,8 @@ entity:
       type: money
       required: false
       help:
-        summary: The amount the claimant is asking for.
-        usage: Entered from the claim; not negative.
+        summary: The monetary amount the claimant asks the insurer to pay for the loss, as stated on the claim.
+        usage: Entered by the claims handler from the claim form; must not be negative, and the assessed or approved amount is compared against it.
     - name: approvedAmount
       type: money
       required: false
@@ -63,16 +63,16 @@ entity:
         - SETTLED
         - CLOSED
       help:
-        summary: Where the claim stands.
-        usage: Moved by claims handlers.
+        summary: Where the claim stands in the insurer's handling, from first report through assessment to payment or refusal.
+        usage: Moved by claims handlers as the claim is assessed and paid; later states depend on the outcome of review, and denied or closed claims are not reopened.
         valueSemantics:
-          REPORTED: Received and registered.
-          UNDER_REVIEW: Being assessed.
-          APPROVED: Accepted for the claimed amount.
-          PARTIALLY_APPROVED: Accepted for less than the claimed amount.
-          DENIED: Refused, for example not covered. A final state.
-          SETTLED: Payment has been made.
-          CLOSED: Finished, with nothing further to do. A final state.
+          REPORTED: The claim has been received and registered but assessment has not yet started.
+          UNDER_REVIEW: A handler is assessing cover, evidence and the amount that is owed.
+          APPROVED: Accepted for the full claimed amount and awaiting payment.
+          PARTIALLY_APPROVED: Accepted for less than the claimed amount, with the difference not payable.
+          DENIED: Refused, for example because the loss is not covered. A final state.
+          SETTLED: Payment has been made to the claimant.
+          CLOSED: Finished with nothing further to do. A final state.
   relationships:
     - name: policy
       target: InsurancePolicy

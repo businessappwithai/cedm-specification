@@ -40,17 +40,17 @@ entity:
         - IOT
         - OTHER
       help:
-        summary: The kind of service.
-        usage: Chosen when provisioned; decides the network and billing rules.
-        relationshipContext: Read by provisioning.
+        summary: The kind of connectivity or communication service delivered to the customer.
+        usage: Chosen when the service is set up; it determines the technical provisioning, usage records and tariffs that apply.
         valueSemantics:
-          MOBILE: A mobile voice or data line.
-          FIXED: A fixed telephone line.
-          BROADBAND: A fixed internet connection.
-          VOICE: A voice service.
-          DATA: A data service.
-          IOT: A connection for machine-to-machine devices.
-          OTHER: A service of another kind.
+          MOBILE: A cellular service tied to a handset or SIM, with voice, text and data.
+          FIXED: A fixed-line telephone service delivered to a premises.
+          BROADBAND: A fixed internet access service delivered to a premises.
+          VOICE: A voice-only calling service, not bundled with data.
+          DATA: A data-only connectivity service without voice calling.
+          IOT: Machine connectivity for devices and sensors rather than people.
+          OTHER: A telecommunications service that fits none of the other types.
+        relationshipContext: Read by provisioning.
     - name: status
       type: enum
       required: true
@@ -61,14 +61,14 @@ entity:
         - SUSPENDED
         - TERMINATED
       help:
-        summary: Where the service is.
-        usage: Starts as PENDING; moved by provisioning and billing.
-        relationshipContext: Only active services carry traffic and are billed.
+        summary: Where the service is in its life, from awaiting activation through use to suspension or termination.
+        usage: Moved by provisioning, billing and customer care; only active services can carry usage, and terminated ones are kept for history.
         valueSemantics:
-          PENDING: Ordered and not yet switched on.
-          ACTIVE: In service.
-          SUSPENDED: Temporarily switched off.
-          TERMINATED: Ended. A final state.
+          PENDING: The service has been ordered but is not yet switched on.
+          ACTIVE: The service is live and can carry traffic and be billed.
+          SUSPENDED: The service is temporarily switched off, for example for non-payment or on request.
+          TERMINATED: The service has been permanently ended. A final state.
+        relationshipContext: Only active services carry traffic and are billed.
     - name: activationDate
       type: date
       required: false

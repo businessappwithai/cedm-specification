@@ -71,8 +71,8 @@ entity:
       type: datetime
       required: false
       help:
-        summary: When the authority decided.
-        usage: Set when the submission is approved or rejected.
+        summary: The date and time the regulatory authority announced its decision on the submission.
+        usage: Recorded by regulatory affairs when the submission is approved or rejected; empty while it is pending, and used to track authority turnaround.
         relationshipContext: Measured against the filing date to give review time.
   relationships:
     - name: authority

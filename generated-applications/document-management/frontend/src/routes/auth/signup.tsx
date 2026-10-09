@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:43:54.391Z
+ * Generated: 2026-10-09T08:30:42.217Z
  * Project: document-management
  */
 

@@ -33,8 +33,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: A short name for the risk.
-        usage: Shown in the register and heat map.
+        summary: A short phrase naming the potential event, such as supplier insolvency or data centre outage.
+        usage: Written by the risk owner when the risk is identified; shown in the risk register and on the heat map.
         relationshipContext: Read by owners and reviewers.
     - name: description
       type: string
@@ -62,15 +62,15 @@ entity:
         - LIKELY
         - ALMOST_CERTAIN
       help:
-        summary: How likely the risk is to occur.
-        usage: Assigned at assessment; combined with impact to rate the risk.
-        relationshipContext: Together with impact gives the risk's exposure.
+        summary: How probable it is that the risk event occurs within the assessment period.
+        usage: Chosen at assessment by the risk owner and combined with impact to give the risk rating and its place on the heat map.
         valueSemantics:
           RARE: Expected to occur only in exceptional circumstances.
-          UNLIKELY: Could occur but is not expected.
+          UNLIKELY: Could occur but is not expected to.
           POSSIBLE: Might occur at some time.
-          LIKELY: Will probably occur.
+          LIKELY: Will probably occur, and would not be surprising.
           ALMOST_CERTAIN: Expected to occur in most circumstances.
+        relationshipContext: Together with impact gives the risk's exposure.
     - name: impact
       type: enum
       required: true
@@ -81,15 +81,15 @@ entity:
         - MAJOR
         - SEVERE
       help:
-        summary: How serious the consequences would be if the risk occurred.
-        usage: Assigned at assessment.
-        relationshipContext: Together with likelihood gives the risk's exposure.
+        summary: How serious the consequences would be for the business if the risk event occurred.
+        usage: Chosen at assessment by the risk owner and combined with likelihood to give the risk rating and its place on the heat map.
         valueSemantics:
-          INSIGNIFICANT: Negligible effect.
-          MINOR: Small effect that is easily absorbed.
-          MODERATE: Noticeable effect needing management attention.
-          MAJOR: Serious effect on objectives.
+          INSIGNIFICANT: Negligible effect that needs no action.
+          MINOR: Small effect that is easily absorbed within normal operations.
+          MODERATE: Noticeable effect needing management attention to contain.
+          MAJOR: Serious effect on the achievement of objectives.
           SEVERE: Threatens the organisation's objectives or survival.
+        relationshipContext: Together with likelihood gives the risk's exposure.
     - name: status
       type: enum
       required: true

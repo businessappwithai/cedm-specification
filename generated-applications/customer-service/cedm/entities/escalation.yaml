@@ -13,13 +13,13 @@ entity:
       required: true
       values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the escalation stands.
-        usage: Moved by the escalation process.
+        summary: Whether the escalation is waiting to be picked up, being handled, resolved or withdrawn.
+        usage: Moved by the escalation process and the person receiving it; unresolved ones are watched by supervisors.
         valueSemantics:
-          PENDING: Raised and waiting to be picked up.
-          ACTIVE: Being handled by the person it was escalated to.
-          COMPLETED: Resolved.
-          CANCELLED: Withdrawn because it was no longer needed.
+          PENDING: Raised and waiting for the receiving person or team to pick it up.
+          ACTIVE: Being handled by the person or level it was escalated to.
+          COMPLETED: Resolved, with the outcome recorded. A final state.
+          CANCELLED: Withdrawn because it was no longer needed. A final state.
   relationships: []
   invariants:
     - {id: ESCALATION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}

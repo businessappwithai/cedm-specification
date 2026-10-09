@@ -9,7 +9,7 @@ entity:
   identity: {key: supplierId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: supplierId, type: uuid, required: true, immutable: true, help: {summary: Immutable Supplier role identity., usage: Connects procurement purchase orders receipts invoices payments returns credits claims resolutions and supplier performance., relationshipContext: Supplier identifies the role while PartyRole and Party identify the underlying party., workflowRole: Preserves supplier traceability across procure-to-pay reverse procurement claim recovery and performance management.}}
-    - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true, help: {summary: PartyRole backing the Supplier specialization., usage: Navigates to common party identity and role information., relationshipContext: Supplier must not duplicate Party identity., workflowRole: Supplies shared party context to procurement and financial workflows.}}
+    - {name: partyRoleId, type: reference, target: PartyRole, required: true, unique: true, immutable: true, help: {summary: 'Points to the party role this supplier record specializes, tying the sourcing profile to the underlying party.', usage: 'Set once at creation and never reassigned; unique, so a party role has at most one supplier profile, and names and addresses are read through it.', relationshipContext: Supplier must not duplicate Party identity., workflowRole: Supplies shared party context to procurement and financial workflows.}}
     - {name: supplierCode, type: string, required: true, unique: true, maxLength: 100, help: {summary: Enterprise supplier business reference., usage: Used on purchase orders receipts invoices returns credits payments claims portals reports and integrations., relationshipContext: Distinct from legal name and external registration identifiers., workflowRole: Identifies the supplier across procurement settlement recovery and performance.}}
     - name: supplierType
       type: enum
@@ -21,14 +21,14 @@ entity:
         - INTERNAL
         - OTHER
       help:
+        summary: Classifies what kind of organization or person the supplier is, for due diligence and reporting.
+        usage: Chosen at onboarding; it influences which qualification checks, tax treatment and spend reports apply to the supplier.
         valueSemantics:
-          INDIVIDUAL: A person supplying in their own name.
-          BUSINESS: A commercial company.
-          GOVERNMENT: A public body.
-          INTERNAL: Another unit of the same group.
-          OTHER: A supplier that fits no other type.
-        summary: Classification of supplier relationship.
-        usage: Supports onboarding compliance tax contracting and reporting.
+          INDIVIDUAL: A natural person or sole trader supplying goods or services in their own name.
+          BUSINESS: A commercial company or partnership that supplies goods or services for profit.
+          GOVERNMENT: A public authority or agency supplying goods, services or licences, often under statutory terms.
+          INTERNAL: Another unit of the same enterprise supplying through intercompany arrangements.
+          OTHER: A supplier that fits none of the other types, such as a charity or association.
         relationshipContext: Does not replace Party identity classification.
         workflowRole: Supplies supplier classification to procurement policy.
     - name: qualificationStatus
@@ -41,14 +41,14 @@ entity:
         - SUSPENDED
         - DISQUALIFIED
       help:
+        summary: Records whether the supplier has been vetted and cleared to receive orders under sourcing policy.
+        usage: Updated by procurement or compliance after due diligence; buyers check it before issuing requests for quotation or orders.
         valueSemantics:
-          NOT_REVIEWED: Not yet assessed.
-          PENDING: Assessment is under way.
-          QUALIFIED: Approved to supply.
-          SUSPENDED: Approval withdrawn for a time.
-          DISQUALIFIED: Not approved to supply.
-        summary: Procurement qualification state.
-        usage: Controls sourcing eligibility and supplier governance.
+          NOT_REVIEWED: No qualification review has been carried out for this supplier yet.
+          PENDING: A review is under way and the supplier is not yet cleared to receive orders.
+          QUALIFIED: The supplier has passed review and may be used for sourcing and ordering.
+          SUSPENDED: Qualification is temporarily withdrawn pending resolution of an issue.
+          DISQUALIFIED: The supplier failed or lost qualification and must not be used for new orders.
         relationshipContext: Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment evidence.
         workflowRole: Gates new procurement commitments while historical transactions remain valid.
     - {name: paymentTerms, type: reference, target: PaymentTerm, required: false, help: {summary: Default supplier settlement policy., usage: Used by PurchaseOrder Invoice payables payment scheduling and cash forecasting., relationshipContext: Transaction or contract terms may override the default., workflowRole: Supplies default payable timing.}}
@@ -62,13 +62,13 @@ entity:
         - BLOCKED
         - RETIRED
       help:
+        summary: The operational state of the supplier record, showing whether it can currently be dealt with.
+        usage: Set by procurement; ACTIVE suppliers appear in pickers, while blocked or retired ones are refused on new transactions.
         valueSemantics:
-          ACTIVE: Available for ordering.
-          INACTIVE: Not currently used; can be reactivated.
-          BLOCKED: Orders and payments are stopped.
-          RETIRED: No longer used; kept for history. A final state.
-        summary: Supplier relationship lifecycle state.
-        usage: Controls procurement eligibility.
+          ACTIVE: The supplier is open for business and may be selected on new orders and quotation requests.
+          INACTIVE: The supplier is dormant and hidden from selection but can be reactivated.
+          BLOCKED: New transactions are barred, for example during a dispute or compliance hold.
+          RETIRED: The relationship has ended and the record is kept for history only. A final state.
         relationshipContext: Historical transactions remain valid after state changes.
         workflowRole: New procurement return claim-resolution and performance workflows must evaluate status.
   relationships:

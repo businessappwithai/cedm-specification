@@ -7,7 +7,7 @@ entity:
     icon: percent
   identity: {key: taxRegistrationId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the registration, constant for its life.', businessMeaning: Lets documents and returns point at the registration., usage: Generated on creation., relationshipContext: Referenced by returns and invoices.}}
+    - {name: taxRegistrationId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent system identity of one tax registration, unaffected by changes to the registration number.', usage: Generated on creation and never changed; tax transactions and filings refer to the registration through it., businessMeaning: Lets documents and returns point at the registration., relationshipContext: Referenced by returns and invoices.}}
     - name: status
       type: enum
       required: true

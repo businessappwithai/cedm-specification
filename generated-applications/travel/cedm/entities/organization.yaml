@@ -51,17 +51,17 @@ entity:
       required: true
       values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
       help:
+        summary: Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch.
+        usage: Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created.
         valueSemantics:
-          ENTERPRISE: The top-level body, such as a group or corporation.
-          COMPANY: A legal company.
-          BUSINESS_UNIT: A business division with its own results.
-          DIVISION: A major part of the organisation.
-          DEPARTMENT: A functional unit.
-          BRANCH: A local office or branch.
-          SUBSIDIARY: A company controlled by another.
-          OTHER: Any other organised body.
-        summary: Classifies the organizational structure represented by the specialization.
-        usage: Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration.
+          ENTERPRISE: The top-level group or enterprise that owns every other organizational unit beneath it.
+          COMPANY: A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+          BUSINESS_UNIT: A unit organized around a line of business or market, which may span several legal entities.
+          DIVISION: A large internal division grouping departments under a common head or function.
+          DEPARTMENT: A functional team within a company or division, such as finance or warehouse operations.
+          BRANCH: A geographically separate office, store or site operating under a parent organization.
+          SUBSIDIARY: A company controlled by a parent organization but trading as a separate legal entity.
+          OTHER: A structure that fits none of the other types and is explained in its name or description.
         relationshipContext: Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations.
         workflowRole: Controls applicable organizational hierarchy and operating-context rules.
     - name: status
@@ -70,13 +70,13 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
       help:
+        summary: Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions.
+        usage: Controls whether the organization can normally be selected as an organizational scope; set by master-data staff.
         valueSemantics:
-          DRAFT: Being set up; not yet in use.
-          ACTIVE: In use.
-          INACTIVE: Temporarily not in use; can be reactivated.
-          RETIRED: Closed; kept for history. A final state.
-        summary: Lifecycle of the organizational specialization.
-        usage: Controls whether the organization can normally be selected as an organizational context.
+          DRAFT: The organization is being set up and is not yet available for use in transactions.
+          ACTIVE: The organization is in use and can be selected as an organizational scope in new records.
+          INACTIVE: The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+          RETIRED: The organization has been permanently closed or merged away and cannot be selected again. A final state.
         relationshipContext: Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity.
         workflowRole: Governs organizational use while preserving historical relationships.
     - name: legalName
@@ -110,24 +110,36 @@ entity:
       type: datetime
       required: true
       systemManaged: true
-      help: {summary: CEDM creation timestamp, usage: audit and synchronization, relationshipContext: record lifecycle only}
+      help:
+        summary: The date and time at which the organization record was first created in the system.
+        usage: Set once by the system on creation and never changed; used for audit trails and incremental synchronization.
+        relationshipContext: record lifecycle only
     - name: createdBy
       type: reference
       target: Party
       required: false
       systemManaged: true
-      help: {summary: Actor that created the record, usage: audit, relationshipContext: actor not subject}
+      help:
+        summary: The party, user or integration that created the organization record.
+        usage: Set by the system from the authenticated actor on creation; used in audit to trace who introduced the record.
+        relationshipContext: actor not subject
     - name: updatedAt
       type: datetime
       required: true
       systemManaged: true
-      help: {summary: Latest CEDM modification timestamp, usage: synchronization and audit, relationshipContext: record modification only}
+      help:
+        summary: The date and time of the latest change made to the organization record.
+        usage: Refreshed by the system on every modification; used for synchronization with other systems and for audit review.
+        relationshipContext: record modification only
     - name: updatedBy
       type: reference
       target: Party
       required: false
       systemManaged: true
-      help: {summary: Actor responsible for latest modification, usage: audit, relationshipContext: actor not subject}
+      help:
+        summary: The party, user or integration that made the latest change to the organization record.
+        usage: Set by the system from the authenticated actor on each update; used in audit to identify who last changed it.
+        relationshipContext: actor not subject
   relationships:
     - name: party
       target: Party
@@ -162,7 +174,11 @@ entity:
       target: Address
       cardinality: 0..*
       ownership: reference
-      help: {summary: Organization addresses, usage: billing/service/legal/contact processes, cardinalityMeaning: zero or many, workflowRole: supplies location context.}
+      help:
+        summary: The postal and contact addresses associated with the organization, such as legal, billing, shipping and service addresses.
+        usage: Added by master-data staff as addresses are registered; selected on invoices, orders, deliveries and correspondence.
+        cardinalityMeaning: Any number of addresses, since an organization may have several sites and several purposes for each.
+        workflowRole: Supplies the addresses that billing, shipping, service and contact processes choose from for this organization.
     - name: locations
       target: Location
       cardinality: 0..*

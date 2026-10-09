@@ -7,7 +7,7 @@ entity:
     icon: briefcase
   identity: {key: legalCaseId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: The identity of the case., usage: Generated on creation.}}
+    - {name: legalCaseId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the legal case, constant through its proceedings.', usage: 'Generated when the case is recorded; documents, hearings, costs and the parent legal matter refer to it.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the case was opened or the event it records took place., usage: Set when recorded; used to order the history of the matter.}}
   relationships:
     - {name: legalMatter, target: LegalMatter, cardinality: "1", ownership: reference, help: {summary: The legal matter this case belongs to., usage: Set when the case is opened., cardinalityMeaning: 'Exactly one matter: a case is a proceeding within a single matter.', workflowRole: Collects the case's costs and outcomes with the rest of the matter., businessMeaning: Groups case within broader legal work.}}

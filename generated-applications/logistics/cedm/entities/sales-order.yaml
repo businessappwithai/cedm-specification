@@ -28,8 +28,8 @@ entity:
       type: datetime
       required: true
       help:
-        summary: When the order was placed.
-        usage: Set on entry; sales are reported by it.
+        summary: The date and time the customer's order was placed.
+        usage: Set when the order is entered or received; sales reporting, delivery promises and payment terms are counted from it.
         relationshipContext: Compared with the requested delivery date.
     - name: status
       type: enum

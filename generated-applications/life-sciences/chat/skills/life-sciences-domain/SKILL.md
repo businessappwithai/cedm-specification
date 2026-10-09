@@ -79,7 +79,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
-  - **Name** (required) — The full name of the unit. Shown in organisation charts and management reports.
+  - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
 
 ### Calendar
@@ -90,7 +90,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
-  - **Name** (required) — The descriptive name of the calendar. Shown wherever a calendar is chosen.
+  - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
 
 ### Chemical Batch
 
@@ -102,7 +102,7 @@ Fields:
   - **Batch Number** (required) — The lot number assigned to the batch, printed on labels and certificates. Allocated at production or receipt; unique, and the key by which the batch is traced forwards and backwards.
   - **Manufacture Date** — The date the batch was produced. Entered at production; the start of the batch's shelf life.
   - **Expiry Date** — The date after which the batch must not be used. Set from the product's shelf life; stock past it is blocked. It must not be before the manufacture date.
-  - **Status** (required, one of the Chemical Batch Status values) — Whether the batch may be used. Set by quality and production; only RELEASED batches may be issued to production or sold. Scheduled to be produced or received; no material exists yet. Present but held until quality checks pass; not usable.…
+  - **Status** (required, one of the Chemical Batch Status values) — Scheduled to be produced or received; no material exists yet. Present but held until quality checks pass; not usable. Passed quality checks and available for use. Failed quality checks; must not be used. A final state. Past its expiry date…
   - **Product** (required, a Product) — The product of which this is a batch. Set at creation; determines the specification the batch is tested against. Exactly one product; a batch is of one product. Gives the batch its specification and shelf life.
   - **Location** (a Location) — Where the batch is currently stored. Updated as the batch moves; used for picking and inventory checks. At most one current location; empty while the batch is not yet stored. Supports stock visibility and recall.
 
@@ -121,18 +121,18 @@ Fields:
 
 ### City
 
-A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an a…
 
 Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart.
-  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name.
-  - **Population** — The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
-  - **Latitude** — Latitude in degrees, north positive. Maps and distance. Describes the city only.
-  - **Longitude** — Longitude in degrees, east positive. Maps and distance. Describes the city only.
+  - **Name** (required) — The city's name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a cit…
+  - **Population** — The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.
+  - **Latitude** — The city's north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.
+  - **Longitude** — The city's east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.
   - **Timezone** — The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.
-  - **Is Capital** — Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
+  - **Is Capital** — Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
   - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
 
@@ -175,7 +175,7 @@ Fields:
 
 ### Country
 
-A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
@@ -184,7 +184,7 @@ Fields:
   - **Alpha3** — The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.
   - **Numeric Code** — The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
   - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
-  - **Phone Code** — The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
+  - **Phone Code** — The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to…
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
 
 ### Currency
@@ -221,8 +221,8 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
-  - **Name** (required) — The name of the department. Shown in organisation charts and on documents.
-  - **Organization** (required, a Organization) — The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.
+  - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
 
 ### Exchange Rate
 
@@ -274,11 +274,11 @@ Readable by every signed-in person.
 
 Fields:
   - **Experiment Code** (required) — The unique reference by which the experiment is cited, such as EXP-2026-0312. Assigned when planned; written in lab notebooks and reports.
-  - **Title** (required) — The short title of the experiment. Shown in lists and reports.
+  - **Title** (required) — The short title that says what the experiment sets out to test. Entered by the researcher when the experiment is planned; shown in lists and reports, so it should name the question under test.
   - **Objective** — What the experiment sets out to find out. Written when planned; read when interpreting the results.
-  - **Status** (required, one of the Experiment Status values) — Where the experiment stands. Updated by the researcher. Designed but not started. Under way. Finished with results. Could not be completed validly. Stopped before completion. Closed and filed.
-  - **Started At** — When the experiment started. Set when work begins.
-  - **Completed At** — When the experiment finished. Set at completion; must not be before the start.
+  - **Status** (required, one of the Experiment Status values) — Whether the experiment is planned, running, finished, failed, stopped or filed away. Updated by the researcher as work proceeds; results count only once it is COMPLETED, and failed or cancelled ones are kept. Designed and approved but not…
+  - **Started At** — The date and time work on the experiment actually began. Set by the researcher when the first step starts; not before the plan was approved, and it anchors duration calculations.
+  - **Completed At** — The date and time the experiment finished and its results were recorded. Set at completion; never before the start time, and used to calculate duration and decide when results can be reviewed.
 
 ### Experiment Status
 
@@ -301,7 +301,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
-  - **Name** (required) — The name of the language in English. Shown in language pick-lists.
+  - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
 
 ### Legal Entity
 
@@ -320,9 +320,9 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
-  - **Name** (required) — The name people use for the place. Shown in lists, maps and documents.
-  - **Location Type** (required, one of the Location Location Type values) — What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A p…
-  - **Status** (required, one of the Location Status values) — Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.
+  - **Name** (required) — The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+  - **Location Type** (required, one of the Location Location Type values) — A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or sta…
+  - **Status** (required, one of the Location Status values) — Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the pla…
   - **Address** (a Address) — The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
   - **Parent Location** (a Location) — The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
   - **Organization** (a Organization) — The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
@@ -364,8 +364,8 @@ Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when part…
   - **Code** (required) — Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope.…
   - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
-  - **Organization Type** (required, one of the Organization Organization Type values) — The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organi…
-  - **Status** (required, one of the Organization Status values) — Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an org…
+  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the u…
+  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organizatio…
   - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
   - **Registration Number** — Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verifica…
   - **Tax Identifier** — Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule appli…
@@ -447,7 +447,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
-  - **Name** (required) — A description of the relationship. Shown in party views.
+  - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
 
 ### Party Role
@@ -458,11 +458,11 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
-  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business…
+  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
   - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
   - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
-  - **Valid To** — The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
-  - **Status** (required, one of the Party Role Status values) — Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTI…
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
+  - **Status** (required, one of the Party Role Status values) — Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may res…
   - **Person** (a Person) — The Person this PartyRole belongs to.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
@@ -513,13 +513,13 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactio…
-  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display.
-  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification.
-  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification.
-  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification.
-  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction.
-  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.
-  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as ne…
+  - **Title** — The honorific or personal title used before the person's name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.
+  - **Given Name** (required) — The person's first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Middle Name** — Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.
+  - **Family Name** (required) — The person's family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Preferred Name** — The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonic…
+  - **Date Of Birth** — The person's date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject…
+  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The p…
   - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
   - **Party Type** (required, one of the Person Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
   - **Display Name** (required) — The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, t…
@@ -617,11 +617,11 @@ Readable by every signed-in person.
 
 Fields:
   - **Sample Code** (required) — Human-readable business identifier for the sample. Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting. Labels, searches, laboratory workflows, reports, integrations, an…
-  - **Sample Type** (required, one of the Sample Sample Type values) — A portion taken from a larger whole for study. A measured part of a prepared sample. A sample of a chemical compound under study. A sample of a material or substance. Biological matter such as tissue, cells or fluid. A chemical substance o…
+  - **Sample Type** (required, one of the Sample Sample Type values) — The category of the sample, saying what kind of material it is or what role it plays in the work. Chosen when the sample is registered; it decides handling and storage rules, which protocols apply, and how results are reported. A portion t…
   - **Status** (required, one of the Sample Status values) — Where the sample is in its life, from planned through use to disposal. Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically. Experiment gating, chain of custody, invent…
   - **Collected At** — Time at which the sample was collected or created. Establishes the origin chronology of the specimen. Chain of custody, protocol compliance, stability analysis, reporting, and audit. May precede receipt and experiment use; derived samples…
   - **Quantity** — Governed quantity currently represented by the sample record when quantity tracking applies. Describes how much specimen or material is associated with the sample for planning and traceability. Laboratory planning, aliquoting, consumption…
-  - **Unit Of Measure** (a Unit Of Measure) — Unit in which sample quantity is expressed. Gives dimensional meaning to the sample quantity. Quantity comparison, conversion, reporting, and audit. Required when quantity is dimensional; changes to unit definitions must not silently reint…
+  - **Unit Of Measure** (a Unit Of Measure) — The unit, such as mL, mg or units, in which the amount of this sample is stated. Chosen when the sample is registered; quantities are compared and converted using it, so it must suit the sample type. Gives dimensional meaning to the sample…
   - **Parent Sample** (a Sample) — Source sample from which this sample was derived. Preserves provenance for aliquots, splits, preparations, or other derived specimens. Lineage, chain of custody, quantity reconciliation, and audit. A sample may have at most one immediate p…
 
 ### Sample Sample Type
@@ -658,7 +658,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
-  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key.
+  - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
 
@@ -669,12 +669,12 @@ A discrete unit of business work performed by a person, organisation, system or 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the task, such as TASK-0042. Used in lists and notifications.
-  - **Name** (required) — A short statement of the work. Shown on to-do lists.
-  - **Description** — Details of what must be done. Read by the assignee.
+  - **Code** (required) — The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
+  - **Name** (required) — A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
+  - **Description** — Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
   - **Task Type** (required, one of the Task Task Type values) — The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script…
-  - **Status** (required, one of the Task Status values) — Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final stat…
-  - **Priority** (required, one of the Task Priority values) — How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.
+  - **Status** (required, one of the Task Status values) — Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The…
+  - **Priority** (required, one of the Task Priority values) — How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business…
   - **Due At** — Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   - **Started At** — Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   - **Completed At** — Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
@@ -784,9 +784,9 @@ Fields:
 - **PLANNED** — Scheduled to be produced or received; no material exists yet.
 - **QUARANTINED** — Present but held until quality checks pass; not usable.
 - **RELEASED** — Passed quality checks and available for use.
-- **REJECTED** — Failed quality checks; must not be used.
-- **EXPIRED** — Past its expiry date; no longer usable.
-- **CONSUMED** — Fully used up.
+- **REJECTED** — Failed quality checks; must not be used. A final state.
+- **EXPIRED** — Past its expiry date and no longer usable. A final state.
+- **CONSUMED** — Fully used up, with no material left to issue. A final state.
 
 ### Compound Status
 
@@ -820,18 +820,18 @@ Fields:
 
 ### Experiment Status
 
-- **PLANNED** — Designed but not started.
-- **RUNNING** — Under way.
-- **COMPLETED** — Finished with results.
-- **FAILED** — Could not be completed validly.
-- **CANCELLED** — Stopped before completion.
-- **ARCHIVED** — Closed and filed.
+- **PLANNED** — Designed and approved but not yet started.
+- **RUNNING** — Under way, with measurements being taken or materials in use.
+- **COMPLETED** — Finished with results recorded and ready for review.
+- **FAILED** — Could not be completed validly, for example through equipment or contamination problems. A final state.
+- **CANCELLED** — Stopped before completion and not to be resumed. A final state.
+- **ARCHIVED** — Closed, reviewed and filed for the record. A final state.
 
 ### Location Location Type
 
 - **SITE** — A geographic site that may contain several buildings.
 - **WAREHOUSE** — A building or area for storing goods.
-- **STORE** — A retail outlet.
+- **STORE** — A retail outlet where goods are sold to customers.
 - **OFFICE** — A place where office work is done.
 - **FACTORY** — A place where goods are made.
 - **YARD** — An open area for storing or staging equipment or containers.
@@ -843,21 +843,21 @@ Fields:
 ### Location Status
 
 - **PLANNED** — Expected but not yet in use.
-- **ACTIVE** — In use.
-- **INACTIVE** — Temporarily not used.
-- **CLOSED** — Closed down.
+- **ACTIVE** — In use and offered for new assignments.
+- **INACTIVE** — Temporarily not used but expected to return to service.
+- **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
 
 ### Organization Organization Type
 
-- **ENTERPRISE** — The top-level body, such as a group or corporation.
-- **COMPANY** — A legal company.
-- **BUSINESS UNIT** — A business division with its own results.
-- **DIVISION** — A major part of the organisation.
-- **DEPARTMENT** — A functional unit.
-- **BRANCH** — A local office or branch.
-- **SUBSIDIARY** — A company controlled by another.
-- **OTHER** — Any other organised body.
+- **ENTERPRISE** — The top-level group or enterprise that owns every other organizational unit beneath it.
+- **COMPANY** — A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+- **BUSINESS UNIT** — A unit organized around a line of business or market, which may span several legal entities.
+- **DIVISION** — A large internal division grouping departments under a common head or function.
+- **DEPARTMENT** — A functional team within a company or division, such as finance or warehouse operations.
+- **BRANCH** — A geographically separate office, store or site operating under a parent organization.
+- **SUBSIDIARY** — A company controlled by a parent organization but trading as a separate legal entity.
+- **OTHER** — A structure that fits none of the other types and is explained in its name or description.
 
 ### Organization Party Type
 
@@ -866,10 +866,10 @@ Fields:
 
 ### Organization Status
 
-- **DRAFT** — Being set up; not yet in use.
-- **ACTIVE** — In use.
-- **INACTIVE** — Temporarily not in use; can be reactivated.
-- **RETIRED** — Closed; kept for history. A final state.
+- **DRAFT** — The organization is being set up and is not yet available for use in transactions.
+- **ACTIVE** — The organization is in use and can be selected as an organizational scope in new records.
+- **INACTIVE** — The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+- **RETIRED** — The organization has been permanently closed or merged away and cannot be selected again. A final state.
 
 ### Party Party Type
 
@@ -878,16 +878,16 @@ Fields:
 
 ### Party Role Role Type
 
-- **CUSTOMER** — Buys from the organisation.
-- **SUPPLIER** — Sells to the organisation.
-- **EMPLOYEE** — Works for the organisation.
-- **PARTNER** — A business partner or reseller.
-- **CARRIER** — Transports goods for the organisation.
-- **AGENT** — Acts on behalf of the organisation or its customers.
-- **CONTRACTOR** — Provides services under a contract.
-- **OWNER** — Owns property or a share in the organisation.
-- **INVESTOR** — Provides capital.
-- **OTHER** — Any other role.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Party Role Status
 
@@ -904,11 +904,11 @@ Fields:
 
 ### Person Gender
 
-- **FEMALE** — Identifies as female.
-- **MALE** — Identifies as male.
-- **NON BINARY** — Identifies as neither exclusively male nor female.
-- **OTHER** — Identifies in another way.
-- **UNSPECIFIED** — Not stated or not collected.
+- **FEMALE** — The person identifies and is recorded as female.
+- **MALE** — The person identifies and is recorded as male.
+- **NON BINARY** — The person identifies as neither exclusively male nor exclusively female.
+- **OTHER** — The person identifies in a way not covered by the other values.
+- **UNSPECIFIED** — The gender is not recorded, because it was not needed or the person chose not to say.
 
 ### Person Party Type
 
@@ -942,16 +942,16 @@ Fields:
 
 ### Sample Sample Type
 
-- **SPECIMEN** — A portion taken from a larger whole for study.
-- **ALIQUOT** — A measured part of a prepared sample.
+- **SPECIMEN** — A portion taken from a larger whole in order to study it.
+- **ALIQUOT** — A measured part divided from a prepared parent sample.
 - **COMPOUND** — A sample of a chemical compound under study.
-- **MATERIAL** — A sample of a material or substance.
-- **BIOLOGICAL** — Biological matter such as tissue, cells or fluid.
-- **CHEMICAL** — A chemical substance or mixture.
+- **MATERIAL** — A sample of a material or substance, such as a polymer or alloy.
+- **BIOLOGICAL** — Biological matter such as tissue, cells, blood or other fluid.
+- **CHEMICAL** — A chemical substance or mixture, such as a reagent or solvent.
 - **ENVIRONMENTAL** — Taken from the environment, such as water, soil or air.
-- **CONTROL** — A sample with a known result used to check a test.
-- **REFERENCE** — A certified standard to compare against.
-- **OTHER** — A sample that fits no other type.
+- **CONTROL** — A sample with a known result, used to check that a test is working.
+- **REFERENCE** — A certified standard that other samples are compared against.
+- **OTHER** — A sample that fits none of the other types.
 
 ### Sample Status
 
@@ -968,21 +968,21 @@ Fields:
 
 ### Task Priority
 
-- **LOW** — Can wait.
-- **NORMAL** — Ordinary priority.
-- **HIGH** — Do ahead of normal work.
-- **CRITICAL** — Do immediately.
+- **LOW** — Can wait behind other work without business impact.
+- **NORMAL** — Standard urgency, handled in the ordinary course of work.
+- **HIGH** — Needs prompt attention ahead of normal work.
+- **CRITICAL** — Needs immediate action because delay causes serious business impact.
 
 ### Task Status
 
-- **CREATED** — Recorded and not yet ready.
-- **READY** — Ready to be picked up.
-- **ASSIGNED** — Given to someone.
-- **IN PROGRESS** — Being worked.
-- **BLOCKED** — Cannot proceed until something is resolved.
-- **COMPLETED** — Done. A final state.
-- **CANCELLED** — No longer needed. A final state.
-- **FAILED** — Could not be done. A final state.
+- **CREATED** — The task exists but is not yet ready to be picked up.
+- **READY** — The task is released and waiting for someone to be assigned.
+- **ASSIGNED** — A person or party has been given the task but has not started it.
+- **IN PROGRESS** — The assignee is actively working on the task.
+- **BLOCKED** — Work is held up by a dependency, missing input or decision.
+- **COMPLETED** — The work was done as required. A final state.
+- **CANCELLED** — The task was withdrawn before completion. A final state.
+- **FAILED** — The task ended without achieving its result and needs follow-up elsewhere. A final state.
 
 ### Task Task Type
 

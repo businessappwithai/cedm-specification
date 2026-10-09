@@ -46,17 +46,17 @@ entity:
         - GAME
         - OTHER
       help:
-        summary: The form of the work.
-        usage: Chosen when the work is registered; decides workflows, formats and royalty rules.
         valueSemantics:
           VIDEO: A film, series or clip.
           AUDIO: Music or spoken-word audio.
           IMAGE: A photograph or illustration.
-          ARTICLE: A written article.
+          ARTICLE: A written article, such as a news story or feature.
           BOOK: A book or e-book.
           PODCAST: A podcast episode or series.
-          GAME: A game.
+          GAME: An interactive game or game title.
           OTHER: Any other kind of work.
+        summary: The form of the work.
+        usage: Chosen when the work is registered; decides workflows, formats and royalty rules.
     - name: status
       type: enum
       required: true
@@ -68,14 +68,14 @@ entity:
         - ARCHIVED
         - RETIRED
       help:
-        summary: Where the work is in its life.
-        usage: Moved by the content team; only PUBLISHED works are shown to audiences.
         valueSemantics:
-          DRAFT: Being created.
+          DRAFT: Being created and not yet finished.
           PRODUCED: Finished but not yet released.
           PUBLISHED: Released to its audience.
           ARCHIVED: Kept but no longer promoted.
           RETIRED: Withdrawn from distribution. A final state.
+        summary: Where the work is in its life.
+        usage: Moved by the content team; only PUBLISHED works are shown to audiences.
   relationships:
     - name: owner
       target: Organization

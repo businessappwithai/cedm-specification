@@ -30,12 +30,22 @@ entity:
       target: ExchangeRate
       required: false
       immutable: true
-      help: {summary: Exchange rate used when CreditNote and Invoice currencies differ., businessMeaning: Preserves conversion evidence for cross-currency credit application., usage: Supports audit and reproducibility., relationshipContext: Required for permitted cross-currency applications., workflowRole: Connects source credit value to target invoice value.}
+      help:
+        summary: The exchange rate used to convert between the credit note's currency and the invoice's currency.
+        usage: Filled only when the two currencies differ; it freezes the conversion so the application can be audited and reproduced later.
+        businessMeaning: Preserves conversion evidence for cross-currency credit application.
+        relationshipContext: Required for permitted cross-currency applications.
+        workflowRole: Connects source credit value to target invoice value.
     - name: appliedAt
       type: datetime
       required: true
       immutable: true
-      help: {summary: Timestamp when the application became effective., businessMeaning: Establishes adjustment chronology., usage: "Supports accounting periods, statements, audit and reconciliation.", relationshipContext: Distinct from CreditNoteDate and InvoiceDate., workflowRole: Determines when the Invoice credit projection changes.}
+      help:
+        summary: The date and time the application took effect and began reducing the invoice.
+        usage: Set when the application is activated; it decides which accounting period and customer statement show the reduction.
+        businessMeaning: Establishes adjustment chronology.
+        relationshipContext: Distinct from CreditNoteDate and InvoiceDate.
+        workflowRole: Determines when the Invoice credit projection changes.
     - name: status
       type: enum
       required: true
@@ -46,14 +56,14 @@ entity:
         - REVERSED
         - CANCELLED
       help:
+        summary: Whether the application is being prepared, currently reducing the invoice, undone, or withdrawn.
+        usage: Moved by receivables staff; only an ACTIVE application reduces the invoice, and the credit note and invoice keep their own statuses.
         valueSemantics:
           DRAFT: Prepared but not yet in effect.
           ACTIVE: In effect; it reduces the invoice's outstanding amount.
           REVERSED: Undone by a compensating record; no longer reduces the invoice.
           CANCELLED: Withdrawn before it took effect.
-        summary: Lifecycle state of the application.
         businessMeaning: Indicates whether the application currently reduces the invoice.
-        usage: Controls credit and invoice projections.
         relationshipContext: CreditNote and Invoice statuses remain independent historical facts.
         workflowRole: ACTIVE creates the application effect; reversal removes it through a compensating event.
     - name: reversalOfApplicationId
@@ -61,7 +71,12 @@ entity:
       target: CreditNoteApplication
       required: false
       immutable: true
-      help: {summary: Prior application reversed by this record., businessMeaning: Links correction to the original adjustment application., usage: Supports audit and controlled reallocation., relationshipContext: Reversal is a new historical event and does not edit the original., workflowRole: Enables correction while preserving history.}
+      help:
+        summary: The earlier application that this record undoes, when it is a reversal.
+        usage: Set when a wrong application is corrected; the original is never edited, so audit sees both the mistake and its correction.
+        businessMeaning: Links correction to the original adjustment application.
+        relationshipContext: Reversal is a new historical event and does not edit the original.
+        workflowRole: Enables correction while preserving history.
   relationships:
     - name: creditNote
       target: CreditNote

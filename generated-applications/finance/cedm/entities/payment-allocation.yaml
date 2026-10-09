@@ -84,8 +84,8 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, REVERSED, CANCELLED]
       help:
-        summary: Whether the allocation is in effect.
-        usage: Moved by accounts receivable or payable.
+        summary: Shows whether the allocation is still being prepared, is settling the invoice, or has been undone.
+        usage: Moved by accounts receivable or payable; only active allocations reduce the amount outstanding on the invoice.
         valueSemantics:
           DRAFT: Prepared but not yet applied.
           ACTIVE: Applied; the invoice's outstanding amount is reduced.

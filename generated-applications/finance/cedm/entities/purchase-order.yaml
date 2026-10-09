@@ -17,7 +17,11 @@ entity:
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Human-facing procurement reference., usage: "Used by buyers, suppliers, receiving, accounts payable and integrations.", relationshipContext: Business reference distinct from technical purchaseOrderId., workflowRole: Correlates procurement activity across systems.}
+      help:
+        summary: The human-facing procurement reference quoted by the buyer and supplier for this order.
+        usage: Assigned when the order is created and unique; used by buyers, suppliers, receiving, accounts payable and integrations to find it.
+        relationshipContext: Business reference distinct from technical purchaseOrderId.
+        workflowRole: Correlates procurement activity across systems.
     - name: orderDate
       type: datetime
       required: true
@@ -28,16 +32,16 @@ entity:
       default: DRAFT
       values: [DRAFT, APPROVED, SENT, PARTIALLY_RECEIVED, RECEIVED, CANCELLED, CLOSED]
       help:
+        summary: Where the purchase commitment stands from draft through issue, receipt and closure.
+        usage: Moved by buyers, approvers and receiving; controls authorisation, issuing, cancellation and closure, and cancelled and closed are final.
         valueSemantics:
-          DRAFT: Being prepared by the buyer; not yet binding.
-          APPROVED: Authorised internally and ready to send.
-          SENT: Issued to the supplier.
+          DRAFT: Being prepared by the buyer; not yet binding on anyone.
+          APPROVED: Authorised internally and ready to be sent to the supplier.
+          SENT: Issued to the supplier, who is now expected to deliver.
           PARTIALLY_RECEIVED: Some of the ordered quantity has been received and accepted; the rest is outstanding.
           RECEIVED: Everything required has been received and accepted.
           CANCELLED: The remaining commitment has been withdrawn. A final state.
           CLOSED: Receiving and invoicing are complete. A final state.
-        summary: Lifecycle state of the procurement commitment.
-        usage: Controls authorization, issuance, fulfillment, cancellation and closure.
         relationshipContext: PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.
     - name: currencyId
       type: reference
@@ -47,7 +51,11 @@ entity:
     - name: requestedDeliveryDate
       type: date
       required: false
-      help: {summary: Buyer's requested delivery or completion date., usage: Used for supplier communication and fulfillment planning., relationshipContext: "A request, not proof of actual receipt or return.", workflowRole: Supports delivery planning.}
+      help:
+        summary: The date by which the buyer asks the supplier to deliver the goods or complete the service.
+        usage: Entered by the buyer and communicated to the supplier; receiving and planners use it to expect arrivals and chase late orders.
+        relationshipContext: "A request, not proof of actual receipt or return."
+        workflowRole: Supports delivery planning.
     - name: totalAmount
       type: decimal
       required: false
@@ -64,7 +72,12 @@ entity:
       target: Organization
       cardinality: 0..1
       ownership: reference
-      help: {summary: Buying organization responsible for the commitment., usage: "Supports authorization, legal entity, budget, tax and reporting."}
+      help:
+        summary: The buying organization that issues the order and is committed to pay for it.
+        usage: Chosen when the order is created; decides which legal entity, budget, tax rules and approvals apply to the purchase.
+        cardinalityMeaning: 'At most one organization: the buyer is a single legal entity, and it may be unset on an early draft.'
+        workflowRole: Identifies the buyer for authorisation, budgeting and reporting.
+        context: Ties the commitment to a legal entity for tax and budget.
     - name: lines
       target: PurchaseOrderLine
       cardinality: 1..*
@@ -74,7 +87,12 @@ entity:
       target: Location
       cardinality: 0..1
       ownership: reference
-      help: {summary: Intended operational destination for ordered goods or services., usage: Used for receiving and logistics planning.}
+      help:
+        summary: The place where the ordered goods are to be delivered or the service performed.
+        usage: Chosen by the buyer; receiving, logistics planning and the supplier's dispatch use it to route the delivery.
+        cardinalityMeaning: At most one delivery location per order; a single order is delivered to one place and may be unset.
+        workflowRole: Tells receiving where to expect the goods.
+        context: Directs the supplier's dispatch to the receiving site.
     - name: goodsReceipts
       target: GoodsReceipt
       cardinality: 0..*

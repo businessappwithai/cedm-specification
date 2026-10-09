@@ -7,7 +7,7 @@ entity:
     icon: database
   identity: {key: legalEntityId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: The identity of the legal entity., usage: Generated on registration.}}
+    - {name: legalEntityId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the legal entity, kept even when its name or registration details change.', usage: 'Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: 'When the entity was formed, or its record took effect.', usage: Set from the registration data.}}
   relationships: []
   invariants:

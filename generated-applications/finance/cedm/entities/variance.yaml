@@ -7,8 +7,8 @@ entity:
     icon: table
   identity: {key: varianceId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the variance, constant for its life.', businessMeaning: Lets reports point at the comparison., usage: Generated on creation., relationshipContext: Referenced by review reports.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code of the variance, such as VAR-2026-03-MKT.', businessMeaning: Gives reviewers a stable reference., usage: Used in reports., relationshipContext: Read with the period.}}
+    - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identifier of the variance comparison, unchanged when its figures are recalculated.', usage: Generated on creation; reports and commentary refer to it to point at one specific comparison of plan against actual., businessMeaning: Lets reports point at the comparison., relationshipContext: Referenced by review reports.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The reference code of the variance, such as VAR-2026-03-MKT, naming the period and area compared.', usage: 'Assigned by finance or the planning system when the comparison is produced; used in reports, review packs and when quoting a variance to managers.', businessMeaning: Gives reviewers a stable reference., relationshipContext: Read with the period.}}
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation the comparison is for., usage: Chosen when created., cardinalityMeaning: Exactly one organisation., workflowRole: Decides whose budget is measured.}}
     - {name: budget, target: Budget, cardinality: 0..1, ownership: reference, help: {summary: The budget used as the plan., usage: Chosen when comparing with budget., cardinalityMeaning: At most one budget., workflowRole: Provides the planned figure., businessMeaning: Supplies planned value source.}}

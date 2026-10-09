@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the medication record.
-        usage: Generated on creation; prescriptions refer to it.
+        summary: The permanent identifier of the medication record in the formulary, which never changes after it is created.
+        usage: Generated on creation; prescriptions, dispensing records and safety alerts refer to the medication through this value.
     - name: productId
       type: reference
       target: Product
@@ -62,12 +62,12 @@ entity:
         - INACTIVE
         - RETIRED
       help:
-        summary: Whether the medication can be prescribed.
-        usage: Set by pharmacy; only ACTIVE medications appear in prescribing lists.
+        summary: Whether the medication is currently available to be prescribed from the formulary.
+        usage: Set by pharmacy when a drug is added, suspended or withdrawn; prescribing lists offer only medications that are active.
         valueSemantics:
-          ACTIVE: Available for prescribing.
-          INACTIVE: Temporarily withheld, for example during a shortage; it can return.
-          RETIRED: Withdrawn from use. A final state.
+          ACTIVE: The medication is on the formulary and prescribers may choose it when writing new prescriptions.
+          INACTIVE: The medication is temporarily withheld from prescribing, for example during a supply shortage, and may return to use.
+          RETIRED: The medication has been permanently withdrawn from the formulary and cannot be prescribed again. A final state.
   relationships:
     - name: product
       target: Product

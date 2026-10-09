@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The title of the course.
-        usage: Shown in catalogues, timetables and transcripts.
+        summary: The title of the course as students and staff know it, such as Introduction to Statistics.
+        usage: Entered by the academic office; shown in catalogues, timetables and transcripts, so it should stay stable from term to term.
     - name: credits
       type: decimal
       required: false

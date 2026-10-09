@@ -29,8 +29,8 @@ entity:
         - ABANDONED
         - EXPIRED
       help:
-        summary: Where the cart is.
-        usage: Starts as ACTIVE; changed by checkout and by timeouts.
+        summary: 'The stage of the cart: still being filled, turned into an order, left idle or timed out.'
+        usage: Starts as ACTIVE; set to CHECKED_OUT by checkout and to ABANDONED or EXPIRED by timeouts. Only an active cart can be edited.
         relationshipContext: Only an active cart can be edited.
         valueSemantics:
           ACTIVE: Open and being filled.
@@ -41,8 +41,8 @@ entity:
       type: datetime
       required: true
       help:
-        summary: When the cart was started.
-        usage: Set automatically; used to measure cart age.
+        summary: The date and time the shopper added the first item and the cart came into existence.
+        usage: Set automatically and never edited; used to measure cart age, trigger abandonment follow-up and compare with the expiry time.
         relationshipContext: Compared with the expiry time.
     - name: expiresAt
       type: datetime

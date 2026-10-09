@@ -23,11 +23,11 @@ enums:
     values: [FEMALE, MALE, NON_BINARY, OTHER, UNSPECIFIED]
     table: true
     descriptions:
-      FEMALE: Identifies as female.
-      MALE: Identifies as male.
-      NON_BINARY: Identifies as neither exclusively male nor female.
-      OTHER: Identifies in another way.
-      UNSPECIFIED: Not stated or not collected.
+      FEMALE: The person identifies and is recorded as female.
+      MALE: The person identifies and is recorded as male.
+      NON_BINARY: The person identifies as neither exclusively male nor exclusively female.
+      OTHER: The person identifies in a way not covered by the other values.
+      UNSPECIFIED: The gender is not recorded, because it was not needed or the person chose not to say.
   - name: PersonPartyType
     values: [PERSON, ORGANIZATION]
     table: true
@@ -46,22 +46,22 @@ enums:
     values: [ENTERPRISE, COMPANY, BUSINESS_UNIT, DIVISION, DEPARTMENT, BRANCH, SUBSIDIARY, OTHER]
     table: true
     descriptions:
-      ENTERPRISE: The top-level body, such as a group or corporation.
-      COMPANY: A legal company.
-      BUSINESS_UNIT: A business division with its own results.
-      DIVISION: A major part of the organisation.
-      DEPARTMENT: A functional unit.
-      BRANCH: A local office or branch.
-      SUBSIDIARY: A company controlled by another.
-      OTHER: Any other organised body.
+      ENTERPRISE: The top-level group or enterprise that owns every other organizational unit beneath it.
+      COMPANY: A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+      BUSINESS_UNIT: A unit organized around a line of business or market, which may span several legal entities.
+      DIVISION: A large internal division grouping departments under a common head or function.
+      DEPARTMENT: A functional team within a company or division, such as finance or warehouse operations.
+      BRANCH: A geographically separate office, store or site operating under a parent organization.
+      SUBSIDIARY: A company controlled by a parent organization but trading as a separate legal entity.
+      OTHER: A structure that fits none of the other types and is explained in its name or description.
   - name: OrganizationStatus
     values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
     table: true
     descriptions:
-      DRAFT: Being set up; not yet in use.
-      ACTIVE: In use.
-      INACTIVE: Temporarily not in use; can be reactivated.
-      RETIRED: Closed; kept for history. A final state.
+      DRAFT: The organization is being set up and is not yet available for use in transactions.
+      ACTIVE: The organization is in use and can be selected as an organizational scope in new records.
+      INACTIVE: The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+      RETIRED: The organization has been permanently closed or merged away and cannot be selected again. A final state.
   - name: OrganizationPartyType
     values: [PERSON, ORGANIZATION]
     table: true
@@ -72,16 +72,16 @@ enums:
     values: [CUSTOMER, SUPPLIER, EMPLOYEE, PARTNER, CARRIER, AGENT, CONTRACTOR, OWNER, INVESTOR, OTHER]
     table: true
     descriptions:
-      CUSTOMER: Buys from the organisation.
-      SUPPLIER: Sells to the organisation.
-      EMPLOYEE: Works for the organisation.
-      PARTNER: A business partner or reseller.
-      CARRIER: Transports goods for the organisation.
-      AGENT: Acts on behalf of the organisation or its customers.
-      CONTRACTOR: Provides services under a contract.
-      OWNER: Owns property or a share in the organisation.
-      INVESTOR: Provides capital.
-      OTHER: Any other role.
+      CUSTOMER: The party buys goods or services from the organization and is handled in sales and receivables.
+      SUPPLIER: The party sells goods or services to the organization and is handled in procurement and payables.
+      EMPLOYEE: The party works for the organization under an employment relationship.
+      PARTNER: The party collaborates with the organization commercially, such as a reseller or alliance member.
+      CARRIER: The party transports goods or people for the organization.
+      AGENT: The party acts on behalf of the organization or of another party, usually for a commission.
+      CONTRACTOR: The party provides labour or services under a contract rather than as an employee.
+      OWNER: The party holds an ownership or beneficial interest in an asset or organization.
+      INVESTOR: The party provides capital to the organization in return for a financial return or equity stake.
+      OTHER: A role that fits none of the listed kinds and is explained in the role code or description.
   - name: PartyRoleStatus
     values: [ACTIVE, INACTIVE, EXPIRED]
     table: true
@@ -113,7 +113,7 @@ enums:
     descriptions:
       SITE: A geographic site that may contain several buildings.
       WAREHOUSE: A building or area for storing goods.
-      STORE: A retail outlet.
+      STORE: A retail outlet where goods are sold to customers.
       OFFICE: A place where office work is done.
       FACTORY: A place where goods are made.
       YARD: An open area for storing or staging equipment or containers.
@@ -126,9 +126,9 @@ enums:
     table: true
     descriptions:
       PLANNED: Expected but not yet in use.
-      ACTIVE: In use.
-      INACTIVE: Temporarily not used.
-      CLOSED: Closed down.
+      ACTIVE: In use and offered for new assignments.
+      INACTIVE: Temporarily not used but expected to return to service.
+      CLOSED: Closed down, with no new assignments but history kept.
       RETIRED: Removed from use altogether. A final state.
   - name: CurrencyStatus
     values: [ACTIVE, INACTIVE, RETIRED]
@@ -190,22 +190,22 @@ enums:
     values: [CREATED, READY, ASSIGNED, IN_PROGRESS, BLOCKED, COMPLETED, CANCELLED, FAILED]
     table: true
     descriptions:
-      CREATED: Recorded and not yet ready.
-      READY: Ready to be picked up.
-      ASSIGNED: Given to someone.
-      IN_PROGRESS: Being worked.
-      BLOCKED: Cannot proceed until something is resolved.
-      COMPLETED: Done. A final state.
-      CANCELLED: No longer needed. A final state.
-      FAILED: Could not be done. A final state.
+      CREATED: The task exists but is not yet ready to be picked up.
+      READY: The task is released and waiting for someone to be assigned.
+      ASSIGNED: A person or party has been given the task but has not started it.
+      IN_PROGRESS: The assignee is actively working on the task.
+      BLOCKED: Work is held up by a dependency, missing input or decision.
+      COMPLETED: The work was done as required. A final state.
+      CANCELLED: The task was withdrawn before completion. A final state.
+      FAILED: The task ended without achieving its result and needs follow-up elsewhere. A final state.
   - name: TaskPriority
     values: [LOW, NORMAL, HIGH, CRITICAL]
     table: true
     descriptions:
-      LOW: Can wait.
-      NORMAL: Ordinary priority.
-      HIGH: Do ahead of normal work.
-      CRITICAL: Do immediately.
+      LOW: Can wait behind other work without business impact.
+      NORMAL: Standard urgency, handled in the ordinary course of work.
+      HIGH: Needs prompt attention ahead of normal work.
+      CRITICAL: Needs immediate action because delay causes serious business impact.
   - name: ProductProductType
     values: [GOOD, MATERIAL, SERVICE, SUBSCRIPTION, ASSET, BUNDLE, OTHER]
     table: true
@@ -237,28 +237,28 @@ enums:
     values: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
     table: true
     descriptions:
-      DRAFT: Being defined; not yet usable.
-      ACTIVE: Approved for production.
-      SUSPENDED: Temporarily withdrawn from use.
-      OBSOLETE: Superseded or no longer used. A final state.
+      DRAFT: Being defined by engineering; not yet usable for production.
+      ACTIVE: Approved for production and eligible for new orders to be released against.
+      SUSPENDED: Temporarily withdrawn from use, for example pending a process investigation.
+      OBSOLETE: Superseded by a newer version or no longer used. A final state.
   - name: WorkCenterStatus
     values: [ACTIVE, INACTIVE, MAINTENANCE, RETIRED]
     table: true
     descriptions:
-      ACTIVE: Available for scheduling production.
-      INACTIVE: Not scheduled for now; can be reactivated.
-      MAINTENANCE: Out of use for servicing.
-      RETIRED: No longer used. A final state.
+      ACTIVE: Available and eligible to be scheduled for production.
+      INACTIVE: Not currently used but can be reactivated.
+      MAINTENANCE: Out of production for servicing, with its capacity unavailable.
+      RETIRED: Permanently removed from use. A final state.
   - name: ManufacturingWorkOrderStatus
     values: [PLANNED, RELEASED, IN_PROGRESS, COMPLETED, CLOSED, CANCELLED]
     table: true
     descriptions:
-      PLANNED: Being planned and not executable.
-      RELEASED: Authorized for governed execution.
-      IN_PROGRESS: Execution has begun.
-      COMPLETED: Production execution is materially complete pending closure where applicable.
-      CLOSED: Reconciled and administratively closed.
-      CANCELLED: Terminated before remaining execution.
+      PLANNED: Being planned and not yet executable.
+      RELEASED: Authorised for execution, so materials may be issued and work started.
+      IN_PROGRESS: Execution has begun on the shop floor.
+      COMPLETED: Production is materially complete, pending closure where applicable.
+      CLOSED: Reconciled and administratively closed. A final state.
+      CANCELLED: Terminated before the remaining execution was done. A final state.
   - name: LotStatus
     values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
     table: true
@@ -275,14 +275,14 @@ enums:
     values: [EXPECTED, AVAILABLE, RESERVED, IN_TRANSIT, INSTALLED, CONSUMED, RETURNED, QUARANTINED, SCRAPPED, RETIRED]
     table: true
     descriptions:
-      EXPECTED: Announced but not yet received.
-      AVAILABLE: In stock and free to use.
-      RESERVED: Set aside for an order or job.
-      IN_TRANSIT: On its way between places.
-      INSTALLED: Fitted at a customer or on equipment.
-      CONSUMED: Used up. A final state.
-      RETURNED: Sent back and awaiting a decision.
-      QUARANTINED: Held apart pending a decision.
+      EXPECTED: Announced on an inbound order but not yet received.
+      AVAILABLE: In stock and free to be reserved or shipped.
+      RESERVED: Set aside for a particular order or job.
+      IN_TRANSIT: On its way between locations or to a customer.
+      INSTALLED: Fitted at a customer site or on equipment.
+      CONSUMED: Used up in production or service. A final state.
+      RETURNED: Sent back by a customer and awaiting a decision.
+      QUARANTINED: Held apart pending a quality or safety decision.
       SCRAPPED: Destroyed or written off. A final state.
       RETIRED: Taken out of service for good. A final state.
   - name: InventoryMovementMovementType
@@ -300,7 +300,7 @@ enums:
     values: [OPEN, IN_PROGRESS, PASSED, FAILED, CONDITIONAL, CANCELLED]
     table: true
     descriptions:
-      OPEN: Raised and not yet started.
+      OPEN: Raised and not yet started; waiting for an inspector.
       IN_PROGRESS: Samples are being taken and measured.
       PASSED: The goods met every requirement. A final state.
       FAILED: The goods did not meet the requirements. A final state.
@@ -320,13 +320,13 @@ enums:
     descriptions:
       RELEASE: Release the goods for use or sale.
       ACCEPT: Accept the goods into stock.
-      REJECT: Refuse the goods.
+      REJECT: Refuse the goods because they failed to meet requirements.
       QUARANTINE: Hold the goods apart until a decision is made.
       RETURN_TO_SUPPLIER: Send the goods back to the supplier.
       REWORK: Correct the goods so they meet the requirement.
       REPAIR: Repair the goods to a usable condition.
       SCRAP: Destroy or write off the goods.
-      CONDITIONAL_RELEASE: The disposition of the quality inspection is conditional release; set it when that is what the business means for this record.
+      CONDITIONAL_RELEASE: Release the goods for use only under stated conditions that must be met.
   - name: ProductionRecordStatus
     values: [PLANNED, RECORDED, VERIFIED, REJECTED]
     table: true
@@ -339,10 +339,10 @@ enums:
     values: [DRAFT, ACTIVE, DISCONTINUED, BLOCKED, RETIRED]
     table: true
     descriptions:
-      DRAFT: The product is being set up.
-      ACTIVE: The product is available for ordinary trading.
-      DISCONTINUED: The product is being phased out.
-      BLOCKED: The product is temporarily barred from trading.
+      DRAFT: The product is still being set up and is not yet available for trading.
+      ACTIVE: The product is available for ordinary buying and selling.
+      DISCONTINUED: The product is being phased out and no new trading should begin.
+      BLOCKED: The product is temporarily barred from trading until the issue is resolved.
       RETIRED: The product is permanently removed from the catalogue.
 categories:
   - name: Foundation
@@ -390,7 +390,7 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record.
+        help: The stable identifier of the individual-person record, which never changes even if the person's name does. Generated on creation; individual identity processes and person-specific records refer to the person through this value. Party.partyId remains canonical. identifies person-specific record.
       - name: party_id
         type: string
         fk: true
@@ -399,30 +399,30 @@ entities:
       - name: title
         type: string(50)
         optional: true
-        help: Personal title. documents and presentation. presentation attribute. supports person display.
+        help: The honorific or personal title used before the person's name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.
       - name: given_name
         type: string(150)
-        help: Given name. identity and documents. intrinsic person identity. identification.
+        help: The person's first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.
       - name: middle_name
         type: string(150)
         optional: true
-        help: Middle name. identity and documents. intrinsic person identity. identification.
+        help: Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.
       - name: family_name
         type: string(150)
-        help: Family name. identity and documents. intrinsic person identity. identification.
+        help: The person's family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.
       - name: preferred_name
         type: string(150)
         optional: true
-        help: Preferred display name. communication and UI. presentation not canonical identity. human interaction.
+        help: The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonical identity. human interaction.
       - name: date_of_birth
         type: date
         optional: true
-        help: Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.
+        help: The person's date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject to access policy. eligibility/verification where applicable.
       - name: gender
         type: string
         optional: true
         enum: PersonGender
-        help: The person's gender as recorded for the organisation's purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as neither exclusively male nor female. Identifies in another way. Not stated or not collected. person attribute and not role. process-specific.
+        help: The person's gender as recorded for the organisation's lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The person identifies and is recorded as male. The person identifies as neither exclusively male nor exclusively female. The person identifies in a way not covered by the other values. The gender is not recorded, because it was not needed or the person chose not to say. person attribute and not role. process-specific.
       - name: nationality_id
         type: string
         fk: true
@@ -467,11 +467,11 @@ entities:
       - name: organization_type
         type: string
         enum: OrganizationOrganizationType
-        help: The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organised body. Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.
+        help: Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created. The top-level group or enterprise that owns every other organizational unit beneath it. A separate legal entity or operating company, usually with its own registrations, books and tax identifiers. A unit organized around a line of business or market, which may span several legal entities. A large internal division grouping departments under a common head or function. A functional team within a company or division, such as finance or warehouse operations. A geographically separate office, store or site operating under a parent organization. A company controlled by a parent organization but trading as a separate legal entity. A structure that fits none of the other types and is explained in its name or description. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.
       - name: status
         type: string
         enum: OrganizationStatus
-        help: Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.
+        help: Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organization is being set up and is not yet available for use in transactions. The organization is in use and can be selected as an organizational scope in new records. The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return. The organization has been permanently closed or merged away and cannot be selected again. A final state. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.
         default: DRAFT
       - name: legal_name
         type: string(300)
@@ -521,7 +521,7 @@ entities:
       - name: role_type
         type: string
         enum: PartyRoleRoleType
-        help: The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business partner or reseller. Transports goods for the organisation. Acts on behalf of the organisation or its customers. Provides services under a contract. Owns property or a share in the organisation. Provides capital. Any other role. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.
+        help: The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from the organization and is handled in sales and receivables. The party sells goods or services to the organization and is handled in procurement and payables. The party works for the organization under an employment relationship. The party collaborates with the organization commercially, such as a reseller or alliance member. The party transports goods or people for the organization. The party acts on behalf of the organization or of another party, usually for a commission. The party provides labour or services under a contract rather than as an employee. The party holds an ownership or beneficial interest in an asset or organization. The party provides capital to the organization in return for a financial return or equity stake. A role that fits none of the listed kinds and is explained in the role code or description. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.
       - name: code
         type: string(100)
         optional: true
@@ -533,11 +533,11 @@ entities:
       - name: valid_to
         type: date
         optional: true
-        help: The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
+        help: The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
       - name: status
         type: string
         enum: PartyRoleStatus
-        help: Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.
+        help: Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.
         default: ACTIVE
       - name: person_id
         type: string
@@ -562,7 +562,7 @@ entities:
         help: The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
       - name: name
         type: string(300)
-        help: A description of the relationship. Shown in party views.
+        help: A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
       - name: from_party_id
         type: string
         fk: true
@@ -575,7 +575,7 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: The identity of the legal entity. Generated on registration.
+        help: The stable identity of the legal entity, kept even when its name or registration details change. Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.
       - name: occurred_at
         type: datetime
         optional: true
@@ -593,7 +593,7 @@ entities:
         help: The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
       - name: name
         type: string(300)
-        help: The full name of the unit. Shown in organisation charts and management reports.
+        help: The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
       - name: organization_id
         type: string
         fk: true
@@ -611,11 +611,11 @@ entities:
         help: The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
       - name: name
         type: string(300)
-        help: The name of the department. Shown in organisation charts and on documents.
+        help: The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
       - name: organization_id
         type: string
         fk: true
-        help: "The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure."
+        help: "Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure."
   - name: Address
     help: A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed. Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed. Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes. An address is placed through its Country, optional StateProvince and City, so it follows the geography lists, and may be used by a Party or a Location. Addresses are active, can be made inactive and reactivated, and are retired when finished with. Retirement stops new use but never removes the address from past documents. A customer moves its billing address; the customer record now points to the new active address while already issued invoices keep the address that applied when they were issued. Address create/update → validate country/geography → validate Party/Location dependency → select effective address → transaction captures address evidence → later master-data changes affect future selection only.
     icon: map-pin
@@ -727,15 +727,15 @@ entities:
         help: The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
       - name: name
         type: string(200)
-        help: The name people use for the place. Shown in lists, maps and documents.
+        help: The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
       - name: location_type
         type: string
         enum: LocationLocationType
-        help: What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place.
+        help: A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.
       - name: status
         type: string
         enum: LocationStatus
-        help: Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.
+        help: Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments.
         default: PLANNED
       - name: address_id
         type: string
@@ -758,7 +758,7 @@ entities:
         optional: true
         help: The Product this Location belongs to.
   - name: Country
-    help: A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+    help: Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
     icon: globe
     data:
       key: code
@@ -2274,7 +2274,7 @@ entities:
       - name: phone_code
         type: string(20)
         optional: true
-        help: The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
+        help: The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to the country; several countries can share a prefix.
       - name: currency_id
         type: string
         fk: true
@@ -6929,7 +6929,7 @@ entities:
         help: The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
       - name: name
         type: string(200)
-        help: The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key.
+        help: The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
       - name: subdivision_type
         type: string(100)
         optional: true
@@ -6939,7 +6939,7 @@ entities:
         fk: true
         help: The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
   - name: City
-    help: "A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes."
+    help: "Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes."
     icon: building-2
     data:
       key: code
@@ -13214,19 +13214,19 @@ entities:
         help: "The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart."
       - name: name
         type: string(200)
-        help: "The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name."
+        help: "The city's name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a city of one name."
       - name: population
         type: integer
         optional: true
-        help: The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
+        help: The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.
       - name: latitude
         type: decimal
         optional: true
-        help: Latitude in degrees, north positive. Maps and distance. Describes the city only.
+        help: The city's north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.
       - name: longitude
         type: decimal
         optional: true
-        help: Longitude in degrees, east positive. Maps and distance. Describes the city only.
+        help: The city's east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.
       - name: timezone
         type: string(64)
         optional: true
@@ -13234,7 +13234,7 @@ entities:
       - name: is_capital
         type: boolean
         optional: true
-        help: Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
+        help: Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
       - name: country_id
         type: string
         fk: true
@@ -13623,14 +13623,14 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: The identity of the language record. Generated when the language is loaded.
+        help: The stable identity of the language record, constant even if its name or code is later corrected. Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.
       - name: code
         type: string(2)
         unique: true
         help: The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
       - name: name
         type: string(300)
-        help: The name of the language in English. Shown in language pick-lists.
+        help: The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
   - name: Currency
     help: Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.
     icon: coins
@@ -14467,7 +14467,7 @@ entities:
         help: The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
       - name: name
         type: string(300)
-        help: The descriptive name of the calendar. Shown wherever a calendar is chosen.
+        help: The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
   - name: Attachment
     help: A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record. A signed delivery note PDF is attached to a shipment record by the driver's handheld at delivery.
     icon: paperclip
@@ -14490,14 +14490,14 @@ entities:
         help: The identity of the task, constant for its life. Generated on creation; workflow and audit records refer to it.
       - name: code
         type: string(100)
-        help: The code of the task, such as TASK-0042. Used in lists and notifications.
+        help: The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
       - name: name
         type: string(300)
-        help: A short statement of the work. Shown on to-do lists.
+        help: A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
       - name: description
         type: string(2000)
         optional: true
-        help: Details of what must be done. Read by the assignee.
+        help: Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
       - name: task_type
         type: string
         enum: TaskTaskType
@@ -14505,12 +14505,12 @@ entities:
       - name: status
         type: string
         enum: TaskStatus
-        help: Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final state. Could not be done. A final state.
+        help: Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The task exists but is not yet ready to be picked up. The task is released and waiting for someone to be assigned. A person or party has been given the task but has not started it. The assignee is actively working on the task. Work is held up by a dependency, missing input or decision. The work was done as required. A final state. The task was withdrawn before completion. A final state. The task ended without achieving its result and needs follow-up elsewhere. A final state.
         default: CREATED
       - name: priority
         type: string
         enum: TaskPriority
-        help: How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.
+        help: How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business impact. Standard urgency, handled in the ordinary course of work. Needs prompt attention ahead of normal work. Needs immediate action because delay causes serious business impact.
         default: NORMAL
       - name: due_at
         type: datetime
@@ -14659,17 +14659,17 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the routing version. Identifies one governed production method. Planning, order release, costing, and audit. Connects Product to ordered Operation definitions.
+        help: The permanent system identifier of one version of a manufacturing routing. Generated on creation; production orders, costing and planning refer to the exact version through it. Identifies one governed production method. Connects Product to ordered Operation definitions.
       - name: code
         type: string(100)
-        help: Business routing code. Human-recognizable process identifier. Engineering and production planning. Combined with version identifies controlled process definition.
+        help: The business code engineers use to recognise the manufacturing routing, shared by all its versions. Assigned by process engineering; read in planning and shop floor documents, and paired with the version to pick a definition. Human-recognizable process identifier. Combined with version identifies controlled process definition.
       - name: routing_version
         type: string(50)
-        help: Controlled routing revision. Preserves which process definition governed production. Effectivity, audit, and reproducibility. Released work snapshots or references an effective version.
+        help: The revision of the routing, so a changed process becomes a new version and not an overwrite. Set by engineering change control; production orders keep the version they were released with, so past builds can be reproduced. Approved for production and eligible for new orders to be released against. Preserves which process definition governed production. Released work snapshots or references an effective version.
       - name: status
         type: string
         enum: RoutingStatus
-        help: Whether the process definition may be used for production. Being defined; not yet usable. Approved for production. Temporarily withdrawn from use. Superseded or no longer used. A final state. Controls eligibility for new production release. Engineering change and manufacturing control. Historical orders retain prior routing evidence.
+        help: Being defined by engineering; not yet usable for production. Approved for production and eligible for new orders to be released against. Temporarily withdrawn from use, for example pending a process investigation. Superseded by a newer version or no longer used. A final state. Whether the process definition may be used for production. Controls eligibility for new production release. Engineering change and manufacturing control. Historical orders retain prior routing evidence.
         default: DRAFT
       - name: product_id
         type: string
@@ -14711,22 +14711,22 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the manufacturing resource. Identifies the capacity resource independently of location or routing. Scheduling, costing, execution, and reporting. Referenced by routing and production operations.
+        help: The permanent identifier of the work center, unchanged if its code or name is revised. Generated on creation; routing operations, schedules, shop-floor reports and costing refer to it. Identifies the capacity resource independently of location or routing. Referenced by routing and production operations.
       - name: code
         type: string(100)
         unique: true
-        help: Human-facing work-center code. Operational identifier used in manufacturing plans and execution. Scheduling, dispatching, reporting, and integration. Unique within its manufacturing context.
+        help: The short code planners and shop-floor staff use to name the work center. Unique; used in routings, scheduling, dispatch lists and integrations, so changes need coordinating with those users. Operational identifier used in manufacturing plans and execution. Unique within its manufacturing context.
       - name: name
         type: string(300)
-        help: Descriptive work-center name. Communicates the resource function to planners and operators. Planning and execution UI/reporting. Complements the stable code.
+        help: A descriptive name saying what the work center is, such as Assembly Line 2. Entered by manufacturing engineers; shown in planning screens, schedules and reports beside the code. Communicates the resource function to planners and operators. Complements the stable code.
       - name: capacity_per_hour
         type: decimal
         optional: true
-        help: Nominal output or processing capacity per hour. Planning assumption for finite or rough-cut scheduling. Capacity planning and schedule feasibility. Actual execution is captured separately.
+        help: The nominal quantity the work center can process or produce in one hour. Optional; the scheduler divides required quantity by it to test whether a schedule is feasible and to estimate duration. Planning assumption for finite or rough-cut scheduling. Actual execution is captured separately.
       - name: status
         type: string
         enum: WorkCenterStatus
-        help: Available for scheduling production. Not scheduled for now; can be reactivated. Out of use for servicing. No longer used. A final state. Operational eligibility of the work center. Controls whether new work may be scheduled or executed. Scheduling and maintenance coordination. Existing historical operations remain valid.
+        help: Whether the work center can currently be scheduled, is idle, under maintenance or retired. Starts as ACTIVE; maintenance and planning staff move it, and scheduling only loads active work centers. Available and eligible to be scheduled for production. Not currently used but can be reactivated. Out of production for servicing, with its capacity unavailable. Permanently removed from use. A final state. Controls whether new work may be scheduled or executed. Existing historical operations remain valid.
         default: ACTIVE
       - name: location_id
         type: string
@@ -14744,22 +14744,22 @@ entities:
       - name: order_number
         type: string(100)
         unique: true
-        help: Human-facing production-order reference. Operational identifier used across planning and shop-floor execution. Scheduling, material staging, production, quality, costing, and audit. Distinct from inventory transaction references.
+        help: The reference number people use for this production order on the shop floor and in documents. Allocated by the system on creation; unique, and used in scheduling, material staging, quality checks, costing and audit. Operational identifier used across planning and shop-floor execution. Distinct from inventory transaction references.
       - name: quantity
         type: decimal
-        help: Authorized target output quantity. Defines planned production magnitude. Material planning, capacity, completion and variance. Interpreted with output Product and UOM policy.
+        help: The target quantity of the product that this order is authorised to produce. Set by the planner when the order is created; material planning, capacity and completion variance are all measured against it. Defines planned production magnitude. Interpreted with output Product and UOM policy.
       - name: planned_start
         type: datetime
         optional: true
-        help: Planned production start. Scheduling expectation rather than execution evidence. Capacity and material planning. Actual events are recorded separately.
+        help: The date and time at which production is planned to begin. Set by the planner during scheduling; capacity and material staging are planned from it, and it should not be after the planned end. Scheduling expectation rather than execution evidence. Actual events are recorded separately.
       - name: planned_end
         type: datetime
         optional: true
-        help: Planned production completion. Scheduling target for output availability. Capacity, promise and planning. Must not precede plannedStart.
+        help: The date and time at which production is planned to be complete. Set by the planner during scheduling; capacity and delivery-promise calculations read it, and it should not be before the planned start. Scheduling target for output availability. Must not precede plannedStart.
       - name: status
         type: string
         enum: ManufacturingWorkOrderStatus
-        help: Manufacturing order lifecycle state. Controls authorization and execution eligibility. Planning, shop-floor control, inventory and costing. Posted execution evidence is not reversed by changing header status. Being planned and not executable. Authorized for governed execution. Execution has begun. Production execution is materially complete pending closure where applicable. Reconciled and administratively closed. Terminated before remaining execution.
+        help: Where the production order is in its lifecycle, from planning to closure. Moved by planners and shop-floor control; materials are issued and output reported only once the order is released. Being planned and not yet executable. Authorised for execution, so materials may be issued and work started. Execution has begun on the shop floor. Production is materially complete, pending closure where applicable. Reconciled and administratively closed. A final state. Terminated before the remaining execution was done. A final state. Controls authorization and execution eligibility. Posted execution evidence is not reversed by changing header status.
         default: PLANNED
       - name: product_id
         type: string
@@ -14900,11 +14900,11 @@ entities:
         help: Stable system identity of the serialized unit. Identifies the unit independently of its printed serial code. Inventory, service, warranty, asset, recall, and audit. One serialized identity represents one governed physical unit.
       - name: serial_code
         type: string(200)
-        help: Business/manufacturer serial identifier. Operational code used to recognize the individual unit. Scanning, receiving, picking, shipment, service, returns, and warranty. Uniqueness is governed for the Product or global namespace.
+        help: The code stamped on or issued for one physical unit, so it can be told apart from others of the same product. Scanned at receiving, picking, shipment, service and return; unique per product and used for warranty and traceability. Operational code used to recognize the individual unit. Uniqueness is governed for the Product or global namespace.
       - name: status
         type: string
         enum: SerialNumberStatus
-        help: Announced but not yet received. In stock and free to use. Set aside for an order or job. On its way between places. Fitted at a customer or on equipment. Used up. A final state. Sent back and awaiting a decision. Held apart pending a decision. Destroyed or written off. A final state. Taken out of service for good. A final state. Operational lifecycle state of the serialized unit. Controls eligibility and custody transitions for the individual unit. Allocation, shipment, service, returns, and disposal. Status is reconciled from authoritative business and inventory events rather than freely edited.
+        help: Where the individual unit stands in its life, from expected through stock and use to end of life. Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced. Announced on an inbound order but not yet received. In stock and free to be reserved or shipped. Set aside for a particular order or job. On its way between locations or to a customer. Fitted at a customer site or on equipment. Used up in production or service. A final state. Sent back by a customer and awaiting a decision. Held apart pending a quality or safety decision. Destroyed or written off. A final state. Taken out of service for good. A final state. Controls eligibility and custody transitions for the individual unit. Status is reconciled from authoritative business and inventory events rather than freely edited.
         default: EXPECTED
       - name: product_id
         type: string
@@ -14948,14 +14948,14 @@ entities:
         help: Stock arrives, for example from a supplier or production. Stock leaves, for example to a customer or to production. Stock moves from one location to another. Quantity is corrected after a count or an investigation. Stock comes back from a customer or is returned to a supplier. Stock is set aside for a demand without moving. A reservation is withdrawn and the stock becomes available again. Identifies inventory operation and state transition. Determines how on-hand, reserved, available and location balances change. Movement type describes inventory effect; relatedTransaction and supplierReturnLine explain business reason where applicable. Maps business workflow outcomes to inventory ledger.
       - name: quantity
         type: decimal
-        help: Quantity affected by the inventory event. Drives balance changes and allocation calculations. Interpreted with Product, UOM, movementType and source/target locations. Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.
+        help: The amount of stock this movement adds to or removes from the inventory position, in the item's stock unit. Entered or computed when the movement is prepared; once posted it is immutable and drives balance changes, and a mistake is corrected by a compensating movement. Interpreted with Product, UOM, movementType and source/target locations. Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.
       - name: movement_date
         type: datetime
         help: Timestamp at which inventory event is recognized. Stock history, period-end balances, reporting, audit and reconciliation. Distinct from source order date and record creation timestamp. Establishes effective chronology.
       - name: reason
         type: string(500)
         optional: true
-        help: Business explanation for movement. Audit, investigation, approval and reporting. Supplements movementType and source relationships. Especially important for adjustments, returns and exceptions.
+        help: The business explanation for why the stock moved, such as a damaged-goods write-off or a return to supplier. Entered by the person or process that creates the movement; auditors, approvers and investigators read it to understand adjustments and unusual stock changes. Supplements movementType and source relationships. Especially important for adjustments, returns and exceptions.
       - name: unit_of_measure_id
         type: string
         fk: true
@@ -14987,18 +14987,18 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: Stable identity of the inspection record. Identifies one inspection event independently of the item, receipt, return, result or corrective action. Quality traceability, audit, reporting and integrations. Root of the inspection execution graph including sampling and measurement evidence. Stable reference through planning, sampling, execution, result and disposition.
+        help: The permanent, system-generated identity of this inspection or test record. Generated on creation and never changed; measurements, samples, nonconformances and audit trails refer to the inspection through it. Identifies one inspection event independently of the item, receipt, return, result or corrective action. Root of the inspection execution graph including sampling and measurement evidence. Stable reference through planning, sampling, execution, result and disposition.
       - name: inspection_number
         type: string(100)
         unique: true
-        help: Business-facing inspection reference. Identifies the inspection in quality operations and audit. Quality records, supplier disputes and reporting. Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber. Provides human-recognizable traceability.
+        help: The business-facing reference quoted for this inspection in quality records and with suppliers. Assigned when the inspection is raised and unique; used in supplier disputes, release decisions and quality reporting. Identifies the inspection in quality operations and audit. Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber. Provides human-recognizable traceability.
       - name: inspection_date
         type: datetime
         help: Date and time inspection was performed or initiated. Establishes quality chronology. Audit, release, supplier performance and compliance. May occur after receipt or return authorization and before final disposition. Anchors inspection evidence.
       - name: status
         type: string
         enum: QualityInspectionStatus
-        help: Raised and not yet started. Samples are being taken and measured. The goods met every requirement. A final state. The goods did not meet the requirements. A final state. Passed only with conditions, awaiting a decision on release. The inspection was not carried out. A final state. Lifecycle state of inspection. Indicates whether inspection is pending, executing, completed with a result, or cancelled. Controls release and disposition workflows. Inspection status is independent of sample status, receipt/return status, and inventory state. PASSED/FAILED/CONDITIONAL controls eligible disposition.
+        help: Where the inspection stands from being raised through sampling to a final verdict. Moved by inspectors; it controls release and disposition workflows, and passed, failed and cancelled are final. Raised and not yet started; waiting for an inspector. Samples are being taken and measured. The goods met every requirement. A final state. The goods did not meet the requirements. A final state. Passed only with conditions, awaiting a decision on release. The inspection was not carried out. A final state. Indicates whether inspection is pending, executing, completed with a result, or cancelled. Inspection status is independent of sample status, receipt/return status, and inventory state. PASSED/FAILED/CONDITIONAL controls eligible disposition.
         default: OPEN
       - name: result
         type: string
@@ -15009,11 +15009,11 @@ entities:
         type: string
         optional: true
         enum: QualityInspectionDisposition
-        help: Release the goods for use or sale. Accept the goods into stock. Refuse the goods. Hold the goods apart until a decision is made. Send the goods back to the supplier. Correct the goods so they meet the requirement. Repair the goods to a usable condition. Destroy or write off the goods. The disposition of the quality inspection is conditional release; set it when that is what the business means for this record. Controlled operational disposition resulting from inspection. Defines what happens to inspected material after quality evaluation. Controls inventory availability, supplier return, repair, scrap and release processes. RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted. Converts quality result into an authorized physical disposition.
+        help: The decision on what to do with the inspected goods. Set after a result is recorded; it drives inventory availability, supplier returns, repair, scrap and release. Release the goods for use or sale. Accept the goods into stock. Refuse the goods because they failed to meet requirements. Hold the goods apart until a decision is made. Send the goods back to the supplier. Correct the goods so they meet the requirement. Repair the goods to a usable condition. Destroy or write off the goods. Release the goods for use only under stated conditions that must be met. Defines what happens to inspected material after quality evaluation. RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted. Converts quality result into an authorized physical disposition.
       - name: notes
         type: string(4000)
         optional: true
-        help: Inspection observations and supporting context. Records qualitative evidence not represented by structured measurements. Quality review, supplier disputes and audit. Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence. Supports disposition decisions.
+        help: The inspector's observations and supporting context that the recorded results do not capture. Free text entered during or after inspection; read in quality reviews, supplier disputes and audits. Records qualitative evidence not represented by structured measurements. Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence. Supports disposition decisions.
       - name: product_id
         type: string
         fk: true
@@ -15073,13 +15073,13 @@ entities:
         help: The number of the scrap record, such as SCR-0412. Operational identifier for production loss. Shop-floor reporting, quality, costing and audit. Distinct from inventory movement reference.
       - name: quantity
         type: decimal
-        help: Quantity classified as scrap. Quantifies governed production loss or rejected material. Yield, variance, costing and inventory. Interpreted with Product/UOM/lot/serial context.
+        help: The amount of material or output written off as scrap in this record. Entered by the operator or supervisor; reduces inventory, feeds yield and variance reports, and is costed as production loss. Quantifies governed production loss or rejected material. Interpreted with Product/UOM/lot/serial context.
       - name: reason_code
         type: string(100)
-        help: Governed reason for scrap. Classifies why material/output was lost or rejected. Quality analysis, costing and continuous improvement. Should align with controlled reason taxonomy.
+        help: The coded reason the material was scrapped, such as damaged, out of tolerance or contaminated. Chosen from the governed list when scrap is recorded; quality analysis and improvement work group losses by it. Classifies why material/output was lost or rejected. Should align with controlled reason taxonomy.
       - name: scrapped_at
         type: datetime
-        help: Effective scrap time. Establishes production-loss chronology. Cost period, genealogy and audit. Must align with related execution evidence.
+        help: The date and time the scrap loss took effect. Entered when the loss is recorded; it decides the cost period, supports genealogy tracing and is checked in audits. Establishes production-loss chronology. Must align with related execution evidence.
       - name: work_order_id
         type: string
         fk: true
@@ -15102,14 +15102,14 @@ entities:
       - name: id
         type: uuid
         pk: true
-        help: The identity of the lifecycle record. Generated on creation. Identifies one governed product state transition. Supplements current Product.status with historical evidence.
+        help: The permanent, system-generated identity of this lifecycle change record for a product. Generated on creation and never changed; the audit trail of a product's status changes is made of these records. Identifies one governed product state transition. Supplements current Product.status with historical evidence.
       - name: effective_at
         type: datetime
         help: When the new status took effect. Set by the user making the change; the status on any date is the latest record effective by then. Establishes point-in-time product eligibility. Historical transactions use status effective at relevant time.
       - name: lifecycle_status
         type: string
         enum: ProductLifecycleLifecycleStatus
-        help: The status the product moved to. Chosen when the change is made. The product is being set up. The product is available for ordinary trading. The product is being phased out. The product is temporarily barred from trading. The product is permanently removed from the catalogue. Governs future product eligibility. Reconciles to current Product.status.
+        help: The lifecycle status the product moved to at the effective time of this record. Chosen when the change is made; restrictive moves need checks of open orders and stock, and earlier records are never rewritten. The product is still being set up and is not yet available for trading. The product is available for ordinary buying and selling. The product is being phased out and no new trading should begin. The product is temporarily barred from trading until the issue is resolved. The product is permanently removed from the catalogue. Governs future product eligibility. Reconciles to current Product.status.
       - name: reason
         type: string(1000)
         help: Why the status changed. Written by the user making the change; read in audits and when the product is questioned. Provides governance/audit justification. Does not itself reverse existing obligations.

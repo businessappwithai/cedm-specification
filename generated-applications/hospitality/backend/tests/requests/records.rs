@@ -1,6 +1,6 @@
 //! One record's trail and its notes.
 //!
-//! Generated: 2026-10-09T06:44:29.062Z
+//! Generated: 2026-10-09T08:31:19.116Z
 //! Project: hospitality
 
 use serde_json::{json, Value};

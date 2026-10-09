@@ -1,6 +1,6 @@
 //! Background jobs — enqueue, list, cancel.
 //!
-//! Generated: 2026-10-09T06:44:41.744Z
+//! Generated: 2026-10-09T08:31:32.388Z
 //! Project: inventory
 //!
 //! These run under `workers.mode: ForegroundBlocking` (config/test.yaml), so an

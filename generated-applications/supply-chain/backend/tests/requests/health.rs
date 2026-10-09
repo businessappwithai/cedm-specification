@@ -1,6 +1,6 @@
 //! Liveness and readiness.
 //!
-//! Generated: 2026-10-09T06:46:16.238Z
+//! Generated: 2026-10-09T08:33:02.580Z
 //! Project: supply-chain
 
 use serde_json::Value;

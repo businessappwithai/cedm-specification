@@ -25,8 +25,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The number of units sold.
-        usage: Entered or scanned; must be greater than zero.
+        summary: The number of units of the product sold on this line.
+        usage: Entered by the cashier or counted by barcode scans; must be greater than zero and reduces the product's stock when the sale completes.
         relationshipContext: Multiplied by the unit price.
     - name: unitPrice
       type: decimal
@@ -61,8 +61,8 @@ entity:
       precision: 20
       scale: 4
       help:
-        summary: The amount charged for the line.
-        usage: Calculated; summed into the sale total.
+        summary: The amount charged for this line after quantity, price, discount and tax have been applied.
+        usage: Calculated by the till rather than typed; the lines are added together to give the sale total.
         relationshipContext: Matched against the receipt.
   relationships:
     - name: sale
@@ -79,9 +79,9 @@ entity:
       cardinality: '1'
       ownership: reference
       help:
-        summary: The product sold.
-        usage: Chosen or scanned.
-        cardinalityMeaning: Exactly one product per line.
+        summary: The product or service the shopper bought on this line.
+        usage: Chosen from the catalogue or identified by a barcode scan at the till when the line is added.
+        cardinalityMeaning: Each line sells exactly one product, though a product can appear on many lines across many sales.
         context: Reduces the product's stock.
     - name: unitOfMeasure
       target: UnitOfMeasure

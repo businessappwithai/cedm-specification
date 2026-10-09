@@ -8,25 +8,25 @@ entity:
   attributes:
     - {name: serviceOrderId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service execution order., businessMeaning: Identifies one authorization to perform service work., usage: "Service operations, field service, billing, reporting and audit.", relationshipContext: "Distinct from request, case and maintenance work-order identities."}}
     - {name: serviceOrderNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the service order, such as SVO-7710.', businessMeaning: Operational identifier used for scheduling and execution., usage: "Dispatch, customer communication, billing and integration.", relationshipContext: Stable across execution status changes.}}
-    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: Scope of authorized service work., businessMeaning: States what work the service provider is authorized to perform., usage: "Scheduling, execution, customer communication and audit.", relationshipContext: "Product, Asset and related request or case provide structured context."}}
-    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: Planned start of service execution., businessMeaning: Scheduling commitment rather than actual work evidence., usage: "Dispatch and customer communication.", relationshipContext: May be governed by SLA and availability.}}
+    - {name: description, type: string, required: true, maxLength: 4000, help: {summary: The text describing the service work that has been authorised for the customer., usage: 'Written by the planner or agent; technicians work from it, and it is shown to the customer and kept for audit.', businessMeaning: States what work the service provider is authorized to perform., relationshipContext: "Product, Asset and related request or case provide structured context."}}
+    - {name: scheduledStartAt, type: datetime, required: false, help: {summary: The planned date and time the work is due to begin., usage: 'Set by the dispatcher when the order is scheduled; used for dispatch and customer notices, and differs from actual start evidence.', businessMeaning: Scheduling commitment rather than actual work evidence., relationshipContext: May be governed by SLA and availability.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED]
       help:
-        summary: Where the service work is.
-        businessMeaning: Controls authorization, scheduling and execution progression.
-        usage: Dispatch, execution, billing eligibility and audit.
-        relationshipContext: Completion does not erase related case or maintenance evidence.
+        summary: The stage of the service order from scope to completed work.
+        usage: Starts as DRAFT and is moved by the planner and technician; it decides when work is dispatched and when billing may follow.
         valueSemantics:
-          DRAFT: Work scope is being prepared.
-          APPROVED: Work is authorized.
-          SCHEDULED: Work has an execution schedule.
-          IN_PROGRESS: Authorized service is being performed.
-          COMPLETED: Service execution is complete and retained as history.
-          CANCELLED: Order was cancelled through governed workflow.
+          DRAFT: The work scope is still being prepared.
+          APPROVED: The work has been authorised and awaits scheduling.
+          SCHEDULED: A date and technician have been set for the work.
+          IN_PROGRESS: The authorised service is being performed.
+          COMPLETED: The work is done and kept as history. A final state.
+          CANCELLED: The order was withdrawn through the governed workflow. A final state.
+        businessMeaning: Controls authorization, scheduling and execution progression.
+        relationshipContext: Completion does not erase related case or maintenance evidence.
   relationships:
     - {name: serviceRequest, target: ServiceRequest, cardinality: "0..1", ownership: reference, help: {summary: Request authorizing or motivating this order., businessMeaning: Preserves intake-to-execution traceability., usage: Service workflow and audit., cardinalityMeaning: "Optional when order comes from a case, contract or planned service process.", workflowRole: Request and order remain distinct lifecycle records.}}
     - {name: serviceCase, target: ServiceCase, cardinality: "0..1", ownership: reference, help: {cardinalityMeaning: At most one case; empty for work not tied to a case., summary: Case whose resolution requires this service order., businessMeaning: Connects execution work to the broader managed issue., usage: "Case resolution and reporting.", workflowRole: Completed order contributes evidence but does not automatically close the case.}}

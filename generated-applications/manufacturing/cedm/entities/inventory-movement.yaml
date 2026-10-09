@@ -48,7 +48,11 @@ entity:
       required: true
       precision: 20
       scale: 6
-      help: {summary: Quantity affected by the inventory event., usage: Drives balance changes and allocation calculations., relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations.", workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.}
+      help:
+        summary: The amount of stock this movement adds to or removes from the inventory position, in the item's stock unit.
+        usage: Entered or computed when the movement is prepared; once posted it is immutable and drives balance changes, and a mistake is corrected by a compensating movement.
+        relationshipContext: "Interpreted with Product, UOM, movementType and source/target locations."
+        workflowRole: Changes physical quantity for receipt/issue/transfer/return and commitment state for reservation/release.
     - name: movementDate
       type: datetime
       required: true
@@ -57,7 +61,11 @@ entity:
       type: string
       required: false
       maxLength: 500
-      help: {summary: Business explanation for movement., usage: "Audit, investigation, approval and reporting.", relationshipContext: Supplements movementType and source relationships., workflowRole: "Especially important for adjustments, returns and exceptions."}
+      help:
+        summary: The business explanation for why the stock moved, such as a damaged-goods write-off or a return to supplier.
+        usage: Entered by the person or process that creates the movement; auditors, approvers and investigators read it to understand adjustments and unusual stock changes.
+        relationshipContext: Supplements movementType and source relationships.
+        workflowRole: "Especially important for adjustments, returns and exceptions."
   relationships:
     - name: product
       target: Product

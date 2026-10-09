@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the encounter.
-        usage: Generated on creation; clinical entries refer to it.
+        summary: The permanent identity of the encounter, kept for the whole of the patient's visit or stay.
+        usage: Generated on creation; diagnoses, procedures, orders and clinical notes refer to the encounter by this value.
     - name: encounterType
       type: enum
       required: true
@@ -29,15 +29,15 @@ entity:
         - HOME_CARE
         - OTHER
       help:
-        summary: The setting in which care is delivered.
-        usage: Chosen at registration; decides coding, billing and workflow.
         valueSemantics:
           OUTPATIENT: A visit without an overnight stay.
-          INPATIENT: Care with admission to a ward.
-          EMERGENCY: Unplanned urgent care.
+          INPATIENT: Care with admission to a ward and an overnight stay.
+          EMERGENCY: Unplanned urgent care given to a patient arriving with an acute problem.
           VIRTUAL: Care delivered remotely by video or telephone.
           HOME_CARE: Care delivered at the patient's home.
-          OTHER: Any other setting.
+          OTHER: Care given in a setting that fits none of the listed ones.
+        summary: The setting in which care is delivered.
+        usage: Chosen at registration; decides coding, billing and workflow.
     - name: status
       type: enum
       required: true
@@ -48,8 +48,8 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
-        summary: Where the encounter is in its course.
-        usage: Updated by the provider.
+        summary: Where the encounter is in its course, from planned through care being delivered to completion.
+        usage: Updated by the provider as care starts and ends; billing and coding act only on completed encounters.
         valueSemantics:
           PLANNED: Expected but not started.
           IN_PROGRESS: Care is being delivered.
@@ -59,8 +59,8 @@ entity:
       type: datetime
       required: true
       help:
-        summary: When the encounter began.
-        usage: Recorded at check-in or start.
+        summary: The date and time at which the encounter began and care started.
+        usage: Recorded at check-in or when care begins; lengths of stay, scheduling analysis and billing periods run from it.
     - name: endAt
       type: datetime
       required: false

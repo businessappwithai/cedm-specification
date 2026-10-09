@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-09T06:43:43.170Z
+//! Generated: 2026-10-09T08:30:31.169Z
 //! Project: container-logistics
 
 use serde_json::{json, Value};

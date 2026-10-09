@@ -7,9 +7,9 @@ entity:
     icon: database
   identity: {key: fiscalPeriodId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: Stable fiscal-period identity., businessMeaning: Identifies one accounting control interval independently of its label., usage: "Posting, close, reporting and audit.", relationshipContext: JournalEntry accounting dates resolve to an eligible period.}}
-    - {name: code, type: string, required: true, maxLength: 50, help: {summary: Business period code., businessMeaning: Human-facing accounting interval reference such as 2026-09., usage: "Journals, close and reports.", relationshipContext: Unique within organization/calendar context.}}
-    - {name: startDate, type: date, required: true, help: {summary: First accounting date in period., businessMeaning: Defines lower posting boundary., usage: Period determination., relationshipContext: Inclusive with endDate.}}
+    - {name: fiscalPeriodId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identity of the accounting period, unchanged when its dates or status change.', usage: 'Generated on creation; journal entries, close tasks and financial reports refer to the period by this value.', businessMeaning: Identifies one accounting control interval independently of its label., relationshipContext: JournalEntry accounting dates resolve to an eligible period.}}
+    - {name: code, type: string, required: true, maxLength: 50, help: {summary: 'The business code of the period, such as 2026-03 or FY2026-Q1, by which finance staff name it.', usage: "Assigned when the calendar is set up and shown on journals, close checklists and reports; unique within an organisation's calendar.", businessMeaning: Human-facing accounting interval reference such as 2026-09., relationshipContext: Unique within organization/calendar context.}}
+    - {name: startDate, type: date, required: true, help: {summary: 'The first accounting date that falls inside the period, from which postings are assigned to it.', usage: Set when the calendar is defined; a journal entry is posted to the period whose dates contain its entry date., businessMeaning: Defines lower posting boundary., relationshipContext: Inclusive with endDate.}}
     - {name: endDate, type: date, required: true, help: {summary: The last day covered by the accounting period., usage: Set when the calendar is defined; must not be before the start date. Postings dated after it belong to a later period., relationshipContext: Together with the start date it defines the interval in which journal entries may be dated., businessMeaning: Defines upper posting boundary.}}
     - name: status
       type: enum
@@ -17,15 +17,15 @@ entity:
       default: FUTURE
       values: [FUTURE, OPEN, SOFT_CLOSED, CLOSED, LOCKED]
       help:
+        summary: Controls whether journal entries may be posted to the period, from not yet open to finally closed.
+        usage: Moved by finance through open, soft close, close and lock; journal validation reads it before accepting any posting.
         valueSemantics:
           FUTURE: Defined but not yet open; no postings are accepted.
-          OPEN: Accepting postings.
+          OPEN: Open and accepting postings from ordinary finance users.
           SOFT_CLOSED: Normally closed but still open to postings by authorised finance staff, for adjustments.
           CLOSED: Closed; no further postings and figures are final for reporting. A final state.
           LOCKED: Frozen temporarily, for example during an audit or a month-end freeze; it can be reopened.
-        summary: Posting-control state.
         businessMeaning: Governs permitted accounting recognition and correction.
-        usage: Journal validation and close.
         relationshipContext: Historical posted entries remain immutable.
   relationships:
     - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one organisation: each legal entity keeps its own accounting calendar and closes its own periods.', summary: Accounting organization owning period., businessMeaning: Establishes books/control boundary., usage: Posting and reporting., workflowRole: Journal organization must match.}}

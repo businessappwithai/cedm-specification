@@ -7,24 +7,24 @@ entity:
     icon: table
   identity: {key: certificateOfAnalysisId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: certificateOfAnalysisId, type: uuid, required: true, immutable: true, help: {summary: The identity of the certificate., businessMeaning: Identifies one issued quality certificate independently of its document number., usage: "Compliance, customer/supplier exchange, audit, and integration.", relationshipContext: Links certificate representation to source quality evidence.}}
-    - {name: certificateNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: The unique number printed on the certificate., businessMeaning: Controlled number used to identify the issued certificate., usage: "Documents, search, exchange, and audit.", relationshipContext: Distinct from inspection and shipment numbers.}}
-    - {name: issuedAt, type: datetime, required: false, help: {summary: When the certificate was issued to its recipient., businessMeaning: Establishes when the quality statement became externally or operationally effective., usage: "Compliance, customer documentation, and audit.", relationshipContext: Required once status is ISSUED.}}
+    - {name: certificateOfAnalysisId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one certificate of analysis., usage: 'Generated on creation; shipments, receipts and customer exchanges refer to the certificate through it, whatever its printed number.', businessMeaning: Identifies one issued quality certificate independently of its document number., relationshipContext: Links certificate representation to source quality evidence.}}
+    - {name: certificateNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The unique number printed on the certificate, which customers and auditors quote when asking for it.', usage: 'Assigned by quality when the certificate is drafted; used for search, document exchange and audit, and never reused.', businessMeaning: Controlled number used to identify the issued certificate., relationshipContext: Distinct from inspection and shipment numbers.}}
+    - {name: issuedAt, type: datetime, required: false, help: {summary: 'The date and time the certificate was released to its recipient, such as a customer or receiving site.', usage: Recorded when the status becomes issued and required by then; customers and auditors rely on it as the release date., businessMeaning: Establishes when the quality statement became externally or operationally effective., relationshipContext: Required once status is ISSUED.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, APPROVED, ISSUED, SUPERSEDED, VOID]
       help:
+        summary: Where the certificate stands in controlled release, from drafting to issue and eventual replacement or withdrawal.
+        usage: Moved by quality staff; only issued certificates are sent to customers, and corrections create a replacement rather than an edit.
         valueSemantics:
           DRAFT: Being prepared from the inspection results; not yet approved.
           APPROVED: Approved by quality but not yet released to the customer.
           ISSUED: Released to the recipient; it now stands as evidence.
-          SUPERSEDED: Replaced by a corrected certificate; kept for history.
-          VOID: Withdrawn because it was wrong or issued in error; kept for history.
-        summary: Lifecycle state of the certificate.
+          SUPERSEDED: Replaced by a corrected certificate; kept for history. A final state.
+          VOID: Withdrawn because it was wrong or issued in error; kept for history. A final state.
         businessMeaning: "Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated."
-        usage: Release and document governance.
         relationshipContext: Status does not alter underlying measurements.
   relationships:
     - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product represented by the certificate., businessMeaning: Identifies the material whose quality is certified., usage: Product release and customer documentation., cardinalityMeaning: Optional when context is supplied by other source records., context: Must reconcile with inspections and measurements.}}

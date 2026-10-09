@@ -13,13 +13,13 @@ entity:
       required: true
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the renewal is.
-        usage: Starts as DRAFT; moved by account management.
+        summary: The stage the renewal has reached on the way to a new term.
+        usage: Starts as DRAFT and is moved by account management as the customer is approached and a decision is reached; filters renewal pipeline reports.
         valueSemantics:
-          DRAFT: Being prepared; nothing is committed yet.
-          ACTIVE: Offered or confirmed and being carried out.
-          COMPLETED: The new term is in place. A final state.
-          CANCELLED: The customer did not continue. A final state.
+          DRAFT: Being prepared by account management; nothing has been offered or committed to the customer.
+          ACTIVE: Offered to or confirmed with the customer and now being carried out.
+          COMPLETED: The new term is in place and the entitlement continues. A final state.
+          CANCELLED: The customer chose not to continue, so no new term starts. A final state.
   relationships:
     - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer whose subscription is being renewed., usage: Chosen when the renewal is created., cardinalityMeaning: At most one customer; empty until identified., workflowRole: Decides whom to invoice and contact.}}
   invariants:

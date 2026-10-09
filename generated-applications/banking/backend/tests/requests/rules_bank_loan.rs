@@ -4,7 +4,7 @@
 //! checks it actually governs a write. A rule that evaluates but does not
 //! change what the API accepts is not enforcing anything.
 //!
-//! Generated: 2026-10-09T06:43:28.700Z
+//! Generated: 2026-10-09T08:30:18.406Z
 //! Project: banking
 
 use serde_json::{json, Value};

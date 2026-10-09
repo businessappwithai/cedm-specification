@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The descriptive name of the plan.
-        usage: Shown in planners' lists.
+        summary: The descriptive name of the maintenance plan, such as quarterly compressor service.
+        usage: Entered by maintenance engineering; shown in planners' lists and on the work orders the plan generates.
     - name: maintenanceType
       type: enum
       required: true
@@ -69,16 +69,16 @@ entity:
         - CYCLES
         - OTHER
       help:
-        summary: The unit in which the frequency is measured.
-        usage: Chosen with the frequency value.
+        summary: The unit in which the plan's frequency is measured, such as calendar days or operating hours.
+        usage: Chosen together with the frequency value; the scheduler uses it to decide when the next work order is due.
         valueSemantics:
-          HOURS: Operating hours.
-          DAYS: Calendar days.
-          WEEKS: Calendar weeks.
-          MONTHS: Calendar months.
-          MILES: Distance travelled.
+          HOURS: Operating hours, counted from the asset's meter.
+          DAYS: Calendar days between jobs.
+          WEEKS: Calendar weeks between jobs.
+          MONTHS: Calendar months between jobs.
+          MILES: Distance travelled, read from the vehicle's odometer.
           CYCLES: Operating cycles, such as starts or lifts.
-          OTHER: Any other measure.
+          OTHER: Any other measure of use, described in the plan.
     - name: status
       type: enum
       required: true
@@ -89,8 +89,8 @@ entity:
         - SUSPENDED
         - RETIRED
       help:
-        summary: Whether the plan is generating work.
-        usage: Set by maintenance engineering.
+        summary: Whether the plan is currently generating maintenance work.
+        usage: Set by maintenance engineering; only ACTIVE plans create work orders, and RETIRED plans stay on record for the orders already raised.
         valueSemantics:
           DRAFT: Being prepared; not generating work.
           ACTIVE: In force; work orders are raised from it.

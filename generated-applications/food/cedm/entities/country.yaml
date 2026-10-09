@@ -13,7 +13,7 @@ entity:
     - {name: alpha3, type: string, maxLength: 3, required: false, help: {summary: "The three-letter ISO 3166-1 code, such as USA or DEU.", usage: "Trade and customs documents, which use the long form.", relationshipContext: "Unique among countries."}}
     - {name: numericCode, type: string, maxLength: 3, required: false, help: {summary: "The three-digit ISO 3166-1 numeric code, such as 840.", usage: "Banking and statistical exchange formats.", relationshipContext: "Unique among countries."}}
     - {name: name, type: string, required: true, maxLength: 300, help: {summary: "The country's short name in English.", usage: "Shown in lists, on addresses and on reports.", relationshipContext: "Does not replace the code as the stable key."}}
-    - {name: phoneCode, type: string, maxLength: 20, required: false, help: {summary: "The international dialling prefix, without the plus sign.", usage: "Validating and formatting telephone numbers.", relationshipContext: "Belongs to the country; several countries can share a prefix."}}
+    - {name: phoneCode, type: string, maxLength: 20, required: false, help: {summary: 'The international dialling prefix for the country, held without the plus sign, such as 44 or 1.', usage: 'Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere.', relationshipContext: "Belongs to the country; several countries can share a prefix."}}
   relationships:
     - {name: currency, target: Currency, cardinality: "0..1", ownership: reference, help: {summary: "The currency the country mainly uses.", usage: "Chosen from the currency list; used to suggest a currency on records for the country.", cardinalityMeaning: "A country has at most one main currency; a currency can be the main one of many countries.", context: "Lets a default currency follow the country chosen on an address."}}
     - {name: states, target: StateProvince, cardinality: "0..*", ownership: reference, help: {summary: "The states, provinces and equivalent divisions of the country.", usage: "Read when a state is chosen: only the divisions of the country selected are offered.", cardinalityMeaning: "A country has any number of states or provinces, and some have none.", context: "The first level of the geography below a country."}}
@@ -21,6 +21,7 @@ entity:
   invariants:
     - {id: COUNTRY-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
+    usage: Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes.
     summary: "A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting."
     businessMeaning: "A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting."
     whenUsed: "Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes."

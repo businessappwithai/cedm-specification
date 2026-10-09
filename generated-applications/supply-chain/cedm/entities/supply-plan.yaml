@@ -24,21 +24,21 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The number of the plan, such as SP-2026-Q4.
-        usage: Unique; quoted in planning meetings.
+        summary: The unique business reference of a supply plan, such as SP-2026-Q3, used to find and discuss it.
+        usage: Assigned when the plan is created; quoted in planning reviews, approvals and replenishment documents, and never reused.
     - name: planningStart
       type: date
       required: true
       help:
-        summary: The first date the plan covers.
-        usage: Set when the plan is created.
+        summary: The first date of the horizon the plan covers for demand, supply and inventory.
+        usage: Set when the plan is drafted; plan lines dated before it are out of scope, and it must not be later than the end.
         relationshipContext: Compared with the end date.
     - name: planningEnd
       type: date
       required: true
       help:
-        summary: The last date the plan covers.
-        usage: Must not be before the start date.
+        summary: The last date of the planning horizon, closing the period over which demand and supply are balanced.
+        usage: Set with the start date; it must not precede the start, and plans of successive horizons are chained by it.
         relationshipContext: Defines the horizon.
     - name: status
       type: enum
@@ -51,14 +51,14 @@ entity:
         - CLOSED
         - CANCELLED
       help:
+        summary: Shows how far the plan has progressed from drafting through approval to execution and closure.
+        usage: Advanced by planners and approvers; only approved or active plans release replenishment actions, and closed or cancelled ones are read-only.
         valueSemantics:
-          DRAFT: Being prepared by planners; nothing is released.
-          APPROVED: Accepted and ready to run.
-          ACTIVE: Being executed; actions are released.
-          CLOSED: The horizon has ended. A final state.
-          CANCELLED: Dropped. A final state.
-        summary: Where the plan is.
-        usage: Starts as DRAFT; moved by planners.
+          DRAFT: The plan is being built and can be freely changed.
+          APPROVED: The plan has been signed off but is not yet being executed.
+          ACTIVE: The plan is being executed and its lines drive replenishment.
+          CLOSED: The horizon has ended and the plan is kept for review. A final state.
+          CANCELLED: The plan was abandoned without being completed. A final state.
   relationships:
     - name: organization
       target: Organization

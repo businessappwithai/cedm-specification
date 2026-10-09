@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:45:51.451Z
+ * Generated: 2026-10-09T08:32:38.005Z
  * Project: real-estate
  */
 

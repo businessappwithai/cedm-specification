@@ -13,35 +13,35 @@ entity:
       required: true
       values: [ANNUAL, SICK, PARENTAL, UNPAID, COMPENSATORY, OTHER]
       help:
+        summary: The category of absence the employee is asking for, which decides how it is paid and counted.
+        usage: Chosen by the employee when requesting; leave policy, payroll and entitlement checks use it to decide which balance is reduced.
         valueSemantics:
-          ANNUAL: Paid holiday.
-          SICK: Absence due to illness.
+          ANNUAL: Paid holiday taken from the employee's annual entitlement.
+          SICK: Absence caused by illness or injury.
           PARENTAL: Leave to care for a new child.
-          UNPAID: Absence without pay.
-          COMPENSATORY: Time off in return for extra hours worked.
-          OTHER: Any other approved absence.
-        summary: Business category of requested absence.
+          UNPAID: Absence without pay, agreed with the manager.
+          COMPENSATORY: Time off given in return for extra hours already worked.
+          OTHER: Any other approved absence, such as study or bereavement leave.
         businessMeaning: Determines policy, entitlement and payroll treatment without embedding jurisdiction-specific rules.
-        usage: Leave policy, payroll, reporting and entitlement checks.
         relationshipContext: Approval and payroll effects depend on organization policy and Employment context.
-    - {name: startDate, type: date, required: true, help: {summary: First requested leave date., businessMeaning: Starts the requested absence interval., usage: "Approval, scheduling, attendance and payroll.", relationshipContext: Must be compatible with Employment eligibility and requested end date.}}
+    - {name: startDate, type: date, required: true, help: {summary: The first calendar day on which the employee asks to be absent., usage: 'Entered by the employee; managers approve against team cover, and attendance and payroll begin counting absence from this date.', businessMeaning: Starts the requested absence interval., relationshipContext: Must be compatible with Employment eligibility and requested end date.}}
     - {name: endDate, type: date, required: true, help: {summary: The last day of the absence., usage: Entered by the employee; must not be before the start date., businessMeaning: Closes the requested absence interval.}}
-    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: Requested leave quantity in the organization's governed unit., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", usage: Entitlement checks and payroll., relationshipContext: Must reconcile to date interval and policy when supplied.}}
+    - {name: requestedUnits, type: decimal, required: false, precision: 12, scale: 4, help: {summary: "How much leave is requested, measured in the organisation's governed unit such as days or hours.", usage: Entered or computed from the dates; entitlement checks compare it with the available balance and payroll uses the approved quantity., businessMeaning: "Supports hours, days or other policy-defined leave quantities.", relationshipContext: Must reconcile to date interval and policy when supplied.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED]
       help:
+        summary: Where the request is in the approval workflow, from drafting to a final decision.
+        usage: Moved by the employee and the approving manager; only APPROVED requests reduce entitlement and affect attendance or pay.
         valueSemantics:
-          DRAFT: Being prepared by the employee.
-          SUBMITTED: Sent for approval.
-          APPROVED: Granted. A final state.
-          REJECTED: Refused. A final state.
+          DRAFT: Being prepared by the employee and not yet visible to the approver.
+          SUBMITTED: Sent to the manager and waiting for a decision.
+          APPROVED: Granted by the manager. A final state.
+          REJECTED: Refused by the manager. A final state.
           CANCELLED: Withdrawn by the employee. A final state.
-        summary: Workflow state of the leave request.
         businessMeaning: Distinguishes preparation, review and final authorization outcomes.
-        usage: Employee self-service, manager approval, attendance and payroll.
         relationshipContext: APPROVED authorization may drive attendance and payroll but does not itself record actual absence.
   relationships:
     - {name: employee, target: Employee, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one employee: a leave request is made by a specific person.', summary: Employee requesting leave., businessMeaning: Identifies whose absence is being authorized., usage: "Approval, scheduling, attendance and payroll.", workflowRole: Employee must be eligible under applicable policy.}}

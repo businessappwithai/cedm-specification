@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the milestone.
-        usage: Generated on creation; tasks refer to it.
+        summary: The permanent identifier of the milestone within the project plan, which never changes once it is created.
+        usage: Generated on creation; tasks and status reports refer to the milestone through this value rather than its name.
     - name: code
       type: string
       required: true
@@ -30,8 +30,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The name of the checkpoint.
-        usage: Shown on plans and status reports.
+        summary: A short descriptive name for the checkpoint, such as Go-live or Design approved, as the team will refer to it.
+        usage: Set by the project manager when planning; shown on plans, dashboards and status reports so stakeholders recognise it.
     - name: targetDate
       type: date
       required: true
@@ -49,8 +49,8 @@ entity:
         - MISSED
         - CANCELLED
       help:
-        summary: How the milestone is progressing.
-        usage: Updated by the project manager at status reviews.
+        summary: Shows whether the milestone is on course, in danger of slipping, reached, missed or no longer wanted.
+        usage: Updated by the project manager at status reviews; achieved, missed and cancelled end the milestone and roll up to the project.
         valueSemantics:
           PLANNED: Not yet reached and expected on time.
           AT_RISK: Likely to be late without action.

@@ -9,7 +9,7 @@ entity:
   attributes:
     - {name: calendarId, type: uuid, required: true, immutable: true, help: {summary: The identity of the calendar., usage: Generated on creation; schedules and rules refer to the calendar through it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short reference for the calendar, such as DE-NAT.', usage: Assigned by the administrator; used in configuration and reports; kept stable.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The descriptive name of the calendar., usage: Shown wherever a calendar is chosen.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar.', usage: 'Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.'}}
   relationships: []
   invariants:
     - {id: CALENDAR-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}

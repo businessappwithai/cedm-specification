@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T06:45:47.859Z">2026-10-09T06:45:47.859Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T08:32:34.273Z">2026-10-09T08:32:34.273Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -793,7 +793,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The full name of the unit. Shown in organisation charts and management reports.</td>
+          <td>The full name of the business unit, as it appears in the organisation&#39;s structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.</td>
         </tr>
         <tr>
           <td><code>organization_id</code></td>
@@ -874,7 +874,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The descriptive name of the calendar. Shown wherever a calendar is chosen.</td>
+          <td>The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.</td>
         </tr>
         </tbody>
       </table>
@@ -925,25 +925,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>The identity of the certificate. Identifies one issued quality certificate independently of its document number. Compliance, customer/supplier exchange, audit, and integration. Links certificate representation to source quality evidence.</td>
+          <td>The permanent system identity of one certificate of analysis. Generated on creation; shipments, receipts and customer exchanges refer to the certificate through it, whatever its printed number. Identifies one issued quality certificate independently of its document number. Links certificate representation to source quality evidence.</td>
         </tr>
         <tr>
           <td><code>certificate_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
-          <td>The unique number printed on the certificate. Controlled number used to identify the issued certificate. Documents, search, exchange, and audit. Distinct from inspection and shipment numbers.</td>
+          <td>The unique number printed on the certificate, which customers and auditors quote when asking for it. Assigned by quality when the certificate is drafted; used for search, document exchange and audit, and never reused. Controlled number used to identify the issued certificate. Distinct from inspection and shipment numbers.</td>
         </tr>
         <tr>
           <td><code>issued_at</code></td>
           <td>Date and time</td>
           <td>&mdash;</td>
-          <td>When the certificate was issued to its recipient. Establishes when the quality statement became externally or operationally effective. Compliance, customer documentation, and audit. Required once status is ISSUED.</td>
+          <td>The date and time the certificate was released to its recipient, such as a customer or receiving site. Recorded when the status becomes issued and required by then; customers and auditors rely on it as the release date. Establishes when the quality statement became externally or operationally effective. Required once status is ISSUED.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Being prepared from the inspection results; not yet approved. Approved by quality but not yet released to the customer. Released to the recipient; it now stands as evidence. Replaced by a corrected certificate; kept for history. Withdrawn because it was wrong or issued in error; kept for history. Lifecycle state of the certificate. Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated. Release and document governance. Status does not alter underlying measurements.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>ISSUED</code>, <code>SUPERSEDED</code>, <code>VOID</code></div></td>
+          <td>Where the certificate stands in controlled release, from drafting to issue and eventual replacement or withdrawal. Moved by quality staff; only issued certificates are sent to customers, and corrections create a replacement rather than an edit. Being prepared from the inspection results; not yet approved. Approved by quality but not yet released to the customer. Released to the recipient; it now stands as evidence. Replaced by a corrected certificate; kept for history. A final state. Withdrawn because it was wrong or issued in error; kept for history. A final state. Controls whether the certificate is preparatory, approved, issued, replaced, or invalidated. Status does not alter underlying measurements.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>ISSUED</code>, <code>SUPERSEDED</code>, <code>VOID</code></div></td>
         </tr>
         </tbody>
       </table>
@@ -1124,7 +1124,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
 
     <section id="entity-city" class="entity">
       <h3>City <span class="group">Foundation</span></h3>
-      <p class="lede">A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
+      <p class="lede">Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
 
       <h4>Its fields</h4>
@@ -1147,25 +1147,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td>The city&#39;s name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name.</td>
+          <td>The city&#39;s name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a city of one name.</td>
         </tr>
         <tr>
           <td><code>population</code></td>
           <td>Whole number</td>
           <td>&mdash;</td>
-          <td>The registry&#39;s population figure. Ordering and sizing; not a current census count. Describes the city only.</td>
+          <td>The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.</td>
         </tr>
         <tr>
           <td><code>latitude</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Latitude in degrees, north positive. Maps and distance. Describes the city only.</td>
+          <td>The city&#39;s north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.</td>
         </tr>
         <tr>
           <td><code>longitude</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Longitude in degrees, east positive. Maps and distance. Describes the city only.</td>
+          <td>The city&#39;s east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.</td>
         </tr>
         <tr>
           <td><code>timezone</code></td>
@@ -1177,7 +1177,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>is_capital</code></td>
           <td>Yes / No</td>
           <td>&mdash;</td>
-          <td>Whether the city is its country&#39;s capital. Highlighting the capital in lists. At most one capital per country in this list.</td>
+          <td>Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.</td>
         </tr>
         <tr>
           <td><code>country_id</code></td>
@@ -1383,19 +1383,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>The identity of the action. Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification. CAPA, quality audit, supplier improvement and compliance. Distinct from Nonconformance and CorrectiveActionVerification identities. Stable reference through assignment, execution, verification and closure.</td>
+          <td>The permanent system identity of one corrective or preventive action. Generated on creation; verifications, nonconformances and audits refer to the action through it. Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification. Distinct from Nonconformance and CorrectiveActionVerification identities. Stable reference through assignment, execution, verification and closure.</td>
         </tr>
         <tr>
           <td><code>action_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing corrective-action reference. Identifies the action for quality teams, responsible parties and auditors. Communication, reporting, CAPA tracking and integration. Distinct from the originating nonconformance number and verification number. Correlates action work across its lifecycle.</td>
+          <td>The unique reference number by which people refer to the action in CAPA meetings and reports. Assigned when the action is raised; quoted in supplier communication, tracking dashboards and integrations. Identifies the action for quality teams, responsible parties and auditors. Distinct from the originating nonconformance number and verification number. Correlates action work across its lifecycle.</td>
         </tr>
         <tr>
           <td><code>action_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Immediate action to stop the problem spreading, such as quarantining stock. Fixing the specific nonconforming item or condition. Removing the root cause so the problem does not recur. Action to prevent a similar problem elsewhere before it happens. Classification of the quality action. Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action. Determines evidence expectations, routing and effectiveness criteria. Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence. Determines the intended outcome that verification must assess.<div class="detail">One of: <code>CONTAINMENT</code>, <code>CORRECTION</code>, <code>CORRECTIVE</code>, <code>PREVENTIVE</code></div></td>
+          <td>The purpose of the action: containing a problem, fixing the item, removing its cause, or preventing recurrence elsewhere. Chosen by the quality owner; decides what evidence is expected, who reviews it and how effectiveness is judged. Immediate action to stop the problem spreading, such as quarantining stock. Fixing the specific nonconforming item or condition. Removing the root cause so the problem does not recur. Action to prevent a similar problem elsewhere before it happens. Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action. Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence. Determines the intended outcome that verification must assess.<div class="detail">One of: <code>CONTAINMENT</code>, <code>CORRECTION</code>, <code>CORRECTIVE</code>, <code>PREVENTIVE</code></div></td>
         </tr>
         <tr>
           <td><code>description</code></td>
@@ -1407,19 +1407,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Raised but not yet assigned. Given to an owner, who has not started. Being carried out. Done and waiting for an effectiveness check. Done and, where required, verified effective. Withdrawn and not carried out. Lifecycle state of the action. Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled. Controls execution and closure. COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence. VERIFICATION gates final completion when effectiveness verification is required.<div class="detail">One of: <code>OPEN</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>VERIFICATION</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
+          <td>Where the action stands from being raised, assigned and carried out to verification and closure. Moved by the action owner and quality reviewer; completion needs the completed date and, where required, an effective verification. Raised but not yet assigned. Given to an owner, who has not started. Being carried out by the owner, with implementation not yet finished. Done and waiting for an effectiveness check. Done and, where required, verified effective. A final state. Withdrawn and not carried out. A final state. Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled. COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence. VERIFICATION gates final completion when effectiveness verification is required.<div class="detail">One of: <code>OPEN</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>VERIFICATION</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>due_date</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>Target date for action implementation. Defines when the responsible party is expected to complete implementation. Work planning, escalation, SLA reporting and quality governance. Distinct from completedDate and verificationDate. Supports overdue detection and escalation.</td>
+          <td>The date by which the action should be implemented. Agreed when the action is assigned; drives reminders and escalation, and overdue counts in quality governance reports. Defines when the responsible party is expected to complete implementation. Distinct from completedDate and verificationDate. Supports overdue detection and escalation.</td>
         </tr>
         <tr>
           <td><code>completed_date</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>Date implementation was formally completed. Records when the action work was declared complete, subject to any required effectiveness verification. CAPA metrics, audit and chronology. Does not replace verification evidence where effectiveness is required. Required when status is COMPLETED.</td>
+          <td>The date implementation was formally finished, which may differ from the verification date. Recorded when the action completes and required then; CAPA metrics measure time to complete against the due date. Records when the action work was declared complete, subject to any required effectiveness verification. Does not replace verification evidence where effectiveness is required. Required when status is COMPLETED.</td>
         </tr>
         <tr>
           <td><code>nonconformance_id</code></td>
@@ -1775,7 +1775,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>verification_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing verification reference. Identifies the verification event for quality operations and audit. Reporting approval audit and supplier communication. Distinct from actionNumber and nonconformance number. Correlates verification evidence throughout closure.</td>
+          <td>The unique reference number that quality staff and suppliers quote for this effectiveness check. Assigned when the verification is raised; used in approvals, audit trails and supplier correspondence. Identifies the verification event for quality operations and audit. Distinct from actionNumber and nonconformance number. Correlates verification evidence throughout closure.</td>
         </tr>
         <tr>
           <td><code>verification_date</code></td>
@@ -1787,13 +1787,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>result</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The action achieved its intended result and the problem has not recurred. The action helped but did not fully remove the problem; further action is needed. The action did not work and the problem persists or has returned. Effectiveness cannot be established, for example because there is not yet enough evidence. Outcome of effectiveness verification. States whether the action achieved its intended quality outcome. Controls corrective-action completion recurrence handling and escalation. Does not rewrite original Nonconformance or CorrectiveAction evidence. Determines whether action may be completed or must be reopened.<div class="detail">One of: <code>EFFECTIVE</code>, <code>PARTIALLY_EFFECTIVE</code>, <code>INEFFECTIVE</code>, <code>NOT_VERIFIABLE</code></div></td>
+          <td>The verifier&#39;s conclusion on whether the action achieved its intended result. Recorded when verification completes; an effective result can support closing the action, while other results force further work or an exception. The action achieved its intended result and the problem has not recurred. The action helped but did not fully remove the problem; further action is needed. The action did not work and the problem persists or has returned. Effectiveness cannot be established, for example because there is not yet enough evidence. States whether the action achieved its intended quality outcome. Does not rewrite original Nonconformance or CorrectiveAction evidence. Determines whether action may be completed or must be reopened.<div class="detail">One of: <code>EFFECTIVE</code>, <code>PARTIALLY_EFFECTIVE</code>, <code>INEFFECTIVE</code>, <code>NOT_VERIFIABLE</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Raised but not started. The verification is being carried out. Finished with a result and findings recorded. Reopened because new evidence or a recurrence needs further verification. Withdrawn and not carried out. Lifecycle state of verification. Separates preparation evaluation completion and follow-up. Quality governance and audit. COMPLETED records final verification evidence; REOPENED signals additional action is required.<div class="detail">One of: <code>OPEN</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>, <code>REOPENED</code>, <code>CANCELLED</code></div></td>
+          <td>Where the verification is, from being raised through the check to completion, reopening or cancellation. Moved by the independent verifier; a verification can only complete once a result and findings are recorded. Raised but not started. The verification is being carried out. Finished with a result and findings recorded. A final state. Reopened because new evidence or a recurrence needs further verification. Withdrawn and not carried out. A final state. Separates preparation evaluation completion and follow-up. COMPLETED records final verification evidence; REOPENED signals additional action is required.<div class="detail">One of: <code>OPEN</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>, <code>REOPENED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>findings</code></td>
@@ -2141,7 +2141,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
 
     <section id="entity-country" class="entity">
       <h3>Country <span class="group">Foundation</span></h3>
-      <p class="lede">A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
+      <p class="lede">Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
 
       <h4>Its fields</h4>
@@ -2182,7 +2182,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>phone_code</code></td>
           <td>Telephone</td>
           <td><span class="tag">max 20</span></td>
-          <td>The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.</td>
+          <td>The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to the country; several countries can share a prefix.</td>
         </tr>
         <tr>
           <td><code>currency_id</code></td>
@@ -2517,13 +2517,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The name of the department. Shown in organisation charts and on documents.</td>
+          <td>The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.</td>
         </tr>
         <tr>
           <td><code>organization_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.<div class="detail">Points at <b>Organization</b></div></td>
+          <td>Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         </tbody>
       </table>
@@ -2993,7 +2993,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>unit_of_measure</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Unit in which the sample quantity is expressed. Gives semantic meaning to the selected sample quantity. Reconciliation, reporting, conversion, and audit. Must be compatible with the source population and governing sampling configuration.</td>
+          <td>The unit in which the sample quantity is expressed, such as grams, millilitres or pieces. Chosen by the inspector when the sample is taken; quantities are reconciled, converted and reported against it, and it stays fixed for audit. Gives semantic meaning to the selected sample quantity. Must be compatible with the source population and governing sampling configuration.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
@@ -3269,7 +3269,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>The identity of the language record. Generated when the language is loaded.</td>
+          <td>The stable identity of the language record, constant even if its name or code is later corrected. Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.</td>
         </tr>
         <tr>
           <td><code>code</code></td>
@@ -3281,7 +3281,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The name of the language in English. Shown in language pick-lists.</td>
+          <td>The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.</td>
         </tr>
         </tbody>
       </table>
@@ -3332,7 +3332,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>The identity of the legal entity. Generated on registration.</td>
+          <td>The stable identity of the legal entity, kept even when its name or registration details change. Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.</td>
         </tr>
         <tr>
           <td><code>occurred_at</code></td>
@@ -3393,19 +3393,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td>The name people use for the place. Shown in lists, maps and documents.</td>
+          <td>The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.</td>
         </tr>
         <tr>
           <td><code>location_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place.<div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
+          <td>A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.<div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.<div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
+          <td>Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments.<div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>address_id</code></td>
@@ -3762,25 +3762,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Where the nonconformance is in its handling. Moved by quality staff. Recorded but not yet reviewed. Being investigated. Affected goods are isolated so the problem cannot spread. Corrective actions are under way to remove the cause. Resolved and verified. A final state. Reviewed and found not to be a nonconformance. A final state. Indicates investigation, containment, corrective action and closure. Controls allowed responses and closure.<div class="detail">One of: <code>OPEN</code>, <code>UNDER_REVIEW</code>, <code>CONTAINED</code>, <code>CORRECTIVE_ACTION</code>, <code>CLOSED</code>, <code>REJECTED</code></div></td>
+          <td>Shows how far the quality deviation has progressed through review, containment, corrective action and closure. Moved by quality staff as the investigation advances; closing requires corrective action, and rejection ends a report that was not valid. The deviation has been recorded and nobody has yet started to investigate it. Quality staff are assessing the deviation to confirm what happened, how serious it is and who owns it. Affected material has been isolated or held so that it cannot reach customers or production while the cause is addressed. Actions to remove the cause and prevent recurrence are being carried out and checked. The deviation was resolved and its corrective actions were verified as effective. A final state. Review found no real deviation, or a duplicate report, so no further action is taken. A final state. Indicates investigation, containment, corrective action and closure. Controls allowed responses and closure.<div class="detail">One of: <code>OPEN</code>, <code>UNDER_REVIEW</code>, <code>CONTAINED</code>, <code>CORRECTIVE_ACTION</code>, <code>CLOSED</code>, <code>REJECTED</code></div></td>
         </tr>
         <tr>
           <td><code>description</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 4000</span></td>
-          <td>Detailed explanation of the deviation. States what requirement or expected result was not met. Investigation, supplier communication, CAPA and audit. Provides issue evidence.</td>
+          <td>A full account of what went wrong, naming the requirement or expected result that was not met. Written by whoever raises the issue and refined during review; read in investigation, supplier communication and audit. States what requirement or expected result was not met. Provides issue evidence.</td>
         </tr>
         <tr>
           <td><code>detected_at</code></td>
           <td>Date and time</td>
           <td><span class="tag">required</span></td>
-          <td>Time the deviation was detected. Establishes chronology for containment and corrective action. Audit and quality analytics. Anchors issue occurrence.</td>
+          <td>The date and time when the deviation was first noticed, which may precede the time it was entered. Entered when the issue is raised; containment and corrective action deadlines are measured from it in quality analytics. Establishes chronology for containment and corrective action. Anchors issue occurrence.</td>
         </tr>
         <tr>
           <td><code>closed_at</code></td>
           <td>Date and time</td>
           <td>&mdash;</td>
-          <td>Time the issue was formally closed. Establishes completion chronology. Quality performance and audit. Required for closure.</td>
+          <td>The date and time when the deviation was formally closed or rejected by quality. Set when the status becomes closed or rejected; left empty while the issue is open, and used to measure time to resolve. Establishes completion chronology. Required for closure.</td>
         </tr>
         <tr>
           <td><code>inspection_id</code></td>
@@ -4161,13 +4161,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>organization_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organised body. Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
+          <td>Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created. The top-level group or enterprise that owns every other organizational unit beneath it. A separate legal entity or operating company, usually with its own registrations, books and tax identifiers. A unit organized around a line of business or market, which may span several legal entities. A large internal division grouping departments under a common head or function. A functional team within a company or division, such as finance or warehouse operations. A geographically separate office, store or site operating under a parent organization. A company controlled by a parent organization but trading as a separate legal entity. A structure that fits none of the other types and is explained in its name or description. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organization is being set up and is not yet available for use in transactions. The organization is in use and can be selected as an organizational scope in new records. The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return. The organization has been permanently closed or merged away and cannot be selected again. A final state. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>legal_name</code></td>
@@ -4937,7 +4937,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>A description of the relationship. Shown in party views.</td>
+          <td>A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.</td>
         </tr>
         <tr>
           <td><code>from_party_id</code></td>
@@ -5018,7 +5018,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>role_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business partner or reseller. Transports goods for the organisation. Acts on behalf of the organisation or its customers. Provides services under a contract. Owns property or a share in the organisation. Provides capital. Any other role. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
+          <td>The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from the organization and is handled in sales and receivables. The party sells goods or services to the organization and is handled in procurement and payables. The party works for the organization under an employment relationship. The party collaborates with the organization commercially, such as a reseller or alliance member. The party transports goods or people for the organization. The party acts on behalf of the organization or of another party, usually for a commission. The party provides labour or services under a contract rather than as an employee. The party holds an ownership or beneficial interest in an asset or organization. The party provides capital to the organization in return for a financial return or equity stake. A role that fits none of the listed kinds and is explained in the role code or description. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>code</code></td>
@@ -5036,13 +5036,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>valid_to</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.</td>
+          <td>The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
+          <td>Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
         </tr>
         <tr>
           <td><code>person_id</code></td>
@@ -5493,7 +5493,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record.</td>
+          <td>The stable identifier of the individual-person record, which never changes even if the person&#39;s name does. Generated on creation; individual identity processes and person-specific records refer to the person through this value. Party.partyId remains canonical. identifies person-specific record.</td>
         </tr>
         <tr>
           <td><code>party_id</code></td>
@@ -5505,43 +5505,43 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>title</code></td>
           <td>Text</td>
           <td><span class="tag">max 50</span></td>
-          <td>Personal title. documents and presentation. presentation attribute. supports person display.</td>
+          <td>The honorific or personal title used before the person&#39;s name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.</td>
         </tr>
         <tr>
           <td><code>given_name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 150</span></td>
-          <td>Given name. identity and documents. intrinsic person identity. identification.</td>
+          <td>The person&#39;s first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.</td>
         </tr>
         <tr>
           <td><code>middle_name</code></td>
           <td>Text</td>
           <td><span class="tag">max 150</span></td>
-          <td>Middle name. identity and documents. intrinsic person identity. identification.</td>
+          <td>Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.</td>
         </tr>
         <tr>
           <td><code>family_name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 150</span></td>
-          <td>Family name. identity and documents. intrinsic person identity. identification.</td>
+          <td>The person&#39;s family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.</td>
         </tr>
         <tr>
           <td><code>preferred_name</code></td>
           <td>Text</td>
           <td><span class="tag">max 150</span></td>
-          <td>Preferred display name. communication and UI. presentation not canonical identity. human interaction.</td>
+          <td>The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonical identity. human interaction.</td>
         </tr>
         <tr>
           <td><code>date_of_birth</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.</td>
+          <td>The person&#39;s date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject to access policy. eligibility/verification where applicable.</td>
         </tr>
         <tr>
           <td><code>gender</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>The person&#39;s gender as recorded for the organisation&#39;s purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as neither exclusively male nor female. Identifies in another way. Not stated or not collected. person attribute and not role. process-specific.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
+          <td>The person&#39;s gender as recorded for the organisation&#39;s lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The person identifies and is recorded as male. The person identifies as neither exclusively male nor exclusively female. The person identifies in a way not covered by the other values. The gender is not recorded, because it was not needed or the person chose not to say. person attribute and not role. process-specific.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
         </tr>
         <tr>
           <td><code>nationality_id</code></td>
@@ -6056,13 +6056,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>data_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Data representation expected for observations of this characteristic. Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid. Controls QualityMeasurement value selection, validation, user-interface behavior, and downstream analytics. QualityMeasurement must supply an observation compatible with this data type; QualityPlanCharacteristic supplies applicable criteria. A numeric observation that may contain fractional values. A whole-number observation. A textual or categorical observation represented as text. A true/false observation. An observation selected from a governed set of allowed values.<div class="detail">One of: <code>DECIMAL</code>, <code>INTEGER</code>, <code>STRING</code>, <code>BOOLEAN</code>, <code>ENUM</code></div></td>
+          <td>The kind of value that observations of this characteristic take, which fixes how measurements are entered and checked. Chosen when the characteristic is defined; quality measurements, forms and analytics follow it, and it should not change once measurements exist. A numeric observation that may contain fractional values. A whole-number observation such as a count of defects in a sample. A textual or categorical observation represented as text. A true or false observation such as seal intact. An observation selected from a governed set of allowed values. Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid. QualityMeasurement must supply an observation compatible with this data type; QualityPlanCharacteristic supplies applicable criteria.<div class="detail">One of: <code>DECIMAL</code>, <code>INTEGER</code>, <code>STRING</code>, <code>BOOLEAN</code>, <code>ENUM</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Lifecycle state of the reusable characteristic definition. Controls whether the characteristic may be newly assigned to quality plans and used for new measurements. Governance, authoring, validation, and retirement control. Retiring a characteristic does not erase historical QualityMeasurement evidence or historical plan configurations. Definition is being prepared and is not normally available for new governed use. Definition is approved for use in applicable QualityPlanCharacteristic records. Definition is no longer normally assigned to new configurations but remains available for historical traceability.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>Whether this reusable characteristic definition is still being prepared, approved for use or retired. Moved by quality governance; only ACTIVE characteristics can be assigned to new quality plans, and RETIRED is final but stays readable. Controls whether the characteristic may be newly assigned to quality plans and used for new measurements. Retiring a characteristic does not erase historical QualityMeasurement evidence or historical plan configurations. Definition is being prepared and is not normally available for new governed use. Definition is approved for use in applicable QualityPlanCharacteristic records. Definition is no longer normally assigned to new configurations but remains available for historical traceability.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>evaluation_method</code></td>
@@ -6376,13 +6376,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of the inspection record. Identifies one inspection event independently of the item, receipt, return, result or corrective action. Quality traceability, audit, reporting and integrations. Root of the inspection execution graph including sampling and measurement evidence. Stable reference through planning, sampling, execution, result and disposition.</td>
+          <td>The permanent, system-generated identity of this inspection or test record. Generated on creation and never changed; measurements, samples, nonconformances and audit trails refer to the inspection through it. Identifies one inspection event independently of the item, receipt, return, result or corrective action. Root of the inspection execution graph including sampling and measurement evidence. Stable reference through planning, sampling, execution, result and disposition.</td>
         </tr>
         <tr>
           <td><code>inspection_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Business-facing inspection reference. Identifies the inspection in quality operations and audit. Quality records, supplier disputes and reporting. Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber. Provides human-recognizable traceability.</td>
+          <td>The business-facing reference quoted for this inspection in quality records and with suppliers. Assigned when the inspection is raised and unique; used in supplier disputes, release decisions and quality reporting. Identifies the inspection in quality operations and audit. Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber. Provides human-recognizable traceability.</td>
         </tr>
         <tr>
           <td><code>inspection_date</code></td>
@@ -6394,7 +6394,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Raised and not yet started. Samples are being taken and measured. The goods met every requirement. A final state. The goods did not meet the requirements. A final state. Passed only with conditions, awaiting a decision on release. The inspection was not carried out. A final state. Lifecycle state of inspection. Indicates whether inspection is pending, executing, completed with a result, or cancelled. Controls release and disposition workflows. Inspection status is independent of sample status, receipt/return status, and inventory state. PASSED/FAILED/CONDITIONAL controls eligible disposition.<div class="detail">One of: <code>OPEN</code>, <code>IN_PROGRESS</code>, <code>PASSED</code>, <code>FAILED</code>, <code>CONDITIONAL</code>, <code>CANCELLED</code></div></td>
+          <td>Where the inspection stands from being raised through sampling to a final verdict. Moved by inspectors; it controls release and disposition workflows, and passed, failed and cancelled are final. Raised and not yet started; waiting for an inspector. Samples are being taken and measured. The goods met every requirement. A final state. The goods did not meet the requirements. A final state. Passed only with conditions, awaiting a decision on release. The inspection was not carried out. A final state. Indicates whether inspection is pending, executing, completed with a result, or cancelled. Inspection status is independent of sample status, receipt/return status, and inventory state. PASSED/FAILED/CONDITIONAL controls eligible disposition.<div class="detail">One of: <code>OPEN</code>, <code>IN_PROGRESS</code>, <code>PASSED</code>, <code>FAILED</code>, <code>CONDITIONAL</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>result</code></td>
@@ -6406,13 +6406,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>disposition</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>Release the goods for use or sale. Accept the goods into stock. Refuse the goods. Hold the goods apart until a decision is made. Send the goods back to the supplier. Correct the goods so they meet the requirement. Repair the goods to a usable condition. Destroy or write off the goods. The disposition of the quality inspection is conditional release; set it when that is what the business means for this record. Controlled operational disposition resulting from inspection. Defines what happens to inspected material after quality evaluation. Controls inventory availability, supplier return, repair, scrap and release processes. RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted. Converts quality result into an authorized physical disposition.<div class="detail">One of: <code>RELEASE</code>, <code>ACCEPT</code>, <code>REJECT</code>, <code>QUARANTINE</code>, <code>RETURN_TO_SUPPLIER</code>, <code>REWORK</code>, <code>REPAIR</code>, <code>SCRAP</code>, <code>CONDITIONAL_RELEASE</code></div></td>
+          <td>The decision on what to do with the inspected goods. Set after a result is recorded; it drives inventory availability, supplier returns, repair, scrap and release. Release the goods for use or sale. Accept the goods into stock. Refuse the goods because they failed to meet requirements. Hold the goods apart until a decision is made. Send the goods back to the supplier. Correct the goods so they meet the requirement. Repair the goods to a usable condition. Destroy or write off the goods. Release the goods for use only under stated conditions that must be met. Defines what happens to inspected material after quality evaluation. RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted. Converts quality result into an authorized physical disposition.<div class="detail">One of: <code>RELEASE</code>, <code>ACCEPT</code>, <code>REJECT</code>, <code>QUARANTINE</code>, <code>RETURN_TO_SUPPLIER</code>, <code>REWORK</code>, <code>REPAIR</code>, <code>SCRAP</code>, <code>CONDITIONAL_RELEASE</code></div></td>
         </tr>
         <tr>
           <td><code>notes</code></td>
           <td>Text</td>
           <td><span class="tag">max 4000</span></td>
-          <td>Inspection observations and supporting context. Records qualitative evidence not represented by structured measurements. Quality review, supplier disputes and audit. Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence. Supports disposition decisions.</td>
+          <td>The inspector&#39;s observations and supporting context that the recorded results do not capture. Free text entered during or after inspection; read in quality reviews, supplier disputes and audits. Records qualitative evidence not represented by structured measurements. Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence. Supports disposition decisions.</td>
         </tr>
         <tr>
           <td><code>quality_plan_id</code></td>
@@ -6871,13 +6871,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of one quality measurement. Identifies one observation independently of its inspection and characteristic. Traceability, audit, analytics and integrations. Distinct from QualityInspection and the measured Product. Stable reference from capture through review.</td>
+          <td>The permanent, system-generated identity of this single quality observation. Generated on creation and never changed; traceability, audits, analytics and integrations refer to the measurement through it. Identifies one observation independently of its inspection and characteristic. Distinct from QualityInspection and the measured Product. Stable reference from capture through review.</td>
         </tr>
         <tr>
           <td><code>measurement_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing measurement reference. Provides an operational identifier for one observation. Inspection review, audit and integration. Distinct from the parent inspection number. Supports individual observation traceability.</td>
+          <td>The human-facing reference that identifies this one measurement within inspection records. Assigned when the measurement is captured and unique; used by reviewers, auditors and integrations to cite it. Provides an operational identifier for one observation. Distinct from the parent inspection number. Supports individual observation traceability.</td>
         </tr>
         <tr>
           <td><code>characteristic_code</code></td>
@@ -6889,19 +6889,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>measured_value</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Numeric value observed during inspection. Records the factual quantitative observation before evaluation. Acceptance evaluation, trend analysis and audit. Requires a compatible unit for dimensional characteristics. Supplies evidence used against configured acceptance criteria.</td>
+          <td>The numeric value actually observed during the inspection, such as a weight or temperature. Entered for numeric characteristics together with the unit; compared with the limits to give the result, and exclusive with measured text. Records the factual quantitative observation before evaluation. Requires a compatible unit for dimensional characteristics. Supplies evidence used against configured acceptance criteria.</td>
         </tr>
         <tr>
           <td><code>measured_text</code></td>
           <td>Text</td>
           <td><span class="tag">max 1000</span></td>
-          <td>Categorical or textual observation. Records observations such as color, grade, appearance or classification. Quality evaluation where numeric measurement is inappropriate. Used instead of measuredValue for categorical characteristics. Supplies structured qualitative evidence.</td>
+          <td>The categorical or textual observation made, such as a colour grade or appearance remark. Entered for characteristics that are not numeric; used in evaluation where a number does not apply, and exclusive with measured value. Records observations such as color, grade, appearance or classification. Used instead of measuredValue for categorical characteristics. Supplies structured qualitative evidence.</td>
         </tr>
         <tr>
           <td><code>unit_of_measure</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Unit in which a numeric measurement is expressed. Defines the dimensional interpretation of measuredValue. Comparison, conversion, reporting and audit. Must be compatible with the linked QualityPlanCharacteristic and QualityCharacteristic. Makes numeric observations semantically comparable.</td>
+          <td>The unit, such as kilograms or degrees Celsius, in which the numeric measured value is expressed. Chosen with a numeric value; used to compare against limits, convert between units and report consistently. Defines the dimensional interpretation of measuredValue. Must be compatible with the linked QualityPlanCharacteristic and QualityCharacteristic. Makes numeric observations semantically comparable.</td>
         </tr>
         <tr>
           <td><code>lower_limit</code></td>
@@ -6919,25 +6919,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>result</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The measured value is within its limits. The measured value is outside its limits. Within tolerance only under a stated condition. The result of the quality measurement is not evaluated; set it when that is what the business means for this record. Evaluation of this measurement against its governing criterion. States whether the individual observation satisfies the applicable requirement. Inspection completion, nonconformance and analytics. Contributes evidence to QualityInspection.result but does not replace it. Supplies structured evidence for the overall inspection decision.<div class="detail">One of: <code>PASS</code>, <code>FAIL</code>, <code>CONDITIONAL</code>, <code>NOT_EVALUATED</code></div></td>
+          <td>The verdict on this measurement when compared with its governing acceptance criterion. Set when the value is evaluated; inspections use it to complete, raise nonconformances and feed quality analytics. The measured value is within its limits. The measured value is outside its limits. Within tolerance only under a stated condition. No verdict has been given yet because it was not compared with a criterion. States whether the individual observation satisfies the applicable requirement. Contributes evidence to QualityInspection.result but does not replace it. Supplies structured evidence for the overall inspection decision.<div class="detail">One of: <code>PASS</code>, <code>FAIL</code>, <code>CONDITIONAL</code>, <code>NOT_EVALUATED</code></div></td>
         </tr>
         <tr>
           <td><code>measured_at</code></td>
           <td>Date and time</td>
           <td><span class="tag">required</span></td>
-          <td>Time when the observation was captured. Establishes chronology of the measured fact. Traceability, sampling, compliance and audit. Distinct from QualityInspection.inspectionDate. Preserves temporal measurement evidence.</td>
+          <td>The date and time at which the observation was actually taken. Captured with the measurement; supports sampling traceability, compliance checks and audit of when results were obtained. Establishes chronology of the measured fact. Distinct from QualityInspection.inspectionDate. Preserves temporal measurement evidence.</td>
         </tr>
         <tr>
           <td><code>method</code></td>
           <td>Text</td>
           <td><span class="tag">max 500</span></td>
-          <td>Method or procedure used to obtain the observation. Identifies how the measurement or test was performed. Reproducibility, laboratory audit and compliance. Should align with the linked QualityPlanCharacteristic method where applicable. Establishes how evidence was produced.</td>
+          <td>The method or procedure used to obtain the observation, such as a named test standard or instrument routine. Entered by the inspector; lets others reproduce the test and lets laboratory audits confirm the right method was used. Identifies how the measurement or test was performed. Should align with the linked QualityPlanCharacteristic method where applicable. Establishes how evidence was produced.</td>
         </tr>
         <tr>
           <td><code>notes</code></td>
           <td>Text</td>
           <td><span class="tag">max 2000</span></td>
-          <td>Supporting context for the observation. Captures anomalies or conditions not represented structurally. Review and audit. Complements measured values and result without replacing them. Provides supporting evidence.</td>
+          <td>Supporting context for this observation, such as sample condition or instrument remarks. Free text entered by the inspector; read during review and audit to explain unusual values. Captures anomalies or conditions not represented structurally. Complements measured values and result without replacing them. Provides supporting evidence.</td>
         </tr>
         <tr>
           <td><code>quality_characteristic_id</code></td>
@@ -7389,13 +7389,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>lower_limit</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Plan-specific lower acceptance boundary for a numeric characteristic. Defines the minimum acceptable value under this particular QualityPlan. Automated evaluation and inspection review. Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.</td>
+          <td>The smallest numeric measurement this plan accepts for the characteristic; anything below it fails. Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not exceed the upper limit. Defines the minimum acceptable value under this particular QualityPlan. Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.</td>
         </tr>
         <tr>
           <td><code>upper_limit</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Plan-specific upper acceptance boundary for a numeric characteristic. Defines the maximum acceptable value under this particular QualityPlan. Automated evaluation and inspection review. Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.</td>
+          <td>The largest numeric measurement this plan accepts for the characteristic; anything above it fails. Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not fall below the lower limit. Defines the maximum acceptable value under this particular QualityPlan. Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.</td>
         </tr>
         <tr>
           <td><code>target_value</code></td>
@@ -7705,13 +7705,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity covered by this disposition. States how much returned material receives this outcome. Supports partial dispositions and inventory execution. Must reconcile with the related return line quantity and its UnitOfMeasure. Controls the quantity eligible for the resulting InventoryMovement.</td>
+          <td>How many units of the returned goods this disposition decision covers. Entered by the returns handler; partial quantities allow one return to be split across outcomes, and inventory is adjusted by this amount. States how much returned material receives this outcome. Must reconcile with the related return line quantity and its UnitOfMeasure. Controls the quantity eligible for the resulting InventoryMovement.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Being prepared; the outcome is not yet decided. Approved and ready to be carried out. The disposition has been carried out and stock adjusted. A final state. Withdrawn before it was carried out. A final state. Could not be carried out as authorised and needs a decision. Lifecycle state of the disposition decision. Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed. Controls whether downstream inventory execution is permitted. Does not replace CustomerReturn, SupplierReturn or QualityInspection status. EXECUTED requires attributable physical evidence where the disposition changes inventory.<div class="detail">One of: <code>DRAFT</code>, <code>AUTHORIZED</code>, <code>EXECUTED</code>, <code>CANCELLED</code>, <code>EXCEPTION</code></div></td>
+          <td>The stage of the disposition decision, from proposal through approval to physical execution. Starts as DRAFT and is moved by the authorising user and warehouse; inventory movements are only allowed once it is AUTHORIZED. Being prepared; the outcome is not yet decided or approved. Approved and ready for the warehouse to carry out. Carried out and the stock adjusted to match. A final state. Withdrawn before it was carried out. A final state. Could not be carried out as authorised and needs a manual decision. Indicates whether the decision is proposed, authorized, physically executed, cancelled or exception-managed. Does not replace CustomerReturn, SupplierReturn or QualityInspection status. EXECUTED requires attributable physical evidence where the disposition changes inventory.<div class="detail">One of: <code>DRAFT</code>, <code>AUTHORIZED</code>, <code>EXECUTED</code>, <code>CANCELLED</code>, <code>EXCEPTION</code></div></td>
         </tr>
         <tr>
           <td><code>reason_code</code></td>
@@ -8077,7 +8077,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>method</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>General method used to select inspection samples. Defines the governed selection approach rather than leaving sampling to operator discretion. Sampling execution, compliance, reproducibility, and audit. SamplingRule refines the method with lot and quantity parameters. Every applicable unit is inspected. Units are selected randomly from the eligible population. Units are selected using a defined interval or systematic pattern. Population is divided into defined strata and samples are selected within them. A fixed number of units is selected. A defined proportion of the population is selected. Sample size and acceptance/rejection criteria are governed by an acceptance-sampling scheme.<div class="detail">One of: <code>CENSUS</code>, <code>RANDOM</code>, <code>SYSTEMATIC</code>, <code>STRATIFIED</code>, <code>FIXED_SIZE</code>, <code>PERCENTAGE</code>, <code>ACCEPTANCE_SAMPLING</code></div></td>
+          <td>The general way samples are picked from the population being inspected. Chosen when the plan is authored; it fixes how sampling is executed and makes selections reproducible and auditable. Every applicable unit is inspected, with no sampling. Units are picked at random from the eligible population. Units are picked at a fixed interval, such as every tenth one. The population is split into defined groups and samples are taken within each. A set number of units is picked regardless of lot size. A defined proportion of the population is picked. Sample size and accept or reject limits come from a formal acceptance-sampling scheme. Defines the governed selection approach rather than leaving sampling to operator discretion. SamplingRule refines the method with lot and quantity parameters.<div class="detail">One of: <code>CENSUS</code>, <code>RANDOM</code>, <code>SYSTEMATIC</code>, <code>STRATIFIED</code>, <code>FIXED_SIZE</code>, <code>PERCENTAGE</code>, <code>ACCEPTANCE_SAMPLING</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
@@ -8422,7 +8422,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Whether the rule is in force. Controls whether the rule can be selected for new sample executions. Governance, authoring, and inspection execution. Retired rules remain available for historical sample traceability. Rule is being prepared and is not normally selectable. Rule is approved for sampling execution. Rule is no longer selected for new sampling but remains historical evidence.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>Whether this sampling rule may currently be chosen when a sample is drawn. Starts as DRAFT and is moved by quality owners; inspections only select ACTIVE rules, and retired rules stay as evidence of past inspections. Being prepared and normally not selectable for inspection. Approved and available when sampling is carried out. No longer chosen for new sampling but kept as evidence for past inspections. A final state. Controls whether the rule can be selected for new sample executions. Retired rules remain available for historical sample traceability.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>sampling_plan_id</code></td>
@@ -8674,7 +8674,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td>The division&#39;s name in English. Shown in lists and on addresses. Does not replace the code as the stable key.</td>
+          <td>The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.</td>
         </tr>
         <tr>
           <td><code>subdivision_type</code></td>
@@ -8765,19 +8765,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>code</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 100</span></td>
-          <td>The code of the task, such as TASK-0042. Used in lists and notifications.</td>
+          <td>The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>A short statement of the work. Shown on to-do lists.</td>
+          <td>A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.</td>
         </tr>
         <tr>
           <td><code>description</code></td>
           <td>Text</td>
           <td><span class="tag">max 2000</span></td>
-          <td>Details of what must be done. Read by the assignee.</td>
+          <td>Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.</td>
         </tr>
         <tr>
           <td><code>task_type</code></td>
@@ -8789,13 +8789,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final state. Could not be done. A final state.<div class="detail">One of: <code>CREATED</code>, <code>READY</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>BLOCKED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code></div></td>
+          <td>Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The task exists but is not yet ready to be picked up. The task is released and waiting for someone to be assigned. A person or party has been given the task but has not started it. The assignee is actively working on the task. Work is held up by a dependency, missing input or decision. The work was done as required. A final state. The task was withdrawn before completion. A final state. The task ended without achieving its result and needs follow-up elsewhere. A final state.<div class="detail">One of: <code>CREATED</code>, <code>READY</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>BLOCKED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code></div></td>
         </tr>
         <tr>
           <td><code>priority</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.<div class="detail">One of: <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>CRITICAL</code></div></td>
+          <td>How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business impact. Standard urgency, handled in the ordinary course of work. Needs prompt attention ahead of normal work. Needs immediate action because delay causes serious business impact.<div class="detail">One of: <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>CRITICAL</code></div></td>
         </tr>
         <tr>
           <td><code>due_at</code></td>
@@ -9308,25 +9308,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>code</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Business code of the test method. Human-readable controlled identifier for the procedure. Authoring, execution, reporting, and integration. Remains stable within its governed version.</td>
+          <td>The controlled business code identifying the test method, such as TM-HPLC-012. Assigned when the method is authored; unique, and quoted on inspection plans, results and laboratory records to show which procedure was used. Human-readable controlled identifier for the procedure. Remains stable within its governed version.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>Human-readable test-method name. States the procedure understood by quality and laboratory personnel. Instructions, forms, reports, and training. Complements the controlled code.</td>
+          <td>The readable name of the test method as quality and laboratory staff know it. Entered by method owners; shown when planning inspections and recording results. States the procedure understood by quality and laboratory personnel. Complements the controlled code.</td>
         </tr>
         <tr>
           <td><code>instructions</code></td>
           <td>Text</td>
           <td><span class="tag">max 10000</span></td>
-          <td>Governed execution instructions. Describes how evidence must be produced. Laboratory and inspection execution, reproducibility, and audit. May be supplemented by controlled external procedures.</td>
+          <td>The step-by-step procedure, equipment and acceptance approach that testers follow to produce valid evidence. Written and reviewed under document control; testers follow it exactly, and changes are made through a new version, not silent edits. Describes how evidence must be produced. May be supplemented by controlled external procedures.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Lifecycle state of the method. Controls whether the procedure may be selected for new governed work. Method governance and execution gating. Historical evidence retains the method/version used. Being authored and not normally executable. Approved for governed use. Temporarily unavailable for new use. No longer selected for new work but retained historically.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>RETIRED</code></div></td>
+          <td>Shows whether the test method is being authored, available for use, paused, or withdrawn. Moved by quality owners; only active methods may be selected for new inspections, and past results keep the method they used. The method is being written and cannot yet be used for governed work. The method is approved and may be selected for new inspections and tests. Use is paused, for example pending a deviation or recalibration, and may resume. The method is withdrawn permanently and kept for history. A final state. Controls whether the procedure may be selected for new governed work. Historical evidence retains the method/version used.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>RETIRED</code></div></td>
         </tr>
         </tbody>
       </table>

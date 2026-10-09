@@ -100,8 +100,8 @@ entity:
       required: false
       maxLength: 1000
       help:
-        summary: Bank-provided narrative or transaction description.
-        usage: Supports reconciliation, exception investigation, and manual matching.
+        summary: The narrative text the bank supplied with the transaction, such as payer name, memo or payment details.
+        usage: Stored as received; reconciliation staff read it to match the movement to a payment or investigate an exception.
         relationshipContext: Descriptive evidence may be incomplete or ambiguous and must not override controlled matching rules.
         workflowRole: Provides secondary matching and investigation context.
     - name: externalReference

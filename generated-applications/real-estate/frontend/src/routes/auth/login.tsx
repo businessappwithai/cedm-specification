@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T06:45:51.450Z
+ * Generated: 2026-10-09T08:32:38.004Z
  * Project: real-estate
  */
 

@@ -8,7 +8,7 @@
 //! randomness — and carry a per-run token so they never collide with the rows
 //! an earlier run left behind.
 //!
-//! Generated: 2026-10-09T06:45:50.062Z
+//! Generated: 2026-10-09T08:32:36.454Z
 //! Project: real-estate
 
 #![allow(dead_code)]

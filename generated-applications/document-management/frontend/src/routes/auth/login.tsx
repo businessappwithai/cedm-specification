@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T06:43:54.390Z
+ * Generated: 2026-10-09T08:30:42.216Z
  * Project: document-management
  */
 

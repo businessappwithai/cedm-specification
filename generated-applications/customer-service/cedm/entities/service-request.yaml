@@ -41,8 +41,8 @@ entity:
       required: true
       maxLength: 4000
       help:
-        summary: What the requester needs.
-        usage: Written when raised.
+        summary: The requester's own account of what they need, such as the fault seen or help wanted.
+        usage: Written when the request is raised and read by whoever triages and handles it; kept as the original record of the need.
         relationshipContext: Read by the assignee.
     - name: priority
       type: enum
@@ -54,14 +54,14 @@ entity:
         - HIGH
         - CRITICAL
       help:
-        summary: How urgent the request is.
-        usage: Set at triage.
-        relationshipContext: Decides the order of work and the service target.
+        summary: How urgent the request is judged to be.
+        usage: Set at triage by service staff; it decides the order work is picked up in and when escalation starts.
         valueSemantics:
-          LOW: Can wait.
-          NORMAL: Handled in the ordinary course.
+          LOW: Can wait until capacity is free.
+          NORMAL: Handled in the ordinary course of work.
           HIGH: Handled ahead of normal work.
-          CRITICAL: Needs immediate action.
+          CRITICAL: Needs immediate action because of severe impact.
+        relationshipContext: Decides the order of work and the service target.
     - name: status
       type: enum
       required: true
@@ -75,17 +75,17 @@ entity:
         - CLOSED
         - CANCELLED
       help:
-        summary: Where the request is.
-        usage: Starts as OPEN; moved by service staff.
-        relationshipContext: Decides whether it is still waiting for action.
         valueSemantics:
           OPEN: Received and not yet looked at.
-          TRIAGED: Assessed and prioritised.
-          ASSIGNED: Given to someone to handle.
-          IN_PROGRESS: Being worked.
-          RESOLVED: The need has been met.
+          TRIAGED: Assessed and given a priority.
+          ASSIGNED: Given to a named person or team to handle.
+          IN_PROGRESS: Being actively worked on by the assignee.
+          RESOLVED: The need has been met, awaiting confirmation.
           CLOSED: Confirmed finished. A final state.
-          CANCELLED: Withdrawn. A final state.
+          CANCELLED: Withdrawn before it was resolved. A final state.
+        summary: The stage of the request from receipt to closure.
+        usage: Starts as OPEN and is moved by service staff; it shows the requester where their request stands.
+        relationshipContext: Decides whether it is still waiting for action.
     - name: requestedAt
       type: datetime
       required: true

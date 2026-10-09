@@ -8,7 +8,7 @@
 //! the reminder arrives from the test suite rather than from whoever was
 //! reading the docs when they needed them.
 //!
-//! Generated: 2026-10-09T06:44:04.954Z
+//! Generated: 2026-10-09T08:30:54.336Z
 //! Project: energy
 
 use loco_rs::controller::Routes;

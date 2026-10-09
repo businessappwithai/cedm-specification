@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the experiment.
-        usage: Generated on creation; results refer to it.
+        summary: The stable identity of the experiment, constant for its whole life.
+        usage: Generated on creation; measurements, results and review records refer to it so findings stay traceable to one investigation.
     - name: experimentCode
       type: string
       required: true
@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 500
       help:
-        summary: The short title of the experiment.
-        usage: Shown in lists and reports.
+        summary: The short title that says what the experiment sets out to test.
+        usage: Entered by the researcher when the experiment is planned; shown in lists and reports, so it should name the question under test.
     - name: objective
       type: string
       required: false
@@ -52,27 +52,27 @@ entity:
         - CANCELLED
         - ARCHIVED
       help:
-        summary: Where the experiment stands.
-        usage: Updated by the researcher.
+        summary: Whether the experiment is planned, running, finished, failed, stopped or filed away.
+        usage: Updated by the researcher as work proceeds; results count only once it is COMPLETED, and failed or cancelled ones are kept.
         valueSemantics:
-          PLANNED: Designed but not started.
-          RUNNING: Under way.
-          COMPLETED: Finished with results.
-          FAILED: Could not be completed validly.
-          CANCELLED: Stopped before completion.
-          ARCHIVED: Closed and filed.
+          PLANNED: Designed and approved but not yet started.
+          RUNNING: Under way, with measurements being taken or materials in use.
+          COMPLETED: Finished with results recorded and ready for review.
+          FAILED: Could not be completed validly, for example through equipment or contamination problems. A final state.
+          CANCELLED: Stopped before completion and not to be resumed. A final state.
+          ARCHIVED: Closed, reviewed and filed for the record. A final state.
     - name: startedAt
       type: datetime
       required: false
       help:
-        summary: When the experiment started.
-        usage: Set when work begins.
+        summary: The date and time work on the experiment actually began.
+        usage: Set by the researcher when the first step starts; not before the plan was approved, and it anchors duration calculations.
     - name: completedAt
       type: datetime
       required: false
       help:
-        summary: When the experiment finished.
-        usage: Set at completion; must not be before the start.
+        summary: The date and time the experiment finished and its results were recorded.
+        usage: Set at completion; never before the start time, and used to calculate duration and decide when results can be reviewed.
   relationships:
     - name: compounds
       target: Compound

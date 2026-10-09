@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the reading.
-        usage: Generated on creation; billing lines refer to it.
+        summary: The permanent identifier of one reading taken from a meter, which never changes after the reading is recorded.
+        usage: Generated on creation; billing lines and corrections refer to the reading through this value, so it is never reused.
     - name: readingAt
       type: datetime
       required: true
@@ -40,12 +40,12 @@ entity:
         - ESTIMATED
         - CORRECTED
       help:
-        summary: How the reading was obtained.
-        usage: Set at entry; billing prefers actual readings.
+        summary: Records whether the value was physically read, estimated by the utility, or entered later to correct an earlier reading.
+        usage: Set at entry; billing prefers actual readings, and a corrected reading replaces the value it supersedes in consumption.
         valueSemantics:
-          ACTUAL: Taken from the meter.
-          ESTIMATED: Calculated because no actual reading was available.
-          CORRECTED: Replaces an earlier reading found to be wrong.
+          ACTUAL: The value was read directly from the meter by a person or a smart device.
+          ESTIMATED: The value was calculated by the utility because the meter could not be read, and awaits a real reading.
+          CORRECTED: The value replaces an earlier wrong reading and is used instead of it when consumption is calculated.
     - name: quality
       type: enum
       required: false
@@ -54,12 +54,12 @@ entity:
         - SUSPECT
         - INVALID
       help:
-        summary: How far the reading can be trusted.
-        usage: Set by validation checks or the reader.
+        summary: Indicates how far the reading can be trusted, based on validation checks or the reader's own judgement.
+        usage: Set by automatic validation or the reader; billing normally uses only good readings and reviews suspect ones first.
         valueSemantics:
-          GOOD: Passed checks.
-          SUSPECT: Looks unusual and needs review.
-          INVALID: Failed checks and must not be used.
+          GOOD: The reading passed validation and can be used for consumption and billing.
+          SUSPECT: The reading looks unusual, such as a jump or a fall, and needs review before it is used.
+          INVALID: The reading was found to be wrong and is excluded from consumption and billing calculations.
   relationships:
     - name: meter
       target: EnergyMeter

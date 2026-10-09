@@ -33,22 +33,22 @@ entity:
       required: false
       maxLength: 300
       help:
-        summary: A short description of the trip.
-        usage: Entered by the traveller; shown in lists.
+        summary: A short descriptive title for the journey, such as the purpose or destination.
+        usage: Entered by the traveller or arranger when planning; shown in lists and read by approvers deciding whether to authorise the trip.
         relationshipContext: Read by approvers.
     - name: startDate
       type: date
       required: true
       help:
-        summary: The date the trip begins.
-        usage: Entered when planned.
+        summary: The calendar date on which the trip begins, usually the first departure.
+        usage: Entered when the trip is planned and required; it must not be later than the end date and drives approval timing and reminders.
         relationshipContext: Not later than the end date.
     - name: endDate
       type: date
       required: false
       help:
-        summary: The date the trip ends.
-        usage: Must not be before the start date.
+        summary: The calendar date on which the trip finishes, usually the day of return.
+        usage: Optional while planning; once set it must not be before the start date and it fixes the length of the trip for allowances.
         relationshipContext: Gives the length of the trip.
     - name: status
       type: enum

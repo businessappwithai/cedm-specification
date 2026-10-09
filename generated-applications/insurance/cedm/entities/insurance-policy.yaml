@@ -24,8 +24,8 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The number printed on the policy documents.
-        usage: Allocated by the insurer; unique.
+        summary: The unique number printed on the policy documents and used to identify the contract.
+        usage: Allocated by the insurer when the policy is quoted or issued; unique, and quoted when claims are reported and premiums collected.
     - name: policyType
       type: string
       required: true
@@ -62,14 +62,14 @@ entity:
         - EXPIRED
         - CANCELLED
       help:
-        summary: Whether the policy is a quote, in force or ended.
-        usage: Moved by underwriting and policy administration; claims are accepted under ACTIVE policies.
+        usage: Moved by underwriting and policy administration; claims are accepted only under ACTIVE policies, and EXPIRED or CANCELLED policies cannot be reinstated.
         valueSemantics:
-          QUOTED: Offered but not yet accepted; no cover.
-          ACTIVE: In force.
-          SUSPENDED: Cover paused, for example for unpaid premium.
-          EXPIRED: The term has ended. A final state.
-          CANCELLED: Ended early, or withdrawn as a quote. A final state.
+          QUOTED: Offered to the customer but not yet accepted, so no cover is in place.
+          ACTIVE: In force, so claims for covered events within the period are accepted.
+          SUSPENDED: Cover is paused, for example because a premium is unpaid, and can be restored.
+          EXPIRED: The policy term has ended without renewal. A final state.
+          CANCELLED: Ended early, or withdrawn while still a quote. A final state.
+        summary: Whether the policy is a quote, in force or ended.
   relationships:
     - name: insurer
       target: Organization

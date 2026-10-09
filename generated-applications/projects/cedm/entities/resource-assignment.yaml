@@ -25,21 +25,21 @@ entity:
       unique: true
       maxLength: 120
       help:
-        summary: The code of the assignment, such as RA-0231.
-        usage: Unique; quoted in resource plans.
+        summary: The code that identifies one assignment of a person or resource to a project, such as RA-0231.
+        usage: Generated or entered when the assignment is made, unique, and quoted in resource plans and utilisation reports.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the assignment is.
-        usage: Starts as DRAFT; moved by the project manager.
+        summary: The stage of the assignment, from proposal to the end of the commitment.
+        usage: Starts as DRAFT and is moved by the project manager; only ACTIVE assignments count toward a person's committed allocation.
         valueSemantics:
-          DRAFT: Proposed and not yet committed.
-          ACTIVE: The person is committed to the project.
-          COMPLETED: The commitment has ended. A final state.
-          CANCELLED: Withdrawn. A final state.
+          DRAFT: Proposed and not yet committed; it does not count against availability.
+          ACTIVE: The person or resource is committed to the project for the stated period.
+          COMPLETED: The commitment has ended as planned. A final state.
+          CANCELLED: Withdrawn before or during the commitment. A final state.
         relationshipContext: Status changes can affect related Project workflows but never erase historical evidence.
   relationships:
     - name: context

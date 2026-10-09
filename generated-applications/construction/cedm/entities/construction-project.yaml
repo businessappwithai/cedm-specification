@@ -68,16 +68,16 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
-        summary: The construction stage the project has reached.
-        usage: Advanced by the project manager as each stage completes.
         valueSemantics:
           PLANNED: Approved but design has not begun.
           DESIGN: Design and permitting are under way.
           PROCUREMENT: Contractors and materials are being sourced.
           CONSTRUCTION: Physical work is being carried out on site.
           COMMISSIONING: Building work is done and systems are being tested and handed over.
-          COMPLETED: Handed over and closed.
-          CANCELLED: Stopped before completion.
+          COMPLETED: Handed over to the owner and closed. A final state.
+          CANCELLED: Stopped before completion, with work abandoned or the contract ended. A final state.
+        summary: The construction stage the project has reached.
+        usage: Advanced by the project manager as each stage completes.
   relationships:
     - name: project
       target: Project

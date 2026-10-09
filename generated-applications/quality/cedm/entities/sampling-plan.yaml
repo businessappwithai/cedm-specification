@@ -44,18 +44,18 @@ entity:
       required: true
       values: [CENSUS, RANDOM, SYSTEMATIC, STRATIFIED, FIXED_SIZE, PERCENTAGE, ACCEPTANCE_SAMPLING]
       help:
-        summary: General method used to select inspection samples.
-        businessMeaning: Defines the governed selection approach rather than leaving sampling to operator discretion.
-        usage: Sampling execution, compliance, reproducibility, and audit.
-        relationshipContext: SamplingRule refines the method with lot and quantity parameters.
+        summary: The general way samples are picked from the population being inspected.
+        usage: Chosen when the plan is authored; it fixes how sampling is executed and makes selections reproducible and auditable.
         valueSemantics:
-          CENSUS: Every applicable unit is inspected.
-          RANDOM: Units are selected randomly from the eligible population.
-          SYSTEMATIC: Units are selected using a defined interval or systematic pattern.
-          STRATIFIED: Population is divided into defined strata and samples are selected within them.
-          FIXED_SIZE: A fixed number of units is selected.
-          PERCENTAGE: A defined proportion of the population is selected.
-          ACCEPTANCE_SAMPLING: Sample size and acceptance/rejection criteria are governed by an acceptance-sampling scheme.
+          CENSUS: Every applicable unit is inspected, with no sampling.
+          RANDOM: Units are picked at random from the eligible population.
+          SYSTEMATIC: Units are picked at a fixed interval, such as every tenth one.
+          STRATIFIED: The population is split into defined groups and samples are taken within each.
+          FIXED_SIZE: A set number of units is picked regardless of lot size.
+          PERCENTAGE: A defined proportion of the population is picked.
+          ACCEPTANCE_SAMPLING: Sample size and accept or reject limits come from a formal acceptance-sampling scheme.
+        businessMeaning: Defines the governed selection approach rather than leaving sampling to operator discretion.
+        relationshipContext: SamplingRule refines the method with lot and quantity parameters.
     - name: status
       type: enum
       required: true

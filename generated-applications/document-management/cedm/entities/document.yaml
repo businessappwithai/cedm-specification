@@ -62,8 +62,8 @@ entity:
       required: false
       maxLength: 500
       help:
-        summary: The heading of the document.
-        usage: Shown in lists and search results.
+        summary: The heading of the document as readers know it, such as the subject of a letter or report.
+        usage: Entered by the author or the originating process; shown in lists and search results, so it should say what the document is.
     - name: description
       type: string
       required: false
@@ -97,8 +97,8 @@ entity:
       required: true
       systemManaged: true
       help:
-        summary: When the document record last changed.
-        usage: Set by the system on each change.
+        summary: The date and time the document record was last changed.
+        usage: Set by the system on every change, never typed in; reviewers use it to tell whether they hold the latest version.
   relationships:
     - name: owner
       target: Organization

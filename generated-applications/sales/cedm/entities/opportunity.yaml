@@ -24,8 +24,8 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The reference number of the opportunity.
-        usage: Allocated on creation; unique.
+        summary: The human-readable reference of the sales opportunity, such as OPP-2026-0142, used in conversation and reporting.
+        usage: Allocated automatically on creation and kept unique; sales staff quote it in quotes, forecasts and pipeline reviews.
     - name: name
       type: string
       required: true

@@ -6,26 +6,26 @@ entity:
   ui: {icon: file-badge}
   identity: {key: serviceContractId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceContractId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the service-contract specialization., businessMeaning: Identifies operational service coverage independently of the generic Contract identity., usage: "Service operations, entitlement, billing, reporting and audit.", relationshipContext: Required Contract relationship supplies the legal/commercial agreement.}}
+    - {name: serviceContractId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identifier of the service coverage attached to a contract., usage: 'Generated on creation; service cases, orders and entitlement checks refer to the coverage through it.', businessMeaning: Identifies operational service coverage independently of the generic Contract identity., relationshipContext: Required Contract relationship supplies the legal/commercial agreement.}}
     - {name: serviceContractNumber, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The number of the service contract, such as SC-2026-044.', businessMeaning: Operational identifier for service coverage administration., usage: "Customer service, renewals, entitlement and reporting.", relationshipContext: May differ from generic Contract number.}}
-    - {name: effectiveFrom, type: date, required: true, help: {summary: First date service coverage is effective., businessMeaning: Starts entitlement and service-policy applicability., usage: "Coverage validation, renewal and reporting.", relationshipContext: Must be compatible with the governing Contract.}}
-    - {name: effectiveTo, type: date, required: false, help: {summary: Last date of service coverage., businessMeaning: Ends ordinary service entitlement under this specialization., usage: "Coverage validation and renewal.", relationshipContext: Must not precede effectiveFrom and normally cannot exceed governing Contract scope.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: The first date on which the service coverage applies., usage: Set when the coverage is agreed; entitlement is checked against it and renewals are planned from it., businessMeaning: Starts entitlement and service-policy applicability., relationshipContext: Must be compatible with the governing Contract.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: The last date on which the service coverage applies., usage: Set by the contract owner; entitlement checks stop honouring the coverage after it. Empty means open-ended., businessMeaning: Ends ordinary service entitlement under this specialization., relationshipContext: Must not precede effectiveFrom and normally cannot exceed governing Contract scope.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, EXPIRED, TERMINATED]
       help:
-        summary: Lifecycle state of service coverage.
-        businessMeaning: Controls eligibility for new service work while preserving historical coverage decisions.
-        usage: Entitlement, service authorization, renewal and audit.
-        relationshipContext: Generic Contract lifecycle remains separately authoritative for legal agreement status.
+        summary: Where the service coverage stands, from draft through active use to its end.
+        usage: Starts as DRAFT and is moved by contract administration; only ACTIVE coverage authorises new service work.
         valueSemantics:
-          DRAFT: Operational coverage is being prepared.
-          ACTIVE: Coverage may support new eligible service.
-          SUSPENDED: Coverage is temporarily unavailable for new ordinary authorization.
-          EXPIRED: Effective period ended.
-          TERMINATED: Coverage was ended early through governed process.
+          DRAFT: Coverage is being prepared and gives no entitlement yet.
+          ACTIVE: Coverage is in force and may support new eligible service.
+          SUSPENDED: Coverage is temporarily unavailable for new service authorisation.
+          EXPIRED: The effective period has ended and nothing was renewed. A final state.
+          TERMINATED: Coverage was ended early through the governed process. A final state.
+        businessMeaning: Controls eligibility for new service work while preserving historical coverage decisions.
+        relationshipContext: Generic Contract lifecycle remains separately authoritative for legal agreement status.
   relationships:
     - {name: contract, target: Contract, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'A service contract specialises exactly one contract, which holds the legal terms.', summary: Generic legal or commercial Contract underlying this service specialization., businessMeaning: "Prevents duplicate modeling of parties, clauses and legal obligations.", usage: "Legal traceability, renewals and compliance.", workflowRole: Service coverage cannot outlive or contradict governing Contract terms without explicit amendment.}}
     - {name: customer, target: Customer, cardinality: "1", ownership: reference, help: {summary: Customer receiving contracted service coverage., businessMeaning: Establishes the commercial beneficiary of service rights., usage: "Entitlement, case management and billing.", cardinalityMeaning: Exactly one Customer in this baseline specialization., workflowRole: Customer must be consistent with governing Contract parties.}}

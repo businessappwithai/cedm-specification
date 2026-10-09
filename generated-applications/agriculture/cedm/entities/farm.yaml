@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the farm record.
-        usage: Generated on registration.
+        summary: The permanent identity of the farm record, unchanged when its code, name or owners change.
+        usage: Generated on registration; fields, crops and production records refer to the farm by this value.
     - name: farmCode
       type: string
       required: true
@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The name of the farm.
-        usage: Shown in lists and on documents.
+        summary: The name by which the farm is known to staff, customers and authorities, such as Greenfield Farm.
+        usage: Entered at registration and shown in lists, reports and documents; it may be changed without affecting the farm code.
     - name: farmType
       type: enum
       required: true
@@ -43,14 +43,14 @@ entity:
         - AQUACULTURE
         - OTHER
       help:
+        valueSemantics:
+          CROP: Production is mainly growing crops such as cereals, vegetables or fruit.
+          LIVESTOCK: Production is mainly raising animals for meat, milk, eggs or breeding.
+          MIXED: Both crops and livestock are produced on the same farm.
+          AQUACULTURE: Farms fish or other aquatic species in ponds, tanks or enclosures.
+          OTHER: Production that fits none of the listed kinds.
         summary: The main kind of production the farm carries out.
         usage: Chosen at registration; groups farms in reports.
-        valueSemantics:
-          CROP: Grows crops.
-          LIVESTOCK: Raises animals.
-          MIXED: Both crops and livestock.
-          AQUACULTURE: Farms fish or other aquatic species.
-          OTHER: Any other kind.
     - name: status
       type: enum
       required: true
@@ -61,13 +61,13 @@ entity:
         - INACTIVE
         - RETIRED
       help:
-        summary: Whether the farm is producing.
-        usage: Set by the operator.
+        summary: Whether the farm is currently producing, planned, paused, or no longer operating.
+        usage: Set by the operator as production starts, pauses or ends; planning and reports use it to include only working farms.
         valueSemantics:
-          PLANNED: Established on paper but not producing.
-          ACTIVE: In production.
-          INACTIVE: Temporarily not producing.
-          RETIRED: Operation ended. A final state.
+          PLANNED: Established on paper but not yet producing.
+          ACTIVE: In production, with fields being worked or animals kept.
+          INACTIVE: Temporarily not producing, for example in a fallow period.
+          RETIRED: The operation has ended. A final state.
   relationships:
     - name: location
       target: Location

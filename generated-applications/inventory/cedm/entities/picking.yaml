@@ -15,16 +15,16 @@ entity:
       default: PLANNED
       values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
       help:
-        summary: Where the pick task stands.
-        usage: Updated by warehouse staff and handheld devices.
+        summary: Shows how far the pick task has advanced, from planned and released through picking to completion or a problem.
+        usage: Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state.
         valueSemantics:
-          PLANNED: Created, not yet released to the floor.
-          RELEASED: Released to pickers.
-          IN_PROGRESS: A picker is collecting the goods.
-          PICKED: All goods collected. A final state.
-          SHORT: Less than the requested quantity was found; the pick can be retried after replenishment.
-          CANCELLED: Called off. A final state.
-          EXCEPTION: Held because of a problem such as damage or a blocked location.
+          PLANNED: The pick is created but not yet released to the floor, so nobody is working on it.
+          RELEASED: The pick has been released to warehouse staff and is ready to be started.
+          IN_PROGRESS: A picker has started collecting the goods from the source location.
+          PICKED: All the quantity was collected and moved to staging, ready for packing. A final state.
+          SHORT: Less than the required quantity was found, so the pick stops short and the shortfall needs a decision.
+          CANCELLED: The pick was called off before completion and no goods are moved. A final state.
+          EXCEPTION: Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation.
         businessMeaning: Controls warehouse task progression.
         relationshipContext: "PICKED is warehouse evidence, not shipment delivery."
   relationships:

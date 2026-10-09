@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T06:45:28.041Z">2026-10-09T06:45:28.041Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T08:32:16.647Z">2026-10-09T08:32:16.647Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -828,7 +828,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The full name of the unit. Shown in organisation charts and management reports.</td>
+          <td>The full name of the business unit, as it appears in the organisation&#39;s structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.</td>
         </tr>
         <tr>
           <td><code>organization_id</code></td>
@@ -909,7 +909,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The descriptive name of the calendar. Shown wherever a calendar is chosen.</td>
+          <td>The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.</td>
         </tr>
         </tbody>
       </table>
@@ -949,7 +949,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
 
     <section id="entity-city" class="entity">
       <h3>City <span class="group">Foundation</span></h3>
-      <p class="lede">A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
+      <p class="lede">Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_city</code>, keyed by <code>id</code>.</p>
 
       <h4>Its fields</h4>
@@ -972,25 +972,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td>The city&#39;s name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name.</td>
+          <td>The city&#39;s name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a city of one name.</td>
         </tr>
         <tr>
           <td><code>population</code></td>
           <td>Whole number</td>
           <td>&mdash;</td>
-          <td>The registry&#39;s population figure. Ordering and sizing; not a current census count. Describes the city only.</td>
+          <td>The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.</td>
         </tr>
         <tr>
           <td><code>latitude</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Latitude in degrees, north positive. Maps and distance. Describes the city only.</td>
+          <td>The city&#39;s north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.</td>
         </tr>
         <tr>
           <td><code>longitude</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Longitude in degrees, east positive. Maps and distance. Describes the city only.</td>
+          <td>The city&#39;s east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.</td>
         </tr>
         <tr>
           <td><code>timezone</code></td>
@@ -1002,7 +1002,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>is_capital</code></td>
           <td>Yes / No</td>
           <td>&mdash;</td>
-          <td>Whether the city is its country&#39;s capital. Highlighting the capital in lists. At most one capital per country in this list.</td>
+          <td>Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.</td>
         </tr>
         <tr>
           <td><code>country_id</code></td>
@@ -1197,7 +1197,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
 
     <section id="entity-country" class="entity">
       <h3>Country <span class="group">Foundation</span></h3>
-      <p class="lede">A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
+      <p class="lede">Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
       <p class="meta">Stored as <code>bus_country</code>, keyed by <code>id</code>.</p>
 
       <h4>Its fields</h4>
@@ -1238,7 +1238,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>phone_code</code></td>
           <td>Telephone</td>
           <td><span class="tag">max 20</span></td>
-          <td>The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.</td>
+          <td>The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to the country; several countries can share a prefix.</td>
         </tr>
         <tr>
           <td><code>currency_id</code></td>
@@ -1575,13 +1575,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The name of the department. Shown in organisation charts and on documents.</td>
+          <td>The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.</td>
         </tr>
         <tr>
           <td><code>organization_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.<div class="detail">Points at <b>Organization</b></div></td>
+          <td>Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         </tbody>
       </table>
@@ -2047,13 +2047,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>How far receipt and inspection have progressed. Moved by warehouse and quality staff. Being prepared before the delivery is confirmed. Delivery confirmed and counted. Held until a quality inspection is done. All received quantity accepted into stock. A final state. Some accepted, the rest rejected. A final state. Refused entirely and returned or held. A final state. Withdrawn before confirmation. A final state. Indicates whether receipt evidence can affect fulfillment and inventory. SupplierReturn is a later reverse-procurement event and does not rewrite receipt status. Controls receiving progression and authorized corrections.<div class="detail">One of: <code>DRAFT</code>, <code>RECEIVED</code>, <code>INSPECTION_PENDING</code>, <code>ACCEPTED</code>, <code>PARTIALLY_ACCEPTED</code>, <code>REJECTED</code>, <code>CANCELLED</code></div></td>
+          <td>How far the receipt has progressed from preparation through counting and inspection to a final decision. Moved by warehouse and quality staff; accounts payable matches invoices only against receipts that were accepted. Being prepared before the delivery is confirmed. Delivery confirmed and counted at the dock. Held until a quality inspection is done. All received quantity accepted into stock. A final state. Some quantity accepted and the rest rejected. A final state. Refused entirely and returned or held. A final state. Withdrawn before receipt was confirmed. A final state. Indicates whether receipt evidence can affect fulfillment and inventory. SupplierReturn is a later reverse-procurement event and does not rewrite receipt status. Controls receiving progression and authorized corrections.<div class="detail">One of: <code>DRAFT</code>, <code>RECEIVED</code>, <code>INSPECTION_PENDING</code>, <code>ACCEPTED</code>, <code>PARTIALLY_ACCEPTED</code>, <code>REJECTED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>received_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>The total quantity counted at receipt. Calculated from the lines. Sum of line received quantities. SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone. Provides original physical receipt basis.</td>
+          <td>The total quantity counted at the dock across all lines of the receipt. Calculated from the receipt lines rather than typed in; purchasing compares it with the ordered quantity. Sum of line received quantities. SupplierReturn eligibility is derived from accepted receipt evidence, not received quantity alone. Provides original physical receipt basis.</td>
         </tr>
         <tr>
           <td><code>accepted_quantity</code></td>
@@ -2241,37 +2241,37 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Immutable identity of the receipt line. Identifies original receipt evidence independently of later supplier returns. Receiving, inventory, matching, returns and audit. SupplierReturnLine references this evidence without modifying it. Stable line-level traceability.</td>
+          <td>The permanent identity of the receipt line, unchanged by corrections to its quantities or notes. Generated on creation; inventory movements, invoice matching lines and supplier returns refer to the line by this value. Identifies original receipt evidence independently of later supplier returns. SupplierReturnLine references this evidence without modifying it. Stable line-level traceability.</td>
         </tr>
         <tr>
           <td><code>line_number</code></td>
           <td>Whole number</td>
           <td><span class="tag">required</span></td>
-          <td>Sequence number within the receipt. Identifies the receiving line. Documents and audit. Distinct from PurchaseOrderLine and SupplierReturnLine numbering. Supports deterministic receipt reconstruction.</td>
+          <td>The position of the line within its goods receipt, used to cite it in documents and queries. Assigned in sequence when the line is added and unique within the receipt; printed on delivery paperwork and audit extracts. Identifies the receiving line. Distinct from PurchaseOrderLine and SupplierReturnLine numbering. Supports deterministic receipt reconstruction.</td>
         </tr>
         <tr>
           <td><code>received_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity physically recorded as received. Preserves original receipt quantity. Receiving and audit. SupplierReturn eligibility is based on accepted quantity, not rejected or pending quantity. Provides physical receipt evidence.</td>
+          <td>The quantity physically counted at the dock for this line, before any quality decision. Entered by receiving staff; it should equal accepted, rejected and pending-inspection quantities together, and drives order fulfilment. Preserves original receipt quantity. SupplierReturn eligibility is based on accepted quantity, not rejected or pending quantity. Provides physical receipt evidence.</td>
         </tr>
         <tr>
           <td><code>accepted_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity accepted after receiving controls. Represents quantity eligible for normal inventory posting and normally later supplier return. Inventory, PO fulfillment, matching and supplier returns. SupplierReturnLine quantity cannot normally exceed accepted quantity remaining after prior returns. Provides authoritative eligibility basis.</td>
+          <td>The part of the received quantity that passed receiving controls and may be taken into stock. Set after inspection; it posts to inventory, counts toward purchase order fulfilment and is the basis for invoice matching. Represents quantity eligible for normal inventory posting and normally later supplier return. SupplierReturnLine quantity cannot normally exceed accepted quantity remaining after prior returns. Provides authoritative eligibility basis.</td>
         </tr>
         <tr>
           <td><code>rejected_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity rejected at receipt. Records quantity not accepted into normal inventory. Quality and supplier dispute processing. Rejected quantity is not normally eligible for a supplier return because it was not accepted inventory; explicit exception workflows may differ. Provides disposition evidence.</td>
+          <td>The part of the received quantity refused because of damage, wrong item or failed quality checks. Entered with the rejection reason by quality staff; it opens supplier disputes and returns and never enters inventory. Records quantity not accepted into normal inventory. Rejected quantity is not normally eligible for a supplier return because it was not accepted inventory; explicit exception workflows may differ. Provides disposition evidence.</td>
         </tr>
         <tr>
           <td><code>pending_inspection_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity awaiting inspection or disposition. Records unresolved receipt quantity. Quality, receiving and inventory controls. Pending quantity cannot normally be returned as accepted stock until controlled disposition establishes eligibility. Blocks premature supplier-return eligibility.</td>
+          <td>The part of the received quantity held aside until inspection or disposition decides its fate. Set at receipt and reduced as inspection moves quantities to accepted or rejected; zero when inspection is complete. Records unresolved receipt quantity. Pending quantity cannot normally be returned as accepted stock until controlled disposition establishes eligibility. Blocks premature supplier-return eligibility.</td>
         </tr>
         <tr>
           <td><code>unit_price</code></td>
@@ -2283,7 +2283,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>notes</code></td>
           <td>Text</td>
           <td><span class="tag">max 2000</span></td>
-          <td>Receiving notes and line-specific context. Explains exceptions or inspection findings. Operations and audit. Does not replace structured disposition or return evidence. Supports review.</td>
+          <td>Free-text receiving remarks about this line, such as damage observed, carrier comments or partial shipment explanations. Written by receiving staff at the dock; read by quality, purchasing and auditors when reviewing the delivery. Explains exceptions or inspection findings. Does not replace structured disposition or return evidence. Supports review.</td>
         </tr>
         <tr>
           <td><code>unit_of_measure_id</code></td>
@@ -2996,13 +2996,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>line_number</code></td>
           <td>Whole number</td>
           <td><span class="tag">required</span></td>
-          <td>Sequence number within the invoice. Identifies the line for documents and reconciliation. Used in invoice presentation and audit. Unique within Invoice and distinct from CreditNoteLine and SupplierCreditNoteLine numbering. Supports deterministic document reconstruction.</td>
+          <td>The position of this line within its invoice, starting at one and used to reference the line. Assigned in sequence when the line is added; it fixes the order of lines on the printed invoice and lets credits and audit entries point to one line. Identifies the line for documents and reconciliation. Unique within Invoice and distinct from CreditNoteLine and SupplierCreditNoteLine numbering. Supports deterministic document reconstruction.</td>
         </tr>
         <tr>
           <td><code>quantity</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Originally billed quantity. Preserves the historical quantity on the original claim. Used for billing, matching and return eligibility. CustomerReturnLine or SupplierReturnLine may reference eligible quantities and CreditNoteLine or SupplierCreditNoteLine may credit an eligible portion. Provides source quantity evidence.</td>
+          <td>The number of units originally billed on this line, in the unit of the billed product or service. Set when the line is created; invoice matching, credit notes and return-eligibility checks compare other quantities against it. Preserves the historical quantity on the original claim. CustomerReturnLine or SupplierReturnLine may reference eligible quantities and CreditNoteLine or SupplierCreditNoteLine may credit an eligible portion. Provides source quantity evidence.</td>
         </tr>
         <tr>
           <td><code>unit_price</code></td>
@@ -3020,7 +3020,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>discount_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Discount originally applied to the line. Historical line-level commercial reduction. Used for reproducibility, tax and credit calculation. Return credits use original discount evidence where policy requires. Contributes to original taxable and net values.</td>
+          <td>The money value of the discount originally applied to this line before tax. Recorded when the line is calculated; tax and credit calculations reuse it so a later credit reproduces the original charge exactly. Historical line-level commercial reduction. Return credits use original discount evidence where policy requires. Contributes to original taxable and net values.</td>
         </tr>
         <tr>
           <td><code>taxable_amount</code></td>
@@ -3062,7 +3062,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>description</code></td>
           <td>Text</td>
           <td><span class="tag">max 1000</span></td>
-          <td>Human-readable description of the original billed line. Describes the billed good or service. Used on documents and audit. Complements Product and source transaction references. Supports document presentation.</td>
+          <td>The text describing what was billed on this line, as it appeared on the invoice. Copied from the product or typed by the biller; it is printed on invoice documents and read in audit, and is kept even if the product later changes. Describes the billed good or service. Complements Product and source transaction references. Supports document presentation.</td>
         </tr>
         <tr>
           <td><code>matching_status</code></td>
@@ -3520,7 +3520,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>The identity of the language record. Generated when the language is loaded.</td>
+          <td>The stable identity of the language record, constant even if its name or code is later corrected. Generated when the language is first loaded from the reference list; content, user preferences and translations refer to it.</td>
         </tr>
         <tr>
           <td><code>code</code></td>
@@ -3532,7 +3532,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>The name of the language in English. Shown in language pick-lists.</td>
+          <td>The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.</td>
         </tr>
         </tbody>
       </table>
@@ -3583,7 +3583,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>The identity of the legal entity. Generated on registration.</td>
+          <td>The stable identity of the legal entity, kept even when its name or registration details change. Generated on registration; contracts, filings, assets and liabilities refer to the entity through it rather than through its name.</td>
         </tr>
         <tr>
           <td><code>occurred_at</code></td>
@@ -3644,19 +3644,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td>The name people use for the place. Shown in lists, maps and documents.</td>
+          <td>The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.</td>
         </tr>
         <tr>
           <td><code>location_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place.<div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
+          <td>A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or staging equipment or containers. A harbour or terminal. A base for vehicles and equipment. A logical place with no physical presence, such as an online store. Any other kind of place. What kind of place it is. Chosen at creation; decides which processes can use the location.<div class="detail">One of: <code>SITE</code>, <code>WAREHOUSE</code>, <code>STORE</code>, <code>OFFICE</code>, <code>FACTORY</code>, <code>YARD</code>, <code>PORT</code>, <code>DEPOT</code>, <code>VIRTUAL</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.<div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
+          <td>Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments.<div class="detail">One of: <code>PLANNED</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>CLOSED</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>address_id</code></td>
@@ -4035,13 +4035,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>organization_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organised body. Classifies the organizational structure represented by the specialization. Used for hierarchy, authorization, reporting, transaction scope, and organizational configuration. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
+          <td>Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the unit is created. The top-level group or enterprise that owns every other organizational unit beneath it. A separate legal entity or operating company, usually with its own registrations, books and tax identifiers. A unit organized around a line of business or market, which may span several legal entities. A large internal division grouping departments under a common head or function. A functional team within a company or division, such as finance or warehouse operations. A geographically separate office, store or site operating under a parent organization. A company controlled by a parent organization but trading as a separate legal entity. A structure that fits none of the other types and is explained in its name or description. Organization type describes structure, not commercial role. Customer/Supplier behavior belongs to PartyRole specializations. Controls applicable organizational hierarchy and operating-context rules.<div class="detail">One of: <code>ENTERPRISE</code>, <code>COMPANY</code>, <code>BUSINESS_UNIT</code>, <code>DIVISION</code>, <code>DEPARTMENT</code>, <code>BRANCH</code>, <code>SUBSIDIARY</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an organizational context. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+          <td>Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organization is being set up and is not yet available for use in transactions. The organization is in use and can be selected as an organizational scope in new records. The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return. The organization has been permanently closed or merged away and cannot be selected again. A final state. Organization status does not replace Party.status or PartyRole.status; all applicable states must permit new activity. Governs organizational use while preserving historical relationships.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>legal_name</code></td>
@@ -4813,7 +4813,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>A description of the relationship. Shown in party views.</td>
+          <td>A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.</td>
         </tr>
         <tr>
           <td><code>from_party_id</code></td>
@@ -4894,7 +4894,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>role_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business partner or reseller. Transports goods for the organisation. Acts on behalf of the organisation or its customers. Provides services under a contract. Owns property or a share in the organisation. Provides capital. Any other role. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
+          <td>The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from the organization and is handled in sales and receivables. The party sells goods or services to the organization and is handled in procurement and payables. The party works for the organization under an employment relationship. The party collaborates with the organization commercially, such as a reseller or alliance member. The party transports goods or people for the organization. The party acts on behalf of the organization or of another party, usually for a commission. The party provides labour or services under a contract rather than as an employee. The party holds an ownership or beneficial interest in an asset or organization. The party provides capital to the organization in return for a financial return or equity stake. A role that fits none of the listed kinds and is explained in the role code or description. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>code</code></td>
@@ -4912,13 +4912,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>valid_to</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.</td>
+          <td>The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
+          <td>Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTIVE permits normal role use; INACTIVE temporarily prevents ordinary use; EXPIRED represents ended validity.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>EXPIRED</code></div></td>
         </tr>
         <tr>
           <td><code>person_id</code></td>
@@ -5370,7 +5370,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of the Person specialization. individual identity processes. Party.partyId remains canonical. identifies person-specific record.</td>
+          <td>The stable identifier of the individual-person record, which never changes even if the person&#39;s name does. Generated on creation; individual identity processes and person-specific records refer to the person through this value. Party.partyId remains canonical. identifies person-specific record.</td>
         </tr>
         <tr>
           <td><code>party_id</code></td>
@@ -5382,43 +5382,43 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>title</code></td>
           <td>Text</td>
           <td><span class="tag">max 50</span></td>
-          <td>Personal title. documents and presentation. presentation attribute. supports person display.</td>
+          <td>The honorific or personal title used before the person&#39;s name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.</td>
         </tr>
         <tr>
           <td><code>given_name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 150</span></td>
-          <td>Given name. identity and documents. intrinsic person identity. identification.</td>
+          <td>The person&#39;s first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.</td>
         </tr>
         <tr>
           <td><code>middle_name</code></td>
           <td>Text</td>
           <td><span class="tag">max 150</span></td>
-          <td>Middle name. identity and documents. intrinsic person identity. identification.</td>
+          <td>Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.</td>
         </tr>
         <tr>
           <td><code>family_name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 150</span></td>
-          <td>Family name. identity and documents. intrinsic person identity. identification.</td>
+          <td>The person&#39;s family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.</td>
         </tr>
         <tr>
           <td><code>preferred_name</code></td>
           <td>Text</td>
           <td><span class="tag">max 150</span></td>
-          <td>Preferred display name. communication and UI. presentation not canonical identity. human interaction.</td>
+          <td>The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonical identity. human interaction.</td>
         </tr>
         <tr>
           <td><code>date_of_birth</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.</td>
+          <td>The person&#39;s date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject to access policy. eligibility/verification where applicable.</td>
         </tr>
         <tr>
           <td><code>gender</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>The person&#39;s gender as recorded for the organisation&#39;s purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as neither exclusively male nor female. Identifies in another way. Not stated or not collected. person attribute and not role. process-specific.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
+          <td>The person&#39;s gender as recorded for the organisation&#39;s lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The person identifies and is recorded as male. The person identifies as neither exclusively male nor exclusively female. The person identifies in a way not covered by the other values. The gender is not recorded, because it was not needed or the person chose not to say. person attribute and not role. process-specific.<div class="detail">One of: <code>FEMALE</code>, <code>MALE</code>, <code>NON_BINARY</code>, <code>OTHER</code>, <code>UNSPECIFIED</code></div></td>
         </tr>
         <tr>
           <td><code>nationality_id</code></td>
@@ -6339,7 +6339,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>order_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing procurement reference. Used by buyers, suppliers, receiving, accounts payable and integrations. Business reference distinct from technical purchaseOrderId. Correlates procurement activity across systems.</td>
+          <td>The human-facing procurement reference quoted by the buyer and supplier for this order. Assigned when the order is created and unique; used by buyers, suppliers, receiving, accounts payable and integrations to find it. Business reference distinct from technical purchaseOrderId. Correlates procurement activity across systems.</td>
         </tr>
         <tr>
           <td><code>order_date</code></td>
@@ -6351,7 +6351,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Being prepared by the buyer; not yet binding. Authorised internally and ready to send. Issued to the supplier. Some of the ordered quantity has been received and accepted; the rest is outstanding. Everything required has been received and accepted. The remaining commitment has been withdrawn. A final state. Receiving and invoicing are complete. A final state. Lifecycle state of the procurement commitment. Controls authorization, issuance, fulfillment, cancellation and closure. PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>SENT</code>, <code>PARTIALLY_RECEIVED</code>, <code>RECEIVED</code>, <code>CANCELLED</code>, <code>CLOSED</code></div></td>
+          <td>Where the purchase commitment stands from draft through issue, receipt and closure. Moved by buyers, approvers and receiving; controls authorisation, issuing, cancellation and closure, and cancelled and closed are final. Being prepared by the buyer; not yet binding on anyone. Authorised internally and ready to be sent to the supplier. Issued to the supplier, who is now expected to deliver. Some of the ordered quantity has been received and accepted; the rest is outstanding. Everything required has been received and accepted. The remaining commitment has been withdrawn. A final state. Receiving and invoicing are complete. A final state. PurchaseOrder status does not prove physical receipt, supplier return or invoice settlement; those are separate facts.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>SENT</code>, <code>PARTIALLY_RECEIVED</code>, <code>RECEIVED</code>, <code>CANCELLED</code>, <code>CLOSED</code></div></td>
         </tr>
         <tr>
           <td><code>currency_id</code></td>
@@ -6363,7 +6363,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>requested_delivery_date</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>Buyer&#39;s requested delivery or completion date. Used for supplier communication and fulfillment planning. A request, not proof of actual receipt or return. Supports delivery planning.</td>
+          <td>The date by which the buyer asks the supplier to deliver the goods or complete the service. Entered by the buyer and communicated to the supplier; receiving and planners use it to expect arrivals and chase late orders. A request, not proof of actual receipt or return. Supports delivery planning.</td>
         </tr>
         <tr>
           <td><code>total_amount</code></td>
@@ -6393,13 +6393,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>organization_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Buying organization responsible for the commitment. Supports authorization, legal entity, budget, tax and reporting.<div class="detail">Points at <b>Organization</b></div></td>
+          <td>The buying organization that issues the order and is committed to pay for it. Chosen when the order is created; decides which legal entity, budget, tax rules and approvals apply to the purchase. At most one organization: the buyer is a single legal entity, and it may be unset on an early draft. Identifies the buyer for authorisation, budgeting and reporting. Ties the commitment to a legal entity for tax and budget.<div class="detail">Points at <b>Organization</b></div></td>
         </tr>
         <tr>
           <td><code>delivery_location_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Intended operational destination for ordered goods or services. Used for receiving and logistics planning.<div class="detail">Points at <b>Delivery Location</b></div></td>
+          <td>The place where the ordered goods are to be delivered or the service performed. Chosen by the buyer; receiving, logistics planning and the supplier&#39;s dispatch use it to route the delivery. At most one delivery location per order; a single order is delivered to one place and may be unset. Tells receiving where to expect the goods. Directs the supplier&#39;s dispatch to the receiving site.<div class="detail">Points at <b>Delivery Location</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_performance_assessment_id</code></td>
@@ -6607,7 +6607,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>received_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>The quantity physically received so far. Increased by goods receipt lines. Compared with accepted quantity to find rejections.</td>
+          <td>The total quantity of this line that has physically arrived from the supplier so far, accepted or not. Increased by goods receipt lines; compared with the ordered quantity to show what is outstanding, and never negative. Compared with accepted quantity to find rejections.</td>
         </tr>
         <tr>
           <td><code>accepted_quantity</code></td>
@@ -6619,7 +6619,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>returned_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>The quantity sent back to the supplier. Increased by supplier return lines. Reduces the accepted quantity that is payable.</td>
+          <td>The total quantity of this line that has been sent back to the supplier after receipt. Increased by supplier return lines; must not exceed what was accepted unless an exception is authorised, and does not reopen the original commitment. Reduces the accepted quantity that is payable.</td>
         </tr>
         <tr>
           <td><code>outstanding_quantity</code></td>
@@ -6631,13 +6631,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>price_source</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>Taken from the supplier&#39;s price list. Taken from a contract with the supplier. Taken from a standing supplier agreement. Taken from an accepted supplier quotation. Entered by the buyer. Determined some other way. Source used to determine procurement price. Supports audit, spend analysis and supplier negotiations. Does not replace transaction-time unitPrice. Explains price determination.<div class="detail">One of: <code>PRICE_LIST</code>, <code>CONTRACT</code>, <code>SUPPLIER_AGREEMENT</code>, <code>QUOTATION</code>, <code>MANUAL</code>, <code>OTHER</code></div></td>
+          <td>Where the unit price on this line came from, such as a price list, a contract or a buyer&#39;s manual entry. Recorded when the price is determined; supports audit, spend analysis and supplier negotiation by showing which agreement justified the price. Taken from the supplier&#39;s published price list in force at the time. Taken from a negotiated contract with the supplier. Taken from a standing supplier agreement covering repeat purchases. Taken from a supplier quotation that the buyer accepted. Typed in by the buyer without a supporting agreement. Determined in some other way not covered by the listed sources. Does not replace transaction-time unitPrice. Explains price determination.<div class="detail">One of: <code>PRICE_LIST</code>, <code>CONTRACT</code>, <code>SUPPLIER_AGREEMENT</code>, <code>QUOTATION</code>, <code>MANUAL</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>price_determined_at</code></td>
           <td>Date and time</td>
           <td>&mdash;</td>
-          <td>Time at which effective purchase price was determined. Supports effective-dated pricing and audit. Distinct from PurchaseOrder creation time. Anchors commercial pricing evidence.</td>
+          <td>The date and time at which the price on this line was fixed. Recorded when the price is determined; lets later audits tell which effective-dated price applied even after price lists change. Distinct from PurchaseOrder creation time. Anchors commercial pricing evidence.</td>
         </tr>
         <tr>
           <td><code>unit_of_measure_id</code></td>
@@ -7473,31 +7473,31 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of the sourcing request. Identifies one RFQ independently of requisitions, suppliers, responses, and purchase orders. Sourcing, comparison, audit, and integration. Root identity for quotation solicitation. Carries sourcing context from approved demand through award.</td>
+          <td>The permanent system identifier of one request for quotation. Generated on creation and never changed; supplier invitations, quotations, comparison, award and integrations refer to the request through it. Identifies one RFQ independently of requisitions, suppliers, responses, and purchase orders. Root identity for quotation solicitation. Carries sourcing context from approved demand through award.</td>
         </tr>
         <tr>
           <td><code>rfq_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Business-facing RFQ reference. Identifies the solicitation to buyers and suppliers. Supplier communication, comparison, reports, and audit. Distinct from requisition and purchase-order numbers. Correlates supplier responses.</td>
+          <td>The reference that buyers and suppliers quote when discussing this request, such as RFQ-2026-0142. Allocated by the buyer on creation and unique across requests; printed on the invitation and used to match replies. Identifies the solicitation to buyers and suppliers. Distinct from requisition and purchase-order numbers. Correlates supplier responses.</td>
         </tr>
         <tr>
           <td><code>issued_at</code></td>
           <td>Date and time</td>
           <td>&mdash;</td>
-          <td>Time the RFQ was formally issued. Establishes when suppliers were invited to respond. Sourcing chronology and response-window control. Distinct from demand approval and award time.</td>
+          <td>The date and time the request was formally sent to suppliers. Set when the status moves from DRAFT to ISSUED; the response window and sourcing timeline are measured from it. Establishes when suppliers were invited to respond. Distinct from demand approval and award time.</td>
         </tr>
         <tr>
           <td><code>response_due_at</code></td>
           <td>Date and time</td>
           <td>&mdash;</td>
-          <td>Deadline for supplier responses. Defines the normal competitive response window. Supplier communication, late-response policy, and sourcing SLA. Does not itself award business.</td>
+          <td>The deadline by which suppliers must return their quotations. Set by the buyer before issue and stated to suppliers; replies after it are late and handled under the late-response policy. Defines the normal competitive response window. Does not itself award business.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Being prepared; not yet sent to suppliers. Sent to the suppliers, who may now respond. The response period has ended; quotations are being compared. A supplier has been chosen. A final state. Withdrawn without an award. A final state. Lifecycle state of the RFQ. Controls solicitation, response, closure, and award behavior. Sourcing workflow and governance. Award does not itself create a supplier commitment; PurchaseOrder does.<div class="detail">One of: <code>DRAFT</code>, <code>ISSUED</code>, <code>CLOSED</code>, <code>AWARDED</code>, <code>CANCELLED</code></div></td>
+          <td>The stage the request has reached, from preparation through supplier responses to award. Starts as DRAFT and is moved by the buyer; it controls whether suppliers may respond and whether an award can be made. Being prepared by the buyer; not yet sent to any supplier. Sent to the invited suppliers, who may now submit quotations. The response period has ended and the quotations received are being compared. A supplier has been chosen and the request is complete. A final state. Withdrawn without an award being made. A final state. Controls solicitation, response, closure, and award behavior. Award does not itself create a supplier commitment; PurchaseOrder does.<div class="detail">One of: <code>DRAFT</code>, <code>ISSUED</code>, <code>CLOSED</code>, <code>AWARDED</code>, <code>CANCELLED</code></div></td>
         </tr>
         </tbody>
       </table>
@@ -7592,25 +7592,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of one RFQ requirement line. Identifies the sourced requirement independently of demand and supplier responses. Sourcing comparison, award, conversion, and audit. Bridges requisition demand to supplier quotation lines.</td>
+          <td>The permanent system identifier of one requirement line on a request for quotation. Generated on creation; supplier quotation lines, bid comparison, award and conversion to orders refer to the line through it. Identifies the sourced requirement independently of demand and supplier responses. Bridges requisition demand to supplier quotation lines.</td>
         </tr>
         <tr>
           <td><code>line_number</code></td>
           <td>Whole number</td>
           <td><span class="tag">required</span></td>
-          <td>Business sequence within the RFQ. Human-facing reference for the requirement. Supplier communication, response matching, and audit. Unique within the parent RFQ.</td>
+          <td>The position of the line within its request for quotation, as buyers and suppliers number it. Assigned by the buyer when building the RFQ; suppliers cite it when answering and buyers use it to match quotes line by line. Human-facing reference for the requirement. Unique within the parent RFQ.</td>
         </tr>
         <tr>
           <td><code>requested_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity suppliers are requested to quote. Defines the sourcing magnitude for this requirement. Bid comparison and award allocation. Must reconcile with originating requisition demand and UOM.</td>
+          <td>The quantity of the item the buyer asks each supplier to price on this line. Copied from approved demand; every supplier quotes against the same figure so bids are comparable, and an award can split it. Defines the sourcing magnitude for this requirement. Must reconcile with originating requisition demand and UOM.</td>
         </tr>
         <tr>
           <td><code>description</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 2000</span></td>
-          <td>Sourcing description and requirement detail. Communicates what suppliers must price or propose. Solicitation and comparison. Supplements Product and originating demand.</td>
+          <td>The text telling suppliers exactly what is being sourced, including specification and any special requirement. Written by the buyer or taken from the requisition; suppliers price against it, so it must be precise enough to compare offers. Communicates what suppliers must price or propose. Supplements Product and originating demand.</td>
         </tr>
         <tr>
           <td><code>requisition_line_id</code></td>
@@ -7858,7 +7858,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 200</span></td>
-          <td>The division&#39;s name in English. Shown in lists and on addresses. Does not replace the code as the stable key.</td>
+          <td>The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.</td>
         </tr>
         <tr>
           <td><code>subdivision_type</code></td>
@@ -7949,7 +7949,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>party_role_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span> <span class="tag">unique</span></td>
-          <td>PartyRole backing the Supplier specialization. Navigates to common party identity and role information. Supplier must not duplicate Party identity. Supplies shared party context to procurement and financial workflows.<div class="detail">Points at <b>Party Role</b></div></td>
+          <td>Points to the party role this supplier record specializes, tying the sourcing profile to the underlying party. Set once at creation and never reassigned; unique, so a party role has at most one supplier profile, and names and addresses are read through it. Supplier must not duplicate Party identity. Supplies shared party context to procurement and financial workflows.<div class="detail">Points at <b>Party Role</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_code</code></td>
@@ -7961,13 +7961,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>supplier_type</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>A person supplying in their own name. A commercial company. A public body. Another unit of the same group. A supplier that fits no other type. Classification of supplier relationship. Supports onboarding compliance tax contracting and reporting. Does not replace Party identity classification. Supplies supplier classification to procurement policy.<div class="detail">One of: <code>INDIVIDUAL</code>, <code>BUSINESS</code>, <code>GOVERNMENT</code>, <code>INTERNAL</code>, <code>OTHER</code></div></td>
+          <td>Classifies what kind of organization or person the supplier is, for due diligence and reporting. Chosen at onboarding; it influences which qualification checks, tax treatment and spend reports apply to the supplier. A natural person or sole trader supplying goods or services in their own name. A commercial company or partnership that supplies goods or services for profit. A public authority or agency supplying goods, services or licences, often under statutory terms. Another unit of the same enterprise supplying through intercompany arrangements. A supplier that fits none of the other types, such as a charity or association. Does not replace Party identity classification. Supplies supplier classification to procurement policy.<div class="detail">One of: <code>INDIVIDUAL</code>, <code>BUSINESS</code>, <code>GOVERNMENT</code>, <code>INTERNAL</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>qualification_status</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>Not yet assessed. Assessment is under way. Approved to supply. Approval withdrawn for a time. Not approved to supply. Procurement qualification state. Controls sourcing eligibility and supplier governance. Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment evidence. Gates new procurement commitments while historical transactions remain valid.<div class="detail">One of: <code>NOT_REVIEWED</code>, <code>PENDING</code>, <code>QUALIFIED</code>, <code>SUSPENDED</code>, <code>DISQUALIFIED</code></div></td>
+          <td>Records whether the supplier has been vetted and cleared to receive orders under sourcing policy. Updated by procurement or compliance after due diligence; buyers check it before issuing requests for quotation or orders. No qualification review has been carried out for this supplier yet. A review is under way and the supplier is not yet cleared to receive orders. The supplier has passed review and may be used for sourcing and ordering. Qualification is temporarily withdrawn pending resolution of an issue. The supplier failed or lost qualification and must not be used for new orders. Qualification is distinct from master lifecycle status and may consume SupplierPerformanceAssessment evidence. Gates new procurement commitments while historical transactions remain valid.<div class="detail">One of: <code>NOT_REVIEWED</code>, <code>PENDING</code>, <code>QUALIFIED</code>, <code>SUSPENDED</code>, <code>DISQUALIFIED</code></div></td>
         </tr>
         <tr>
           <td><code>payment_terms</code></td>
@@ -7979,7 +7979,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Available for ordering. Not currently used; can be reactivated. Orders and payments are stopped. No longer used; kept for history. A final state. Supplier relationship lifecycle state. Controls procurement eligibility. Historical transactions remain valid after state changes. New procurement return claim-resolution and performance workflows must evaluate status.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>BLOCKED</code>, <code>RETIRED</code></div></td>
+          <td>The operational state of the supplier record, showing whether it can currently be dealt with. Set by procurement; ACTIVE suppliers appear in pickers, while blocked or retired ones are refused on new transactions. The supplier is open for business and may be selected on new orders and quotation requests. The supplier is dormant and hidden from selection but can be reactivated. New transactions are barred, for example during a dispute or compliance hold. The relationship has ended and the record is kept for history only. A final state. Historical transactions remain valid after state changes. New procurement return claim-resolution and performance workflows must evaluate status.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code>, <code>BLOCKED</code>, <code>RETIRED</code></div></td>
         </tr>
         <tr>
           <td><code>party_id</code></td>
@@ -7991,7 +7991,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>role_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business partner or reseller. Transports goods for the organisation. Acts on behalf of the organisation or its customers. Provides services under a contract. Owns property or a share in the organisation. Provides capital. Any other role. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
+          <td>The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from the organization and is handled in sales and receivables. The party sells goods or services to the organization and is handled in procurement and payables. The party works for the organization under an employment relationship. The party collaborates with the organization commercially, such as a reseller or alliance member. The party transports goods or people for the organization. The party acts on behalf of the organization or of another party, usually for a commission. The party provides labour or services under a contract rather than as an employee. The party holds an ownership or beneficial interest in an asset or organization. The party provides capital to the organization in return for a financial return or equity stake. A role that fits none of the listed kinds and is explained in the role code or description. Separate from Party.partyType, which describes whether the participant is a person or organization. Selects the applicable downstream role specialization and business process.<div class="detail">One of: <code>CUSTOMER</code>, <code>SUPPLIER</code>, <code>EMPLOYEE</code>, <code>PARTNER</code>, <code>CARRIER</code>, <code>AGENT</code>, <code>CONTRACTOR</code>, <code>OWNER</code>, <code>INVESTOR</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>code</code></td>
@@ -8009,7 +8009,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>valid_to</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.</td>
+          <td>The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.</td>
         </tr>
         <tr>
           <td><code>organization_id</code></td>
@@ -8212,7 +8212,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>claim_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>What the claim is about. Goods do not meet the quality required. Goods arrived damaged. Less was delivered than ordered. More was delivered than ordered. A different item was delivered. A fault covered by warranty. A service was not performed as agreed. A dispute about price or terms. Late or failed delivery. Missing or wrong paperwork. A claim that fits no other type. States the principal business nature of the claim. Drives routing evidence requirements supplier scorecards and analytics. May be supported by QualityInspection or receiving evidence and may result in a return credit debit or other resolution. Determines investigation and resolution policy.<div class="detail">One of: <code>QUALITY</code>, <code>DAMAGE</code>, <code>SHORTAGE</code>, <code>OVERAGE</code>, <code>WRONG_ITEM</code>, <code>WARRANTY</code>, <code>SERVICE</code>, <code>COMMERCIAL</code>, <code>DELIVERY</code>, <code>DOCUMENTATION</code>, <code>OTHER</code></div></td>
+          <td>The main nature of the claim, such as quality, damage, shortage or a commercial dispute. Chosen when the claim is opened; it drives routing, required evidence, supplier scorecards and analytics. Goods or services do not meet quality or specification requirements. Goods arrived damaged or were damaged in transit or handling. Less was delivered than ordered or invoiced. More was delivered than ordered, creating excess stock. A different product from the one ordered was delivered. A defect is claimed under the supplier&#39;s warranty after acceptance. A purchased service was not performed as agreed. The dispute concerns price, terms or charges rather than the goods. Goods arrived late, early or to the wrong place. Required certificates, invoices or paperwork are missing or wrong. A claim that fits none of the other types, explained in the notes. States the principal business nature of the claim. May be supported by QualityInspection or receiving evidence and may result in a return credit debit or other resolution. Determines investigation and resolution policy.<div class="detail">One of: <code>QUALITY</code>, <code>DAMAGE</code>, <code>SHORTAGE</code>, <code>OVERAGE</code>, <code>WRONG_ITEM</code>, <code>WARRANTY</code>, <code>SERVICE</code>, <code>COMMERCIAL</code>, <code>DELIVERY</code>, <code>DOCUMENTATION</code>, <code>OTHER</code></div></td>
         </tr>
         <tr>
           <td><code>claimed_amount</code></td>
@@ -8230,7 +8230,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>notes</code></td>
           <td>Text</td>
           <td><span class="tag">max 4000</span></td>
-          <td>Additional claim narrative and investigation context. Records information not represented by structured fields. Supplier communication investigation escalation and audit. Complements structured inspection receipt invoice and return evidence without replacing it. Supports review and resolution.</td>
+          <td>Free-text narrative of the claim, covering what happened and what was discussed with the supplier. Written by the claim handler and updated during investigation; supports escalation and audit but should not replace structured fields. Records information not represented by structured fields. Complements structured inspection receipt invoice and return evidence without replacing it. Supports review and resolution.</td>
         </tr>
         <tr>
           <td><code>supplier_id</code></td>
@@ -8521,31 +8521,31 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>resolution_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing resolution reference. Identifies the resolution decision for operational and supplier communication. Used in approvals correspondence reconciliation and audit. Distinct from the SupplierClaim claimNumber and downstream transaction numbers. Correlates resolution activity.</td>
+          <td>The business reference of the resolution decision, used with the supplier and internal teams. Assigned when the resolution is drafted; unique; quoted in approvals, correspondence and reconciliation, and distinct from the claim number. Identifies the resolution decision for operational and supplier communication. Distinct from the SupplierClaim claimNumber and downstream transaction numbers. Correlates resolution activity.</td>
         </tr>
         <tr>
           <td><code>resolution_date</code></td>
           <td>Date and time</td>
           <td><span class="tag">required</span></td>
-          <td>Date and time the resolution was authorized. Establishes when the agreed remedy became effective. SLA reporting audit and financial control. Anchors downstream execution.</td>
+          <td>The date and time the agreed remedy was authorized and became effective. Set at approval; used for SLA reporting and financial control, and it anchors the start of downstream execution. Establishes when the agreed remedy became effective. Anchors downstream execution.</td>
         </tr>
         <tr>
           <td><code>resolution_type</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>The remedy agreed. Nothing further is done. The supplier sends replacement goods. The goods are repaired. The goods are returned to the supplier. The supplier issues a credit. The buyer raises a debit adjustment. The price is reduced. The supplier pays back in cash. The buyer accepts the goods as they are. Defines what outcome was agreed without itself executing the remedy. Routes downstream workflows and measures recovery outcomes. RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require SupplierDebitNote; CASH_RECOVERY may require Payment. Determines required execution evidence.<div class="detail">One of: <code>NO_ACTION</code>, <code>REPLACEMENT</code>, <code>REPAIR</code>, <code>RETURN</code>, <code>CREDIT</code>, <code>DEBIT_ADJUSTMENT</code>, <code>PRICE_ADJUSTMENT</code>, <code>CASH_RECOVERY</code>, <code>ACCEPTED_EXCEPTION</code></div></td>
+          <td>The remedy agreed with the supplier for the claim, such as replacement, credit or cash recovery. Chosen when the resolution is drafted; it routes the downstream work and decides which execution evidence is required. The claim was reviewed and no remedy is owed or taken. The supplier will deliver replacement goods or service for the faulty ones. The supplier will repair the faulty goods and return them. The goods are returned to the supplier, which normally needs a SupplierReturn. The supplier issues a credit note that reduces what is owed to it. The buyer raises a debit note against the supplier to recover the amount. The price of the supplied goods is reduced and the goods are kept. The supplier pays the agreed amount back as cash, evidenced by a Payment. The buyer accepts the nonconformity as an approved exception without recovery. Defines what outcome was agreed without itself executing the remedy. RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require SupplierDebitNote; CASH_RECOVERY may require Payment. Determines required execution evidence.<div class="detail">One of: <code>NO_ACTION</code>, <code>REPLACEMENT</code>, <code>REPAIR</code>, <code>RETURN</code>, <code>CREDIT</code>, <code>DEBIT_ADJUSTMENT</code>, <code>PRICE_ADJUSTMENT</code>, <code>CASH_RECOVERY</code>, <code>ACCEPTED_EXCEPTION</code></div></td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Where the resolution is in being carried out. Proposed and not yet approved. Agreed and ready to carry out. Being carried out. Some of the remedy is done. The remedy is fully done. A final state. Could not be carried out. A final state. Withdrawn. A final state. Separates decision approval from execution and completion. Controls downstream work and claim closure. Resolution status does not replace SupplierClaim or downstream transaction statuses. Gates execution and confirms whether required consequences completed.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>IN_EXECUTION</code>, <code>PARTIALLY_EXECUTED</code>, <code>EXECUTED</code>, <code>FAILED</code>, <code>CANCELLED</code></div></td>
+          <td>How far the agreed remedy has been carried out, from draft and approval to execution or failure. Starts as DRAFT; approval releases the downstream work, and the status shows whether the required consequences completed. The resolution is being prepared and has not been authorized. The remedy is authorized but execution has not started. Downstream work such as returns, credits or payments is under way. Part of the remedy has been carried out and the rest is outstanding. Every required consequence of the remedy is complete. A final state. Execution could not be completed, for example because the supplier did not comply. A final state. The resolution was withdrawn before completion. A final state. Separates decision approval from execution and completion. Resolution status does not replace SupplierClaim or downstream transaction statuses. Gates execution and confirms whether required consequences completed.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>IN_EXECUTION</code>, <code>PARTIALLY_EXECUTED</code>, <code>EXECUTED</code>, <code>FAILED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>approved_amount</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Monetary recovery authorized by the resolution. Defines the financial amount expected from the agreed remedy. Supplier recovery and reconciliation. Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction. Provides the controlled financial target.</td>
+          <td>The money the organization is authorized to recover from the supplier under this resolution. Set at approval from the negotiated outcome; it is the target that credit notes, debit notes or payments are reconciled against. Defines the financial amount expected from the agreed remedy. Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction. Provides the controlled financial target.</td>
         </tr>
         <tr>
           <td><code>supplier_id</code></td>
@@ -9126,43 +9126,43 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>credit_note_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Business-facing supplier credit reference. Identifies the credit document for supplier communication and financial reconciliation. Used by accounts payable suppliers auditors and integrations. Correlates internal adjustment with external supplier documentation.</td>
+          <td>The reference printed on the credit document, used by the supplier and by payables staff. Entered from the supplier&#39;s document or assigned on recognition; unique; used to match the credit to statements and integrations. Identifies the credit document for supplier communication and financial reconciliation. Correlates internal adjustment with external supplier documentation.</td>
         </tr>
         <tr>
           <td><code>credit_note_date</code></td>
           <td>Date</td>
           <td><span class="tag">required</span></td>
-          <td>Effective date of supplier credit adjustment. Establishes financial chronology and applicable accounting/tax period. Payable aging tax reporting and period control. Anchors recognition of adjustment.</td>
+          <td>The effective date of the credit, which decides the accounting and tax period it falls in. Entered when the credit is recorded; payable aging and tax reporting use it, and it can differ from the application date. Establishes financial chronology and applicable accounting/tax period. Anchors recognition of adjustment.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Drafted by the buyer and not yet approved. Accepted and ready to post. Recorded in the accounts; available to apply to invoices. Part of the credit has reduced invoices. The whole credit has been used. A final state. Withdrawn before posting. A final state. A posted credit undone by a reversing entry. A final state. Lifecycle state of supplier credit. Separates preparation authorization accounting recognition and application against supplier claims. Controls posting payable reconciliation and reversal. Status does not change original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution history. POSTED establishes adjustment; application states reflect controlled consumption.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>POSTED</code>, <code>PARTIALLY_APPLIED</code>, <code>FULLY_APPLIED</code>, <code>CANCELLED</code>, <code>REVERSED</code></div></td>
+          <td>The stage of the credit from preparation and approval through posting, application against invoices, or cancellation. Starts as DRAFT; payables staff approve and post it, and the applied states follow the invoice applications made against it. The credit is being prepared and has no accounting effect. The credit is authorized but not yet posted to the ledger. The credit is recognized in accounts payable and is available to apply. Part of the credit has been applied to invoices and some remains available. The whole credit has been used against invoices. The credit was withdrawn before posting and has no effect. The posted credit was undone by a reversing entry. Separates preparation authorization accounting recognition and application against supplier claims. Status does not change original Invoice GoodsReceipt SupplierClaim or SupplierClaimResolution history. POSTED establishes adjustment; application states reflect controlled consumption.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>POSTED</code>, <code>PARTIALLY_APPLIED</code>, <code>FULLY_APPLIED</code>, <code>CANCELLED</code>, <code>REVERSED</code></div></td>
         </tr>
         <tr>
           <td><code>currency_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Currency in which supplier credit is denominated. Defines monetary denomination of adjustment. Payable reconciliation accounting tax and application. Qualifies all credit monetary values.<div class="detail">Points at <b>Currency</b></div></td>
+          <td>The currency in which every amount on the credit note is expressed. Chosen when the credit is created, normally the original invoice currency; applying it to an invoice in another currency needs an exchange rate. Defines monetary denomination of adjustment. Qualifies all credit monetary values.<div class="detail">Points at <b>Currency</b></div></td>
         </tr>
         <tr>
           <td><code>subtotal</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Credit value before applicable tax. Pre-tax reduction derived from credit lines. Tax calculation and reconciliation. Feeds total credit calculation.</td>
+          <td>The credit value before tax, summed from the credit lines. Calculated from the lines; tax is computed on it and it is reconciled with the lines before posting. Pre-tax reduction derived from credit lines. Feeds total credit calculation.</td>
         </tr>
         <tr>
           <td><code>tax_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Tax component reversed or adjusted. Tax correction associated with credited value. Tax reporting and accounting reconciliation. Contributes to total credit.</td>
+          <td>The tax reversed or adjusted by this credit, summed from the lines. Calculated from the credit lines; defaults to zero and is used in tax reporting and accounting. Tax correction associated with credited value. Contributes to total credit.</td>
         </tr>
         <tr>
           <td><code>total_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Total payable reduction represented by supplier credit. Financial value recognized as credit against supplier exposure. Accounts payable reconciliation statements and accounting. Determines maximum adjustment available for application.</td>
+          <td>The total payable reduction the credit note represents, including tax. Calculated as subtotal plus tax; it is the most credit that can be applied to invoices and is shown on supplier statements. Financial value recognized as credit against supplier exposure. Determines maximum adjustment available for application.</td>
         </tr>
         <tr>
           <td><code>amount_applied</code></td>
@@ -9174,7 +9174,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>amount_unapplied</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Remaining supplier credit not yet applied. Available credit exposure under policy. Future invoice application or supplier settlement/refund processing. Reconciles totalAmount less active applications.</td>
+          <td>The credit still available, being the total less what active applications have consumed. Maintained as applications and reversals are recorded; payables staff use it to find credit to offset or request as a refund. Available credit exposure under policy. Reconciles totalAmount less active applications.</td>
         </tr>
         <tr>
           <td><code>supplier_id</code></td>
@@ -9403,13 +9403,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Whether the application is in force. Prepared and not yet applied. Applied against the invoice, reducing what is owed. Undone by a reversing application. A final state. Withdrawn before it was applied. A final state. Indicates whether the application currently reduces payable exposure. Controls SupplierCreditNote and Invoice projections. SupplierCreditNote and Invoice statuses remain independent historical facts. ACTIVE creates the application effect; reversal removes it through a compensating event.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>REVERSED</code>, <code>CANCELLED</code></div></td>
+          <td>Whether this application of supplier credit is being prepared, in force, reversed or cancelled. Starts as DRAFT; payables staff activate it to reduce the invoice, and a reversal is recorded as a new application. Prepared and not yet applied. Applied against the invoice, reducing what is owed. Undone by a reversing application. A final state. Withdrawn before it was applied. A final state. Indicates whether the application currently reduces payable exposure. SupplierCreditNote and Invoice statuses remain independent historical facts. ACTIVE creates the application effect; reversal removes it through a compensating event.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>REVERSED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>reversal_of_application_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Prior supplier credit application reversed by this record. Links correction to the original payable adjustment application. Supports audit and controlled reallocation. Reversal is a new historical event and does not edit the original. Enables correction while preserving history.<div class="detail">Points at <b>Reversal Of Application</b></div></td>
+          <td>Points to the earlier application of supplier credit that this record undoes. Set only on a correcting record; the original is never edited, so the history of the credit stays intact for audit. Links correction to the original payable adjustment application. Reversal is a new historical event and does not edit the original. Enables correction while preserving history.<div class="detail">Points at <b>Reversal Of Application</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_credit_note_id</code></td>
@@ -9658,13 +9658,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>line_number</code></td>
           <td>Whole number</td>
           <td><span class="tag">required</span></td>
-          <td>Sequence number within the supplier credit note. Provides deterministic document ordering. Used in credit documents and reconciliation. Identifies the line during approval and posting.</td>
+          <td>The position of this line within its supplier credit note. Assigned in sequence when the line is added; unique within the note and used to refer to the line in review and posting. Provides deterministic document ordering. Identifies the line during approval and posting.</td>
         </tr>
         <tr>
           <td><code>quantity</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Quantity to which the supplier credit relates. Connects the financial adjustment to a returned or otherwise adjusted quantity. Supports quantity/value reconciliation. Must reconcile with eligible SupplierReturnLine quantity where return-originated. Supports credit calculation.</td>
+          <td>The quantity of the original goods or service that this credit line relates to. Entered from the returned or adjusted quantity; it must reconcile with the supplier return line when the credit follows a return. Connects the financial adjustment to a returned or otherwise adjusted quantity. Must reconcile with eligible SupplierReturnLine quantity where return-originated. Supports credit calculation.</td>
         </tr>
         <tr>
           <td><code>unit_price</code></td>
@@ -9676,25 +9676,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>gross_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Gross credited value before discount and tax adjustments. Represents the value of the credited transaction component. Supports calculation and reconciliation. Feeds net taxable credit calculation.</td>
+          <td>The credited value before discount and tax, normally quantity times the original unit price. Calculated from quantity and unit price; it feeds the taxable amount and is checked in payable reconciliation. Represents the value of the credited transaction component. Feeds net taxable credit calculation.</td>
         </tr>
         <tr>
           <td><code>discount_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Discount component reversed or adjusted on the credited value. Preserves the original transaction discount treatment. Supports reproducibility and reconciliation. Reduces the applicable credit base.</td>
+          <td>The part of the original discount that is reversed or adjusted on this credited value. Defaults to zero; copied from the original invoice treatment so the credit can be reproduced and reconciled. Preserves the original transaction discount treatment. Reduces the applicable credit base.</td>
         </tr>
         <tr>
           <td><code>taxable_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Taxable base of the supplier credit line. Amount to which applicable tax reversal or adjustment applies. Supports tax and accounting reconciliation. Feeds tax calculation.</td>
+          <td>The base amount on which tax is reversed or adjusted for this credit line. Calculated as gross amount less discount; tax reporting and accounting read it to compute the tax component. Amount to which applicable tax reversal or adjustment applies. Feeds tax calculation.</td>
         </tr>
         <tr>
           <td><code>tax_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Tax component of the supplier credit line. Reverses or adjusts tax associated with the credited amount. Supports tax reporting and accounting. Contributes to line total.</td>
+          <td>The tax reversed or adjusted on this credit line, zero when no tax applies. Calculated from the taxable amount using the original invoice tax treatment; it is added into the net line amount and tax reports. Reverses or adjusts tax associated with the credited amount. Contributes to line total.</td>
         </tr>
         <tr>
           <td><code>net_amount</code></td>
@@ -9706,19 +9706,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>supplier_credit_note_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Parent supplier credit document. Supplies supplier, currency and lifecycle context. Controls whether the line may be posted.<div class="detail">Points at <b>Supplier Credit Note</b></div></td>
+          <td>The credit note document to which this line belongs. Set when the line is created and not changed afterwards; the note supplies the supplier, currency and posting state. Every line belongs to exactly one credit note and cannot exist on its own. Whether a line may still be edited or posted depends on the lifecycle state of its parent note. Supplies supplier, currency and lifecycle context.<div class="detail">Points at <b>Supplier Credit Note</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_return_line_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Return line that caused the credit. Connects financial adjustment to physical reverse procurement. Supplies approved quantity and credit eligibility.<div class="detail">Points at <b>Supplier Return Line</b></div></td>
+          <td>Chosen when the credit is caused by a return; it supplies the approved returned quantity that the credit may not exceed. Return line that caused the credit. Connects financial adjustment to physical reverse procurement. Supplies approved quantity and credit eligibility.<div class="detail">Points at <b>Supplier Return Line</b></div></td>
         </tr>
         <tr>
           <td><code>invoice_line_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Original supplier invoice line being financially adjusted. Preserves traceability to the original payable claim. Supplies original price, discount, tax and amount evidence.<div class="detail">Points at <b>Invoice Line</b></div></td>
+          <td>Chosen so the credit can copy the original price, discount and tax; payables staff use it to trace the credit back to the invoiced amount. Original supplier invoice line being financially adjusted. Preserves traceability to the original payable claim. Supplies original price, discount, tax and amount evidence.<div class="detail">Points at <b>Invoice Line</b></div></td>
         </tr>
         </tbody>
       </table>
@@ -9966,7 +9966,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>debit_note_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing supplier debit reference. Identifies the debit adjustment in supplier correspondence and financial operations. Used for reconciliation supplier statements audit and integrations. Distinct from supplier claim purchase order invoice and return numbers. Provides operational reference throughout the debit lifecycle.</td>
+          <td>The business reference of the debit note, used on supplier statements and in correspondence. Assigned when the debit is drafted; unique; distinct from the claim, purchase order, invoice and return numbers. Identifies the debit adjustment in supplier correspondence and financial operations. Distinct from supplier claim purchase order invoice and return numbers. Provides operational reference throughout the debit lifecycle.</td>
         </tr>
         <tr>
           <td><code>debit_note_date</code></td>
@@ -9984,25 +9984,25 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>currency_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Currency in which debit amounts are denominated. Defines the monetary denomination of the adjustment. Accounting reconciliation supplier settlement and reporting. Cross-currency application requires explicit ExchangeRate evidence. Qualifies all monetary values.<div class="detail">Points at <b>Currency</b></div></td>
+          <td>The currency in which all amounts of the debit note are expressed. Chosen when the debit is created; applying it to an invoice in another currency needs recorded exchange rate evidence. Defines the monetary denomination of the adjustment. Cross-currency application requires explicit ExchangeRate evidence. Qualifies all monetary values.<div class="detail">Points at <b>Currency</b></div></td>
         </tr>
         <tr>
           <td><code>subtotal</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Pre-tax value of the supplier debit adjustment. Aggregate financial increase before applicable tax. Calculation tax and reconciliation. Feeds totalAmount.</td>
+          <td>The value of the debit before tax, summed from its lines. Calculated from the debit lines; tax is computed on it and it is checked before the note is posted. Aggregate financial increase before applicable tax. Feeds totalAmount.</td>
         </tr>
         <tr>
           <td><code>tax_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Tax component associated with the debit adjustment. Represents applicable tax added to the adjustment. Tax reporting accounting and reconciliation. Contributes to totalAmount.</td>
+          <td>The tax component of the debit adjustment, summed from its lines. Calculated from the lines; defaults to zero and is used in tax reporting and accounting reconciliation. Represents applicable tax added to the adjustment. Contributes to totalAmount.</td>
         </tr>
         <tr>
           <td><code>total_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Total supplier debit adjustment. Financial amount by which supplier-related recoverable exposure is increased. Accounts payable supplier settlement accounting and reconciliation. It is an adjustment, not a replacement for the original supplier Invoice. Determines the maximum amount available for controlled application.</td>
+          <td>The total of the supplier debit adjustment, including tax. Calculated as subtotal plus tax; it is the most that can be applied to invoices and is shown to the supplier. Financial amount by which supplier-related recoverable exposure is increased. It is an adjustment, not a replacement for the original supplier Invoice. Determines the maximum amount available for controlled application.</td>
         </tr>
         <tr>
           <td><code>amount_applied</code></td>
@@ -10014,7 +10014,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>amount_remaining</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Unapplied portion of the posted supplier debit. Represents debit value still available for payable application or governed settlement handling. Reconciliation supplier statements and resolution tracking. Determines whether the debit is fully applied.</td>
+          <td>The part of the posted debit not yet applied to supplier invoices. Maintained as applications and reversals are recorded; it falls to zero when the debit is fully applied. Represents debit value still available for payable application or governed settlement handling. Determines whether the debit is fully applied.</td>
         </tr>
         <tr>
           <td><code>supplier_id</code></td>
@@ -10226,19 +10226,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>applied_at</code></td>
           <td>Date and time</td>
           <td><span class="tag">required</span></td>
-          <td>Time the debit application became effective. Establishes settlement chronology. Period control, audit, supplier statements and reconciliation. Anchors the application event.</td>
+          <td>The date and time the debit became effective against the target invoice. Set when the application is activated and not changed; it decides the accounting period and appears on supplier statements. Establishes settlement chronology. Anchors the application event.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Prepared and not yet applied. Applied against the invoice, reducing what is payable. Undone by a reversing application. A final state. Withdrawn before it was applied. A final state. Lifecycle state of the debit application. Separates preparation from effective application and later reversal. Controls payable projections and remaining debit balance. Application status does not replace SupplierDebitNote or Invoice status. ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>REVERSED</code>, <code>CANCELLED</code></div></td>
+          <td>Whether this application of a supplier debit is being prepared, in force, reversed or cancelled. Starts as DRAFT; payables staff activate it to reduce the invoice, which also changes the debit&#39;s remaining balance. Prepared and not yet applied. Applied against the invoice, reducing what is payable. Undone by a reversing application. A final state. Withdrawn before it was applied. A final state. Separates preparation from effective application and later reversal. Application status does not replace SupplierDebitNote or Invoice status. ACTIVE contributes to settlement projections; REVERSED removes its active effect through compensating evidence.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>REVERSED</code>, <code>CANCELLED</code></div></td>
         </tr>
         <tr>
           <td><code>reversal_of_application_id</code></td>
           <td>Lookup</td>
           <td>&mdash;</td>
-          <td>Prior application being reversed. Provides explicit lineage for a corrective reversal. Audit, reconciliation and error correction. Reversal is a new event and does not mutate the original application. Links compensating evidence to the prior application.<div class="detail">Points at <b>Reversal Of Application</b></div></td>
+          <td>Points to the earlier application of supplier debit that this record undoes. Set only on a correcting record; the original application is left unchanged so the audit trail stays complete. Provides explicit lineage for a corrective reversal. Reversal is a new event and does not mutate the original application. Links compensating evidence to the prior application.<div class="detail">Points at <b>Reversal Of Application</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_debit_note_id</code></td>
@@ -10481,13 +10481,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Immutable identity of the supplier debit line. Identifies one adjustment component independently of its parent debit note and source transactions. Accounting reconciliation audit and integration. Distinct from InvoiceLine SupplierClaim and SupplierReturnLine identities. Stable attribution for calculation and accounting.</td>
+          <td>The stable identity of one line of a supplier debit, constant for its life. Generated on creation; accounting, reconciliation and integrations refer to it even if line numbers change. Identifies one adjustment component independently of its parent debit note and source transactions. Distinct from InvoiceLine SupplierClaim and SupplierReturnLine identities. Stable attribution for calculation and accounting.</td>
         </tr>
         <tr>
           <td><code>line_number</code></td>
           <td>Whole number</td>
           <td><span class="tag">required</span></td>
-          <td>Sequence number of the debit line within its SupplierDebitNote. Provides deterministic ordering and human-readable identification. Documents review and reconciliation. Unique within the parent debit note. Identifies the line during approval and posting.</td>
+          <td>The position of the line within its debit note. Assigned in sequence when the line is added; unique within the note and used in review and reconciliation. Provides deterministic ordering and human-readable identification. Unique within the parent debit note. Identifies the line during approval and posting.</td>
         </tr>
         <tr>
           <td><code>quantity</code></td>
@@ -10499,7 +10499,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>unit_price</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Unit monetary value used to calculate a quantity-based debit. Captures the transaction-time valuation relevant to the recovery. Calculation and audit. Should derive from original commercial evidence rather than current master pricing. Supports reproducible line valuation.</td>
+          <td>The price per unit used to calculate a quantity-based debit. Taken from the original commercial evidence such as the invoice line, not the current price list; blank for non-quantity debits. Captures the transaction-time valuation relevant to the recovery. Should derive from original commercial evidence rather than current master pricing. Supports reproducible line valuation.</td>
         </tr>
         <tr>
           <td><code>gross_amount</code></td>
@@ -10511,13 +10511,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>tax_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Tax component associated with the debit line. Represents applicable tax added to the adjustment. Tax reporting and accounting. Contributes to line and header total.</td>
+          <td>The tax associated with this debit line, zero where none applies. Calculated from the gross amount using the original tax treatment; it feeds tax reporting and the net line amount. Represents applicable tax added to the adjustment. Contributes to line and header total.</td>
         </tr>
         <tr>
           <td><code>net_amount</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Final financial amount represented by this debit line. Represents the line&#39;s gross adjustment plus applicable tax under governing calculation policy. Supplier reconciliation and accounting. Contributes to SupplierDebitNote.totalAmount.</td>
+          <td>The final amount of this debit line, being gross amount adjusted for tax. Calculated; the debit note total is the sum of these amounts, and payables and supplier reconciliation read it. Represents the line&#39;s gross adjustment plus applicable tax under governing calculation policy. Contributes to SupplierDebitNote.totalAmount.</td>
         </tr>
         <tr>
           <td><code>reason_code</code></td>
@@ -10529,7 +10529,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>supplier_debit_note_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Parent supplier debit note containing this line. Supplies supplier currency lifecycle and posting context. Controls whether the line can be posted.<div class="detail">Points at <b>Supplier Debit Note</b></div></td>
+          <td>Set when the line is created; the note supplies the supplier, currency and lifecycle that decide whether the line can be posted. Parent supplier debit note containing this line. Supplies supplier currency lifecycle and posting context. Controls whether the line can be posted.<div class="detail">Points at <b>Supplier Debit Note</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_claim_id</code></td>
@@ -10782,7 +10782,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>assessment_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
-          <td>Human-facing assessment reference. Identifies the performance evaluation for operational and supplier communication. Review meetings, supplier scorecards, audit and reporting. Distinct from supplierCode, claimNumber and purchase order numbers. Correlates evidence and decisions throughout the assessment lifecycle.</td>
+          <td>The human-facing reference of one supplier performance assessment, such as SPA-2026-Q2-014, quoted in review meetings. Assigned when the assessment is opened; unique across assessments, and used in scorecards, audit trails, review minutes and follow-up actions. Identifies the performance evaluation for operational and supplier communication. Distinct from supplierCode, claimNumber and purchase order numbers. Correlates evidence and decisions throughout the assessment lifecycle.</td>
         </tr>
         <tr>
           <td><code>assessment_date</code></td>
@@ -10794,13 +10794,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>period_start</code></td>
           <td>Date</td>
           <td><span class="tag">required</span></td>
-          <td>Beginning of the performance evaluation period. Defines the historical window from which performance evidence is evaluated. Score calculation, supplier comparison and trend reporting. Evidence transactions must fall within or be explicitly associated with this evaluation scope. Establishes assessment boundaries.</td>
+          <td>The first day of the window whose procurement, delivery and quality evidence is scored in this assessment. Set when the assessment is defined; evidence is counted only from this date, and it must not fall after the period end. Defines the historical window from which performance evidence is evaluated. Evidence transactions must fall within or be explicitly associated with this evaluation scope. Establishes assessment boundaries.</td>
         </tr>
         <tr>
           <td><code>period_end</code></td>
           <td>Date</td>
           <td><span class="tag">required</span></td>
-          <td>End of the performance evaluation period. Defines the closing boundary of the performance evidence window. Score calculation, reporting and supplier review. Completes the assessment scope.</td>
+          <td>The last day of the evaluation window, closing the range of evidence the assessment scores. Set with the period start; transactions after this date are excluded, and trend reports compare successive periods by it. Defines the closing boundary of the performance evidence window. Completes the assessment scope.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
@@ -10818,13 +10818,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>rating</code></td>
           <td>Choice</td>
           <td>&mdash;</td>
-          <td>Consistently exceeds requirements. Meets requirements with few issues. Meets the minimum required. Falls short in places; a plan is needed. Fails requirements; action is required. Interpreted supplier performance rating. Converts the approved score or governed assessment criteria into a business-facing performance category. Supplier segmentation, review cadence and improvement decisions. Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or commercial evidence. Supports governance actions and escalation.<div class="detail">One of: <code>EXCELLENT</code>, <code>GOOD</code>, <code>ACCEPTABLE</code>, <code>NEEDS_IMPROVEMENT</code>, <code>UNSATISFACTORY</code></div></td>
+          <td>The business grade given to the supplier once the overall score and governing criteria have been interpreted. Chosen by the reviewer or derived from the approved score; it drives supplier segmentation, review cadence and whether improvement actions are opened. Performance consistently exceeds expectations on delivery, quality and service; the supplier is a candidate for preferred status. Performance meets expectations with only minor, isolated shortfalls that need no formal action. Performance is adequate overall but has gaps that are monitored at the next review. Performance falls short of requirements and an improvement plan or corrective action is expected. Performance is unacceptable and escalation, sourcing restriction or exit review is considered. Converts the approved score or governed assessment criteria into a business-facing performance category. Rating is an assessment conclusion, not a replacement for underlying delivery, quality, claim or commercial evidence. Supports governance actions and escalation.<div class="detail">One of: <code>EXCELLENT</code>, <code>GOOD</code>, <code>ACCEPTABLE</code>, <code>NEEDS_IMPROVEMENT</code>, <code>UNSATISFACTORY</code></div></td>
         </tr>
         <tr>
           <td><code>notes</code></td>
           <td>Text</td>
           <td><span class="tag">max 4000</span></td>
-          <td>Qualitative context supporting the assessment. Records material observations, explanations or agreed context that structured scores do not capture. Supplier review, audit and improvement planning. Supplements but does not replace measurable evidence.</td>
+          <td>Free-text observations that explain the scores, record agreed context and capture points the figures do not show. Entered by the reviewer before approval; read by category managers and auditors alongside the evidence, and never a substitute for it. Records material observations, explanations or agreed context that structured scores do not capture. Supplements but does not replace measurable evidence.</td>
         </tr>
         <tr>
           <td><code>supplier_id</code></td>
@@ -11289,19 +11289,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of the supplier response. Identifies one offer independently of supplier document number and RFQ. Comparison, negotiation, award, and audit. Root identity for the offer. Preserves supplier response evidence.</td>
+          <td>The permanent system identity of one supplier&#39;s quotation, independent of the supplier&#39;s own document number. Generated on creation and never changed; quotation lines, award decisions and resulting purchase orders refer to the offer through it. Identifies one offer independently of supplier document number and RFQ. Root identity for the offer. Preserves supplier response evidence.</td>
         </tr>
         <tr>
           <td><code>quotation_number</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 120</span></td>
-          <td>Supplier or sourcing reference for the offer. Human-facing identifier of the commercial response. Communication, comparison, order conversion, and audit. Scoped with supplier where supplier numbering is not globally unique.</td>
+          <td>The reference the supplier or the sourcing team uses to identify this quotation, such as Q-88214. Entered from the supplier&#39;s document; quoted in negotiation and order conversion, and unique per supplier where the supplier numbers its own offers. Human-facing identifier of the commercial response. Scoped with supplier where supplier numbering is not globally unique.</td>
         </tr>
         <tr>
           <td><code>submitted_at</code></td>
           <td>Date and time</td>
           <td><span class="tag">required</span></td>
-          <td>Time the supplier response was received or submitted. Establishes offer chronology and deadline compliance. Sourcing governance and audit. Distinct from RFQ issue and purchase-order dates.</td>
+          <td>The moment the supplier&#39;s response was received or submitted to the buyer for the request for quotation. Recorded on receipt; compared with the request&#39;s closing time to judge late bids and to order offers chronologically. Establishes offer chronology and deadline compliance. Distinct from RFQ issue and purchase-order dates.</td>
         </tr>
         <tr>
           <td><code>valid_until</code></td>
@@ -11313,13 +11313,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>total_amount</code></td>
           <td>Amount</td>
           <td>&mdash;</td>
-          <td>Total offered commercial amount. Summarizes the supplier offer for comparison. Sourcing analysis, approvals, and order conversion. Must reconcile with detailed offer basis when line detail is modeled.</td>
+          <td>The overall price the supplier is offering across all quotation lines, in the quoted currency. Entered or summed from the lines; used for side-by-side bid comparison and approval thresholds, and should reconcile with the line prices. Summarizes the supplier offer for comparison. Must reconcile with detailed offer basis when line detail is modeled.</td>
         </tr>
         <tr>
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Evaluation state of the supplier offer. Controls whether the response is pending, selected, rejected, expired, or withdrawn. Comparison and award workflow. ACCEPTED authorizes downstream conversion but PurchaseOrder remains the commitment. Offer captured. Being evaluated. Selected through governed award. Not selected. Validity elapsed. Supplier withdrew the offer.<div class="detail">One of: <code>RECEIVED</code>, <code>UNDER_REVIEW</code>, <code>ACCEPTED</code>, <code>REJECTED</code>, <code>EXPIRED</code>, <code>WITHDRAWN</code></div></td>
+          <td>Where the quotation stands in evaluation, from receipt through award decision or lapse. Moves as the sourcing team reviews it; only an accepted quotation may be converted to purchase orders. The quotation has been logged but evaluation has not started. Buyers are comparing prices, terms and delivery against other bids. The offer has been selected and may be converted into purchase orders. The offer was declined and will not be ordered from. A final state. The validity date passed before the offer was accepted. A final state. The supplier retracted the offer. A final state. Controls whether the response is pending, selected, rejected, expired, or withdrawn. ACCEPTED authorizes downstream conversion but PurchaseOrder remains the commitment.<div class="detail">One of: <code>RECEIVED</code>, <code>UNDER_REVIEW</code>, <code>ACCEPTED</code>, <code>REJECTED</code>, <code>EXPIRED</code>, <code>WITHDRAWN</code></div></td>
         </tr>
         <tr>
           <td><code>supplier_id</code></td>
@@ -11456,37 +11456,37 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>id</code></td>
           <td>Identifier</td>
           <td><span class="tag">key</span> <span class="tag">unique</span></td>
-          <td>Stable identity of one supplier offer line. Identifies one commercial response independently of header and order conversion. Comparison, negotiation, award, and audit. Connects an RFQ requirement to resulting order lines.</td>
+          <td>The permanent system identity of one line of a supplier&#39;s quotation, unaffected by renumbering or later edits. Generated on creation and never changed; award decisions, order lines and audit entries refer to the offer line through it. Identifies one commercial response independently of header and order conversion. Connects an RFQ requirement to resulting order lines.</td>
         </tr>
         <tr>
           <td><code>line_number</code></td>
           <td>Whole number</td>
           <td><span class="tag">required</span></td>
-          <td>Sequence within the supplier quotation. Human-facing offer-line reference. Comparison and supplier communication. Unique within SupplierQuotation.</td>
+          <td>The position of this line within its supplier quotation, matching how the supplier laid out its offer. Entered or assigned in sequence; unique within the quotation, and quoted when comparing bids or discussing a line with the supplier. Human-facing offer-line reference. Unique within SupplierQuotation.</td>
         </tr>
         <tr>
           <td><code>offered_quantity</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Quantity the supplier offers to provide. States supply coverage for the RFQ requirement. Award allocation and order conversion. Interpreted using UnitOfMeasure.</td>
+          <td>How much of the requested item the supplier commits to supply at the quoted price, in the stated unit of measure. Entered from the supplier&#39;s response; it may be less than the requested quantity, and the award allocates against it. States supply coverage for the RFQ requirement. Interpreted using UnitOfMeasure.</td>
         </tr>
         <tr>
           <td><code>unit_price</code></td>
           <td>Amount</td>
           <td><span class="tag">required</span></td>
-          <td>Transaction-time offered unit price. Preserves the supplier&#39;s commercial offer for comparison and later verification. Bid analysis, negotiation, award, and purchase-order pricing. Historical offer evidence rather than mutable supplier master pricing.</td>
+          <td>The price per unit of measure the supplier quoted, kept as offer evidence in the currency it was quoted. Entered from the response; compared across bidders, negotiated, and copied to the order line on award without reading supplier master prices. Preserves the supplier&#39;s commercial offer for comparison and later verification. Historical offer evidence rather than mutable supplier master pricing.</td>
         </tr>
         <tr>
           <td><code>promised_date</code></td>
           <td>Date</td>
           <td>&mdash;</td>
-          <td>Supplier&#39;s offered delivery or completion date. Records the delivery promise used during award evaluation. Lead-time comparison and order conversion. Distinct from actual receipt date.</td>
+          <td>The date by which the supplier says it will deliver or complete the offered quantity. Entered from the response; used to compare lead times between bidders and to set the expected date on any resulting order line. Records the delivery promise used during award evaluation. Distinct from actual receipt date.</td>
         </tr>
         <tr>
           <td><code>award_status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Award state of this offer line. Records whether and to what extent this response was selected. Award workflow and split sourcing. Selection authorizes conversion but does not itself create a PurchaseOrderLine. Not yet decided. Selected for the governed quantity. Selected for part of offered quantity. Not selected.<div class="detail">One of: <code>PENDING</code>, <code>ACCEPTED</code>, <code>PARTIALLY_ACCEPTED</code>, <code>REJECTED</code></div></td>
+          <td>How far the buyer has selected this offer line, from awaiting decision through full or partial acceptance to rejection. Updated by the sourcing team during award; accepted quantities may then be converted into purchase order lines, split across suppliers where needed. The offer line has been received but no award decision has been made yet. The offer line is selected in full and may be converted to a purchase order line. Only part of the offered quantity is selected, with the remainder awarded elsewhere or not needed. The offer line was not selected and will not produce a purchase commitment. Records whether and to what extent this response was selected. Selection authorizes conversion but does not itself create a PurchaseOrderLine.<div class="detail">One of: <code>PENDING</code>, <code>ACCEPTED</code>, <code>PARTIALLY_ACCEPTED</code>, <code>REJECTED</code></div></td>
         </tr>
         <tr>
           <td><code>request_for_quotation_line_id</code></td>
@@ -12076,13 +12076,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>purchase_order_line_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Original procurement commitment associated with the returned item. Identifies what was originally ordered. Supplies product, UOM and commercial context.<div class="detail">Points at <b>Purchase Order Line</b></div></td>
+          <td>Used to trace the returned quantity back to the original commitment and to reverse its price and ordered quantity. Original procurement commitment associated with the returned item. Identifies what was originally ordered. Supplies product, UOM and commercial context.<div class="detail">Points at <b>Purchase Order Line</b></div></td>
         </tr>
         <tr>
           <td><code>supplier_return_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
-          <td>Parent reverse-procurement transaction containing this line. Supplies supplier, authorization and overall lifecycle context. Controls whether this line may execute.<div class="detail">Points at <b>Supplier Return</b></div></td>
+          <td>Used to group every returned line under one return document and to inherit its supplier, status and approval context. Parent reverse-procurement transaction containing this line. Supplies supplier, authorization and overall lifecycle context. Controls whether this line may execute.<div class="detail">Points at <b>Supplier Return</b></div></td>
         </tr>
         </tbody>
       </table>
@@ -12704,19 +12704,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>code</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 100</span></td>
-          <td>The code of the task, such as TASK-0042. Used in lists and notifications.</td>
+          <td>The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.</td>
         </tr>
         <tr>
           <td><code>name</code></td>
           <td>Text</td>
           <td><span class="tag">required</span> <span class="tag">max 300</span></td>
-          <td>A short statement of the work. Shown on to-do lists.</td>
+          <td>A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.</td>
         </tr>
         <tr>
           <td><code>description</code></td>
           <td>Text</td>
           <td><span class="tag">max 2000</span></td>
-          <td>Details of what must be done. Read by the assignee.</td>
+          <td>Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.</td>
         </tr>
         <tr>
           <td><code>task_type</code></td>
@@ -12728,13 +12728,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td><code>status</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final state. Could not be done. A final state.<div class="detail">One of: <code>CREATED</code>, <code>READY</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>BLOCKED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code></div></td>
+          <td>Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The task exists but is not yet ready to be picked up. The task is released and waiting for someone to be assigned. A person or party has been given the task but has not started it. The assignee is actively working on the task. Work is held up by a dependency, missing input or decision. The work was done as required. A final state. The task was withdrawn before completion. A final state. The task ended without achieving its result and needs follow-up elsewhere. A final state.<div class="detail">One of: <code>CREATED</code>, <code>READY</code>, <code>ASSIGNED</code>, <code>IN_PROGRESS</code>, <code>BLOCKED</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>FAILED</code></div></td>
         </tr>
         <tr>
           <td><code>priority</code></td>
           <td>Choice</td>
           <td><span class="tag">required</span></td>
-          <td>How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.<div class="detail">One of: <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>CRITICAL</code></div></td>
+          <td>How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business impact. Standard urgency, handled in the ordinary course of work. Needs prompt attention ahead of normal work. Needs immediate action because delay causes serious business impact.<div class="detail">One of: <code>LOW</code>, <code>NORMAL</code>, <code>HIGH</code>, <code>CRITICAL</code></div></td>
         </tr>
         <tr>
           <td><code>due_at</code></td>

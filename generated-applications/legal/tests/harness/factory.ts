@@ -5,7 +5,7 @@
  * `phone` gets a phone number) and its declared type second. The faker seed is
  * fixed in config, so a failing bulk run reproduces byte-for-byte.
  *
- * Generated: 2026-10-09T06:44:48.011Z
+ * Generated: 2026-10-09T08:31:39.477Z
  * Project: legal
  */
 

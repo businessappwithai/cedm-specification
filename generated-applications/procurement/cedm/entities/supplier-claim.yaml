@@ -58,21 +58,21 @@ entity:
         - DOCUMENTATION
         - OTHER
       help:
-        summary: What the claim is about.
+        summary: The main nature of the claim, such as quality, damage, shortage or a commercial dispute.
+        usage: Chosen when the claim is opened; it drives routing, required evidence, supplier scorecards and analytics.
         valueSemantics:
-          QUALITY: Goods do not meet the quality required.
-          DAMAGE: Goods arrived damaged.
-          SHORTAGE: Less was delivered than ordered.
-          OVERAGE: More was delivered than ordered.
-          WRONG_ITEM: A different item was delivered.
-          WARRANTY: A fault covered by warranty.
-          SERVICE: A service was not performed as agreed.
-          COMMERCIAL: A dispute about price or terms.
-          DELIVERY: Late or failed delivery.
-          DOCUMENTATION: Missing or wrong paperwork.
-          OTHER: A claim that fits no other type.
+          QUALITY: Goods or services do not meet quality or specification requirements.
+          DAMAGE: Goods arrived damaged or were damaged in transit or handling.
+          SHORTAGE: Less was delivered than ordered or invoiced.
+          OVERAGE: More was delivered than ordered, creating excess stock.
+          WRONG_ITEM: A different product from the one ordered was delivered.
+          WARRANTY: A defect is claimed under the supplier's warranty after acceptance.
+          SERVICE: A purchased service was not performed as agreed.
+          COMMERCIAL: The dispute concerns price, terms or charges rather than the goods.
+          DELIVERY: Goods arrived late, early or to the wrong place.
+          DOCUMENTATION: Required certificates, invoices or paperwork are missing or wrong.
+          OTHER: A claim that fits none of the other types, explained in the notes.
         businessMeaning: States the principal business nature of the claim.
-        usage: Drives routing evidence requirements supplier scorecards and analytics.
         relationshipContext: May be supported by QualityInspection or receiving evidence and may result in a return credit debit or other resolution.
         workflowRole: Determines investigation and resolution policy.
     - {name: claimedAmount, type: Money, required: false, help: {summary: Financial value asserted by the organization in the claim., businessMeaning: Represents requested or estimated monetary recovery before supplier agreement or final adjustment., usage: Supports negotiation exposure reporting and recovery analysis., relationshipContext: It is not an accounting posting and must not be confused with SupplierCreditNote.totalAmount or SupplierDebitNote.totalAmount., workflowRole: Provides commercial context for settlement negotiation.}}
@@ -105,7 +105,7 @@ entity:
         usage: Supports supplier performance recovery analytics and downstream workflow routing.
         relationshipContext: Detailed authorization is represented by SupplierClaimResolution; RETURN may create SupplierReturn; CREDIT may create SupplierCreditNote; DEBIT_ADJUSTMENT may create SupplierDebitNote.
         workflowRole: Summarizes the resolution after agreement.
-    - {name: notes, type: string, required: false, maxLength: 4000, help: {summary: Additional claim narrative and investigation context., businessMeaning: Records information not represented by structured fields., usage: Supplier communication investigation escalation and audit., relationshipContext: Complements structured inspection receipt invoice and return evidence without replacing it., workflowRole: Supports review and resolution.}}
+    - {name: notes, type: string, required: false, maxLength: 4000, help: {summary: 'Free-text narrative of the claim, covering what happened and what was discussed with the supplier.', usage: Written by the claim handler and updated during investigation; supports escalation and audit but should not replace structured fields., businessMeaning: Records information not represented by structured fields., relationshipContext: Complements structured inspection receipt invoice and return evidence without replacing it., workflowRole: Supports review and resolution.}}
   relationships:
     - {name: supplier, target: Supplier, cardinality: '1', ownership: reference, help: {summary: Supplier against whom the claim is raised., businessMeaning: Identifies the external party responsible for the disputed supply or service., usage: Supports communication scorecards recovery and escalation., workflowRole: Supplies supplier qualification and commercial context.}}
     - {name: purchaseOrder, target: PurchaseOrder, cardinality: 0..1, ownership: reference, help: {summary: Procurement commitment associated with the claim., businessMeaning: Connects the supplier issue to the original purchasing commitment., usage: Supports contractual price and quantity investigation., workflowRole: Supplies commercial source evidence.}}

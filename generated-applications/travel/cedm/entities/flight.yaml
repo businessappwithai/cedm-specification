@@ -49,13 +49,13 @@ entity:
         - DELAYED
         - CANCELLED
       help:
-        summary: Where the flight is in its operation.
-        usage: Updated by flight operations.
+        summary: Where the flight stands in its operation, from scheduling through boarding and departure to arrival or cancellation.
+        usage: Updated by flight operations as the flight progresses; booking and passenger information read it to show delays and cancellations.
         valueSemantics:
-          SCHEDULED: Planned and open for booking.
-          BOARDING: Passengers are boarding.
-          DEPARTED: In the air.
-          ARRIVED: Landed. A final state.
+          SCHEDULED: Planned on the published schedule and open for booking.
+          BOARDING: Boarding has started and passengers are being loaded.
+          DEPARTED: The aircraft has left the origin and is in the air.
+          ARRIVED: Landed at the destination. A final state.
           DELAYED: Departure is later than scheduled.
           CANCELLED: Will not operate. A final state.
   relationships:

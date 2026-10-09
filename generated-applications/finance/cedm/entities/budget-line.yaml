@@ -7,8 +7,8 @@ entity:
     icon: piggy-bank
   identity: {key: budgetLineId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: The identity of the budget line., businessMeaning: Identifies one dimensional allocation., usage: Budget control and variance., relationshipContext: Belongs to Budget.}}
-    - {name: amount, type: Money, required: true, help: {summary: Planned monetary amount., businessMeaning: Financial target/limit for dimensions., usage: Planning and variance., relationshipContext: Not an actual ledger balance.}}
+    - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one allocation within a budget., usage: Generated on creation; variance reports and revisions refer to the line through it., businessMeaning: Identifies one dimensional allocation., relationshipContext: Belongs to Budget.}}
+    - {name: amount, type: Money, required: true, help: {summary: 'The money planned for this combination of account, cost centre and profit centre in the budget period.', usage: 'Entered by the budget owner; never negative, and compared with actual postings to show overspend or underspend.', businessMeaning: Financial target/limit for dimensions., relationshipContext: Not an actual ledger balance.}}
   relationships:
     - {name: budget, target: Budget, cardinality: '1', ownership: reference, inverse: lines, help: {cardinalityMeaning: Exactly one budget; a line cannot exist outside the plan that contains it., summary: Parent financial plan., businessMeaning: Supplies governance/version context., usage: Planning., workflowRole: Line lifecycle follows budget governance.}}
     - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Financial account dimension., businessMeaning: Classifies planned amount., usage: Budget-vs-actual., cardinalityMeaning: Optional under non-account planning., workflowRole: Actuals derive from accounting not line mutation.}}

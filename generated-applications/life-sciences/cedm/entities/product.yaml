@@ -97,15 +97,15 @@ entity:
       required: true
       systemManaged: true
       help:
-        summary: When the product record was created.
-        usage: Set by the system.
+        summary: The moment this product record was first created in the catalogue.
+        usage: Set by the system on creation and never changed; used for audit, catalogue age reporting and change history.
     - name: updatedAt
       type: datetime
       required: true
       systemManaged: true
       help:
-        summary: When the product record was last changed.
-        usage: Set by the system.
+        summary: The moment this product record was last changed in the catalogue.
+        usage: Set by the system on every change; synchronisation and integrations use it to find products that changed since a given time.
   relationships:
     - name: category
       target: ProductCategory

@@ -9,7 +9,7 @@ entity:
   attributes:
     - {name: partyRelationshipId, type: uuid, required: true, immutable: true, help: {summary: The identity of the relationship., usage: Generated on creation; documents and reports refer to it.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code of the relationship type or instance, such as SUBSIDIARY_OF.', usage: Chosen from the relationship list; used in queries and rules.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: A description of the relationship., usage: Shown in party views.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group.', usage: Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.}}
   relationships:
     - {name: fromParty, target: Party, cardinality: "1", ownership: reference, help: {summary: The party at the origin of the relationship., usage: Chosen when the relationship is created., cardinalityMeaning: 'Exactly one origin party: a relationship always starts at a particular party.', workflowRole: Together with the other party it identifies the relationship.}}
   invariants:

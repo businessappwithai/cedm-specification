@@ -80,7 +80,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short reference for the unit, such as CE or EMEA-RETAIL. Assigned by finance and used on reports and in postings; kept stable because history relies on it.
-  - **Name** (required) — The full name of the unit. Shown in organisation charts and management reports.
+  - **Name** (required) — The full name of the business unit, as it appears in the organisation's structure and management accounts. Entered by management or finance when the unit is created; shown in organisation charts, selectors and segment reports.
   - **Organization** (required, a Organization) — The organisation to which the unit belongs. Set when the unit is created. Exactly one organisation; a unit cannot stand alone. Rolls the unit's results up into its parent organisation.
 
 ### Calendar
@@ -91,22 +91,22 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short reference for the calendar, such as DE-NAT. Assigned by the administrator; used in configuration and reports; kept stable.
-  - **Name** (required) — The descriptive name of the calendar. Shown wherever a calendar is chosen.
+  - **Name** (required) — The descriptive name of the calendar, such as UK Working Days or Group Fiscal Calendar. Entered by the administrator who maintains it; shown wherever a schedule, service level or plan asks which calendar applies.
 
 ### City
 
-A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+Loaded from the GeoNames reference data rather than typed by users; chosen on addresses, locations and offices, and read to sort, filter and map records by place. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. A city: every national capital and every city of 750 thousand or more, from GeoNames, linked to its country and, for the United States and Canada, to its state or province. Chosen from the list wherever a record needs a place, code or currency; maintained by an a…
 
 Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The city's code: its country code and its name in capitals, such as FR-PARIS. Quoted beside the name in lists; integration with other systems. Unique; the country prefix keeps cities of one name in different countries apart.
-  - **Name** (required) — The city's name in English. Shown in lists and on addresses. Not unique: two countries can have a city of one name.
-  - **Population** — The registry's population figure. Ordering and sizing; not a current census count. Describes the city only.
-  - **Latitude** — Latitude in degrees, north positive. Maps and distance. Describes the city only.
-  - **Longitude** — Longitude in degrees, east positive. Maps and distance. Describes the city only.
+  - **Name** (required) — The city's name in English, as it is written on addresses and in place lists. Loaded with the reference data; shown in lists, pickers and address lines, and narrowed by the country and state chosen. Not unique: two countries can have a cit…
+  - **Population** — The population figure recorded in the GeoNames registry when the data was loaded. Used to rank and size cities in lists and pickers; it is an approximate registry value, not a current census count. Describes the city only.
+  - **Latitude** — The city's north-south position in decimal degrees, with north positive and south negative. Loaded with the reference data; paired with longitude to place the city on maps and measure distances. Describes the city only.
+  - **Longitude** — The city's east-west position in decimal degrees, with east positive and west negative. Loaded with the reference data; paired with latitude to place the city on maps and measure distances. Describes the city only.
   - **Timezone** — The IANA time zone the city keeps, such as Europe/Paris. Showing local times for the city. Describes the city only.
-  - **Is Capital** — Whether the city is its country's capital. Highlighting the capital in lists. At most one capital per country in this list.
+  - **Is Capital** — Marks the city as the capital of its country in the reference data. Loaded with the reference data; lists use it to highlight or sort capitals first when people choose a city. At most one capital per country in this list.
   - **Country** (required, a Country) — Exactly one country; a city belongs to a single country. The country the city is in. Chosen first; the cities offered are those of that country. A city is narrowed by its country, and by its state where it has one.
   - **State Province** (a State Province) — The state or province the city is in, where the registry says which. Chosen after the country; narrows the cities offered. A city has at most one state or province; outside the United States and Canada the list leaves it empty. The state o…
 
@@ -155,7 +155,7 @@ Fields:
 
 ### Country
 
-A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
+Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. A country or territory from the ISO 3166-1 registry, used consistently for addresses, tax, trade, localization, compliance and reporting. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.
 
 Readable by every signed-in person.
 
@@ -164,7 +164,7 @@ Fields:
   - **Alpha3** — The three-letter ISO 3166-1 code, such as USA or DEU. Trade and customs documents, which use the long form. Unique among countries.
   - **Numeric Code** — The three-digit ISO 3166-1 numeric code, such as 840. Banking and statistical exchange formats. Unique among countries.
   - **Name** (required) — The country's short name in English. Shown in lists, on addresses and on reports. Does not replace the code as the stable key.
-  - **Phone Code** — The international dialling prefix, without the plus sign. Validating and formatting telephone numbers. Belongs to the country; several countries can share a prefix.
+  - **Phone Code** — The international dialling prefix for the country, held without the plus sign, such as 44 or 1. Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere. Belongs to…
   - **Currency** (a Currency) — The currency the country mainly uses. Chosen from the currency list; used to suggest a currency on records for the country. A country has at most one main currency; a currency can be the main one of many countries. Lets a default currency…
 
 ### Currency
@@ -200,18 +200,18 @@ Represents the commercial customer role of a Party. Party identifies who the par
 Readable by every signed-in person.
 
 Fields:
-  - **Party Role** (required, a Party Role) — Links Customer to its underlying PartyRole. Resolves common party identity and role information. Customer is a role specialization and must not duplicate Party identity. Supplies common party context to customer-facing workflows.
-  - **Customer Code** (required) — Human-facing customer business code. Used in orders invoices statements integrations and communication. Distinct from customerId and external legal identifiers. Supports customer selection and transaction recognition.
-  - **Customer Type** (one of the Customer Customer Type values) — A private consumer. A company or other commercial organisation. A public authority or agency. Another unit of the organisation itself, supplied through internal sales. A customer that fits none of the above. Commercial classification of th…
-  - **Credit Status** (one of the Customer Credit Status values) — Credit has not been assessed; trading is on the default terms. Credit has been assessed and approved up to the credit limit. Credit is paused pending review; new credit-bearing orders need approval. Credit is refused; no new credit-bearing…
+  - **Party Role** (required, a Party Role) — The link to the party role that makes this party a customer. Set when the customer is created; the party's name, addresses and contacts are read through it and are not copied here. Customer is a role specialization and must not duplicate P…
+  - **Customer Code** (required) — The short code staff and systems use to refer to this customer. Assigned when the customer is set up; quoted on orders, invoices and statements and used in integrations, and different from the system id. Distinct from customerId and extern…
+  - **Customer Type** (one of the Customer Customer Type values) — The commercial kind of buyer, such as a private consumer, a company or a public body. Chosen by sales when the customer is created; it steers pricing, credit rules, tax handling and reporting segments. A private consumer buying for persona…
+  - **Credit Status** (one of the Customer Credit Status values) — The credit-control decision currently in force for this customer. Set by credit control after review; order authorisation, receivables and collections check it before releasing credit-bearing orders. Credit has not been assessed; trading i…
   - **Credit Limit** — Authorized monetary credit exposure limit. Used in credit checks exposure monitoring and risk reporting. Must be interpreted with currency outstanding exposure payment terms and credit status. Provides one input to credit authorization bef…
   - **Payment Terms** — Default settlement policy for customer invoices. Used by SalesOrder Invoice receivables collections and cash forecasting. May be overridden by authorized contract or transaction-level terms. Supplies default due-date expectations to order…
-  - **Status** (required, one of the Customer Status values) — A customer the organisation can sell to. Dormant, with no new business expected; can be reactivated. Held back from new business, for example for non-payment or compliance reasons. Closed for good; history is kept. Lifecycle state of the c…
+  - **Status** (required, one of the Customer Status values) — Whether the customer relationship is open for business, dormant, held back or closed. Moved by sales or finance; it decides whether new orders may be taken, while past transactions stay attributed to the customer. A customer the organisati…
   - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
-  - **Role Type** (required, one of the Customer Role Type values) — The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business…
+  - **Role Type** (required, one of the Customer Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
   - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
   - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
-  - **Valid To** — The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
 ### Customer Credit Status
@@ -274,8 +274,8 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The short code of the department, such as FIN-AP. Used in postings and reports; kept stable.
-  - **Name** (required) — The name of the department. Shown in organisation charts and on documents.
-  - **Organization** (required, a Organization) — The organisation the department belongs to. Exactly one organisation: a department is part of a single organisation. Places the department in the reporting structure.
+  - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
+  - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
 
 ### Entitlement Status
 
@@ -297,7 +297,7 @@ A workflow event that raises overdue, breached, exceptional or unresolved work t
 Readable by every signed-in person.
 
 Fields:
-  - **Status** (required, one of the Escalation Status values) — Where the escalation stands. Moved by the escalation process. Raised and waiting to be picked up. Being handled by the person it was escalated to. Resolved. Withdrawn because it was no longer needed.
+  - **Status** (required, one of the Escalation Status values) — Whether the escalation is waiting to be picked up, being handled, resolved or withdrawn. Moved by the escalation process and the person receiving it; unresolved ones are watched by supervisors. Raised and waiting for the receiving person o…
 
 ### Escalation Status
 
@@ -371,7 +371,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The two-letter ISO 639-1 code of the language, such as en or de. Taken from the standard; unique; used in locale settings and APIs.
-  - **Name** (required) — The name of the language in English. Shown in language pick-lists.
+  - **Name** (required) — The English name of the language, such as French or Portuguese. Loaded from the language reference data; it is shown in language pick-lists and reports, while the code remains the identifier.
 
 ### Legal Entity
 
@@ -390,9 +390,9 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code of the place in the organisation's site list, such as NL-RTM-DC1. Unique; assigned by the administrator and used in integrations and labels.
-  - **Name** (required) — The name people use for the place. Shown in lists, maps and documents.
-  - **Location Type** (required, one of the Location Location Type values) — What kind of place it is. Chosen at creation; decides which processes can use the location. A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet. A place where office work is done. A p…
-  - **Status** (required, one of the Location Status values) — Whether the place is in use. Set by the administrator; only ACTIVE locations are offered for new assignments. Expected but not yet in use. In use. Temporarily not used. Closed down. Removed from use altogether. A final state.
+  - **Name** (required) — The name by which people refer to the place, such as Rotterdam Depot. Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+  - **Location Type** (required, one of the Location Location Type values) — A geographic site that may contain several buildings. A building or area for storing goods. A retail outlet where goods are sold to customers. A place where office work is done. A place where goods are made. An open area for storing or sta…
+  - **Status** (required, one of the Location Status values) — Expected but not yet in use. In use and offered for new assignments. Temporarily not used but expected to return to service. Closed down, with no new assignments but history kept. Removed from use altogether. A final state. Whether the pla…
   - **Address** (a Address) — The postal address of the location. Chosen from the address list; used for deliveries, mapping and tax.
   - **Parent Location** (a Location) — The place that contains this one, such as the site that holds a warehouse. Set to build the hierarchy; a top-level place has none.
   - **Organization** (a Organization) — The organisation that operates the place. Set where operation is clear. At most one operating organisation. Determines responsibility and reporting.
@@ -433,8 +433,8 @@ Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Organization specialization. Connects organizational details to the shared Party identity used by all roles and transactions. One Party may have exactly one Organization specialization when part…
   - **Code** (required) — Business code for the organization within its governed business context. Used for operations, reporting, integrations, and organizational selection. Code is not the canonical Party identity and uniqueness is governed by organization scope.…
   - **Name** (required) — Common organizational name used in business operations. Used in search, forms, reports, documents, and transactions. LegalName may differ and provides formal legal identity. Provides human-readable organizational identification.
-  - **Organization Type** (required, one of the Organization Organization Type values) — The top-level body, such as a group or corporation. A legal company. A business division with its own results. A major part of the organisation. A functional unit. A local office or branch. A company controlled by another. Any other organi…
-  - **Status** (required, one of the Organization Status values) — Being set up; not yet in use. In use. Temporarily not in use; can be reactivated. Closed; kept for history. A final state. Lifecycle of the organizational specialization. Controls whether the organization can normally be selected as an org…
+  - **Organization Type** (required, one of the Organization Organization Type values) — Classifies the organizational structure represented by the specialization, from whole enterprise down to department or branch. Used for hierarchy, authorization, reporting, transaction scope, and organizational selection; chosen when the u…
+  - **Status** (required, one of the Organization Status values) — Lifecycle of the organizational specialization, deciding whether the unit may be selected in new transactions. Controls whether the organization can normally be selected as an organizational scope; set by master-data staff. The organizatio…
   - **Legal Name** — Formal legal name of the organization. Used for contracts, invoices, tax, regulatory reporting, and legal documentation. LegalName is distinct from the operational name. Supplies legal presentation and compliance context.
   - **Registration Number** — Registration identifier assigned by a competent authority. Used for legal verification, compliance, tax, and integrations. Registration number identifies the organization in an external legal system, not in CEDM. Supports identity verifica…
   - **Tax Identifier** — Tax identifier applicable to the organization in a relevant jurisdiction. Used for tax determination, invoices, reporting, and compliance. Tax identity may vary by jurisdiction and should not replace Party identity. Supports tax-rule appli…
@@ -517,7 +517,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The code of the relationship type or instance, such as SUBSIDIARY_OF. Chosen from the relationship list; used in queries and rules.
-  - **Name** (required) — A description of the relationship. Shown in party views.
+  - **Name** (required) — A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group. Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.
   - **From Party** (required, a Party) — The party at the origin of the relationship. Chosen when the relationship is created. Exactly one origin party: a relationship always starts at a particular party. Together with the other party it identifies the relationship.
 
 ### Party Role
@@ -528,11 +528,11 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — The party that holds the role. Set when the role is assigned and not changed. One Party may have multiple PartyRoles simultaneously or historically. Connects role-specific processing back to the canonical identity.
-  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected. Buys from the organisation. Sells to the organisation. Works for the organisation. A business…
+  - **Role Type** (required, one of the Party Role Role Type values) — The kind of role the party plays, such as customer, supplier, employee or partner. Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail. The party buys goods or services from…
   - **Code** — An optional code for the role. Used by integrations that identify the role separately from the party. Identifies the role instance and must not replace Party or specialized role identifiers.
   - **Valid From** — The first date on which the role applies. Set when the role is assigned. Works with validTo and status; ending a role does not delete Party identity or other roles. Prevents premature use of a newly established role.
-  - **Valid To** — The last date on which the role applies. Set when the role ends. Historical transactions may continue referencing the role after validTo. Prevents new use after role expiration while preserving historical attribution.
-  - **Status** (required, one of the Party Role Status values) — Whether the role is currently held. Set by master-data staff. The party currently holds the role. Dormant but may resume. Ended; kept for history. A final state. Role status is independent of Party.status and other PartyRole statuses. ACTI…
+  - **Valid To** — The last date on which the role still applies to the party. Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused. Historical transactions may continue referencing the role after va…
+  - **Status** (required, one of the Party Role Status values) — Whether the party currently holds the role and may be used in it. Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends. The party currently holds the role. Dormant but may res…
   - **Person** (a Person) — The Person this PartyRole belongs to.
   - **Organization** (a Organization) — Optional organizational scope in which the role is recognized. Supports multi-enterprise, subsidiary, business-unit, and operating-context scenarios. Zero means global/context-independent; one means explicitly scoped to one organization. D…
 
@@ -583,13 +583,13 @@ Readable by every signed-in person.
 
 Fields:
   - **Party** (required, a Party) — Canonical Party identity represented by this Person specialization. Connects person-specific data to common Party identity and all PartyRoles. Exactly one Person specialization may represent a Party classified as PERSON. Ensures transactio…
-  - **Title** — Personal title. documents and presentation. presentation attribute. supports person display.
-  - **Given Name** (required) — Given name. identity and documents. intrinsic person identity. identification.
-  - **Middle Name** — Middle name. identity and documents. intrinsic person identity. identification.
-  - **Family Name** (required) — Family name. identity and documents. intrinsic person identity. identification.
-  - **Preferred Name** — Preferred display name. communication and UI. presentation not canonical identity. human interaction.
-  - **Date Of Birth** — Date of birth. processes requiring verified individual identity. sensitive person attribute subject to access policy. eligibility/verification where applicable.
-  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's purposes. Entered only where there is a need and a lawful basis; never used to decide eligibility unless the law requires it. Identifies as female. Identifies as male. Identifies as ne…
+  - **Title** — The honorific or personal title used before the person's name, such as Dr, Prof or Ms. Entered when known and optional; printed in letters, documents and formal presentation of the name. presentation attribute. supports person display.
+  - **Given Name** (required) — The person's first or given name, as it appears on their identity documents. Required; entered at registration and used with the family name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Middle Name** — Any middle or additional given names the person carries, when they are used officially. Optional; entered only when needed to tell people apart or to match identity documents and legal records. intrinsic person identity. identification.
+  - **Family Name** (required) — The person's family name or surname, as it appears on their identity documents. Required; entered at registration and used with the given name for identity matching, documents and correspondence. intrinsic person identity. identification.
+  - **Preferred Name** — The name the person likes to be called, which may differ from their legal given name. Optional; chosen by the person and used for greetings, display in screens and informal communication, never for legal documents. presentation not canonic…
+  - **Date Of Birth** — The person's date of birth, recorded where age or verified identity matters to a process. Optional and sensitive; collected only where needed, for example for age checks, payroll or identity verification. sensitive person attribute subject…
+  - **Gender** (one of the Person Gender values) — The person's gender as recorded for the organisation's lawful purposes. Entered only where there is a need and a lawful basis, normally by the person; never used to decide eligibility. The person identifies and is recorded as female. The p…
   - **Nationality** (a Country) — The country whose nationality the person holds. Chosen from the list of countries; used by identity and compliance processes. Not Party identity; process-specific.
   - **Party Type** (required, one of the Person Party Type values) — Identifies whether the party is a person or an organization. Determines which party specialization is applicable and prevents business processes from interpreting an organization as an individual or vice versa. Used to select Person or Org…
   - **Display Name** (required) — The business-facing name by which the party is normally displayed and recognized. Provides a consistent human-readable representation independent of whether the party is a person or organization. Used in forms, search results, documents, t…
@@ -642,10 +642,10 @@ Coordinates a service issue from intake through operational work and final resol
 Readable by every signed-in person.
 
 Fields:
-  - **Case Number** (required) — Human-facing case reference. Operational identifier used in customer and service communications. Search, communication, escalation, reporting and integration. Distinct from request, ticket and service-order references.
-  - **Subject** (required) — Concise description of the service issue. Human-readable statement of why the case exists. Queues, communication, search and reporting. Detailed evidence belongs in related records or documents.
-  - **Priority** (required, one of the Service Case Priority values) — Operational urgency of the case. Guides triage and resource attention independently of SLA clocks. Queue ordering, escalation and reporting. Does not replace SLA commitments. Low urgency. Standard urgency. Elevated business impact. Immedia…
-  - **Status** (required, one of the Service Case Status values) — Lifecycle state of the case. Distinguishes active investigation, external/internal waiting, resolution and final closure. Service workflow, SLA measurement, customer communication and reporting. Child work can continue only when compatible…
+  - **Case Number** (required) — The reference that customers and staff quote when talking about this case, such as CASE-004517. Allocated automatically at intake and unique; used in searches, replies, escalations, reports and integrations. Operational identifier used in…
+  - **Subject** (required) — A one-line description of the problem or request the case is about. Written by the agent or taken from the customer's message; shown in queues, emails and search results. Human-readable statement of why the case exists. Detailed evidence b…
+  - **Priority** (required, one of the Service Case Priority values) — How urgently the case needs attention, set by the business impact of the issue. Chosen at triage by the agent; it orders queues and triggers escalation, separately from SLA clocks. Little impact; can be handled when capacity allows. Standa…
+  - **Status** (required, one of the Service Case Status values) — The stage the case has reached from intake through investigation to closure. Starts as OPEN and is moved by the assigned agent; it drives SLA measurement, customer messages and reports. The case has been accepted and is waiting to be worke…
   - **Customer** (a Customer) — Customer whose service relationship the case concerns. Supplies commercial customer context where applicable. Customer history, entitlement, service and reporting. Optional for internal or non-customer cases. Customer status and entitlemen…
   - **Requester** (required, a Party) — A case has one requester, the person to keep informed. Party who raised or owns the reported issue. Preserves originator identity even where no Customer role exists. Communication, authorization and audit. Requester changes use governed re…
   - **Primary Request** (a Service Request) — Service request that originated or primarily represents this case. Separates intake request from longer-lived case coordination. Traceability and service workflow. Optional when the case originates through another channel. Request closure…
@@ -700,10 +700,10 @@ Governed measurable service commitment. SLA defines service targets; service tra
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code identifies the agreement in service contracts, cases and reports, so a target can be named without quoting its terms. SLA business code. Service configuration and reporting. Stable across display-name changes.
-  - **Response Target Minutes** — Target elapsed minutes to first qualifying response. Defines response commitment. Deadline calculation/escalation. Calendar/pause policies may modify elapsed-time computation.
-  - **Resolution Target Minutes** — Target elapsed minutes to qualifying resolution. Defines resolution commitment. Deadline calculation/escalation. Applied according to SLA calendar/pause policy.
-  - **Status** (required, one of the Service Level Agreement Status values) — Being drafted; targets are not yet applied. In force; cases and orders are measured against it. Temporarily not applied. Replaced or withdrawn. A final state. SLA lifecycle. Controls applicability to new service work. Service governance. H…
+  - **Code** (required) — The short code that names the agreement, such as GOLD-4H. Assigned by service management and unique; used in contracts, cases and compliance reports. The code identifies the agreement in service contracts, cases and reports, so a target ca…
+  - **Response Target Minutes** — The number of minutes allowed before a first qualifying response must be given. Set by service management; deadlines for each case are calculated from it and escalation starts when one is missed. Defines response commitment. Calendar/pause…
+  - **Resolution Target Minutes** — The number of minutes allowed before the case must be resolved. Set by service management; deadlines for each case are calculated from it and breaches trigger escalation and reporting. Defines resolution commitment. Applied according to SL…
+  - **Status** (required, one of the Service Level Agreement Status values) — Whether the agreement is still being drafted, in force, paused or retired. Starts as DRAFT and is moved by service management; only ACTIVE agreements are applied to new service work. Being drafted; the targets are not yet applied. In force…
   - **Contract** (a Contract) — Contract establishing SLA when contractual. Connects operational target to legal/commercial source. Entitlement and compliance. Optional for policy-based SLA. Contract eligibility constrains applicability.
 
 ### Service Level Agreement Status
@@ -727,9 +727,9 @@ Readable by every signed-in person.
 
 Fields:
   - **Service Order Number** (required) — The number of the service order, such as SVO-7710. Operational identifier used for scheduling and execution. Dispatch, customer communication, billing and integration. Stable across execution status changes.
-  - **Description** (required) — Scope of authorized service work. States what work the service provider is authorized to perform. Scheduling, execution, customer communication and audit. Product, Asset and related request or case provide structured context.
-  - **Scheduled Start At** — Planned start of service execution. Scheduling commitment rather than actual work evidence. Dispatch and customer communication. May be governed by SLA and availability.
-  - **Status** (required, one of the Service Order Status values) — Where the service work is. Controls authorization, scheduling and execution progression. Dispatch, execution, billing eligibility and audit. Completion does not erase related case or maintenance evidence. Work scope is being prepared. Work…
+  - **Description** (required) — The text describing the service work that has been authorised for the customer. Written by the planner or agent; technicians work from it, and it is shown to the customer and kept for audit. States what work the service provider is authori…
+  - **Scheduled Start At** — The planned date and time the work is due to begin. Set by the dispatcher when the order is scheduled; used for dispatch and customer notices, and differs from actual start evidence. Scheduling commitment rather than actual work evidence.…
+  - **Status** (required, one of the Service Order Status values) — The stage of the service order from scope to completed work. Starts as DRAFT and is moved by the planner and technician; it decides when work is dispatched and when billing may follow. The work scope is still being prepared. The work has b…
   - **Customer** (a Customer) — Customer receiving the service. Supplies commercial service context. Entitlement, billing and service history. Optional for internal service. Customer must agree with applicable contract or entitlement.
   - **Service Case** (a Service Case) — At most one case; empty for work not tied to a case. Case whose resolution requires this service order. Connects execution work to the broader managed issue. Case resolution and reporting. Completed order contributes evidence but does not…
   - **Service Request** (a Service Request) — Request authorizing or motivating this order. Preserves intake-to-execution traceability. Service workflow and audit. Optional when order comes from a case, contract or planned service process. Request and order remain distinct lifecycle r…
@@ -759,9 +759,9 @@ Readable by every signed-in person.
 Fields:
   - **Request Number** (required) — The number given to the request, such as SR-3382. Unique; quoted to the requester. Used to follow up.
   - **Request Type** (required) — The kind of request, such as repair, information or change. Chosen when raised; routes the request. Decides who triages it.
-  - **Description** (required) — What the requester needs. Written when raised. Read by the assignee.
-  - **Priority** (required, one of the Service Request Priority values) — How urgent the request is. Set at triage. Decides the order of work and the service target. Can wait. Handled in the ordinary course. Handled ahead of normal work. Needs immediate action.
-  - **Status** (required, one of the Service Request Status values) — Where the request is. Starts as OPEN; moved by service staff. Decides whether it is still waiting for action. Received and not yet looked at. Assessed and prioritised. Given to someone to handle. Being worked. The need has been met. Confir…
+  - **Description** (required) — The requester's own account of what they need, such as the fault seen or help wanted. Written when the request is raised and read by whoever triages and handles it; kept as the original record of the need. Read by the assignee.
+  - **Priority** (required, one of the Service Request Priority values) — How urgent the request is judged to be. Set at triage by service staff; it decides the order work is picked up in and when escalation starts. Can wait until capacity is free. Handled in the ordinary course of work. Handled ahead of normal…
+  - **Status** (required, one of the Service Request Status values) — Received and not yet looked at. Assessed and given a priority. Given to a named person or team to handle. Being actively worked on by the assignee. The need has been met, awaiting confirmation. Confirmed finished. A final state. Withdrawn…
   - **Requested At** (required) — Set when received; response times are measured from it. Compared with the resolved time. Records when the requested event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activi…
   - **Resolved At** — Set when resolved; required once the request is resolved or closed. Gives the time to resolve. Records when the resolved event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process a…
   - **Requester** (required, a Party) — A request is raised by one requester, who is the person told of its outcome. The person who asked for the service. Chosen when raised. Who is told the outcome.
@@ -804,7 +804,7 @@ Readable by every signed-in person.
 
 Fields:
   - **Code** (required) — The ISO 3166-2 code, the country code and the division's own, such as US-CA. Search, integration and reporting. Unique; begins with the code of the country it belongs to.
-  - **Name** (required) — The division's name in English. Shown in lists and on addresses. Does not replace the code as the stable key.
+  - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
 
@@ -815,12 +815,12 @@ A discrete unit of business work performed by a person, organisation, system or 
 Readable by every signed-in person.
 
 Fields:
-  - **Code** (required) — The code of the task, such as TASK-0042. Used in lists and notifications.
-  - **Name** (required) — A short statement of the work. Shown on to-do lists.
-  - **Description** — Details of what must be done. Read by the assignee.
+  - **Code** (required) — The short business code that identifies the task in work queues, such as TSK-10482. Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
+  - **Name** (required) — A short title stating what work the task asks someone or something to do. Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
+  - **Description** — Fuller instructions explaining what is to be done, why, and any details the performer needs. Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
   - **Task Type** (required, one of the Task Task Type values) — The kind of work the task is. Chosen when created; decides who or what performs it. Work done by a person. A step run automatically. A person must approve or refuse something. A choice that decides the path. A message to be sent. A script…
-  - **Status** (required, one of the Task Status values) — Where the task is. Starts as CREATED; moved as it is worked. Recorded and not yet ready. Ready to be picked up. Given to someone. Being worked. Cannot proceed until something is resolved. Done. A final state. No longer needed. A final stat…
-  - **Priority** (required, one of the Task Priority values) — How urgent the task is. Set when created; used to order work. Can wait. Ordinary priority. Do ahead of normal work. Do immediately.
+  - **Status** (required, one of the Task Status values) — Where the task stands, from creation through assignment and execution to completion, cancellation or failure. Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work. The…
+  - **Priority** (required, one of the Task Priority values) — How urgently the task should be worked relative to others in the same queue. Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue. Can wait behind other work without business…
   - **Due At** — Set when created; overdue tasks are flagged. Compared with the completion time. Records when the due event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   - **Started At** — Set when work starts. Not later than the completion time. Records when the started event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
   - **Completed At** — Set when the task is completed; required for a completed task. Gives the time taken. Records when the completed event occurred. It establishes chronology, supports auditability, and helps coordinate related lifecycle and process activities.
@@ -978,24 +978,24 @@ Fields:
 
 ### Customer Customer Type
 
-- **INDIVIDUAL** — A private consumer.
-- **BUSINESS** — A company or other commercial organisation.
-- **GOVERNMENT** — A public authority or agency.
+- **INDIVIDUAL** — A private consumer buying for personal use rather than for a business.
+- **BUSINESS** — A company or other commercial organisation buying for its own operations.
+- **GOVERNMENT** — A public authority or agency, often with its own procurement and payment rules.
 - **INTERNAL** — Another unit of the organisation itself, supplied through internal sales.
-- **OTHER** — A customer that fits none of the above.
+- **OTHER** — A customer that fits none of the other kinds.
 
 ### Customer Role Type
 
-- **CUSTOMER** — Buys from the organisation.
-- **SUPPLIER** — Sells to the organisation.
-- **EMPLOYEE** — Works for the organisation.
-- **PARTNER** — A business partner or reseller.
-- **CARRIER** — Transports goods for the organisation.
-- **AGENT** — Acts on behalf of the organisation or its customers.
-- **CONTRACTOR** — Provides services under a contract.
-- **OWNER** — Owns property or a share in the organisation.
-- **INVESTOR** — Provides capital.
-- **OTHER** — Any other role.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Customer Status
 
@@ -1015,10 +1015,10 @@ Fields:
 
 ### Escalation Status
 
-- **PENDING** — Raised and waiting to be picked up.
-- **ACTIVE** — Being handled by the person it was escalated to.
-- **COMPLETED** — Resolved.
-- **CANCELLED** — Withdrawn because it was no longer needed.
+- **PENDING** — Raised and waiting for the receiving person or team to pick it up.
+- **ACTIVE** — Being handled by the person or level it was escalated to.
+- **COMPLETED** — Resolved, with the outcome recorded. A final state.
+- **CANCELLED** — Withdrawn because it was no longer needed. A final state.
 
 ### Exchange Rate Rate Type
 
@@ -1040,7 +1040,7 @@ Fields:
 
 - **SITE** — A geographic site that may contain several buildings.
 - **WAREHOUSE** — A building or area for storing goods.
-- **STORE** — A retail outlet.
+- **STORE** — A retail outlet where goods are sold to customers.
 - **OFFICE** — A place where office work is done.
 - **FACTORY** — A place where goods are made.
 - **YARD** — An open area for storing or staging equipment or containers.
@@ -1052,21 +1052,21 @@ Fields:
 ### Location Status
 
 - **PLANNED** — Expected but not yet in use.
-- **ACTIVE** — In use.
-- **INACTIVE** — Temporarily not used.
-- **CLOSED** — Closed down.
+- **ACTIVE** — In use and offered for new assignments.
+- **INACTIVE** — Temporarily not used but expected to return to service.
+- **CLOSED** — Closed down, with no new assignments but history kept.
 - **RETIRED** — Removed from use altogether. A final state.
 
 ### Organization Organization Type
 
-- **ENTERPRISE** — The top-level body, such as a group or corporation.
-- **COMPANY** — A legal company.
-- **BUSINESS UNIT** — A business division with its own results.
-- **DIVISION** — A major part of the organisation.
-- **DEPARTMENT** — A functional unit.
-- **BRANCH** — A local office or branch.
-- **SUBSIDIARY** — A company controlled by another.
-- **OTHER** — Any other organised body.
+- **ENTERPRISE** — The top-level group or enterprise that owns every other organizational unit beneath it.
+- **COMPANY** — A separate legal entity or operating company, usually with its own registrations, books and tax identifiers.
+- **BUSINESS UNIT** — A unit organized around a line of business or market, which may span several legal entities.
+- **DIVISION** — A large internal division grouping departments under a common head or function.
+- **DEPARTMENT** — A functional team within a company or division, such as finance or warehouse operations.
+- **BRANCH** — A geographically separate office, store or site operating under a parent organization.
+- **SUBSIDIARY** — A company controlled by a parent organization but trading as a separate legal entity.
+- **OTHER** — A structure that fits none of the other types and is explained in its name or description.
 
 ### Organization Party Type
 
@@ -1075,10 +1075,10 @@ Fields:
 
 ### Organization Status
 
-- **DRAFT** — Being set up; not yet in use.
-- **ACTIVE** — In use.
-- **INACTIVE** — Temporarily not in use; can be reactivated.
-- **RETIRED** — Closed; kept for history. A final state.
+- **DRAFT** — The organization is being set up and is not yet available for use in transactions.
+- **ACTIVE** — The organization is in use and can be selected as an organizational scope in new records.
+- **INACTIVE** — The organization is temporarily not selectable, for example while dormant, but its history is kept and it may return.
+- **RETIRED** — The organization has been permanently closed or merged away and cannot be selected again. A final state.
 
 ### Party Party Type
 
@@ -1087,16 +1087,16 @@ Fields:
 
 ### Party Role Role Type
 
-- **CUSTOMER** — Buys from the organisation.
-- **SUPPLIER** — Sells to the organisation.
-- **EMPLOYEE** — Works for the organisation.
-- **PARTNER** — A business partner or reseller.
-- **CARRIER** — Transports goods for the organisation.
-- **AGENT** — Acts on behalf of the organisation or its customers.
-- **CONTRACTOR** — Provides services under a contract.
-- **OWNER** — Owns property or a share in the organisation.
-- **INVESTOR** — Provides capital.
-- **OTHER** — Any other role.
+- **CUSTOMER** — The party buys goods or services from the organization and is handled in sales and receivables.
+- **SUPPLIER** — The party sells goods or services to the organization and is handled in procurement and payables.
+- **EMPLOYEE** — The party works for the organization under an employment relationship.
+- **PARTNER** — The party collaborates with the organization commercially, such as a reseller or alliance member.
+- **CARRIER** — The party transports goods or people for the organization.
+- **AGENT** — The party acts on behalf of the organization or of another party, usually for a commission.
+- **CONTRACTOR** — The party provides labour or services under a contract rather than as an employee.
+- **OWNER** — The party holds an ownership or beneficial interest in an asset or organization.
+- **INVESTOR** — The party provides capital to the organization in return for a financial return or equity stake.
+- **OTHER** — A role that fits none of the listed kinds and is explained in the role code or description.
 
 ### Party Role Status
 
@@ -1113,11 +1113,11 @@ Fields:
 
 ### Person Gender
 
-- **FEMALE** — Identifies as female.
-- **MALE** — Identifies as male.
-- **NON BINARY** — Identifies as neither exclusively male nor female.
-- **OTHER** — Identifies in another way.
-- **UNSPECIFIED** — Not stated or not collected.
+- **FEMALE** — The person identifies and is recorded as female.
+- **MALE** — The person identifies and is recorded as male.
+- **NON BINARY** — The person identifies as neither exclusively male nor exclusively female.
+- **OTHER** — The person identifies in a way not covered by the other values.
+- **UNSPECIFIED** — The gender is not recorded, because it was not needed or the person chose not to say.
 
 ### Person Party Type
 
@@ -1133,78 +1133,78 @@ Fields:
 
 ### Service Case Priority
 
-- **LOW** — Low urgency.
-- **NORMAL** — Standard urgency.
-- **HIGH** — Elevated business impact.
-- **URGENT** — Immediate attention is required.
+- **LOW** — Little impact; can be handled when capacity allows.
+- **NORMAL** — Standard urgency, handled in the ordinary course.
+- **HIGH** — Elevated business impact; handled ahead of normal work.
+- **URGENT** — Serious impact; immediate attention is required.
 
 ### Service Case Status
 
-- **OPEN** — Case has been accepted for management.
-- **IN PROGRESS** — Active investigation or coordination is occurring.
-- **PENDING** — Progress is waiting on customer, supplier or another dependency.
-- **RESOLVED** — A resolution outcome has been recorded and awaits closure.
-- **CLOSED** — Case is formally complete and retained as historical evidence.
-- **CANCELLED** — Case was cancelled through governed workflow.
+- **OPEN** — The case has been accepted and is waiting to be worked.
+- **IN PROGRESS** — Active investigation or coordination is taking place.
+- **PENDING** — Progress is waiting on the customer, a supplier or another dependency.
+- **RESOLVED** — A resolution has been recorded and awaits confirmation and closure.
+- **CLOSED** — The case is formally complete and kept as historical evidence.
+- **CANCELLED** — The case was withdrawn through the governed workflow.
 
 ### Service Contract Status
 
-- **DRAFT** — Operational coverage is being prepared.
-- **ACTIVE** — Coverage may support new eligible service.
-- **SUSPENDED** — Coverage is temporarily unavailable for new ordinary authorization.
-- **EXPIRED** — Effective period ended.
-- **TERMINATED** — Coverage was ended early through governed process.
+- **DRAFT** — Coverage is being prepared and gives no entitlement yet.
+- **ACTIVE** — Coverage is in force and may support new eligible service.
+- **SUSPENDED** — Coverage is temporarily unavailable for new service authorisation.
+- **EXPIRED** — The effective period has ended and nothing was renewed. A final state.
+- **TERMINATED** — Coverage was ended early through the governed process. A final state.
 
 ### Service Level Agreement Status
 
-- **DRAFT** — Being drafted; targets are not yet applied.
+- **DRAFT** — Being drafted; the targets are not yet applied.
 - **ACTIVE** — In force; cases and orders are measured against it.
-- **SUSPENDED** — Temporarily not applied.
+- **SUSPENDED** — Temporarily not applied, and may be reinstated.
 - **RETIRED** — Replaced or withdrawn. A final state.
 
 ### Service Order Status
 
-- **DRAFT** — Work scope is being prepared.
-- **APPROVED** — Work is authorized.
-- **SCHEDULED** — Work has an execution schedule.
-- **IN PROGRESS** — Authorized service is being performed.
-- **COMPLETED** — Service execution is complete and retained as history.
-- **CANCELLED** — Order was cancelled through governed workflow.
+- **DRAFT** — The work scope is still being prepared.
+- **APPROVED** — The work has been authorised and awaits scheduling.
+- **SCHEDULED** — A date and technician have been set for the work.
+- **IN PROGRESS** — The authorised service is being performed.
+- **COMPLETED** — The work is done and kept as history. A final state.
+- **CANCELLED** — The order was withdrawn through the governed workflow. A final state.
 
 ### Service Request Priority
 
-- **LOW** — Can wait.
-- **NORMAL** — Handled in the ordinary course.
+- **LOW** — Can wait until capacity is free.
+- **NORMAL** — Handled in the ordinary course of work.
 - **HIGH** — Handled ahead of normal work.
-- **CRITICAL** — Needs immediate action.
+- **CRITICAL** — Needs immediate action because of severe impact.
 
 ### Service Request Status
 
 - **OPEN** — Received and not yet looked at.
-- **TRIAGED** — Assessed and prioritised.
-- **ASSIGNED** — Given to someone to handle.
-- **IN PROGRESS** — Being worked.
-- **RESOLVED** — The need has been met.
+- **TRIAGED** — Assessed and given a priority.
+- **ASSIGNED** — Given to a named person or team to handle.
+- **IN PROGRESS** — Being actively worked on by the assignee.
+- **RESOLVED** — The need has been met, awaiting confirmation.
 - **CLOSED** — Confirmed finished. A final state.
-- **CANCELLED** — Withdrawn. A final state.
+- **CANCELLED** — Withdrawn before it was resolved. A final state.
 
 ### Task Priority
 
-- **LOW** — Can wait.
-- **NORMAL** — Ordinary priority.
-- **HIGH** — Do ahead of normal work.
-- **CRITICAL** — Do immediately.
+- **LOW** — Can wait behind other work without business impact.
+- **NORMAL** — Standard urgency, handled in the ordinary course of work.
+- **HIGH** — Needs prompt attention ahead of normal work.
+- **CRITICAL** — Needs immediate action because delay causes serious business impact.
 
 ### Task Status
 
-- **CREATED** — Recorded and not yet ready.
-- **READY** — Ready to be picked up.
-- **ASSIGNED** — Given to someone.
-- **IN PROGRESS** — Being worked.
-- **BLOCKED** — Cannot proceed until something is resolved.
-- **COMPLETED** — Done. A final state.
-- **CANCELLED** — No longer needed. A final state.
-- **FAILED** — Could not be done. A final state.
+- **CREATED** — The task exists but is not yet ready to be picked up.
+- **READY** — The task is released and waiting for someone to be assigned.
+- **ASSIGNED** — A person or party has been given the task but has not started it.
+- **IN PROGRESS** — The assignee is actively working on the task.
+- **BLOCKED** — Work is held up by a dependency, missing input or decision.
+- **COMPLETED** — The work was done as required. A final state.
+- **CANCELLED** — The task was withdrawn before completion. A final state.
+- **FAILED** — The task ended without achieving its result and needs follow-up elsewhere. A final state.
 
 ### Task Task Type
 
@@ -1218,20 +1218,20 @@ Fields:
 
 ### Ticket Priority
 
-- **LOW** — Low urgency.
-- **NORMAL** — Standard urgency.
-- **HIGH** — Elevated urgency.
-- **URGENT** — Immediate attention.
+- **LOW** — Minor impact that can wait behind other work.
+- **NORMAL** — Standard urgency, handled in normal queue order.
+- **HIGH** — Significant impact that needs prompt attention.
+- **URGENT** — Severe impact needing immediate action ahead of everything else.
 
 ### Ticket Status
 
-- **NEW** — Raised and not yet looked at.
-- **ASSIGNED** — Given to a queue or person.
-- **IN PROGRESS** — Being worked.
-- **PENDING** — Waiting for the customer or a third party.
-- **RESOLVED** — A fix or answer has been given.
-- **CLOSED** — Confirmed finished. A final state.
-- **CANCELLED** — Withdrawn without action. A final state.
+- **NEW** — The ticket was raised and nobody has looked at it yet.
+- **ASSIGNED** — The ticket has been given to a queue or person but work has not begun.
+- **IN PROGRESS** — An agent is actively working on the ticket.
+- **PENDING** — Work is paused while waiting for the customer or a third party.
+- **RESOLVED** — A fix or answer has been given and awaits confirmation.
+- **CLOSED** — The resolution is confirmed and the ticket is finished. A final state.
+- **CANCELLED** — The ticket was withdrawn without action. A final state.
 
 ### Unit Of Measure Category
 

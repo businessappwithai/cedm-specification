@@ -35,20 +35,20 @@ entity:
       required: true
       values: [SPECIMEN, ALIQUOT, COMPOUND, MATERIAL, BIOLOGICAL, CHEMICAL, ENVIRONMENTAL, CONTROL, REFERENCE, OTHER]
       help:
+        summary: The category of the sample, saying what kind of material it is or what role it plays in the work.
+        usage: Chosen when the sample is registered; it decides handling and storage rules, which protocols apply, and how results are reported.
         valueSemantics:
-          SPECIMEN: A portion taken from a larger whole for study.
-          ALIQUOT: A measured part of a prepared sample.
+          SPECIMEN: A portion taken from a larger whole in order to study it.
+          ALIQUOT: A measured part divided from a prepared parent sample.
           COMPOUND: A sample of a chemical compound under study.
-          MATERIAL: A sample of a material or substance.
-          BIOLOGICAL: Biological matter such as tissue, cells or fluid.
-          CHEMICAL: A chemical substance or mixture.
+          MATERIAL: A sample of a material or substance, such as a polymer or alloy.
+          BIOLOGICAL: Biological matter such as tissue, cells, blood or other fluid.
+          CHEMICAL: A chemical substance or mixture, such as a reagent or solvent.
           ENVIRONMENTAL: Taken from the environment, such as water, soil or air.
-          CONTROL: A sample with a known result used to check a test.
-          REFERENCE: A certified standard to compare against.
-          OTHER: A sample that fits no other type.
-        summary: Classification of the scientific sample.
+          CONTROL: A sample with a known result, used to check that a test is working.
+          REFERENCE: A certified standard that other samples are compared against.
+          OTHER: A sample that fits none of the other types.
         businessMeaning: Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules.
-        usage: Laboratory routing, protocol selection, reporting, safety, and analytics.
         relationshipContext: Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
     - name: status
       type: enum
@@ -94,9 +94,9 @@ entity:
       target: UnitOfMeasure
       required: false
       help:
-        summary: Unit in which sample quantity is expressed.
+        summary: The unit, such as mL, mg or units, in which the amount of this sample is stated.
+        usage: Chosen when the sample is registered; quantities are compared and converted using it, so it must suit the sample type.
         businessMeaning: Gives dimensional meaning to the sample quantity.
-        usage: Quantity comparison, conversion, reporting, and audit.
         relationshipContext: Required when quantity is dimensional; changes to unit definitions must not silently reinterpret historical sample evidence.
   relationships:
     - name: experiments

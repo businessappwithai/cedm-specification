@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T06:46:03.274Z
+ * Generated: 2026-10-09T08:32:50.025Z
  * Project: retail
  */
 

@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:45:21.092Z
+ * Generated: 2026-10-09T08:32:10.446Z
  * Project: nonprofit
  */
 

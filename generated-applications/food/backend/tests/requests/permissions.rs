@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T06:44:20.356Z
+//! Generated: 2026-10-09T08:31:10.220Z
 //! Project: food
 
 use serde_json::Value;

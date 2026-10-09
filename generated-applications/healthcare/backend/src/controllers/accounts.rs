@@ -1,6 +1,6 @@
 //! `/api/accounts` — who can sign in, and what they hold.
 //!
-//! Generated: 2026-10-09T06:44:24.440Z
+//! Generated: 2026-10-09T08:31:14.377Z
 //! Project: healthcare
 //!
 //! **Why this is not `/api/sys/users`.** An account is two rows: `users`, the

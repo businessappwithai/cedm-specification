@@ -31,8 +31,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: The quantity the plan calls for.
-        usage: Entered or calculated; must not be negative.
+        summary: The quantity of the product that the plan expects to be available or replenished at the location on the planning date.
+        usage: Entered or calculated by planners; compared with demand and safety stock to drive replenishment orders.
         relationshipContext: Compared with the quantity actually delivered.
     - name: safetyStockQuantity
       type: decimal

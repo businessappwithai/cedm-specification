@@ -44,8 +44,6 @@ entity:
         - PERFORMANCE
         - OTHER
       help:
-        summary: The kind of commitment.
-        usage: Chosen when the obligation is created; drives reminders and how fulfilment is evidenced.
         valueSemantics:
           DELIVERY: Goods or deliverables must be delivered.
           PAYMENT: Money must be paid.
@@ -53,7 +51,9 @@ entity:
           REPORTING: Information or reports must be supplied.
           COMPLIANCE: A legal, regulatory or standards requirement must be met.
           PERFORMANCE: A level of performance, such as a service level, must be achieved.
-          OTHER: Any other commitment.
+          OTHER: Any other commitment that does not fit the listed kinds.
+        summary: The kind of commitment.
+        usage: Chosen when the obligation is created; drives reminders and how fulfilment is evidenced.
     - name: status
       type: enum
       required: true
@@ -66,15 +66,15 @@ entity:
         - WAIVED
         - CANCELLED
       help:
-        summary: Whether the obligation is still due, being met, or resolved.
-        usage: Updated by the contract manager as work proceeds and evidence is received.
         valueSemantics:
           OPEN: Due but not yet started.
-          IN_PROGRESS: Being worked on.
+          IN_PROGRESS: Being worked on by the responsible party, with fulfilment not yet shown.
           FULFILLED: Met; evidence is on record. A final state.
           BREACHED: Not met in time or at the required standard. A final state that may lead to remedies.
           WAIVED: Released by the other party; no longer required. A final state.
           CANCELLED: No longer applicable, for example because the contract changed. A final state.
+        summary: Whether the obligation is still due, being met, or resolved.
+        usage: Updated by the contract manager as work proceeds and evidence is received.
     - name: dueDate
       type: date
       required: false

@@ -7,23 +7,23 @@ entity:
     icon: file-check
   identity: {key: serviceLevelAgreementId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: serviceLevelAgreementId, type: uuid, required: true, immutable: true, help: {summary: Stable SLA identity., businessMeaning: Identifies one governed service commitment definition., usage: "Service operations, entitlement and compliance.", relationshipContext: Referenced by service transactions/contracts.}}
-    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {businessMeaning: 'The code identifies the agreement in service contracts, cases and reports, so a target can be named without quoting its terms.', summary: SLA business code., usage: Service configuration and reporting., relationshipContext: Stable across display-name changes.}}
-    - {name: responseTargetMinutes, type: integer, required: false, help: {summary: Target elapsed minutes to first qualifying response., businessMeaning: Defines response commitment., usage: Deadline calculation/escalation., relationshipContext: Calendar/pause policies may modify elapsed-time computation.}}
-    - {name: resolutionTargetMinutes, type: integer, required: false, help: {summary: Target elapsed minutes to qualifying resolution., businessMeaning: Defines resolution commitment., usage: Deadline calculation/escalation., relationshipContext: Applied according to SLA calendar/pause policy.}}
+    - {name: serviceLevelAgreementId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identifier of one service level agreement., usage: 'Generated on creation; contracts, cases and orders reference the commitment through it.', businessMeaning: Identifies one governed service commitment definition., relationshipContext: Referenced by service transactions/contracts.}}
+    - {name: code, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The short code that names the agreement, such as GOLD-4H.', usage: 'Assigned by service management and unique; used in contracts, cases and compliance reports.', businessMeaning: 'The code identifies the agreement in service contracts, cases and reports, so a target can be named without quoting its terms.', relationshipContext: Stable across display-name changes.}}
+    - {name: responseTargetMinutes, type: integer, required: false, help: {summary: The number of minutes allowed before a first qualifying response must be given., usage: Set by service management; deadlines for each case are calculated from it and escalation starts when one is missed., businessMeaning: Defines response commitment., relationshipContext: Calendar/pause policies may modify elapsed-time computation.}}
+    - {name: resolutionTargetMinutes, type: integer, required: false, help: {summary: The number of minutes allowed before the case must be resolved., usage: Set by service management; deadlines for each case are calculated from it and breaches trigger escalation and reporting., businessMeaning: Defines resolution commitment., relationshipContext: Applied according to SLA calendar/pause policy.}}
     - name: status
       type: enum
       required: true
       values: [DRAFT, ACTIVE, SUSPENDED, RETIRED]
       help:
+        summary: Whether the agreement is still being drafted, in force, paused or retired.
+        usage: Starts as DRAFT and is moved by service management; only ACTIVE agreements are applied to new service work.
         valueSemantics:
-          DRAFT: Being drafted; targets are not yet applied.
+          DRAFT: Being drafted; the targets are not yet applied.
           ACTIVE: In force; cases and orders are measured against it.
-          SUSPENDED: Temporarily not applied.
+          SUSPENDED: Temporarily not applied, and may be reinstated.
           RETIRED: Replaced or withdrawn. A final state.
-        summary: SLA lifecycle.
         businessMeaning: Controls applicability to new service work.
-        usage: Service governance.
         relationshipContext: Historical service measurements retain applied SLA version.
   relationships:
     - {name: serviceRequests, target: ServiceRequest, cardinality: 0..*, ownership: reference, help: {summary: Requests governed by SLA., businessMeaning: Applies measurable service commitment., usage: Deadline and breach management., cardinalityMeaning: Zero or many requests., workflowRole: SLA changes do not silently recalculate closed historical evidence.}}

@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the order.
-        usage: Generated on creation.
+        summary: The permanent identity of the order, kept unchanged through issue, performance and any amendment.
+        usage: Generated on creation; results, billing items and the ordering encounter refer to it by this value.
         relationshipContext: Connects this record to its governing HealthcareEncounter context and downstream evidence.
     - name: healthcareOrderCode
       type: string
@@ -33,8 +33,8 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the order stands.
-        usage: Moved by the ordering and performing teams.
+        summary: Where the order stands, from being prepared to carried out or withdrawn.
+        usage: Moved by the ordering clinician and the performing team; completed orders are amended or replaced, never rewritten.
         valueSemantics:
           DRAFT: Being prepared; not yet sent.
           ACTIVE: Issued and awaiting action.

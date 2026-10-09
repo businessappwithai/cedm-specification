@@ -8,15 +8,17 @@ entity:
   attributes:
     - {name: entitlementId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the entitlement, independent of the contract that grants it.', usage: Generated on creation; service orders and coverage checks refer to it., businessMeaning: Identifies one service right independently of the contract header or service work consuming it., relationshipContext: Remains stable as consumption and status change.}}
     - {name: entitlementCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The unique reference by which the entitlement is quoted when service is requested., usage: Assigned when the entitlement is created., businessMeaning: Operational identifier for coverage administration., relationshipContext: Distinct from Contract and ServiceContract numbers.}}
-    - {name: effectiveFrom, type: date, required: true, help: {summary: First date the service right may be used., businessMeaning: Starts entitlement eligibility., usage: "Coverage checks and reporting.", relationshipContext: Must fall within the governing ServiceContract period.}}
-    - {name: effectiveTo, type: date, required: false, help: {summary: Last date the service right may be used., businessMeaning: Ends ordinary eligibility without rewriting historical consumption., usage: "Coverage checks and renewals.", relationshipContext: Must not exceed governed contract scope.}}
-    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: Maximum governed quantity of covered service usage., businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", usage: "Authorization, consumption and renewal.", relationshipContext: Meaning requires the service policy or unit defined by the contract context.}}
+    - {name: effectiveFrom, type: date, required: true, help: {summary: The first date on which the customer may use the covered service under this right., usage: 'Set when the entitlement is granted; coverage checks refuse service before it, and it must fall inside the contract period.', businessMeaning: Starts entitlement eligibility., relationshipContext: Must fall within the governing ServiceContract period.}}
+    - {name: effectiveTo, type: date, required: false, help: {summary: The last date on which the covered service may be used under this right., usage: 'Set from the contract end or a shorter grant; coverage checks refuse service after it, and renewals start from it.', businessMeaning: Ends ordinary eligibility without rewriting historical consumption., relationshipContext: Must not exceed governed contract scope.}}
+    - {name: usageLimit, type: decimal, required: false, precision: 20, scale: 4, help: {summary: 'The most covered service the customer may consume under this right, in the unit the contract defines.', usage: 'Set from the contract terms; each authorised service order draws it down, and the entitlement is exhausted when it is reached.', businessMeaning: "Supports visit, hour, quantity or credit limits according to policy.", relationshipContext: Meaning requires the service policy or unit defined by the contract context.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, EXHAUSTED, EXPIRED, TERMINATED]
       help:
+        summary: Whether the right is being set up, usable, paused, used up, lapsed or ended early.
+        usage: Moved by service administration; new covered work is authorised only while ACTIVE, and past service orders keep their evidence.
         valueSemantics:
           DRAFT: Being set up; no service rights yet.
           ACTIVE: In force; covered service may be authorised.
@@ -24,9 +26,7 @@ entity:
           EXHAUSTED: The usage limit has been reached.
           EXPIRED: The period has ended.
           TERMINATED: Ended early. A final state.
-        summary: Lifecycle state controlling new entitlement use.
         businessMeaning: Distinguishes prepared, usable, temporarily unavailable, consumed and ended rights.
-        usage: Service authorization and audit.
         relationshipContext: Historical service orders retain entitlement evidence after the right ends.
   relationships:
     - {name: customer, target: Customer, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one customer, the holder of the service right.', summary: Customer entitled to receive service., businessMeaning: Establishes beneficiary identity., usage: "Service authorization and customer history.", workflowRole: Must agree with governing ServiceContract.}}

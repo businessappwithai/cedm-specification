@@ -1,6 +1,6 @@
 //! Authentication — the login every other suite depends on.
 //!
-//! Generated: 2026-10-09T06:43:24.155Z
+//! Generated: 2026-10-09T08:30:13.896Z
 //! Project: automotive
 
 use serde_json::{json, Value};

@@ -13,7 +13,7 @@
 //! another costume, and the parity gate cannot see a file that both generators
 //! agree to omit.
 //!
-//! Generated: 2026-10-09T06:45:40.016Z
+//! Generated: 2026-10-09T08:32:27.230Z
 //! Project: public-sector
 
 use axum::{

@@ -1,6 +1,6 @@
 //! Workflow definitions, runs, and the audit trail they write.
 //!
-//! Generated: 2026-10-09T06:44:24.619Z
+//! Generated: 2026-10-09T08:31:14.507Z
 //! Project: healthcare
 
 use serde_json::{json, Value};

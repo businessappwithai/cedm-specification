@@ -7,13 +7,25 @@ entity:
     icon: database
   identity: {key: handlingUnitId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: Stable handling-unit identity., businessMeaning: Identifies one physical logistics unit independently of label changes., usage: "Receiving, putaway, picking, packing, staging and shipping.", relationshipContext: May contain product/lot/serial inventory and nested handling units.}}
-    - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: Scannable operational handling-unit reference., businessMeaning: Label/barcode identifier used in physical execution., usage: WMS scanning and logistics documents., relationshipContext: Distinct from Shipment or inventory movement number.}}
+    - {name: handlingUnitId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identity of the handling unit, kept as it moves between locations and shipments.', usage: 'Generated on creation; inventory, picking, packing and shipment records refer to the unit by this value.', businessMeaning: Identifies one physical logistics unit independently of label changes., relationshipContext: May contain product/lot/serial inventory and nested handling units.}}
+    - {name: handlingUnitNumber, type: string, required: true, unique: true, maxLength: 150, help: {summary: "The scannable number on the unit's label, such as a pallet licence plate, by which warehouse staff identify it.", usage: 'Unique; printed on the label at creation and scanned during putaway, picking, staging and loading.', businessMeaning: Label/barcode identifier used in physical execution., relationshipContext: Distinct from Shipment or inventory movement number.}}
     - name: type
       type: enum
       required: true
       values: [PALLET, CARTON, TOTE, CAGE, DRUM, PACKAGE, OTHER]
-      help: {summary: Physical handling-unit classification., businessMeaning: Describes packaging/handling form., usage: "Capacity, equipment, packing and carrier planning.", relationshipContext: Does not determine contents by itself., valueSemantics: {PALLET: Palletized logistics unit., CARTON: Carton/box., TOTE: Reusable tote/bin., CAGE: Roll cage or similar unit., DRUM: Drum/container., PACKAGE: General package., OTHER: Governed other type.}}
+      help:
+        summary: The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment.
+        usage: Chosen when the unit is created; capacity, equipment, packing and carrier planning read it.
+        valueSemantics:
+          PALLET: A palletised load moved by forklift or pallet truck.
+          CARTON: A cardboard box or case holding items for storage or shipment.
+          TOTE: A reusable bin or tote used for picking and internal movement.
+          CAGE: A roll cage or similar wheeled frame used to move mixed goods.
+          DRUM: A cylindrical drum or barrel holding liquids or bulk material.
+          PACKAGE: A general parcel that is none of the other forms.
+          OTHER: A governed unit type not covered by the listed forms.
+        businessMeaning: Describes packaging/handling form.
+        relationshipContext: Does not determine contents by itself.
   relationships:
     - {name: inventoryLocation, target: InventoryLocation, cardinality: "0..1", ownership: reference, help: {summary: Current warehouse location when stored., businessMeaning: Provides operational custody position., usage: "Putaway, picking and count.", cardinalityMeaning: Optional while in transit/shipped., workflowRole: Changes must reconcile to execution evidence.}}
     - {name: shipment, target: Shipment, cardinality: "0..1", ownership: reference, help: {summary: Shipment carrying the handling unit when dispatched., businessMeaning: Connects package identity to transport., usage: "Packing, loading, tracking and delivery.", cardinalityMeaning: Optional before shipment assignment., workflowRole: Shipment execution controls transit state.}}

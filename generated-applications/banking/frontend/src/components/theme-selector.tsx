@@ -16,7 +16,7 @@
  * The change applies immediately across the whole app and persists, because the
  * provider writes the choice to localStorage.
  *
- * Generated: 2026-10-09T06:43:30.549Z
+ * Generated: 2026-10-09T08:30:20.052Z
  * Project: banking
  */
 

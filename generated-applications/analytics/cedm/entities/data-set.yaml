@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The descriptive name of the dataset.
-        usage: Shown in the data catalogue.
+        summary: The descriptive name by which the dataset is known in the data catalogue.
+        usage: Chosen by the data owner when the dataset is registered; analysts search and recognise datasets by it, so it should be specific.
     - name: classification
       type: enum
       required: true
@@ -68,8 +68,8 @@ entity:
         - ARCHIVED
         - RETIRED
       help:
-        summary: Whether the dataset is available for use.
-        usage: Set by the data owner.
+        summary: Whether the dataset is being assembled, published for use, kept only for reference, or withdrawn.
+        usage: Set by the data owner; only an active dataset is offered to users for new work, and archived or retired ones stay for history.
         valueSemantics:
           DRAFT: Being assembled; not yet published.
           ACTIVE: Published and available to authorised users.

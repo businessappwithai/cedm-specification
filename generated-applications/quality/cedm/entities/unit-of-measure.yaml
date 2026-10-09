@@ -119,6 +119,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to find which products default to this unit before changing it, and set when a product is given its stocking unit.
         summary: Products using this unit as a standard measurement basis.
         workflowRole: A UOM change must validate affected Product defaults and all open transactions using those products.
     - name: salesOrderLines
@@ -126,6 +127,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to find open sales lines in this unit; check them before the unit's conversion or meaning is altered.
         summary: Sales commitments expressed in this unit.
         workflowRole: Open lines must be checked before conversion semantics are changed or the unit is retired.
     - name: purchaseOrderLines
@@ -133,6 +135,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to find open procurement lines in this unit; check them before the unit's conversion or meaning is altered.
         summary: Procurement commitments expressed in this unit.
         workflowRole: Open procurement lines must be validated before conversion semantics are changed.
     - name: goodsReceiptLines
@@ -140,6 +143,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to reconcile what was received against what was ordered, since receipt quantities are kept in their original unit.
         summary: Receipt quantities expressed in this unit.
         workflowRole: Historical receipt quantities retain their original UOM; future receipts require an active compatible unit.
     - name: invoiceLines
@@ -147,6 +151,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to see billed quantities in this unit; issued invoices keep their recorded unit when conversions change later.
         summary: Billed quantities expressed in this unit.
         workflowRole: Issued invoices retain their recorded UOM; future invoice calculations require compatible active units.
     - name: inventoryMovements
@@ -154,6 +159,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to trace stock receipts, issues and transfers expressed in this unit, and to reconcile balances across units.
         summary: Inventory events expressed in this unit.
         workflowRole: Movement history is immutable in measurement meaning; future movements must use a valid conversion.
   invariants:

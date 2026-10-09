@@ -16,9 +16,9 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the action.
+        summary: The permanent system identity of one corrective or preventive action.
+        usage: Generated on creation; verifications, nonconformances and audits refer to the action through it.
         businessMeaning: "Identifies one controlled quality action independently of its issue, owner, implementation evidence or verification."
-        usage: "CAPA, quality audit, supplier improvement and compliance."
         relationshipContext: Distinct from Nonconformance and CorrectiveActionVerification identities.
         workflowRole: "Stable reference through assignment, execution, verification and closure."
     - name: actionNumber
@@ -26,7 +26,12 @@ entity:
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Human-facing corrective-action reference., businessMeaning: "Identifies the action for quality teams, responsible parties and auditors.", usage: "Communication, reporting, CAPA tracking and integration.", relationshipContext: Distinct from the originating nonconformance number and verification number., workflowRole: Correlates action work across its lifecycle.}
+      help:
+        summary: The unique reference number by which people refer to the action in CAPA meetings and reports.
+        usage: Assigned when the action is raised; quoted in supplier communication, tracking dashboards and integrations.
+        businessMeaning: "Identifies the action for quality teams, responsible parties and auditors."
+        relationshipContext: Distinct from the originating nonconformance number and verification number.
+        workflowRole: Correlates action work across its lifecycle.
     - name: actionType
       type: enum
       required: true
@@ -36,14 +41,14 @@ entity:
         - CORRECTIVE
         - PREVENTIVE
       help:
+        summary: 'The purpose of the action: containing a problem, fixing the item, removing its cause, or preventing recurrence elsewhere.'
+        usage: Chosen by the quality owner; decides what evidence is expected, who reviews it and how effectiveness is judged.
         valueSemantics:
           CONTAINMENT: Immediate action to stop the problem spreading, such as quarantining stock.
           CORRECTION: Fixing the specific nonconforming item or condition.
           CORRECTIVE: Removing the root cause so the problem does not recur.
           PREVENTIVE: Action to prevent a similar problem elsewhere before it happens.
-        summary: Classification of the quality action.
         businessMeaning: Distinguishes immediate containment, correction of an existing condition, root-cause corrective action, and preventive action.
-        usage: Determines evidence expectations, routing and effectiveness criteria.
         relationshipContext: Containment/disposition can control immediate risk while corrective/preventive actions address causes and recurrence.
         workflowRole: Determines the intended outcome that verification must assess.
     - name: description
@@ -63,26 +68,36 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
+        summary: Where the action stands from being raised, assigned and carried out to verification and closure.
+        usage: Moved by the action owner and quality reviewer; completion needs the completed date and, where required, an effective verification.
         valueSemantics:
           OPEN: Raised but not yet assigned.
           ASSIGNED: Given to an owner, who has not started.
-          IN_PROGRESS: Being carried out.
+          IN_PROGRESS: Being carried out by the owner, with implementation not yet finished.
           VERIFICATION: Done and waiting for an effectiveness check.
-          COMPLETED: Done and, where required, verified effective.
-          CANCELLED: Withdrawn and not carried out.
-        summary: Lifecycle state of the action.
+          COMPLETED: Done and, where required, verified effective. A final state.
+          CANCELLED: Withdrawn and not carried out. A final state.
         businessMeaning: Indicates whether work is pending, assigned, underway, awaiting effectiveness evidence, completed or cancelled.
-        usage: Controls execution and closure.
         relationshipContext: COMPLETED does not itself prove effectiveness; CorrectiveActionVerification supplies that evidence.
         workflowRole: VERIFICATION gates final completion when effectiveness verification is required.
     - name: dueDate
       type: date
       required: false
-      help: {summary: Target date for action implementation., businessMeaning: Defines when the responsible party is expected to complete implementation., usage: "Work planning, escalation, SLA reporting and quality governance.", relationshipContext: Distinct from completedDate and verificationDate., workflowRole: Supports overdue detection and escalation.}
+      help:
+        summary: The date by which the action should be implemented.
+        usage: Agreed when the action is assigned; drives reminders and escalation, and overdue counts in quality governance reports.
+        businessMeaning: Defines when the responsible party is expected to complete implementation.
+        relationshipContext: Distinct from completedDate and verificationDate.
+        workflowRole: Supports overdue detection and escalation.
     - name: completedDate
       type: date
       required: false
-      help: {summary: Date implementation was formally completed., businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification.", usage: "CAPA metrics, audit and chronology.", relationshipContext: Does not replace verification evidence where effectiveness is required., workflowRole: Required when status is COMPLETED.}
+      help:
+        summary: The date implementation was formally finished, which may differ from the verification date.
+        usage: Recorded when the action completes and required then; CAPA metrics measure time to complete against the due date.
+        businessMeaning: "Records when the action work was declared complete, subject to any required effectiveness verification."
+        relationshipContext: Does not replace verification evidence where effectiveness is required.
+        workflowRole: Required when status is COMPLETED.
   relationships:
     - name: nonconformance
       target: Nonconformance

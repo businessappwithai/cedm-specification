@@ -7,7 +7,7 @@ entity:
     icon: table
   identity: {key: filingId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: filingId, type: uuid, required: true, immutable: true, help: {summary: The identity of the filing., usage: Generated on creation.}}
+    - {name: filingId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identity of the filing, unchanged by later corrections or supersession.', usage: 'Generated when the submission is recorded; documents, receipts and follow-up filings refer to it as evidence.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the filing was submitted., usage: Taken from the receipt; deadlines are checked against it.}}
   relationships: []
   invariants:

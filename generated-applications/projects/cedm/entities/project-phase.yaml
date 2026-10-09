@@ -14,12 +14,12 @@ entity:
       required: true
       values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the phase is.
-        usage: Starts as PLANNED; moved by the project manager.
+        summary: Where this stage of the project stands from being scheduled through work under way to closure.
+        usage: Starts as PLANNED and is moved by the project manager; completion requires its required tasks and milestones to be reconciled.
         valueSemantics:
-          PLANNED: Scheduled and not started.
-          ACTIVE: Work in the phase is under way.
-          COMPLETED: The phase's work is finished. A final state.
+          PLANNED: Scheduled but work in the phase has not started.
+          ACTIVE: Work in the phase is under way and tasks are being executed.
+          COMPLETED: All required work in the phase is finished. A final state.
           CANCELLED: The phase will not be carried out. A final state.
         businessMeaning: Controls phase execution.
         relationshipContext: Task/milestone state must reconcile.

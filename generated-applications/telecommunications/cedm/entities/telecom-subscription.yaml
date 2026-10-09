@@ -39,20 +39,20 @@ entity:
         - CANCELLED
         - EXPIRED
       help:
-        summary: Where the subscription is.
-        usage: Starts as PENDING; moved by activation, billing and the customer.
+        summary: Where the subscription is in its term, from ordering through service to its end.
+        usage: Moved by activation, billing and the customer; only active subscriptions are billed, and cancelled or expired ones are closed.
         valueSemantics:
-          PENDING: Ordered and not yet started.
-          ACTIVE: Running and billed.
-          SUSPENDED: Paused, for example for non-payment.
-          CANCELLED: Ended early at the customer's or provider's request. A final state.
-          EXPIRED: Ran to the end of its term. A final state.
+          PENDING: The subscription has been ordered but has not yet started.
+          ACTIVE: The subscription is running and being billed.
+          SUSPENDED: The subscription is paused, for example for non-payment.
+          CANCELLED: The subscription ended early at the customer's or provider's request. A final state.
+          EXPIRED: The subscription ran to the end of its term. A final state.
     - name: startDate
       type: date
       required: true
       help:
-        summary: The date the subscription starts.
-        usage: Set at activation; billing starts from it.
+        summary: The date on which the subscription's service and billing begin.
+        usage: Set when the subscription is ordered or activated; billing runs from it, and it must not be later than the end date.
         relationshipContext: Not later than the end date.
     - name: endDate
       type: date

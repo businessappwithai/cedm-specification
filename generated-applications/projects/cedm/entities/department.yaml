@@ -9,9 +9,9 @@ entity:
   attributes:
     - {name: departmentId, type: uuid, required: true, immutable: true, help: {summary: The identity of the department., usage: 'Generated on creation; people, positions and budgets refer to it.'}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the department, such as FIN-AP.', usage: Used in postings and reports; kept stable.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the department., usage: Shown in organisation charts and on documents.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The name of the department as the organisation calls it, such as Finance or Field Operations.', usage: 'Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.'}}
   relationships:
-    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation the department belongs to., cardinalityMeaning: 'Exactly one organisation: a department is part of a single organisation.', workflowRole: Places the department in the reporting structure.}}
+    - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {usage: 'Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to.', summary: The organisation the department belongs to., cardinalityMeaning: 'Exactly one organisation: a department is part of a single organisation.', workflowRole: Places the department in the reporting structure.}}
   invariants:
     - {id: DEPARTMENT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:

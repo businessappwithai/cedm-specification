@@ -7,17 +7,26 @@ entity:
     icon: factory
   identity: {key: supplierQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: supplierQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one supplier offer line., businessMeaning: Identifies one commercial response independently of header and order conversion., usage: "Comparison, negotiation, award, and audit.", relationshipContext: Connects an RFQ requirement to resulting order lines.}}
-    - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Sequence within the supplier quotation., businessMeaning: Human-facing offer-line reference., usage: Comparison and supplier communication., relationshipContext: Unique within SupplierQuotation.}}
-    - {name: offeredQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity the supplier offers to provide., businessMeaning: States supply coverage for the RFQ requirement., usage: Award allocation and order conversion., relationshipContext: Interpreted using UnitOfMeasure.}}
-    - {name: unitPrice, type: Money, required: true, help: {summary: Transaction-time offered unit price., businessMeaning: Preserves the supplier's commercial offer for comparison and later verification., usage: "Bid analysis, negotiation, award, and purchase-order pricing.", relationshipContext: Historical offer evidence rather than mutable supplier master pricing.}}
-    - {name: promisedDate, type: date, required: false, help: {summary: Supplier's offered delivery or completion date., businessMeaning: Records the delivery promise used during award evaluation., usage: Lead-time comparison and order conversion., relationshipContext: Distinct from actual receipt date.}}
+    - {name: supplierQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: "The permanent system identity of one line of a supplier's quotation, unaffected by renumbering or later edits.", usage: 'Generated on creation and never changed; award decisions, order lines and audit entries refer to the offer line through it.', businessMeaning: Identifies one commercial response independently of header and order conversion., relationshipContext: Connects an RFQ requirement to resulting order lines.}}
+    - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: 'The position of this line within its supplier quotation, matching how the supplier laid out its offer.', usage: 'Entered or assigned in sequence; unique within the quotation, and quoted when comparing bids or discussing a line with the supplier.', businessMeaning: Human-facing offer-line reference., relationshipContext: Unique within SupplierQuotation.}}
+    - {name: offeredQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: 'How much of the requested item the supplier commits to supply at the quoted price, in the stated unit of measure.', usage: "Entered from the supplier's response; it may be less than the requested quantity, and the award allocates against it.", businessMeaning: States supply coverage for the RFQ requirement., relationshipContext: Interpreted using UnitOfMeasure.}}
+    - {name: unitPrice, type: Money, required: true, help: {summary: 'The price per unit of measure the supplier quoted, kept as offer evidence in the currency it was quoted.', usage: 'Entered from the response; compared across bidders, negotiated, and copied to the order line on award without reading supplier master prices.', businessMeaning: Preserves the supplier's commercial offer for comparison and later verification., relationshipContext: Historical offer evidence rather than mutable supplier master pricing.}}
+    - {name: promisedDate, type: date, required: false, help: {summary: The date by which the supplier says it will deliver or complete the offered quantity., usage: Entered from the response; used to compare lead times between bidders and to set the expected date on any resulting order line., businessMeaning: Records the delivery promise used during award evaluation., relationshipContext: Distinct from actual receipt date.}}
     - name: awardStatus
       type: enum
       required: true
       default: PENDING
       values: [PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED]
-      help: {summary: Award state of this offer line., businessMeaning: Records whether and to what extent this response was selected., usage: Award workflow and split sourcing., relationshipContext: Selection authorizes conversion but does not itself create a PurchaseOrderLine., valueSemantics: {PENDING: Not yet decided., ACCEPTED: Selected for the governed quantity., PARTIALLY_ACCEPTED: Selected for part of offered quantity., REJECTED: Not selected.}}
+      help:
+        summary: How far the buyer has selected this offer line, from awaiting decision through full or partial acceptance to rejection.
+        usage: Updated by the sourcing team during award; accepted quantities may then be converted into purchase order lines, split across suppliers where needed.
+        valueSemantics:
+          PENDING: The offer line has been received but no award decision has been made yet.
+          ACCEPTED: The offer line is selected in full and may be converted to a purchase order line.
+          PARTIALLY_ACCEPTED: Only part of the offered quantity is selected, with the remainder awarded elsewhere or not needed.
+          REJECTED: The offer line was not selected and will not produce a purchase commitment.
+        businessMeaning: Records whether and to what extent this response was selected.
+        relationshipContext: Selection authorizes conversion but does not itself create a PurchaseOrderLine.
   relationships:
     - {name: supplierQuotation, target: SupplierQuotation, cardinality: "1", ownership: reference, inverse: lines, help: {summary: Parent supplier offer., businessMeaning: "Supplies supplier, validity, and response lifecycle.", usage: Sourcing governance and audit., cardinalityMeaning: Exactly one parent quotation., workflowRole: Controls offer eligibility.}}
     - {name: requestForQuotationLine, target: RequestForQuotationLine, cardinality: '1', ownership: reference, help: {summary: Exact sourcing requirement answered., businessMeaning: Enables like-for-like line comparison., usage: Award analysis and traceability., cardinalityMeaning: Exactly one RFQ line is answered., workflowRole: Supplies requested product and quantity context.}}

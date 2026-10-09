@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the prescription.
-        usage: Generated on creation; dispensing records refer to it.
+        summary: The permanent, system-generated identity of this medication or therapy order for a patient.
+        usage: Generated on creation and never changed; dispensing records, administrations and pharmacy queries refer to the prescription through it.
     - name: prescriptionNumber
       type: string
       required: true
@@ -51,8 +51,8 @@ entity:
       type: date
       required: false
       help:
-        summary: The first day of treatment.
-        usage: Set by the prescriber; defaults to today.
+        summary: The first day on which the patient is to begin the prescribed medication or therapy.
+        usage: Set by the prescriber and defaulting to today; the end date must not precede it, and pharmacy uses it to plan dispensing.
     - name: endDate
       type: date
       required: false
@@ -70,8 +70,8 @@ entity:
         - CANCELLED
         - DISCONTINUED
       help:
-        summary: Where the prescription stands.
-        usage: Moved by the prescriber and pharmacy.
+        summary: Where the prescription stands from being drafted to being in force or ended.
+        usage: Moved by the prescriber and pharmacy; only ACTIVE prescriptions can be dispensed, and the three closing states are final.
         valueSemantics:
           DRAFT: Being written; not yet valid.
           ACTIVE: Signed and in force.

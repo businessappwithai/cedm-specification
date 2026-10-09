@@ -13,8 +13,8 @@ entity:
       required: true
       values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: Where the run stands.
-        usage: Moved by the workflow engine and users.
+        summary: Where this one run of a business process stands, from created through running to finished or stopped.
+        usage: Moved by the workflow engine and by users who start or cancel the run; completed and cancelled runs are final and keep their history.
         valueSemantics:
           PENDING: Created but not yet running.
           ACTIVE: Running; steps are being executed.

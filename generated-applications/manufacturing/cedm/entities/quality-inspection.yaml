@@ -11,13 +11,23 @@ entity:
       type: uuid
       required: true
       immutable: true
-      help: {summary: Stable identity of the inspection record., businessMeaning: "Identifies one inspection event independently of the item, receipt, return, result or corrective action.", usage: "Quality traceability, audit, reporting and integrations.", relationshipContext: Root of the inspection execution graph including sampling and measurement evidence., workflowRole: "Stable reference through planning, sampling, execution, result and disposition."}
+      help:
+        summary: The permanent, system-generated identity of this inspection or test record.
+        usage: Generated on creation and never changed; measurements, samples, nonconformances and audit trails refer to the inspection through it.
+        businessMeaning: "Identifies one inspection event independently of the item, receipt, return, result or corrective action."
+        relationshipContext: Root of the inspection execution graph including sampling and measurement evidence.
+        workflowRole: "Stable reference through planning, sampling, execution, result and disposition."
     - name: inspectionNumber
       type: string
       required: true
       unique: true
       maxLength: 100
-      help: {summary: Business-facing inspection reference., businessMeaning: Identifies the inspection in quality operations and audit., usage: "Quality records, supplier disputes and reporting.", relationshipContext: Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber., workflowRole: Provides human-recognizable traceability.}
+      help:
+        summary: The business-facing reference quoted for this inspection in quality records and with suppliers.
+        usage: Assigned when the inspection is raised and unique; used in supplier disputes, release decisions and quality reporting.
+        businessMeaning: Identifies the inspection in quality operations and audit.
+        relationshipContext: Distinct from GoodsReceipt.receiptNumber and SupplierReturn.returnNumber.
+        workflowRole: Provides human-recognizable traceability.
     - name: inspectionDate
       type: datetime
       required: true
@@ -34,16 +44,16 @@ entity:
         - CONDITIONAL
         - CANCELLED
       help:
+        summary: Where the inspection stands from being raised through sampling to a final verdict.
+        usage: Moved by inspectors; it controls release and disposition workflows, and passed, failed and cancelled are final.
         valueSemantics:
-          OPEN: Raised and not yet started.
+          OPEN: Raised and not yet started; waiting for an inspector.
           IN_PROGRESS: Samples are being taken and measured.
           PASSED: The goods met every requirement. A final state.
           FAILED: The goods did not meet the requirements. A final state.
           CONDITIONAL: Passed only with conditions, awaiting a decision on release.
           CANCELLED: The inspection was not carried out. A final state.
-        summary: Lifecycle state of inspection.
         businessMeaning: Indicates whether inspection is pending, executing, completed with a result, or cancelled.
-        usage: Controls release and disposition workflows.
         relationshipContext: Inspection status is independent of sample status, receipt/return status, and inventory state.
         workflowRole: PASSED/FAILED/CONDITIONAL controls eligible disposition.
     - name: result
@@ -79,26 +89,31 @@ entity:
         - SCRAP
         - CONDITIONAL_RELEASE
       help:
+        summary: The decision on what to do with the inspected goods.
+        usage: Set after a result is recorded; it drives inventory availability, supplier returns, repair, scrap and release.
         valueSemantics:
           RELEASE: Release the goods for use or sale.
           ACCEPT: Accept the goods into stock.
-          REJECT: Refuse the goods.
+          REJECT: Refuse the goods because they failed to meet requirements.
           QUARANTINE: Hold the goods apart until a decision is made.
           RETURN_TO_SUPPLIER: Send the goods back to the supplier.
           REWORK: Correct the goods so they meet the requirement.
           REPAIR: Repair the goods to a usable condition.
           SCRAP: Destroy or write off the goods.
-          CONDITIONAL_RELEASE: The disposition of the quality inspection is conditional release; set it when that is what the business means for this record.
-        summary: Controlled operational disposition resulting from inspection.
+          CONDITIONAL_RELEASE: Release the goods for use only under stated conditions that must be met.
         businessMeaning: Defines what happens to inspected material after quality evaluation.
-        usage: Controls inventory availability, supplier return, repair, scrap and release processes.
         relationshipContext: RETURN_TO_SUPPLIER may initiate or support SupplierReturn; it does not itself reduce inventory until an attributable InventoryMovement is posted.
         workflowRole: Converts quality result into an authorized physical disposition.
     - name: notes
       type: string
       required: false
       maxLength: 4000
-      help: {summary: Inspection observations and supporting context., businessMeaning: Records qualitative evidence not represented by structured measurements., usage: "Quality review, supplier disputes and audit.", relationshipContext: "Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence.", workflowRole: Supports disposition decisions.}
+      help:
+        summary: The inspector's observations and supporting context that the recorded results do not capture.
+        usage: Free text entered during or after inspection; read in quality reviews, supplier disputes and audits.
+        businessMeaning: Records qualitative evidence not represented by structured measurements.
+        relationshipContext: "Complements QualityMeasurement, InspectionSample and Nonconformance; does not replace structured evidence."
+        workflowRole: Supports disposition decisions.
   relationships:
     - name: qualityPlan
       target: QualityPlan

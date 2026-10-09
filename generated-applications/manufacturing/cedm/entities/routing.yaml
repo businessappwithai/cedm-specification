@@ -7,21 +7,21 @@ entity:
     icon: database
   identity: {key: routingId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the routing version., businessMeaning: Identifies one governed production method., usage: "Planning, order release, costing, and audit.", relationshipContext: Connects Product to ordered Operation definitions.}}
-    - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business routing code., businessMeaning: Human-recognizable process identifier., usage: Engineering and production planning., relationshipContext: Combined with version identifies controlled process definition.}}
-    - {name: routingVersion, type: string, required: true, maxLength: 50, help: {summary: Controlled routing revision., businessMeaning: Preserves which process definition governed production., usage: "Effectivity, audit, and reproducibility.", relationshipContext: Released work snapshots or references an effective version.}}
+    - {name: routingId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identifier of one version of a manufacturing routing., usage: 'Generated on creation; production orders, costing and planning refer to the exact version through it.', businessMeaning: Identifies one governed production method., relationshipContext: Connects Product to ordered Operation definitions.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The business code engineers use to recognise the manufacturing routing, shared by all its versions.', usage: 'Assigned by process engineering; read in planning and shop floor documents, and paired with the version to pick a definition.', businessMeaning: Human-recognizable process identifier., relationshipContext: Combined with version identifies controlled process definition.}}
+    - {name: routingVersion, type: string, required: true, maxLength: 50, help: {summary: 'The revision of the routing, so a changed process becomes a new version and not an overwrite.', usage: 'Set by engineering change control; production orders keep the version they were released with, so past builds can be reproduced.', valueSemantics: {ACTIVE: Approved for production and eligible for new orders to be released against.}, businessMeaning: Preserves which process definition governed production., relationshipContext: Released work snapshots or references an effective version.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, SUSPENDED, OBSOLETE]
       help:
-        summary: Whether the process definition may be used for production.
         valueSemantics:
-          DRAFT: Being defined; not yet usable.
-          ACTIVE: Approved for production.
-          SUSPENDED: Temporarily withdrawn from use.
-          OBSOLETE: Superseded or no longer used. A final state.
+          DRAFT: Being defined by engineering; not yet usable for production.
+          ACTIVE: Approved for production and eligible for new orders to be released against.
+          SUSPENDED: Temporarily withdrawn from use, for example pending a process investigation.
+          OBSOLETE: Superseded by a newer version or no longer used. A final state.
+        summary: Whether the process definition may be used for production.
         businessMeaning: Controls eligibility for new production release.
         usage: Engineering change and manufacturing control.
         relationshipContext: Historical orders retain prior routing evidence.

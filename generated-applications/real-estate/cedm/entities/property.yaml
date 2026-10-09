@@ -33,8 +33,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The name the property is known by.
-        usage: Shown in lists and on documents.
+        summary: The name the property is known by in the business, such as Riverside Business Park or 12 High Street.
+        usage: Entered when the property is registered; shown in lists, leases and valuation documents so people can recognise the asset.
         relationshipContext: Read by tenants, staff and owners.
     - name: propertyType
       type: enum
@@ -49,18 +49,18 @@ entity:
         - WAREHOUSE
         - OTHER
       help:
-        summary: The kind of property.
-        usage: Chosen when created; reports and rules split the portfolio by it.
-        relationshipContext: Decides which leases and charges are expected.
+        summary: The kind of real estate asset, such as land, office or residential, used to group the portfolio.
+        usage: Chosen when created; reports, valuation rules and lease templates split the portfolio by it.
         valueSemantics:
-          LAND: Undeveloped land.
+          LAND: Undeveloped land with no building on it.
           BUILDING: A building of mixed or unspecified use.
-          OFFICE: Office space.
-          RETAIL: Shops and retail units.
-          INDUSTRIAL: Factories and industrial sites.
-          RESIDENTIAL: Homes and apartments.
-          WAREHOUSE: Storage and distribution space.
-          OTHER: A property that fits no other type.
+          OFFICE: Office space let or used for administrative work.
+          RETAIL: Shops and retail units open to customers.
+          INDUSTRIAL: Factories, plants and industrial sites.
+          RESIDENTIAL: Homes and apartments used for living.
+          WAREHOUSE: Storage and distribution space for goods.
+          OTHER: A property that fits none of the other types.
+        relationshipContext: Decides which leases and charges are expected.
     - name: status
       type: enum
       required: true

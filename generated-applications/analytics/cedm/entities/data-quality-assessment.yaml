@@ -33,13 +33,13 @@ entity:
       default: DRAFT
       values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
       help:
-        summary: How far the assessment has progressed.
-        usage: Moved by the assessor.
+        summary: How far the assessment has progressed from planning through checking to a recorded result.
+        usage: Moved by the assessor as work proceeds; only a completed assessment is relied on when judging whether the dataset can be used.
         valueSemantics:
-          DRAFT: Being planned; criteria and scope are not yet fixed.
+          DRAFT: Being planned; the criteria and scope are not yet fixed.
           ACTIVE: Checks are running and results are being collected.
-          COMPLETED: Finished with results recorded.
-          CANCELLED: Abandoned before completion.
+          COMPLETED: Finished with results recorded for the dataset. A final state.
+          CANCELLED: Abandoned before completion, so no result stands. A final state.
         relationshipContext: Status changes can affect related Dataset workflows but never erase historical evidence.
   relationships:
     - name: context

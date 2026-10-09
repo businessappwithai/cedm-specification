@@ -7,7 +7,7 @@ entity:
     icon: activity
   identity: {key: lossEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: lossEventId, type: uuid, required: true, immutable: true, help: {summary: The identity of the loss event., usage: Generated on recording.}}
+    - {name: lossEventId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the recorded loss, constant through reassessment and recovery.', usage: 'Generated when the loss is recorded; recoveries, incident links and risk analyses refer to it.'}}
     - {name: occurredAt, type: datetime, required: false, help: {summary: When the loss was suffered., usage: Set from the incident; used to place the loss in a reporting period.}}
   relationships: []
   invariants:

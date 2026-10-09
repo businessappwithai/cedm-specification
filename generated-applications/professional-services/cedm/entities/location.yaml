@@ -27,19 +27,17 @@ entity:
       required: true
       maxLength: 200
       help:
-        summary: The name people use for the place.
-        usage: Shown in lists, maps and documents.
+        summary: The name by which people refer to the place, such as Rotterdam Depot.
+        usage: Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
     - name: locationType
       type: enum
       required: true
       values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
       help:
-        summary: What kind of place it is.
-        usage: Chosen at creation; decides which processes can use the location.
         valueSemantics:
           SITE: A geographic site that may contain several buildings.
           WAREHOUSE: A building or area for storing goods.
-          STORE: A retail outlet.
+          STORE: A retail outlet where goods are sold to customers.
           OFFICE: A place where office work is done.
           FACTORY: A place where goods are made.
           YARD: An open area for storing or staging equipment or containers.
@@ -47,20 +45,22 @@ entity:
           DEPOT: A base for vehicles and equipment.
           VIRTUAL: A logical place with no physical presence, such as an online store.
           OTHER: Any other kind of place.
+        summary: What kind of place it is.
+        usage: Chosen at creation; decides which processes can use the location.
     - name: status
       type: enum
       required: true
       default: PLANNED
       values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
       help:
-        summary: Whether the place is in use.
-        usage: Set by the administrator; only ACTIVE locations are offered for new assignments.
         valueSemantics:
           PLANNED: Expected but not yet in use.
-          ACTIVE: In use.
-          INACTIVE: Temporarily not used.
-          CLOSED: Closed down.
+          ACTIVE: In use and offered for new assignments.
+          INACTIVE: Temporarily not used but expected to return to service.
+          CLOSED: Closed down, with no new assignments but history kept.
           RETIRED: Removed from use altogether. A final state.
+        summary: Whether the place is in use.
+        usage: Set by the administrator; only ACTIVE locations are offered for new assignments.
     - name: addressId
       type: reference
       target: Address
@@ -80,15 +80,15 @@ entity:
       required: true
       systemManaged: true
       help:
-        summary: When the location was created.
-        usage: Set by the system.
+        summary: The date and time at which the location record was first created.
+        usage: Set automatically by the system and never edited; it supports audit and ordering of newly added places.
     - name: updatedAt
       type: datetime
       required: true
       systemManaged: true
       help:
-        summary: When the location last changed.
-        usage: Set by the system.
+        summary: The date and time at which the location record was last changed.
+        usage: Set automatically on each change; synchronisation jobs and reviewers use it to find recently altered locations.
   relationships:
     - name: parentLocation
       target: Location

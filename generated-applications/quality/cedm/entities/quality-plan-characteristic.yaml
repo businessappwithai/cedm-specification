@@ -43,9 +43,9 @@ entity:
       precision: 30
       scale: 12
       help:
-        summary: Plan-specific lower acceptance boundary for a numeric characteristic.
+        summary: The smallest numeric measurement this plan accepts for the characteristic; anything below it fails.
+        usage: Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not exceed the upper limit.
         businessMeaning: Defines the minimum acceptable value under this particular QualityPlan.
-        usage: Automated evaluation and inspection review.
         relationshipContext: Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.
     - name: upperLimit
       type: decimal
@@ -53,9 +53,9 @@ entity:
       precision: 30
       scale: 12
       help:
-        summary: Plan-specific upper acceptance boundary for a numeric characteristic.
+        summary: The largest numeric measurement this plan accepts for the characteristic; anything above it fails.
+        usage: Set by quality engineers when authoring the plan; compared with each measurement during inspection review and must not fall below the lower limit.
         businessMeaning: Defines the maximum acceptable value under this particular QualityPlan.
-        usage: Automated evaluation and inspection review.
         relationshipContext: Applies only to the linked QualityCharacteristic in this plan and must use a compatible unit.
     - name: targetValue
       type: decimal

@@ -31,19 +31,19 @@ entity:
       required: true
       values: [CUSTOMER, SUPPLIER, EMPLOYEE, PARTNER, CARRIER, AGENT, CONTRACTOR, OWNER, INVESTOR, OTHER]
       help:
-        summary: The kind of role the party plays.
-        usage: Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) is expected.
+        summary: The kind of role the party plays, such as customer, supplier, employee or partner.
+        usage: Chosen when the role is assigned; decides which specialised record (customer, supplier and so on) carries its detail.
         valueSemantics:
-          CUSTOMER: Buys from the organisation.
-          SUPPLIER: Sells to the organisation.
-          EMPLOYEE: Works for the organisation.
-          PARTNER: A business partner or reseller.
-          CARRIER: Transports goods for the organisation.
-          AGENT: Acts on behalf of the organisation or its customers.
-          CONTRACTOR: Provides services under a contract.
-          OWNER: Owns property or a share in the organisation.
-          INVESTOR: Provides capital.
-          OTHER: Any other role.
+          CUSTOMER: The party buys goods or services from the organization and is handled in sales and receivables.
+          SUPPLIER: The party sells goods or services to the organization and is handled in procurement and payables.
+          EMPLOYEE: The party works for the organization under an employment relationship.
+          PARTNER: The party collaborates with the organization commercially, such as a reseller or alliance member.
+          CARRIER: The party transports goods or people for the organization.
+          AGENT: The party acts on behalf of the organization or of another party, usually for a commission.
+          CONTRACTOR: The party provides labour or services under a contract rather than as an employee.
+          OWNER: The party holds an ownership or beneficial interest in an asset or organization.
+          INVESTOR: The party provides capital to the organization in return for a financial return or equity stake.
+          OTHER: A role that fits none of the listed kinds and is explained in the role code or description.
         relationshipContext: Separate from Party.partyType, which describes whether the participant is a person or organization.
         workflowRole: Selects the applicable downstream role specialization and business process.
     - name: code
@@ -66,8 +66,8 @@ entity:
       type: date
       required: false
       help:
-        summary: The last date on which the role applies.
-        usage: Set when the role ends.
+        summary: The last date on which the role still applies to the party.
+        usage: Set when the role ends, such as a contract expiry; empty while open-ended, and later use of the role is refused.
         relationshipContext: Historical transactions may continue referencing the role after validTo.
         workflowRole: Prevents new use after role expiration while preserving historical attribution.
     - name: status
@@ -76,8 +76,8 @@ entity:
       default: ACTIVE
       values: [ACTIVE, INACTIVE, EXPIRED]
       help:
-        summary: Whether the role is currently held.
-        usage: Set by master-data staff.
+        summary: Whether the party currently holds the role and may be used in it.
+        usage: Set by master-data staff; only active roles are offered in selections, and expired is reached when the validity ends.
         valueSemantics:
           ACTIVE: The party currently holds the role.
           INACTIVE: Dormant but may resume.

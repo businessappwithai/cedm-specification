@@ -38,8 +38,8 @@ entity:
       precision: 20
       scale: 6
       help:
-        summary: Portion of on-hand stock committed to approved demand.
-        usage: Allocation and fulfillment planning.
+        summary: The part of the on-hand stock for this product and location that is already promised to approved demand.
+        usage: Maintained from reservation events, not edited by hand; available stock is on-hand less this quantity, so allocation and fulfilment planning read it.
         relationshipContext: Reservations normally do not change physical on-hand quantity.
         workflowRole: Derived from active reservation/release workflows and adjusted when fulfillment consumes or releases a reservation.
     - name: quantityAvailable

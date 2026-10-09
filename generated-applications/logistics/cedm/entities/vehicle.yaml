@@ -25,8 +25,8 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The registration or plate number.
-        usage: Unique; used on documents and checks.
+        summary: The registration or licence plate number that identifies the vehicle on public roads and in documents.
+        usage: Unique; entered when the vehicle joins the fleet and used on delivery documents, inspections, fines and fuel records.
         relationshipContext: Read with the type.
     - name: vehicleType
       type: enum
@@ -39,16 +39,16 @@ entity:
         - CRANE
         - OTHER
       help:
-        summary: The kind of vehicle.
-        usage: Chosen on creation; dispatch matches loads to it.
-        relationshipContext: Read with capacity.
+        summary: The class of vehicle or equipment, such as truck, trailer or forklift.
+        usage: Chosen on creation; dispatch uses it to match loads and tasks to suitable vehicles.
         valueSemantics:
-          TRUCK: A road lorry.
-          TRACTOR: A tractor unit that pulls a trailer.
-          TRAILER: A trailer without its own power.
-          FORKLIFT: A forklift truck for yard and warehouse use.
-          CRANE: A crane for lifting loads.
-          OTHER: A vehicle of another kind.
+          TRUCK: A rigid powered road vehicle that carries goods in its own body.
+          TRACTOR: A powered unit that pulls a trailer, carrying no load of its own.
+          TRAILER: An unpowered load carrier towed by a tractor unit.
+          FORKLIFT: A powered lifting vehicle used in yards and warehouses to move pallets.
+          CRANE: Lifting equipment used to raise and move heavy loads such as containers.
+          OTHER: Transport equipment that fits none of the listed classes.
+        relationshipContext: Read with capacity.
     - name: capacity
       type: decimal
       required: false
@@ -68,13 +68,13 @@ entity:
         - OUT_OF_SERVICE
         - RETIRED
       help:
-        summary: Whether the vehicle is available.
-        usage: Starts as ACTIVE; moved by fleet managers.
+        summary: Whether the vehicle is available for work, being serviced, out of action or permanently withdrawn.
+        usage: Starts as ACTIVE; moved by fleet managers, and dispatch only assigns work to vehicles that are active.
         valueSemantics:
-          ACTIVE: Available for use.
-          MAINTENANCE: In the workshop.
-          OUT_OF_SERVICE: Not usable, for example after a breakdown.
-          RETIRED: Disposed of. A final state.
+          ACTIVE: In service and available to be assigned to movements.
+          MAINTENANCE: Temporarily withdrawn for servicing or repair and expected back.
+          OUT_OF_SERVICE: Unavailable for work because of a fault, inspection failure or similar, with no firm return date.
+          RETIRED: Permanently removed from the fleet. A final state.
   relationships:
     - name: operator
       target: Party

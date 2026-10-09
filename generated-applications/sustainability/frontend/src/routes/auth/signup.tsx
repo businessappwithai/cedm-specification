@@ -3,7 +3,7 @@
  *
  * User registration with email, password, and name
  *
- * Generated: 2026-10-09T06:46:21.599Z
+ * Generated: 2026-10-09T08:33:08.654Z
  * Project: sustainability
  */
 

@@ -53,25 +53,25 @@ entity:
       required: true
       values: [DECIMAL, INTEGER, STRING, BOOLEAN, ENUM]
       help:
-        summary: Data representation expected for observations of this characteristic.
-        businessMeaning: Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid.
-        usage: Controls QualityMeasurement value selection, validation, user-interface behavior, and downstream analytics.
-        relationshipContext: QualityMeasurement must supply an observation compatible with this data type; QualityPlanCharacteristic supplies applicable criteria.
+        summary: The kind of value that observations of this characteristic take, which fixes how measurements are entered and checked.
+        usage: Chosen when the characteristic is defined; quality measurements, forms and analytics follow it, and it should not change once measurements exist.
         valueSemantics:
           DECIMAL: A numeric observation that may contain fractional values.
-          INTEGER: A whole-number observation.
+          INTEGER: A whole-number observation such as a count of defects in a sample.
           STRING: A textual or categorical observation represented as text.
-          BOOLEAN: A true/false observation.
+          BOOLEAN: A true or false observation such as seal intact.
           ENUM: An observation selected from a governed set of allowed values.
+        businessMeaning: Determines whether measurements are numeric or categorical and therefore which evaluation rules are valid.
+        relationshipContext: QualityMeasurement must supply an observation compatible with this data type; QualityPlanCharacteristic supplies applicable criteria.
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, ACTIVE, RETIRED]
       help:
-        summary: Lifecycle state of the reusable characteristic definition.
+        summary: Whether this reusable characteristic definition is still being prepared, approved for use or retired.
+        usage: Moved by quality governance; only ACTIVE characteristics can be assigned to new quality plans, and RETIRED is final but stays readable.
         businessMeaning: Controls whether the characteristic may be newly assigned to quality plans and used for new measurements.
-        usage: Governance, authoring, validation, and retirement control.
         relationshipContext: Retiring a characteristic does not erase historical QualityMeasurement evidence or historical plan configurations.
         valueSemantics:
           DRAFT: Definition is being prepared and is not normally available for new governed use.

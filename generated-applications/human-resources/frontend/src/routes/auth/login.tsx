@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-09T06:44:34.595Z
+ * Generated: 2026-10-09T08:31:25.043Z
  * Project: human-resources
  */
 

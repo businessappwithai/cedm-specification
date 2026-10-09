@@ -3,7 +3,7 @@
 //! One module per entity, so a failure names the entity that broke instead of
 //! collapsing every entity into one suite.
 //!
-//! Generated: 2026-10-09T06:43:24.275Z
+//! Generated: 2026-10-09T08:30:14.005Z
 //! Project: automotive
 
 use serde_json::{json, Value};

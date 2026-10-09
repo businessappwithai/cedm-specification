@@ -8,8 +8,8 @@ entity:
   identity: {key: supplierClaimResolutionId, type: uuid, generated: true, immutable: true}
   attributes:
     - {name: supplierClaimResolutionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the claim resolution., businessMeaning: Identifies one authorized resolution decision independently of the originating claim and downstream transactions., usage: Used for approvals reconciliation audit and supplier performance., relationshipContext: SupplierClaim records the case; this record captures the agreed outcome; SupplierReturn SupplierCreditNote SupplierDebitNote and Payment provide execution evidence., workflowRole: Stable reference across approval execution and closure.}}
-    - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: Human-facing resolution reference., businessMeaning: Identifies the resolution decision for operational and supplier communication., usage: Used in approvals correspondence reconciliation and audit., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity.}}
-    - {name: resolutionDate, type: datetime, required: true, help: {summary: Date and time the resolution was authorized., businessMeaning: Establishes when the agreed remedy became effective., usage: SLA reporting audit and financial control., workflowRole: Anchors downstream execution.}}
+    - {name: resolutionNumber, type: string, required: true, unique: true, maxLength: 100, help: {summary: 'The business reference of the resolution decision, used with the supplier and internal teams.', usage: 'Assigned when the resolution is drafted; unique; quoted in approvals, correspondence and reconciliation, and distinct from the claim number.', businessMeaning: Identifies the resolution decision for operational and supplier communication., relationshipContext: Distinct from the SupplierClaim claimNumber and downstream transaction numbers., workflowRole: Correlates resolution activity.}}
+    - {name: resolutionDate, type: datetime, required: true, help: {summary: The date and time the agreed remedy was authorized and became effective., usage: 'Set at approval; used for SLA reporting and financial control, and it anchors the start of downstream execution.', businessMeaning: Establishes when the agreed remedy became effective., workflowRole: Anchors downstream execution.}}
     - name: resolutionType
       type: enum
       required: true
@@ -24,19 +24,19 @@ entity:
         - CASH_RECOVERY
         - ACCEPTED_EXCEPTION
       help:
-        summary: The remedy agreed.
+        summary: The remedy agreed with the supplier for the claim, such as replacement, credit or cash recovery.
+        usage: Chosen when the resolution is drafted; it routes the downstream work and decides which execution evidence is required.
         valueSemantics:
-          NO_ACTION: Nothing further is done.
-          REPLACEMENT: The supplier sends replacement goods.
-          REPAIR: The goods are repaired.
-          RETURN: The goods are returned to the supplier.
-          CREDIT: The supplier issues a credit.
-          DEBIT_ADJUSTMENT: The buyer raises a debit adjustment.
-          PRICE_ADJUSTMENT: The price is reduced.
-          CASH_RECOVERY: The supplier pays back in cash.
-          ACCEPTED_EXCEPTION: The buyer accepts the goods as they are.
+          NO_ACTION: The claim was reviewed and no remedy is owed or taken.
+          REPLACEMENT: The supplier will deliver replacement goods or service for the faulty ones.
+          REPAIR: The supplier will repair the faulty goods and return them.
+          RETURN: The goods are returned to the supplier, which normally needs a SupplierReturn.
+          CREDIT: The supplier issues a credit note that reduces what is owed to it.
+          DEBIT_ADJUSTMENT: The buyer raises a debit note against the supplier to recover the amount.
+          PRICE_ADJUSTMENT: The price of the supplied goods is reduced and the goods are kept.
+          CASH_RECOVERY: The supplier pays the agreed amount back as cash, evidenced by a Payment.
+          ACCEPTED_EXCEPTION: The buyer accepts the nonconformity as an approved exception without recovery.
         businessMeaning: Defines what outcome was agreed without itself executing the remedy.
-        usage: Routes downstream workflows and measures recovery outcomes.
         relationshipContext: RETURN may require SupplierReturn; CREDIT may require SupplierCreditNote; DEBIT_ADJUSTMENT may require SupplierDebitNote; CASH_RECOVERY may require Payment.
         workflowRole: Determines required execution evidence.
     - name: status
@@ -52,20 +52,20 @@ entity:
         - FAILED
         - CANCELLED
       help:
-        summary: Where the resolution is in being carried out.
+        summary: How far the agreed remedy has been carried out, from draft and approval to execution or failure.
+        usage: Starts as DRAFT; approval releases the downstream work, and the status shows whether the required consequences completed.
         valueSemantics:
-          DRAFT: Proposed and not yet approved.
-          APPROVED: Agreed and ready to carry out.
-          IN_EXECUTION: Being carried out.
-          PARTIALLY_EXECUTED: Some of the remedy is done.
-          EXECUTED: The remedy is fully done. A final state.
-          FAILED: Could not be carried out. A final state.
-          CANCELLED: Withdrawn. A final state.
+          DRAFT: The resolution is being prepared and has not been authorized.
+          APPROVED: The remedy is authorized but execution has not started.
+          IN_EXECUTION: Downstream work such as returns, credits or payments is under way.
+          PARTIALLY_EXECUTED: Part of the remedy has been carried out and the rest is outstanding.
+          EXECUTED: Every required consequence of the remedy is complete. A final state.
+          FAILED: Execution could not be completed, for example because the supplier did not comply. A final state.
+          CANCELLED: The resolution was withdrawn before completion. A final state.
         businessMeaning: Separates decision approval from execution and completion.
-        usage: Controls downstream work and claim closure.
         relationshipContext: Resolution status does not replace SupplierClaim or downstream transaction statuses.
         workflowRole: Gates execution and confirms whether required consequences completed.
-    - {name: approvedAmount, type: Money, required: false, help: {summary: Monetary recovery authorized by the resolution., businessMeaning: Defines the financial amount expected from the agreed remedy., usage: Supplier recovery and reconciliation., relationshipContext: Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction., workflowRole: Provides the controlled financial target.}}
+    - {name: approvedAmount, type: Money, required: false, help: {summary: The money the organization is authorized to recover from the supplier under this resolution., usage: 'Set at approval from the negotiated outcome; it is the target that credit notes, debit notes or payments are reconciled against.', businessMeaning: Defines the financial amount expected from the agreed remedy., relationshipContext: Not itself a credit note debit note or cash receipt; execution requires the appropriate financial transaction., workflowRole: Provides the controlled financial target.}}
   relationships:
     - {name: supplierClaim, target: SupplierClaim, cardinality: '1', ownership: reference, help: {summary: Supplier claim being resolved., businessMeaning: Connects the remedy to the case and evidence that established the issue., usage: Claim closure and audit., workflowRole: Supplies authoritative case context.}}
     - {name: supplierReturns, target: SupplierReturn, cardinality: 0..*, ownership: reference, help: {summary: Supplier returns executing a return remedy., businessMeaning: Identifies physical reverse-procurement transactions created by the resolution., usage: Logistics inventory and supplier reconciliation., workflowRole: Provides execution evidence for RETURN resolutions.}}

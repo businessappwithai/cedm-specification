@@ -56,30 +56,42 @@ entity:
         - CLOSED
         - REJECTED
       help:
-        summary: Where the nonconformance is in its handling.
-        usage: Moved by quality staff.
+        summary: Shows how far the quality deviation has progressed through review, containment, corrective action and closure.
+        usage: Moved by quality staff as the investigation advances; closing requires corrective action, and rejection ends a report that was not valid.
         valueSemantics:
-          OPEN: Recorded but not yet reviewed.
-          UNDER_REVIEW: Being investigated.
-          CONTAINED: Affected goods are isolated so the problem cannot spread.
-          CORRECTIVE_ACTION: Corrective actions are under way to remove the cause.
-          CLOSED: Resolved and verified. A final state.
-          REJECTED: Reviewed and found not to be a nonconformance. A final state.
+          OPEN: The deviation has been recorded and nobody has yet started to investigate it.
+          UNDER_REVIEW: Quality staff are assessing the deviation to confirm what happened, how serious it is and who owns it.
+          CONTAINED: Affected material has been isolated or held so that it cannot reach customers or production while the cause is addressed.
+          CORRECTIVE_ACTION: Actions to remove the cause and prevent recurrence are being carried out and checked.
+          CLOSED: The deviation was resolved and its corrective actions were verified as effective. A final state.
+          REJECTED: Review found no real deviation, or a duplicate report, so no further action is taken. A final state.
         businessMeaning: Indicates investigation, containment, corrective action and closure.
         workflowRole: Controls allowed responses and closure.
     - name: description
       type: string
       required: true
       maxLength: 4000
-      help: {summary: Detailed explanation of the deviation., businessMeaning: States what requirement or expected result was not met., usage: "Investigation, supplier communication, CAPA and audit.", workflowRole: Provides issue evidence.}
+      help:
+        summary: A full account of what went wrong, naming the requirement or expected result that was not met.
+        usage: Written by whoever raises the issue and refined during review; read in investigation, supplier communication and audit.
+        businessMeaning: States what requirement or expected result was not met.
+        workflowRole: Provides issue evidence.
     - name: detectedAt
       type: datetime
       required: true
-      help: {summary: Time the deviation was detected., businessMeaning: Establishes chronology for containment and corrective action., usage: Audit and quality analytics., workflowRole: Anchors issue occurrence.}
+      help:
+        summary: The date and time when the deviation was first noticed, which may precede the time it was entered.
+        usage: Entered when the issue is raised; containment and corrective action deadlines are measured from it in quality analytics.
+        businessMeaning: Establishes chronology for containment and corrective action.
+        workflowRole: Anchors issue occurrence.
     - name: closedAt
       type: datetime
       required: false
-      help: {summary: Time the issue was formally closed., businessMeaning: Establishes completion chronology., usage: Quality performance and audit., workflowRole: Required for closure.}
+      help:
+        summary: The date and time when the deviation was formally closed or rejected by quality.
+        usage: Set when the status becomes closed or rejected; left empty while the issue is open, and used to measure time to resolve.
+        businessMeaning: Establishes completion chronology.
+        workflowRole: Required for closure.
   relationships:
     - name: inspection
       target: QualityInspection

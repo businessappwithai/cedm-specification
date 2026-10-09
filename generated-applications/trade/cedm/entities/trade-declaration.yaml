@@ -38,15 +38,15 @@ entity:
         - RE_EXPORT
         - OTHER
       help:
-        summary: The kind of crossing declared.
-        usage: Chosen when created; decides the forms and duties.
-        relationshipContext: Read with the importer and exporter.
+        summary: The direction of the border crossing being declared, such as import, export, transit or re-export.
+        usage: Chosen when the declaration is drafted; it decides which customs forms, duty rules and importer or exporter party apply.
         valueSemantics:
-          IMPORT: Goods entering the country.
-          EXPORT: Goods leaving the country.
-          TRANSIT: Goods passing through under customs control.
-          RE_EXPORT: Imported goods leaving again.
-          OTHER: A declaration of another kind.
+          IMPORT: Goods entering the country or customs territory, on which duties and import taxes are assessed.
+          EXPORT: Goods leaving the country or customs territory, declared by the exporter for control and export clearance.
+          TRANSIT: Goods passing through a territory under customs control to a destination elsewhere, without being released for local use.
+          RE_EXPORT: Previously imported goods sent out again, often to reclaim duties or after a temporary admission.
+          OTHER: A crossing that fits none of the standard declaration kinds and is described in the supporting documents.
+        relationshipContext: Read with the importer and exporter.
     - name: declarationDate
       type: date
       required: true
@@ -67,17 +67,17 @@ entity:
         - REJECTED
         - CANCELLED
       help:
-        summary: Where the declaration is with customs.
-        usage: Starts as DRAFT; moved as it is submitted and answered.
-        relationshipContext: Goods cannot move until it is released.
+        summary: Where the declaration stands in its dealings with the customs authority, from drafting through clearance.
+        usage: Starts as DRAFT; moved as the declaration is submitted, reviewed and answered. Goods may not move until it is released.
         valueSemantics:
-          DRAFT: Being prepared; not yet sent.
-          SUBMITTED: Filed with customs.
-          ACCEPTED: Accepted by customs for processing.
-          UNDER_REVIEW: Customs is checking it.
-          RELEASED: Goods may proceed. A final state.
-          REJECTED: Refused by customs. A final state.
-          CANCELLED: Withdrawn by the declarant. A final state.
+          DRAFT: Being prepared by the declarant and not yet filed with customs.
+          SUBMITTED: Filed with the customs authority and awaiting its acceptance or rejection.
+          ACCEPTED: Customs has accepted the filing as valid and may still inspect it or release the goods.
+          UNDER_REVIEW: Customs is examining the declaration or the goods and has not yet decided on release.
+          RELEASED: Customs has cleared the goods to move. A final state.
+          REJECTED: Customs has refused the declaration, which must be corrected and filed afresh. A final state.
+          CANCELLED: The declarant withdrew the declaration before clearance. A final state.
+        relationshipContext: Goods cannot move until it is released.
     - name: customsValue
       type: decimal
       required: false

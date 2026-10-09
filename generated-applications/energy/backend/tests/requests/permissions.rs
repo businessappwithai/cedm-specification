@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-09T06:44:04.967Z
+//! Generated: 2026-10-09T08:30:54.350Z
 //! Project: energy
 
 use serde_json::Value;

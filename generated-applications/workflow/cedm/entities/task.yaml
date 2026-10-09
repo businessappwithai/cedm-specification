@@ -23,22 +23,22 @@ entity:
       required: true
       maxLength: 100
       help:
-        summary: The code of the task, such as TASK-0042.
-        usage: Used in lists and notifications.
+        summary: The short business code that identifies the task in work queues, such as TSK-10482.
+        usage: Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
     - name: name
       type: string
       required: true
       maxLength: 300
       help:
-        summary: A short statement of the work.
-        usage: Shown on to-do lists.
+        summary: A short title stating what work the task asks someone or something to do.
+        usage: Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
     - name: description
       type: string
       required: false
       maxLength: 2000
       help:
-        summary: Details of what must be done.
-        usage: Read by the assignee.
+        summary: Fuller instructions explaining what is to be done, why, and any details the performer needs.
+        usage: Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
     - name: taskType
       type: enum
       required: true
@@ -75,17 +75,17 @@ entity:
         - CANCELLED
         - FAILED
       help:
-        summary: Where the task is.
-        usage: Starts as CREATED; moved as it is worked.
+        summary: Where the task stands, from creation through assignment and execution to completion, cancellation or failure.
+        usage: Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work.
         valueSemantics:
-          CREATED: Recorded and not yet ready.
-          READY: Ready to be picked up.
-          ASSIGNED: Given to someone.
-          IN_PROGRESS: Being worked.
-          BLOCKED: Cannot proceed until something is resolved.
-          COMPLETED: Done. A final state.
-          CANCELLED: No longer needed. A final state.
-          FAILED: Could not be done. A final state.
+          CREATED: The task exists but is not yet ready to be picked up.
+          READY: The task is released and waiting for someone to be assigned.
+          ASSIGNED: A person or party has been given the task but has not started it.
+          IN_PROGRESS: The assignee is actively working on the task.
+          BLOCKED: Work is held up by a dependency, missing input or decision.
+          COMPLETED: The work was done as required. A final state.
+          CANCELLED: The task was withdrawn before completion. A final state.
+          FAILED: The task ended without achieving its result and needs follow-up elsewhere. A final state.
     - name: priority
       type: enum
       required: true
@@ -96,13 +96,13 @@ entity:
         - HIGH
         - CRITICAL
       help:
-        summary: How urgent the task is.
-        usage: Set when created; used to order work.
+        summary: How urgently the task should be worked relative to others in the same queue.
+        usage: Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue.
         valueSemantics:
-          LOW: Can wait.
-          NORMAL: Ordinary priority.
-          HIGH: Do ahead of normal work.
-          CRITICAL: Do immediately.
+          LOW: Can wait behind other work without business impact.
+          NORMAL: Standard urgency, handled in the ordinary course of work.
+          HIGH: Needs prompt attention ahead of normal work.
+          CRITICAL: Needs immediate action because delay causes serious business impact.
     - name: dueAt
       type: datetime
       required: false

@@ -15,8 +15,8 @@ entity:
       default: PLANNED
       values: [PLANNED, IN_PROGRESS, PACKED, CANCELLED, EXCEPTION]
       help:
-        summary: Where the packing task stands.
-        usage: Updated by packers.
+        summary: Shows how far the packing task has progressed, from planned through packed, or into cancellation or exception.
+        usage: Updated by packers as work starts and finishes; shipping may proceed only once the task is packed.
         valueSemantics:
           PLANNED: Created, not yet started.
           IN_PROGRESS: Packers are filling packages.
