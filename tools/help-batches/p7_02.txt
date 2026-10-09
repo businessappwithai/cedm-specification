@@ -1,0 +1,30 @@
+@ ShoppingCartLine
+a shoppingCartLineId
+s: The stable identity of one product line in a cart, constant while quantities and prices change.
+u: Generated when the item is added; it is carried over when the line becomes an order line, so the cart can be traced to the order.
+
+@ ShoppingCart
+a status
+s: The stage of the cart: still being filled, turned into an order, left idle or timed out.
+u: Starts as ACTIVE; set to CHECKED_OUT by checkout and to ABANDONED or EXPIRED by timeouts. Only an active cart can be edited.
+a createdAt
+s: The date and time the shopper added the first item and the cart came into existence.
+u: Set automatically and never edited; used to measure cart age, trigger abandonment follow-up and compare with the expiry time.
+
+@ SparePart
+u: Maintained by maintenance planners and read by storekeepers and buyers when selecting parts for a work order or deciding what to stock.
+a sparePartId
+s: The stable identity of the spare-part designation, kept even if the underlying product is renamed.
+u: Generated on creation; work orders, reservations and equipment applicability lists refer to it rather than to the product directly.
+a criticality
+s: How seriously maintenance and operations suffer if this part is not available when needed.
+u: Set by maintenance planners per part; higher criticality justifies safety stock and faster replenishment, and it does not replace asset criticality.
+v LOW: Unavailability causes little disruption; the part can be ordered when needed.
+v MEDIUM: Unavailability delays maintenance but operations can continue for a while.
+v HIGH: Unavailability seriously disrupts maintenance or output, so stock is normally held on site.
+v CRITICAL: Unavailability stops production or creates a safety risk, so stock must always be held.
+
+@ StateProvince
+a name
+s: The English name of the division, such as California or Bavaria.
+u: Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key.

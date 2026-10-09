@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the segment, constant for its life.
-        usage: Generated on creation.
+        summary: The permanent identifier of one leg of a trip, unchanged when its times or mode are revised.
+        usage: Generated on creation; bookings and tickets for the leg refer to it so they can be matched to the right part of the journey.
         relationshipContext: Referenced by bookings of the leg.
     - name: sequence
       type: integer
@@ -39,17 +39,17 @@ entity:
         - WALK
         - OTHER
       help:
-        summary: How the leg is travelled.
-        usage: Chosen when the leg is planned.
-        relationshipContext: Decides what must be booked.
+        summary: The means of transport used to travel the leg, such as flight, train, road or sea.
+        usage: Chosen when the leg is planned; it decides what must be booked, which supplier is used and what expenses to expect.
         valueSemantics:
-          AIR: By aircraft.
-          RAIL: By train.
-          ROAD: By car or other road vehicle.
-          SEA: By ship or ferry.
-          BUS: By bus or coach.
-          WALK: On foot.
-          OTHER: By another means.
+          AIR: Travel by aircraft, normally needing a flight booking and airport time.
+          RAIL: Travel by train, booked as a rail ticket or pass.
+          ROAD: Travel by car, van or truck on public roads, whether driven or hired.
+          SEA: Travel by ferry or ship across water.
+          BUS: Travel by bus or coach on a scheduled or chartered service.
+          WALK: Travel on foot, usually a short transfer needing no booking.
+          OTHER: Any means of transport not covered by the standard modes, described in the booking.
+        relationshipContext: Decides what must be booked.
     - name: departureAt
       type: datetime
       required: true
@@ -75,14 +75,14 @@ entity:
         - COMPLETED
         - CANCELLED
       help:
-        summary: Where the leg is.
-        usage: Starts as PLANNED.
+        summary: How far the leg has progressed, from planning through booking and travel to completion.
+        usage: Starts as PLANNED; moved as the leg is booked, started and finished, or called off before it ends.
         valueSemantics:
-          PLANNED: Intended; nothing is booked.
-          BOOKED: Travel is booked.
-          IN_PROGRESS: Under way.
-          COMPLETED: Arrived. A final state.
-          CANCELLED: Called off. A final state.
+          PLANNED: Intended as part of the route but nothing is booked yet.
+          BOOKED: Tickets or reservations are confirmed for the leg.
+          IN_PROGRESS: The traveller is making the journey on this leg now.
+          COMPLETED: The leg has been travelled to its destination. A final state.
+          CANCELLED: The leg was called off and will not be travelled. A final state.
   relationships:
     - name: trip
       target: Trip

@@ -24,8 +24,8 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The reference number of the enrolment, quoted in correspondence.
-        usage: Allocated at registration; unique.
+        summary: The reference number of the enrolment, quoted by students and staff in correspondence.
+        usage: Allocated by the registrar at registration and unique; fees, grades and certificates refer to it, and it never changes.
     - name: enrolledAt
       type: datetime
       required: true
@@ -43,8 +43,8 @@ entity:
         - WITHDRAWN
         - CANCELLED
       help:
-        summary: Whether the registration is confirmed and where it ends.
-        usage: Moved by the registrar.
+        summary: Whether the registration is awaiting confirmation, in progress or ended, and how it ended.
+        usage: Moved by the registrar; fees and attendance run while it is ACTIVE, and the three ended states are final.
         valueSemantics:
           PENDING: Requested and awaiting confirmation, for example of prerequisites or payment.
           ACTIVE: Confirmed; the student is studying.

@@ -29,8 +29,8 @@ entity:
       type: datetime
       required: true
       help:
-        summary: When the event happened.
-        usage: Set by the publisher; events are ordered by it.
+        summary: The date and time the event actually happened at its source, not when it was received.
+        usage: Set by the publisher; consumers order and correlate events by it, and audit uses it to rebuild what happened when.
     - name: source
       type: string
       required: true

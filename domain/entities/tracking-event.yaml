@@ -7,7 +7,7 @@ entity:
     icon: activity
   identity: {key: trackingEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the event, constant for its life.', businessMeaning: Lets a correction refer to the event it corrects., usage: Generated on creation., relationshipContext: Referenced by the shipment's history.}}
+    - {name: trackingEventId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identifier of one tracking observation, never reused or altered after the event is recorded.', usage: "Generated on creation; a correcting event cites it, and the shipment's history is assembled from these identifiers.", businessMeaning: Lets a correction refer to the event it corrects., relationshipContext: Referenced by the shipment's history.}}
     - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The code of the event type, such as DEPARTED or DELIVERED.', businessMeaning: Gives events a consistent vocabulary across carriers., usage: Entered by the source system; reports group by it., relationshipContext: Read with the time and place.}}
   relationships:
     - {name: shipment, target: Shipment, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Each event is about exactly one shipment, whose trail it extends.', summary: Shipment observed by this event., businessMeaning: Connects logistics evidence to transport transaction., usage: Tracking and delivery proof., workflowRole: Event must not silently rewrite prior shipment evidence.}}

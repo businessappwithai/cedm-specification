@@ -1,0 +1,51 @@
+@ Stop
+a stopId
+s: The stable identity of one stop on a route, independent of the location it visits.
+u: Generated on creation; dispatch, tracking and audit refer to it, and it stays the same when the stop is resequenced.
+a sequenceNumber
+s: The order in which the stop is visited along its route, starting from the first stop.
+u: Assigned by the route planner; it should be unique within a route and is changed when stops are reordered.
+a stopType
+s: The purpose of the stop: what the vehicle or driver is expected to do there.
+u: Chosen by the route planner; it drives dispatch instructions, ETA planning and reporting, and shipments may refine the activity further.
+v ORIGIN: The point where the route begins and the vehicle starts its journey.
+v PICKUP: A point where goods or passengers are collected onto the vehicle.
+v DELIVERY: A point where goods are handed over to the receiver.
+v SERVICE: A point where a service is performed, such as an installation or inspection.
+v WAYPOINT: A point passed through to shape the route, with no loading or service.
+v FUEL: A point where the vehicle stops to refuel or recharge.
+v BREAK: A point where the driver stops for a mandatory or planned rest.
+v DESTINATION: The point where the route ends and the journey is complete.
+v OTHER: Any purpose not covered by the other types, described in dispatch notes.
+a plannedArrivalAt
+s: The date and time the vehicle is scheduled to arrive at this stop.
+u: Set by the route planner and used for dispatch, customer ETA messages and punctuality analysis; actual arrival is recorded separately.
+a plannedDepartureAt
+s: The date and time the vehicle is scheduled to leave this stop after loading, unloading or service.
+u: Set by the planner to define dwell time and capacity; it must not be earlier than the planned arrival when both exist.
+
+@ Store
+a status
+s: Whether the store is being prepared, trading, shut or permanently withdrawn.
+u: Starts as PLANNED; retail operations move it to ACTIVE on opening and to CLOSED or RETIRED, which decides whether it can take sales.
+v PLANNED: The store is being set up and is not yet open for trade.
+v ACTIVE: The store is open and trading, and can take sales and hold stock.
+v CLOSED: The store has stopped trading, temporarily or for good, and takes no new sales. A final state.
+v RETIRED: The store has been permanently withdrawn from the network and kept only for history. A final state.
+
+@ Study
+a studyCode
+s: The short code of the study, such as ST-2026-04, used to find it quickly.
+u: Assigned when the study is planned; unique; used in documents, reports and integrations, and distinct from protocol and experiment codes.
+a title
+s: The descriptive title stating what the study investigates.
+u: Written by the study lead when the study is planned; shown in lists and reports and may be refined, unlike the code.
+a status
+s: The stage of the study from planning through execution, completion and archiving, or cancellation.
+u: Starts as PLANNED; the study lead moves it as work begins, pauses or ends, and it controls whether evidence can be collected.
+v PLANNED: The study is approved for planning but execution has not started.
+v ACTIVE: The study is being executed and experiments and observations are being collected.
+v SUSPENDED: Work is paused, for example for a protocol amendment, and may resume later.
+v COMPLETED: Execution has finished and results are final, awaiting archiving.
+v CANCELLED: The study was stopped before completion and will not resume. A final state.
+v ARCHIVED: The completed study is retained as a read-only record. A final state.

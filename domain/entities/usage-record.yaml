@@ -7,7 +7,7 @@ entity:
     icon: table
   identity: {key: usageRecordId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the usage record, constant for its life.', businessMeaning: Lets invoice lines point at the exact usage they charged for., usage: Generated on creation., relationshipContext: Referenced by billing lines.}}
+    - {name: usageRecordId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identifier of the usage record, unchanged for as long as the record exists.', usage: Generated on creation by the metering system; invoice lines and disputes cite it to show which measured usage was billed., businessMeaning: Lets invoice lines point at the exact usage they charged for., relationshipContext: Referenced by billing lines.}}
     - name: status
       type: enum
       required: true

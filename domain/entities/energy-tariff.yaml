@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The descriptive name of the tariff.
-        usage: Shown on bills and in customer portals.
+        summary: The descriptive name of the tariff, such as Business Peak and Off-Peak.
+        usage: Chosen by the energy or billing team; shown on bills and in customer portals, so customers can recognise which rates apply.
     - name: effectiveFrom
       type: date
       required: true

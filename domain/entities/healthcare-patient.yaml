@@ -45,13 +45,13 @@ entity:
         - DECEASED
         - MERGED
       help:
-        summary: The patient record's standing.
-        usage: Set by registration staff and clinical records; new encounters are normally created only for ACTIVE patients.
         valueSemantics:
-          ACTIVE: A current patient.
+          ACTIVE: A current patient who receives or is eligible for care.
           INACTIVE: Not currently receiving care; the record is kept and can be reactivated.
           DECEASED: The patient has died; no new care is planned. A final state.
           MERGED: A duplicate record that has been merged into another; use the surviving record. A final state.
+        summary: The patient record's standing.
+        usage: Set by registration staff and clinical records; new encounters are normally created only for ACTIVE patients.
     - name: preferredLanguage
       type: locale
       required: false

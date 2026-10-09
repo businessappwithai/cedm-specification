@@ -31,8 +31,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The name guests know the hotel by.
-        usage: Shown on websites, confirmations and invoices.
+        summary: The trading name guests know the hotel by, as shown on its website and booking channels.
+        usage: Shown on confirmations, invoices and search results; it may be rebranded while the hotel code stays the key.
     - name: status
       type: enum
       required: true
@@ -43,13 +43,13 @@ entity:
         - CLOSED
         - RETIRED
       help:
-        summary: Whether the property is trading.
-        usage: Set by the operator; reservations are taken only for ACTIVE hotels.
         valueSemantics:
-          PLANNED: Not yet open.
+          PLANNED: Not yet open to guests.
           ACTIVE: Open for business and taking reservations.
           CLOSED: Closed to guests, for example for renovation, and expected to reopen.
           RETIRED: Removed from the portfolio. A final state.
+        summary: Whether the property is trading.
+        usage: Set by the operator; reservations are taken only for ACTIVE hotels.
   relationships:
     - name: location
       target: Location

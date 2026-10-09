@@ -16,8 +16,8 @@ entity:
       required: true
       immutable: true
       help:
-        summary: The identity of the line, constant for its life.
-        usage: Generated on creation.
+        summary: The stable identity of one product line in a cart, constant while quantities and prices change.
+        usage: Generated when the item is added; it is carried over when the line becomes an order line, so the cart can be traced to the order.
         relationshipContext: Referenced when the line becomes an order line.
     - name: quantity
       type: decimal

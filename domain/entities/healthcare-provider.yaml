@@ -45,16 +45,16 @@ entity:
         - PHARMACY
         - OTHER
       help:
-        summary: The kind of provider.
-        usage: Chosen at registration; decides what services it can be scheduled for and how claims are submitted.
         valueSemantics:
           PHYSICIAN: A doctor in independent practice.
           NURSE: A nurse or nurse practitioner providing care.
           CLINIC: An outpatient clinic or practice.
           HOSPITAL: A hospital or inpatient facility.
-          LABORATORY: A diagnostic laboratory.
+          LABORATORY: A diagnostic laboratory that performs tests and reports results.
           PHARMACY: A pharmacy dispensing medicines.
           OTHER: Any other kind of provider.
+        summary: The kind of provider.
+        usage: Chosen at registration; decides what services it can be scheduled for and how claims are submitted.
     - name: status
       type: enum
       required: true
