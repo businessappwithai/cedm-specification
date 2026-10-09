@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-04T01:13:14.888Z
+ * Generated: 2026-10-09T15:31:15.442Z
  * Project: workflow
  */
 
@@ -1250,7 +1250,7 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
       },
       {
-        name: "from_currency",
+        name: "from_currency_id",
         displayName: "From Currency",
         type: "string",
         required: true,
@@ -1259,7 +1259,7 @@ export const entities: EntityMeta[] = [
         references: "Currency",
       },
       {
-        name: "to_currency",
+        name: "to_currency_id",
         displayName: "To Currency",
         type: "string",
         required: true,
@@ -1632,6 +1632,15 @@ export const entities: EntityMeta[] = [
         maxLength: 4000,
       },
       {
+        name: "process_version",
+        displayName: "Process Version",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 30,
+      },
+      {
         name: "status",
         displayName: "Status",
         type: "string",
@@ -1699,6 +1708,15 @@ export const entities: EntityMeta[] = [
         unique: false,
         isForeignKey: false,
         maxLength: 300,
+      },
+      {
+        name: "workflow_version",
+        displayName: "Workflow Version",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 30,
       },
       {
         name: "execution_type",
@@ -3629,20 +3647,6 @@ export const relationships: RelationshipMeta[] = [
   },
   {
     name: "exchange_rates_to",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "from_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "to_currency_ref",
     sourceEntity: "Currency",
     targetEntity: "ExchangeRate",
     cardinality: "oneToMany",

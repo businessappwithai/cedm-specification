@@ -217,19 +217,19 @@ VALUES ('9b161966-2e49-521a-8665-5fef7a54ce92', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('a407a7b2-077d-5699-9c8f-04b1999ef7c2', '66f51b0e-8b49-5422-892e-f8935fe055d8', '66f51b0e-8b49-5422-892e-f8935fe055d8', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('b7d7a815-f778-56cf-a042-71319eceb0f6', '8db82179-706e-5f03-b467-7629c49aa015', '8db82179-706e-5f03-b467-7629c49aa015', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('0750541f-cfb7-5956-8755-05debc7bb807', '78b554e0-4192-53ba-89ee-cc4ceaeba1b0', '78b554e0-4192-53ba-89ee-cc4ceaeba1b0', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('3dc0580b-70e8-5e8e-8760-a2d6c354f859', '97c6b296-3d39-5094-a6d4-b9a1b279eefe', '97c6b296-3d39-5094-a6d4-b9a1b279eefe', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('e2d9bfff-0efe-56a7-ae64-6fa53e07e0f2', '9b6b9c4c-370a-5353-b37b-7d3e90a39be5', '9b6b9c4c-370a-5353-b37b-7d3e90a39be5', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -370,20 +370,20 @@ VALUES ('afda2d82-3d6c-5afc-94f3-c7ac87991f74', NULL, 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Credit (bus_credit)
-INSERT INTO bus_credit (id, status, doc_status, created_at, updated_at)
-VALUES ('53a17cd6-eecb-56a4-9eaf-8d106ca6d3bb', 'DRAFT', 'final', NOW(), NOW())
+INSERT INTO bus_credit (id, status, credit_number, reason, amount, remaining_amount, currency_id, issued_on, doc_status, created_at, updated_at)
+VALUES ('53a17cd6-eecb-56a4-9eaf-8d106ca6d3bb', 'DRAFT', 'Credit 1', 'GOODWILL', 10.50, 10.50, '66f51b0e-8b49-5422-892e-f8935fe055d8', '2026-01-15', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_credit (id, status, doc_status, created_at, updated_at)
-VALUES ('3afad8b6-28f3-5639-832a-c69d4c951201', 'DRAFT', 'final', NOW(), NOW())
+INSERT INTO bus_credit (id, status, credit_number, reason, amount, remaining_amount, currency_id, issued_on, doc_status, created_at, updated_at)
+VALUES ('3afad8b6-28f3-5639-832a-c69d4c951201', 'DRAFT', 'Credit 2', 'BILLING_ERROR', 21.00, 21.00, '8db82179-706e-5f03-b467-7629c49aa015', '2026-02-15', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_credit (id, status, doc_status, created_at, updated_at)
-VALUES ('b54cf043-8a53-5cf8-b27c-d3d6ae7d510b', 'DRAFT', 'final', NOW(), NOW())
+INSERT INTO bus_credit (id, status, credit_number, reason, amount, remaining_amount, currency_id, issued_on, doc_status, created_at, updated_at)
+VALUES ('b54cf043-8a53-5cf8-b27c-d3d6ae7d510b', 'DRAFT', 'Credit 3', 'RETURN', 31.50, 31.50, '78b554e0-4192-53ba-89ee-cc4ceaeba1b0', '2026-03-15', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_credit (id, status, doc_status, created_at, updated_at)
-VALUES ('8cefed8d-ff1a-5a0d-bc53-71140558ddb4', 'DRAFT', 'final', NOW(), NOW())
+INSERT INTO bus_credit (id, status, credit_number, reason, amount, remaining_amount, currency_id, issued_on, doc_status, created_at, updated_at)
+VALUES ('8cefed8d-ff1a-5a0d-bc53-71140558ddb4', 'DRAFT', 'Credit 4', 'PROMOTION', 42.00, 42.00, '97c6b296-3d39-5094-a6d4-b9a1b279eefe', '2026-04-15', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_credit (id, status, doc_status, created_at, updated_at)
-VALUES ('6714bd08-78ff-5bd0-8542-8b74f3b7073f', 'DRAFT', 'final', NOW(), NOW())
+INSERT INTO bus_credit (id, status, credit_number, reason, amount, remaining_amount, currency_id, issued_on, doc_status, created_at, updated_at)
+VALUES ('6714bd08-78ff-5bd0-8542-8b74f3b7073f', 'DRAFT', 'Credit 5', 'OTHER', 52.50, 52.50, '9b6b9c4c-370a-5353-b37b-7d3e90a39be5', '2026-05-15', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Collateral (bus_collateral)

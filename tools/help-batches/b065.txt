@@ -1,0 +1,3 @@
+@ ShoppingCartLine
+r cart
+n: Every line sits in a single cart and is removed if the cart is deleted.

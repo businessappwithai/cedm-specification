@@ -1,0 +1,5 @@
+@ TripSegment
+r origin
+n: A leg starts at one location; a journey with a change is two legs.
+r destination
+n: A leg ends at one location; the next leg starts where this one arrives.

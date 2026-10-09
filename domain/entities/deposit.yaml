@@ -7,18 +7,16 @@ entity:
     icon: file-text
   identity: {key: depositId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: depositId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Deposit., businessMeaning: Identifies one governed Deposit record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: depositId, type: uuid, required: true, immutable: true, help: {summary: The identity of the deposit., usage: Generated on creation; interest postings and statements refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the deposit took effect., usage: Set when the funds are placed; interest runs from this moment.}}
   relationships: []
   invariants:
-  - {id: DEPOSIT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: DEPOSIT-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
-    purpose: Provide canonical enterprise semantics for Deposit.
-    businessMeaning: A governed deposit product or deposit transaction representing funds placed with a financial institution under defined ownership and terms.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: 'A deposit product or a deposit transaction: funds placed with a financial institution under agreed ownership and terms.'
+    businessMeaning: Deposits are the bank's raw material and the customer's savings. A deposit record shows what was placed, by whom and on what terms, which interest, regulation and reporting depend on.
+    usage: Created when funds are placed; read by account servicing, interest calculation and compliance.
+    relationshipContext: A deposit is held with a financial institution for an owner and links to the account where it is held.
+    lifecycle: Finalised financial evidence is corrected by compensating or superseding records and never by editing.
+    example: A 12-month term deposit of 50,000 placed on 1 February at a fixed rate.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DEPOSIT}

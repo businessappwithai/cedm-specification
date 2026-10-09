@@ -7,15 +7,22 @@ entity:
     icon: settings
   identity: {key: processDefinitionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: processDefinitionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ProcessDefinition., businessMeaning: Identifies one governed ProcessDefinition record independently of mutable status., usage: "Workflow, authorization, integration and audit.", relationshipContext: Referenced by related enterprise processes., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state of ProcessDefinition., businessMeaning: Indicates current workflow/control usability., usage: Execution and audit., relationshipContext: Terminal history is retained., valueSemantics: {PENDING: Awaiting activation or decision., ACTIVE: Currently effective or executing., COMPLETED: Successfully concluded., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: processDefinitionId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent, system-generated identity of this versioned business process definition.', usage: Generated on creation and never changed; running process instances and activities refer to the definition they were started from through it.}}
+    - name: status
+      type: enum
+      required: true
+      values: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Whether the definition is available to start new instances.
+        usage: Moved by the process owner; only ACTIVE definitions can be started.
+        valueSemantics:
+          PENDING: Being designed or awaiting release.
+          ACTIVE: Released; new instances can be started from it.
+          COMPLETED: Retired from new use after its instances have run their course. A final state.
+          CANCELLED: Abandoned before release. A final state.
   relationships: []
   invariants:
-  - {id: PROCESS-DEFINITION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
+    - {id: PROCESS-DEFINITION-001, rule: State changes and retries must preserve auditable history and must not duplicate downstream business effects.}
   lifecycle:
     title: Process Definition Lifecycle
     attribute: status
@@ -47,12 +54,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A versioned executable-neutral definition of a business process, its activities, transitions, assignments, controls, and completion semantics.
-    purpose: Provide implementation-neutral workflow or authorization semantics reusable across CEDM domains.
-    businessMeaning: A versioned executable-neutral definition of a business process, its activities, transitions, assignments, controls, and completion semantics.
-    whenUsed: Used when enterprise work requires explicit responsibility, state, authorization, or control evidence.
-    howItRelates: Connects to business objects and workflow participants without replacing their domain transaction history.
-    lifecycleUsage: Progresses through governed states with immutable audit evidence for completed or cancelled work.
-    commonProcesses: Workflow orchestration, approval, assignment, escalation, access governance, and audit.
-    commonExamples: Cross-domain enterprise process control.
+    summary: 'A versioned definition of a business process, independent of the engine that runs it: its activities, transitions, assignments, controls and what counts as complete.'
+    businessMeaning: Before a process can be run, it has to be described. The definition states the steps and rules once, so every run behaves the same way and a change to the process is a new version rather than an edit of the old one.
+    usage: Designed by process owners; activated for use; read by the workflow engine when it starts new instances.
+    relationshipContext: Each ProcessInstance is an execution of a process definition at a particular version.
+    lifecycle: A definition is pending while being designed, active when released, completed when no longer used for new instances, or cancelled if abandoned. State changes keep an auditable history and cannot duplicate effects.
+    example: The "Purchase approval" process, version 4, with steps for request, manager approval, budget check and order.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROCESS-DEFINITION}

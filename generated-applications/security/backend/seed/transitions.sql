@@ -455,9 +455,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('bada12a5-32a6-58d9-9099-c7f3f48bfacd', 'bus_access_grant', 'status', 'ACTIVE', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SecurityIncidentLifecycle: OPEN → INVESTIGATING (mark_investigating)
+-- SecurityIncidentLifecycle: OPEN → INVESTIGATING (investigate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b4e32746-0a65-57a6-a4d1-36914fc3143f', 'bus_security_incident', 'status', 'OPEN', 'INVESTIGATING', 'mark_investigating', TRUE, NOW())
+VALUES ('b4e32746-0a65-57a6-a4d1-36914fc3143f', 'bus_security_incident', 'status', 'OPEN', 'INVESTIGATING', 'investigate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SecurityIncidentLifecycle: INVESTIGATING → CONTAINED (contain)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('123130c3-32d2-5987-9657-6b9634914168', 'bus_security_incident', 'status', 'INVESTIGATING', 'CONTAINED', 'contain', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SecurityIncidentLifecycle: CONTAINED → INVESTIGATING (reopen)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('1232b0a7-2560-5600-8f8f-0edea3a952b7', 'bus_security_incident', 'status', 'CONTAINED', 'INVESTIGATING', 'reopen', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SecurityIncidentLifecycle: INVESTIGATING → RESOLVED (resolve)
@@ -465,19 +475,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('720a138f-6815-5983-acc2-860f587f0ca7', 'bus_security_incident', 'status', 'INVESTIGATING', 'RESOLVED', 'resolve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- SecurityIncidentLifecycle: CONTAINED → RESOLVED (resolve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ae4e4dcb-91a4-5154-8e24-9c6c5b99419d', 'bus_security_incident', 'status', 'CONTAINED', 'RESOLVED', 'resolve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- SecurityIncidentLifecycle: RESOLVED → CLOSED (close)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('63bd2d7b-3445-5749-8227-ead172cb6980', 'bus_security_incident', 'status', 'RESOLVED', 'CLOSED', 'close', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SecurityIncidentLifecycle: INVESTIGATING → CONTAINED (mark_contained)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('123130c3-32d2-5987-9657-6b9634914168', 'bus_security_incident', 'status', 'INVESTIGATING', 'CONTAINED', 'mark_contained', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SecurityIncidentLifecycle: CONTAINED → INVESTIGATING (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1232b0a7-2560-5600-8f8f-0edea3a952b7', 'bus_security_incident', 'status', 'CONTAINED', 'INVESTIGATING', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states

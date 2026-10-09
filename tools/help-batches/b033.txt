@@ -1,0 +1,116 @@
+@ Observation
+a observationId
+s: The identity of the observation.
+u: Generated on recording; results and verifications refer to it.
+a status
+s: Whether the observation has been checked.
+u: Set by the scientist or reviewer; only verified observations feed final results.
+v RECORDED: Captured but not yet checked.
+v VERIFIED: Checked and accepted as primary evidence. A final state.
+v INVALIDATED: Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state.
+
+@ Operation
+s: A sequenced step in a manufacturing routing that defines the work, the resource that does it, its standard time and any quality requirements.
+b: Production planning breaks a product's manufacture into steps. Each operation says what is done, where and how long it should take, which gives planners their capacity needs and costing its labour and machine time.
+u: Defined by process engineers when a routing is designed or revised; read by planners, shop-floor systems and costing.
+c: An operation belongs to one Routing, runs at a WorkCenter and may require a QualityPlan.
+l: Operations follow the lifecycle of their routing: edited in draft, fixed once released, and retired with it.
+x: Operation 30 of the bicycle routing: weld the frame at work centre WC-WELD, standard time 18 minutes.
+a operationId
+s: The identity of the operation.
+u: Generated on creation; work orders and time bookings refer to it.
+a sequence
+s: The position of the operation in the routing.
+u: Set by the process engineer, usually in steps of ten so steps can be inserted later.
+a name
+s: The name of the operation, such as Weld frame.
+u: Shown on shop-floor instructions and in reports.
+a standardMinutes
+s: The standard time allowed for the operation.
+u: Set from time studies; planning uses it for capacity and costing for labour and machine cost.
+r routing
+s: The routing the operation is a step of.
+u: Set when the operation is created.
+n: Exactly one routing: a step has no meaning outside the process it belongs to.
+w: Operations are released and retired with their routing.
+r workCenter
+s: The work centre where the operation is carried out.
+u: Chosen when the routing is designed.
+n: At most one work centre; an operation may be assigned later.
+w: Determines the capacity the operation loads.
+r qualityPlan
+s: The quality plan that applies to the operation.
+u: Linked where the step needs inspection.
+n: At most one plan.
+w: Triggers inspections at the step.
+
+@ Opportunity
+s: A qualified potential commercial transaction that the sales team is working to win.
+b: The sales pipeline is made of opportunities. Each one records who might buy, how likely it is and what it is worth, so the team can focus effort and forecast revenue.
+u: Created when a lead is qualified; advanced through stages; won or lost; read by sales managers for forecasting.
+c: An opportunity is for a Customer, owned by a Party (the salesperson), may come from a Lead and may end in a SalesOrder.
+l: An opportunity moves through qualification, discovery, proposal and negotiation and ends won or lost. A proposal may be revised during negotiation.
+x: A 120,000 software contract with a retailer, in negotiation with 60% probability and an expected close at the end of the quarter.
+a opportunityId
+s: The identity of the opportunity.
+u: Generated on creation; activities and quotes refer to it.
+a opportunityNumber
+s: The reference number of the opportunity.
+u: Allocated on creation; unique.
+a name
+s: A descriptive name, such as Retail Co - Platform renewal.
+u: Entered by the salesperson; shown in pipeline views.
+a stage
+s: How far the opportunity has progressed.
+u: Moved by the salesperson as the deal advances; stage drives the default probability.
+v QUALIFICATION: Checking that the buyer has need, budget and authority.
+v DISCOVERY: Understanding the buyer's requirements in detail.
+v PROPOSAL: A proposal or quote has been sent.
+v NEGOTIATION: Terms and price are being negotiated.
+v WON: The buyer has agreed to buy. A final state.
+v LOST: The deal was lost to a competitor or abandoned. A final state.
+a probability
+s: The estimated chance of winning, as a percentage from 0 to 100.
+u: Set by the salesperson or defaulted from the stage; weighted forecasts multiply value by it.
+a expectedValue
+s: The expected value of the deal if won.
+u: Estimated by the salesperson and refined as the proposal firms up.
+a expectedCloseDate
+s: The date by which the deal is expected to be decided.
+u: Set by the salesperson; pipeline reports bucket opportunities by it.
+r customer
+s: The customer who may buy.
+u: Set when the buyer is known.
+n: At most one customer; early opportunities may not yet be linked to one.
+w: Connects the pipeline to the account.
+r owner
+s: The salesperson responsible.
+u: Assigned by sales management.
+n: At most one owner.
+w: Gives accountability for the deal.
+r lead
+s: The lead the opportunity was created from.
+u: Set on conversion.
+n: At most one lead.
+w: Measures how well leads convert.
+r salesOrder
+s: The sales order placed when the opportunity is won.
+u: Linked on winning.
+n: At most one sales order.
+w: Connects forecast to actual revenue.
+
+@ Organization
+a organizationType
+v ENTERPRISE: The top-level body, such as a group or corporation.
+v COMPANY: A legal company.
+v BUSINESS_UNIT: A business division with its own results.
+v DIVISION: A major part of the organisation.
+v DEPARTMENT: A functional unit.
+v BRANCH: A local office or branch.
+v SUBSIDIARY: A company controlled by another.
+v OTHER: Any other organised body.
+a status
+v DRAFT: Being set up; not yet in use.
+v ACTIVE: In use.
+v INACTIVE: Temporarily not in use; can be reactivated.
+v RETIRED: Closed; kept for history. A final state.

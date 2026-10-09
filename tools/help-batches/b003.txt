@@ -1,0 +1,131 @@
+@ Agreement
+s: A governed agreement between parties that fixes rights, duties, commitments or terms, of which a commercial contract is a specialisation.
+b: An agreement is the record that two or more parties have committed to something. It is the parent concept behind contracts, service terms and similar understandings, so it holds what they share: who is bound, when, and what happened to the agreement over time.
+u: Created when terms are agreed or proposed; consulted when someone needs to know what was promised, whether it is in force, and what changed since.
+c: Contract specialises Agreement for commercial terms; parties, documents and obligations hang off the more specific records.
+l: Finalised evidence and effective history are preserved. Changes, settlements and replacements are recorded as explicit events, never by silently editing what was agreed.
+x: A framework supply agreement between a manufacturer and a distributor, later amended twice and finally superseded by a new agreement.
+a agreementId
+s: The permanent system identity of the agreement.
+u: Generated on creation; contracts, obligations and documents refer to the agreement through it.
+a occurredAt
+s: The date and time at which the agreement was concluded or took effect.
+u: Set when the agreement is recorded; used to place it in the sequence of events and to compute periods that run from it.
+
+@ Aircraft
+s: An aircraft, powered or unpowered, managed as an operational asset with its own registration, type, status and maintenance history.
+b: For an operator, each aircraft is a high-value asset that must be airworthy, scheduled and maintained. This record is the aircraft's identity in the system, to which flights, maintenance and compliance evidence are attached.
+u: Created when an aircraft is acquired or planned into the fleet; read by scheduling, maintenance planning and compliance, and updated as the aircraft changes status.
+c: An aircraft belongs to an operating Organization, may be located at a Location, and is the subject of MaintenanceWorkOrders; together they show who is responsible, where it is and what work it needs.
+l: An aircraft is planned, becomes active in service, goes into maintenance or is grounded when it cannot fly, returns to service when released, and is retired when it leaves the fleet.
+x: Registration G-ABCD, an Airbus A320 serial 5421, is active with a Frankfurt-based airline and is in a scheduled C-check at its maintenance base.
+a aircraftId
+s: The permanent system identity of the aircraft record.
+u: Generated on creation; flights and work orders refer to the aircraft through it, so a re-registration does not break history.
+a registrationNumber
+s: The national registration (tail number) painted on the aircraft and listed in the aviation register.
+u: Entered from registration documents; unique across the fleet and used by crews, air traffic and authorities to name the aircraft. It can change if the aircraft is re-registered.
+a aircraftType
+s: The make and model of the aircraft, such as Airbus A320-214 or Cessna 172S.
+u: Chosen from type data when the aircraft is added; decides crew qualifications, maintenance programmes and performance limits that apply.
+a serialNumber
+s: The manufacturer's serial number, which stays with the airframe for life.
+u: Entered from the build documents; unlike the registration it never changes, so it is the safe way to trace an airframe across owners and registers.
+a status
+s: Whether the aircraft is available to fly.
+u: Updated by operations and maintenance control; scheduling may assign only ACTIVE aircraft.
+v PLANNED: Expected to join the fleet but not yet delivered or accepted.
+v ACTIVE: In service and available for scheduling.
+v MAINTENANCE: Out of service for scheduled or unscheduled maintenance.
+v GROUNDED: Not permitted to fly pending an airworthiness issue, inspection or regulatory decision.
+v RETIRED: Permanently removed from the fleet; the record is kept for history.
+r organization
+s: The organisation that operates this aircraft.
+u: Set when the aircraft is added; determines whose fleet, rules and reporting the aircraft falls under.
+n: Exactly one operator at a time; every aircraft must belong to an organisation.
+w: Establishes accountability for airworthiness and scheduling.
+r location
+s: Where the aircraft is currently based or parked.
+u: Updated as the aircraft moves between airports and hangars; used for dispatch and maintenance planning.
+n: At most one current location, and empty while the position is unknown.
+w: Planners use it to decide which work can be done where.
+r maintenanceWorkOrders
+s: The maintenance work orders raised for this aircraft.
+u: Read to see what is open, what is done and what is due; each order is created from this aircraft's maintenance programme or from a defect.
+n: Any number over the aircraft's life.
+w: Open work orders gate return to service.
+
+@ Allergy
+s: A recorded allergy or intolerance of a patient, kept to support clinical safety and treatment decisions.
+b: Allergies are one of the most important safety facts about a patient. Prescribing, procedures and diet all check them, so the record must be findable, accurate and never silently lost.
+u: Entered by clinicians at registration or when a reaction is reported; checked whenever a medicine, food or procedure is ordered.
+c: Each allergy belongs to one HealthcarePatient, whose full clinical record it informs.
+l: An allergy starts as a draft while being verified, is active once confirmed, and is completed when resolved or disproved or cancelled if recorded in error. Entries are corrected by amendment, never by deleting history.
+x: Penicillin allergy with a skin rash, recorded by the admitting nurse and confirmed by the physician.
+a allergyId
+s: The permanent system identity of the allergy record.
+u: Generated on creation; alerts and clinical notes refer to the allergy through it.
+a allergyCode
+s: The unique business reference for this allergy entry.
+u: Used when a clinician or system needs to cite the exact entry, for example in an alert or an amendment.
+a status
+s: How far the allergy record has been verified and whether it still applies.
+u: Moved by clinicians; safety checks should consider ACTIVE entries.
+v DRAFT: Recorded but not yet verified.
+v ACTIVE: Confirmed and in force; safety checks must take it into account.
+v COMPLETED: No longer applies, for example outgrown or disproved; kept for history.
+v CANCELLED: Entered in error and withdrawn; kept for audit.
+r context
+s: The patient this allergy belongs to.
+u: Set on creation and not changed, so the entry cannot drift to another patient.
+n: Exactly one patient; a patient may have many allergies.
+w: Attaches the safety fact to the patient's care record.
+
+@ Appointment
+a appointmentId
+s: The identity of the booking itself, separate from the encounter that records the care when the patient is seen.
+a appointmentNumber
+s: The scheduling reference given to the appointment, used in reminders and check-in.
+a appointmentType
+a scheduledStartAt
+a scheduledEndAt
+a status
+v CANCELLED: The appointment was cancelled by the patient or provider before it took place.
+r patient
+n: Exactly one patient; an appointment cannot exist without the person it is for.
+r practitioner
+r provider
+r location
+r encounter
+
+@ Approval
+s: A request for, or the outcome of, an approval decision about a business object, process, task or controlled change.
+b: Approvals are the checkpoints where a person with authority says yes or no. Recording them as data, not email, shows who approved what and when, and lets processes wait for or react to the decision.
+u: Created when something needs sign-off, decided by the approver, and read afterwards by anyone who needs to show the control was applied.
+c: An approval refers to the thing it approves and to the approver; workflow and access governance use it to gate steps.
+l: An approval is pending when requested, active while under review, completed once decided and cancelled if the request is withdrawn. The decision is evidence and is not rewritten.
+x: A purchase order above the buyer's limit goes to the finance director for approval before it can be sent to the supplier.
+a approvalId
+s: The permanent system identity of the approval.
+u: Generated on request; workflow steps and audit entries refer to the approval through it.
+a status
+s: Where the approval request is in its path to a decision.
+u: Moved by the approver and the workflow; a gated step proceeds only when the approval is COMPLETED with a positive decision.
+v PENDING: Requested and waiting to be picked up.
+v ACTIVE: Under review by the approver.
+v COMPLETED: Decided; the decision is final evidence.
+v CANCELLED: Withdrawn by the requester before a decision.
+
+@ Assay
+a assayCode
+s: The laboratory's reference number for this assay run.
+a assayType
+a status
+r study
+r protocol
+r samples
+n: At least one sample, and possibly many: an assay cannot run without material to analyse.
+r observations
+n: Any number of observations; one assay typically produces many measurements.
+r results
+n: Any number of results; interpreted results are derived from the observations.

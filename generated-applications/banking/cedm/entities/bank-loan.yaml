@@ -11,162 +11,125 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: loanId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the loan record associated with this BankLoan. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: loanNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of loan number for the BankLoan. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: principalAmount
-    type: decimal
-    required: true
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of principal amount for the BankLoan. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: interestRate
-    type: decimal
-    required: true
-    precision: 10
-    scale: 6
-    help:
-      summary: Captures the business meaning of interest rate for the BankLoan. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: startDate
-    type: date
-    required: true
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
-        must follow the business chronology.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: maturityDate
-    type: date
-    required: true
-    help:
-      summary: Records the business date associated with the maturity. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - APPLICATION
-    - APPROVED
-    - ACTIVE
-    - DELINQUENT
-    - PAID_OFF
-    - DEFAULTED
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating BankLoan records, where applicable.
-      relationshipContext: Its meaning is specific to BankLoan; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        APPLICATION: Represents the application state or classification in the context of BankLoan.
-        APPROVED: Represents the approved state or classification in the context of BankLoan.
-        ACTIVE: Represents the active state or classification in the context of BankLoan.
-        DELINQUENT: Represents the delinquent state or classification in the context of BankLoan.
-        PAID_OFF: Represents the paid off state or classification in the context of BankLoan.
-        DEFAULTED: Represents the defaulted state or classification in the context of BankLoan.
-        CANCELLED: Represents the cancelled state or classification in the context of BankLoan.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: loanId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent system identity of the loan.
+        usage: Generated on application; repayments, collateral and statements refer to it.
+    - name: loanNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The reference number under which the bank services the loan.
+        usage: Allocated by the bank and quoted on statements and in correspondence; unique across loans.
+    - name: principalAmount
+      type: decimal
+      required: true
+      precision: 20
+      scale: 4
+      help:
+        summary: The amount of money advanced, before interest.
+        usage: Set at approval and fixed for the life of the loan; interest and repayments are calculated from it. Must be greater than zero.
+    - name: interestRate
+      type: decimal
+      required: true
+      precision: 10
+      scale: 6
+      help:
+        summary: The agreed annual interest rate charged on the outstanding balance.
+        usage: Entered as a fraction (for example 0.065 for 6.5%); used with the repayment schedule to calculate interest due.
+    - name: startDate
+      type: date
+      required: true
+      help:
+        summary: The date from which the loan runs and interest begins to accrue.
+        usage: Normally the drawdown date; the repayment schedule is built from it.
+    - name: maturityDate
+      type: date
+      required: true
+      help:
+        summary: The date by which the loan must be repaid in full.
+        usage: Agreed at approval; must be later than the start date. Collections treats balances outstanding after it as overdue.
+    - name: status
+      type: enum
+      required: true
+      default: APPLICATION
+      values:
+        - APPLICATION
+        - APPROVED
+        - ACTIVE
+        - DELINQUENT
+        - PAID_OFF
+        - DEFAULTED
+        - CANCELLED
+      help:
+        summary: Where the loan stands in its life.
+        usage: Moved by credit, servicing and collections processes; repayment collection applies to ACTIVE and DELINQUENT loans.
+        valueSemantics:
+          APPLICATION: Requested by the borrower and under assessment; no funds have moved.
+          APPROVED: Credit has been approved on agreed terms but funds are not yet advanced.
+          ACTIVE: Funds advanced and repayments are being made as scheduled.
+          DELINQUENT: A repayment is overdue; the loan is under collections attention and may be cured.
+          PAID_OFF: Fully repaid; a final state.
+          DEFAULTED: Delinquency was not resolved and the bank treats the loan as in default; a final state.
+          CANCELLED: Withdrawn or refused before any funds were advanced; a final state.
   relationships:
-  - name: borrower
-    target: Party
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects BankLoan to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a BankLoan.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: lender
-    target: Organization
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects BankLoan to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a BankLoan.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: currency
-    target: Currency
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects BankLoan to Currency so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Currency records associated with a BankLoan.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: borrower
+      target: Party
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The party that owes the loan.
+        usage: Chosen at application; statements and legal notices are addressed to this party.
+        cardinalityMeaning: Exactly one borrower; joint borrowers would be modelled by a joint party.
+        workflowRole: Identifies who is bound to repay.
+    - name: lender
+      target: Organization
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The organisation that lends the money.
+        usage: Set at application; determines which bank entity books the loan and receives repayments.
+        cardinalityMeaning: 'Exactly one lender: every loan is booked by a single lending entity.'
+        workflowRole: Identifies whose balance sheet carries the loan.
+    - name: currency
+      target: Currency
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The currency in which the loan is denominated.
+        usage: Fixed at approval; principal, interest and repayments are all in this currency.
+        cardinalityMeaning: Exactly one currency, so every amount on the loan is in the same money.
+        workflowRole: Keeps amounts unambiguous across multi-currency portfolios.
   invariants:
-  - id: BANK-LOAN-001
-    rule: maturityDate must be later than startDate.
-  - id: BANK-LOAN-002
-    rule: principalAmount must be greater than zero.
-  - {id: BANK-LOAN-EXE-001, rule: "Principal Amount cannot be negative.", violatedWhen: "principal_amount != null and principal_amount < 0", message: "Principal Amount cannot be negative."}
+    - id: BANK-LOAN-001
+      rule: maturityDate must be later than startDate.
+    - id: BANK-LOAN-002
+      rule: principalAmount must be greater than zero.
+    - {id: BANK-LOAN-EXE-001, rule: "Principal Amount cannot be negative.", violatedWhen: "principal_amount != null and principal_amount < 0", message: "Principal Amount cannot be negative."}
   lifecycle:
     title: Bank Loan Lifecycle
     attribute: status
     states: [APPLICATION, APPROVED, ACTIVE, DELINQUENT, PAID_OFF, DEFAULTED, CANCELLED]
     initial: APPLICATION
-    terminal: [CANCELLED]
+    terminal:
+      - PAID_OFF
+      - DEFAULTED
+      - CANCELLED
     transitions:
       - {from: APPLICATION, to: APPROVED, action: approve}
-      - {from: APPROVED, to: ACTIVE, action: activate}
+      - {from: APPROVED, to: ACTIVE, action: disburse}
       - {from: ACTIVE, to: DELINQUENT, action: mark_delinquent}
-      - {from: DELINQUENT, to: PAID_OFF, action: mark_paid_off}
-      - {from: PAID_OFF, to: DEFAULTED, action: mark_defaulted}
+      - {from: DELINQUENT, to: ACTIVE, action: cure}
+      - {from: ACTIVE, to: PAID_OFF, action: pay_off}
+      - {from: DELINQUENT, to: PAID_OFF, action: pay_off}
+      - {from: DELINQUENT, to: DEFAULTED, action: mark_defaulted}
       - {from: APPLICATION, to: CANCELLED, action: cancel}
       - {from: APPROVED, to: CANCELLED, action: cancel}
-      - {from: ACTIVE, to: CANCELLED, action: cancel}
-      - {from: DELINQUENT, to: CANCELLED, action: cancel}
-      - {from: PAID_OFF, to: CANCELLED, action: cancel}
-      - {from: DEFAULTED, to: CANCELLED, action: cancel}
   workflows:
     - name: FollowUpRequired
       title: "Follow up when a bank loan is ended"
@@ -187,18 +150,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a banking entity called BankLoan within the CEDM business model.
-    businessMeaning: BankLoan is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate BankLoan records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Organization,
-      Currency. These relationships provide the context needed to interpret the record rather than treating its fields as
-      isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical BankLoan record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: A loan in which a bank advances funds to a borrower on agreed terms of repayment.
+    businessMeaning: "A loan is a long-running promise: money goes out now and comes back, with interest, over time. This record carries the terms and the loan's standing, so servicing, risk and reporting all work from the same facts."
+    usage: Created when a borrower applies; progressed through approval and drawdown; watched through repayment until it is paid off or defaults; read by servicing, collections, risk and finance.
+    relationshipContext: The loan links a borrowing Party, the lending Organization and the Currency of the amounts, so who owes whom and in what money is never ambiguous.
+    lifecycle: A loan is an application, then approved, then active when funds are advanced. An active loan can fall delinquent and be cured, and ends paid off, or defaulted if delinquency is not resolved. An application or approved loan that is not drawn can be cancelled.
+    example: A 250,000 five-year business loan to Acme Ltd at 6.5%, approved on 3 February, drawn down on 10 February and repaid monthly.
 specification:
   version: 0.1.0
   status: draft

@@ -1,0 +1,42 @@
+@ Filing
+a filingId
+s: The permanent identity of the filing, unchanged by later corrections or supersession.
+u: Generated when the submission is recorded; documents, receipts and follow-up filings refer to it as evidence.
+
+@ Finding
+a findingId
+s: The permanent identity of the finding, kept even when its wording or status is later revised.
+u: Generated when the finding is raised; remediation tasks, reviews and audit reports refer to it by this value.
+a effectiveAt
+s: The moment from which the finding stands as an issued observation about the control or risk.
+u: Set at issue by the auditor or reviewer; ageing of open findings and remediation deadlines are measured from it.
+
+@ FiscalPeriod
+a fiscalPeriodId
+s: The permanent identity of the accounting period, unchanged when its dates or status change.
+u: Generated on creation; journal entries, close tasks and financial reports refer to the period by this value.
+a code
+s: The business code of the period, such as 2026-03 or FY2026-Q1, by which finance staff name it.
+u: Assigned when the calendar is set up and shown on journals, close checklists and reports; unique within an organisation's calendar.
+a startDate
+s: The first accounting date that falls inside the period, from which postings are assigned to it.
+u: Set when the calendar is defined; a journal entry is posted to the period whose dates contain its entry date.
+a status
+s: Controls whether journal entries may be posted to the period, from not yet open to finally closed.
+u: Moved by finance through open, soft close, close and lock; journal validation reads it before accepting any posting.
+v FUTURE: Defined but not yet open; no postings are accepted.
+v OPEN: Open and accepting postings from ordinary finance users.
+v SOFT_CLOSED: Normally closed but still open to postings by authorised finance staff, for adjustments.
+v CLOSED: Closed; no further postings and figures are final for reporting. A final state.
+v LOCKED: Frozen temporarily, for example during an audit or a month-end freeze; it can be reopened.
+
+@ Flight
+a status
+s: Where the flight stands in its operation, from scheduling through boarding and departure to arrival or cancellation.
+u: Updated by flight operations as the flight progresses; booking and passenger information read it to show delays and cancellations.
+v SCHEDULED: Planned on the published schedule and open for booking.
+v BOARDING: Boarding has started and passengers are being loaded.
+v DEPARTED: The aircraft has left the origin and is in the air.
+v ARRIVED: Landed at the destination. A final state.
+v DELAYED: Departure is later than scheduled.
+v CANCELLED: Will not operate. A final state.

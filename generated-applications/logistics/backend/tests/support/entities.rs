@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-04T01:12:10.660Z
+//! Generated: 2026-10-09T15:29:24.928Z
 //! Project: logistics
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -1269,14 +1269,14 @@ pub static ENTITIES: &[EntityMeta] = &[
                 max_length: None,
             },
             FieldMeta {
-                name: "from_currency",
+                name: "from_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),
                 max_length: None,
             },
             FieldMeta {
-                name: "to_currency",
+                name: "to_currency_id",
                 field_type: FieldType::from_model("string", true),
                 required: true,
                 ref_table: Some("bus_currency"),

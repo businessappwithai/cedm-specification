@@ -1,0 +1,52 @@
+@ Settlement
+a settlementId
+s: The stable identity of one claim settlement transaction, assigned once and never changed.
+u: Generated on creation; payments, reconciliation reports and audit entries refer to it even if the settlement number is corrected.
+a settlementNumber
+s: The business reference of the settlement, such as STL-3041, used by claims finance to find it.
+u: Assigned when the settlement is drafted; unique; quoted in correspondence with the claimant and in integrations with accounting.
+a amount
+s: The monetary liability this settlement discharges, stated in the settlement currency.
+u: Entered by the claims handler from the approved claim lines; it must not exceed approved liability and is reported against reserves.
+a method
+s: How the approved claim liability is discharged: by payment, service, offset, recovery or another agreed route.
+u: Chosen when the settlement is drafted; decides whether a Payment is expected and how accounting records the discharge.
+v PAYMENT: Liability is discharged by a cash payment to the claimant, which should be linked to a Payment.
+v SERVICE: Liability is discharged by providing a service, such as a repair or replacement, instead of money.
+v OFFSET: Liability is discharged by netting it against an amount the claimant owes, with no cash movement.
+v RECOVERY: Liability is discharged through recovery from a third party, such as a subrogation or salvage recovery.
+v OTHER: Liability is discharged by a method not listed here, with the arrangement described in the claim notes.
+a status
+s: Where the settlement stands between preparation, approval, execution and voiding.
+u: Starts as DRAFT; claims finance approves and then executes it, and an executed settlement must reconcile to its payment or service evidence.
+
+@ ShipmentLine
+a shipmentLineId
+s: The stable identity of one product quantity line on a shipment, constant for its life.
+u: Generated on creation; claims, tracking events and inventory movements refer to it even when line numbers are renumbered.
+a plannedQuantity
+s: The quantity of the product that the shipment is planned to carry on this line.
+u: Set when the shipment is planned from order demand; used for allocation, packing and capacity, and compared with what is dispatched.
+a dispatchedQuantity
+s: The quantity physically handed to the carrier or loaded for transport, starting at zero.
+u: Updated at dispatch by warehouse staff; it must reconcile with the issue or transfer movements and drives order fulfilment.
+a deliveredQuantity
+s: The quantity confirmed delivered at the destination, starting at zero until delivery evidence arrives.
+u: Recorded from delivery confirmation; the gap from dispatched quantity raises shortage claims, though delivery does not post stock.
+
+@ Shipment
+a actualDate
+s: The date the shipment actually arrived and was delivered, as opposed to the date planned.
+u: Entered when delivery is confirmed; compared with the planned date to measure carrier punctuality and customer service.
+a trackingReference
+s: The carrier's tracking or waybill number that identifies this consignment in the carrier's own system.
+u: Entered when the shipment is booked and given to the customer; staff use it to look up the shipment's progress.
+a status
+s: The operational stage of the shipment, from planning through booking, transit and delivery, or to exception or cancellation.
+u: Starts as PLANNED and moves as logistics staff book, dispatch and deliver; it controls tracking and downstream fulfilment, not stock.
+v PLANNED: The shipment is being prepared; no carrier has been booked and nothing has left the origin.
+v BOOKED: A carrier and a slot are confirmed, but the goods have not yet left the origin.
+v IN_TRANSIT: The goods have been dispatched and are travelling between origin and destination.
+v DELIVERED: The goods arrived at the destination and delivery was confirmed. A final state.
+v CANCELLED: The shipment was called off before completion and will not move. A final state.
+v EXCEPTION: Something has gone wrong, such as a delay, damage or a refused delivery, and the shipment needs attention before it continues.

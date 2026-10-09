@@ -612,8 +612,8 @@ export const mockApiResponses = {
     list: [
       {
         id: 'test-id-1',
-        from_currency: 'Test From Currency 1',
-        to_currency: 'Test To Currency 1',
+        from_currency_id: 'Test From Currency 1',
+        to_currency_id: 'Test To Currency 1',
         rate: 10.99,
         rate_type: 'Test Rate Type 1',
         effective_at: '2024-01-15T10:00:00Z',
@@ -623,8 +623,8 @@ export const mockApiResponses = {
       },
       {
         id: 'test-id-2',
-        from_currency: 'Test From Currency 2',
-        to_currency: 'Test To Currency 2',
+        from_currency_id: 'Test From Currency 2',
+        to_currency_id: 'Test To Currency 2',
         rate: 20.99,
         rate_type: 'Test Rate Type 2',
         effective_at: '2024-01-16T10:00:00Z',
@@ -635,8 +635,8 @@ export const mockApiResponses = {
     ],
     single: {
       id: 'test-id-1',
-      from_currency: 'Test From Currency',
-      to_currency: 'Test To Currency',
+      from_currency_id: 'Test From Currency',
+      to_currency_id: 'Test To Currency',
       rate: 10.99,
       rate_type: 'Test Rate Type',
       effective_at: '2024-01-15T10:00:00Z',
@@ -920,15 +920,33 @@ export const mockApiResponses = {
       {
         id: 'test-id-1',
         status: 'Test Status 1',
+        credit_number: 'Test Credit Number 1',
+        reason: 'Test Reason 1',
+        amount: 10.99,
+        remaining_amount: 10.99,
+        currency_id: 'Test Currency 1',
+        issued_on: '2024-01-15',
       },
       {
         id: 'test-id-2',
         status: 'Test Status 2',
+        credit_number: 'Test Credit Number 2',
+        reason: 'Test Reason 2',
+        amount: 20.99,
+        remaining_amount: 20.99,
+        currency_id: 'Test Currency 2',
+        issued_on: '2024-01-16',
       },
     ],
     single: {
       id: 'test-id-1',
       status: 'Test Status',
+      credit_number: 'Test Credit Number',
+      reason: 'Test Reason',
+      amount: 10.99,
+      remaining_amount: 10.99,
+      currency_id: 'Test Currency',
+      issued_on: '2024-01-15',
     },
   },
   collateral: {
@@ -1707,6 +1725,34 @@ export const mockApiResponses = {
     },
   },
   creditStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  creditReason: {
     list: [
       {
         id: 'test-id-1',

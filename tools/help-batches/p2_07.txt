@@ -1,0 +1,11 @@
+@ Fee
+a status
+s: Where the education fee stands, from preparation and assessment through invoicing to settlement, waiver or cancellation.
+u: Moved by student accounts and billing staff; reports read it to separate open charges from settled ones.
+@ Guardian
+a relationshipType
+v PARENT: A biological or adoptive parent.
+v LEGAL_GUARDIAN: A person appointed with legal responsibility for the student.
+v CAREGIVER: A person who cares for the student day to day without legal guardianship.
+v SPONSOR: A person or body that supports the student financially.
+v OTHER: Any relationship to the student not covered by the other types.

@@ -1,0 +1,26 @@
+@ CreditNoteLine
+a lineNumber
+s: The position of this line within its credit note, counting from one.
+u: Assigned when the line is added; it orders the lines on the printed document and lets integrations and reconciliation refer to one line.
+a taxableAmount
+s: The part of the credited line value on which tax is calculated.
+u: Calculated from the credited quantity and price; it must agree with the original invoice line's tax treatment, and tax reports read it.
+@ Crop
+a name
+s: The common name of the crop, such as winter wheat or sweet corn.
+u: Entered by agronomy staff; shown on planting plans and harvest records, so one crop should keep one agreed spelling.
+a status
+s: Whether the crop is currently grown, resting between seasons, or no longer grown.
+u: Set by agronomy staff; only ACTIVE crops are normally offered when planning plantings, and retired ones stay for history.
+r farms
+s: The farms that grow this crop.
+u: Maintained as farms add or drop the crop; read in yield, planning and market reports to see where the crop is produced.
+n: Any number of farms, since a crop may be grown on many farms or on none yet.
+r fields
+s: The fields in which this crop is currently or was previously planted.
+u: Recorded for each planting; agronomists read it to plan rotations and to compare yields field by field.
+n: Any number of fields, one per planting, and a field may carry different crops over time.
+r products
+s: The products that come from this crop, such as grain, flour or seed.
+u: Linked by sales and product staff; it shows what can be sold from a harvest and traces a product back to its crop.
+n: Any number of products, because one crop can yield several sellable items.

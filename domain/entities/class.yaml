@@ -6,34 +6,33 @@ entity:
   ui: {icon: school}
   identity: {key: classId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the class offering., businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., usage: "Scheduling, enrollment, attendance, assessment and reporting.", relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance., requiredMeaning: Required.}}
-    - {name: classCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Human-facing class or section reference., businessMeaning: Operational code for one course offering., usage: "Schedules, registers, search and integration.", relationshipContext: Distinct from EducationCourse code., requiredMeaning: Required.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of the class offering., businessMeaning: Identifies the teaching group to learners and staff., usage: "Schedules, portals and reports.", relationshipContext: May derive from course name plus section or term., requiredMeaning: Required.}}
-    - {name: startDate, type: date, required: false, help: {summary: First planned date of the class offering., businessMeaning: Establishes delivery period., usage: "Scheduling, enrollment eligibility and reporting.", relationshipContext: Must not follow endDate., optionalMeaning: Optional while schedule is provisional.}}
-    - {name: endDate, type: date, required: false, help: {summary: Last planned date of the class offering., businessMeaning: Closes the delivery period., usage: "Scheduling and reporting.", relationshipContext: Must not precede startDate., optionalMeaning: Optional while schedule is provisional.}}
+    - {name: classId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one scheduled class offering., usage: 'Generated on creation; enrolments, attendance and assessments refer to the class through it.', businessMeaning: Identifies one scheduled course section independently of the reusable EducationCourse definition., relationshipContext: EducationCourse defines curriculum while Class defines one delivery instance.}}
+    - {name: classCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: 'The code by which the offering is known in timetables and registration, such as BIO101-A-2026F.', businessMeaning: Operational code for one course offering., usage: "Schedules, registers, search and integration.", relationshipContext: Distinct from EducationCourse code.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The name of the offering as students and instructors see it, such as Biology 101, Autumn Section B.', usage: 'Entered when the class is planned; shown in timetables, learner portals and reports.', businessMeaning: Identifies the teaching group to learners and staff., relationshipContext: May derive from course name plus section or term.}}
+    - {name: startDate, type: date, required: false, help: {summary: The first day on which teaching for the class takes place., usage: Set when scheduling; enrolment eligibility is judged against it and it must not come after the end date., businessMeaning: Establishes delivery period., relationshipContext: Must not follow endDate.}}
+    - {name: endDate, type: date, required: false, help: {summary: The last day of the offering., usage: Entered at scheduling; must not be earlier than the start date., businessMeaning: Closes the delivery period.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
       help:
-        summary: Lifecycle state of the class offering.
-        businessMeaning: Controls enrollment and delivery progression.
-        usage: Scheduling, enrollment, attendance and reporting.
-        relationshipContext: Completed class history remains immutable evidence.
+        summary: Where the offering is, from planning through enrolment and teaching to completion or cancellation.
+        usage: Moved by the school administrator as the term proceeds; enrolment is only accepted while open, and attendance only once teaching begins.
         valueSemantics:
-          DRAFT: Offering is being prepared.
-          OPEN: Offering is available for governed enrollment or scheduling.
-          IN_PROGRESS: Instruction is underway.
-          COMPLETED: Delivery has concluded.
-          CANCELLED: Offering was cancelled through governed process.
-        requiredMeaning: Required.
+          DRAFT: Being planned; not yet visible to students.
+          OPEN: Open for enrolment, with teaching not yet begun.
+          IN_PROGRESS: Teaching has started and attendance and assessments are being recorded.
+          COMPLETED: Finished; results are final and kept as delivery evidence. A final state.
+          CANCELLED: Called off before completion. A final state.
+        businessMeaning: Controls enrollment and delivery progression.
+        relationshipContext: Completed class history remains immutable evidence.
   relationships:
-    - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {summary: Reusable course definition delivered by this Class., businessMeaning: Separates curriculum from one scheduled offering., usage: "Catalog, scheduling and reporting.", cardinalityMeaning: Exactly one EducationCourse., workflowRole: Course eligibility constrains new Class offerings.}}
+    - {name: course, target: EducationCourse, cardinality: "1", ownership: reference, help: {cardinalityMeaning: Exactly one course; a class is always an offering of a single course., summary: Reusable course definition delivered by this Class., businessMeaning: Separates curriculum from one scheduled offering., usage: "Catalog, scheduling and reporting.", workflowRole: Course eligibility constrains new Class offerings.}}
     - {name: instructors, target: Party, cardinality: "0..*", ownership: reference, help: {summary: Parties assigned to instruct or facilitate the Class., businessMeaning: Establishes teaching responsibility., usage: "Scheduling, workload and learner communication.", cardinalityMeaning: Zero or many instructors while staffing is arranged., workflowRole: Instructor eligibility is governed externally or by education policy.}}
-    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: reference, help: {summary: Student enrollments assigned to this Class., businessMeaning: Establishes learner membership for the delivery instance., usage: "Registers, attendance and assessment.", cardinalityMeaning: Zero or many enrollments., workflowRole: Enrollment status controls attendance and assessment eligibility.}}
+    - {name: enrollments, target: Enrollment, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: "Any number, up to the class's capacity.", summary: Student enrollments assigned to this Class., businessMeaning: Establishes learner membership for the delivery instance., usage: "Registers, attendance and assessment.", workflowRole: Enrollment status controls attendance and assessment eligibility.}}
     - {name: attendanceRecords, target: Attendance, cardinality: "0..*", ownership: aggregate, help: {summary: Attendance evidence recorded for this Class., businessMeaning: Preserves participation history for enrolled students., usage: "Class registers, learner support and reporting.", cardinalityMeaning: Zero or many records., workflowRole: Attendance student and Class context must reconcile.}}
-    - {name: assessments, target: Assessment, cardinality: "0..*", ownership: aggregate, help: {summary: Assessments scheduled or administered for this Class., businessMeaning: Connects evaluated learning activity to one delivery instance., usage: "Assessment planning, gradebook and reporting.", cardinalityMeaning: Zero or many assessments., workflowRole: Assessment timing and eligibility follow Class lifecycle and policy.}}
+    - {name: assessments, target: Assessment, cardinality: "0..*", ownership: aggregate, help: {cardinalityMeaning: 'Any number of assessments, each belonging to the class.', summary: Assessments scheduled or administered for this Class., businessMeaning: Connects evaluated learning activity to one delivery instance., usage: "Assessment planning, gradebook and reporting.", workflowRole: Assessment timing and eligibility follow Class lifecycle and policy.}}
   invariants:
     - {id: CLASS-001, rule: endDate must not precede startDate when both are supplied.}
     - {id: CLASS-002, rule: COMPLETED or CANCELLED Class records are historical delivery evidence and must not be destructively rewritten.}

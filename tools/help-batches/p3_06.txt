@@ -1,0 +1,62 @@
+@ MaintenancePlan
+a name
+s: The descriptive name of the maintenance plan, such as quarterly compressor service.
+u: Entered by maintenance engineering; shown in planners' lists and on the work orders the plan generates.
+a frequencyUnit
+s: The unit in which the plan's frequency is measured, such as calendar days or operating hours.
+u: Chosen together with the frequency value; the scheduler uses it to decide when the next work order is due.
+v HOURS: Operating hours, counted from the asset's meter.
+v DAYS: Calendar days between jobs.
+v WEEKS: Calendar weeks between jobs.
+v MONTHS: Calendar months between jobs.
+v MILES: Distance travelled, read from the vehicle's odometer.
+v CYCLES: Operating cycles, such as starts or lifts.
+v OTHER: Any other measure of use, described in the plan.
+a status
+s: Whether the plan is currently generating maintenance work.
+u: Set by maintenance engineering; only ACTIVE plans create work orders, and RETIRED plans stay on record for the orders already raised.
+@ MaintenanceWorkOrder
+a workType
+s: The kind of maintenance work this order covers, from routine inspection to emergency repair.
+u: Chosen on creation; it affects priority rules, approval and how cost and downtime are reported.
+a status
+s: Where the work stands, from request through scheduling and execution to completion.
+u: Moved by planners and technicians; assigned work is started by a technician, and completed or cancelled orders can no longer be changed.
+v OPEN: Requested and waiting to be planned.
+v PLANNED: Scheduled for a date with the work defined.
+v ASSIGNED: Given to a technician or crew.
+v IN_PROGRESS: Work has started on the asset.
+v ON_HOLD: Paused, for example while waiting for parts.
+v COMPLETED: Done and signed off. A final state.
+v CANCELLED: Withdrawn before completion. A final state.
+a priority
+s: How urgent the work is relative to other open work orders.
+u: Set when the work is requested and sometimes raised by planners; technicians are scheduled in priority order and critical orders interrupt routine work.
+a scheduledAt
+s: The date and time at which the work is due to be carried out.
+u: Set by the planner when the order is scheduled; technician calendars are built from it and lateness is measured against it.
+a completedAt
+s: The date and time at which the work was finished and the asset handed back.
+u: Set on completion; downtime, labour cost and compliance reports read it, and it should not precede the start of the work.
+@ ManufacturingWorkOrder
+a orderNumber
+s: The reference number people use for this production order on the shop floor and in documents.
+u: Allocated by the system on creation; unique, and used in scheduling, material staging, quality checks, costing and audit.
+a quantity
+s: The target quantity of the product that this order is authorised to produce.
+u: Set by the planner when the order is created; material planning, capacity and completion variance are all measured against it.
+a plannedStart
+s: The date and time at which production is planned to begin.
+u: Set by the planner during scheduling; capacity and material staging are planned from it, and it should not be after the planned end.
+a plannedEnd
+s: The date and time at which production is planned to be complete.
+u: Set by the planner during scheduling; capacity and delivery-promise calculations read it, and it should not be before the planned start.
+a status
+s: Where the production order is in its lifecycle, from planning to closure.
+u: Moved by planners and shop-floor control; materials are issued and output reported only once the order is released.
+v PLANNED: Being planned and not yet executable.
+v RELEASED: Authorised for execution, so materials may be issued and work started.
+v IN_PROGRESS: Execution has begun on the shop floor.
+v COMPLETED: Production is materially complete, pending closure where applicable.
+v CLOSED: Reconciled and administratively closed. A final state.
+v CANCELLED: Terminated before the remaining execution was done. A final state.

@@ -11,141 +11,105 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: miningSiteId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the mining site record associated with this MiningSite. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MiningSite records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MiningSite; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: siteCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of site code for the MiningSite. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MiningSite records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MiningSite; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MiningSite records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MiningSite; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: resourceType
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of resource type for the MiningSite. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MiningSite records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MiningSite; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - EXPLORATION
-    - DEVELOPMENT
-    - ACTIVE
-    - SUSPENDED
-    - CLOSED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating MiningSite records, where
-        applicable.
-      relationshipContext: Its meaning is specific to MiningSite; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        EXPLORATION: Represents the exploration state or classification in the context of MiningSite.
-        DEVELOPMENT: Represents the development state or classification in the context of MiningSite.
-        ACTIVE: Represents the active state or classification in the context of MiningSite.
-        SUSPENDED: Represents the suspended state or classification in the context of MiningSite.
-        CLOSED: Represents the closed state or classification in the context of MiningSite.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: miningSiteId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent identifier of the mining site record, which stays the same through exploration, production and closure.
+        usage: Generated on registration; production records, permits and safety events refer to the site through this value.
+    - name: siteCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The short unique code that operations use to name the site, such as KIR-01, in reports and feeds.
+        usage: Assigned by operations management at registration and kept unique; production reports and shift handovers quote it.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The full name by which the mine or extraction site is known to staff, regulators and the public.
+        usage: Entered at registration by operations management; shown in production reports, permits and map views of the sites.
+    - name: resourceType
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The mineral or resource extracted.
+        usage: Entered at registration; used in production and market reports.
+    - name: status
+      type: enum
+      required: true
+      default: EXPLORATION
+      values:
+        - EXPLORATION
+        - DEVELOPMENT
+        - ACTIVE
+        - SUSPENDED
+        - CLOSED
+      help:
+        summary: The stage of the site's life, from exploration through development and production to closure.
+        usage: Set by operations management as each stage is approved; production is recorded only while the site is active.
+        valueSemantics:
+          EXPLORATION: The site is being surveyed and drilled to prove whether the resource can be extracted economically.
+          DEVELOPMENT: The resource is proven and infrastructure is being built, but commercial extraction has not yet begun.
+          ACTIVE: The site is in production and extracting the resource, and output is recorded against it.
+          SUSPENDED: Extraction has been paused, for example for safety, weather, price or permit reasons, and is expected to resume.
+          CLOSED: The site has permanently stopped extraction and is in closure or rehabilitation. A final state.
   relationships:
-  - name: location
-    target: Location
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects MiningSite to Location so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Location records associated with a MiningSite.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects MiningSite to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a MiningSite.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: productionRecords
-    target: ProductionRecord
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects MiningSite to ProductionRecord so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ProductionRecord records associated with a MiningSite.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: location
+      target: Location
+      cardinality: '1'
+      ownership: reference
+      help:
+        cardinalityMeaning: 'Exactly one location: a site is a defined piece of ground with coordinates and a jurisdiction.'
+        summary: Where the site is.
+        usage: Set at registration.
+        workflowRole: Provides coordinates and jurisdiction.
+    - name: organization
+      target: Organization
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The organisation that operates the site.
+        usage: Set at registration.
+        cardinalityMeaning: Exactly one operator, responsible for permits and safety.
+        workflowRole: Determines who answers for operations.
+    - name: productionRecords
+      target: ProductionRecord
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The production records of the site.
+        usage: Read to measure output.
+        cardinalityMeaning: Any number, one for each production period.
+        workflowRole: Record what the site has produced.
   lifecycle:
     title: Mining Site Lifecycle
     attribute: status
     states: [EXPLORATION, DEVELOPMENT, ACTIVE, SUSPENDED, CLOSED]
-    initial: DEVELOPMENT
-    terminal: [CLOSED]
+    initial: EXPLORATION
+    terminal:
+      - CLOSED
     transitions:
-      - {from: DEVELOPMENT, to: EXPLORATION, action: mark_exploration}
-      - {from: EXPLORATION, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: CLOSED, action: close}
-      - {from: EXPLORATION, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: EXPLORATION, action: resume}
+      - {from: EXPLORATION, to: DEVELOPMENT, action: develop}
+      - {from: DEVELOPMENT, to: ACTIVE, action: start_production}
       - {from: ACTIVE, to: SUSPENDED, action: suspend}
       - {from: SUSPENDED, to: ACTIVE, action: resume}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: SUSPENDED, to: CLOSED, action: close}
+      - {from: EXPLORATION, to: CLOSED, action: abandon}
+      - {from: DEVELOPMENT, to: CLOSED, action: abandon}
   help:
-    summary: Represents a mining entity called MiningSite within the CEDM business model.
-    businessMeaning: MiningSite is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate MiningSite records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Location, Organization,
-      ProductionRecord. These relationships provide the context needed to interpret the record rather than treating its fields
-      as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical MiningSite record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: A geographic site where mineral or natural-resource extraction takes place.
+    businessMeaning: 'The site is the unit of mining operations: it has a resource, a stage from exploration to closure, and a production history. Safety, permits, output and costs are all reported by site.'
+    usage: Registered when exploration begins; advanced as it is developed and brought into production; read by operations and compliance.
+    relationshipContext: A site stands at a Location, is operated by an Organization and has ProductionRecords.
+    lifecycle: A site begins in exploration, moves to development and then to active production. It can be suspended and resumed, and is closed at the end of its life or if abandoned.
+    example: The Kiruna iron ore mine, in production since 1900 and operated by the mining company.
 specification:
   version: 0.1.0
   status: draft

@@ -1,0 +1,45 @@
+@ Position
+a positionId
+s: The permanent, system-generated identity of this organizational seat, independent of who holds it or what it is called.
+u: Generated on creation and never changed; employment records, headcount plans and reporting lines refer to the position through it.
+a code
+s: The position number that headcount plans, budgets and requisitions use to name this seat unambiguously.
+u: Assigned by HR when the position is approved; must be unique and is quoted in recruitment, budgeting and workforce reports.
+a title
+s: The working title of the seat, such as Senior Accountant, as it appears on charts and job advertisements.
+u: Entered by HR when the position is created; shown on organisation charts and in vacancy postings, and may be refined while it is open.
+a status
+s: Whether the seat is currently open, occupied, held back or removed from the structure.
+u: Set by HR as the seat is filled, frozen, closed or retired; recruitment can only target an OPEN position.
+a effectiveFrom
+s: The first date on which the position exists in the organization structure and may be filled.
+u: Set when the position is approved; headcount reports use it with the end date to show the structure as it stood on any day.
+@ Practitioner
+a status
+s: Whether the practitioner is cleared to work in this organisation.
+u: Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders.
+v DRAFT: Being credentialed; licence and affiliation checks are not complete, so no clinical work yet.
+v ACTIVE: Cleared to practise here; can be scheduled, appointed and place orders.
+v SUSPENDED: Barred while a licence or conduct matter is reviewed.
+v INACTIVE: Not currently practising here but may return.
+v RETIRED: No longer a practitioner here. A final state.
+@ Premium
+a status
+s: Where this premium stands between being calculated, billed to the policyholder and settled, waived or withdrawn.
+u: Moved by policy billing and finance; PAID must be backed by settled payment evidence and the three closing states are final.
+v DRAFT: Calculated but not yet due and not yet billed to anyone.
+v DUE: Payable now; the due date has been assessed and collection can begin.
+v INVOICED: Included on an invoice to the policyholder and awaiting payment.
+v PAID: Received and reconciled against payment. A final state.
+v WAIVED: Excused by the insurer so no payment is expected. A final state.
+v CANCELLED: Withdrawn, for example because the policy was cancelled. A final state.
+@ Prescription
+a prescriptionId
+s: The permanent, system-generated identity of this medication or therapy order for a patient.
+u: Generated on creation and never changed; dispensing records, administrations and pharmacy queries refer to the prescription through it.
+a startDate
+s: The first day on which the patient is to begin the prescribed medication or therapy.
+u: Set by the prescriber and defaulting to today; the end date must not precede it, and pharmacy uses it to plan dispensing.
+a status
+s: Where the prescription stands from being drafted to being in force or ended.
+u: Moved by the prescriber and pharmacy; only ACTIVE prescriptions can be dispensed, and the three closing states are final.

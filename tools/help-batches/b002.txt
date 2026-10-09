@@ -1,0 +1,271 @@
+@ AIEvaluation
+s: A recorded assessment of an AI model against defined quality, safety, performance or business criteria.
+b: An evaluation is the evidence that a model is fit for a stated use. Approval and deployment decisions rest on completed evaluations, so each one must stay reproducible after the model changes.
+u: Created when a model is tested before approval, after a retraining, or on a periodic review; read by governance reviewers deciding whether to approve, keep or suspend the model.
+c: Every evaluation belongs to exactly one AIModel, the model being assessed; the model's lifecycle checks look for a completed evaluation before deployment.
+l: An evaluation starts as a draft while criteria and test data are agreed, becomes active while tests run, and ends completed with results or cancelled if abandoned. A completed evaluation is never rewritten; a repeat test is a new evaluation.
+x: A fairness and accuracy evaluation of version 3.2 of a credit-scoring model, run against last quarter's holdout data and completed with a pass.
+a aIEvaluationId
+s: The permanent system identity of the evaluation.
+u: Generated when the evaluation is created; model approval records and audit trails refer to the evaluation through it.
+a aIEvaluationCode
+s: The unique business reference by which reviewers and reports name this evaluation.
+u: Entered or generated when the evaluation is raised, for example EVAL-2026-014; used in approval packs and audit queries.
+a status
+s: Where the evaluation stands in its run from preparation to a recorded result.
+u: Moved forward by the governance team as the test is prepared, run and closed; deployment checks accept only COMPLETED evaluations.
+v DRAFT: Being prepared; criteria and data are still being agreed and nothing has been run.
+v ACTIVE: Under way; tests are running and results are being collected.
+v COMPLETED: Finished with results recorded; this is the state approval decisions rely on, and it is final.
+v CANCELLED: Abandoned before completion; kept so the attempt is on record, and it cannot support an approval.
+r context
+s: The AI model this evaluation assesses.
+u: Chosen when the evaluation is created and not changed afterwards, so the evidence always stays with the model version it was run for.
+n: Exactly one model: an evaluation without a subject is meaningless, while a model may have many evaluations over its life.
+w: Links the evidence to the model so deployment and review can check it.
+
+@ AIModel
+s: A machine-learning or other AI model registered for use, with its type, version, risk level and approval status.
+b: The model register is how an organisation knows which automated decision-makers it runs, what each is for, how risky it is and whether it has been approved. Without it, models in production cannot be governed or audited.
+u: A record is created when a model enters development and updated as it is trained, validated, approved, deployed, suspended and retired; governance, operations and auditors read it.
+c: A model is owned by an Organization, governed by an AIPolicy, assessed through AIEvaluations and produces AIPredictions; those links are what make it traceable end to end.
+l: A model moves from draft through training and validation to approval and deployment. It can be suspended and resumed at any stage after training, and is retired for good at the end of its life. Deployment requires approval and a completed evaluation.
+x: Churn Predictor v3.2 is a classification model owned by the Retail Analytics team; it passed validation, was approved by the AI governance board and is deployed.
+a aiModelId
+s: The permanent system identity of the model record.
+u: Generated on registration; predictions, evaluations and policies hold this identity, so renaming or re-versioning the model does not break them.
+a code
+s: The unique business code of the model, such as CHURN-PRED.
+u: Chosen on registration and used in pipelines, dashboards and audit queries; it stays the same across versions of the same model.
+a name
+s: The descriptive name people use for the model.
+u: Shown in the register and in reviews; can be reworded without affecting identity.
+a modelType
+s: The kind of task the model performs.
+u: Set at registration and used to choose evaluation criteria and monitoring; an unusual model is recorded as OTHER with a description in its purpose.
+v CLASSIFICATION: Assigns an input to one of a set of categories, such as fraud or not fraud.
+v REGRESSION: Predicts a continuous number, such as expected claim cost.
+v FORECASTING: Predicts a value over future time periods, such as demand next month.
+v RECOMMENDATION: Ranks or suggests items for a person or case, such as products to offer.
+v GENERATION: Produces new content such as text, images or code.
+v EMBEDDING: Turns content into numeric vectors for similarity search and retrieval.
+v ANOMALY_DETECTION: Flags unusual cases that deviate from normal patterns, such as suspicious transactions.
+v OTHER: Any model task not listed above; describe it in the purpose.
+a modelVersion
+s: The version label of this model build, such as 3.2.0.
+u: Updated whenever the model is retrained or changed in a way that could alter its outputs; predictions record the version that produced them so results stay reproducible.
+a status
+s: The model's position in its governance lifecycle.
+u: Moved forward by the teams responsible at each stage; only APPROVED models may be deployed, and only DEPLOYED models should serve live predictions.
+v DRAFT: Registered but not yet in training; scope and purpose are still being defined.
+v TRAINING: Being trained or retrained on data.
+v VALIDATION: Trained and being evaluated against criteria before any approval decision.
+v APPROVED: Cleared by governance for deployment; evaluation evidence is on record.
+v DEPLOYED: Live and serving predictions in production.
+v SUSPENDED: Temporarily halted, for example after a drift or incident finding, and able to resume at its previous stage.
+v RETIRED: Permanently withdrawn; kept for audit of past predictions.
+a purpose
+s: A plain-language statement of what the model is for and what decisions it supports.
+u: Written at registration and reviewed with every approval; it limits the model to its intended use and is the reference when judging whether a new use needs fresh assessment.
+a riskLevel
+s: The governance risk rating of the model, based on the impact of a wrong or biased output.
+u: Assessed during validation and drives how strict the policy, review and monitoring requirements are; high-impact uses are rated HIGH or CRITICAL.
+v LOW: Errors have minimal impact and are easily corrected; light-touch review applies.
+v MEDIUM: Errors cause moderate harm or cost; standard review and monitoring apply.
+v HIGH: Errors could materially harm people or the business; enhanced review and human oversight apply.
+v CRITICAL: Errors could cause severe or irreversible harm; the strictest controls and executive approval apply.
+r owner
+s: The organisation accountable for the model.
+u: Set at registration so reviewers and incident responders know whom to contact and who answers for the model's behaviour.
+n: At most one owner; a model with no owner recorded is an open governance gap rather than a valid long-term state.
+w: Anchors accountability; approvals and suspensions are directed to the owner.
+r evaluations
+s: The evaluations run against this model.
+u: Read when deciding approval or deployment and when reviewing the model's history of testing.
+n: Any number, one per assessment; a new model has none.
+w: A DEPLOYED model must have at least one completed evaluation on record.
+r predictions
+s: The predictions this model has produced.
+u: Used to monitor behaviour, investigate disputed outputs and measure drift; they are produced in volume by runtime systems.
+n: Any number, typically a very large number.
+w: Each prediction records the model version, so outputs can be traced to the exact model that made them.
+r policy
+s: The AI policy that governs how this model may be used.
+u: Chosen at registration to set approvals, controls and permitted use; changing it triggers review.
+n: At most one governing policy; models without one fall back to general organisational rules.
+w: The policy's controls are checked at approval and deployment.
+
+@ AIPolicy
+s: A governed policy that sets the constraints, approvals, controls and permitted uses for an AI model and its predictions.
+b: A policy turns an organisation's rules for AI, such as human oversight, data limits and approval levels, into a record that can be attached to a model and checked.
+u: Created by the AI governance function when rules for a type of model are agreed; reviewed whenever the model, its risk or the regulation changes; read by approvers and auditors.
+c: Each policy is tied to the AIModel it governs; the model's approval and deployment checks consult it.
+l: A policy is drafted, becomes active when adopted, is completed when it has run its course or been replaced, and may be cancelled before it takes effect. A completed policy stays on record for past decisions.
+x: A policy requiring human review of every rejected loan application scored by the credit-scoring model, adopted for the 2026 financial year.
+a aIPolicyId
+s: The permanent system identity of the policy.
+u: Generated on creation; models and audit trails refer to the policy through it.
+a aIPolicyCode
+s: The unique business reference of the policy, such as POL-AI-007.
+u: Used when citing the policy in approvals, reviews and audits.
+a status
+s: Where the policy stands, from drafting to adoption and closure.
+u: Moved by the governance function; only ACTIVE policies are enforced when a model is approved or deployed.
+v DRAFT: Being written and reviewed; not yet enforceable.
+v ACTIVE: Adopted and enforced for the model it governs.
+v COMPLETED: Superseded or run its course; no longer enforced for new decisions but kept as the record of past ones.
+v CANCELLED: Withdrawn before adoption.
+r context
+s: The AI model this policy governs.
+u: Chosen when the policy is created; its controls apply to that model and its predictions.
+n: Exactly one model per policy; a model may be governed by one policy at a time through its policy link.
+w: Ties the controls to the thing they constrain so approval and deployment can check them.
+
+@ AIPrediction
+s: A recorded output produced by an AI model for a specific input and execution context, with its confidence and any human review.
+b: Predictions are the model's actual decisions and suggestions. Keeping them lets the organisation explain a result, measure how well the model performs and prove who reviewed or overrode it.
+u: Written by runtime systems each time a model is run; read by monitoring, disputes handling, reviewers and auditors.
+c: Each prediction belongs to the AIModel (and version) that produced it, and may be reviewed by a Party who accepts, overrides or rejects it.
+l: A prediction has no draft state; it is a fact once recorded. Only its human-review status moves, from pending to accepted, overridden or rejected where review is required.
+x: The churn model scored customer 4711 at 0.87 probability of leaving; a retention analyst reviewed it, accepted it and added the customer to a call list.
+a aiPredictionId
+s: The permanent system identity of the prediction record.
+u: Generated for every prediction; reviews, overrides and downstream actions point back through it.
+a predictionType
+s: The kind of output produced, such as score, label, ranking or generated text.
+u: Set by the calling system so consumers know how to read the output field and which monitors apply.
+a inputReference
+s: A pointer to the input the model was run on, such as a record key or file location, rather than a copy of the data.
+u: Filled by the calling system so the prediction can be traced to its source without duplicating sensitive input data; leave empty if the input is not retained.
+a output
+s: The structured result the model returned for the input.
+u: Stored as a structured object because output shapes vary by model type; it is read by the consuming process and by reviewers.
+a confidence
+s: How certain the model reports it is about this output, from 0 (no confidence) to 1 (full confidence).
+u: Recorded when the model supplies a score; used to route low-confidence results for human review and to monitor calibration.
+a predictedAt
+s: When the model produced this output.
+u: Set automatically at run time; the basis for ordering, drift monitoring and reconstructing what the model said at a given moment.
+a humanReviewStatus
+s: Whether a person has to review this output and, if so, what they decided.
+u: Set to PENDING when policy requires review, then updated by the reviewer; downstream actions on high-risk predictions wait for a decision.
+v NOT_REQUIRED: The output is used without human review under the governing policy.
+v PENDING: Awaiting a reviewer's decision.
+v ACCEPTED: A reviewer confirmed the output and it may be acted on.
+v OVERRIDDEN: A reviewer replaced the output with their own decision; the reviewer is recorded.
+v REJECTED: A reviewer refused the output and it must not be acted on.
+r model
+s: The AI model that produced this prediction.
+u: Set by the runtime system; used to attribute results, measure each model's performance and investigate faults.
+n: Exactly one model per prediction; one model has many predictions.
+w: Connects each output to the model and version accountable for it.
+r reviewer
+s: The person or party who reviewed the prediction.
+u: Recorded when a reviewer accepts, overrides or rejects the output.
+n: At most one reviewer; empty until a review takes place or when no review is required.
+w: An overridden prediction must name its reviewer, so every human override is attributable.
+
+@ AccessGrant
+s: A governed assignment that gives a user or other subject a role, permission or policy-scoped entitlement for a defined context and period.
+b: An access grant is the record that someone is allowed to do something. Keeping grants as records, with their own approval and lifecycle, makes access reviewable and reversible rather than an invisible side effect of configuration.
+u: Requested when someone needs access, approved, activated, and ended when access is no longer needed; read by access reviews, audits and authorisation checks.
+c: A grant ties together a subject (such as a user), what is granted (a role, permission or policy) and the context in which it applies.
+l: A grant is requested as pending, becomes active once approved and in force, and ends as completed when it expires or is revoked, or cancelled if the request is withdrawn or refused.
+x: A finance analyst requests the Ledger Approver role for the Q4 close; the grant is approved, active for six weeks, and completed on expiry.
+a accessGrantId
+s: The permanent system identity of the grant.
+u: Generated on request; reviews, audits and revocations refer to the grant through it.
+a status
+s: Whether the grant is requested, in force, ended, or withdrawn.
+u: Moved by the approval and access-management processes; authorisation honours only grants that are ACTIVE.
+v PENDING: Requested and awaiting approval; confers no access yet.
+v ACTIVE: Approved and in force; the subject holds the access.
+v COMPLETED: Ended, by expiry or revocation; the access is gone but the record remains for audit.
+v CANCELLED: Withdrawn or refused before taking effect; no access was ever given.
+
+@ Activity
+s: A planned or completed customer-facing interaction, such as a call, meeting, email, visit or follow-up, recorded against a party or opportunity.
+b: Activities are the trail of contact behind a commercial relationship. They show what was done for a customer or prospect, by whom and what comes next, so sales and service teams do not work blind.
+u: Logged by sales and service staff as they plan or complete interactions, and by integrations such as email and calendar sync; read when preparing for a contact or reviewing account history.
+c: Activities connect to the commercial parties and opportunities they concern, which gives the interaction its business meaning.
+l: An activity is planned, then completed when it happens or cancelled if it does not. Completed activities are history and are not rewritten; a follow-up is a new activity.
+x: A product demo meeting with the buyer's procurement team, scheduled for Tuesday and logged as completed with a note to send a proposal.
+a activityId
+s: The permanent system identity of the activity.
+u: Generated when the activity is logged; notes, follow-ups and reports refer to it.
+a code
+s: An optional reference number or code for the activity.
+u: Used when an external system, such as a calendar or telephony system, supplies its own reference, so the same interaction is not logged twice.
+
+@ Address
+s: A structured postal or physical address for a party or location, held once so it can be reused wherever it is needed.
+b: Addresses are reusable master data, yet an address printed on an issued invoice or shipment is historical evidence. This entity therefore holds the current address while documents keep their own copy of what was printed.
+u: Created when a party or location needs an address, selected when documents are prepared, and retired when it is no longer valid; read by invoicing, shipping, tax and mailing processes.
+c: An address is placed through its Country, optional StateProvince and City, so it follows the geography lists, and may be used by a Party or a Location.
+l: Addresses are active, can be made inactive and reactivated, and are retired when finished with. Retirement stops new use but never removes the address from past documents.
+x: A customer moves its billing address; the customer record now points to the new active address while already issued invoices keep the address that applied when they were issued.
+a addressId
+s: The permanent system identity of the address.
+u: Generated on creation; parties, locations and document snapshots refer to the address through it.
+a addressType
+s: The purpose for which the address is used.
+u: Chosen when the address is created and used to pick the right address for a document, such as BILLING for invoices and SHIPPING for deliveries.
+v RESIDENTIAL: A private home address.
+v BUSINESS: A place of business or office.
+v BILLING: Where invoices and statements are sent.
+v SHIPPING: Where goods are delivered.
+v REGISTERED: The official registered address of a legal entity.
+v POSTAL: A mailing address such as a post office box.
+v OTHER: Any purpose not listed.
+a line1
+s: The first line of the street address, usually building number and street.
+u: Entered by the person maintaining the address; printed on labels and documents.
+a line2
+s: An optional second address line, such as a suite, unit or floor.
+u: Filled when line 1 is not enough to find the exact delivery point.
+a line3
+s: An optional third address line for additional delivery details.
+u: Rarely used; kept for countries and carriers whose formats need more than two lines.
+a postalCode
+s: The postal or ZIP code of the address.
+u: Entered according to the country's format; used for delivery, tax zones and distance calculation.
+a latitude
+s: The north-south position of the address on the earth in decimal degrees, from -90 to 90.
+u: Optional; filled by geocoding for mapping and routing. Must stay within -90 to 90.
+a longitude
+s: The east-west position of the address on the earth in decimal degrees, from -180 to 180.
+u: Optional; filled by geocoding for mapping and routing. Must stay within -180 to 180.
+a isPrimary
+s: Marks the address a party or location uses by default for its address type.
+u: Set by the person maintaining addresses; at most one active primary address of each type applies per party or location, and it is the one documents pick unless told otherwise.
+a status
+s: Whether the address may still be used for new business.
+u: Changed by data stewards; selection lists offer only ACTIVE addresses.
+v ACTIVE: Valid and available for new documents.
+v INACTIVE: Temporarily not offered, for example while a move is being confirmed; it can be reactivated.
+v RETIRED: No longer valid; kept only as history and in past documents.
+r country
+s: The country the address is in.
+u: Chosen first; it sets the address format and narrows the states and cities offered.
+n: Exactly one country is required.
+w: Settles the format, tax and trade rules that apply to the address.
+r stateProvince
+s: The state, province or equivalent division the address is in.
+u: Chosen after the country, from that country's divisions.
+n: At most one; some countries have no divisions in the list.
+w: Must belong to the address's own country.
+r city
+s: The city the address is in, chosen from the list.
+u: Chosen after the state or province; use the city name field only when the city is not listed.
+n: At most one.
+w: Must belong to the address's own country, and to its state or province where one is given.
+r party
+s: The party that uses or maintains this address.
+u: Set when a party's address is added; used to find a party's addresses and pick the effective one.
+n: At most one party; an address being prepared may have none yet.
+w: Supplies the party context for selecting an address.
+r location
+s: The location this address describes.
+u: Set when the address is the postal address of a site; used by logistics and mapping.
+n: At most one location.
+w: Supplies the place context for operational and geographic processes.

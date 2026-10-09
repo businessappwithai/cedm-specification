@@ -7,13 +7,75 @@ entity:
     icon: table
   identity: {key: varianceId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: Stable Variance identity., businessMeaning: Identifies the governed Variance concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+    - {name: varianceId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent identifier of the variance comparison, unchanged when its figures are recalculated.', usage: Generated on creation; reports and commentary refer to it to point at one specific comparison of plan against actual., businessMeaning: Lets reports point at the comparison., relationshipContext: Referenced by review reports.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The reference code of the variance, such as VAR-2026-03-MKT, naming the period and area compared.', usage: 'Assigned by finance or the planning system when the comparison is produced; used in reports, review packs and when quoting a variance to managers.', businessMeaning: Gives reviewers a stable reference., relationshipContext: Read with the period.}}
+    - name: periodStart
+      type: date
+      required: true
+      help:
+        summary: The first day of the period being compared.
+        usage: Set when the variance is calculated; actual and plan figures are taken from this date.
+        relationshipContext: Not later than the period end.
+    - name: periodEnd
+      type: date
+      required: true
+      help:
+        summary: The last day of the period being compared.
+        usage: Set when the variance is calculated; must not be before the start of the period.
+        relationshipContext: Defines the length of the comparison period.
+    - name: basis
+      type: enum
+      values:
+        - BUDGET
+        - FORECAST
+      required: true
+      help:
+        summary: Whether the actual figure is compared with a budget or with a forecast.
+        usage: Chosen when calculated; decides which of the linked budget or forecast supplies the plan figure.
+        relationshipContext: Read with the budget and forecast relationships.
+        valueSemantics:
+          BUDGET: Actuals are compared with the approved budget.
+          FORECAST: Actuals are compared with the latest forecast.
+    - name: plannedAmount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The budgeted or forecast amount for the period.
+        usage: Copied from the budget or forecast when the variance is calculated, so later revisions do not change it.
+        relationshipContext: Compared with the actual amount to give the variance.
+    - name: actualAmount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The amount actually incurred or earned in the period according to the ledger.
+        usage: Taken from posted accounting evidence when calculated; the variance never changes those entries.
+        relationshipContext: Compared with the planned amount.
+    - name: varianceAmount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The actual amount minus the planned amount; a positive figure is above plan.
+        usage: Calculated when the variance is produced; read by budget owners to see where spend or revenue departs from plan.
+        relationshipContext: The difference between the actual and planned amounts.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
-  - {name: budget, target: Budget, cardinality: 0..1, ownership: reference, help: {summary: Budget baseline compared., businessMeaning: Supplies planned value source., usage: Budget-vs-actual analysis., cardinalityMeaning: Optional for forecast-only comparison., workflowRole: Analysis cannot mutate budget.}}
-  - {name: forecast, target: Forecast, cardinality: 0..1, ownership: reference, help: {summary: Forecast baseline compared., businessMeaning: Supplies projected value source., usage: Forecast-vs-actual/budget analysis., cardinalityMeaning: Optional., workflowRole: Analysis cannot mutate forecast.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation the comparison is for., usage: Chosen when created., cardinalityMeaning: Exactly one organisation., workflowRole: Decides whose budget is measured.}}
+    - {name: budget, target: Budget, cardinality: 0..1, ownership: reference, help: {summary: The budget used as the plan., usage: Chosen when comparing with budget., cardinalityMeaning: At most one budget., workflowRole: Provides the planned figure., businessMeaning: Supplies planned value source.}}
+    - {name: forecast, target: Forecast, cardinality: 0..1, ownership: reference, help: {summary: The forecast used as the expectation., usage: Chosen when comparing with forecast., cardinalityMeaning: At most one forecast; empty if only a budget is used., workflowRole: Provides the expected figure., businessMeaning: Supplies projected value source.}}
   invariants:
-  - {id: VARIANCE-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
-  help: {summary: "A derived comparison between planned, forecast, or actual financial measures for a defined period and dimensional context.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+    - {id: VARIANCE-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+    - id: VARIANCE-002
+      rule: periodEnd must not precede periodStart.
+  help:
+    summary: A comparison between planned, forecast or actual financial measures for a period and dimension.
+    businessMeaning: A variance shows how far reality is from the plan and in which direction. It lets managers see where budget is overspent or revenue falls short, without altering the accounting entries it is derived from.
+    usage: Calculated by finance or the planning system; read by managers and budget owners.
+    relationshipContext: A variance belongs to an organisation and compares a budget or a forecast with actuals.
+    lifecycle: A variance is calculated for a period and recalculated as actuals arrive. It never changes the entries it compares.
+    example: Marketing spend is 12 percent over budget for March.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-VARIANCE}

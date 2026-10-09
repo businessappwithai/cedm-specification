@@ -1,0 +1,3 @@
+@ Property
+r location
+n: A property stands at a single location, which gives its address; a site with several addresses is modelled as several properties.

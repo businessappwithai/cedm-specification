@@ -1,0 +1,160 @@
+@ Job
+s: A reusable definition of work responsibilities, qualifications and classification that positions are created from and people are employed into.
+b: A job is the description of a kind of work, such as Accountant or Warehouse Operator, separate from any particular vacancy. Defining it once keeps titles, grades and requirements consistent across the many positions that share it.
+u: Defined by HR; used when positions are created and filled; read by recruiters, managers and compensation analysts.
+c: Positions are instances of a job.
+l: A job is drafted, becomes active when approved for use, may be inactive while not needed, and is retired when withdrawn. Existing positions and history are kept.
+x: The job "Senior Accountant", with responsibilities, required qualifications and pay grade, used by five positions across three departments.
+a jobId
+s: The identity of the job definition.
+u: Generated on creation; positions refer to it.
+a code
+s: The job code in the organisation's job catalogue, such as ACC-SR.
+u: Unique; assigned by HR and used in reports and pay structures.
+a title
+s: The standard title of the job.
+u: Shown on job advertisements, contracts and organisation charts.
+a status
+s: Whether the job definition is available for new positions.
+u: Set by HR; only ACTIVE jobs can be used to create positions.
+v DRAFT: Being written; not yet approved.
+v ACTIVE: Approved and available for positions.
+v INACTIVE: Temporarily not offered; existing positions continue.
+v RETIRED: Withdrawn; kept for history. A final state.
+r positions
+s: The positions that are instances of this job.
+u: Read to see where in the organisation the job is used.
+n: Any number of positions, from none for a new job to many for a common one.
+w: Changes to the job description flow to every position of the job.
+
+@ JournalEntry
+a journalEntryId
+s: The identity of the accounting entry.
+u: Generated on creation; ledger lines and audit refer to it.
+a entryNumber
+s: The sequential number of the entry in the ledger.
+u: Allocated from the ledger's number series; unique; quoted in audit queries.
+a entryDate
+s: The accounting date of the entry.
+u: Set from the originating event; decides the fiscal period the entry belongs to.
+a status
+s: Whether the entry has been recorded in the books.
+u: Moved by the posting process; only POSTED entries affect balances.
+v DRAFT: Prepared but not yet recorded; no effect on balances.
+v POSTED: Recorded in the ledger; it affects balances and can no longer be edited.
+v REVERSED: Cancelled by a reversing entry; the original stays on record. A final state.
+a description
+s: A short explanation of what the entry records.
+u: Written or generated at posting; shown in ledgers and drill-downs.
+r lines
+n: At least two lines, because an entry has a debit and a credit side which must balance.
+r sourceTransaction
+n: At most one source transaction; entries made by hand have none.
+r payment
+n: At most one payment, the payment that gave rise to the entry.
+r creditNote
+n: At most one credit note, the document that gave rise to the entry.
+r organization
+n: At most one organisation, the ledger owner; it defaults to the current ledger.
+
+@ JournalEntryLine
+s: One debit or credit line within a journal entry.
+b: Double-entry accounting records every event as at least two lines which balance. The line is the unit of the ledger: an account, an amount and a direction.
+u: Created with its entry; summed per account to give balances; read by financial reports and audits.
+c: Each line belongs to one JournalEntry and posts to one Account.
+l: Lines are part of their entry: they are edited while it is a draft and fixed once it is posted.
+x: Debit 1,200.00 to Accounts Receivable as part of the entry for invoice INV-2026-0441.
+a journalEntryLineId
+s: The identity of the ledger line.
+u: Generated on creation; drill-downs and reconciliations refer to it.
+a lineNumber
+s: The position of the line within the entry.
+u: Set when the entry is created; keeps the order of lines stable.
+a debitAmount
+s: The amount debited to the account.
+u: Entered or derived from the source; not negative, and zero if the line is a credit.
+a creditAmount
+s: The amount credited to the account.
+u: Entered or derived from the source; not negative, and zero if the line is a debit.
+a description
+s: A note about this line.
+u: Shown in ledger drill-downs.
+r journalEntry
+s: The entry the line belongs to.
+u: Set when the line is created.
+n: Exactly one entry: a line has no meaning outside the entry it balances.
+w: The entry's lines must balance before it can be posted.
+r account
+s: The ledger account the line posts to.
+u: Chosen when the entry is made.
+n: Exactly one account: each line affects a single account.
+w: Determines which balance and statement line the amount affects.
+
+@ Language
+s: A language used for localisation, communication preferences, content and reporting.
+b: People read and write in different languages. A language record lets the application offer translations, remember preferences and tag content with the language it is written in.
+u: Loaded from the standard language registry; chosen on user profiles, documents and messages.
+c: Parties, users and content refer to a language; the language itself depends on nothing.
+l: Code and identity stay stable, and history is never silently rewritten.
+x: English, with code en.
+a languageId
+s: The identity of the language record.
+u: Generated when the language is loaded.
+a code
+s: The two-letter ISO 639-1 code of the language, such as en or de.
+u: Taken from the standard; unique; used in locale settings and APIs.
+a name
+s: The name of the language in English.
+u: Shown in language pick-lists.
+
+@ Lead
+s: A prospective customer or business opportunity before it has been qualified.
+b: Sales teams cannot chase every enquiry equally. A lead records a possible customer and where it came from, so the team can decide which are worth pursuing and measure how well each source performs.
+u: Created from forms, events, referrals or imports; qualified by sales; converted into a customer and opportunity or discarded; read by sales managers.
+c: A lead may identify a Party or Customer, is owned by a Party (the salesperson), and may become an Opportunity.
+l: A lead is new, goes through qualification, and ends qualified and converted into an opportunity, or disqualified or lost.
+x: A visitor who downloads a whitepaper is recorded as a lead from the website source, qualified by a call and converted to an opportunity.
+a leadId
+s: The identity of the lead.
+u: Generated on creation; activities and conversion refer to it.
+a leadNumber
+s: The lead's reference number.
+u: Allocated on creation; unique; quoted by sales staff.
+a status
+s: How far the lead has been worked.
+u: Moved by sales.
+v NEW: Captured but not yet worked.
+v QUALIFYING: Being assessed for fit and interest.
+v QUALIFIED: Confirmed as a genuine prospect.
+v DISQUALIFIED: Judged not to be a fit. A final state.
+v CONVERTED: Turned into a customer and opportunity. A final state.
+v LOST: The prospect went elsewhere or stopped responding. A final state.
+a source
+s: Where the lead came from, such as web, event or referral.
+u: Chosen at capture; used to measure which channels produce customers.
+a estimatedValue
+s: The potential value of the business.
+u: Estimated by sales; used to prioritise.
+a createdAt
+s: When the lead was captured.
+u: Set by the system; used to measure response time.
+r party
+s: The person or organisation the lead is about.
+u: Linked once the prospect is identified.
+n: At most one party; a lead may be captured before the prospect is identified.
+w: Keeps contact details in one place.
+r customer
+s: The customer record, once the lead has become one.
+u: Set on conversion.
+n: At most one customer.
+w: Records the outcome of conversion.
+r owner
+s: The salesperson responsible for the lead.
+u: Assigned by sales management.
+n: At most one owner; unassigned leads wait in a queue.
+w: Gives accountability for follow-up.
+r opportunity
+s: The opportunity created from the lead.
+u: Set on conversion.
+n: At most one opportunity.
+w: Links pipeline to the leads that created it.

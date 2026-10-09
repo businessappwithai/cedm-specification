@@ -88,6 +88,7 @@ const ENTITIES: string[] = [
   'BankTransactionStatus',
   'BankLoanStatus',
   'CreditStatus',
+  'CreditReason',
 ];
 
 const ENTITY_FIELDS: Record<string, string[]> = {
@@ -107,7 +108,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'City': ['id', 'code', 'name', 'population', 'latitude', 'longitude', 'timezone', 'is_capital', 'country_id', 'state_province_id'],
   'Language': ['id', 'code', 'name'],
   'Currency': ['id', 'code', 'name', 'symbol', 'decimal_places', 'status'],
-  'ExchangeRate': ['id', 'from_currency', 'to_currency', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
+  'ExchangeRate': ['id', 'from_currency_id', 'to_currency_id', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
   'UnitOfMeasure': ['id', 'code', 'name', 'symbol', 'category', 'conversion_factor', 'base_unit_id', 'status'],
   'Calendar': ['id', 'code', 'name'],
   'Attachment': ['id', 'effective_at'],
@@ -117,7 +118,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'BankReconciliation': ['id', 'effective_at', 'bank_account_id'],
   'BankLoan': ['id', 'loan_number', 'principal_amount', 'interest_rate', 'start_date', 'maturity_date', 'status', 'borrower_id', 'lender_id', 'currency_id'],
   'Deposit': ['id', 'effective_at'],
-  'Credit': ['id', 'status'],
+  'Credit': ['id', 'status', 'credit_number', 'reason', 'amount', 'remaining_amount', 'currency_id', 'issued_on'],
   'Collateral': ['id', 'effective_at', 'bank_loan_id'],
   'PartyPartyType': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'PartyStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
@@ -147,6 +148,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'BankTransactionStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'BankLoanStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'CreditStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'CreditReason': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
 };
 
 /** A rule as the endpoint returns it, in either casing. */

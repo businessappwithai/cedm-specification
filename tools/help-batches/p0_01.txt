@@ -1,0 +1,65 @@
+@ AIPolicy
+a status
+v DRAFT: Being written and reviewed; not yet enforceable.
+v ACTIVE: Adopted and enforced for the model it governs.
+v COMPLETED: Superseded or run its course; no longer enforced for new decisions but kept as the record of past ones. A final state.
+v CANCELLED: Withdrawn before it was adopted, so it never governed any model decision. A final state.
+@ Appointment
+a appointmentType
+s: The kind of healthcare service the visit is booked for, such as a follow-up consultation, vaccination or imaging slot.
+u: Chosen by the scheduler when booking; drives how long a slot is held, which resources it needs and how capacity is reported.
+a scheduledStartAt
+s: The date and time at which the patient is expected to be seen, in the clinic's planning calendar.
+u: Entered when the appointment is booked and changed on rescheduling; reminders fire from it and lateness is measured against it.
+a scheduledEndAt
+s: The planned end of the slot, giving the time the practitioner and room are held.
+u: Optional; when given it must fall after the start. Capacity planning uses it to detect overlapping bookings for the same resource.
+a status
+s: Where the booking stands, from being scheduled through attendance to closure as completed, cancelled or missed.
+u: Moved by front-desk staff and clinicians as the patient confirms, arrives and is seen; reminders and capacity reports filter on it.
+v SCHEDULED: Appointment is booked but not yet confirmed by the patient or provider.
+v CONFIRMED: Patient or provider confirmation has been recorded.
+v CHECKED_IN: Patient arrival or equivalent readiness has been recorded.
+v COMPLETED: Scheduled service concluded and any required encounter evidence is reconciled. A final state.
+v CANCELLED: The appointment was cancelled by the patient or provider before it took place. A final state.
+v NO_SHOW: Patient did not attend according to policy. A final state.
+@ Assay
+a assayId
+s: The permanent system identity of one assay execution, unchanged however the run is later described or corrected.
+u: Generated on creation; observations, results and instrument records point back to the run through it.
+a assayCode
+s: The laboratory's unique reference number for this assay run, such as ASY-2026-0418.
+u: Used to find the run, to match instrument output to it, and to cite it in reports and audits.
+a assayType
+s: The scientific kind of procedure performed, such as an ELISA, a potency test or a HPLC purity run.
+u: Chosen by the analyst when planning; routes the run to the right instrument and bench and groups results for analytics.
+a status
+s: Where the run is, from planned through execution to a completed, failed or cancelled outcome.
+u: Moved by the analyst or instrument integration as work starts and ends; results are only trusted from completed runs.
+v PLANNED: Assay is prepared and scheduled but not yet started.
+v RUNNING: Execution is underway and observations are being captured.
+v COMPLETED: Execution concluded successfully and its results can be relied on. A final state.
+v FAILED: Execution failed and its evidence is retained for investigation. A final state.
+v CANCELLED: Execution was called off, either before starting or part way through. A final state.
+@ Assessment
+a assessmentType
+s: The form the evaluation takes, such as a quiz, formal exam, coursework assignment, project, practical or oral.
+u: Chosen by the educator; the gradebook uses it to weight and group results and learners see it when planning their work.
+v QUIZ: Short-form evaluation, usually low weighted and taken in class.
+v EXAM: Formal examination taken under controlled, timed conditions.
+v ASSIGNMENT: Coursework submitted by the learner for marking.
+v PROJECT: Project-based evaluation completed over an extended period.
+v PRACTICAL: Practical or laboratory evaluation of applied skills.
+v ORAL: Oral evaluation, such as a viva or spoken presentation.
+v OTHER: Another governed assessment type not covered by the listed forms.
+a maxScore
+s: The highest raw score a learner can earn on this assessment, for example 100 for a percentage-marked exam.
+u: Set by the educator when numeric scoring applies and must be positive; grades are expressed against it to compute percentages.
+a dueAt
+s: The deadline by which learners must submit or sit the assessment.
+u: Set when the assessment is drafted or published; learner reminders use it and late-submission policy is judged against it.
+a status
+v DRAFT: Being prepared by the educator; not visible to learners and not gradeable.
+v PUBLISHED: Active for eligible learners, who can see it and be graded on it.
+v CLOSED: Assessment is complete for ordinary new grading. A final state.
+v CANCELLED: Assessment was withdrawn and will not be graded. A final state.

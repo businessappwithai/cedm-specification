@@ -7,158 +7,142 @@ entity:
     icon: map-pin
   identity: {key: locationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: locationId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: "The location id of the location: an identifier the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its location id."
-  - name: code
-    type: string
-    required: true
-    maxLength: 100
-    unique: true
-    help:
-      summary: "The code of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its code."
-  - name: name
-    type: string
-    required: true
-    maxLength: 200
-    help:
-      summary: "The name of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its name."
-  - name: locationType
-    type: enum
-    required: true
-    values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
-    help:
-      summary: "The location type of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its location type."
-      valueSemantics:
-        SITE: The location type of the location is site; set it when that is what the business means for this record.
-        WAREHOUSE: The location type of the location is warehouse; set it when that is what the business means for this record.
-        STORE: The location type of the location is store; set it when that is what the business means for this record.
-        OFFICE: The location type of the location is office; set it when that is what the business means for this record.
-        FACTORY: The location type of the location is factory; set it when that is what the business means for this record.
-        YARD: The location type of the location is yard; set it when that is what the business means for this record.
-        PORT: The location type of the location is port; set it when that is what the business means for this record.
-        DEPOT: The location type of the location is depot; set it when that is what the business means for this record.
-        VIRTUAL: The location type of the location is virtual; set it when that is what the business means for this record.
-        OTHER: The location type of the location is other; set it when that is what the business means for this record.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
-    help:
-      summary: "The status of the location: a value the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its status."
-      valueSemantics:
-        PLANNED: The status of the location is planned; set it when that is what the business means for this record.
-        ACTIVE: The status of the location is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the location is inactive; set it when that is what the business means for this record.
-        CLOSED: The status of the location is closed; set it when that is what the business means for this record.
-        RETIRED: The status of the location is retired; set it when that is what the business means for this record.
-  - name: addressId
-    type: reference
-    target: Address
-    required: false
-    help:
-      summary: "The address id of the location: a link to another record the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-  - name: parentLocationId
-    type: reference
-    target: Location
-    required: false
-    help:
-      summary: "The parent location id of the location: a link to another record the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-  - name: createdAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help:
-      summary: "The created at of the location: a point in time the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its created at."
-  - name: updatedAt
-    type: datetime
-    required: true
-    systemManaged: true
-    help:
-      summary: "The updated at of the location: a point in time the business records on it."
-      usage: Entered or maintained when a location is created or changed; shown on its form and available to search and reports.
-      relationshipContext: Read together with the location's other fields and its relationships; it is not meaningful on its own.
-      requiredMeaning: "Required: a location cannot be understood without its updated at."
+    - name: locationId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the location, which stays the same when its name or code changes.
+        usage: Generated on creation; assets, stock and documents refer to the location through it.
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+      unique: true
+      help:
+        summary: The code of the place in the organisation's site list, such as NL-RTM-DC1.
+        usage: Unique; assigned by the administrator and used in integrations and labels.
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The name by which people refer to the place, such as Rotterdam Depot.
+        usage: Entered by the administrator when the location is created; shown in lists, maps and documents, and may be changed without breaking references.
+    - name: locationType
+      type: enum
+      required: true
+      values: [SITE, WAREHOUSE, STORE, OFFICE, FACTORY, YARD, PORT, DEPOT, VIRTUAL, OTHER]
+      help:
+        valueSemantics:
+          SITE: A geographic site that may contain several buildings.
+          WAREHOUSE: A building or area for storing goods.
+          STORE: A retail outlet where goods are sold to customers.
+          OFFICE: A place where office work is done.
+          FACTORY: A place where goods are made.
+          YARD: An open area for storing or staging equipment or containers.
+          PORT: A harbour or terminal.
+          DEPOT: A base for vehicles and equipment.
+          VIRTUAL: A logical place with no physical presence, such as an online store.
+          OTHER: Any other kind of place.
+        summary: What kind of place it is.
+        usage: Chosen at creation; decides which processes can use the location.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, ACTIVE, INACTIVE, CLOSED, RETIRED]
+      help:
+        valueSemantics:
+          PLANNED: Expected but not yet in use.
+          ACTIVE: In use and offered for new assignments.
+          INACTIVE: Temporarily not used but expected to return to service.
+          CLOSED: Closed down, with no new assignments but history kept.
+          RETIRED: Removed from use altogether. A final state.
+        summary: Whether the place is in use.
+        usage: Set by the administrator; only ACTIVE locations are offered for new assignments.
+    - name: addressId
+      type: reference
+      target: Address
+      required: false
+      help:
+        summary: The postal address of the location.
+        usage: Chosen from the address list; used for deliveries, mapping and tax.
+    - name: parentLocationId
+      type: reference
+      target: Location
+      required: false
+      help:
+        summary: The place that contains this one, such as the site that holds a warehouse.
+        usage: Set to build the hierarchy; a top-level place has none.
+    - name: createdAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help:
+        summary: The date and time at which the location record was first created.
+        usage: Set automatically by the system and never edited; it supports audit and ordering of newly added places.
+    - name: updatedAt
+      type: datetime
+      required: true
+      systemManaged: true
+      help:
+        summary: The date and time at which the location record was last changed.
+        usage: Set automatically on each change; synchronisation jobs and reviewers use it to find recently altered locations.
   relationships:
-  - name: parentLocation
-    target: Location
-    cardinality: 0..1
-    ownership: reference
-    inverse: childLocations
-    help:
-      summary: Links a location to location, the parent location it relates to.
-      usage: Chosen from the existing location records when the location is created or edited.
-      cardinalityMeaning: A location has at most one location in this role.
-      context: Lets the location be found from, and reported with, its location.
-  - name: childLocations
-    target: Location
-    cardinality: 0..*
-    ownership: reference
-    inverse: parentLocation
-    help:
-      summary: Links a location to location, the child locations it relates to.
-      usage: Chosen from the existing location records when the location is created or edited.
-      cardinalityMeaning: A location has any number of location in this role.
-      context: Lets the location be found from, and reported with, its location.
-  - name: address
-    target: Address
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a location to address, the address it relates to.
-      usage: Chosen from the existing address records when the location is created or edited.
-      cardinalityMeaning: A location has at most one address in this role.
-      context: Lets the location be found from, and reported with, its address.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a location to organization, the organization it relates to.
-      usage: Chosen from the existing organization records when the location is created or edited.
-      cardinalityMeaning: A location has at most one organization in this role.
-      context: Lets the location be found from, and reported with, its organization.
+    - name: parentLocation
+      target: Location
+      cardinality: 0..1
+      ownership: reference
+      inverse: childLocations
+      help:
+        summary: The place that contains this one.
+        usage: Chosen to place the location in the hierarchy.
+        cardinalityMeaning: At most one parent; a top-level site has none.
+        workflowRole: Lets reports and stock roll up from the smaller place to the larger.
+    - name: childLocations
+      target: Location
+      cardinality: 0..*
+      ownership: reference
+      inverse: parentLocation
+      help:
+        summary: The places directly within this one.
+        usage: Read to expand a site into its buildings and areas.
+        cardinalityMeaning: Any number of children, including none.
+        workflowRole: Reflects the hierarchy from the other side.
+    - name: address
+      target: Address
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The address of the location.
+        usage: Chosen when the place has a postal address.
+        cardinalityMeaning: At most one address; virtual places have none.
+        workflowRole: Provides delivery and map position.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation that operates the place.
+        usage: Set where operation is clear.
+        cardinalityMeaning: At most one operating organisation.
+        workflowRole: Determines responsibility and reporting.
   invariants:
-  - id: LOCATION-001
-    rule: A Location cannot be its own parent.
-  - id: LOCATION-002
-    rule: The Location hierarchy must not contain cycles.
-  - id: LOCATION-003
-    rule: A Location in CLOSED or RETIRED status must not be selected for new operational transactions that require an active physical location unless an explicit exception workflow permits it.
-  - id: LOCATION-004
-    rule: Changing or retiring a Location must trigger validation of dependent operational entities and workflows that reference it before future use is disabled.
-  - id: LOCATION-005
-    rule: Historical transactions must retain the Location context effective when the transaction occurred and must not be rewritten merely because the Location master changes.
-  - id: LOCATION-006
-    rule: Changing parentLocation must preserve hierarchy integrity and must not create a cycle.
-  - id: LOCATION-007
-    rule: If an operational Location references an Address, the referenced Address must be active and usable when the Location becomes effective unless an explicitly supported historical/legacy exception applies.
+    - id: LOCATION-001
+      rule: A Location cannot be its own parent.
+    - id: LOCATION-002
+      rule: The Location hierarchy must not contain cycles.
+    - id: LOCATION-003
+      rule: A Location in CLOSED or RETIRED status must not be selected for new operational transactions that require an active physical location unless an explicit exception workflow permits it.
+    - id: LOCATION-004
+      rule: Changing or retiring a Location must trigger validation of dependent operational entities and workflows that reference it before future use is disabled.
+    - id: LOCATION-005
+      rule: Historical transactions must retain the Location context effective when the transaction occurred and must not be rewritten merely because the Location master changes.
+    - id: LOCATION-006
+      rule: Changing parentLocation must preserve hierarchy integrity and must not create a cycle.
+    - id: LOCATION-007
+      rule: If an operational Location references an Address, the referenced Address must be active and usable when the Location becomes effective unless an explicitly supported historical/legacy exception applies.
   lifecycle:
     title: Location Lifecycle
     attribute: status
@@ -174,11 +158,11 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Core location master with hierarchical, geographic, organizational, and lifecycle context.
-    businessMeaning: "Location identifies where business activity or resources occur. It is distinct from Address: Location is the business place; Address describes its geographic/contact representation."
-    usage: Supports inventory, warehousing, yard/port operations, shipping, purchasing, sales, tax jurisdiction, service, logistics, and organizational processes.
-    relationshipContext: Organization provides operating ownership/context. Address provides geographic representation. Parent/child locations provide operational hierarchy. Dependent entities must react when location status or hierarchy changes.
+    summary: A physical or logical place where resources, activities, stock, services or organisational operations are situated.
+    businessMeaning: 'Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place.'
+    usage: Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting.
+    relationshipContext: A location may sit within a parent Location with children beneath it, has an Address and may belong to an Organization.
+    lifecycle: A location is planned, becomes active when in use, may be inactive for a time, and is closed or retired when no longer used. History and references remain valid.
+    example: The Rotterdam distribution centre, a warehouse location within the Netherlands site, with its own address.
     workflowContext: Location create → validate hierarchy/address/organization → activate → use in operational transactions → status change/closure → validate dependent resources and prevent incompatible future use → preserve historical transaction context.
-    lifecycle: Planned → active → inactive/closed → retired. Closure affects future operational selection; it does not delete historical movements, orders, receipts, shipments, or invoices.
-    example: A warehouse is closed. New GoodsReceipts cannot target it, dependent inventory workflows must resolve or block future operations, but historical receipts and stock movements remain associated with the warehouse where they occurred.
 specification: {version: 0.2.0, status: draft, identifier: CEDM-ENTITY-LOCATION}

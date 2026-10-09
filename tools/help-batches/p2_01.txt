@@ -1,0 +1,67 @@
+@ Facility
+a facilityType
+v BUILDING: A single constructed building, such as a head office or clinic, managed as one place.
+v SITE: A site containing several buildings or outdoor areas.
+v CAMPUS: A large site with many buildings under one management.
+v OFFICE: A space used mainly for office work.
+v PLANT: A production or processing plant.
+v WAREHOUSE: A storage and distribution facility.
+v OTHER: Any other managed space.
+a status
+v PLANNED: Approved but not yet open.
+v ACTIVE: In operation, and the only state in which service requests are accepted.
+v INACTIVE: Temporarily out of use, for example during renovation.
+v CLOSED: Permanently closed. A final state.
+
+@ FarmField
+a farmFieldId
+s: The permanent identity of the field, unchanged when its code, farm or crop changes.
+u: Generated on creation; crop plantings, work plans and harvest records refer to the field by this value.
+a area
+s: The surveyed size of the field, a decimal measure that is meaningful only together with its unit.
+u: Entered from a land survey or boundary measurement and revised if the boundary changes; always read with the unit of measure.
+a areaUnit
+s: The unit of measure, such as hectare or acre, in which the field's area is expressed.
+u: Chosen from the unit of measure list when the area is recorded, so farms can compare and total fields correctly.
+a status
+s: Whether the field is in cultivation, resting between crops, or out of use altogether.
+u: Set by the farm as land is planted, rested or withdrawn; it determines whether the field appears in planting plans.
+v ACTIVE: In cultivation and available for planting, treatment and harvest.
+v FALLOW: Resting without a crop to restore the soil, and expected to return to cultivation.
+v INACTIVE: Taken out of use and not planned for cropping.
+
+@ Farm
+a farmId
+s: The permanent identity of the farm record, unchanged when its code, name or owners change.
+u: Generated on registration; fields, crops and production records refer to the farm by this value.
+a name
+s: The name by which the farm is known to staff, customers and authorities, such as Greenfield Farm.
+u: Entered at registration and shown in lists, reports and documents; it may be changed without affecting the farm code.
+a farmType
+v CROP: Production is mainly growing crops such as cereals, vegetables or fruit.
+v LIVESTOCK: Production is mainly raising animals for meat, milk, eggs or breeding.
+v MIXED: Both crops and livestock are produced on the same farm.
+v AQUACULTURE: Farms fish or other aquatic species in ponds, tanks or enclosures.
+v OTHER: Production that fits none of the listed kinds.
+a status
+s: Whether the farm is currently producing, planned, paused, or no longer operating.
+u: Set by the operator as production starts, pauses or ends; planning and reports use it to include only working farms.
+v PLANNED: Established on paper but not yet producing.
+v ACTIVE: In production, with fields being worked or animals kept.
+v INACTIVE: Temporarily not producing, for example in a fallow period.
+v RETIRED: The operation has ended. A final state.
+
+@ Fee
+a amount
+s: The monetary value of the fee, charged to the student in the fee's currency.
+u: Calculated from the fee schedule when assessed; it must not be negative, and credits are modelled explicitly.
+a dueDate
+s: The date by which the student or payer is expected to settle the fee.
+u: Set when the fee is assessed from the term calendar; collections and aging reports read it to find overdue charges.
+a status
+v DRAFT: Being prepared; not yet charged to the student.
+v ASSESSED: Charged to the student but not yet invoiced.
+v INVOICED: Included on an invoice that now carries the receivable claim.
+v PAID: Settled, with payment evidence reconciled against the invoice. A final state.
+v WAIVED: Excused by the institution, so the student owes nothing. A final state.
+v CANCELLED: Withdrawn because it was raised in error or no longer applies. A final state.

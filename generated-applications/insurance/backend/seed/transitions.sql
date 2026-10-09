@@ -350,9 +350,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('d4f59dbf-eae8-5688-83b0-f8cc10e9a057', 'bus_insurance_policy', 'status', 'SUSPENDED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- InsuranceClaimLifecycle: REPORTED → UNDER_REVIEW (review)
+-- InsuranceClaimLifecycle: REPORTED → UNDER_REVIEW (start_review)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a66bf5ca-672f-54ec-9ba1-a9e8f5e2bcdc', 'bus_insurance_claim', 'status', 'REPORTED', 'UNDER_REVIEW', 'review', TRUE, NOW())
+VALUES ('a66bf5ca-672f-54ec-9ba1-a9e8f5e2bcdc', 'bus_insurance_claim', 'status', 'REPORTED', 'UNDER_REVIEW', 'start_review', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InsuranceClaimLifecycle: REPORTED → DENIED (deny)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('cd27a522-86b7-5f60-84ce-8e3a8e9656c0', 'bus_insurance_claim', 'status', 'REPORTED', 'DENIED', 'deny', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- InsuranceClaimLifecycle: UNDER_REVIEW → APPROVED (approve)
@@ -360,9 +365,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('8882790d-6a10-5ad7-ad5b-ae575d4f272c', 'bus_insurance_claim', 'status', 'UNDER_REVIEW', 'APPROVED', 'approve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- InsuranceClaimLifecycle: APPROVED → PARTIALLY_APPROVED (mark_partially_approved)
+-- InsuranceClaimLifecycle: UNDER_REVIEW → PARTIALLY_APPROVED (approve_partially)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a1c341a9-438d-5c9b-8a28-8454cfb60f6d', 'bus_insurance_claim', 'status', 'APPROVED', 'PARTIALLY_APPROVED', 'mark_partially_approved', TRUE, NOW())
+VALUES ('13ce929e-454d-5c72-82d3-42bbd9b1e5a6', 'bus_insurance_claim', 'status', 'UNDER_REVIEW', 'PARTIALLY_APPROVED', 'approve_partially', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InsuranceClaimLifecycle: UNDER_REVIEW → DENIED (deny)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6c96804c-ea3f-50c4-952e-c756869ff219', 'bus_insurance_claim', 'status', 'UNDER_REVIEW', 'DENIED', 'deny', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InsuranceClaimLifecycle: APPROVED → SETTLED (settle)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('1f69d767-01e5-5b25-97e6-c5f91123941d', 'bus_insurance_claim', 'status', 'APPROVED', 'SETTLED', 'settle', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- InsuranceClaimLifecycle: PARTIALLY_APPROVED → SETTLED (settle)
@@ -373,26 +388,6 @@ ON CONFLICT DO NOTHING;
 -- InsuranceClaimLifecycle: SETTLED → CLOSED (close)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('4c8c8c15-2f1f-5d6b-b7a6-f4ba636bf3d9', 'bus_insurance_claim', 'status', 'SETTLED', 'CLOSED', 'close', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InsuranceClaimLifecycle: REPORTED → DENIED (deny)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cd27a522-86b7-5f60-84ce-8e3a8e9656c0', 'bus_insurance_claim', 'status', 'REPORTED', 'DENIED', 'deny', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InsuranceClaimLifecycle: UNDER_REVIEW → DENIED (deny)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6c96804c-ea3f-50c4-952e-c756869ff219', 'bus_insurance_claim', 'status', 'UNDER_REVIEW', 'DENIED', 'deny', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InsuranceClaimLifecycle: APPROVED → DENIED (deny)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c80d0328-4b4a-51be-9221-7b9c5f6fa2b3', 'bus_insurance_claim', 'status', 'APPROVED', 'DENIED', 'deny', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InsuranceClaimLifecycle: PARTIALLY_APPROVED → DENIED (deny)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c71b9c7e-35f2-5f63-8a2a-0db6ce252009', 'bus_insurance_claim', 'status', 'PARTIALLY_APPROVED', 'DENIED', 'deny', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states

@@ -1,0 +1,59 @@
+@ RiskTreatment
+a status
+s: How far the planned action on the risk has progressed.
+u: Starts as DRAFT and is moved by the treatment owner; only approved, active treatments are counted when residual risk is assessed.
+v DRAFT: Proposed and not yet approved by the risk owner.
+v ACTIVE: Approved and the work is being carried out.
+v COMPLETED: The action has been done and its effect can be assessed. A final state.
+v CANCELLED: No longer needed or abandoned before completion. A final state.
+@ Risk
+a name
+s: A short phrase naming the potential event, such as supplier insolvency or data centre outage.
+u: Written by the risk owner when the risk is identified; shown in the risk register and on the heat map.
+a likelihood
+s: How probable it is that the risk event occurs within the assessment period.
+u: Chosen at assessment by the risk owner and combined with impact to give the risk rating and its place on the heat map.
+v RARE: Expected to occur only in exceptional circumstances.
+v UNLIKELY: Could occur but is not expected to.
+v POSSIBLE: Might occur at some time.
+v LIKELY: Will probably occur, and would not be surprising.
+v ALMOST_CERTAIN: Expected to occur in most circumstances.
+a impact
+s: How serious the consequences would be for the business if the risk event occurred.
+u: Chosen at assessment by the risk owner and combined with likelihood to give the risk rating and its place on the heat map.
+v INSIGNIFICANT: Negligible effect that needs no action.
+v MINOR: Small effect that is easily absorbed within normal operations.
+v MODERATE: Noticeable effect needing management attention to contain.
+v MAJOR: Serious effect on the achievement of objectives.
+v SEVERE: Threatens the organisation's objectives or survival.
+@ Routing
+a routingId
+s: The permanent system identifier of one version of a manufacturing routing.
+u: Generated on creation; production orders, costing and planning refer to the exact version through it.
+a code
+s: The business code engineers use to recognise the manufacturing routing, shared by all its versions.
+u: Assigned by process engineering; read in planning and shop floor documents, and paired with the version to pick a definition.
+a routingVersion
+s: The revision of the routing, so a changed process becomes a new version and not an overwrite.
+u: Set by engineering change control; production orders keep the version they were released with, so past builds can be reproduced.
+v ACTIVE: Approved for production and eligible for new orders to be released against.
+@ SalesOrderLine
+a quantity
+s: The number of units of the product or service the customer ordered on this line.
+u: Entered by sales; stock allocation, shipment and invoicing are all measured against it, and it drives the line amount.
+a quantityFulfilled
+s: How many units of the ordered quantity have been shipped or delivered so far.
+u: Increased by each shipment and never above the ordered quantity; the line is fulfilled when it equals the quantity.
+a discountAmount
+s: The money taken off this line by the discount agreed when the order was taken.
+u: Set when the price is determined and approved under discount policy; subtracted in the line amount and shown on invoices.
+a lineAmount
+s: The net value of the line after quantity, price, discount and tax have been worked out.
+u: Calculated by the system rather than typed; summed into order totals, invoiced, and used for credit checks and reporting.
+a priceDeterminedAt
+s: The date and time the unit price for this line was fixed.
+u: Stamped when pricing runs and kept, so a later price list change does not alter what the customer was quoted.
+@ SalesOrder
+a orderDate
+s: The date and time the customer's order was placed.
+u: Set when the order is entered or received; sales reporting, delivery promises and payment terms are counted from it.

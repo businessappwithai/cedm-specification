@@ -120,6 +120,7 @@
     "SalesOrderStatus",
     "BudgetStatus",
     "ScenarioStatus",
+    "VarianceBasis",
     "LedgerStatus",
     "FiscalPeriodStatus",
     "InvoiceLineMatchingStatus",
@@ -130,12 +131,14 @@
     "TaxCodeStatus",
     "TaxJurisdictionStatus",
     "TaxRateStatus",
+    "TaxRateRateBasis",
     "TaxRegistrationStatus",
     "TaxRuleTaxType",
     "TaxRuleStatus",
     "TaxTransactionStatus",
     "BillingCycleStatus",
     "ChargeStatus",
+    "ChargeChargeType",
     "SubscriptionStatus",
     "SubscriptionPlanStatus",
     "UsageRecordStatus",
@@ -168,6 +171,7 @@
     "BankAccountStatus (4)",
     "BillingCycleStatus (4)",
     "BudgetStatus (6)",
+    "ChargeChargeType (6)",
     "ChargeStatus (4)",
     "CreditNoteApplicationStatus (4)",
     "CreditNoteStatus (9)",
@@ -219,6 +223,7 @@
     "TaskTaskType (7)",
     "TaxCodeStatus (4)",
     "TaxJurisdictionStatus (4)",
+    "TaxRateRateBasis (2)",
     "TaxRateStatus (4)",
     "TaxRegistrationStatus (4)",
     "TaxRuleStatus (4)",
@@ -226,7 +231,8 @@
     "TaxTransactionStatus (4)",
     "UnitOfMeasureCategory (9)",
     "UnitOfMeasureStatus (3)",
-    "UsageRecordStatus (4)"
+    "UsageRecordStatus (4)",
+    "VarianceBasis (2)"
   ],
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
@@ -266,5 +272,5 @@
     "ProductExceptionRaised on Product (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:29:49.744Z"
+  "generatedAt": "2026-10-09T15:28:46.652Z"
 }

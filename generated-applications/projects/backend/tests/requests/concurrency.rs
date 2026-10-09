@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:40.661Z
+//! Generated: 2026-10-09T15:30:02.884Z
 //! Project: projects
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -45,9 +45,10 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("Project", "status", "CLOSED"),
     ("ProjectPhase", "status", "COMPLETED"),
     ("ProjectTask", "status", "COMPLETED"),
-    ("Milestone", "status", "CANCELLED"),
+    ("Milestone", "status", "ACHIEVED"),
     ("ResourceAssignment", "status", "COMPLETED"),
     ("Timesheet", "status", "COMPLETED"),
+    ("ProjectCost", "status", "REVERSED"),
     ("ProfessionalEngagement", "status", "COMPLETED"),
 ];
 
@@ -85,7 +86,12 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "NOT_STARTED",
         &["IN_PROGRESS", "CANCELLED"],
     ),
-    ("Milestone", "status", "PLANNED", &["AT_RISK", "CANCELLED"]),
+    (
+        "Milestone",
+        "status",
+        "PLANNED",
+        &["AT_RISK", "ACHIEVED", "MISSED", "CANCELLED"],
+    ),
     (
         "ResourceAssignment",
         "status",
@@ -93,6 +99,7 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         &["ACTIVE", "CANCELLED"],
     ),
     ("Timesheet", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
+    ("ProjectCost", "status", "DRAFT", &["APPROVED", "CANCELLED"]),
     (
         "ProfessionalEngagement",
         "status",

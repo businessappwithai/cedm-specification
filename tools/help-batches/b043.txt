@@ -1,0 +1,182 @@
+@ ProfessionalEngagement
+r client
+n: Exactly one client party, who receives the services and the invoices.
+
+@ Project
+s: A coordinated piece of work with defined objectives, scope, resources and outcomes, planned and tracked from draft to close.
+b: A project is how the organisation organises work that has a start, an end and a budget. It collects tasks, phases, milestones, resource assignments and costs, so progress, spend and delivery can be reviewed in one place and the project closed once everything is settled.
+u: Created and owned by a project manager; read by delivery teams, finance and management.
+c: A project belongs to an owning organisation, has a manager, and contains phases, tasks, milestones, resource assignments and costs.
+l: A project is drafted, planned, activated, completed and then closed. It may be put on hold and resumed while planned or active, and may be cancelled before completion. Closed and cancelled are final.
+x: Project PRJ-0042, "Warehouse automation", is planned in January, active from March, completed in September and closed after the final cost review.
+a projectId
+s: The identity of the project, constant for its life.
+u: Generated on creation; tasks, costs and engagements refer to it.
+c: Referenced by every task, milestone, assignment and cost of the project.
+a projectCode
+s: The code people use for the project, such as PRJ-0042.
+u: Unique; quoted in time booking, cost reports and invoices.
+c: Appears wherever work or cost is charged to the project.
+a name
+s: A short name that says what the project is for.
+u: Shown in lists and pickers.
+c: Read with the project code to recognise the project.
+a description
+s: A longer description of the objectives and scope.
+u: Written when the project is drafted and kept up to date as scope changes.
+c: Read by anyone joining the project to understand its purpose.
+a status
+s: Where the project stands in its life.
+u: Starts as DRAFT; moved by the project manager through planning, delivery and close.
+c: Decides whether time and cost may be booked and whether the project is still open.
+v DRAFT: Being defined; not yet approved for planning.
+v PLANNED: Scope, schedule and budget are agreed; work has not started.
+v ACTIVE: Work is under way and time and cost may be booked.
+v ON_HOLD: Paused; can be resumed to planned or active.
+v COMPLETED: The work is delivered; final costs are still being settled.
+v CANCELLED: Stopped before completion. A final state.
+v CLOSED: Settled and archived. A final state.
+a startDate
+s: The date work on the project starts or started.
+u: Set when planned; schedules and resource plans are measured from it.
+c: Compared with task and phase dates.
+a endDate
+s: The date the project is due to end or ended.
+u: Must not be before the start date; revised when the plan changes.
+c: Compared with milestone dates to judge whether delivery is on time.
+a budgetAmount
+s: The total amount approved to spend on the project.
+u: Set at planning; must not be negative; actual costs are compared with it.
+c: Summed against the project's costs to show budget remaining.
+r ownerOrganization
+s: The organisation that owns and sponsors the project.
+u: Chosen when the project is created.
+n: At most one organisation; empty for a project not yet assigned.
+t: Decides whose budget and reporting the project belongs to.
+r manager
+s: The person responsible for delivering the project.
+u: Chosen when the project is planned.
+n: At most one manager; a project may be unassigned in draft.
+t: Names who answers for progress, cost and approvals.
+r tasks
+s: The tasks that make up the project's work.
+u: Read to see the plan and progress.
+n: Any number of tasks, none in a new project.
+t: Tasks belong to the project and are removed with it.
+r milestones
+s: The key dates the project must reach.
+u: Read to review delivery against the plan.
+n: Any number of milestones.
+t: Milestones belong to the project and mark its progress.
+r resources
+s: The people and assets assigned to the project.
+u: Read to see who is committed and for how long.
+n: Any number of assignments.
+t: Assignments belong to the project and drive capacity and cost.
+r phases
+s: The stages the project is divided into.
+u: Read to see the project's structure in order.
+n: Any number of phases, none for a simple project.
+w: Groups tasks and milestones into stages that can be reviewed.
+r projectCosts
+s: The costs charged to the project.
+u: Read to total spend against budget.
+n: Any number of cost records.
+w: Gives the actual cost side of the budget comparison.
+
+@ ProjectCost
+s: A cost charged to a project, kept as operational evidence separate from its accounting posting.
+b: A project cost records what was spent on a project, of what kind, on what date and in which currency. It stays as operational evidence even after finance posts it, and links to the task, timesheet, invoice line and journal line it came from, so spend can be traced and reconciled with the ledger.
+u: Entered or generated from time and expenses; approved by the project manager; posted by finance; read by project reporting.
+c: A cost belongs to one project and currency, and may name a task, a timesheet, an invoice line and the journal line that posted it.
+l: A cost is drafted, approved, then posted to the accounts. It may be cancelled before posting, and a posted cost is reversed rather than changed. Reversed and cancelled are final.
+x: Cost PC-1180 charges 4,200 of subcontracted labour to project PRJ-0042 on 12 May; once approved it is posted to the ledger.
+a projectCostId
+s: The identity of the cost record, constant for its life.
+u: Generated on creation; accounting links refer to it.
+a costNumber
+s: The business number of the cost, such as PC-1180.
+u: Unique; quoted in approvals and reconciliation.
+a costType
+s: The kind of cost, such as labour or material.
+u: Chosen when the cost is entered; reports split spend by it.
+v LABOR: Staff time, internal or external.
+v MATERIAL: Goods and supplies consumed.
+v EXPENSE: Travel and other out-of-pocket spend.
+v SERVICE: Work bought from a supplier.
+v OVERHEAD: A share of shared costs.
+v OTHER: A cost that fits no other kind.
+a amount
+s: The cost in the cost's currency.
+u: Entered with the cost; summed against the project budget.
+a incurredDate
+s: The date the cost was incurred.
+u: Decides the period the cost is reported in.
+a status
+s: Where the cost is in its approval and posting.
+u: Starts as DRAFT; moved by approval and finance.
+v DRAFT: Entered and not yet approved.
+v APPROVED: Accepted as chargeable to the project; ready to post.
+v POSTED: Booked to the accounts.
+v REVERSED: A posted cost cancelled by a reversing entry. A final state.
+v CANCELLED: Withdrawn before posting. A final state.
+r project
+s: The project the cost is charged to.
+u: Chosen when the cost is entered.
+n: Exactly one project.
+w: Puts the cost against the right budget.
+r projectTask
+s: The task the cost relates to.
+u: Chosen when the cost is attributed to a task.
+n: At most one task; empty for a cost of the project as a whole.
+w: Enables cost reporting by task.
+r currency
+s: The currency the amount is in.
+u: Chosen when the cost is entered.
+n: Exactly one currency, so the amount has a defined unit.
+w: Allows the cost to be converted for the budget and the ledger.
+r timesheet
+s: The timesheet the cost came from, for labour.
+u: Set when the cost is generated from booked time.
+n: At most one timesheet; empty for a cost not from time.
+w: Traces labour cost back to hours worked.
+r invoiceLine
+s: The supplier invoice line the cost came from.
+u: Set when the cost is matched to a bill.
+n: At most one invoice line.
+w: Traces purchased cost back to the document.
+r journalEntryLine
+s: The ledger line that posted the cost.
+u: Set when finance posts the cost.
+n: At most one journal line, present only once posted.
+w: Reconciles project cost with the accounts.
+
+@ ProjectPhase
+s: A stage of a project that groups tasks and milestones within one portion of its lifecycle.
+b: Phases divide a project into stages such as design, build and handover, so progress can be reviewed and approved stage by stage rather than as one undifferentiated piece of work.
+u: Defined by the project manager; read in plans and status reports.
+c: A phase belongs to one project and groups its tasks and milestones.
+l: A phase is planned, active while its work runs, then completed. It may be cancelled. Completed and cancelled are final.
+x: The "Build" phase of PRJ-0042 contains twelve tasks and the milestone "Prototype accepted".
+a projectPhaseId
+s: The identity of the phase, constant for its life.
+u: Generated on creation; tasks and milestones refer to it.
+a name
+s: The name of the phase, such as Design or Handover.
+u: Shown in plans and reports.
+a status
+s: Where the phase is.
+u: Starts as PLANNED; moved by the project manager.
+v PLANNED: Scheduled and not started.
+v ACTIVE: Work in the phase is under way.
+v COMPLETED: The phase's work is finished. A final state.
+v CANCELLED: The phase will not be carried out. A final state.
+r project
+s: The project the phase belongs to.
+u: Chosen when the phase is created.
+n: Exactly one project; a phase cannot exist alone.
+w: Places the stage in the project's plan.
+r tasks
+n: Any number of tasks, none for a phase not yet broken down.
+r milestones
+n: Any number of milestones that mark the phase's progress.

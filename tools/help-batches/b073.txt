@@ -1,0 +1,181 @@
+@ TaxRate
+s: A tax percentage or amount that applies under a tax code and jurisdiction for a period of time.
+b: A tax rate is the figure applied to a taxable amount. Because rates change by date and place, each is recorded with its period so a transaction is taxed at the rate in force on its date, and past calculations can be explained.
+u: Maintained by tax staff when authorities change rates; read by tax calculation.
+c: A rate may belong to an organisation and applies to a tax code in a jurisdiction.
+l: A rate is drafted, active while in force and completed when superseded. It may be cancelled before use. Completed and cancelled are final.
+x: The standard rate for code STD in the United Kingdom is twenty percent from 4 January 2011.
+a taxRateId
+s: The identity of the tax rate, constant for its life.
+b: Lets tax lines point at the rate that was applied.
+u: Generated on creation; tax lines refer to it.
+c: Referenced by every tax calculation that used it.
+a status
+s: Whether the rate can be applied.
+b: Stops an out-of-date rate being used on new transactions.
+u: Starts as DRAFT; set by tax staff.
+c: Only active rates are picked up in calculation.
+v DRAFT: Being defined; not yet applied.
+v ACTIVE: In force and applied to transactions.
+v COMPLETED: Replaced or expired. A final state.
+v CANCELLED: Withdrawn before use. A final state.
+r organization
+s: The organisation the rate is set up for.
+u: Chosen when the rate is company specific.
+n: At most one organisation; empty means it applies to all.
+w: Decides which company's returns carry the tax.
+
+@ TaxRegistration
+s: The registration of a party or organisation with a tax jurisdiction and its tax authority.
+b: A registration is the tax identity the business holds in a place, such as a VAT number. Recording it shows where the business may charge and must report tax and which number to print on invoices.
+u: Maintained by tax staff; read when invoicing and filing returns.
+c: A registration may belong to an organisation and is held in a jurisdiction.
+l: A registration is drafted, active while valid and completed when it ends. It may be cancelled before use. Completed and cancelled are final.
+x: The company's VAT registration in Germany, active since March 2022.
+a taxRegistrationId
+s: The identity of the registration, constant for its life.
+b: Lets documents and returns point at the registration.
+u: Generated on creation.
+c: Referenced by returns and invoices.
+a status
+s: Whether the registration is valid for use.
+b: Prevents tax numbers that have lapsed from appearing on documents.
+u: Starts as DRAFT; set by tax staff.
+c: Only active registrations are printed on invoices.
+v DRAFT: Applied for or being recorded; not yet valid.
+v ACTIVE: Valid and in use.
+v COMPLETED: Ended, for example after deregistration. A final state.
+v CANCELLED: Withdrawn before use. A final state.
+r organization
+s: The organisation that holds the registration.
+u: Chosen when recorded.
+n: At most one organisation.
+w: Decides which company files returns.
+
+@ TaxRule
+s: A reusable tax determination policy that sets the treatment, rate, jurisdiction and applicability for qualifying goods, services, parties and transactions.
+b: Tax rules say what tax applies to what. Keeping them as dated policy lets the business change treatment on a given date without editing past transactions, and lets tax be explained from the rule that produced it.
+u: Maintained by tax staff; read by pricing and invoicing when working out tax.
+c: A rule may name a jurisdiction and the products, customers and organisations it applies to.
+l: A rule is drafted, active while in force, may be set inactive and back, and is retired when replaced. Retired is final.
+x: Rule "UK standard VAT" applies twenty percent to standard-rated goods sold to UK customers from 1 January 2011.
+a taxRuleId
+s: The identity of the rule, constant when it is renamed.
+u: Generated on creation; tax lines refer to it.
+c: Referenced by every tax line it produced.
+a code
+s: The code of the rule, such as UK-VAT-STD.
+u: Unique; used in imports and reports.
+c: Read with the name.
+a name
+s: The name of the rule.
+u: Shown when a tax treatment is chosen.
+c: Read by tax staff.
+a rate
+s: The rate applied, as a fraction of the taxable amount.
+u: Entered by tax staff; applied to the taxable amount.
+c: Read with the tax type.
+a jurisdictionCode
+s: The code of the jurisdiction the rule applies in.
+u: Entered to narrow the rule to a place.
+c: Matched to the transaction's place.
+a taxType
+s: The kind of tax the rule works out.
+u: Chosen when the rule is created; returns are grouped by it.
+c: Decides which return the amount goes to.
+v SALES: A sales tax charged at the point of sale.
+v VAT: Value added tax charged at each stage.
+v GST: Goods and services tax.
+v USE: A tax on use of goods bought without sales tax.
+v WITHHOLDING: Tax held back from a payment.
+v OTHER: A tax of another kind.
+a validFrom
+s: The date and time the rule takes effect.
+u: Set when the rule is created.
+c: Compared with the transaction date.
+a validTo
+s: The date and time the rule stops applying.
+u: Set when the rule is superseded.
+c: Compared with the transaction date.
+a status
+s: Whether the rule is in use.
+u: Starts as DRAFT; set by tax staff.
+v DRAFT: Being defined; not applied.
+v ACTIVE: In force and applied.
+v INACTIVE: Not applied for the time being.
+v RETIRED: Replaced or withdrawn. A final state.
+r jurisdiction
+s: The place the rule applies in.
+u: Chosen when the rule is place specific.
+n: At most one location.
+t: Limits the rule to transactions there.
+r products
+s: The products the rule applies to.
+u: Chosen to narrow the rule.
+n: Any number of products; none means all.
+t: Decides which goods the rule taxes.
+r customers
+s: The customers the rule applies to.
+u: Chosen when treatment depends on the customer.
+n: Any number of customers.
+t: Allows exemptions for particular customers.
+r organizations
+s: The selling organisations the rule applies to.
+u: Chosen when only some companies use it.
+n: Any number of organisations.
+t: Limits the rule to certain companies.
+
+@ TaxTransaction
+s: The tax consequence of a taxable business transaction, kept apart from payment and ledger posting.
+b: A tax transaction records how much tax arose on a sale or purchase and under what treatment. Keeping it on its own lets tax be reported and checked without changing the payment or accounting records.
+u: Created automatically from taxable documents; read by tax returns and audit.
+c: A tax transaction may belong to an organisation and follows a taxable document.
+l: A tax transaction is drafted, becomes active when reportable and completed once reported. It may be cancelled before. Completed and cancelled are final.
+x: The 20 tax charged on invoice INV-3041 is recorded as a tax transaction for the March VAT return.
+a taxTransactionId
+s: The identity of the tax transaction, constant for its life.
+b: Lets returns and the source document point at the same tax record.
+u: Generated on creation.
+c: Referenced by returns.
+a status
+s: Where the tax transaction is in reporting.
+b: Shows whether the tax has been reported.
+u: Starts as DRAFT; moved by tax staff and returns.
+c: Only active transactions are included in a return.
+v DRAFT: Calculated and not yet confirmed.
+v ACTIVE: Confirmed and due to be reported.
+v COMPLETED: Reported or settled. A final state.
+v CANCELLED: Withdrawn, for example after a credit. A final state.
+r organization
+s: The organisation the tax is reported by.
+u: Chosen from the source document.
+n: At most one organisation.
+w: Decides which company's return includes it.
+
+@ Team
+s: A collaborative grouping of people used to assign work, roles, ownership and accountability.
+b: Teams let work and responsibility be given to a group rather than a single person, and let access and reporting follow the group. A team belongs to an organisation, so each unit manages its own groups.
+u: Set up by managers or administrators; chosen on tasks and records; read in reports.
+c: A team belongs to one organisation.
+l: A team is created, used while it works together, and left unused when disbanded. History keeps its name.
+x: The "Warehouse Leeds" team is responsible for stock counts at the Leeds site.
+a teamId
+s: The identity of the team, constant when it is renamed.
+b: Lets assignments and ownership point at the team rather than its name.
+u: Generated on creation.
+c: Referenced by tasks and records owned by the team.
+a code
+s: The short code of the team, such as WH-LDS.
+b: Gives a stable way to refer to the team in imports and rules.
+u: Unique; used in imports and rules.
+c: Read with the name.
+a name
+s: The name of the team as people know it.
+b: What people look for when assigning work.
+u: Shown on assignments.
+c: Read with the organisation.
+r organization
+s: The organisation the team belongs to.
+u: Chosen when the team is created.
+n: Exactly one organisation.
+w: Decides whose structure the team is part of.

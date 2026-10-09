@@ -3,19 +3,27 @@ entity:
   namespace: cedm.domain
   kind: research_result
   description: A governed interpreted, calculated or summarized scientific output derived from Observations, Assays, Experiments or a Study, with explicit provenance and finalization.
-  ui: {icon: chart-no-axes-column}
+  ui: {icon: bar-chart-2}
   identity: {key: resultId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: resultId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Result., businessMeaning: Identifies one derived scientific output independently of source evidence and presentation., usage: "Analysis, reporting, decisions and audit.", relationshipContext: Provenance relationships identify source Observations or execution context., requiredMeaning: Required.}}
-    - {name: resultCode, type: string, required: true, maxLength: 120, help: {summary: Business reference for the Result., businessMeaning: Supports operational identification and integration., usage: "Search, reporting and data exchange.", relationshipContext: May be unique within a Study or Assay under domain policy., requiredMeaning: Required.}}
-    - {name: resultType, type: string, required: true, maxLength: 160, help: {summary: Classification of the derived output., businessMeaning: Describes analytical or interpretive semantics., usage: "Analysis and reporting.", relationshipContext: Source observations and method define how the result can be interpreted., requiredMeaning: Required.}}
-    - {name: value, type: string, required: true, maxLength: 4000, help: {summary: Derived or interpreted result value., businessMeaning: Captures the governed scientific output., usage: "Reporting, decisions and integration.", relationshipContext: Quantitative results may additionally use UnitOfMeasure., requiredMeaning: Required.}}
+    - {name: resultId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the result, constant for its life.', businessMeaning: Identifies one derived scientific output independently of source evidence and presentation., usage: "Analysis, reporting, decisions and audit.", relationshipContext: Provenance relationships identify source Observations or execution context.}}
+    - {name: resultCode, type: string, required: true, maxLength: 120, help: {summary: 'The code that identifies one derived result, such as R-2210.', usage: 'Assigned when the result is created and unique; used to search, report and exchange the result with other systems.', businessMeaning: Supports operational identification and integration., relationshipContext: May be unique within a Study or Assay under domain policy.}}
+    - {name: resultType, type: string, required: true, maxLength: 160, help: {summary: 'The kind of derived output this result is, such as an IC50, a purity percentage or a pass/fail call.', usage: Chosen by the analyst; it decides how the value is read and which reports and analyses include the result., businessMeaning: Describes analytical or interpretive semantics., relationshipContext: Source observations and method define how the result can be interpreted.}}
+    - {name: value, type: string, required: true, maxLength: 4000, help: {summary: 'The derived or interpreted outcome computed from the underlying observations, held as text.', usage: 'Entered or calculated by the analyst; read in reporting and decisions, and locked once the result is final.', businessMeaning: Captures the governed scientific output., relationshipContext: Quantitative results may additionally use UnitOfMeasure.}}
     - name: status
       type: enum
       required: true
       default: DRAFT
       values: [DRAFT, FINAL, INVALIDATED]
-      help: {summary: Governance state of the Result., businessMeaning: Separates provisional analysis from finalized or invalidated output., usage: "Scientific review and audit.", relationshipContext: FINAL results preserve source provenance., valueSemantics: {DRAFT: Result is provisional., FINAL: Result is approved/finalized., INVALIDATED: Result is retained but no longer considered valid.}, requiredMeaning: Required.}
+      help:
+        summary: Whether the result is still provisional, approved as final, or withdrawn as invalid.
+        usage: Starts as DRAFT; set by the reviewing scientist, and a final result can no longer be edited, only invalidated.
+        valueSemantics:
+          DRAFT: The result is provisional and may still be changed or discarded.
+          FINAL: The result has been reviewed and approved, and its value is locked as evidence.
+          INVALIDATED: The result is kept for the record but is no longer considered valid.
+        businessMeaning: Separates provisional analysis from finalized or invalidated output.
+        relationshipContext: FINAL results preserve source provenance.
   relationships:
     - {name: study, target: Study, cardinality: "0..1", ownership: reference, help: {summary: Study to which the Result belongs., businessMeaning: Supplies investigation context., usage: "Reporting and research traceability.", cardinalityMeaning: Optional for standalone analysis., workflowRole: Study closure does not erase finalized Results.}}
     - {name: assay, target: Assay, cardinality: "0..1", ownership: reference, help: {summary: Assay contributing directly to the Result., businessMeaning: Preserves analytical execution provenance., usage: "Laboratory interpretation and audit.", cardinalityMeaning: Optional when derived at Study or Experiment level., workflowRole: Result must reconcile to source Assay evidence.}}

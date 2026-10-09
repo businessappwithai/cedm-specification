@@ -1,0 +1,75 @@
+@ ServiceContract
+a serviceContractId
+s: The permanent system identifier of the service coverage attached to a contract.
+u: Generated on creation; service cases, orders and entitlement checks refer to the coverage through it.
+a effectiveFrom
+s: The first date on which the service coverage applies.
+u: Set when the coverage is agreed; entitlement is checked against it and renewals are planned from it.
+a effectiveTo
+s: The last date on which the service coverage applies.
+u: Set by the contract owner; entitlement checks stop honouring the coverage after it. Empty means open-ended.
+a status
+s: Where the service coverage stands, from draft through active use to its end.
+u: Starts as DRAFT and is moved by contract administration; only ACTIVE coverage authorises new service work.
+v DRAFT: Coverage is being prepared and gives no entitlement yet.
+v ACTIVE: Coverage is in force and may support new eligible service.
+v SUSPENDED: Coverage is temporarily unavailable for new service authorisation.
+v EXPIRED: The effective period has ended and nothing was renewed. A final state.
+v TERMINATED: Coverage was ended early through the governed process. A final state.
+@ ServiceLevelAgreement
+a serviceLevelAgreementId
+s: The permanent system identifier of one service level agreement.
+u: Generated on creation; contracts, cases and orders reference the commitment through it.
+a code
+s: The short code that names the agreement, such as GOLD-4H.
+u: Assigned by service management and unique; used in contracts, cases and compliance reports.
+a responseTargetMinutes
+s: The number of minutes allowed before a first qualifying response must be given.
+u: Set by service management; deadlines for each case are calculated from it and escalation starts when one is missed.
+a resolutionTargetMinutes
+s: The number of minutes allowed before the case must be resolved.
+u: Set by service management; deadlines for each case are calculated from it and breaches trigger escalation and reporting.
+a status
+s: Whether the agreement is still being drafted, in force, paused or retired.
+u: Starts as DRAFT and is moved by service management; only ACTIVE agreements are applied to new service work.
+v DRAFT: Being drafted; the targets are not yet applied.
+v ACTIVE: In force; cases and orders are measured against it.
+v SUSPENDED: Temporarily not applied, and may be reinstated.
+v RETIRED: Replaced or withdrawn. A final state.
+@ ServiceOrder
+a description
+s: The text describing the service work that has been authorised for the customer.
+u: Written by the planner or agent; technicians work from it, and it is shown to the customer and kept for audit.
+a scheduledStartAt
+s: The planned date and time the work is due to begin.
+u: Set by the dispatcher when the order is scheduled; used for dispatch and customer notices, and differs from actual start evidence.
+a status
+s: The stage of the service order from scope to completed work.
+u: Starts as DRAFT and is moved by the planner and technician; it decides when work is dispatched and when billing may follow.
+v DRAFT: The work scope is still being prepared.
+v APPROVED: The work has been authorised and awaits scheduling.
+v SCHEDULED: A date and technician have been set for the work.
+v IN_PROGRESS: The authorised service is being performed.
+v COMPLETED: The work is done and kept as history. A final state.
+v CANCELLED: The order was withdrawn through the governed workflow. A final state.
+@ ServiceRequest
+a description
+s: The requester's own account of what they need, such as the fault seen or help wanted.
+u: Written when the request is raised and read by whoever triages and handles it; kept as the original record of the need.
+a priority
+s: How urgent the request is judged to be.
+u: Set at triage by service staff; it decides the order work is picked up in and when escalation starts.
+v LOW: Can wait until capacity is free.
+v NORMAL: Handled in the ordinary course of work.
+v HIGH: Handled ahead of normal work.
+v CRITICAL: Needs immediate action because of severe impact.
+a status
+s: The stage of the request from receipt to closure.
+u: Starts as OPEN and is moved by service staff; it shows the requester where their request stands.
+v OPEN: Received and not yet looked at.
+v TRIAGED: Assessed and given a priority.
+v ASSIGNED: Given to a named person or team to handle.
+v IN_PROGRESS: Being worked on.
+v RESOLVED: The need has been met, awaiting confirmation.
+v CLOSED: Confirmed finished. A final state.
+v CANCELLED: Withdrawn before it was resolved. A final state.

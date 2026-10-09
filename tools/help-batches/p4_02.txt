@@ -1,0 +1,63 @@
+@ MiningSite
+a miningSiteId
+s: The permanent identifier of the mining site record, which stays the same through exploration, production and closure.
+u: Generated on registration; production records, permits and safety events refer to the site through this value.
+a siteCode
+s: The short unique code that operations use to name the site, such as KIR-01, in reports and feeds.
+u: Assigned by operations management at registration and kept unique; production reports and shift handovers quote it.
+a name
+s: The full name by which the mine or extraction site is known to staff, regulators and the public.
+u: Entered at registration by operations management; shown in production reports, permits and map views of the sites.
+a status
+s: The stage of the site's life, from exploration through development and production to closure.
+u: Set by operations management as each stage is approved; production is recorded only while the site is active.
+v EXPLORATION: The site is being surveyed and drilled to prove whether the resource can be extracted economically.
+v DEVELOPMENT: The resource is proven and infrastructure is being built, but commercial extraction has not yet begun.
+v ACTIVE: The site is in production and extracting the resource, and output is recorded against it.
+v SUSPENDED: Extraction has been paused, for example for safety, weather, price or permit reasons, and is expected to resume.
+v CLOSED: The site has permanently stopped extraction and is in closure or rehabilitation. A final state.
+@ Nonconformance
+a status
+s: Shows how far the quality deviation has progressed through review, containment, corrective action and closure.
+u: Moved by quality staff as the investigation advances; closing requires corrective action, and rejection ends a report that was not valid.
+v OPEN: The deviation has been recorded and nobody has yet started to investigate it.
+v UNDER_REVIEW: Quality staff are assessing the deviation to confirm what happened, how serious it is and who owns it.
+v CONTAINED: Affected material has been isolated or held so that it cannot reach customers or production while the cause is addressed.
+v CORRECTIVE_ACTION: Actions to remove the cause and prevent recurrence are being carried out and checked.
+v CLOSED: The deviation was resolved and its corrective actions were verified as effective. A final state.
+v REJECTED: Review found no real deviation, or a duplicate report, so no further action is taken. A final state.
+a description
+s: A full account of what went wrong, naming the requirement or expected result that was not met.
+u: Written by whoever raises the issue and refined during review; read in investigation, supplier communication and audit.
+a detectedAt
+s: The date and time when the deviation was first noticed, which may precede the time it was entered.
+u: Entered when the issue is raised; containment and corrective action deadlines are measured from it in quality analytics.
+a closedAt
+s: The date and time when the deviation was formally closed or rejected by quality.
+u: Set when the status becomes closed or rejected; left empty while the issue is open, and used to measure time to resolve.
+@ NonprofitCampaign
+a campaignId
+s: The permanent identifier of the campaign record, constant from planning to completion.
+u: Generated on creation; donations, documents and reports refer to the campaign through this value.
+a campaignCode
+s: The short unique code of the campaign, such as WINTER26, used to tag appeals and gifts.
+u: Assigned by the fundraising team and kept unique; printed on response forms so incoming gifts can be traced to the appeal.
+a name
+s: The public-facing title of the campaign as donors and supporters will see it.
+u: Entered at planning; shown in reports, donor communications and the campaign list for the fundraising team.
+a objective
+s: A statement of what the campaign is meant to achieve, such as funding a programme or recruiting volunteers.
+u: Written at planning by the fundraising team and read when judging results against the intended purpose.
+a status
+s: Shows whether the campaign is still being planned, is running, has finished or was abandoned.
+u: Updated by the fundraising team; gifts are normally accepted while active, and completed or cancelled ends the campaign.
+@ Observation
+a observedAt
+s: The date and time at which the measurement was actually made or the phenomenon seen.
+u: Entered with the value and may differ from when it was recorded; used in time series, reproducibility checks and audit.
+a observationType
+s: Names the characteristic observed, such as pH, absorbance or colony count, and fixes how the value is read.
+u: Chosen by the scientist when recording; analysis and validation use it to select the unit and expected range of values.
+a value
+s: The measured or qualitative result exactly as captured, held as text so numbers and descriptions both fit.
+u: Entered or imported with the observation; numeric values are read with the unit of measure, and it is never overwritten.

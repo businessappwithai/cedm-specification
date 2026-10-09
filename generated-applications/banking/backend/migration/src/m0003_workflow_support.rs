@@ -481,6 +481,14 @@ ALTER TABLE bus_credit_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_credit_status_doc_status ON bus_credit_status (doc_status);
 
+ALTER TABLE bus_credit_reason
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_credit_reason_doc_status ON bus_credit_reason (doc_status);
+
 "#;
 
 const DOWN_SQL: &str = r#"
@@ -927,6 +935,14 @@ ALTER TABLE bus_bank_loan_status
 DROP INDEX IF EXISTS idx_bus_credit_status_doc_status;
 
 ALTER TABLE bus_credit_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_credit_reason_doc_status;
+
+ALTER TABLE bus_credit_reason
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

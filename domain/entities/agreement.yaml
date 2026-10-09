@@ -7,18 +7,79 @@ entity:
     icon: file-check
   identity: {key: agreementId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: agreementId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Agreement., businessMeaning: Identifies one governed Agreement record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
-  relationships: []
+    - {name: agreementId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of the agreement., usage: 'Generated on creation; contracts, obligations and documents refer to the agreement through it.'}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: The date and time at which the agreement was concluded or took effect., usage: Set when the agreement is recorded; used to place it in the sequence of events and to compute periods that run from it.}}
+    - name: agreementNumber
+      type: string
+      maxLength: 100
+      unique: true
+      required: true
+      help:
+        summary: The reference number the business gives the agreement, such as AGR-2026-014.
+        usage: Assigned when the agreement is recorded; quoted in correspondence and used to find the agreement again.
+        relationshipContext: Read with the title to identify the agreement.
+    - name: title
+      type: string
+      maxLength: 300
+      required: true
+      help:
+        summary: A short title saying what the agreement is about.
+        usage: Entered when recorded; shown in lists and on documents.
+        relationshipContext: Read with the agreement number.
+    - name: agreementType
+      type: enum
+      values:
+        - SERVICE
+        - SUPPLY
+        - LICENSE
+        - PARTNERSHIP
+        - NON_DISCLOSURE
+        - OTHER
+      required: true
+      help:
+        summary: The kind of agreement, such as a service, supply or licence agreement.
+        usage: Chosen when recorded; decides which review and approval steps apply and how agreements are grouped in reports.
+        relationshipContext: Read with the parties to understand the commitment.
+        valueSemantics:
+          SERVICE: An agreement to provide or receive services.
+          SUPPLY: An agreement to supply or buy goods.
+          LICENSE: An agreement granting rights to use something.
+          PARTNERSHIP: An agreement to work together towards a shared aim.
+          NON_DISCLOSURE: An agreement to keep information confidential.
+          OTHER: An agreement that fits no other type.
+    - name: effectiveFrom
+      type: date
+      required: true
+      help:
+        summary: The date the agreement takes effect.
+        usage: Taken from the signed document; obligations are measured from it.
+        relationshipContext: Not later than the end date.
+    - name: effectiveTo
+      type: date
+      required: false
+      help:
+        summary: The date the agreement ends; empty for an open-ended agreement.
+        usage: Taken from the signed document or set when it is terminated; must not be before the start date.
+        relationshipContext: Compared with today to show whether the agreement is in force.
+  relationships:
+    - name: parties
+      target: Party
+      cardinality: 2..*
+      ownership: reference
+      help:
+        summary: The parties bound by the agreement.
+        usage: Chosen when the agreement is recorded; each party is notified of changes.
+        cardinalityMeaning: At least two parties, since an agreement is between parties.
+        workflowRole: Decides who holds the rights and duties and who must sign.
   invariants:
-  - {id: AGREEMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: AGREEMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - id: AGREEMENT-002
+      rule: effectiveTo must not precede effectiveFrom.
   help:
-    summary: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
-    purpose: Provide canonical governance semantics for Agreement.
-    businessMeaning: A governed agreement between parties defining rights, duties, commitments, or terms, with Contract available for commercial contract specialization.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: A governed agreement between parties that fixes rights, duties, commitments or terms, of which a commercial contract is a specialisation.
+    businessMeaning: 'An agreement is the record that two or more parties have committed to something. It is the parent concept behind contracts, service terms and similar understandings, so it holds what they share: who is bound, when, and what happened to the agreement over time.'
+    usage: Created when terms are agreed or proposed; consulted when someone needs to know what was promised, whether it is in force, and what changed since.
+    relationshipContext: Contract specialises Agreement for commercial terms; parties, documents and obligations hang off the more specific records.
+    lifecycle: Finalised evidence and effective history are preserved. Changes, settlements and replacements are recorded as explicit events, never by silently editing what was agreed.
+    example: A framework supply agreement between a manufacturer and a distributor, later amended twice and finally superseded by a new agreement.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-AGREEMENT}

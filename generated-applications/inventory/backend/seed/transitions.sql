@@ -310,24 +310,39 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('7a29f105-3606-5619-b410-19536ea59c53', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- InventoryItemLifecycle: DRAFT → ACTIVE (activate)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4fd9f27d-18e0-5bc0-9b7a-03737667fd89', 'bus_inventory_item', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryItemLifecycle: ACTIVE → BLOCKED (block)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('df28aa08-f508-56ea-8915-f2a779c8c947', 'bus_inventory_item', 'status', 'ACTIVE', 'BLOCKED', 'block', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryItemLifecycle: BLOCKED → ACTIVE (unblock)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('89d3ae04-6b3b-553b-b461-dc068b710fcd', 'bus_inventory_item', 'status', 'BLOCKED', 'ACTIVE', 'unblock', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryItemLifecycle: DRAFT → DISCONTINUED (discontinue)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d0fce873-1498-5616-bd18-58db00fc9769', 'bus_inventory_item', 'status', 'DRAFT', 'DISCONTINUED', 'discontinue', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryItemLifecycle: ACTIVE → DISCONTINUED (discontinue)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('197bbf73-cc0b-5c47-84a2-20c40d6b0a48', 'bus_inventory_item', 'status', 'ACTIVE', 'DISCONTINUED', 'discontinue', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryItemLifecycle: BLOCKED → DISCONTINUED (discontinue)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ab0ebb15-08fb-5f0a-9165-4f247af22382', 'bus_inventory_item', 'status', 'BLOCKED', 'DISCONTINUED', 'discontinue', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- InventoryReservationLifecycle: PENDING → ACTIVE (activate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('20e4f879-67ee-5506-9c8e-4e418975d4e0', 'bus_inventory_reservation', 'status', 'PENDING', 'ACTIVE', 'activate', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InventoryReservationLifecycle: ACTIVE → PARTIALLY_CONSUMED (mark_partially_consumed)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('55897825-58d9-5cdb-a3bb-ba2fea32ebf3', 'bus_inventory_reservation', 'status', 'ACTIVE', 'PARTIALLY_CONSUMED', 'mark_partially_consumed', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InventoryReservationLifecycle: PARTIALLY_CONSUMED → RELEASED (release)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('bcdac683-9692-5aab-bf55-7ec2d29293bf', 'bus_inventory_reservation', 'status', 'PARTIALLY_CONSUMED', 'RELEASED', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InventoryReservationLifecycle: RELEASED → CONSUMED (consume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('aed8a7c9-aa9d-5498-8681-521b609e7863', 'bus_inventory_reservation', 'status', 'RELEASED', 'CONSUMED', 'consume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- InventoryReservationLifecycle: PENDING → CANCELLED (cancel)
@@ -335,34 +350,44 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('a1623781-5299-5fee-a3a9-6be7631d6143', 'bus_inventory_reservation', 'status', 'PENDING', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- InventoryReservationLifecycle: PENDING → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('840c9491-4e0b-511d-a2e5-c951483d9257', 'bus_inventory_reservation', 'status', 'PENDING', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryReservationLifecycle: ACTIVE → PARTIALLY_CONSUMED (consume_part)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('55897825-58d9-5cdb-a3bb-ba2fea32ebf3', 'bus_inventory_reservation', 'status', 'ACTIVE', 'PARTIALLY_CONSUMED', 'consume_part', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryReservationLifecycle: ACTIVE → CONSUMED (consume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('4a346702-f13e-566e-9f68-7b02b9ebc785', 'bus_inventory_reservation', 'status', 'ACTIVE', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryReservationLifecycle: PARTIALLY_CONSUMED → CONSUMED (consume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('8cbdd3cf-4ea9-51a9-8545-7196529e3813', 'bus_inventory_reservation', 'status', 'PARTIALLY_CONSUMED', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryReservationLifecycle: ACTIVE → RELEASED (release)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ffa855d6-4597-58d5-9198-b9dd5e3f1be2', 'bus_inventory_reservation', 'status', 'ACTIVE', 'RELEASED', 'release', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- InventoryReservationLifecycle: PARTIALLY_CONSUMED → RELEASED (release)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('bcdac683-9692-5aab-bf55-7ec2d29293bf', 'bus_inventory_reservation', 'status', 'PARTIALLY_CONSUMED', 'RELEASED', 'release', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- InventoryReservationLifecycle: ACTIVE → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('b4606038-d52a-51cf-b5db-cb798d7041b4', 'bus_inventory_reservation', 'status', 'ACTIVE', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- InventoryReservationLifecycle: PARTIALLY_CONSUMED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('37837810-bea3-5b4f-a50f-46d2fe6150ff', 'bus_inventory_reservation', 'status', 'PARTIALLY_CONSUMED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InventoryReservationLifecycle: RELEASED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('31ff4d3b-9253-5f67-9296-f34c3f098370', 'bus_inventory_reservation', 'status', 'RELEASED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- InventoryReservationLifecycle: ACTIVE → EXPIRED (expire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('141c04a2-676b-5b49-b4f5-48a586745307', 'bus_inventory_reservation', 'status', 'ACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InventoryReservationLifecycle: PARTIALLY_CONSUMED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('dfadb4b9-6cd1-55e2-a684-cabcceadeeac', 'bus_inventory_reservation', 'status', 'PARTIALLY_CONSUMED', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- InventoryReservationLifecycle: RELEASED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9f95a81a-adcf-5883-b22f-9910634ac238', 'bus_inventory_reservation', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- InventoryTransferLifecycle: PLANNED → RELEASED (release)
@@ -395,24 +420,34 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('2df0ba8a-c7ca-5b00-8d15-a2944da74567', 'bus_inventory_transfer', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LotLifecycle: ACTIVE → HOLD (mark_hold)
+-- LotLifecycle: ACTIVE → HOLD (hold)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d53ec55c-c1e3-5834-8033-d1a3e609250f', 'bus_lot', 'status', 'ACTIVE', 'HOLD', 'mark_hold', TRUE, NOW())
+VALUES ('d53ec55c-c1e3-5834-8033-d1a3e609250f', 'bus_lot', 'status', 'ACTIVE', 'HOLD', 'hold', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LotLifecycle: HOLD → RELEASED (release)
+-- LotLifecycle: ACTIVE → QUARANTINED (quarantine)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1ef39ba5-976c-52a8-8b38-a90cc563e0f2', 'bus_lot', 'status', 'HOLD', 'RELEASED', 'release', TRUE, NOW())
+VALUES ('82e151d1-fda1-5695-beb2-15a397854f9c', 'bus_lot', 'status', 'ACTIVE', 'QUARANTINED', 'quarantine', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LotLifecycle: RELEASED → CLOSED (close)
+-- LotLifecycle: ACTIVE → CONSUMED (consume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0be3a79c-41e0-581b-b5c2-ca82b1ab0c12', 'bus_lot', 'status', 'RELEASED', 'CLOSED', 'close', TRUE, NOW())
+VALUES ('96e81f63-7818-51f5-bdd5-5667883a0b1e', 'bus_lot', 'status', 'ACTIVE', 'CONSUMED', 'consume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LotLifecycle: CLOSED → CONSUMED (consume)
+-- LotLifecycle: ACTIVE → EXPIRED (expire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2334dd22-f9f8-53fe-af33-e1f4516035f4', 'bus_lot', 'status', 'CLOSED', 'CONSUMED', 'consume', TRUE, NOW())
+VALUES ('1d4be0cb-ba10-5b95-a0d1-c6a53fd26a01', 'bus_lot', 'status', 'ACTIVE', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: ACTIVE → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6336c98d-d09b-5caf-a89f-c9efe63e4490', 'bus_lot', 'status', 'ACTIVE', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: HOLD → ACTIVE (release_hold)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('c70202b0-7896-5450-b050-aee94e79cc85', 'bus_lot', 'status', 'HOLD', 'ACTIVE', 'release_hold', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LotLifecycle: HOLD → QUARANTINED (quarantine)
@@ -420,49 +455,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('ccfe9076-d557-52b3-ba56-9fcd566e3e6d', 'bus_lot', 'status', 'HOLD', 'QUARANTINED', 'quarantine', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- LotLifecycle: QUARANTINED → HOLD (release)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0c716e56-e35b-514b-b3ef-c4541d8ea74d', 'bus_lot', 'status', 'QUARANTINED', 'HOLD', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: RELEASED → QUARANTINED (quarantine)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('fd449389-134e-5ef3-85b9-f0c0e98fbb59', 'bus_lot', 'status', 'RELEASED', 'QUARANTINED', 'quarantine', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- LotLifecycle: QUARANTINED → RELEASED (release)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('b8f1b807-fbcf-5c47-aaf5-9100349d23c7', 'bus_lot', 'status', 'QUARANTINED', 'RELEASED', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: HOLD → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c9a940c8-0255-54f7-b4ea-0559a1e5ead0', 'bus_lot', 'status', 'HOLD', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: RELEASED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('57728d92-b9ed-51fd-8310-e38f05c1aa33', 'bus_lot', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: QUARANTINED → EXPIRED (expire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ea202d17-c21c-5041-a930-2f6398340e16', 'bus_lot', 'status', 'QUARANTINED', 'EXPIRED', 'expire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: ACTIVE → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2008c56b-fce6-546b-9277-9ad53c881a3f', 'bus_lot', 'status', 'ACTIVE', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: HOLD → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('55a71edd-6182-5aa8-83f8-1bee4aa2eb7e', 'bus_lot', 'status', 'HOLD', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- LotLifecycle: RELEASED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('043052d1-29a5-5b35-820b-1eeae3de1827', 'bus_lot', 'status', 'RELEASED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- LotLifecycle: QUARANTINED → REJECTED (reject)
@@ -470,9 +465,39 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('a67a2f74-7e5f-59f2-a538-f39d2744ac63', 'bus_lot', 'status', 'QUARANTINED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: EXPECTED → AVAILABLE (mark_available)
+-- LotLifecycle: QUARANTINED → HOLD (hold)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('85655ebe-3bc4-5eb5-92ad-bf191736c104', 'bus_serial_number', 'status', 'EXPECTED', 'AVAILABLE', 'mark_available', TRUE, NOW())
+VALUES ('0c716e56-e35b-514b-b3ef-c4541d8ea74d', 'bus_lot', 'status', 'QUARANTINED', 'HOLD', 'hold', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: RELEASED → HOLD (hold)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('9737de80-03f1-59f4-b79c-a246b07694f3', 'bus_lot', 'status', 'RELEASED', 'HOLD', 'hold', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: RELEASED → QUARANTINED (quarantine)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('fd449389-134e-5ef3-85b9-f0c0e98fbb59', 'bus_lot', 'status', 'RELEASED', 'QUARANTINED', 'quarantine', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: RELEASED → CONSUMED (consume)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('07b6b70a-98da-5008-9313-92998b48b9ae', 'bus_lot', 'status', 'RELEASED', 'CONSUMED', 'consume', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: RELEASED → EXPIRED (expire)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('57728d92-b9ed-51fd-8310-e38f05c1aa33', 'bus_lot', 'status', 'RELEASED', 'EXPIRED', 'expire', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- LotLifecycle: RELEASED → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('0be3a79c-41e0-581b-b5c2-ca82b1ab0c12', 'bus_lot', 'status', 'RELEASED', 'CLOSED', 'close', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SerialNumberLifecycle: EXPECTED → AVAILABLE (receive)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('85655ebe-3bc4-5eb5-92ad-bf191736c104', 'bus_serial_number', 'status', 'EXPECTED', 'AVAILABLE', 'receive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SerialNumberLifecycle: AVAILABLE → RESERVED (reserve)
@@ -480,24 +505,49 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('193503d1-a49c-5e60-a13a-34862555fed2', 'bus_serial_number', 'status', 'AVAILABLE', 'RESERVED', 'reserve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: RESERVED → IN_TRANSIT (mark_in_transit)
+-- SerialNumberLifecycle: RESERVED → AVAILABLE (release)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('bc144c8a-56bb-543b-b77a-e03971b7d602', 'bus_serial_number', 'status', 'RESERVED', 'IN_TRANSIT', 'mark_in_transit', TRUE, NOW())
+VALUES ('ee93f570-d23a-5487-a0db-1f44246ff73a', 'bus_serial_number', 'status', 'RESERVED', 'AVAILABLE', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: IN_TRANSIT → INSTALLED (mark_installed)
+-- SerialNumberLifecycle: RESERVED → IN_TRANSIT (ship)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('98ddce82-d1ab-5c6a-bb6f-2daee750bf44', 'bus_serial_number', 'status', 'IN_TRANSIT', 'INSTALLED', 'mark_installed', TRUE, NOW())
+VALUES ('bc144c8a-56bb-543b-b77a-e03971b7d602', 'bus_serial_number', 'status', 'RESERVED', 'IN_TRANSIT', 'ship', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: INSTALLED → CONSUMED (consume)
+-- SerialNumberLifecycle: AVAILABLE → IN_TRANSIT (ship)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('642c276c-fcd6-5d08-9033-fb712aaa60f5', 'bus_serial_number', 'status', 'INSTALLED', 'CONSUMED', 'consume', TRUE, NOW())
+VALUES ('499238bf-95c1-5391-8cf9-c973cc1eacfd', 'bus_serial_number', 'status', 'AVAILABLE', 'IN_TRANSIT', 'ship', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: CONSUMED → RETURNED (mark_returned)
+-- SerialNumberLifecycle: IN_TRANSIT → INSTALLED (install)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('44500099-95cb-5f89-b779-d3bb02a348f2', 'bus_serial_number', 'status', 'CONSUMED', 'RETURNED', 'mark_returned', TRUE, NOW())
+VALUES ('98ddce82-d1ab-5c6a-bb6f-2daee750bf44', 'bus_serial_number', 'status', 'IN_TRANSIT', 'INSTALLED', 'install', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SerialNumberLifecycle: IN_TRANSIT → AVAILABLE (receive)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('681803f2-d5f8-5404-9635-b5ac9fbb46de', 'bus_serial_number', 'status', 'IN_TRANSIT', 'AVAILABLE', 'receive', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SerialNumberLifecycle: INSTALLED → RETURNED (return)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('a4b737a8-20b3-5f66-8b2a-31b92b80f13b', 'bus_serial_number', 'status', 'INSTALLED', 'RETURNED', 'return', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SerialNumberLifecycle: IN_TRANSIT → RETURNED (return)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ac089281-febe-5e5c-a6f0-b1e9c9de12dc', 'bus_serial_number', 'status', 'IN_TRANSIT', 'RETURNED', 'return', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SerialNumberLifecycle: RETURNED → AVAILABLE (restock)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('95b8b39b-0add-5840-8b9d-3500b8706c87', 'bus_serial_number', 'status', 'RETURNED', 'AVAILABLE', 'restock', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SerialNumberLifecycle: RETURNED → QUARANTINED (quarantine)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('5056873d-ead2-5932-98e0-1e9175759e4a', 'bus_serial_number', 'status', 'RETURNED', 'QUARANTINED', 'quarantine', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SerialNumberLifecycle: AVAILABLE → QUARANTINED (quarantine)
@@ -510,79 +560,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('e896b859-e320-518e-bd33-595c9eb4adf3', 'bus_serial_number', 'status', 'QUARANTINED', 'AVAILABLE', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: RESERVED → QUARANTINED (quarantine)
+-- SerialNumberLifecycle: QUARANTINED → SCRAPPED (scrap)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e808e761-85fd-5c1d-afdf-f42825cb65e0', 'bus_serial_number', 'status', 'RESERVED', 'QUARANTINED', 'quarantine', TRUE, NOW())
+VALUES ('eaa3b3ad-a79b-5419-9db0-80c455bae01d', 'bus_serial_number', 'status', 'QUARANTINED', 'SCRAPPED', 'scrap', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: QUARANTINED → RESERVED (release)
+-- SerialNumberLifecycle: AVAILABLE → SCRAPPED (scrap)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('56f52ee0-355c-54ee-abfa-523d005c429b', 'bus_serial_number', 'status', 'QUARANTINED', 'RESERVED', 'release', TRUE, NOW())
+VALUES ('ac81b0bc-2b24-5bab-8fd3-1f87711e356a', 'bus_serial_number', 'status', 'AVAILABLE', 'SCRAPPED', 'scrap', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: IN_TRANSIT → QUARANTINED (quarantine)
+-- SerialNumberLifecycle: RETURNED → SCRAPPED (scrap)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('5429f018-abc2-596c-bccf-9fa83845fdc8', 'bus_serial_number', 'status', 'IN_TRANSIT', 'QUARANTINED', 'quarantine', TRUE, NOW())
+VALUES ('6ef2403f-864d-518f-a612-6678167b4c0a', 'bus_serial_number', 'status', 'RETURNED', 'SCRAPPED', 'scrap', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SerialNumberLifecycle: QUARANTINED → IN_TRANSIT (release)
+-- SerialNumberLifecycle: AVAILABLE → CONSUMED (consume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('31e1e3cc-ae98-52e2-bf06-93f06aac4d4c', 'bus_serial_number', 'status', 'QUARANTINED', 'IN_TRANSIT', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: AVAILABLE → SCRAPPED (mark_scrapped)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ac81b0bc-2b24-5bab-8fd3-1f87711e356a', 'bus_serial_number', 'status', 'AVAILABLE', 'SCRAPPED', 'mark_scrapped', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: RESERVED → SCRAPPED (mark_scrapped)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1d551b8e-4256-5769-8117-14b9167becfe', 'bus_serial_number', 'status', 'RESERVED', 'SCRAPPED', 'mark_scrapped', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: IN_TRANSIT → SCRAPPED (mark_scrapped)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('06a8f37b-c04a-5b4b-8ab4-cd24d22abb9e', 'bus_serial_number', 'status', 'IN_TRANSIT', 'SCRAPPED', 'mark_scrapped', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: QUARANTINED → SCRAPPED (mark_scrapped)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('eaa3b3ad-a79b-5419-9db0-80c455bae01d', 'bus_serial_number', 'status', 'QUARANTINED', 'SCRAPPED', 'mark_scrapped', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: EXPECTED → RETIRED (retire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1e5856f7-597a-539f-b3be-e61a7ebb9892', 'bus_serial_number', 'status', 'EXPECTED', 'RETIRED', 'retire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: AVAILABLE → RETIRED (retire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('765af44f-4e0c-5066-b644-b58e1c20f8d8', 'bus_serial_number', 'status', 'AVAILABLE', 'RETIRED', 'retire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: RESERVED → RETIRED (retire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7a84dd87-1b47-5aa4-a38f-c1358ace0d7f', 'bus_serial_number', 'status', 'RESERVED', 'RETIRED', 'retire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: IN_TRANSIT → RETIRED (retire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e5944ba1-60e4-524b-91c2-2f277ea87b8f', 'bus_serial_number', 'status', 'IN_TRANSIT', 'RETIRED', 'retire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: QUARANTINED → RETIRED (retire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cf216757-d308-57de-9de5-50df1602d168', 'bus_serial_number', 'status', 'QUARANTINED', 'RETIRED', 'retire', TRUE, NOW())
+VALUES ('4dd8a6a6-a4d6-5fde-8ab8-fc4773282e7f', 'bus_serial_number', 'status', 'AVAILABLE', 'CONSUMED', 'consume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SerialNumberLifecycle: INSTALLED → RETIRED (retire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('37e2766d-b627-5322-9026-0b0bc01313a7', 'bus_serial_number', 'status', 'INSTALLED', 'RETIRED', 'retire', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SerialNumberLifecycle: CONSUMED → RETIRED (retire)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6eed40c9-92d0-5992-8eea-9053ef4449d5', 'bus_serial_number', 'status', 'CONSUMED', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- ProductLifecycle: DRAFT → ACTIVE (activate)
@@ -735,54 +735,34 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('85f17f2e-37b8-59a9-bc7e-00fc62f1a0c9', 'bus_picking', 'status', 'RELEASED', 'IN_PROGRESS', 'start', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: IN_PROGRESS → PICKED (mark_picked)
+-- PickingLifecycle: IN_PROGRESS → PICKED (complete)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('914a904e-f5b8-53ba-8300-0f69e5198afd', 'bus_picking', 'status', 'IN_PROGRESS', 'PICKED', 'mark_picked', TRUE, NOW())
+VALUES ('914a904e-f5b8-53ba-8300-0f69e5198afd', 'bus_picking', 'status', 'IN_PROGRESS', 'PICKED', 'complete', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: PICKED → SHORT (mark_short)
+-- PickingLifecycle: IN_PROGRESS → SHORT (short_pick)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0d8899ed-2b4f-584f-86b5-00f919ddfb0f', 'bus_picking', 'status', 'PICKED', 'SHORT', 'mark_short', TRUE, NOW())
+VALUES ('2880178c-d627-5484-8719-cd1e9c7baa36', 'bus_picking', 'status', 'IN_PROGRESS', 'SHORT', 'short_pick', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: RELEASED → EXCEPTION (mark_exception)
+-- PickingLifecycle: SHORT → RELEASED (retry)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0941a8f6-361b-5a5a-bb0e-5566d8dcd8bd', 'bus_picking', 'status', 'RELEASED', 'EXCEPTION', 'mark_exception', TRUE, NOW())
+VALUES ('164060cd-b68f-5883-8caa-1d1111fd5217', 'bus_picking', 'status', 'SHORT', 'RELEASED', 'retry', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: EXCEPTION → RELEASED (resolve_exception)
+-- PickingLifecycle: RELEASED → EXCEPTION (raise_exception)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('bedc2c5c-6d6e-5655-807f-931f7c2df428', 'bus_picking', 'status', 'EXCEPTION', 'RELEASED', 'resolve_exception', TRUE, NOW())
+VALUES ('0941a8f6-361b-5a5a-bb0e-5566d8dcd8bd', 'bus_picking', 'status', 'RELEASED', 'EXCEPTION', 'raise_exception', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: IN_PROGRESS → EXCEPTION (mark_exception)
+-- PickingLifecycle: IN_PROGRESS → EXCEPTION (raise_exception)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ec64c523-c924-5736-8d8e-dac07bcf8dd9', 'bus_picking', 'status', 'IN_PROGRESS', 'EXCEPTION', 'mark_exception', TRUE, NOW())
+VALUES ('ec64c523-c924-5736-8d8e-dac07bcf8dd9', 'bus_picking', 'status', 'IN_PROGRESS', 'EXCEPTION', 'raise_exception', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: EXCEPTION → IN_PROGRESS (resolve_exception)
+-- PickingLifecycle: EXCEPTION → RELEASED (resolve)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('77562e26-1767-588b-92c8-97863bbb2239', 'bus_picking', 'status', 'EXCEPTION', 'IN_PROGRESS', 'resolve_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- PickingLifecycle: PICKED → EXCEPTION (mark_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('467f0a02-57c6-556e-ad9b-a4def3d030b5', 'bus_picking', 'status', 'PICKED', 'EXCEPTION', 'mark_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- PickingLifecycle: EXCEPTION → PICKED (resolve_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6dc1e1f1-5fa4-55c1-8672-d58c67914e9e', 'bus_picking', 'status', 'EXCEPTION', 'PICKED', 'resolve_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- PickingLifecycle: SHORT → EXCEPTION (mark_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('95e6dd2d-c727-5535-9964-db85efebee41', 'bus_picking', 'status', 'SHORT', 'EXCEPTION', 'mark_exception', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- PickingLifecycle: EXCEPTION → SHORT (resolve_exception)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('819d654d-76d5-5fd5-98e3-95d9b63efd0b', 'bus_picking', 'status', 'EXCEPTION', 'SHORT', 'resolve_exception', TRUE, NOW())
+VALUES ('bedc2c5c-6d6e-5655-807f-931f7c2df428', 'bus_picking', 'status', 'EXCEPTION', 'RELEASED', 'resolve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PickingLifecycle: PLANNED → CANCELLED (cancel)
@@ -795,24 +775,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('88152d24-fd01-5534-9141-905407625ead', 'bus_picking', 'status', 'RELEASED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- PickingLifecycle: IN_PROGRESS → CANCELLED (cancel)
+-- PickingLifecycle: EXCEPTION → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('25349838-1cc2-5ec8-9a81-a20016a10a41', 'bus_picking', 'status', 'IN_PROGRESS', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- PickingLifecycle: PICKED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('778b69a8-45d9-52b3-910e-204999b89301', 'bus_picking', 'status', 'PICKED', 'CANCELLED', 'cancel', TRUE, NOW())
+VALUES ('d128f8ae-0ee4-5799-b781-9fa21863c8ef', 'bus_picking', 'status', 'EXCEPTION', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PickingLifecycle: SHORT → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('616c3c17-c677-5ee1-bd75-e39b00ad42fb', 'bus_picking', 'status', 'SHORT', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- PickingLifecycle: EXCEPTION → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d128f8ae-0ee4-5799-b781-9fa21863c8ef', 'bus_picking', 'status', 'EXCEPTION', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PackingLifecycle: PLANNED → IN_PROGRESS (start)
@@ -1024,6 +994,20 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('182277ad-7459-574d-8a4f-c3276c09a519', 'bus_task', 'status', 'FAILED', FALSE, TRUE, 80, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- InventoryItemLifecycle: states
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('10a2d431-889f-5b93-9cfa-9f9304bf09ca', 'bus_inventory_item', 'status', 'DRAFT', TRUE, FALSE, 10, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('a1136c7f-7474-5f71-8de4-7962151e5f20', 'bus_inventory_item', 'status', 'ACTIVE', FALSE, FALSE, 20, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('b6fdd365-11cb-561f-a4f6-d35f7a3b2da6', 'bus_inventory_item', 'status', 'BLOCKED', FALSE, FALSE, 30, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
+VALUES ('5138958a-3380-5377-8611-feaac58027de', 'bus_inventory_item', 'status', 'DISCONTINUED', FALSE, TRUE, 40, TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- InventoryReservationLifecycle: states
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('779a9737-a2b0-5ddc-b700-29bdd093292c', 'bus_inventory_reservation', 'status', 'PENDING', TRUE, FALSE, 10, TRUE, NOW())
@@ -1035,7 +1019,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('9d4f7a80-bb7d-5feb-90c1-072fdd28be80', 'bus_inventory_reservation', 'status', 'PARTIALLY_CONSUMED', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('fb4a486e-e155-540b-8cc9-aa748d0e766b', 'bus_inventory_reservation', 'status', 'RELEASED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('fb4a486e-e155-540b-8cc9-aa748d0e766b', 'bus_inventory_reservation', 'status', 'RELEASED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('7da0060b-eed6-5606-a490-6a07541da02b', 'bus_inventory_reservation', 'status', 'CONSUMED', FALSE, TRUE, 50, TRUE, NOW())
@@ -1087,7 +1071,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('90157f89-a477-55d2-913f-8737b5ff91c3', 'bus_lot', 'status', 'CONSUMED', FALSE, TRUE, 70, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('f8544e1d-1e79-5791-938f-0f27e0d8d3fa', 'bus_lot', 'status', 'CLOSED', FALSE, FALSE, 80, TRUE, NOW())
+VALUES ('f8544e1d-1e79-5791-938f-0f27e0d8d3fa', 'bus_lot', 'status', 'CLOSED', FALSE, TRUE, 80, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SerialNumberLifecycle: states
@@ -1107,10 +1091,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('0f006330-e873-5ac7-90d9-958ec0b7f929', 'bus_serial_number', 'status', 'INSTALLED', FALSE, FALSE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('8beff1ee-f51f-5896-a701-247784754773', 'bus_serial_number', 'status', 'CONSUMED', FALSE, FALSE, 60, TRUE, NOW())
+VALUES ('8beff1ee-f51f-5896-a701-247784754773', 'bus_serial_number', 'status', 'CONSUMED', FALSE, TRUE, 60, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('26bb835e-484c-529c-aa2e-fc60404ca7e1', 'bus_serial_number', 'status', 'RETURNED', FALSE, TRUE, 70, TRUE, NOW())
+VALUES ('26bb835e-484c-529c-aa2e-fc60404ca7e1', 'bus_serial_number', 'status', 'RETURNED', FALSE, FALSE, 70, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('d788c2dc-89cb-5784-9115-206153c13ea0', 'bus_serial_number', 'status', 'QUARANTINED', FALSE, FALSE, 80, TRUE, NOW())
@@ -1195,7 +1179,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('2d57ab4f-b1e4-5f80-957f-3a93d6c0ea5b', 'bus_picking', 'status', 'IN_PROGRESS', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('65155963-0c90-5fea-a0e3-2465c732af80', 'bus_picking', 'status', 'PICKED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('65155963-0c90-5fea-a0e3-2465c732af80', 'bus_picking', 'status', 'PICKED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('6a400fac-1aa0-595f-9d87-1d67856552b8', 'bus_picking', 'status', 'SHORT', FALSE, FALSE, 50, TRUE, NOW())

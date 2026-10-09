@@ -1,0 +1,36 @@
+@ SupplierCreditNoteApplication
+a status
+s: Whether this application of supplier credit is being prepared, in force, reversed or cancelled.
+u: Starts as DRAFT; payables staff activate it to reduce the invoice, and a reversal is recorded as a new application.
+a reversalOfApplicationId
+s: Points to the earlier application of supplier credit that this record undoes.
+u: Set only on a correcting record; the original is never edited, so the history of the credit stays intact for audit.
+
+@ SupplierCreditNoteLine
+a lineNumber
+s: The position of this line within its supplier credit note.
+u: Assigned in sequence when the line is added; unique within the note and used to refer to the line in review and posting.
+a quantity
+s: The quantity of the original goods or service that this credit line relates to.
+u: Entered from the returned or adjusted quantity; it must reconcile with the supplier return line when the credit follows a return.
+a grossAmount
+s: The credited value before discount and tax, normally quantity times the original unit price.
+u: Calculated from quantity and unit price; it feeds the taxable amount and is checked in payable reconciliation.
+a discountAmount
+s: The part of the original discount that is reversed or adjusted on this credited value.
+u: Defaults to zero; copied from the original invoice treatment so the credit can be reproduced and reconciled.
+a taxableAmount
+s: The base amount on which tax is reversed or adjusted for this credit line.
+u: Calculated as gross amount less discount; tax reporting and accounting read it to compute the tax component.
+a taxAmount
+s: The tax reversed or adjusted on this credit line, zero when no tax applies.
+u: Calculated from the taxable amount using the original invoice tax treatment; it is added into the net line amount and tax reports.
+r supplierCreditNote
+s: The credit note document to which this line belongs.
+u: Set when the line is created and not changed afterwards; the note supplies the supplier, currency and posting state.
+n: Every line belongs to exactly one credit note and cannot exist on its own.
+w: Whether a line may still be edited or posted depends on the lifecycle state of its parent note.
+r supplierReturnLine
+u: Chosen when the credit is caused by a return; it supplies the approved returned quantity that the credit may not exceed.
+r invoiceLine
+u: Chosen so the credit can copy the original price, discount and tax; payables staff use it to trace the credit back to the invoiced amount.

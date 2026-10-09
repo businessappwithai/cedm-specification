@@ -7,20 +7,18 @@ entity:
     icon: database
   identity: {key: contactPointId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ContactPoint., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this ContactPoint is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for ContactPoint., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of ContactPoint., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: contactPointId, type: uuid, required: true, immutable: true, help: {summary: The identity of the contact point., usage: Generated on creation; messages and preferences refer to it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: A short reference for the contact point., usage: Assigned or imported; stays stable so integrations can match it.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'A descriptive label for the endpoint, such as Head office switchboard.', usage: Shown wherever contact points are listed.}}
   relationships:
-  - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: Governing Party context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Party., workflowRole: Referenced workflows must remain compatible with governing context.}}
+    - {name: party, target: Party, cardinality: "1", ownership: reference, help: {summary: The party the endpoint belongs to., usage: Set when the endpoint is added., cardinalityMeaning: Exactly one party; each endpoint has one owner., workflowRole: Lets communications find the right channel for a party.}}
   invariants:
-  - {id: CONTACT-POINT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: CONTACT-POINT-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed communication endpoint such as email address, telephone number, web endpoint, or other contact channel associated with a Party.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A communication endpoint for a party, such as an email address, telephone number, web address or other channel.
+    businessMeaning: Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost.
+    usage: Added when a party gives an email, phone or other channel; read by communications, notifications and service processes.
+    relationshipContext: Each contact point belongs to one Party, which may have several.
+    lifecycle: Code and identity stay stable, and an endpoint that is retired remains in history.
+    example: The billing team's email address invoices@acme.example, recorded for a customer.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CONTACT-POINT}

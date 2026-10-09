@@ -33,6 +33,7 @@ pub mod bus_collateral;
 pub mod bus_contact_point;
 pub mod bus_country;
 pub mod bus_credit;
+pub mod bus_credit_reason;
 pub mod bus_credit_status;
 pub mod bus_currency;
 pub mod bus_currency_status;

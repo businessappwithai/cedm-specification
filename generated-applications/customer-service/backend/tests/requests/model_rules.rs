@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-04T01:11:28.829Z
+//! Generated: 2026-10-09T15:28:13.827Z
 //! Project: customer-service
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -47,6 +47,8 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     ),
     ("taskInvariantsBeforeCreate", "bus_task", "CREATE"),
     ("taskInvariantsBeforeUpdate", "bus_task", "UPDATE"),
+    ("contractInvariantsBeforeCreate", "bus_contract", "CREATE"),
+    ("contractInvariantsBeforeUpdate", "bus_contract", "UPDATE"),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
     (
         "exchangeRateWorkflowsAfterUpdate",
@@ -60,6 +62,7 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "UPDATE",
     ),
     ("escalationWorkflowsAfterUpdate", "bus_escalation", "UPDATE"),
+    ("contractWorkflowsAfterUpdate", "bus_contract", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

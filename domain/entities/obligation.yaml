@@ -7,18 +7,16 @@ entity:
     icon: table
   identity: {key: obligationId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: obligationId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Obligation., businessMeaning: Identifies one governed Obligation record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+    - {name: obligationId, type: uuid, required: true, immutable: true, help: {summary: The identity of the obligation., usage: Generated on recording; evidence and tasks refer to it.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: When the obligation arose., usage: Set from the source; deadlines and limitation periods run from it.}}
   relationships: []
   invariants:
-  - {id: OBLIGATION-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: OBLIGATION-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
-    summary: A governed duty owed by a party under law, agreement, policy, order, or other authoritative source.
-    purpose: Provide canonical governance semantics for Obligation.
-    businessMeaning: A governed duty owed by a party under law, agreement, policy, order, or other authoritative source.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
-    commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
+    summary: A duty owed by a party under law, an agreement, a policy, an order or another authoritative source.
+    businessMeaning: Organisations owe things to regulators, customers, partners and each other. Recording each duty, with its source and who owes it, lets the organisation know what it must do and prove that it did.
+    usage: Recorded when a duty arises from a law, contract or decision; tracked until it is met; read by compliance, legal and operations.
+    relationshipContext: An obligation relates to the party who owes it, the source that imposes it, and the evidence that it was met.
+    lifecycle: Finalised evidence and history are preserved; if the obligation is met, waived or replaced, that is recorded explicitly.
+    example: The duty to file the annual tax return by 31 July, arising from tax law.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-OBLIGATION}

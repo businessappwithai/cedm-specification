@@ -6,18 +6,32 @@ entity:
   ui: {icon: map-pin}
   identity: {key: stopId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: stopId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Route stop., businessMeaning: Identifies one ordered route point independently of Location identity., usage: "Route planning, dispatch, tracking and audit.", relationshipContext: Location states where; Stop states route sequence and operational purpose., requiredMeaning: Required.}}
-    - {name: sequenceNumber, type: integer, required: true, help: {summary: Ordered position of the Stop on its Route., businessMeaning: Defines planned route progression., usage: "Routing, ETA and dispatch.", relationshipContext: Unique within a Route under ordinary policy., requiredMeaning: Required.}}
+    - {name: stopId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of one stop on a route, independent of the location it visits.', usage: 'Generated on creation; dispatch, tracking and audit refer to it, and it stays the same when the stop is resequenced.', businessMeaning: Identifies one ordered route point independently of Location identity., relationshipContext: Location states where; Stop states route sequence and operational purpose.}}
+    - {name: sequenceNumber, type: integer, required: true, help: {summary: 'The order in which the stop is visited along its route, starting from the first stop.', usage: Assigned by the route planner; it should be unique within a route and is changed when stops are reordered., businessMeaning: Defines planned route progression., relationshipContext: Unique within a Route under ordinary policy.}}
     - name: stopType
       type: enum
       required: true
       values: [ORIGIN, PICKUP, DELIVERY, SERVICE, WAYPOINT, FUEL, BREAK, DESTINATION, OTHER]
-      help: {summary: Operational purpose of the Stop., businessMeaning: Explains expected activity at the route point., usage: "Routing, dispatch and reporting.", relationshipContext: Specific shipments or tasks may further refine activity., valueSemantics: {ORIGIN: Route start., PICKUP: Planned collection., DELIVERY: Planned delivery., SERVICE: Service activity., WAYPOINT: Routing waypoint., FUEL: Planned refueling., BREAK: Driver/rest stop., DESTINATION: Route end., OTHER: Another governed stop purpose.}, requiredMeaning: Required.}
-    - {name: plannedArrivalAt, type: datetime, required: false, help: {summary: Planned arrival timestamp., businessMeaning: Supports schedule and ETA expectations., usage: "Dispatch, customer communication and performance analysis.", relationshipContext: Actual tracking events remain separate evidence., optionalMeaning: Optional before schedule is fixed.}}
-    - {name: plannedDepartureAt, type: datetime, required: false, help: {summary: Planned departure timestamp., businessMeaning: Defines service window or dwell plan., usage: "Route planning and capacity.", relationshipContext: Must not precede plannedArrivalAt when both are supplied., optionalMeaning: Optional when no departure commitment exists.}}
+      help:
+        summary: 'The purpose of the stop: what the vehicle or driver is expected to do there.'
+        usage: Chosen by the route planner; it drives dispatch instructions, ETA planning and reporting, and shipments may refine the activity further.
+        valueSemantics:
+          ORIGIN: The point where the route begins and the vehicle starts its journey.
+          PICKUP: A point where goods or passengers are collected onto the vehicle.
+          DELIVERY: A point where goods are handed over to the receiver.
+          SERVICE: A point where a service is performed, such as an installation or inspection.
+          WAYPOINT: A point passed through to shape the route, with no loading or service.
+          FUEL: A point where the vehicle stops to refuel or recharge.
+          BREAK: A point where the driver stops for a mandatory or planned rest.
+          DESTINATION: The point where the route ends and the journey is complete.
+          OTHER: Any purpose not covered by the other types, described in dispatch notes.
+        businessMeaning: Explains expected activity at the route point.
+        relationshipContext: Specific shipments or tasks may further refine activity.
+    - {name: plannedArrivalAt, type: datetime, required: false, help: {summary: The date and time the vehicle is scheduled to arrive at this stop., usage: 'Set by the route planner and used for dispatch, customer ETA messages and punctuality analysis; actual arrival is recorded separately.', businessMeaning: Supports schedule and ETA expectations., relationshipContext: Actual tracking events remain separate evidence.}}
+    - {name: plannedDepartureAt, type: datetime, required: false, help: {summary: 'The date and time the vehicle is scheduled to leave this stop after loading, unloading or service.', usage: Set by the planner to define dwell time and capacity; it must not be earlier than the planned arrival when both exist., businessMeaning: Defines service window or dwell plan., relationshipContext: Must not precede plannedArrivalAt when both are supplied.}}
   relationships:
-    - {name: route, target: Route, cardinality: "1", ownership: reference, help: {summary: Route containing this Stop., businessMeaning: Supplies ordered transportation context., usage: "Route planning, dispatch and reporting.", cardinalityMeaning: Exactly one Route., workflowRole: sequenceNumber is interpreted within this Route.}}
-    - {name: location, target: Location, cardinality: "1", ownership: reference, help: {summary: Physical or logical location of the Stop., businessMeaning: Separates reusable Location master from route-specific occurrence., usage: "Navigation, dispatch and reporting.", cardinalityMeaning: Exactly one Location., workflowRole: Location changes do not rewrite completed route history.}}
+    - {name: route, target: Route, cardinality: "1", ownership: reference, help: {summary: The route the stop is part of., cardinalityMeaning: Exactly one route; a stop belongs to the route it sequences., businessMeaning: Supplies ordered transportation context., usage: "Route planning, dispatch and reporting.", workflowRole: sequenceNumber is interpreted within this Route.}}
+    - {name: location, target: Location, cardinality: "1", ownership: reference, help: {cardinalityMeaning: "Each stop is at one location, so the vehicle's destination is unambiguous.", summary: Physical or logical location of the Stop., businessMeaning: Separates reusable Location master from route-specific occurrence., usage: "Navigation, dispatch and reporting.", workflowRole: Location changes do not rewrite completed route history.}}
   invariants:
     - {id: STOP-001, rule: sequenceNumber must be positive and unique within the Route.}
     - {id: STOP-002, rule: plannedDepartureAt must not precede plannedArrivalAt when both are supplied.}

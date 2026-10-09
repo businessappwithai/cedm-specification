@@ -1,0 +1,86 @@
+@ Voyage
+a voyageNumber
+s: The operational reference for one sailing, quoted in bookings and schedules.
+u: Unique; assigned when the voyage is planned and used by shippers, terminals and tracking to refer to that sailing.
+a plannedDepartureAt
+s: The scheduled time the vessel is due to leave its origin port.
+u: Set when the voyage is planned and revised if the schedule changes; port planners use it to prepare berths and ETA forecasts.
+a plannedArrivalAt
+s: The scheduled time the vessel is due to reach its destination or principal port.
+u: Must not precede the planned departure; berth, yard and crane planning are built around it and updated as the ETA moves.
+a status
+s: How far the sailing has progressed, from planning through the voyage to its end.
+u: Starts as PLANNED; moved by shipping operations as the vessel sails, arrives or the sailing is called off.
+v PLANNED: Scheduled but the vessel has not yet departed.
+v ACTIVE: The vessel has departed and the voyage is under way.
+v COMPLETED: The vessel has arrived and the voyage is finished. A final state.
+v CANCELLED: The sailing was called off before completion. A final state.
+@ WarehouseZone
+a zoneCode
+s: The short code that names the zone within its warehouse, as shown on labels and screens.
+u: Entered when the zone is created; used in putaway and pick routing, location labels and reports, so it should stay stable.
+a zoneType
+s: The main operational purpose of the zone, such as receiving, picking or cold storage.
+u: Chosen on creation; putaway and picking logic route stock by it, and compliance rules apply to restricted types.
+v RECEIVING: Where inbound goods are unloaded and checked before putaway.
+v RESERVE: Bulk storage that holds stock to replenish picking areas.
+v PICKING: Forward area from which orders are picked in small quantities.
+v STAGING: A temporary holding area where goods wait to be consolidated or loaded.
+v SHIPPING: Where packed orders are held and loaded onto outbound transport.
+v QUARANTINE: A segregated area holding stock that failed or awaits inspection and may not be used.
+v RETURNS: Where returned goods are received and assessed for restock, repair or disposal.
+v COLD_STORAGE: A temperature-controlled area for goods needing refrigeration or freezing.
+v HAZARDOUS: A restricted area for dangerous goods, storing them under safety and regulatory controls.
+v GENERAL: Ordinary storage with no special handling or purpose.
+@ Wave
+a waveId
+s: The permanent identifier of the wave, unchanged while its tasks and status change.
+u: Generated on creation; pick and putaway tasks carry it to show which release batch they belong to.
+a waveNumber
+s: The number of the wave, such as WV-2026-0412, shown to supervisors and pickers.
+u: Unique; assigned when the wave is planned and used on task lists, labour planning and reporting for the shift.
+a status
+s: How far the batch of warehouse work has progressed, from planning through release to completion.
+u: Starts as PLANNED; moved by the warehouse system or supervisor as the wave is released, worked and finished.
+v PLANNED: Orders and tasks are grouped but not yet released to the floor.
+v RELEASED: Released to the floor and ready for workers to start.
+v IN_PROGRESS: Workers are executing the picking, putaway or packing tasks.
+v COMPLETED: All the wave's work is done. A final state.
+v CANCELLED: The wave was abandoned and its tasks released for other planning. A final state.
+@ WorkCenter
+a workCenterId
+s: The permanent identifier of the work center, unchanged if its code or name is revised.
+u: Generated on creation; routing operations, schedules, shop-floor reports and costing refer to it.
+a code
+s: The short code planners and shop-floor staff use to name the work center.
+u: Unique; used in routings, scheduling, dispatch lists and integrations, so changes need coordinating with those users.
+a name
+s: A descriptive name saying what the work center is, such as Assembly Line 2.
+u: Entered by manufacturing engineers; shown in planning screens, schedules and reports beside the code.
+a capacityPerHour
+s: The nominal quantity the work center can process or produce in one hour.
+u: Optional; the scheduler divides required quantity by it to test whether a schedule is feasible and to estimate duration.
+a status
+s: Whether the work center can currently be scheduled, is idle, under maintenance or retired.
+u: Starts as ACTIVE; maintenance and planning staff move it, and scheduling only loads active work centers.
+v ACTIVE: Available and eligible to be scheduled for production.
+v INACTIVE: Not currently used but can be reactivated.
+v MAINTENANCE: Out of production for servicing, with its capacity unavailable.
+v RETIRED: Permanently removed from use. A final state.
+@ Workflow
+a name
+s: The descriptive name of the workflow, such as Purchase approval.
+u: Entered by the process owner; shown in lists, on tasks and to users who are asked to act on a run.
+a executionType
+s: Whether the steps are carried out by people, by the system or by a combination.
+u: Chosen when designed; it decides whether tasks are assigned to users or run automatically by an engine.
+v HUMAN: Every step is performed by a person who is assigned a task.
+v AUTOMATED: The system runs the steps itself with no one assigned.
+v HYBRID: Mixes automated steps with steps that wait for a person.
+a status
+s: Whether the workflow definition is in design, available to start, paused or withdrawn.
+u: Starts as DRAFT; set by process owners, and only an active workflow can be started.
+v DRAFT: Under design and not yet startable.
+v ACTIVE: Published and available to be started by events or people.
+v SUSPENDED: Temporarily paused so no new runs begin, but it can be reactivated.
+v RETIRED: Withdrawn from use permanently. A final state.

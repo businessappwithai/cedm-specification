@@ -1,0 +1,50 @@
+@ HandlingUnit
+a handlingUnitId
+s: The permanent identity of the handling unit, kept as it moves between locations and shipments.
+u: Generated on creation; inventory, picking, packing and shipment records refer to the unit by this value.
+a handlingUnitNumber
+s: The scannable number on the unit's label, such as a pallet licence plate, by which warehouse staff identify it.
+u: Unique; printed on the label at creation and scanned during putaway, picking, staging and loading.
+a type
+s: The physical form of the unit, such as a pallet or carton, which fixes its size and handling equipment.
+u: Chosen when the unit is created; capacity, equipment, packing and carrier planning read it.
+v PALLET: A palletised load moved by forklift or pallet truck.
+v CARTON: A cardboard box or case holding items for storage or shipment.
+v TOTE: A reusable bin or tote used for picking and internal movement.
+v CAGE: A roll cage or similar wheeled frame used to move mixed goods.
+v DRUM: A cylindrical drum or barrel holding liquids or bulk material.
+v PACKAGE: A general parcel that is none of the other forms.
+v OTHER: A governed unit type not covered by the listed forms.
+
+@ HealthcareEncounter
+a encounterId
+s: The permanent identity of the encounter, kept for the whole of the patient's visit or stay.
+u: Generated on creation; diagnoses, procedures, orders and clinical notes refer to the encounter by this value.
+a encounterType
+v OUTPATIENT: A visit without an overnight stay.
+v INPATIENT: Care with admission to a ward and an overnight stay.
+v EMERGENCY: Unplanned urgent care given to a patient arriving with an acute problem.
+v VIRTUAL: Care delivered remotely by video or telephone.
+v HOME_CARE: Care delivered at the patient's home.
+v OTHER: Care given in a setting that fits none of the listed ones.
+a status
+s: Where the encounter is in its course, from planned through care being delivered to completion.
+u: Updated by the provider as care starts and ends; billing and coding act only on completed encounters.
+a startAt
+s: The date and time at which the encounter began and care started.
+u: Recorded at check-in or when care begins; lengths of stay, scheduling analysis and billing periods run from it.
+
+@ HealthcareOrder
+a healthcareOrderId
+s: The permanent identity of the order, kept unchanged through issue, performance and any amendment.
+u: Generated on creation; results, billing items and the ordering encounter refer to it by this value.
+a status
+s: Where the order stands, from being prepared to carried out or withdrawn.
+u: Moved by the ordering clinician and the performing team; completed orders are amended or replaced, never rewritten.
+
+@ HealthcarePatient
+a status
+v ACTIVE: A current patient who receives or is eligible for care.
+v INACTIVE: Not currently receiving care; the record is kept and can be reactivated.
+v DECEASED: The patient has died; no new care is planned. A final state.
+v MERGED: A duplicate record that has been merged into another; use the surviving record. A final state.

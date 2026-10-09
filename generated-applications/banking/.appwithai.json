@@ -64,7 +64,8 @@
     "BankTransactionTransactionType",
     "BankTransactionStatus",
     "BankLoanStatus",
-    "CreditStatus"
+    "CreditStatus",
+    "CreditReason"
   ],
   "categories": [
     "Foundation",
@@ -79,6 +80,7 @@
     "BankLoanStatus (7)",
     "BankTransactionStatus (4)",
     "BankTransactionTransactionType (7)",
+    "CreditReason (5)",
     "CreditStatus (4)",
     "CurrencyStatus (3)",
     "ExchangeRateRateType (6)",
@@ -112,5 +114,5 @@
     "CreditCompletionConfirmed on Credit (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:29:16.866Z"
+  "generatedAt": "2026-10-09T15:27:57.935Z"
 }

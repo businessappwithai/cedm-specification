@@ -310,14 +310,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('71c95c14-a489-53f7-9753-15986a91fdb2', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GovernmentCaseLifecycle: DRAFT → OPEN (open)
+-- GovernmentCaseLifecycle: DRAFT → OPEN (submit)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('dfd6e067-6332-5cbd-bfb8-62c86351a2fa', 'bus_government_case', 'status', 'DRAFT', 'OPEN', 'open', TRUE, NOW())
+VALUES ('dfd6e067-6332-5cbd-bfb8-62c86351a2fa', 'bus_government_case', 'status', 'DRAFT', 'OPEN', 'submit', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GovernmentCaseLifecycle: OPEN → UNDER_REVIEW (review)
+-- GovernmentCaseLifecycle: OPEN → UNDER_REVIEW (start_review)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('f9f7c4fe-f591-5ea8-86d6-0529cc36b90c', 'bus_government_case', 'status', 'OPEN', 'UNDER_REVIEW', 'review', TRUE, NOW())
+VALUES ('f9f7c4fe-f591-5ea8-86d6-0529cc36b90c', 'bus_government_case', 'status', 'OPEN', 'UNDER_REVIEW', 'start_review', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- GovernmentCaseLifecycle: UNDER_REVIEW → APPROVED (approve)
@@ -325,29 +325,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('29c7e90f-891d-5cbe-830f-796831229e03', 'bus_government_case', 'status', 'UNDER_REVIEW', 'APPROVED', 'approve', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GovernmentCaseLifecycle: APPROVED → CLOSED (close)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e5cbffe0-2844-5e2b-8a39-1ea9cde7cbd1', 'bus_government_case', 'status', 'APPROVED', 'CLOSED', 'close', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GovernmentCaseLifecycle: DRAFT → DENIED (deny)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0ea07854-86a8-5cc6-98cc-79ec97ecede1', 'bus_government_case', 'status', 'DRAFT', 'DENIED', 'deny', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GovernmentCaseLifecycle: OPEN → DENIED (deny)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0c3484c3-a095-5c1e-8b4b-cec39ba852a8', 'bus_government_case', 'status', 'OPEN', 'DENIED', 'deny', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- GovernmentCaseLifecycle: UNDER_REVIEW → DENIED (deny)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('924879ab-195c-5cf2-af29-294c5717a747', 'bus_government_case', 'status', 'UNDER_REVIEW', 'DENIED', 'deny', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GovernmentCaseLifecycle: APPROVED → DENIED (deny)
+-- GovernmentCaseLifecycle: APPROVED → CLOSED (close)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2ceabc30-815d-5d19-a9a3-18cadbbe157e', 'bus_government_case', 'status', 'APPROVED', 'DENIED', 'deny', TRUE, NOW())
+VALUES ('e5cbffe0-2844-5e2b-8a39-1ea9cde7cbd1', 'bus_government_case', 'status', 'APPROVED', 'CLOSED', 'close', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- GovernmentCaseLifecycle: DRAFT → CANCELLED (cancel)
@@ -363,11 +348,6 @@ ON CONFLICT DO NOTHING;
 -- GovernmentCaseLifecycle: UNDER_REVIEW → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('b2707b5b-817c-5cbc-a0b0-47333aac3309', 'bus_government_case', 'status', 'UNDER_REVIEW', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GovernmentCaseLifecycle: APPROVED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d3eec2be-3a49-5e68-a88b-d76eb6fb777d', 'bus_government_case', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states

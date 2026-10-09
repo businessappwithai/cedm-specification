@@ -1,0 +1,56 @@
+@ SecurityIncident
+a severity
+s: How serious the incident is judged to be, based on the harm done or threatened.
+u: Set at triage by the security team and revised as facts emerge; it drives escalation, response deadlines and notification duties.
+v LOW: Minor, with no real harm or exposure.
+v MEDIUM: Limited harm that needs follow-up but not urgent action.
+v HIGH: Serious harm or exposure that needs prompt response.
+v CRITICAL: Severe harm needing immediate action and senior escalation.
+a status
+s: How far the incident has progressed through handling, from report to review.
+u: Starts as OPEN and is moved by the investigator as work proceeds; closure follows resolution and a review.
+v OPEN: Reported and not yet being worked.
+v INVESTIGATING: Under active investigation to establish what happened and how far it reached.
+v CONTAINED: The spread has been stopped, but the cause is still to be dealt with.
+v RESOLVED: The cause has been dealt with and normal service restored.
+v CLOSED: Reviewed and finished. A final state.
+@ SerialNumber
+a serialCode
+s: The code stamped on or issued for one physical unit, so it can be told apart from others of the same product.
+u: Scanned at receiving, picking, shipment, service and return; unique per product and used for warranty and traceability.
+a status
+s: Where the individual unit stands in its life, from expected through stock and use to end of life.
+u: Starts as EXPECTED or AVAILABLE and changes as the unit moves; it decides whether the unit can be picked, shipped or serviced.
+v EXPECTED: Announced on an inbound order but not yet received.
+v AVAILABLE: In stock and free to be reserved or shipped.
+v RESERVED: Set aside for a particular order or job.
+v IN_TRANSIT: On its way between locations or to a customer.
+v INSTALLED: Fitted at a customer site or on equipment.
+v CONSUMED: Used up in production or service. A final state.
+v RETURNED: Sent back by a customer and awaiting a decision.
+v QUARANTINED: Held apart pending a quality or safety decision.
+v SCRAPPED: Destroyed or written off. A final state.
+v RETIRED: Taken out of service for good. A final state.
+@ ServiceCase
+a caseNumber
+s: The reference that customers and staff quote when talking about this case, such as CASE-004517.
+u: Allocated automatically at intake and unique; used in searches, replies, escalations, reports and integrations.
+a subject
+s: A one-line description of the problem or request the case is about.
+u: Written by the agent or taken from the customer's message; shown in queues, emails and search results.
+a priority
+s: How urgently the case needs attention, set by the business impact of the issue.
+u: Chosen at triage by the agent; it orders queues and triggers escalation, separately from SLA clocks.
+v LOW: Little impact; can be handled when capacity allows.
+v NORMAL: Standard urgency, handled in the ordinary course.
+v HIGH: Elevated business impact; handled ahead of normal work.
+v URGENT: Serious impact; immediate attention is required.
+a status
+s: The stage the case has reached from intake through investigation to closure.
+u: Starts as OPEN and is moved by the assigned agent; it drives SLA measurement, customer messages and reports.
+v OPEN: The case has been accepted and is waiting to be worked.
+v IN_PROGRESS: Active investigation or coordination is taking place.
+v PENDING: Progress is waiting on the customer, a supplier or another dependency.
+v RESOLVED: A resolution has been recorded and awaits confirmation and closure.
+v CLOSED: The case is formally complete and kept as historical evidence.
+v CANCELLED: The case was withdrawn through the governed workflow.

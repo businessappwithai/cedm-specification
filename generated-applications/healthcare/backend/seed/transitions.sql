@@ -310,34 +310,34 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('7407fd3e-6160-580e-942b-09e6b2623b25', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: ACTIVE → DECEASED (mark_deceased)
+-- HealthcarePatientLifecycle: ACTIVE → INACTIVE (deactivate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4d0b558b-8bef-5e16-8fb7-bb65d491b545', 'bus_healthcare_patient', 'status', 'ACTIVE', 'DECEASED', 'mark_deceased', TRUE, NOW())
+VALUES ('64fa1d71-e6f3-5fd1-9224-cc3e2fc3acb3', 'bus_healthcare_patient', 'status', 'ACTIVE', 'INACTIVE', 'deactivate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: DECEASED → MERGED (mark_merged)
+-- HealthcarePatientLifecycle: INACTIVE → ACTIVE (reactivate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3ac1ebf8-997d-53f9-b6c7-618322f5b66b', 'bus_healthcare_patient', 'status', 'DECEASED', 'MERGED', 'mark_merged', TRUE, NOW())
+VALUES ('0e0d6209-05ad-563d-9702-f36c5adf9e77', 'bus_healthcare_patient', 'status', 'INACTIVE', 'ACTIVE', 'reactivate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: DECEASED → INACTIVE (deactivate)
+-- HealthcarePatientLifecycle: ACTIVE → DECEASED (record_death)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('34cf2885-215b-519e-8ec8-75eb7b471e59', 'bus_healthcare_patient', 'status', 'DECEASED', 'INACTIVE', 'deactivate', TRUE, NOW())
+VALUES ('4d0b558b-8bef-5e16-8fb7-bb65d491b545', 'bus_healthcare_patient', 'status', 'ACTIVE', 'DECEASED', 'record_death', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: INACTIVE → DECEASED (reactivate)
+-- HealthcarePatientLifecycle: INACTIVE → DECEASED (record_death)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b0b27ec4-f040-5a11-b2fd-fa703e20e2f6', 'bus_healthcare_patient', 'status', 'INACTIVE', 'DECEASED', 'reactivate', TRUE, NOW())
+VALUES ('b0b27ec4-f040-5a11-b2fd-fa703e20e2f6', 'bus_healthcare_patient', 'status', 'INACTIVE', 'DECEASED', 'record_death', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: MERGED → INACTIVE (deactivate)
+-- HealthcarePatientLifecycle: ACTIVE → MERGED (merge)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('07472606-e044-5124-9b3c-3463b5dc8adc', 'bus_healthcare_patient', 'status', 'MERGED', 'INACTIVE', 'deactivate', TRUE, NOW())
+VALUES ('3894ab6a-aaf9-5503-9929-9fabf8c2308f', 'bus_healthcare_patient', 'status', 'ACTIVE', 'MERGED', 'merge', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- HealthcarePatientLifecycle: INACTIVE → MERGED (reactivate)
+-- HealthcarePatientLifecycle: INACTIVE → MERGED (merge)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('380ac270-2c32-5e62-9e8c-48210829606a', 'bus_healthcare_patient', 'status', 'INACTIVE', 'MERGED', 'reactivate', TRUE, NOW())
+VALUES ('380ac270-2c32-5e62-9e8c-48210829606a', 'bus_healthcare_patient', 'status', 'INACTIVE', 'MERGED', 'merge', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HealthcareProviderLifecycle: ACTIVE → INACTIVE (deactivate)
@@ -662,10 +662,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('f42f38de-4e1d-5d5a-b778-15aa58025cbe', 'bus_healthcare_patient', 'status', 'INACTIVE', FALSE, FALSE, 20, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('96ef8ab8-41f0-565e-8a34-205a69097ba1', 'bus_healthcare_patient', 'status', 'DECEASED', FALSE, FALSE, 30, TRUE, NOW())
+VALUES ('96ef8ab8-41f0-565e-8a34-205a69097ba1', 'bus_healthcare_patient', 'status', 'DECEASED', FALSE, TRUE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('57929104-c7cf-5efd-9dcc-4299e814c4a3', 'bus_healthcare_patient', 'status', 'MERGED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('57929104-c7cf-5efd-9dcc-4299e814c4a3', 'bus_healthcare_patient', 'status', 'MERGED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- HealthcareProviderLifecycle: states

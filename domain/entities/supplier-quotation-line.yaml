@@ -7,31 +7,40 @@ entity:
     icon: factory
   identity: {key: supplierQuotationLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: supplierQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of one supplier offer line., businessMeaning: Identifies one commercial response independently of header and order conversion., usage: "Comparison, negotiation, award, and audit.", relationshipContext: Connects an RFQ requirement to resulting order lines., requiredMeaning: Required.}}
-  - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: Sequence within the supplier quotation., businessMeaning: Human-facing offer-line reference., usage: Comparison and supplier communication., relationshipContext: Unique within SupplierQuotation., requiredMeaning: Required.}}
-  - {name: offeredQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity the supplier offers to provide., businessMeaning: States supply coverage for the RFQ requirement., usage: Award allocation and order conversion., relationshipContext: Interpreted using UnitOfMeasure., requiredMeaning: Required.}}
-  - {name: unitPrice, type: Money, required: true, help: {summary: Transaction-time offered unit price., businessMeaning: Preserves the supplier's commercial offer for comparison and later verification., usage: "Bid analysis, negotiation, award, and purchase-order pricing.", relationshipContext: Historical offer evidence rather than mutable supplier master pricing., requiredMeaning: Required.}}
-  - {name: promisedDate, type: date, required: false, help: {summary: Supplier's offered delivery or completion date., businessMeaning: Records the delivery promise used during award evaluation., usage: Lead-time comparison and order conversion., relationshipContext: Distinct from actual receipt date., optionalMeaning: Optional when no date is offered.}}
-  - name: awardStatus
-    type: enum
-    required: true
-    default: PENDING
-    values: [PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED]
-    help: {summary: Award state of this offer line., businessMeaning: Records whether and to what extent this response was selected., usage: Award workflow and split sourcing., relationshipContext: Selection authorizes conversion but does not itself create a PurchaseOrderLine., valueSemantics: {PENDING: Not yet decided., ACCEPTED: Selected for the governed quantity., PARTIALLY_ACCEPTED: Selected for part of offered quantity., REJECTED: Not selected.}, requiredMeaning: Required.}
+    - {name: supplierQuotationLineId, type: uuid, required: true, immutable: true, help: {summary: "The permanent system identity of one line of a supplier's quotation, unaffected by renumbering or later edits.", usage: 'Generated on creation and never changed; award decisions, order lines and audit entries refer to the offer line through it.', businessMeaning: Identifies one commercial response independently of header and order conversion., relationshipContext: Connects an RFQ requirement to resulting order lines.}}
+    - {name: lineNumber, type: integer, required: true, minimum: 1, help: {summary: 'The position of this line within its supplier quotation, matching how the supplier laid out its offer.', usage: 'Entered or assigned in sequence; unique within the quotation, and quoted when comparing bids or discussing a line with the supplier.', businessMeaning: Human-facing offer-line reference., relationshipContext: Unique within SupplierQuotation.}}
+    - {name: offeredQuantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: 'How much of the requested item the supplier commits to supply at the quoted price, in the stated unit of measure.', usage: "Entered from the supplier's response; it may be less than the requested quantity, and the award allocates against it.", businessMeaning: States supply coverage for the RFQ requirement., relationshipContext: Interpreted using UnitOfMeasure.}}
+    - {name: unitPrice, type: Money, required: true, help: {summary: 'The price per unit of measure the supplier quoted, kept as offer evidence in the currency it was quoted.', usage: 'Entered from the response; compared across bidders, negotiated, and copied to the order line on award without reading supplier master prices.', businessMeaning: Preserves the supplier's commercial offer for comparison and later verification., relationshipContext: Historical offer evidence rather than mutable supplier master pricing.}}
+    - {name: promisedDate, type: date, required: false, help: {summary: The date by which the supplier says it will deliver or complete the offered quantity., usage: Entered from the response; used to compare lead times between bidders and to set the expected date on any resulting order line., businessMeaning: Records the delivery promise used during award evaluation., relationshipContext: Distinct from actual receipt date.}}
+    - name: awardStatus
+      type: enum
+      required: true
+      default: PENDING
+      values: [PENDING, ACCEPTED, PARTIALLY_ACCEPTED, REJECTED]
+      help:
+        summary: How far the buyer has selected this offer line, from awaiting decision through full or partial acceptance to rejection.
+        usage: Updated by the sourcing team during award; accepted quantities may then be converted into purchase order lines, split across suppliers where needed.
+        valueSemantics:
+          PENDING: The offer line has been received but no award decision has been made yet.
+          ACCEPTED: The offer line is selected in full and may be converted to a purchase order line.
+          PARTIALLY_ACCEPTED: Only part of the offered quantity is selected, with the remainder awarded elsewhere or not needed.
+          REJECTED: The offer line was not selected and will not produce a purchase commitment.
+        businessMeaning: Records whether and to what extent this response was selected.
+        relationshipContext: Selection authorizes conversion but does not itself create a PurchaseOrderLine.
   relationships:
-  - {name: supplierQuotation, target: SupplierQuotation, cardinality: "1", ownership: reference, inverse: lines, help: {summary: Parent supplier offer., businessMeaning: "Supplies supplier, validity, and response lifecycle.", usage: Sourcing governance and audit., cardinalityMeaning: Exactly one parent quotation., workflowRole: Controls offer eligibility.}}
-  - {name: requestForQuotationLine, target: RequestForQuotationLine, cardinality: '1', ownership: reference, help: {summary: Exact sourcing requirement answered., businessMeaning: Enables like-for-like line comparison., usage: Award analysis and traceability., cardinalityMeaning: Exactly one RFQ line is answered., workflowRole: Supplies requested product and quantity context.}}
-  - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product offered., businessMeaning: Confirms or proposes the item satisfying the requirement., usage: Technical/commercial comparison., cardinalityMeaning: Optional for service/free-text requirements., workflowRole: Must satisfy approved substitution policy.}}
-  - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: 0..1, ownership: reference, help: {summary: Unit qualifying offered quantity and price., businessMeaning: Makes offer quantities commercially comparable., usage: Normalization and order conversion., cardinalityMeaning: Optional only where unambiguous., workflowRole: Conversion must use governed UOM rules.}}
-  - {name: purchaseOrderLines, target: PurchaseOrderLine, cardinality: 0..*, ownership: reference, help: {summary: Purchase commitments created from this awarded offer line., businessMeaning: Preserves offer-to-order-line provenance., usage: Commercial verification and audit., cardinalityMeaning: Split awards may produce multiple order lines., workflowRole: PurchaseOrderLine executes approved commitment.}}
+    - {name: supplierQuotation, target: SupplierQuotation, cardinality: "1", ownership: reference, inverse: lines, help: {summary: Parent supplier offer., businessMeaning: "Supplies supplier, validity, and response lifecycle.", usage: Sourcing governance and audit., cardinalityMeaning: Exactly one parent quotation., workflowRole: Controls offer eligibility.}}
+    - {name: requestForQuotationLine, target: RequestForQuotationLine, cardinality: '1', ownership: reference, help: {summary: Exact sourcing requirement answered., businessMeaning: Enables like-for-like line comparison., usage: Award analysis and traceability., cardinalityMeaning: Exactly one RFQ line is answered., workflowRole: Supplies requested product and quantity context.}}
+    - {name: product, target: Product, cardinality: 0..1, ownership: reference, help: {summary: Product offered., businessMeaning: Confirms or proposes the item satisfying the requirement., usage: Technical/commercial comparison., cardinalityMeaning: Optional for service/free-text requirements., workflowRole: Must satisfy approved substitution policy.}}
+    - {name: unitOfMeasure, target: UnitOfMeasure, cardinality: 0..1, ownership: reference, help: {summary: Unit qualifying offered quantity and price., businessMeaning: Makes offer quantities commercially comparable., usage: Normalization and order conversion., cardinalityMeaning: Optional only where unambiguous., workflowRole: Conversion must use governed UOM rules.}}
+    - {name: purchaseOrderLines, target: PurchaseOrderLine, cardinality: 0..*, ownership: reference, help: {summary: Purchase commitments created from this awarded offer line., businessMeaning: Preserves offer-to-order-line provenance., usage: Commercial verification and audit., cardinalityMeaning: Split awards may produce multiple order lines., workflowRole: PurchaseOrderLine executes approved commitment.}}
   invariants:
-  - {id: SUPPLIER-QUOTATION-LINE-001, rule: offeredQuantity must be greater than zero.}
-  - {id: SUPPLIER-QUOTATION-LINE-002, rule: lineNumber must be unique within SupplierQuotation.}
-  - {id: SUPPLIER-QUOTATION-LINE-003, rule: Product and UOM must be compatible with RequestForQuotationLine or governed substitution/conversion evidence must exist.}
-  - {id: SUPPLIER-QUOTATION-LINE-004, rule: Accepted quantity across resulting PurchaseOrderLines must not exceed the governed awarded quantity except by authorized amendment.}
-  - {id: SUPPLIER-QUOTATION-LINE-005, rule: "Historical offered price, quantity and delivery promise must not be silently rewritten after evaluation."}
-  - {id: SUPPLIER-QUOTATION-LINE-EXE-001, rule: "Offered Quantity cannot be negative.", violatedWhen: "offered_quantity != null and offered_quantity < 0", message: "Offered Quantity cannot be negative."}
-  - {id: SUPPLIER-QUOTATION-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
+    - {id: SUPPLIER-QUOTATION-LINE-001, rule: offeredQuantity must be greater than zero.}
+    - {id: SUPPLIER-QUOTATION-LINE-002, rule: lineNumber must be unique within SupplierQuotation.}
+    - {id: SUPPLIER-QUOTATION-LINE-003, rule: Product and UOM must be compatible with RequestForQuotationLine or governed substitution/conversion evidence must exist.}
+    - {id: SUPPLIER-QUOTATION-LINE-004, rule: Accepted quantity across resulting PurchaseOrderLines must not exceed the governed awarded quantity except by authorized amendment.}
+    - {id: SUPPLIER-QUOTATION-LINE-005, rule: "Historical offered price, quantity and delivery promise must not be silently rewritten after evaluation."}
+    - {id: SUPPLIER-QUOTATION-LINE-EXE-001, rule: "Offered Quantity cannot be negative.", violatedWhen: "offered_quantity != null and offered_quantity < 0", message: "Offered Quantity cannot be negative."}
+    - {id: SUPPLIER-QUOTATION-LINE-EXE-002, rule: "Unit Price cannot be negative.", violatedWhen: "unit_price != null and unit_price < 0", message: "Unit Price cannot be negative."}
   help:
     summary: Line-level supplier offer used for sourcing comparison and controlled conversion to purchase commitment.
     businessMeaning: SupplierQuotationLine is commercial evidence, while PurchaseOrderLine is the binding procurement commitment.

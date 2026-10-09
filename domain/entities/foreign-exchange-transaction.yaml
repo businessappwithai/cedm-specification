@@ -7,18 +7,16 @@ entity:
     icon: file-text
   identity: {key: foreignExchangeTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: foreignExchangeTransactionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of ForeignExchangeTransaction., businessMeaning: Identifies one governed ForeignExchangeTransaction record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: foreignExchangeTransactionId, type: uuid, required: true, immutable: true, help: {summary: The identity of the exchange transaction., usage: Generated on creation; settlement and accounting refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: When the exchange takes effect (the value date)., usage: Set from the deal; cash moves on this date.}}
   relationships: []
   invariants:
-  - {id: FOREIGN-EXCHANGE-TRANSACTION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: FOREIGN-EXCHANGE-TRANSACTION-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties.
-    purpose: Provide canonical enterprise semantics for ForeignExchangeTransaction.
-    businessMeaning: A governed agreement or execution exchanging one currency for another at defined amounts, rate, dates, and counterparties.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: An agreement or execution that exchanges one currency for another at defined amounts, rate, dates and counterparties.
+    businessMeaning: Whenever money changes currency, a rate is fixed and an obligation arises. This record preserves the terms so the gain or loss, the cash movement and the accounting can be explained.
+    usage: Created when a trade is agreed; settled on the value date; read by treasury and accounting.
+    relationshipContext: A transaction exchanges two currencies between counterparties and may be linked to payments and journal entries.
+    lifecycle: Finalised financial evidence is corrected by compensating or superseding records, not edited.
+    example: Buying 1,000,000 EUR for USD at 1.0840 for value in two days.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FOREIGN-EXCHANGE-TRANSACTION}

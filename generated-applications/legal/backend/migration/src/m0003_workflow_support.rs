@@ -489,6 +489,14 @@ ALTER TABLE bus_contract_obligation_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_contract_obligation_status_doc_status ON bus_contract_obligation_status (doc_status);
 
+ALTER TABLE bus_agreement_agreement_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_agreement_agreement_type_doc_status ON bus_agreement_agreement_type (doc_status);
+
 ALTER TABLE bus_renewal_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -951,6 +959,14 @@ ALTER TABLE bus_contract_obligation_obligation_type
 DROP INDEX IF EXISTS idx_bus_contract_obligation_status_doc_status;
 
 ALTER TABLE bus_contract_obligation_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_agreement_agreement_type_doc_status;
+
+ALTER TABLE bus_agreement_agreement_type
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

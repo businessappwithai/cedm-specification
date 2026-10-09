@@ -1,0 +1,39 @@
+@ Country
+u: Read by address forms, tax and trade rules, localization and reports; changed only by an administrator when the ISO registry changes.
+a phoneCode
+s: The international dialling prefix for the country, held without the plus sign, such as 44 or 1.
+u: Used to validate and format telephone numbers entered against addresses and contacts, so the same number reads the same everywhere.
+@ Coverage
+a coverageId
+s: The stable identity of one coverage component within a policy, unchanged for its whole life.
+u: Generated when the coverage is created; claim lines and assessments point to it so the terms applied to a claim stay traceable.
+a coverageCode
+s: The business code naming the type of cover, such as collision, theft or liability.
+u: Chosen from the insurer's product setup when a policy is written; claims are matched to the right cover by this code.
+a description
+s: A plain-language statement of what risk or benefit this coverage protects against.
+u: Written by the underwriter when the policy is set up; read by servicing staff and shown to customers explaining their protection.
+a status
+s: Where the coverage stands: being written, in force, paused, ended by expiry or withdrawn.
+u: Moved by policy administration; only an active coverage lets claims be assessed, while ended ones stay readable for past claims.
+@ Credit
+a status
+s: Whether the credit is being prepared, available to use, used up, or withdrawn.
+u: Moved by billing staff; only an ACTIVE credit can be applied to a charge or invoice.
+v DRAFT: Being prepared by billing; it cannot yet be applied to any charge.
+v ACTIVE: Issued and available to apply against what the customer owes.
+v COMPLETED: Fully applied or expired, so nothing remains to use. A final state.
+v CANCELLED: Withdrawn before it was used up, leaving no usable value. A final state.
+@ CreditNoteApplication
+a exchangeRateId
+s: The exchange rate used to convert between the credit note's currency and the invoice's currency.
+u: Filled only when the two currencies differ; it freezes the conversion so the application can be audited and reproduced later.
+a appliedAt
+s: The date and time the application took effect and began reducing the invoice.
+u: Set when the application is activated; it decides which accounting period and customer statement show the reduction.
+a status
+s: Whether the application is being prepared, currently reducing the invoice, undone, or withdrawn.
+u: Moved by receivables staff; only an ACTIVE application reduces the invoice, and the credit note and invoice keep their own statuses.
+a reversalOfApplicationId
+s: The earlier application that this record undoes, when it is a reversal.
+u: Set when a wrong application is corrected; the original is never edited, so audit sees both the mistake and its correction.

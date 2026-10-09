@@ -310,29 +310,29 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('417e1979-4c25-52dd-8546-dcd003fbfd66', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ERPLifecycle: DRAFT → ACTIVE
+-- ERPLifecycle: DRAFT → ACTIVE (activate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6c385de9-1630-565c-872b-f92665d2ddc4', 'bus_erp', 'status', 'DRAFT', 'ACTIVE', NULL, TRUE, NOW())
+VALUES ('6c385de9-1630-565c-872b-f92665d2ddc4', 'bus_erp', 'status', 'DRAFT', 'ACTIVE', 'activate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ERPLifecycle: ACTIVE → SUSPENDED
+-- ERPLifecycle: ACTIVE → SUSPENDED (suspend)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('30ef4a7c-7c5d-57ba-92cf-fb9301606db9', 'bus_erp', 'status', 'ACTIVE', 'SUSPENDED', NULL, TRUE, NOW())
+VALUES ('30ef4a7c-7c5d-57ba-92cf-fb9301606db9', 'bus_erp', 'status', 'ACTIVE', 'SUSPENDED', 'suspend', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ERPLifecycle: SUSPENDED → ACTIVE
+-- ERPLifecycle: SUSPENDED → ACTIVE (resume)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b52f1b96-7947-5f58-a462-5cbd83ce0416', 'bus_erp', 'status', 'SUSPENDED', 'ACTIVE', NULL, TRUE, NOW())
+VALUES ('b52f1b96-7947-5f58-a462-5cbd83ce0416', 'bus_erp', 'status', 'SUSPENDED', 'ACTIVE', 'resume', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ERPLifecycle: ACTIVE → RETIRED
+-- ERPLifecycle: ACTIVE → RETIRED (retire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e0a32188-d181-519d-a0e6-fb676ecd44e5', 'bus_erp', 'status', 'ACTIVE', 'RETIRED', NULL, TRUE, NOW())
+VALUES ('e0a32188-d181-519d-a0e6-fb676ecd44e5', 'bus_erp', 'status', 'ACTIVE', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- ERPLifecycle: SUSPENDED → RETIRED
+-- ERPLifecycle: SUSPENDED → RETIRED (retire)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('4b7e7213-f9b0-5d68-8973-1498f8622ec2', 'bus_erp', 'status', 'SUSPENDED', 'RETIRED', NULL, TRUE, NOW())
+VALUES ('4b7e7213-f9b0-5d68-8973-1498f8622ec2', 'bus_erp', 'status', 'SUSPENDED', 'RETIRED', 'retire', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- OrganizationMembershipLifecycle: PENDING → ACTIVE (activate)
@@ -430,14 +430,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('2543aa16-e868-51a5-aebb-85a1682b286a', 'bus_business_transaction', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- BusinessTransactionLifecycle: POSTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('62bdec18-aabc-5a21-ada6-d18eb259bef5', 'bus_business_transaction', 'status', 'POSTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- BusinessTransactionLifecycle: POSTED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('4438cdf5-d755-58ed-9b65-c0fe86a1f7c4', 'bus_business_transaction', 'status', 'POSTED', 'REVERSED', 'reverse', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- BusinessTransactionLifecycle: COMPLETED → REVERSED (reverse)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('281c49fc-60f6-5c36-862a-3824a176f959', 'bus_business_transaction', 'status', 'COMPLETED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- PartyLifecycle: states
@@ -580,7 +580,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('558d6421-3c0c-518d-831f-b4e757106032', 'bus_erp', 'status', 'SUSPENDED', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('929e2725-b09f-5cc8-952a-59b86f7f0062', 'bus_erp', 'status', 'RETIRED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('929e2725-b09f-5cc8-952a-59b86f7f0062', 'bus_erp', 'status', 'RETIRED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- OrganizationMembershipLifecycle: states
@@ -639,7 +639,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('c297e4d8-fc3f-54e2-8f70-b8c5b56d0fdf', 'bus_business_transaction', 'status', 'POSTED', FALSE, FALSE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('72e37dd9-0b5a-5648-b39d-9bd8f793355d', 'bus_business_transaction', 'status', 'COMPLETED', FALSE, TRUE, 50, TRUE, NOW())
+VALUES ('72e37dd9-0b5a-5648-b39d-9bd8f793355d', 'bus_business_transaction', 'status', 'COMPLETED', FALSE, FALSE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('fd6ed86e-8e52-5ce1-b120-f5769651519c', 'bus_business_transaction', 'status', 'CANCELLED', FALSE, TRUE, 60, TRUE, NOW())

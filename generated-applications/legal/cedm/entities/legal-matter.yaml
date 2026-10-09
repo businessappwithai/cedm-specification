@@ -7,18 +7,17 @@ entity:
     icon: table
   identity: {key: legalMatterId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: legalMatterId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of LegalMatter., businessMeaning: Identifies one governed LegalMatter record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+    - {name: legalMatterId, type: uuid, required: true, immutable: true, help: {summary: The identity of the matter., usage: 'Generated on opening; cases, costs and documents refer to it.'}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: When the matter was opened or the event that gave rise to it., usage: Set at opening; used to order matters and compute limitation periods.}}
   relationships: []
   invariants:
-  - {id: LEGAL-MATTER-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: LEGAL-MATTER-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
-    summary: A governed legal work matter grouping parties, counsel, documents, obligations, filings, issues, costs, and outcomes.
-    purpose: Provide canonical governance semantics for LegalMatter.
-    businessMeaning: A governed legal work matter grouping parties, counsel, documents, obligations, filings, issues, costs, and outcomes.
-    whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
+    summary: A unit of legal work that groups parties, counsel, documents, obligations, filings, issues, costs and outcomes.
+    businessMeaning: Legal work rarely consists of a single event. A matter is the file that holds everything about one legal issue, so counsel, cost and outcome can be tracked together.
+    usage: Opened when a legal issue arises; filled as filings, documents and cases are added; closed when resolved; read by legal counsel and management.
+    relationshipContext: A matter contains LegalCases and refers to the documents, filings and obligations that belong to it.
+    lifecycle: Finalised evidence and effective history are preserved; settlements and corrections are explicit.
+    example: The dispute with a former supplier over a delivery failure, with a mediation, a court case and a settlement.
     commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
-    commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEGAL-MATTER}

@@ -1,0 +1,141 @@
+@ Lease
+s: A contractual arrangement that gives one party the right to use a property or asset for a defined period in return for payment.
+b: Leasing separates use from ownership. The lease record fixes who may use what, for how long and at what price, which drives rent collection, accounting for the right of use and the obligations at the end.
+u: Created when a lease is agreed; activated at commencement; read by property managers, finance and legal as payments fall due and the end date approaches.
+c: A lease is between a lessor and a lessee (both Parties), usually concerns a Property, and may rest on a Contract.
+l: A lease is drafted, becomes active at commencement, may be suspended, and ends expired, terminated early or cancelled if never started.
+x: A five-year commercial lease of a warehouse unit, at 4,800 per month, starting 1 April.
+a leaseId
+s: The identity of the lease.
+u: Generated on creation; payment schedules and notices refer to it.
+a leaseNumber
+s: The reference number of the lease.
+u: Allocated by the lessor; unique; quoted on invoices and notices.
+a leaseType
+s: The kind of lease, which decides accounting and legal treatment.
+u: Chosen at creation.
+v OPERATING: A lease where the lessor keeps the risks and rewards of ownership.
+v FINANCE: A lease that transfers substantially all the risks and rewards of ownership to the lessee.
+v COMMERCIAL: A lease of business premises.
+v RESIDENTIAL: A lease of a home.
+v EQUIPMENT: A lease of machinery or vehicles.
+v OTHER: Any other lease.
+a startDate
+s: The date the lease starts.
+u: Taken from the agreement; payments and obligations run from it.
+a endDate
+s: The date the lease ends.
+u: Taken from the agreement; must not be before the start date. Empty for an open-ended lease.
+a status
+s: Where the lease stands.
+u: Moved by the lessor or property manager.
+v DRAFT: Being negotiated or prepared.
+v ACTIVE: In force.
+v SUSPENDED: Paused, for example during a dispute or an agreed rent holiday.
+v EXPIRED: Ran to its end date. A final state.
+v TERMINATED: Ended early. A final state.
+v CANCELLED: Withdrawn before it started. A final state.
+a periodicAmount
+s: The rent or payment due each period.
+u: Taken from the agreement; not negative. The billing schedule applies it.
+r property
+s: The property that is leased.
+u: Chosen when the lease is created.
+n: At most one property; an equipment lease has none.
+w: Ties the right of use to the premises.
+r lessor
+s: The party that grants the lease.
+u: Set at creation.
+n: Exactly one lessor: the grantor is the other party to the agreement.
+w: Identifies who is paid.
+r lessee
+s: The party that holds the right of use.
+u: Set at creation.
+n: Exactly one lessee.
+w: Identifies who pays and is bound by the lease.
+r contract
+s: The contract the lease is based on.
+u: Linked where a formal agreement exists.
+n: At most one contract.
+w: Brings the contract's terms into force.
+
+@ LeaveRequest
+a leaveRequestId
+s: The identity of the leave request.
+u: Generated on creation; approvals and attendance records refer to it.
+a requestNumber
+s: The reference number of the request.
+u: Allocated on submission; unique; quoted in HR queries.
+a leaveType
+v ANNUAL: Paid holiday.
+v SICK: Absence due to illness.
+v PARENTAL: Leave to care for a new child.
+v UNPAID: Absence without pay.
+v COMPENSATORY: Time off in return for extra hours worked.
+v OTHER: Any other approved absence.
+a endDate
+s: The last day of the absence.
+u: Entered by the employee; must not be before the start date.
+a status
+v DRAFT: Being prepared by the employee.
+v SUBMITTED: Sent for approval.
+v APPROVED: Granted. A final state.
+v REJECTED: Refused. A final state.
+v CANCELLED: Withdrawn by the employee. A final state.
+r employee
+n: Exactly one employee: a leave request is made by a specific person.
+
+@ Ledger
+s: An accounting book that defines the scope in which journal entries are recorded and reported.
+b: A single organisation may keep several books, for example one for local statutory reporting and one for group reporting. The ledger names a book and holds its entries, so figures in one book are never mixed with another.
+u: Created when accounting is set up for an organisation; filled by journal entries; read by accountants and auditors.
+c: A ledger belongs to one Organization and contains JournalEntries. It must not silently duplicate or rewrite authoritative cash, tax or billing records.
+l: A ledger is drafted, becomes active when open for postings, is completed when its books are finally closed, and is cancelled if it was never used.
+x: The statutory ledger of the German subsidiary, active for the current fiscal year.
+a ledgerId
+s: The identity of the ledger.
+u: Generated on creation; entries refer to it.
+a status
+s: Whether the ledger is open for entries.
+u: Moved by finance.
+v DRAFT: Being set up; not yet accepting entries.
+v ACTIVE: Open for posting.
+v COMPLETED: Closed for good after the final period. A final state.
+v CANCELLED: Set up but never used. A final state.
+r organization
+n: Exactly one organisation: a book is kept for a single legal entity.
+r journalEntries
+n: Any number of journal entries, which build up as the books are kept.
+
+@ LegalCase
+s: A litigation, arbitration, administrative or other adjudicative case that forms part of a legal matter.
+b: A legal matter can run through several proceedings. Each case within it has its own forum, parties and timetable, and recording them separately keeps track of what is pending where.
+u: Opened when proceedings begin; updated as the case progresses; read by legal counsel.
+c: Every case belongs to one LegalMatter.
+l: Finalised evidence and effective history are preserved; settlement or supersession is recorded explicitly.
+x: The appeal in a contract dispute, filed at the regional court as a case within the matter.
+a legalCaseId
+s: The identity of the case.
+u: Generated on creation.
+a occurredAt
+s: When the case was opened or the event it records took place.
+u: Set when recorded; used to order the history of the matter.
+r legalMatter
+s: The legal matter this case belongs to.
+u: Set when the case is opened.
+n: Exactly one matter: a case is a proceeding within a single matter.
+w: Collects the case's costs and outcomes with the rest of the matter.
+
+@ LegalEntity
+s: A legally recognised organisation or person that can hold rights and obligations, registrations, contracts, assets, liabilities or filings.
+b: Contracts are signed and taxes are paid by legal entities, not by business units. Knowing exactly which entity is involved determines liability, reporting and registration duties.
+u: Registered when an entity is formed or acquired; referenced by contracts, filings and ledgers.
+c: Contracts, filings and accounting books refer to the legal entity.
+l: Finalised evidence and effective history are preserved; changes such as name changes or mergers are recorded explicitly.
+x: Acme Holdings GmbH, a limited company registered in Germany.
+a legalEntityId
+s: The identity of the legal entity.
+u: Generated on registration.
+a occurredAt
+s: When the entity was formed, or its record took effect.
+u: Set from the registration data.

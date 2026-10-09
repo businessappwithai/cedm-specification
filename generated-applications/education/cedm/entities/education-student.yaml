@@ -11,139 +11,108 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: studentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the student record associated with this EducationStudent. The identifier connects this record to
-        the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
-        where applicable.
-      relationshipContext: Its meaning is specific to EducationStudent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: partyId
-    type: reference
-    target: Party
-    required: true
-    unique: true
-    help:
-      summary: Identifies the related Party associated with this EducationStudent. It provides the link needed to navigate
-        from this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
-        where applicable.
-      relationshipContext: This field connects EducationStudent to Party. The reference establishes business context between
-        the two entities and lets processes navigate from this record to the related Party.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: studentNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of student number for the EducationStudent. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
-        where applicable.
-      relationshipContext: Its meaning is specific to EducationStudent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - APPLICANT
-    - ACTIVE
-    - SUSPENDED
-    - GRADUATED
-    - WITHDRAWN
-    - ALUMNI
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating EducationStudent records,
-        where applicable.
-      relationshipContext: Its meaning is specific to EducationStudent; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        APPLICANT: Represents the applicant state or classification in the context of EducationStudent.
-        ACTIVE: Represents the active state or classification in the context of EducationStudent.
-        SUSPENDED: Represents the suspended state or classification in the context of EducationStudent.
-        GRADUATED: Represents the graduated state or classification in the context of EducationStudent.
-        WITHDRAWN: Represents the withdrawn state or classification in the context of EducationStudent.
-        ALUMNI: Represents the alumni state or classification in the context of EducationStudent.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: studentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the student record.
+        usage: Generated on creation; enrolments, grades and fees refer to it.
+    - name: partyId
+      type: reference
+      target: Party
+      required: true
+      unique: true
+      help:
+        summary: The person or party record that this student is.
+        usage: Set at application so one human being has one identity across roles.
+    - name: studentNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The number the institution gives the student, printed on cards and transcripts.
+        usage: Allocated at admission; unique; used at enquiry desks and in the gradebook.
+    - name: status
+      type: enum
+      required: true
+      default: APPLICANT
+      values:
+        - APPLICANT
+        - ACTIVE
+        - SUSPENDED
+        - GRADUATED
+        - WITHDRAWN
+        - ALUMNI
+      help:
+        summary: The student's standing with the institution.
+        usage: Moved by the registrar and student services; most teaching and billing applies to ACTIVE students.
+        valueSemantics:
+          APPLICANT: Has applied but not yet been admitted.
+          ACTIVE: Admitted and currently studying.
+          SUSPENDED: Temporarily barred from study, for example for discipline or health; may be reinstated.
+          GRADUATED: Has completed the requirements of a program.
+          WITHDRAWN: Left the institution before graduating. A final state.
+          ALUMNI: A former student who graduated and keeps a relationship as alumnus. A final state.
   relationships:
-  - name: party
-    target: Party
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects EducationStudent to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a EducationStudent.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: enrollments
-    target: Enrollment
-    cardinality: 0..*
-    ownership: aggregate
-    help:
-      summary: Connects EducationStudent to Enrollment so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Enrollment records associated with a EducationStudent.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: institution
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects EducationStudent to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a EducationStudent.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: party
+      target: Party
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The party that is the learner.
+        usage: Set at application.
+        cardinalityMeaning: 'Exactly one party: a student is always a specific person.'
+        workflowRole: Keeps personal details in one place across all the person's roles.
+    - name: enrollments
+      target: Enrollment
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The student's enrolments in programs and courses.
+        usage: Read for study history and current load.
+        cardinalityMeaning: Any number over a student's time at the institution.
+        workflowRole: Enrolments are owned by the student record.
+    - name: institution
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The institution at which the student is registered.
+        usage: Set at admission.
+        cardinalityMeaning: At most one institution.
+        workflowRole: Scopes fees, rules and reporting.
+    - {name: guardians, target: Guardian, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: 'Any number of guardians, usually one or two for a minor and none for an adult.', summary: Guardian roles associated with this student., businessMeaning: "Supplies authorized responsibility, communication or sponsorship context without duplicating Party identity.", usage: "Student administration, consent, communication and billing.", workflowRole: Current authority is evaluated independently of historical communications or consent.}}
+    - {name: classes, target: Class, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: Any number of classes over the student's time., summary: Class offerings in which this student participates., businessMeaning: Provides delivery-instance context for attendance and assessment., usage: "Schedules, registers and learner portals.", workflowRole: Membership should reconcile through eligible Enrollment or scheduling policy.}}
+    - {name: attendanceRecords, target: Attendance, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: 'Any number of attendance records, one for each class session.', summary: Attendance evidence recorded for this student., businessMeaning: Preserves actual participation or absence history., usage: "Registers, learner support and reporting.", workflowRole: Class context and student eligibility must reconcile.}}
+    - {name: grades, target: Grade, cardinality: "0..*", ownership: reference, help: {usage: Read to produce transcripts and progression decisions., cardinalityMeaning: "Any number of grades, accumulating over the student's time.", summary: Assessment outcomes recorded for this student., businessMeaning: Preserves learner achievement evidence independently of Assessment definitions., workflowRole: Final grades remain historical evidence.}}
+    - {name: fees, target: Fee, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: Any number of fees charged over the student's time., summary: Education fees assessed to this student., businessMeaning: Connects academic participation to education-specific charges without replacing finance claims., usage: "Student accounts, billing and reporting.", workflowRole: Financial settlement remains reconciled through Invoice and Payment evidence.}}
+
   lifecycle:
     title: Education Student Lifecycle
     attribute: status
     states: [APPLICANT, ACTIVE, SUSPENDED, GRADUATED, WITHDRAWN, ALUMNI]
     initial: APPLICANT
-    terminal: [WITHDRAWN]
+    terminal:
+      - WITHDRAWN
+      - ALUMNI
     transitions:
-      - {from: APPLICANT, to: ACTIVE, action: activate}
-      - {from: ACTIVE, to: GRADUATED, action: mark_graduated}
-      - {from: GRADUATED, to: ALUMNI, action: mark_alumni}
-      - {from: ACTIVE, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: ACTIVE, action: resume}
-      - {from: GRADUATED, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: GRADUATED, action: resume}
-      - {from: ALUMNI, to: SUSPENDED, action: suspend}
-      - {from: SUSPENDED, to: ALUMNI, action: resume}
+      - {from: APPLICANT, to: ACTIVE, action: admit}
       - {from: APPLICANT, to: WITHDRAWN, action: withdraw}
+      - {from: ACTIVE, to: SUSPENDED, action: suspend}
+      - {from: SUSPENDED, to: ACTIVE, action: reinstate}
+      - {from: ACTIVE, to: GRADUATED, action: graduate}
+      - {from: GRADUATED, to: ALUMNI, action: make_alumnus}
       - {from: ACTIVE, to: WITHDRAWN, action: withdraw}
-      - {from: GRADUATED, to: WITHDRAWN, action: withdraw}
-      - {from: ALUMNI, to: WITHDRAWN, action: withdraw}
       - {from: SUSPENDED, to: WITHDRAWN, action: withdraw}
   help:
-    summary: Represents a education entity called EducationStudent within the CEDM business model.
-    businessMeaning: EducationStudent is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate EducationStudent records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Party, Enrollment, Organization.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical EducationStudent record represents one identifiable business occurrence or master-data object that
-      can be referenced by related CEDM processes.
+    summary: A learner who is enrolled, or eligible to enrol, at an educational institution or in one of its programs.
+    businessMeaning: "The student record is the institution's view of a learner as a learner: their student number, standing and history of study. It is separate from the person, who may also be an employee, a parent or a customer."
+    usage: Created at application; updated as the student is admitted, studies, graduates or leaves; read by admissions, teachers, finance and the registrar.
+    relationshipContext: A student is a Party, belongs to an institution (Organization), enrols through Enrollments, takes Classes, earns Grades, has Attendance records and Fees, and may have Guardians.
+    lifecycle: A student begins as an applicant and becomes active when admitted. Active students may be suspended and reinstated, graduate and later become alumni, or withdraw at any point before graduating.
+    example: Student 20260417, admitted to the engineering program in September, suspended for a term for medical reasons and reinstated.
 specification:
   version: 0.1.0
   status: draft

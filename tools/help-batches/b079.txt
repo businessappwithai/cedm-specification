@@ -1,0 +1,171 @@
+@ UsageRecord
+s: A fixed record of measured usage, either a single event or an aggregate, used for usage-based entitlement and billing.
+b: A usage record is the evidence of how much a customer consumed, such as minutes or gigabytes. It feeds billing and entitlement checks and, because it is never rewritten, can be shown to the customer if a charge is queried.
+u: Created by metering systems; read by billing and customer support.
+c: A usage record may relate to a customer.
+l: A record is drafted and becomes active when confirmed, then completed once billed. It may be cancelled if recorded in error. Completed and cancelled are final.
+x: 1,240 call minutes used by a customer in March are recorded as one usage record.
+a usageRecordId
+s: The identity of the usage record, constant for its life.
+b: Lets invoice lines point at the exact usage they charged for.
+u: Generated on creation.
+c: Referenced by billing lines.
+a status
+s: Where the record is in billing.
+b: Shows whether usage has been confirmed and charged.
+u: Starts as DRAFT; moved by metering and billing.
+c: Only active records are charged.
+v DRAFT: Received and not yet confirmed.
+v ACTIVE: Confirmed and waiting to be billed.
+v COMPLETED: Billed. A final state.
+v CANCELLED: Discarded as recorded in error. A final state.
+r customer
+s: The customer whose usage it is.
+u: Chosen from the metered account.
+n: At most one customer; empty until matched.
+w: Decides whom to charge.
+
+@ Variance
+s: A comparison between planned, forecast or actual financial measures for a period and dimension.
+b: A variance shows how far reality is from the plan and in which direction. It lets managers see where budget is overspent or revenue falls short, without altering the accounting entries it is derived from.
+u: Calculated by finance or the planning system; read by managers and budget owners.
+c: A variance belongs to an organisation and compares a budget or a forecast with actuals.
+l: A variance is calculated for a period and recalculated as actuals arrive. It never changes the entries it compares.
+x: Marketing spend is 12 percent over budget for March.
+a varianceId
+s: The identity of the variance, constant for its life.
+b: Lets reports point at the comparison.
+u: Generated on creation.
+c: Referenced by review reports.
+a code
+s: The code of the variance, such as VAR-2026-03-MKT.
+b: Gives reviewers a stable reference.
+u: Used in reports.
+c: Read with the period.
+r organization
+s: The organisation the comparison is for.
+u: Chosen when created.
+n: Exactly one organisation.
+w: Decides whose budget is measured.
+r budget
+s: The budget used as the plan.
+u: Chosen when comparing with budget.
+n: At most one budget.
+w: Provides the planned figure.
+r forecast
+s: The forecast used as the expectation.
+u: Chosen when comparing with forecast.
+n: At most one forecast; empty if only a budget is used.
+w: Provides the expected figure.
+
+@ Vehicle
+s: A vehicle or piece of transport equipment used to carry out logistics movements.
+b: Vehicles are the assets that move goods and containers. Recording each with its type, capacity and state lets dispatch know what is available, and lets movements, drivers and fuel be tied to the vehicle.
+u: Maintained by fleet managers; chosen on movements and trips; read by dispatch.
+c: A vehicle may have an operator and a home location, makes movements, and has drivers and fuel purchases.
+l: A vehicle is active while in service, goes to maintenance and returns, may be out of service, and is retired when disposed of. Retired is final.
+x: Truck LK21 ABC, a 24-tonne curtainsider based at the Leeds depot.
+a vehicleId
+s: The identity of the vehicle, constant for its life.
+u: Generated on creation; movements and fuel refer to it.
+c: Referenced by movements and trip legs.
+a registrationNumber
+s: The registration or plate number.
+u: Unique; used on documents and checks.
+c: Read with the type.
+a vehicleType
+s: The kind of vehicle.
+u: Chosen on creation; dispatch matches loads to it.
+c: Read with capacity.
+v TRUCK: A road lorry.
+v TRACTOR: A tractor unit that pulls a trailer.
+v TRAILER: A trailer without its own power.
+v FORKLIFT: A forklift truck for yard and warehouse use.
+v CRANE: A crane for lifting loads.
+v OTHER: A vehicle of another kind.
+a capacity
+s: The load the vehicle can carry.
+u: Must not be negative; dispatch checks loads against it.
+c: Compared with the weight of the shipment.
+a status
+s: Whether the vehicle is available.
+u: Starts as ACTIVE; moved by fleet managers.
+v ACTIVE: Available for use.
+v MAINTENANCE: In the workshop.
+v OUT_OF_SERVICE: Not usable, for example after a breakdown.
+v RETIRED: Disposed of. A final state.
+r operator
+s: The party that operates the vehicle.
+u: Chosen when operated by a contractor.
+n: At most one operator.
+t: Decides who is responsible for it.
+r location
+s: The place the vehicle is based or currently at.
+u: Updated as it moves.
+n: At most one location.
+t: Used to plan pickups.
+r movements
+s: The container movements the vehicle carried out.
+u: Read to see its work.
+n: Any number of movements.
+t: Show its usage.
+
+@ VehicleModel
+s: A manufacturer's model and configuration family for vehicles.
+b: The model describes what a vehicle is, such as make, model and year, so the same facts are not repeated on every vehicle and fleets can be analysed by model.
+u: Maintained by fleet or product managers; chosen when vehicles are registered.
+c: A model may be sold as a product and has vehicles of that model.
+l: A model is planned, active while produced or supported, and discontinued when withdrawn. Discontinued is final.
+x: The "Transit 350" from a van maker, model year 2026.
+a vehicleModelId
+s: The identity of the model, constant when it is renamed.
+u: Generated on creation; vehicles refer to it.
+c: Referenced by each vehicle of the model.
+a manufacturer
+s: The maker of the vehicle.
+u: Entered once for the model.
+c: Read with the model name.
+a modelName
+s: The name the maker gives the model.
+u: Shown in lists.
+c: Read with the manufacturer.
+a modelCode
+s: The code of the model.
+u: Unique; used in imports.
+c: Read with the year.
+a modelYear
+s: The model year.
+u: Entered when different years are distinguished.
+c: Read with the code.
+a status
+s: Whether the model is current.
+u: Starts as PLANNED.
+v PLANNED: Announced and not yet available.
+v ACTIVE: Current.
+v DISCONTINUED: No longer made or supported. A final state.
+r product
+s: The product that sells this model.
+u: Chosen when the model is sold.
+n: At most one product.
+t: Links catalogue and fleet.
+r vehicles
+s: The vehicles of this model.
+u: Read to list the fleet by model.
+n: Any number of vehicles.
+t: Show how many are in service.
+
+@ Vessel
+a vesselId
+s: The identity of the vessel, constant for its life.
+a name
+s: The name of the vessel.
+
+@ Voyage
+a voyageId
+s: The identity of the voyage, constant for its life.
+a status
+s: Where the voyage is.
+r vessel
+n: A voyage is made by exactly one vessel.
+r containerVisits
+n: Any number of container visits are linked to a voyage.

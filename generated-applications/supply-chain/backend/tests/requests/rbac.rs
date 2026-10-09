@@ -1,6 +1,6 @@
 //! What the model's access rules compile to, enforced on the request.
 //!
-//! Generated: 2026-10-04T08:31:11.541Z
+//! Generated: 2026-10-09T15:30:46.822Z
 //! Project: supply-chain
 //!
 //! Every other suite in this crate signs in as the seeded administrator, who
@@ -709,6 +709,83 @@ async fn the_dashboard_scope_agrees_with_the_request_guard() {
             "every entity was served, so this run proved only that the two agree \
              when nothing is refused"
         );
+    })
+    .await;
+}
+
+/// Switching an account, or its role, off withdraws the access it was granted.
+///
+/// `sys_access` is read through `sys_user_roles`, and none of the three rows on
+/// that path used to be consulted for being switched on — so deactivating an
+/// account took its menu away and left `/api/bus/*` open to the token it
+/// already held. Same shape as the other tests here: the same caller and the
+/// same request, answered differently as one flag changes.
+#[tokio::test]
+#[serial]
+async fn deactivating_an_account_or_its_role_withdraws_its_access() {
+    support::with_app(|request, ctx, _admin_token| async move {
+        let Some(entity) = ENTITIES.first() else {
+            return;
+        };
+        let pool = ctx.db.get_postgres_connection_pool();
+        let path = format!("/api/bus/{}", entity.route);
+
+        clear_rules(pool, entity.table_name).await;
+        let Some(token) = granted_probe(&request, pool, entity.table_name).await else {
+            return;
+        };
+        let read = || async {
+            request
+                .get(&path)
+                .add_header("authorization", bearer(&token))
+                .await
+                .status_code()
+                .as_u16()
+        };
+
+        let granted = read().await;
+
+        // The role first: the grant is the role's, and the account is untouched.
+        sqlx::query("UPDATE sys_role SET is_active = FALSE WHERE name = $1")
+            .bind(PROBE_ROLE)
+            .execute(pool)
+            .await
+            .expect("deactivating the role");
+        let role_off = read().await;
+        sqlx::query("UPDATE sys_role SET is_active = TRUE WHERE name = $1")
+            .bind(PROBE_ROLE)
+            .execute(pool)
+            .await
+            .expect("reactivating the role");
+        let role_back = read().await;
+
+        // Then the account, which holds a perfectly good role.
+        sqlx::query("UPDATE sys_user SET is_active = FALSE WHERE name = 'RBAC Probe'")
+            .execute(pool)
+            .await
+            .expect("deactivating the accounts");
+        let account_off = read().await;
+        // Locked is the other way to switch it off.
+        sqlx::query(
+            "UPDATE sys_user SET is_active = TRUE, is_locked = TRUE WHERE name = 'RBAC Probe'",
+        )
+        .execute(pool)
+        .await
+        .expect("locking the accounts");
+        let account_locked = read().await;
+        sqlx::query("UPDATE sys_user SET is_locked = FALSE WHERE name = 'RBAC Probe'")
+            .execute(pool)
+            .await
+            .expect("unlocking the accounts");
+
+        assert_eq!(granted, 200, "the probe was never granted access");
+        assert_eq!(role_off, 403, "an inactive role still grants access");
+        assert_eq!(
+            role_back, 200,
+            "reactivating the role did not restore access"
+        );
+        assert_eq!(account_off, 403, "an inactive account still reaches data");
+        assert_eq!(account_locked, 403, "a locked account still reaches data");
     })
     .await;
 }

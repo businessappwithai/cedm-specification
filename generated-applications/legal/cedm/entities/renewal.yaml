@@ -7,16 +7,23 @@ entity:
     icon: table
   identity: {key: renewalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Renewal., businessMeaning: Identifies one governed Renewal record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Renewal., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: renewalId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the renewal, constant for its life.', usage: Generated on creation; billing and entitlement records refer to it.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: The stage the renewal has reached on the way to a new term.
+        usage: Starts as DRAFT and is moved by account management as the customer is approached and a decision is reached; filters renewal pipeline reports.
+        valueSemantics:
+          DRAFT: Being prepared by account management; nothing has been offered or committed to the customer.
+          ACTIVE: Offered to or confirmed with the customer and now being carried out.
+          COMPLETED: The new term is in place and the entitlement continues. A final state.
+          CANCELLED: The customer chose not to continue, so no new term starts. A final state.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+    - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer whose subscription is being renewed., usage: Chosen when the renewal is created., cardinalityMeaning: At most one customer; empty until identified., workflowRole: Decides whom to invoice and contact.}}
   invariants:
-  - {id: RENEWAL-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: RENEWAL-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Renewal Lifecycle
     attribute: status
@@ -48,12 +55,10 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
-    purpose: Provide canonical enterprise semantics for Renewal while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed subscription or service continuation event extending commercial entitlement into a subsequent term.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A subscription or service continuation that extends a customer's entitlement into the next term.
+    businessMeaning: A renewal is the decision point at the end of a term. Recording it lets the business offer, confirm and track continuation, and decide whether the customer keeps the service, without altering the billing or entitlement records that carry out the result.
+    usage: Created by account management ahead of the term end; read by sales, finance and support.
+    relationshipContext: A renewal concerns one customer and the subscription or service being continued.
+    lifecycle: A renewal is drafted, becomes active while it is being worked, and completes when the new term is in place. It is cancelled if the customer does not continue.
+    example: In October the "Platform Premium" renewal for a customer is drafted, confirmed in November and completed when the new term starts.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RENEWAL}

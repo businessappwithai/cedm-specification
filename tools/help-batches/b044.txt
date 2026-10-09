@@ -1,0 +1,152 @@
+@ ProjectCost
+r project
+n: Every cost is charged to a single project, so it can never be split across two budgets.
+
+@ ProjectTask
+s: A unit of work within a project, with an owner, dates, a priority and a measure of progress.
+b: Tasks break a project into work people can be assigned, scheduled and held to. Their status and percent complete roll up into how far the project has progressed and show what is blocked.
+u: Created by the project manager or team; updated by the assignee as work proceeds; read in plans and boards.
+c: A task belongs to a project, may have an assignee, a parent task and a milestone, and may carry project costs.
+l: A task starts not started, moves to in progress, may be blocked and resumed, and ends completed or cancelled. Completed and cancelled are final.
+x: Task "Install conveyor controls" in PRJ-0042 is assigned to a technician, due 20 June, and is 60 percent complete.
+a projectTaskId
+s: The identity of the task, constant for its life.
+u: Generated on creation; costs and child tasks refer to it.
+c: Referenced by costs and by sub-tasks.
+a taskCode
+s: The code of the task within the project, such as T-014.
+u: Used to refer to the task in plans and time booking.
+c: Read with the project code to identify the task.
+a name
+s: A short statement of the work.
+u: Shown on boards and in schedules.
+c: Read by the assignee and the reviewer.
+a status
+s: Where the task is in its work.
+u: Starts as NOT_STARTED; changed by the assignee.
+c: Rolled up to show project progress.
+v NOT_STARTED: Planned but no work has begun.
+v IN_PROGRESS: Work is under way.
+v BLOCKED: Waiting on something; cannot proceed until resolved.
+v COMPLETED: The work is done. A final state.
+v CANCELLED: Dropped from the plan. A final state.
+a priority
+s: How urgent the task is relative to others.
+u: Set when planned; used to order work and to escalate.
+c: Read alongside the due date when scheduling.
+v LOW: Can wait without affecting delivery.
+v NORMAL: Ordinary priority.
+v HIGH: Should be done ahead of normal work.
+v CRITICAL: Delays the project if not done now.
+a startDate
+s: The date work on the task is due to start.
+u: Set when scheduled; used to order tasks.
+c: Compared with the project and phase dates.
+a dueDate
+s: The date the task is due to finish.
+u: Must not be before the start date; reported when overdue.
+c: Compared with its milestone date.
+a percentComplete
+s: How much of the task is done, from 0 to 100.
+u: Updated by the assignee; must stay between 0 and 100; rolls up to project progress.
+c: Averaged with other tasks to give the progress of a phase or project.
+r project
+s: The project the task belongs to.
+u: Chosen when the task is created.
+n: Exactly one project; a task has no life outside its project.
+t: Places the work in the project's plan and budget.
+r assignee
+s: The person responsible for doing the task.
+u: Chosen when work is assigned.
+n: At most one assignee; empty until assigned.
+t: Decides whose list the task appears on.
+r parentTask
+s: The task this one is a part of.
+u: Chosen to break a large task into steps.
+n: At most one parent; a top-level task has none.
+t: Builds the task hierarchy so progress can roll up.
+r milestone
+s: The milestone this task contributes to.
+u: Chosen when the task is part of reaching a key date.
+n: At most one milestone; empty if none applies.
+t: Links day-to-day work to the dates the project is judged by.
+r projectCosts
+n: Any number of cost records can be charged to a task.
+
+@ Promotion
+s: A time-limited commercial offer that changes price, benefit, bundle or fulfilment terms for eligible customers without rewriting base pricing.
+b: A promotion lets the business run offers such as a seasonal discount, a bundle or free delivery, for a defined period and audience. Because it sits beside base pricing, ending it restores normal prices and the history of what each order received is kept.
+u: Defined by marketing or commercial staff; applied by order and pricing processes; read by sales and finance reporting.
+c: A promotion is applied to orders and invoices that qualify and is described by its code and terms.
+l: A promotion is drafted, approved, runs for its period and then ends. What it already applied stays on those orders.
+x: The "Spring 10" promotion gives ten percent off garden products from 1 to 30 April.
+a promotionId
+s: The identity of the promotion, constant for its life.
+u: Generated on creation; orders and reports refer to it.
+c: Referenced by the discounts and benefits it applied.
+a code
+s: The short code of the promotion, such as SPRING10.
+u: Entered by customers or staff where a code is needed; unique.
+c: Quoted on orders that received the offer.
+
+@ Property
+s: A real estate asset managed, owned, leased, developed or sold by the business.
+b: A property is the record of a piece of land or a building and its role in the portfolio. Leases, valuations and maintenance attach to it, and its status shows whether it is being built, in use, idle or has left the portfolio.
+u: Created by property management; read by leasing, finance and facilities.
+c: A property sits at a location, has owners, may belong to an organisation and may be leased to tenants.
+l: A property is planned, becomes active, may be under construction or inactive, and ends sold or retired. Sold and retired are final.
+x: Property P-310 is a warehouse at 12 Dock Road, owned by the group and leased to two tenants.
+a propertyId
+s: The identity of the property, constant for its life.
+u: Generated on creation; leases and valuations refer to it.
+c: Referenced by every lease and charge on the property.
+a propertyCode
+s: The code used for the property, such as P-310.
+u: Unique; quoted in leases and reports.
+c: Read with the name to identify the property.
+a name
+s: The name the property is known by.
+u: Shown in lists and on documents.
+c: Read by tenants, staff and owners.
+a propertyType
+s: The kind of property.
+u: Chosen when created; reports and rules split the portfolio by it.
+c: Decides which leases and charges are expected.
+v LAND: Undeveloped land.
+v BUILDING: A building of mixed or unspecified use.
+v OFFICE: Office space.
+v RETAIL: Shops and retail units.
+v INDUSTRIAL: Factories and industrial sites.
+v RESIDENTIAL: Homes and apartments.
+v WAREHOUSE: Storage and distribution space.
+v OTHER: A property that fits no other type.
+a status
+s: Where the property is in its life.
+u: Starts as PLANNED; changed by property management.
+c: Decides whether it can be leased and charged.
+v PLANNED: Intended or acquired, not yet in use.
+v ACTIVE: In use and available for lease.
+v UNDER_CONSTRUCTION: Being built or renovated.
+v INACTIVE: Temporarily out of use.
+v SOLD: Disposed of. A final state.
+v RETIRED: Withdrawn from the portfolio without a sale. A final state.
+r location
+s: The place where the property stands.
+u: Chosen when the property is created.
+n: Exactly one location.
+t: Gives the address used in leases and notices.
+r owner
+s: The parties that own the property.
+u: Chosen to record ownership.
+n: Any number of owners, to allow joint ownership.
+t: Decides who receives rent and bears costs.
+r organization
+s: The organisation that manages or holds the property.
+u: Chosen when a group company is responsible.
+n: At most one organisation.
+t: Places the property in the right company for accounts.
+r leases
+s: The leases granted on the property.
+u: Read to see tenants and rent.
+n: Any number of leases, none while vacant.
+t: Shows how the property is let.

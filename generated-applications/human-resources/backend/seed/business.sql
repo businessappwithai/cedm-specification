@@ -200,19 +200,19 @@ VALUES ('a329cc83-8939-596f-bba4-a2e4bda40244', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('cba4f0c5-df09-5758-82ca-8c4580b55386', '0f24fddf-87cd-5a13-bb40-1e3b964f42b7', '0f24fddf-87cd-5a13-bb40-1e3b964f42b7', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('1834a5fd-affa-5a48-8024-5ee644582c66', '268c328c-f6ae-5925-897d-f5165827dcda', '268c328c-f6ae-5925-897d-f5165827dcda', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('eaee8a95-935a-54cf-a411-cc203ad308bd', 'ab2bd2c6-12b6-580a-981c-33d2e90331a3', 'ab2bd2c6-12b6-580a-981c-33d2e90331a3', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('da38193b-e19b-5c72-8cac-74b08a6ceb56', '0aa30ed4-8dc1-5962-986c-5952bf897e0e', '0aa30ed4-8dc1-5962-986c-5952bf897e0e', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('5ba4b361-9d12-5762-a690-21263d35685f', '45bbc296-1ec2-5b77-a4ba-e14de245a243', '45bbc296-1ec2-5b77-a4ba-e14de245a243', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -352,6 +352,23 @@ INSERT INTO bus_employment (id, employment_type, start_date, end_date, status, e
 VALUES ('427fb4f4-2b91-5f23-aecf-ee1ded5a395d', 'INTERN', '2026-05-15', NULL, 'PENDING', '4d3f414e-967d-5859-8393-e9c345747e79', '509e0ae3-696e-5eb8-b545-4a63b825c521', '5a706a08-3804-52ab-8004-60f0a53d22be', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Compensation (bus_compensation)
+INSERT INTO bus_compensation (id, compensation_code, basis, amount, effective_from, effective_to, status, employment_id, currency_id, position_id, doc_status, created_at, updated_at)
+VALUES ('6e7d0a23-ece8-5e94-8d27-b3e4dd710f5c', 'Compensation 1', 'HOURLY', 10.50, '2026-01-15', NULL, 'DRAFT', '36a64dbc-ae43-5853-ad54-c9c8170f783e', '0f24fddf-87cd-5a13-bb40-1e3b964f42b7', 'fe464f6c-414b-5d4f-95a7-f85ed69b1107', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_compensation (id, compensation_code, basis, amount, effective_from, effective_to, status, employment_id, currency_id, position_id, doc_status, created_at, updated_at)
+VALUES ('135c6375-4252-53d5-bb37-8f0b330ae83d', 'Compensation 2', 'DAILY', 21.00, '2026-02-15', NULL, 'DRAFT', 'f3cf0622-c367-519d-b769-463a82a10023', '268c328c-f6ae-5925-897d-f5165827dcda', 'b20cca6a-f527-5d87-a332-d87a3eb27354', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_compensation (id, compensation_code, basis, amount, effective_from, effective_to, status, employment_id, currency_id, position_id, doc_status, created_at, updated_at)
+VALUES ('d0f8d3e2-9145-5d74-aaea-99b744396d33', 'Compensation 3', 'MONTHLY', 31.50, '2026-03-15', NULL, 'DRAFT', 'c054e543-3286-5e88-bfe1-267912d20950', 'ab2bd2c6-12b6-580a-981c-33d2e90331a3', '56f3ed79-407d-5219-939a-2576e034ec9c', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_compensation (id, compensation_code, basis, amount, effective_from, effective_to, status, employment_id, currency_id, position_id, doc_status, created_at, updated_at)
+VALUES ('acbe0654-9e18-584d-bf3c-c86c90d55f1a', 'Compensation 4', 'ANNUAL', 42.00, '2026-04-15', NULL, 'DRAFT', 'a72f93b1-93ad-525c-ad38-357c436c6c74', '0aa30ed4-8dc1-5962-986c-5952bf897e0e', 'eeece732-ac3d-59a0-b02f-817ddab225e4', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_compensation (id, compensation_code, basis, amount, effective_from, effective_to, status, employment_id, currency_id, position_id, doc_status, created_at, updated_at)
+VALUES ('99ee8681-7ec8-5cf1-8bd6-a575f176986a', 'Compensation 5', 'FIXED', 52.50, '2026-05-15', NULL, 'DRAFT', '427fb4f4-2b91-5f23-aecf-ee1ded5a395d', '45bbc296-1ec2-5b77-a4ba-e14de245a243', '5a706a08-3804-52ab-8004-60f0a53d22be', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- Payroll (bus_payroll)
 INSERT INTO bus_payroll (id, payroll_number, period_start, period_end, gross_amount, net_amount, status, employee_id, employment_id, doc_status, created_at, updated_at)
 VALUES ('d1900ea7-e510-5855-b208-104dc50f39e1', 'Payroll 1', '2026-01-15', '2026-01-15', 10.50, 10.50, 'DRAFT', 'a67544dd-b824-57a9-9d20-8150d1efcaac', '36a64dbc-ae43-5853-ad54-c9c8170f783e', 'final', NOW(), NOW())
@@ -367,4 +384,38 @@ VALUES ('e3610912-e513-5aeb-922c-2686df9fe89c', 'Payroll 4', '2026-04-15', '2026
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_payroll (id, payroll_number, period_start, period_end, gross_amount, net_amount, status, employee_id, employment_id, doc_status, created_at, updated_at)
 VALUES ('f5b7e712-2bf0-59ab-afb0-3946df135847', 'Payroll 5', '2026-05-15', '2026-05-15', 52.50, 52.50, 'DRAFT', '4d3f414e-967d-5859-8393-e9c345747e79', '427fb4f4-2b91-5f23-aecf-ee1ded5a395d', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Leave Request (bus_leave_request)
+INSERT INTO bus_leave_request (id, request_number, leave_type, start_date, end_date, requested_units, status, employee_id, employment_id, payroll_id, doc_status, created_at, updated_at)
+VALUES ('1ae06e58-06d9-53fa-a69d-5722c6e4d2c6', 'Leave Request 1', 'ANNUAL', '2026-01-15', '2026-01-15', 10.50, 'DRAFT', 'a67544dd-b824-57a9-9d20-8150d1efcaac', '36a64dbc-ae43-5853-ad54-c9c8170f783e', 'd1900ea7-e510-5855-b208-104dc50f39e1', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_leave_request (id, request_number, leave_type, start_date, end_date, requested_units, status, employee_id, employment_id, payroll_id, doc_status, created_at, updated_at)
+VALUES ('d048a2ab-e27d-56a7-933d-a39a25dcb41f', 'Leave Request 2', 'SICK', '2026-02-15', '2026-02-15', 21.00, 'DRAFT', '62de6fbb-0c4a-5c0e-a41c-3042a69eebaa', 'f3cf0622-c367-519d-b769-463a82a10023', '767fe6c9-c20c-569a-ad53-58a32c0247bd', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_leave_request (id, request_number, leave_type, start_date, end_date, requested_units, status, employee_id, employment_id, payroll_id, doc_status, created_at, updated_at)
+VALUES ('be123e73-0eda-5099-8047-94ddba8caea6', 'Leave Request 3', 'PARENTAL', '2026-03-15', '2026-03-15', 31.50, 'DRAFT', '8e02fc1e-ef9b-56bd-a421-5ad5ca0b3828', 'c054e543-3286-5e88-bfe1-267912d20950', '2a62d462-6a89-545d-8e08-4f783ad41f09', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_leave_request (id, request_number, leave_type, start_date, end_date, requested_units, status, employee_id, employment_id, payroll_id, doc_status, created_at, updated_at)
+VALUES ('949d80ae-2a58-560b-b2a9-facff22f1ba3', 'Leave Request 4', 'UNPAID', '2026-04-15', '2026-04-15', 42.00, 'DRAFT', 'ff6f05f5-4980-5bb6-8f19-d48054482408', 'a72f93b1-93ad-525c-ad38-357c436c6c74', 'e3610912-e513-5aeb-922c-2686df9fe89c', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_leave_request (id, request_number, leave_type, start_date, end_date, requested_units, status, employee_id, employment_id, payroll_id, doc_status, created_at, updated_at)
+VALUES ('6348e88b-9351-5743-b3bf-7383171cb218', 'Leave Request 5', 'COMPENSATORY', '2026-05-15', '2026-05-15', 52.50, 'DRAFT', '4d3f414e-967d-5859-8393-e9c345747e79', '427fb4f4-2b91-5f23-aecf-ee1ded5a395d', 'f5b7e712-2bf0-59ab-afb0-3946df135847', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Attendance (bus_attendance)
+INSERT INTO bus_attendance (id, attendance_date, attendance_type, clock_in_at, clock_out_at, worked_hours, status, employee_id, employment_id, leave_request_id, doc_status, created_at, updated_at)
+VALUES ('40b561e5-d3ad-5ae4-9fc1-b7e47985d0a3', '2026-01-15', 'PRESENT', NULL, NULL, 10.50, 'DRAFT', 'a67544dd-b824-57a9-9d20-8150d1efcaac', '36a64dbc-ae43-5853-ad54-c9c8170f783e', '1ae06e58-06d9-53fa-a69d-5722c6e4d2c6', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_attendance (id, attendance_date, attendance_type, clock_in_at, clock_out_at, worked_hours, status, employee_id, employment_id, leave_request_id, doc_status, created_at, updated_at)
+VALUES ('7c1b5b6b-9874-5e2a-ba71-6cba4acfa34e', '2026-02-15', 'ABSENT', NULL, NULL, 21.00, 'DRAFT', '62de6fbb-0c4a-5c0e-a41c-3042a69eebaa', 'f3cf0622-c367-519d-b769-463a82a10023', 'd048a2ab-e27d-56a7-933d-a39a25dcb41f', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_attendance (id, attendance_date, attendance_type, clock_in_at, clock_out_at, worked_hours, status, employee_id, employment_id, leave_request_id, doc_status, created_at, updated_at)
+VALUES ('d0fcd14b-bb8e-52a3-a6b8-f197d94da6d1', '2026-03-15', 'LEAVE', NULL, NULL, 31.50, 'DRAFT', '8e02fc1e-ef9b-56bd-a421-5ad5ca0b3828', 'c054e543-3286-5e88-bfe1-267912d20950', 'be123e73-0eda-5099-8047-94ddba8caea6', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_attendance (id, attendance_date, attendance_type, clock_in_at, clock_out_at, worked_hours, status, employee_id, employment_id, leave_request_id, doc_status, created_at, updated_at)
+VALUES ('5426ce3e-17fd-514e-980c-b1bb58076780', '2026-04-15', 'REMOTE', NULL, NULL, 42.00, 'DRAFT', 'ff6f05f5-4980-5bb6-8f19-d48054482408', 'a72f93b1-93ad-525c-ad38-357c436c6c74', '949d80ae-2a58-560b-b2a9-facff22f1ba3', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_attendance (id, attendance_date, attendance_type, clock_in_at, clock_out_at, worked_hours, status, employee_id, employment_id, leave_request_id, doc_status, created_at, updated_at)
+VALUES ('c56c661a-f39c-5536-a2d6-a6fb0c86a5ad', '2026-05-15', 'HOLIDAY', NULL, NULL, 52.50, 'DRAFT', '4d3f414e-967d-5859-8393-e9c345747e79', '427fb4f4-2b91-5f23-aecf-ee1ded5a395d', '6348e88b-9351-5743-b3bf-7383171cb218', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;

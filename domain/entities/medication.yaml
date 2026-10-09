@@ -11,121 +11,82 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: medicationId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the medication record associated with this Medication. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: productId
-    type: reference
-    target: Product
-    required: false
-    help:
-      summary: Identifies the related Product associated with this Medication. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: This field connects Medication to Product. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related Product.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: code
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: strength
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of strength for the Medication. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: form
-    type: string
-    required: false
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of form for the Medication. It is interpreted together with the entity's other
-        attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Medication records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Medication; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Medication.
-        INACTIVE: Represents the inactive state or classification in the context of Medication.
-        RETIRED: Represents the retired state or classification in the context of Medication.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: medicationId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent identifier of the medication record in the formulary, which never changes after it is created.
+        usage: Generated on creation; prescriptions, dispensing records and safety alerts refer to the medication through this value.
+    - name: productId
+      type: reference
+      target: Product
+      required: false
+      help:
+        summary: The catalogue product that supplies this medication.
+        usage: Set where the pharmacy stocks and buys the medication as a product.
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The formulary code of the medication.
+        usage: Assigned by pharmacy; may be a national drug code; used in prescribing and dispensing systems.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The name of the medication, normally its generic name.
+        usage: Shown to prescribers and on labels.
+    - name: strength
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The amount of active substance per unit, for example 500 mg.
+        usage: Entered from the product label; prescribers choose a dose relative to it.
+    - name: form
+      type: string
+      required: false
+      maxLength: 100
+      help:
+        summary: The physical form of the medication, such as tablet, capsule, solution or injection.
+        usage: Entered from the product label; decides how it can be administered.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - RETIRED
+      help:
+        summary: Whether the medication is currently available to be prescribed from the formulary.
+        usage: Set by pharmacy when a drug is added, suspended or withdrawn; prescribing lists offer only medications that are active.
+        valueSemantics:
+          ACTIVE: The medication is on the formulary and prescribers may choose it when writing new prescriptions.
+          INACTIVE: The medication is temporarily withheld from prescribing, for example during a supply shortage, and may return to use.
+          RETIRED: The medication has been permanently withdrawn from the formulary and cannot be prescribed again. A final state.
   relationships:
-  - name: product
-    target: Product
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Medication to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a Medication.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: prescriptions
-    target: Prescription
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Medication to Prescription so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Prescription records associated with a Medication.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The catalogue product that corresponds to the medication.
+        usage: Linked to connect prescribing to purchasing and stock.
+        cardinalityMeaning: At most one product; a medication that is compounded on demand has no stock product.
+        workflowRole: Lets stock and cost follow the prescription.
+    - name: prescriptions
+      target: Prescription
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The prescriptions that name this medication.
+        usage: Read to analyse use and check for safety alerts.
+        cardinalityMeaning: Any number, accumulating as the drug is prescribed.
+        workflowRole: Shows how the medication is used.
   lifecycle:
     title: Medication Lifecycle
     attribute: status
@@ -138,18 +99,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a healthcare pharmaceutical entity called Medication within the CEDM business model.
-    businessMeaning: Medication is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Medication records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Product, Prescription.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Medication record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: A medicinal product or therapeutic substance that can be prescribed or given to a patient.
+    businessMeaning: 'Safe prescribing needs an exact definition of the drug: what it is, how strong it is and in what form. The medication record is that definition, shared by every prescription, so a dose cannot be mistaken for a different product.'
+    usage: Maintained by pharmacy; chosen by prescribers when writing prescriptions; read by pharmacists and nurses at dispensing and administration.
+    relationshipContext: A medication may be linked to a catalogue Product for purchasing and stock, and is prescribed through Prescriptions.
+    lifecycle: A medication is active while it can be prescribed, inactive while temporarily withheld, and retired when withdrawn from use. Past prescriptions keep their reference.
+    example: Amoxicillin 500 mg capsules, an antibiotic stocked by the hospital pharmacy.
 specification:
   version: 0.1.0
   status: draft

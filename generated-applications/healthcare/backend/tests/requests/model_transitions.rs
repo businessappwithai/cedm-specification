@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:29:54.364Z
+//! Generated: 2026-10-09T15:28:53.529Z
 //! Project: healthcare
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -75,11 +75,11 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_task", "status", "ASSIGNED", "FAILED"),
     ("bus_task", "status", "IN_PROGRESS", "FAILED"),
     ("bus_task", "status", "BLOCKED", "FAILED"),
+    ("bus_healthcare_patient", "status", "ACTIVE", "INACTIVE"),
+    ("bus_healthcare_patient", "status", "INACTIVE", "ACTIVE"),
     ("bus_healthcare_patient", "status", "ACTIVE", "DECEASED"),
-    ("bus_healthcare_patient", "status", "DECEASED", "MERGED"),
-    ("bus_healthcare_patient", "status", "DECEASED", "INACTIVE"),
     ("bus_healthcare_patient", "status", "INACTIVE", "DECEASED"),
-    ("bus_healthcare_patient", "status", "MERGED", "INACTIVE"),
+    ("bus_healthcare_patient", "status", "ACTIVE", "MERGED"),
     ("bus_healthcare_patient", "status", "INACTIVE", "MERGED"),
     ("bus_healthcare_provider", "status", "ACTIVE", "INACTIVE"),
     ("bus_healthcare_provider", "status", "INACTIVE", "ACTIVE"),

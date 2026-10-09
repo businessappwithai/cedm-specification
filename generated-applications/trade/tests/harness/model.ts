@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-04T01:13:09.931Z
+ * Generated: 2026-10-09T15:31:05.949Z
  * Project: trade
  */
 
@@ -327,22 +327,19 @@ export const stateMachines: StateMachine[] = [
     tableName: "bus_trade_declaration",
     statusField: "status",
     initial: "DRAFT",
-    terminal: ["REJECTED", "CANCELLED"],
+    terminal: ["RELEASED", "REJECTED", "CANCELLED"],
     edges: [
       { from: "DRAFT", to: "SUBMITTED", trigger: "submit" },
       { from: "SUBMITTED", to: "ACCEPTED", trigger: "accept" },
-      { from: "ACCEPTED", to: "UNDER_REVIEW", trigger: "review" },
-      { from: "UNDER_REVIEW", to: "RELEASED", trigger: "release" },
-      { from: "DRAFT", to: "REJECTED", trigger: "reject" },
+      { from: "SUBMITTED", to: "UNDER_REVIEW", trigger: "review" },
       { from: "SUBMITTED", to: "REJECTED", trigger: "reject" },
-      { from: "ACCEPTED", to: "REJECTED", trigger: "reject" },
+      { from: "ACCEPTED", to: "UNDER_REVIEW", trigger: "review" },
+      { from: "ACCEPTED", to: "RELEASED", trigger: "release" },
+      { from: "UNDER_REVIEW", to: "RELEASED", trigger: "release" },
       { from: "UNDER_REVIEW", to: "REJECTED", trigger: "reject" },
-      { from: "RELEASED", to: "REJECTED", trigger: "reject" },
       { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
       { from: "SUBMITTED", to: "CANCELLED", trigger: "cancel" },
       { from: "ACCEPTED", to: "CANCELLED", trigger: "cancel" },
-      { from: "UNDER_REVIEW", to: "CANCELLED", trigger: "cancel" },
-      { from: "RELEASED", to: "CANCELLED", trigger: "cancel" },
     ],
   },
   {

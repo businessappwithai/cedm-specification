@@ -11,61 +11,53 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: aIEvaluationId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the AIEvaluation record.
-      businessMeaning: Identifies one governed AIEvaluation independently of related records and later lifecycle changes.
-      usage: Referencing, workflow execution, reporting, audit, and integration.
-      relationshipContext: Connects this record to its governing AIModel context and downstream evidence.
-      requiredMeaning: Required for stable traceability.
-  - name: aIEvaluationCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 120
-    help:
-      summary: Human-readable business reference for the AIEvaluation.
-      businessMeaning: Provides an operational identifier for searching, documents, reports, and integrations.
-      usage: Creation, review, search, workflow, reporting, and audit.
-      relationshipContext: Distinct from the immutable UUID identity and scoped to the governed business context.
-      requiredMeaning: Required for operational identification.
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help:
-      summary: Lifecycle state of the AIEvaluation.
-      businessMeaning: Controls whether the record is being prepared, operationally active, historically complete, or cancelled.
-      usage: Workflow gating, governance, reporting, and audit.
-      relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
-      valueSemantics:
-        DRAFT: Record is being prepared and is not yet normally effective.
-        ACTIVE: Record is effective for its governed business purpose.
-        COMPLETED: Governed work or assessment is complete and retained as historical evidence.
-        CANCELLED: Record was cancelled through controlled workflow and remains auditable.
-      requiredMeaning: Required for lifecycle governance.
+    - name: aIEvaluationId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent system identity of the evaluation.
+        usage: Generated when the evaluation is created; model approval records and audit trails refer to the evaluation through it.
+        relationshipContext: Connects this record to its governing AIModel context and downstream evidence.
+    - name: aIEvaluationCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 120
+      help:
+        summary: The unique business reference by which reviewers and reports name this evaluation.
+        usage: Entered or generated when the evaluation is raised, for example EVAL-2026-014; used in approval packs and audit queries.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Where the evaluation stands in its run from preparation to a recorded result.
+        usage: Moved forward by the governance team as the test is prepared, run and closed; deployment checks accept only COMPLETED evaluations.
+        valueSemantics:
+          DRAFT: Being prepared; criteria and data are still being agreed and nothing has been run.
+          ACTIVE: Under way; tests are running and results are being collected.
+          COMPLETED: Finished with results recorded; this is the state approval decisions rely on, and it is final.
+          CANCELLED: Abandoned before completion; kept so the attempt is on record, and it cannot support an approval.
+        relationshipContext: Status changes can affect related AIModel workflows but never erase historical evidence.
   relationships:
-  - name: context
-    target: AIModel
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Governing AIModel associated with this AIEvaluation.
-      businessMeaning: Supplies the business context needed to interpret and validate the record.
-      usage: Workflow navigation, validation, traceability, reporting, and audit.
-      cardinalityMeaning: Every AIEvaluation belongs to exactly one governing AIModel in this baseline model.
-      context: Changes to the governing record require revalidation of open dependent records while completed evidence remains historical.
+    - name: context
+      target: AIModel
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The AI model this evaluation assesses.
+        usage: Chosen when the evaluation is created and not changed afterwards, so the evidence always stays with the model version it was run for.
+        cardinalityMeaning: 'Exactly one model: an evaluation without a subject is meaningless, while a model may have many evaluations over its life.'
+        workflowRole: Links the evidence to the model so deployment and review can check it.
   invariants:
-  - id: AIEVALUATION-001
-    rule: The governing AIModel relationship is required and must reference a valid record.
-  - id: AIEVALUATION-002
-    rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
-  - id: AIEVALUATION-003
-    rule: Creation and lifecycle transitions must be idempotent and auditable.
+    - id: AIEVALUATION-001
+      rule: The governing AIModel relationship is required and must reference a valid record.
+    - id: AIEVALUATION-002
+      rule: Completed records must not be destructively rewritten; corrections require controlled amendment, replacement, reversal, or follow-up evidence appropriate to the domain.
+    - id: AIEVALUATION-003
+      rule: Creation and lifecycle transitions must be idempotent and auditable.
   lifecycle:
     title: AI Evaluation Lifecycle
     attribute: status
@@ -97,13 +89,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents AIEvaluation as a first-class governed CEDM business concept.
-    businessMeaning: An evaluation record assessing an AIModel against defined quality, safety, performance, or business criteria.
-    usage: Domain workflows, validation, reporting, audit, integration, and cross-entity traceability.
-    relationshipContext: AIModel supplies the primary governing context; dependent workflows consume this record without silently mutating historical evidence.
-    lifecycle: Draft → active → completed, with controlled cancellation and correction paths.
-    changePropagation: Material changes revalidate open dependent workflows and preserve completed historical evidence.
-    example: A AIEvaluation is created for a valid AIModel, progresses through its governed lifecycle, and remains traceable after completion.
+    summary: A recorded assessment of an AI model against defined quality, safety, performance or business criteria.
+    businessMeaning: An evaluation is the evidence that a model is fit for a stated use. Approval and deployment decisions rest on completed evaluations, so each one must stay reproducible after the model changes.
+    usage: Created when a model is tested before approval, after a retraining, or on a periodic review; read by governance reviewers deciding whether to approve, keep or suspend the model.
+    relationshipContext: Every evaluation belongs to exactly one AIModel, the model being assessed; the model's lifecycle checks look for a completed evaluation before deployment.
+    lifecycle: An evaluation starts as a draft while criteria and test data are agreed, becomes active while tests run, and ends completed with results or cancelled if abandoned. A completed evaluation is never rewritten; a repeat test is a new evaluation.
+    example: A fairness and accuracy evaluation of version 3.2 of a credit-scoring model, run against last quarter's holdout data and completed with a pass.
 specification:
   version: 0.1.0
   status: draft

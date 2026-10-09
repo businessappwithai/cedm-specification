@@ -249,6 +249,14 @@ ALTER TABLE bus_timesheet
 
 CREATE INDEX IF NOT EXISTS idx_bus_timesheet_doc_status ON bus_timesheet (doc_status);
 
+ALTER TABLE bus_project_cost
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_project_cost_doc_status ON bus_project_cost (doc_status);
+
 ALTER TABLE bus_professional_engagement
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -489,6 +497,22 @@ ALTER TABLE bus_timesheet_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_timesheet_status_doc_status ON bus_timesheet_status (doc_status);
 
+ALTER TABLE bus_project_cost_cost_type
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_project_cost_cost_type_doc_status ON bus_project_cost_cost_type (doc_status);
+
+ALTER TABLE bus_project_cost_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_project_cost_status_doc_status ON bus_project_cost_status (doc_status);
+
 ALTER TABLE bus_professional_engagement_status
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -711,6 +735,14 @@ ALTER TABLE bus_resource_assignment
 DROP INDEX IF EXISTS idx_bus_timesheet_doc_status;
 
 ALTER TABLE bus_timesheet
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_project_cost_doc_status;
+
+ALTER TABLE bus_project_cost
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -951,6 +983,22 @@ ALTER TABLE bus_resource_assignment_status
 DROP INDEX IF EXISTS idx_bus_timesheet_status_doc_status;
 
 ALTER TABLE bus_timesheet_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_project_cost_cost_type_doc_status;
+
+ALTER TABLE bus_project_cost_cost_type
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_project_cost_status_doc_status;
+
+ALTER TABLE bus_project_cost_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

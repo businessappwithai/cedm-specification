@@ -7,19 +7,17 @@ entity:
     icon: box
   identity: {key: assetDisposalId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: assetDisposalId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of AssetDisposal., businessMeaning: Identifies one governed AssetDisposal record independently of mutable state., usage: "Operations, finance, integration, reporting and audit.", relationshipContext: Referenced by compatible lifecycle and transaction records., requiredMeaning: Required.}}
-  - {name: effectiveAt, type: datetime, required: false, help: {summary: Effective timestamp for the record., businessMeaning: Establishes temporal applicability or evidence cutoff., usage: "Lifecycle, reconciliation and reporting.", relationshipContext: Historical evidence before this time remains intact., optionalMeaning: Optional where the concept uses another effective period.}}
+    - {name: assetDisposalId, type: uuid, required: true, immutable: true, help: {summary: The identity of this disposal event., usage: Generated on creation; journal entries and audit refer to it.}}
+    - {name: effectiveAt, type: datetime, required: false, help: {summary: The date and time at which the organisation ceased to hold the asset., usage: 'Taken from the sale, scrap or write-off document; depreciation stops and the gain or loss is measured at this date.'}}
   relationships:
-  - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: Asset affected by this lifecycle record., businessMeaning: Supplies canonical asset identity., usage: Asset lifecycle and audit., cardinalityMeaning: Exactly one Asset., workflowRole: Event changes lifecycle state without rewriting prior asset evidence.}}
+    - {name: asset, target: Asset, cardinality: '1', ownership: reference, help: {summary: The asset that was disposed of., usage: Chosen when the disposal is recorded; the asset then stops being offered for new assignments., cardinalityMeaning: Exactly one asset per disposal event., workflowRole: Marks the end of the asset's operational life while keeping its history.}}
   invariants:
-  - {id: ASSET-DISPOSAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
+    - {id: ASSET-DISPOSAL-001, rule: Finalized lifecycle or financial evidence must be corrected by explicit compensating or superseding records rather than silent history rewrite.}
   help:
-    summary: A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences.
-    purpose: Provide canonical enterprise semantics for AssetDisposal.
-    businessMeaning: A governed event retiring, selling, scrapping, or otherwise disposing of an Asset with auditable operational and accounting consequences.
-    whenUsed: Used in asset, maintenance, treasury, banking, credit-risk, accounting, integration, and audit workflows where applicable.
-    howItRelates: Connects operational or financial lifecycle evidence to canonical masters while keeping accounting, bank, and physical records authoritative in their own domains.
-    lifecycleUsage: Created under governed conditions, progressed or finalized with audit history, and corrected through explicit subsequent evidence.
-    commonProcesses: Asset lifecycle, maintenance, treasury operations, bank reconciliation, lending, accounting, reporting, and audit.
-    commonExamples: Enterprise fixed assets, equipment reliability, bank close, FX, deposits, interest, and secured lending.
+    summary: The event by which an organisation retires, sells, scraps or otherwise disposes of an asset, with its operational and accounting consequences.
+    businessMeaning: Disposal ends an asset's life in the register. Recording it as an event shows how and when the asset left, supports the gain or loss calculation, and stops the asset being used by mistake.
+    usage: Created when an asset is sold, scrapped, donated or written off; read by finance for the disposal entry and by operations to confirm the asset is gone.
+    relationshipContext: Each disposal points to the Asset it removes; the accounting posting lives in the journal.
+    lifecycle: A disposal is recorded once and becomes evidence; mistakes are corrected by a reversing or superseding record, and a reinstated asset needs an explicit process.
+    example: A damaged delivery van is sold for scrap on 12 June; the disposal records the sale and the asset leaves the active register.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-ASSET-DISPOSAL}

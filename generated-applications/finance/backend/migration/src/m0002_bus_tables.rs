@@ -435,8 +435,8 @@ CREATE INDEX IF NOT EXISTS idx_bus_currency_name ON bus_currency (name);
 -- Exchange Rate (bus_exchange_rate)
 CREATE TABLE IF NOT EXISTS bus_exchange_rate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , from_currency UUID NOT NULL
-  , to_currency UUID NOT NULL
+  , from_currency_id UUID NOT NULL
+  , to_currency_id UUID NOT NULL
   , rate DECIMAL(18,6) NOT NULL
   , rate_type VARCHAR(255) NOT NULL
   , effective_at TIMESTAMPTZ NOT NULL
@@ -968,6 +968,12 @@ CREATE TABLE IF NOT EXISTS bus_profit_center (
 CREATE TABLE IF NOT EXISTS bus_variance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
   , code VARCHAR(100) NOT NULL
+  , period_start DATE NOT NULL
+  , period_end DATE NOT NULL
+  , basis VARCHAR(255) NOT NULL
+  , planned_amount DECIMAL(18,6) NOT NULL
+  , actual_amount DECIMAL(18,6) NOT NULL
+  , variance_amount DECIMAL(18,6) NOT NULL
   , organization_id UUID NOT NULL
   , budget_id UUID
   , forecast_id UUID
@@ -1255,7 +1261,13 @@ CREATE TABLE IF NOT EXISTS bus_tax_jurisdiction (
 CREATE TABLE IF NOT EXISTS bus_tax_rate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
   , status VARCHAR(255) NOT NULL
+  , rate DECIMAL(18,6) NOT NULL
+  , rate_basis VARCHAR(255) NOT NULL
+  , effective_from DATE NOT NULL
+  , effective_to DATE
   , organization_id UUID
+  , tax_code_id UUID NOT NULL
+  , tax_jurisdiction_id UUID NOT NULL
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -1369,6 +1381,12 @@ CREATE TABLE IF NOT EXISTS bus_billing_cycle (
 CREATE TABLE IF NOT EXISTS bus_charge (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
   , status VARCHAR(255) NOT NULL
+  , charge_number VARCHAR(100) NOT NULL UNIQUE
+  , charge_type VARCHAR(255) NOT NULL
+  , amount DECIMAL(18,6) NOT NULL
+  , currency_id UUID NOT NULL
+  , charged_on DATE NOT NULL
+  , description VARCHAR(1000)
   , customer_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -2823,6 +2841,31 @@ CREATE TABLE IF NOT EXISTS bus_scenario_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_scenario_status_name ON bus_scenario_status (name);
+-- Variance Basis (bus_variance_basis)
+CREATE TABLE IF NOT EXISTS bus_variance_basis (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_variance_basis_name ON bus_variance_basis (name);
 -- Ledger Status (bus_ledger_status)
 CREATE TABLE IF NOT EXISTS bus_ledger_status (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -3073,6 +3116,31 @@ CREATE TABLE IF NOT EXISTS bus_tax_rate_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_tax_rate_status_name ON bus_tax_rate_status (name);
+-- Tax Rate Rate Basis (bus_tax_rate_rate_basis)
+CREATE TABLE IF NOT EXISTS bus_tax_rate_rate_basis (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_tax_rate_rate_basis_name ON bus_tax_rate_rate_basis (name);
 -- Tax Registration Status (bus_tax_registration_status)
 CREATE TABLE IF NOT EXISTS bus_tax_registration_status (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -3223,6 +3291,31 @@ CREATE TABLE IF NOT EXISTS bus_charge_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_charge_status_name ON bus_charge_status (name);
+-- Charge Charge Type (bus_charge_charge_type)
+CREATE TABLE IF NOT EXISTS bus_charge_charge_type (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_charge_charge_type_name ON bus_charge_charge_type (name);
 -- Subscription Status (bus_subscription_status)
 CREATE TABLE IF NOT EXISTS bus_subscription_status (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -3948,40 +4041,6 @@ END $$;
 DO $$ BEGIN
   ALTER TABLE bus_journal_entry
     ADD CONSTRAINT fk_bus_journal_entry_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
     FOREIGN KEY (currency_id)
     REFERENCES bus_currency(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
@@ -5340,6 +5399,40 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
+  ALTER TABLE bus_tax_rate
+    ADD CONSTRAINT fk_bus_tax_rate_tax_code_id
+    FOREIGN KEY (tax_code_id)
+    REFERENCES bus_tax_code(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_tax_rate
+    ADD CONSTRAINT fk_bus_tax_rate_tax_jurisdiction_id
+    FOREIGN KEY (tax_jurisdiction_id)
+    REFERENCES bus_tax_jurisdiction(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
   ALTER TABLE bus_tax_registration
     ADD CONSTRAINT fk_bus_tax_registration_organization_id
     FOREIGN KEY (organization_id)
@@ -5891,6 +5984,7 @@ DROP TABLE IF EXISTS bus_customer_role_type CASCADE;
 DROP TABLE IF EXISTS bus_sales_order_status CASCADE;
 DROP TABLE IF EXISTS bus_budget_status CASCADE;
 DROP TABLE IF EXISTS bus_scenario_status CASCADE;
+DROP TABLE IF EXISTS bus_variance_basis CASCADE;
 DROP TABLE IF EXISTS bus_ledger_status CASCADE;
 DROP TABLE IF EXISTS bus_fiscal_period_status CASCADE;
 DROP TABLE IF EXISTS bus_invoice_line_matching_status CASCADE;
@@ -5901,12 +5995,14 @@ DROP TABLE IF EXISTS bus_credit_note_application_status CASCADE;
 DROP TABLE IF EXISTS bus_tax_code_status CASCADE;
 DROP TABLE IF EXISTS bus_tax_jurisdiction_status CASCADE;
 DROP TABLE IF EXISTS bus_tax_rate_status CASCADE;
+DROP TABLE IF EXISTS bus_tax_rate_rate_basis CASCADE;
 DROP TABLE IF EXISTS bus_tax_registration_status CASCADE;
 DROP TABLE IF EXISTS bus_tax_rule_tax_type CASCADE;
 DROP TABLE IF EXISTS bus_tax_rule_status CASCADE;
 DROP TABLE IF EXISTS bus_tax_transaction_status CASCADE;
 DROP TABLE IF EXISTS bus_billing_cycle_status CASCADE;
 DROP TABLE IF EXISTS bus_charge_status CASCADE;
+DROP TABLE IF EXISTS bus_charge_charge_type CASCADE;
 DROP TABLE IF EXISTS bus_subscription_status CASCADE;
 DROP TABLE IF EXISTS bus_subscription_plan_status CASCADE;
 DROP TABLE IF EXISTS bus_usage_record_status CASCADE;

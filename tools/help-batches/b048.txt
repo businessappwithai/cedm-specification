@@ -1,0 +1,9 @@
+@ PurchaseOrder
+a status
+v DRAFT: Being prepared by the buyer; not yet binding.
+v APPROVED: Authorised internally and ready to send.
+v SENT: Issued to the supplier.
+v PARTIALLY_RECEIVED: Some of the ordered quantity has been received and accepted; the rest is outstanding.
+v RECEIVED: Everything required has been received and accepted.
+v CANCELLED: The remaining commitment has been withdrawn. A final state.
+v CLOSED: Receiving and invoicing are complete. A final state.

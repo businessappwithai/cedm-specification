@@ -1,0 +1,47 @@
+@ Result
+a resultCode
+s: The code that identifies one derived result, such as R-2210.
+u: Assigned when the result is created and unique; used to search, report and exchange the result with other systems.
+a resultType
+s: The kind of derived output this result is, such as an IC50, a purity percentage or a pass/fail call.
+u: Chosen by the analyst; it decides how the value is read and which reports and analyses include the result.
+a value
+s: The derived or interpreted outcome computed from the underlying observations, held as text.
+u: Entered or calculated by the analyst; read in reporting and decisions, and locked once the result is final.
+a status
+s: Whether the result is still provisional, approved as final, or withdrawn as invalid.
+u: Starts as DRAFT; set by the reviewing scientist, and a final result can no longer be edited, only invalidated.
+v DRAFT: The result is provisional and may still be changed or discarded.
+v FINAL: The result has been reviewed and approved, and its value is locked as evidence.
+v INVALIDATED: The result is kept for the record but is no longer considered valid.
+@ RetailSaleLine
+a quantity
+s: The number of units of the product sold on this line.
+u: Entered by the cashier or counted by barcode scans; must be greater than zero and reduces the product's stock when the sale completes.
+a lineAmount
+s: The amount charged for this line after quantity, price, discount and tax have been applied.
+u: Calculated by the till rather than typed; the lines are added together to give the sale total.
+r product
+s: The product or service the shopper bought on this line.
+u: Chosen from the catalogue or identified by a barcode scan at the till when the line is added.
+n: Each line sells exactly one product, though a product can appear on many lines across many sales.
+@ RetailSale
+a status
+s: How far the sale has progressed from being rung up to being paid or reversed.
+u: Starts as OPEN at the till and moves to COMPLETED on payment; a later refund or a void closes it.
+v OPEN: Being rung up at the till; payment has not yet been taken.
+v COMPLETED: Paid in full and the receipt issued to the shopper.
+v VOIDED: Abandoned before payment was taken. A final state.
+v REFUNDED: The goods were returned and the shopper was paid back. A final state.
+@ ReturnDisposition
+a quantity
+s: How many units of the returned goods this disposition decision covers.
+u: Entered by the returns handler; partial quantities allow one return to be split across outcomes, and inventory is adjusted by this amount.
+a status
+s: The stage of the disposition decision, from proposal through approval to physical execution.
+u: Starts as DRAFT and is moved by the authorising user and warehouse; inventory movements are only allowed once it is AUTHORIZED.
+v DRAFT: Being prepared; the outcome is not yet decided or approved.
+v AUTHORIZED: Approved and ready for the warehouse to carry out.
+v EXECUTED: Carried out and the stock adjusted to match. A final state.
+v CANCELLED: Withdrawn before it was carried out. A final state.
+v EXCEPTION: Could not be carried out as authorised and needs a manual decision.

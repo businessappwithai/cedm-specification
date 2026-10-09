@@ -1,0 +1,28 @@
+@ MiningSite
+r location
+n: Exactly one location: a site is a defined piece of ground with coordinates and a jurisdiction.
+
+@ Nonconformance
+a number
+s: The unique reference by which the deviation is cited in reports and corrective actions.
+
+@ NonprofitCampaign
+a status
+v PLANNED: Being prepared and not yet launched.
+v ACTIVE: Running and accepting gifts.
+v COMPLETED: Finished. A final state.
+v CANCELLED: Called off. A final state.
+
+@ Obligation
+s: A duty owed by a party under law, an agreement, a policy, an order or another authoritative source.
+b: Organisations owe things to regulators, customers, partners and each other. Recording each duty, with its source and who owes it, lets the organisation know what it must do and prove that it did.
+u: Recorded when a duty arises from a law, contract or decision; tracked until it is met; read by compliance, legal and operations.
+c: An obligation relates to the party who owes it, the source that imposes it, and the evidence that it was met.
+l: Finalised evidence and history are preserved; if the obligation is met, waived or replaced, that is recorded explicitly.
+x: The duty to file the annual tax return by 31 July, arising from tax law.
+a obligationId
+s: The identity of the obligation.
+u: Generated on recording; evidence and tasks refer to it.
+a occurredAt
+s: When the obligation arose.
+u: Set from the source; deadlines and limitation periods run from it.

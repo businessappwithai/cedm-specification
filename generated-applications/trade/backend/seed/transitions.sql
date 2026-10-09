@@ -320,19 +320,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('62e56ae1-4991-59bc-a658-32e4582fba17', 'bus_trade_declaration', 'status', 'SUBMITTED', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- TradeDeclarationLifecycle: ACCEPTED → UNDER_REVIEW (review)
+-- TradeDeclarationLifecycle: SUBMITTED → UNDER_REVIEW (review)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a4246f15-fb43-5e3b-bb02-599f7330ac6c', 'bus_trade_declaration', 'status', 'ACCEPTED', 'UNDER_REVIEW', 'review', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- TradeDeclarationLifecycle: UNDER_REVIEW → RELEASED (release)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('8a8a6e36-0498-5f80-8618-facbd8a5c8c2', 'bus_trade_declaration', 'status', 'UNDER_REVIEW', 'RELEASED', 'release', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- TradeDeclarationLifecycle: DRAFT → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('41621381-fb89-52cf-ae76-3e57d6557719', 'bus_trade_declaration', 'status', 'DRAFT', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('2c058ecb-0290-5dcc-9c30-0b34576f0e92', 'bus_trade_declaration', 'status', 'SUBMITTED', 'UNDER_REVIEW', 'review', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- TradeDeclarationLifecycle: SUBMITTED → REJECTED (reject)
@@ -340,19 +330,24 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('4b78c8b1-f2eb-588c-8efc-9e0571755e78', 'bus_trade_declaration', 'status', 'SUBMITTED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- TradeDeclarationLifecycle: ACCEPTED → REJECTED (reject)
+-- TradeDeclarationLifecycle: ACCEPTED → UNDER_REVIEW (review)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2e016a55-cbd6-5d78-b6fc-f9c76b98dcab', 'bus_trade_declaration', 'status', 'ACCEPTED', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('a4246f15-fb43-5e3b-bb02-599f7330ac6c', 'bus_trade_declaration', 'status', 'ACCEPTED', 'UNDER_REVIEW', 'review', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TradeDeclarationLifecycle: ACCEPTED → RELEASED (release)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b097d35b-e6bd-54b8-915f-5f3d380f64e7', 'bus_trade_declaration', 'status', 'ACCEPTED', 'RELEASED', 'release', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- TradeDeclarationLifecycle: UNDER_REVIEW → RELEASED (release)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('8a8a6e36-0498-5f80-8618-facbd8a5c8c2', 'bus_trade_declaration', 'status', 'UNDER_REVIEW', 'RELEASED', 'release', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- TradeDeclarationLifecycle: UNDER_REVIEW → REJECTED (reject)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('08a1fbda-9fbf-5b77-b51e-c01ce0373493', 'bus_trade_declaration', 'status', 'UNDER_REVIEW', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- TradeDeclarationLifecycle: RELEASED → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('cca41f7f-b787-5f40-a44a-b4745857793f', 'bus_trade_declaration', 'status', 'RELEASED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- TradeDeclarationLifecycle: DRAFT → CANCELLED (cancel)
@@ -368,16 +363,6 @@ ON CONFLICT DO NOTHING;
 -- TradeDeclarationLifecycle: ACCEPTED → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('dbe0a1c7-9d98-55a8-8ec5-49c9c551b61a', 'bus_trade_declaration', 'status', 'ACCEPTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- TradeDeclarationLifecycle: UNDER_REVIEW → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('38bc5bbb-104b-5490-80e0-ac7ed4d3a52c', 'bus_trade_declaration', 'status', 'UNDER_REVIEW', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- TradeDeclarationLifecycle: RELEASED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6e9bb28a-8504-5738-bd05-d89f8ceaa056', 'bus_trade_declaration', 'status', 'RELEASED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- CustomsDeclarationLifecycle: DRAFT → SUBMITTED (submit)
@@ -583,7 +568,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('2ac4bbc6-fa09-58cf-96ca-15e91a40c144', 'bus_trade_declaration', 'status', 'UNDER_REVIEW', FALSE, FALSE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('7717e6b2-d159-5afd-8656-d79d6735d410', 'bus_trade_declaration', 'status', 'RELEASED', FALSE, FALSE, 50, TRUE, NOW())
+VALUES ('7717e6b2-d159-5afd-8656-d79d6735d410', 'bus_trade_declaration', 'status', 'RELEASED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('2d686085-682b-5248-9000-94a636ac9d28', 'bus_trade_declaration', 'status', 'REJECTED', FALSE, TRUE, 60, TRUE, NOW())

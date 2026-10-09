@@ -7,18 +7,16 @@ entity:
     icon: table
   identity: {key: promotionId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: promotionId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Promotion., businessMeaning: Identifies one governed Promotion record., usage: "Transactions, integration, reporting and audit.", relationshipContext: Referenced by compatible cross-domain workflows., requiredMeaning: Required.}}
-  - {name: code, type: string, required: false, maxLength: 120, help: {summary: Business reference for Promotion., businessMeaning: Human or integration-friendly reference where applicable., usage: "Search, exchange and reporting.", relationshipContext: Does not replace immutable identity., optionalMeaning: Optional when another transaction reference supplies business identity.}}
+    - {name: promotionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the promotion, constant for its life.', usage: Generated on creation; orders and reports refer to it., relationshipContext: Referenced by the discounts and benefits it applied.}}
+    - {name: code, type: string, required: false, maxLength: 120, help: {summary: 'The short code of the promotion, such as SPRING10.', usage: Entered by customers or staff where a code is needed; unique., relationshipContext: Quoted on orders that received the offer.}}
   relationships: []
   invariants:
-  - {id: PROMOTION-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
+    - {id: PROMOTION-001, rule: "Lifecycle changes, corrections and retries must preserve historical evidence and must not duplicate downstream commercial, physical or financial effects."}
   help:
-    summary: A governed time- and eligibility-bounded commercial offer that may alter price, benefit, bundle, or fulfillment terms without rewriting base pricing.
-    purpose: Provide canonical implementation-neutral semantics for Promotion across enterprise applications.
-    businessMeaning: A governed time- and eligibility-bounded commercial offer that may alter price, benefit, bundle, or fulfillment terms without rewriting base pricing.
-    whenUsed: Used in CRM, sales, fulfillment, logistics, reporting, integration, or audit processes where this concept applies.
-    howItRelates: Connects to canonical parties, commercial transactions, logistics execution, and downstream evidence without replacing their authoritative records.
-    lifecycleUsage: Created and progressed through governed business workflow; completed history is retained and corrections are explicit.
-    commonProcesses: Commercial management, fulfillment, logistics execution, reconciliation, reporting, and audit.
-    commonExamples: Enterprise sales and supply-chain operations.
+    summary: A time-limited commercial offer that changes price, benefit, bundle or fulfilment terms for eligible customers without rewriting base pricing.
+    businessMeaning: A promotion lets the business run offers such as a seasonal discount, a bundle or free delivery, for a defined period and audience. Because it sits beside base pricing, ending it restores normal prices and the history of what each order received is kept.
+    usage: Defined by marketing or commercial staff; applied by order and pricing processes; read by sales and finance reporting.
+    relationshipContext: A promotion is applied to orders and invoices that qualify and is described by its code and terms.
+    lifecycle: A promotion is drafted, approved, runs for its period and then ends. What it already applied stays on those orders.
+    example: The "Spring 10" promotion gives ten percent off garden products from 1 to 30 April.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PROMOTION}

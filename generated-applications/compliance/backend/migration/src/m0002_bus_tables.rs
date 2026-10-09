@@ -430,8 +430,8 @@ CREATE INDEX IF NOT EXISTS idx_bus_currency_name ON bus_currency (name);
 -- Exchange Rate (bus_exchange_rate)
 CREATE TABLE IF NOT EXISTS bus_exchange_rate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , from_currency UUID NOT NULL
-  , to_currency UUID NOT NULL
+  , from_currency_id UUID NOT NULL
+  , to_currency_id UUID NOT NULL
   , rate DECIMAL(18,6) NOT NULL
   , rate_type VARCHAR(255) NOT NULL
   , effective_at TIMESTAMPTZ NOT NULL
@@ -561,6 +561,7 @@ CREATE TABLE IF NOT EXISTS bus_policy (
   , name VARCHAR(300) NOT NULL
   , description VARCHAR(5000)
   , policy_type VARCHAR(100) NOT NULL
+  , policy_version VARCHAR(30) NOT NULL
   , status VARCHAR(255) NOT NULL
   , effective_from DATE
   , effective_to DATE
@@ -643,6 +644,13 @@ CREATE INDEX IF NOT EXISTS idx_bus_risk_name ON bus_risk (name);
 CREATE TABLE IF NOT EXISTS bus_audit_case (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
   , effective_at TIMESTAMPTZ
+  , case_number VARCHAR(100) NOT NULL UNIQUE
+  , title VARCHAR(300) NOT NULL
+  , scope TEXT
+  , opened_on DATE NOT NULL
+  , closed_on DATE
+  , status VARCHAR(255) NOT NULL
+  , lead_auditor_id UUID
   , created_at TIMESTAMPTZ DEFAULT NOW()
   , updated_at TIMESTAMPTZ DEFAULT NOW()
   , deleted_at TIMESTAMPTZ
@@ -1549,6 +1557,31 @@ CREATE TABLE IF NOT EXISTS bus_risk_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_risk_status_name ON bus_risk_status (name);
+-- Audit Case Status (bus_audit_case_status)
+CREATE TABLE IF NOT EXISTS bus_audit_case_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_audit_case_status_name ON bus_audit_case_status (name);
 -- Risk Treatment Status (bus_risk_treatment_status)
 CREATE TABLE IF NOT EXISTS bus_risk_treatment_status (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -1971,40 +2004,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_unit_of_measure
     ADD CONSTRAINT fk_bus_unit_of_measure_unit_of_measure_id
     FOREIGN KEY (unit_of_measure_id)
@@ -2175,6 +2174,23 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
+  ALTER TABLE bus_audit_case
+    ADD CONSTRAINT fk_bus_audit_case_party_id
+    FOREIGN KEY (party_id)
+    REFERENCES bus_party(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
   ALTER TABLE bus_finding
     ADD CONSTRAINT fk_bus_finding_control_id
     FOREIGN KEY (control_id)
@@ -2286,6 +2302,7 @@ DROP TABLE IF EXISTS bus_control_status CASCADE;
 DROP TABLE IF EXISTS bus_risk_likelihood CASCADE;
 DROP TABLE IF EXISTS bus_risk_impact CASCADE;
 DROP TABLE IF EXISTS bus_risk_status CASCADE;
+DROP TABLE IF EXISTS bus_audit_case_status CASCADE;
 DROP TABLE IF EXISTS bus_risk_treatment_status CASCADE;
 "#;
 

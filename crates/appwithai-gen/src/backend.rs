@@ -172,6 +172,7 @@ const RENDERED_FILES: &[(&str, &str)] = &[
         "src/controllers/records.rs.hbs",
         "src/controllers/records.rs",
     ),
+    ("src/controllers/accounts.rs.hbs", "src/controllers/accounts.rs"),
     ("src/controllers/report.rs.hbs", "src/controllers/report.rs"),
     ("src/controllers/rules.rs.hbs", "src/controllers/rules.rs"),
     ("src/controllers/ai.rs.hbs", "src/controllers/ai.rs"),
@@ -277,6 +278,7 @@ const RENDERED_FILES: &[(&str, &str)] = &[
     ("tests/requests/ai.rs.hbs", "tests/requests/ai.rs"),
     ("tests/requests/jobs.rs.hbs", "tests/requests/jobs.rs"),
     ("tests/requests/records.rs.hbs", "tests/requests/records.rs"),
+    ("tests/requests/accounts.rs.hbs", "tests/requests/accounts.rs"),
     ("tests/requests/rbac.rs.hbs", "tests/requests/rbac.rs"),
     (
         "tests/requests/workflow.rs.hbs",

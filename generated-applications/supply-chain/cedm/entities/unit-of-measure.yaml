@@ -16,7 +16,6 @@ entity:
         usage: Referenced by Product, transaction lines, inventory, and conversion rules.
         relationshipContext: Identifies the measurement definition rather than a quantity value.
         workflowRole: Allows every quantity-bearing workflow to resolve exactly how a numeric quantity must be interpreted.
-        requiredMeaning: Required for unambiguous measurement semantics.
     - name: code
       type: string
       required: true
@@ -27,7 +26,6 @@ entity:
         usage: Used in forms, integrations, documents, validation, and quantity display.
         relationshipContext: Code identifies the unit definition; it does not represent a conversion or quantity itself.
         workflowRole: Used to resolve units during order entry, purchasing, receipt, inventory, invoicing, and reporting.
-        requiredMeaning: Required for operational interoperability.
     - name: name
       type: string
       required: true
@@ -37,7 +35,6 @@ entity:
         usage: Used in user interfaces, reports, documents, catalogs, and search.
         relationshipContext: Describes the unit definition identified by code and unitOfMeasureId.
         workflowRole: Provides understandable measurement context to business users.
-        requiredMeaning: Required for clear business interpretation.
     - name: symbol
       type: string
       required: false
@@ -47,27 +44,25 @@ entity:
         usage: Used for compact display in documents, labels, reports, and interfaces.
         relationshipContext: Symbol is presentation metadata and does not replace the canonical unit code.
         workflowRole: Improves human-readable representation of quantities.
-        optionalMeaning: Optional when the unit has no standard symbol or display policy does not require one.
     - name: category
       type: enum
       required: true
       values: [QUANTITY, LENGTH, AREA, VOLUME, MASS, TIME, COUNT, CURRENCY, OTHER]
       help:
+        valueSemantics:
+          QUANTITY: A general count or quantity of items.
+          LENGTH: A distance, such as metres or inches.
+          AREA: A surface, such as square metres.
+          VOLUME: A capacity, such as litres.
+          MASS: A weight, such as kilograms or tonnes.
+          TIME: A duration, such as hours or days.
+          COUNT: A number of discrete things, such as each or dozen.
+          CURRENCY: A monetary unit used as a measure.
+          OTHER: A unit that fits no other category.
         summary: Defines the dimensional family of the unit.
         usage: Prevents invalid conversions and supports dimensional validation.
         relationshipContext: Conversion is valid only between compatible dimensions under the applicable conversion model.
         workflowRole: Used when validating Product, SalesOrderLine, PurchaseOrderLine, GoodsReceiptLine, InvoiceLine, and InventoryMovement quantities.
-        requiredMeaning: Required to establish dimensional compatibility.
-        valueSemantics:
-          QUANTITY: The category of the unit of measure is quantity; set it when that is what the business means for this record.
-          LENGTH: The category of the unit of measure is length; set it when that is what the business means for this record.
-          AREA: The category of the unit of measure is area; set it when that is what the business means for this record.
-          VOLUME: The category of the unit of measure is volume; set it when that is what the business means for this record.
-          MASS: The category of the unit of measure is mass; set it when that is what the business means for this record.
-          TIME: The category of the unit of measure is time; set it when that is what the business means for this record.
-          COUNT: The category of the unit of measure is count; set it when that is what the business means for this record.
-          CURRENCY: The category of the unit of measure is currency; set it when that is what the business means for this record.
-          OTHER: The category of the unit of measure is other; set it when that is what the business means for this record.
     - name: conversionFactor
       type: decimal
       required: false
@@ -79,7 +74,6 @@ entity:
         usage: Used for quantity conversion when no context-specific conversion rule overrides the default.
         relationshipContext: Interpreted with baseUnit and category; it must not be changed casually because dependent open transactions may rely on the prior interpretation.
         workflowRole: Supplies the conversion used by new and eligible future quantity transactions after dependency validation.
-        optionalMeaning: Optional for base units or units whose conversion requires a dedicated rule.
     - name: baseUnitId
       type: reference
       target: UnitOfMeasure
@@ -89,22 +83,20 @@ entity:
         usage: Supports standardized quantity storage and conversion.
         relationshipContext: A derived unit belongs to the same dimensional category as its base unit.
         workflowRole: Provides the common measurement basis for reconciliation across PO, receipt, inventory, sales, and invoice quantities.
-        optionalMeaning: Optional for a base unit itself.
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, INACTIVE, RETIRED]
       help:
+        valueSemantics:
+          ACTIVE: Available for use on products and documents.
+          INACTIVE: Not offered for now; can be reactivated.
+          RETIRED: No longer used; kept for history. A final state.
         summary: Controls whether the unit can be used for new transactions.
         usage: Used by master-data validation and transaction entry.
         relationshipContext: Retiring a unit must not invalidate historical quantities already recorded with that unit.
         workflowRole: New quantity-bearing transactions should use ACTIVE units unless an authorized legacy exception exists.
-        requiredMeaning: Required for transaction eligibility.
-        valueSemantics:
-          ACTIVE: The status of the unit of measure is active; set it when that is what the business means for this record.
-          INACTIVE: The status of the unit of measure is inactive; set it when that is what the business means for this record.
-          RETIRED: The status of the unit of measure is retired; set it when that is what the business means for this record.
   relationships:
     - name: baseUnit
       target: UnitOfMeasure
@@ -127,6 +119,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to find which products default to this unit before changing it, and set when a product is given its stocking unit.
         summary: Products using this unit as a standard measurement basis.
         workflowRole: A UOM change must validate affected Product defaults and all open transactions using those products.
     - name: salesOrderLines
@@ -134,6 +127,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to find open sales lines in this unit; check them before the unit's conversion or meaning is altered.
         summary: Sales commitments expressed in this unit.
         workflowRole: Open lines must be checked before conversion semantics are changed or the unit is retired.
     - name: purchaseOrderLines
@@ -141,6 +135,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to find open procurement lines in this unit; check them before the unit's conversion or meaning is altered.
         summary: Procurement commitments expressed in this unit.
         workflowRole: Open procurement lines must be validated before conversion semantics are changed.
     - name: goodsReceiptLines
@@ -148,6 +143,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to reconcile what was received against what was ordered, since receipt quantities are kept in their original unit.
         summary: Receipt quantities expressed in this unit.
         workflowRole: Historical receipt quantities retain their original UOM; future receipts require an active compatible unit.
     - name: invoiceLines
@@ -155,6 +151,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to see billed quantities in this unit; issued invoices keep their recorded unit when conversions change later.
         summary: Billed quantities expressed in this unit.
         workflowRole: Issued invoices retain their recorded UOM; future invoice calculations require compatible active units.
     - name: inventoryMovements
@@ -162,6 +159,7 @@ entity:
       cardinality: 0..*
       ownership: reference
       help:
+        usage: Read to trace stock receipts, issues and transfers expressed in this unit, and to reconcile balances across units.
         summary: Inventory events expressed in this unit.
         workflowRole: Movement history is immutable in measurement meaning; future movements must use a valid conversion.
   invariants:

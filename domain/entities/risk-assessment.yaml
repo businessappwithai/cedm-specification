@@ -7,21 +7,22 @@ entity:
     icon: alert-triangle
   identity: {key: riskAssessmentId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: riskAssessmentId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of RiskAssessment., businessMeaning: Identifies one governed RiskAssessment record., usage: "Governance, workflow, reporting and audit.", relationshipContext: Referenced by compatible enterprise records., requiredMeaning: Required.}}
-  - {name: occurredAt, type: datetime, required: false, help: {summary: Effective occurrence or assessment time where applicable., businessMeaning: Anchors temporal evidence., usage: "Chronology, reporting and audit.", relationshipContext: Historical timing is not silently rewritten., optionalMeaning: Optional when the concept is a standing master or future obligation.}}
+    - {name: riskAssessmentId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the assessment, constant for its life.', usage: Generated on creation; reports and decisions refer to it., relationshipContext: Referenced when a decision cites the assessment.}}
+    - {name: occurredAt, type: datetime, required: false, help: {summary: The date and time the assessment was made., usage: Set when recorded; the sequence of assessments is ordered by it., relationshipContext: Read with the risk to trace its exposure over time.}}
   relationships:
-  - {name: risk, target: Risk, cardinality: '1', ownership: reference, help: {summary: Risk being assessed., businessMeaning: Supplies risk identity and context., usage: Risk governance and treatment., cardinalityMeaning: Exactly one Risk., workflowRole: Assessment may drive controls/treatment without rewriting prior assessments.}}
-  - {name: underwritingEvaluations, target: Underwriting, cardinality: "0..*", ownership: reference, help: {summary: Insurance underwriting evaluations supported by this RiskAssessment., businessMeaning: Reuses structured enterprise risk evidence without turning RiskAssessment into insurance decision authority., usage: "Underwriting decision support and audit.", cardinalityMeaning: Zero or many underwriting evaluations may reference the assessment., workflowRole: Underwriting decisions remain separately governed and explainable.}}
+    - {name: risk, target: Risk, cardinality: '1', ownership: reference, help: {cardinalityMeaning: Each assessment evaluates one risk; a risk may have many assessments over time., summary: Risk being assessed., businessMeaning: Supplies risk identity and context., usage: Risk governance and treatment., workflowRole: Assessment may drive controls/treatment without rewriting prior assessments.}}
+    - {name: underwritingEvaluations, target: Underwriting, cardinality: "0..*", ownership: reference, help: {summary: Insurance underwriting evaluations supported by this RiskAssessment., businessMeaning: Reuses structured enterprise risk evidence without turning RiskAssessment into insurance decision authority., usage: "Underwriting decision support and audit.", cardinalityMeaning: Zero or many underwriting evaluations may reference the assessment., workflowRole: Underwriting decisions remain separately governed and explainable.}}
 
   invariants:
-  - {id: RISK-ASSESSMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
+    - {id: RISK-ASSESSMENT-001, rule: "Finalized evidence and effective history must be preserved; correction, reassessment, settlement or supersession must be explicit."}
   help:
-    summary: A governed evaluation of a Risk's likelihood, impact, exposure, controls, and residual risk at a defined point in time.
-    purpose: Provide canonical governance semantics for RiskAssessment.
-    businessMeaning: A governed evaluation of a Risk's likelihood, impact, exposure, controls, and residual risk at a defined point in time.
+    summary: An evaluation of a risk's likelihood, impact, exposure, controls and residual risk at a defined point in time.
+    businessMeaning: An assessment is the dated judgement on a risk. Keeping each one, rather than overwriting the risk, shows how exposure changed as controls were added and lets reviewers see what was known when a decision was made.
+    usage: Performed by the risk owner or a reviewer; read by governance, audit and underwriting.
+    relationshipContext: An assessment is of exactly one risk, and underwriting evaluations may draw on it.
+    lifecycle: An assessment is recorded once as at its date. A later reassessment is a new record; earlier ones stay as evidence.
+    example: In March the supplier concentration risk is assessed as possible and major; in September, after a second source, it is assessed as unlikely.
     whenUsed: Used in enterprise risk, legal, compliance, audit, contract, incident, and remediation processes where applicable.
-    howItRelates: Connects risks, controls, parties, legal matters, agreements, obligations, evidence and outcomes without replacing their authoritative histories.
-    lifecycleUsage: Created when identified or initiated, progressed through governed review/action, and retained after closure or supersession.
     commonProcesses: Risk assessment, incident management, legal matter management, compliance, remediation, filing and audit.
     commonExamples: Enterprise risk reviews, operational incidents, legal cases, obligations and regulatory/court submissions.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-RISK-ASSESSMENT}

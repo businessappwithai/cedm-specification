@@ -6,21 +6,38 @@ entity:
   ui: {icon: log-in}
   identity: {key: gateEventId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: gateEventId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Gate event., businessMeaning: Identifies one terminal entry/exit occurrence independently of current container or vehicle state., usage: "Terminal operations, custody, billing, security and audit.", relationshipContext: Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects., requiredMeaning: Required.}}
-    - {name: occurredAt, type: datetime, required: true, help: {summary: Timestamp of the gate occurrence., businessMeaning: Establishes custody and terminal chronology., usage: "Tracking, dwell, security and audit.", relationshipContext: Must preserve source event time independently of ingestion time., requiredMeaning: Required.}}
+    - {name: gateEventId, type: uuid, required: true, immutable: true, help: {summary: The identity of this gate occurrence., usage: 'Generated on capture; verification, reversal and visit records refer to it.', businessMeaning: Identifies one terminal entry/exit occurrence independently of current container or vehicle state., relationshipContext: Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects.}}
+    - {name: occurredAt, type: datetime, required: true, help: {summary: 'The moment the container, vehicle or visit passed through the gate or was processed there.', usage: "Taken from the gate system's own timestamp; dwell time, security review and billing disputes are resolved against it.", businessMeaning: Establishes custody and terminal chronology., relationshipContext: Must preserve source event time independently of ingestion time.}}
     - name: direction
       type: enum
       required: true
       values: [IN, OUT, INTERNAL, OTHER]
-      help: {summary: Direction or category of gate movement., businessMeaning: Determines whether the event represents entry, exit or another gate-controlled movement., usage: "Custody, yard inventory and reporting.", relationshipContext: ContainerVisit/Movement must reconcile to direction., valueSemantics: {IN: Entry into controlled area., OUT: Exit from controlled area., INTERNAL: Internal gate-controlled transition., OTHER: Another governed gate direction.}, requiredMeaning: Required.}
+      help:
+        summary: Whether the movement entered the controlled area, left it, or passed between internal zones.
+        usage: Set by the gate system at capture; yard inventory and custody transfer change according to it.
+        valueSemantics:
+          IN: Entry into the controlled terminal area, which starts the subject's time inside.
+          OUT: Exit from the controlled terminal area, which ends the subject's time inside.
+          INTERNAL: A gate-controlled move between zones inside the terminal, with no entry or exit.
+          OTHER: Another governed gate occurrence that is neither entry, exit nor internal move.
+        businessMeaning: "Determines whether the event represents entry, exit or another gate-controlled movement."
+        relationshipContext: ContainerVisit/Movement must reconcile to direction.
     - name: status
       type: enum
       required: true
       default: RECORDED
       values: [RECORDED, VERIFIED, REVERSED]
-      help: {summary: Governance state of the GateEvent., businessMeaning: Distinguishes captured, verified and explicitly reversed events., usage: "Terminal reconciliation and audit.", relationshipContext: Reversal preserves original evidence., valueSemantics: {RECORDED: Event captured., VERIFIED: Event validated., REVERSED: Event effect explicitly reversed.}, requiredMeaning: Required.}
+      help:
+        summary: Whether the recorded gate event has been checked.
+        usage: Set by gate supervision or reconciliation.
+        valueSemantics:
+          RECORDED: Captured at the gate, not yet checked.
+          VERIFIED: Checked and accepted as evidence. A final state.
+          REVERSED: Withdrawn because it was recorded in error; a follow-up event carries the correction. A final state.
+        businessMeaning: "Distinguishes captured, verified and explicitly reversed events."
+        relationshipContext: Reversal preserves original evidence.
   relationships:
-    - {name: gate, target: Gate, cardinality: "1", ownership: reference, help: {summary: Terminal Gate where the event occurred., businessMeaning: Supplies checkpoint context., usage: "Operations, security and reporting.", cardinalityMeaning: Exactly one Gate., workflowRole: Gate must be operational at event time except governed exceptions.}}
+    - {name: gate, target: Gate, cardinality: "1", ownership: reference, help: {cardinalityMeaning: 'Exactly one gate: every occurrence is recorded at a specific checkpoint.', summary: Terminal Gate where the event occurred., businessMeaning: Supplies checkpoint context., usage: "Operations, security and reporting.", workflowRole: Gate must be operational at event time except governed exceptions.}}
     - {name: container, target: Container, cardinality: "0..1", ownership: reference, help: {summary: Container processed by the GateEvent., businessMeaning: Preserves container custody and terminal presence evidence., usage: "Container tracking and yard operations.", cardinalityMeaning: Optional for vehicle-only or non-container events., workflowRole: ContainerVisit/Movement direction must reconcile.}}
     - {name: vehicle, target: Vehicle, cardinality: "0..1", ownership: reference, help: {summary: Vehicle processed by the GateEvent., businessMeaning: Preserves landside transport context., usage: "Truck gate, fleet and security.", cardinalityMeaning: Optional where no Vehicle is involved., workflowRole: Vehicle/driver eligibility may be validated under terminal policy.}}
     - {name: driver, target: Driver, cardinality: "0..1", ownership: reference, help: {summary: Driver associated with the gate movement., businessMeaning: Supports access authorization and accountability., usage: "Security, transport and audit.", cardinalityMeaning: Optional where no driver is involved., workflowRole: Driver eligibility is evaluated at event time.}}

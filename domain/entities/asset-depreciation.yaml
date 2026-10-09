@@ -11,138 +11,130 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: assetDepreciationId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: The immutable identity of the depreciation record or schedule.
-      usage: Used to trace depreciation calculations, accounting periods, revisions, reporting, and financial integrations.
-      relationshipContext: Identifies the depreciation record; Asset identifies the resource being measured and the schedule's parameters determine how depreciation is calculated.
-      requiredMeaning: Required so financial history can be traced without relying on calculation values.
-  - name: depreciationMethod
-    type: enum
-    required: true
-    values: [STRAIGHT, REM_LIFE, RED_BAL, NBVSLUNIT]
-    help:
-      summary: Defines the mathematical or business method used to allocate an asset's depreciable value over its useful life or usage.
-      usage: Drives depreciation calculations, period expense, net book value, forecasting, and financial reporting.
-      relationshipContext: The method must be interpreted together with depreciableBase, salvageValue, usefulLifeMonths, usage metrics, and the accounting policy governing the Asset.
-      valueSemantics:
-        STRAIGHT: Allocates depreciable value systematically over the defined useful life, normally producing an approximately even periodic depreciation amount.
-        REM_LIFE: Calculates depreciation using the asset's remaining depreciable value and remaining useful life under the organization's remaining-life policy.
-        RED_BAL: Applies a declining-balance approach in which depreciation is calculated at a defined rate against an appropriate declining carrying base.
-        NBVSLUNIT: Allocates depreciation based on usage units or output relative to the expected total units, appropriate where consumption rather than elapsed time drives asset value reduction.
-      requiredMeaning: Required because the same asset can produce materially different book values under different accounting methods.
-  - name: depreciationRate
-    type: decimal
-    required: false
-    precision: 12
-    scale: 6
-    help:
-      summary: The rate used by applicable depreciation methods to calculate the portion of the depreciable base recognized during a period.
-      usage: Used by declining-balance or other rate-driven calculations and for financial forecasting.
-      relationshipContext: Rate is method-dependent; it must not be interpreted as a universal percentage independent of depreciationMethod.
-      optionalMeaning: Optional for methods where rate is derived from useful life or usage rather than directly supplied.
-  - name: salvageValue
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The expected residual value that the asset's carrying amount should generally not depreciate below under the applicable accounting policy.
-      usage: Used to determine the depreciable base, depreciation limits, disposal analysis, and residual-value reporting.
-      relationshipContext: Salvage value is an accounting assumption and is distinct from current market sale value or an estimated sale amount in a RepairEstimate.
-      optionalMeaning: Optional where policy assumes zero residual value or the value is maintained elsewhere.
-  - name: usefulLifeMonths
-    type: integer
-    required: false
-    minimum: 0
-    help:
-      summary: The expected number of months over which the asset's depreciable value is allocated under a time-based depreciation policy.
-      usage: Used for straight-line and remaining-life calculations, asset planning, forecasting, and depreciation schedules.
-      relationshipContext: Useful life is an accounting assumption about consumption of economic benefit and is not necessarily the physical service life or maintenance interval.
-      optionalMeaning: Optional for usage-based methods or where useful life is derived from another policy.
-  - name: depreciableBase
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The portion of the asset's value subject to depreciation after considering the applicable acquisition basis and residual-value rules.
-      usage: Provides the financial basis from which depreciation expense is calculated.
-      relationshipContext: It is related to Asset acquisition cost and salvage value but may differ because capitalization, impairment, revaluation, or accounting adjustments can change the depreciable basis.
-      optionalMeaning: Optional when the base is calculated dynamically from other financial records.
-  - name: accumulatedDepreciation
-    type: decimal
-    required: true
-    default: 0
-    precision: 20
-    scale: 4
-    help:
-      summary: The cumulative depreciation recognized against the asset under this schedule up to the relevant accounting point.
-      usage: Used to determine carrying value, period depreciation, disposal gain or loss, and financial reporting.
-      relationshipContext: It is an accumulated financial measure and should not be confused with physical wear, repair cost, or market-value reduction.
-      requiredMeaning: Required with zero as the initial value so an asset with no depreciation recognized has an explicit financial state.
-  - name: netBookValue
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: The asset's carrying amount after recognized depreciation and other applicable accounting adjustments under this schedule.
-      usage: Used for balance-sheet reporting, disposal analysis, impairment assessment, management reporting, and asset valuation.
-      relationshipContext: Net book value is an accounting measure and should not be interpreted as market sale value, repair-adjusted value, or predicted disposition value.
-      optionalMeaning: Optional when carrying value is calculated on demand from the asset's accounting history rather than stored.
+    - name: assetDepreciationId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The immutable identity of the depreciation record or schedule.
+        usage: Used to trace depreciation calculations, accounting periods, revisions, reporting, and financial integrations.
+        relationshipContext: Identifies the depreciation record; Asset identifies the resource being measured and the schedule's parameters determine how depreciation is calculated.
+    - name: depreciationMethod
+      type: enum
+      required: true
+      values: [STRAIGHT, REM_LIFE, RED_BAL, NBVSLUNIT]
+      help:
+        summary: Defines the mathematical or business method used to allocate an asset's depreciable value over its useful life or usage.
+        usage: Drives depreciation calculations, period expense, net book value, forecasting, and financial reporting.
+        relationshipContext: The method must be interpreted together with depreciableBase, salvageValue, usefulLifeMonths, usage metrics, and the accounting policy governing the Asset.
+        valueSemantics:
+          STRAIGHT: Allocates depreciable value systematically over the defined useful life, normally producing an approximately even periodic depreciation amount.
+          REM_LIFE: Calculates depreciation using the asset's remaining depreciable value and remaining useful life under the organization's remaining-life policy.
+          RED_BAL: Applies a declining-balance approach in which depreciation is calculated at a defined rate against an appropriate declining carrying base.
+          NBVSLUNIT: Allocates depreciation based on usage units or output relative to the expected total units, appropriate where consumption rather than elapsed time drives asset value reduction.
+    - name: depreciationRate
+      type: decimal
+      required: false
+      precision: 12
+      scale: 6
+      help:
+        summary: The rate used by applicable depreciation methods to calculate the portion of the depreciable base recognized during a period.
+        usage: Used by declining-balance or other rate-driven calculations and for financial forecasting.
+        relationshipContext: Rate is method-dependent; it must not be interpreted as a universal percentage independent of depreciationMethod.
+    - name: salvageValue
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The expected residual value that the asset's carrying amount should generally not depreciate below under the applicable accounting policy.
+        usage: Used to determine the depreciable base, depreciation limits, disposal analysis, and residual-value reporting.
+        relationshipContext: Salvage value is an accounting assumption and is distinct from current market sale value or an estimated sale amount in a RepairEstimate.
+    - name: usefulLifeMonths
+      type: integer
+      required: false
+      minimum: 0
+      help:
+        summary: The expected number of months over which the asset's depreciable value is allocated under a time-based depreciation policy.
+        usage: Used for straight-line and remaining-life calculations, asset planning, forecasting, and depreciation schedules.
+        relationshipContext: Useful life is an accounting assumption about consumption of economic benefit and is not necessarily the physical service life or maintenance interval.
+    - name: depreciableBase
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The portion of the asset's value subject to depreciation after considering the applicable acquisition basis and residual-value rules.
+        usage: Provides the financial basis from which depreciation expense is calculated.
+        relationshipContext: It is related to Asset acquisition cost and salvage value but may differ because capitalization, impairment, revaluation, or accounting adjustments can change the depreciable basis.
+    - name: accumulatedDepreciation
+      type: decimal
+      required: true
+      default: 0
+      precision: 20
+      scale: 4
+      help:
+        summary: The cumulative depreciation recognized against the asset under this schedule up to the relevant accounting point.
+        usage: Used to determine carrying value, period depreciation, disposal gain or loss, and financial reporting.
+        relationshipContext: It is an accumulated financial measure and should not be confused with physical wear, repair cost, or market-value reduction.
+    - name: netBookValue
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The asset's carrying amount after recognized depreciation and other applicable accounting adjustments under this schedule.
+        usage: Used for balance-sheet reporting, disposal analysis, impairment assessment, management reporting, and asset valuation.
+        relationshipContext: Net book value is an accounting measure and should not be interpreted as market sale value, repair-adjusted value, or predicted disposition value.
   relationships:
-  - name: asset
-    target: Asset
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Identifies the individual Asset whose financial depreciation is being measured.
-      usage: Connects depreciation calculations to the asset's acquisition, lifecycle, ownership, maintenance, and disposal history.
-      cardinalityMeaning: Exactly one Asset is measured by a depreciation record.
-      context: Asset is the physical/accountable resource; AssetDepreciation is the financial measurement of that resource.
-  - name: container
-    target: Container
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Provides a direct association to a shipping Container when the depreciation schedule is maintained specifically for container equipment.
-      usage: Supports container-fleet accounting, book-value analysis, repair economics, and disposition decisions.
-      cardinalityMeaning: Zero or one Container may be linked because not every depreciated Asset is a container.
-      context: Container is an industry-specific asset/equipment concept; Asset remains the general CEDM asset abstraction.
-  - name: product
-    target: Product
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Identifies the standardized product or equipment definition relevant to the depreciated asset.
-      usage: Supports fleet/class-level depreciation analysis, equipment reporting, and policy assignment.
-      cardinalityMeaning: Zero or one Product may be linked when depreciation policy is associated with a product class or model.
-      context: Product describes the reusable model; depreciation remains attached to the individual Asset and its accounting context.
-  - name: currency
-    target: Currency
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Identifies the currency in which monetary depreciation values are expressed.
-      usage: Used to interpret depreciable base, accumulated depreciation, salvage value, and net book value in financial reporting.
-      cardinalityMeaning: Zero or one Currency may be linked when currency is inherited from the accounting ledger or financial context.
-      context: Currency gives monetary values their denomination and does not define the depreciation method or asset identity.
+    - name: asset
+      target: Asset
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: Identifies the individual Asset whose financial depreciation is being measured.
+        usage: Connects depreciation calculations to the asset's acquisition, lifecycle, ownership, maintenance, and disposal history.
+        cardinalityMeaning: Exactly one Asset is measured by a depreciation record.
+        context: Asset is the physical/accountable resource; AssetDepreciation is the financial measurement of that resource.
+    - name: container
+      target: Container
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Provides a direct association to a shipping Container when the depreciation schedule is maintained specifically for container equipment.
+        usage: Supports container-fleet accounting, book-value analysis, repair economics, and disposition decisions.
+        cardinalityMeaning: Zero or one Container may be linked because not every depreciated Asset is a container.
+        context: Container is an industry-specific asset/equipment concept; Asset remains the general CEDM asset abstraction.
+    - name: product
+      target: Product
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the standardized product or equipment definition relevant to the depreciated asset.
+        usage: Supports fleet/class-level depreciation analysis, equipment reporting, and policy assignment.
+        cardinalityMeaning: Zero or one Product may be linked when depreciation policy is associated with a product class or model.
+        context: Product describes the reusable model; depreciation remains attached to the individual Asset and its accounting context.
+    - name: currency
+      target: Currency
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: Identifies the currency in which monetary depreciation values are expressed.
+        usage: Used to interpret depreciable base, accumulated depreciation, salvage value, and net book value in financial reporting.
+        cardinalityMeaning: Zero or one Currency may be linked when currency is inherited from the accounting ledger or financial context.
+        context: Currency gives monetary values their denomination and does not define the depreciation method or asset identity.
   invariants:
-  - id: DEPRECIATION-001
-    rule: depreciationRate must be non-negative when supplied and must be valid for the selected depreciationMethod.
-  - id: DEPRECIATION-002
-    rule: usefulLifeMonths must be greater than zero when required by the selected time-based depreciationMethod.
-  - id: DEPRECIATION-003
-    rule: accumulatedDepreciation must be non-negative.
-  - id: DEPRECIATION-004
-    rule: netBookValue should reconcile with the applicable depreciable basis, accumulated depreciation, and accounting adjustments.
-  - id: DEPRECIATION-005
-    rule: netBookValue must not fall below applicable salvageValue unless an authorized impairment, write-off, or other accounting adjustment explicitly permits it.
-  - {id: ASSET-DEPRECIATION-EXE-001, rule: "Depreciation Rate cannot be negative.", violatedWhen: "depreciation_rate != null and depreciation_rate < 0", message: "Depreciation Rate cannot be negative."}
+    - id: DEPRECIATION-001
+      rule: depreciationRate must be non-negative when supplied and must be valid for the selected depreciationMethod.
+    - id: DEPRECIATION-002
+      rule: usefulLifeMonths must be greater than zero when required by the selected time-based depreciationMethod.
+    - id: DEPRECIATION-003
+      rule: accumulatedDepreciation must be non-negative.
+    - id: DEPRECIATION-004
+      rule: netBookValue should reconcile with the applicable depreciable basis, accumulated depreciation, and accounting adjustments.
+    - id: DEPRECIATION-005
+      rule: netBookValue must not fall below applicable salvageValue unless an authorized impairment, write-off, or other accounting adjustment explicitly permits it.
+    - {id: ASSET-DEPRECIATION-EXE-001, rule: "Depreciation Rate cannot be negative.", violatedWhen: "depreciation_rate != null and depreciation_rate < 0", message: "Depreciation Rate cannot be negative."}
   help:
     summary: Represents the financial measurement of how an Asset's depreciable value is consumed over time or usage.
     businessMeaning: AssetDepreciation translates an asset's economic consumption into an accounting measure. It is not a description of physical condition; an asset can be heavily depreciated while remaining operational, or have a high book value while requiring significant repair.

@@ -1,0 +1,3 @@
+@ Shipment
+r handlingUnits
+n: Any number of handling units, such as pallets or cartons, travel in one shipment.

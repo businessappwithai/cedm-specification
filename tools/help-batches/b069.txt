@@ -1,0 +1,28 @@
+@ Supplier
+a supplierType
+v INDIVIDUAL: A person supplying in their own name.
+v BUSINESS: A commercial company.
+v GOVERNMENT: A public body.
+v INTERNAL: Another unit of the same group.
+v OTHER: A supplier that fits no other type.
+a qualificationStatus
+v NOT_REVIEWED: Not yet assessed.
+v PENDING: Assessment is under way.
+v QUALIFIED: Approved to supply.
+v SUSPENDED: Approval withdrawn for a time.
+v DISQUALIFIED: Not approved to supply.
+a status
+v ACTIVE: Available for ordering.
+v INACTIVE: Not currently used; can be reactivated.
+v BLOCKED: Orders and payments are stopped.
+v RETIRED: No longer used; kept for history. A final state.
+
+@ SupplierCreditNote
+a status
+v DRAFT: Drafted by the buyer and not yet approved.
+v APPROVED: Accepted and ready to post.
+v POSTED: Recorded in the accounts; available to apply to invoices.
+v PARTIALLY_APPLIED: Part of the credit has reduced invoices.
+v FULLY_APPLIED: The whole credit has been used. A final state.
+v CANCELLED: Withdrawn before posting. A final state.
+v REVERSED: A posted credit undone by a reversing entry. A final state.

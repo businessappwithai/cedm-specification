@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:14.049Z
+//! Generated: 2026-10-09T15:29:20.612Z
 //! Project: life-sciences
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -73,17 +73,12 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     (
         "Compound",
         "status",
-        "CANDIDATE",
+        "RESEARCH",
         &["DEVELOPMENT", "DISCONTINUED"],
     ),
     ("Experiment", "status", "PLANNED", &["RUNNING", "CANCELLED"]),
     ("Sample", "status", "PLANNED", &["COLLECTED"]),
-    (
-        "ChemicalBatch",
-        "status",
-        "PLANNED",
-        &["RELEASED", "REJECTED"],
-    ),
+    ("ChemicalBatch", "status", "PLANNED", &["QUARANTINED"]),
     (
         "Product",
         "status",

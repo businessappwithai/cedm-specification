@@ -6,7 +6,7 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-10-04T01:11:22.324Z
+ * Generated: 2026-10-09T15:28:02.033Z
  * Project: compliance
  */
 
@@ -119,7 +119,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1013,
+        enumReferenceId: 1014,
       },
       {
         name: "display_name",
@@ -137,7 +137,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1016,
+        enumReferenceId: 1017,
       },
       {
         name: "external_reference",
@@ -233,7 +233,7 @@ export const entities: EntityMeta[] = [
         required: false,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1017,
+        enumReferenceId: 1018,
       },
       {
         name: "nationality_id",
@@ -251,7 +251,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1018,
+        enumReferenceId: 1019,
       },
       {
         name: "display_name",
@@ -269,7 +269,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1019,
+        enumReferenceId: 1020,
       },
       {
         name: "external_reference",
@@ -330,7 +330,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1010,
+        enumReferenceId: 1011,
       },
       {
         name: "status",
@@ -339,7 +339,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1012,
+        enumReferenceId: 1013,
       },
       {
         name: "legal_name",
@@ -375,7 +375,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1011,
+        enumReferenceId: 1012,
       },
       {
         name: "display_name",
@@ -443,7 +443,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1014,
+        enumReferenceId: 1015,
       },
       {
         name: "code",
@@ -477,7 +477,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1015,
+        enumReferenceId: 1016,
       },
       {
         name: "person_id",
@@ -887,7 +887,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1008,
+        enumReferenceId: 1009,
       },
       {
         name: "status",
@@ -896,7 +896,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1009,
+        enumReferenceId: 1010,
       },
       {
         name: "address_id",
@@ -1230,7 +1230,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1005,
+        enumReferenceId: 1006,
       },
     ],
   },
@@ -1250,7 +1250,7 @@ export const entities: EntityMeta[] = [
         isForeignKey: false,
       },
       {
-        name: "from_currency",
+        name: "from_currency_id",
         displayName: "From Currency",
         type: "string",
         required: true,
@@ -1259,7 +1259,7 @@ export const entities: EntityMeta[] = [
         references: "Currency",
       },
       {
-        name: "to_currency",
+        name: "to_currency_id",
         displayName: "To Currency",
         type: "string",
         required: true,
@@ -1282,7 +1282,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1006,
+        enumReferenceId: 1007,
       },
       {
         name: "effective_at",
@@ -1316,7 +1316,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1007,
+        enumReferenceId: 1008,
       },
     ],
   },
@@ -1369,7 +1369,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1028,
+        enumReferenceId: 1029,
       },
       {
         name: "conversion_factor",
@@ -1395,7 +1395,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1029,
+        enumReferenceId: 1030,
       },
     ],
   },
@@ -1508,7 +1508,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1027,
+        enumReferenceId: 1028,
       },
       {
         name: "status",
@@ -1517,7 +1517,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1026,
+        enumReferenceId: 1027,
       },
       {
         name: "priority",
@@ -1526,7 +1526,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1025,
+        enumReferenceId: 1026,
       },
       {
         name: "due_at",
@@ -1623,13 +1623,22 @@ export const entities: EntityMeta[] = [
         maxLength: 100,
       },
       {
+        name: "policy_version",
+        displayName: "Policy Version",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 30,
+      },
+      {
         name: "status",
         displayName: "Status",
         type: "string",
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1020,
+        enumReferenceId: 1021,
       },
       {
         name: "effective_from",
@@ -1707,7 +1716,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1002,
+        enumReferenceId: 1003,
       },
       {
         name: "frequency",
@@ -1716,7 +1725,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1003,
+        enumReferenceId: 1004,
       },
       {
         name: "status",
@@ -1725,7 +1734,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1004,
+        enumReferenceId: 1005,
       },
       {
         name: "owner_id",
@@ -1804,7 +1813,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1022,
+        enumReferenceId: 1023,
       },
       {
         name: "impact",
@@ -1813,7 +1822,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1021,
+        enumReferenceId: 1022,
       },
       {
         name: "status",
@@ -1822,7 +1831,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1023,
+        enumReferenceId: 1024,
       },
       {
         name: "owner_id",
@@ -1865,6 +1874,66 @@ export const entities: EntityMeta[] = [
         required: false,
         unique: false,
         isForeignKey: false,
+      },
+      {
+        name: "case_number",
+        displayName: "Case Number",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "title",
+        displayName: "Title",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 300,
+      },
+      {
+        name: "scope",
+        displayName: "Scope",
+        type: "text",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "opened_on",
+        displayName: "Opened On",
+        type: "date",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "closed_on",
+        displayName: "Closed On",
+        type: "date",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "status",
+        displayName: "Status",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        enumReferenceId: 1002,
+      },
+      {
+        name: "lead_auditor_id",
+        displayName: "Lead Auditor",
+        type: "string",
+        required: false,
+        unique: false,
+        isForeignKey: true,
+        references: "Party",
       },
     ],
   },
@@ -2025,7 +2094,7 @@ export const entities: EntityMeta[] = [
         required: true,
         unique: false,
         isForeignKey: false,
-        enumReferenceId: 1024,
+        enumReferenceId: 1025,
       },
       {
         name: "context_id",
@@ -3825,6 +3894,65 @@ export const entities: EntityMeta[] = [
     ],
   },
   {
+    name: "AuditCaseStatus",
+    tableName: "bus_audit_case_status",
+    route: "bus_audit_case_status",
+    displayName: "Audit Case Status",
+    primaryKey: "id",
+    fields: [
+      {
+        name: "id",
+        displayName: "Id",
+        type: "string",
+        required: false,
+        unique: true,
+        isForeignKey: false,
+      },
+      {
+        name: "code",
+        displayName: "Code",
+        type: "string",
+        required: true,
+        unique: true,
+        isForeignKey: false,
+        maxLength: 100,
+      },
+      {
+        name: "name",
+        displayName: "Name",
+        type: "string",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+        maxLength: 200,
+      },
+      {
+        name: "description",
+        displayName: "Description",
+        type: "text",
+        required: false,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "sequence",
+        displayName: "Sequence",
+        type: "integer",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+      {
+        name: "is_active",
+        displayName: "Is Active",
+        type: "boolean",
+        required: true,
+        unique: false,
+        isForeignKey: false,
+      },
+    ],
+  },
+  {
     name: "RiskTreatmentStatus",
     tableName: "bus_risk_treatment_status",
     route: "bus_risk_treatment_status",
@@ -4069,20 +4197,6 @@ export const relationships: RelationshipMeta[] = [
     foreignKey: "currency_id",
   },
   {
-    name: "from_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
-    name: "to_currency_ref",
-    sourceEntity: "Currency",
-    targetEntity: "ExchangeRate",
-    cardinality: "oneToMany",
-    foreignKey: "currency_id",
-  },
-  {
     name: "base_unit",
     sourceEntity: "UnitOfMeasure",
     targetEntity: "UnitOfMeasure",
@@ -4165,6 +4279,13 @@ export const relationships: RelationshipMeta[] = [
     targetEntity: "RiskTreatment",
     cardinality: "oneToMany",
     foreignKey: "risk_id",
+  },
+  {
+    name: "lead_auditor",
+    sourceEntity: "Party",
+    targetEntity: "AuditCase",
+    cardinality: "oneToMany",
+    foreignKey: "party_id",
   },
   {
     name: "control_finding",

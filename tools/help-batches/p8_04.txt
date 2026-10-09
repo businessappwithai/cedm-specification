@@ -1,0 +1,52 @@
+@ Task
+a code
+s: The short business code that identifies the task in work queues, such as TSK-10482.
+u: Assigned when the task is created; quoted in assignments, escalations and reports, and used to find the task without its full name.
+a name
+s: A short title stating what work the task asks someone or something to do.
+u: Entered by the creator or the workflow that spawned it; shown in queues and notifications, so it should read as an action.
+a description
+s: Fuller instructions explaining what is to be done, why, and any details the performer needs.
+u: Written by the creator; read by the assignee before starting, and updated if scope changes while the task is open.
+a status
+s: Where the task stands, from creation through assignment and execution to completion, cancellation or failure.
+u: Moved by the assignee, workflow or system as work proceeds; completed, cancelled and failed tasks are closed to further work.
+v CREATED: The task exists but is not yet ready to be picked up.
+v READY: The task is released and waiting for someone to be assigned.
+v ASSIGNED: A person or party has been given the task but has not started it.
+v IN_PROGRESS: The assignee is actively working on the task.
+v BLOCKED: Work is held up by a dependency, missing input or decision.
+v COMPLETED: The work was done as required. A final state.
+v CANCELLED: The task was withdrawn before completion. A final state.
+v FAILED: The task ended without achieving its result and needs follow-up elsewhere. A final state.
+a priority
+s: How urgently the task should be worked relative to others in the same queue.
+u: Set by the creator or workflow rules; assignees and queue views sort by it, and it may raise escalations when overdue.
+v LOW: Can wait behind other work without business impact.
+v NORMAL: Standard urgency, handled in the ordinary course of work.
+v HIGH: Needs prompt attention ahead of normal work.
+v CRITICAL: Needs immediate action because delay causes serious business impact.
+
+@ TaxJurisdiction
+a status
+s: Shows whether this tax jurisdiction record is still being prepared, in force, or no longer in use.
+u: Moved by tax administrators; only active jurisdictions are offered when determining tax, and completed or cancelled ones are kept for history.
+@ TaxRate
+a status
+s: Shows whether the tax rate is being prepared, currently applicable, or withdrawn from use.
+u: Moved by tax administrators; only active rates are picked up by tax calculation, and older rates stay for history.
+@ TaxRegistration
+a taxRegistrationId
+s: The permanent system identity of one tax registration, unaffected by changes to the registration number.
+u: Generated on creation and never changed; tax transactions and filings refer to the registration through it.
+@ TaxRule
+a name
+s: The descriptive name of the tax rule, such as Standard VAT on domestic goods.
+u: Entered by tax administrators; shown wherever a rule is chosen or explained, and should say what the rule covers.
+a status
+s: Shows whether the tax rule is being drafted, applied to transactions, paused, or withdrawn.
+u: Moved by tax administrators; only active rules inside their validity dates are used to determine tax.
+v DRAFT: The rule is being prepared and is not used for tax determination.
+v ACTIVE: The rule is in force and applied to qualifying transactions within its validity dates.
+v INACTIVE: The rule is switched off for now but can be reactivated.
+v RETIRED: The rule has been withdrawn permanently and is kept for history. A final state.

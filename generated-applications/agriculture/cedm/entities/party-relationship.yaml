@@ -7,20 +7,18 @@ entity:
     icon: users
   identity: {key: partyRelationshipId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: partyRelationshipId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of PartyRelationship., businessMeaning: Identifies the governed concept independently of mutable labels., usage: "Cross-domain reference, integration and audit.", relationshipContext: Used wherever this PartyRelationship is referenced., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code for PartyRelationship., businessMeaning: Human and integration-friendly identifier., usage: "Search, configuration, exchange and reporting.", relationshipContext: Unique within its governing context according to policy., requiredMeaning: Required.}}
-  - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable name of PartyRelationship., businessMeaning: Communicates the concept to business users., usage: "UI, documents and reports.", relationshipContext: Does not replace immutable identity., requiredMeaning: Required.}}
+    - {name: partyRelationshipId, type: uuid, required: true, immutable: true, help: {summary: The identity of the relationship., usage: Generated on creation; documents and reports refer to it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The code of the relationship type or instance, such as SUBSIDIARY_OF.', usage: Chosen from the relationship list; used in queries and rules.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'A readable description of the relationship, such as Acme Ltd is subsidiary of Acme Group.', usage: Entered when the relationship is created; shown in party views and lists so users can understand the link at a glance.}}
   relationships:
-  - {name: fromParty, target: Party, cardinality: "1", ownership: reference, help: {summary: Governing Party context for this record., businessMeaning: Establishes ownership and enterprise context., usage: "Authorization, reporting and workflow.", cardinalityMeaning: Exactly one Party., workflowRole: Referenced workflows must remain compatible with governing context.}}
+    - {name: fromParty, target: Party, cardinality: "1", ownership: reference, help: {summary: The party at the origin of the relationship., usage: Chosen when the relationship is created., cardinalityMeaning: 'Exactly one origin party: a relationship always starts at a particular party.', workflowRole: Together with the other party it identifies the relationship.}}
   invariants:
-  - {id: PARTY-RELATIONSHIP-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
+    - {id: PARTY-RELATIONSHIP-001, rule: Code and identity semantics must remain stable within the governing context and historical references must not be silently repointed.}
   help:
-    summary: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship.
-    purpose: Provide a canonical enterprise representation with stable identity and governed semantics.
-    businessMeaning: A governed time-bounded relationship between two Parties describing a business, organizational, legal, household, customer, supplier, employment, or other role relationship.
-    whenUsed: Used whenever enterprise processes need this concept as controlled master or reference data.
-    howItRelates: Referenced by compatible domain entities and workflows while preserving a single canonical identity.
-    lifecycleUsage: Created under governance, maintained through controlled changes, and retired or superseded without rewriting history where applicable.
-    commonProcesses: Master-data governance, transaction validation, reporting, integration, and audit.
-    commonExamples: Enterprise configuration and cross-domain business workflows.
+    summary: A time-bound relationship between two parties that describes how they stand to each other in business, legal, household, employment or another way.
+    businessMeaning: 'Parties are connected to each other: a company to its subsidiary, a person to their employer, one household member to another. Recording the relationship, with its dates, lets the organisation see who is connected to whom and since when.'
+    usage: Created when a relationship is established; ended when it stops; read by sales, compliance and customer service.
+    relationshipContext: A relationship runs from one Party to another.
+    lifecycle: Code and identity stay stable, and the relationship's history is kept when it ends or changes.
+    example: '"Subsidiary of": Acme Ltd is a subsidiary of Acme Holdings from 1 January 2019.'
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PARTY-RELATIONSHIP}

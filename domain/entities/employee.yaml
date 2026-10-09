@@ -12,134 +12,101 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: employeeId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the employee record associated with this Employee. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
-      relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: partyRoleId
-    type: reference
-    target: PartyRole
-    required: true
-    unique: true
-    immutable: true
-    help:
-      summary: Identifies the related PartyRole associated with this Employee. It provides the link needed to navigate from
-        this record to the related business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
-      relationshipContext: This field connects Employee to PartyRole. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related PartyRole.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: employeeNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of employee number for the Employee. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
-      relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: hireDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the hire. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
-      relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: terminationDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the termination. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
-      relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - ON_LEAVE
-    - TERMINATED
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Employee records, where applicable.
-      relationshipContext: Its meaning is specific to Employee; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Employee.
-        ON_LEAVE: Represents the on leave state or classification in the context of Employee.
-        TERMINATED: Represents the terminated state or classification in the context of Employee.
-        RETIRED: Represents the retired state or classification in the context of Employee.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: employeeId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the employee role.
+        usage: Generated on hiring; leave, payroll and attendance refer to it.
+    - name: partyRoleId
+      type: reference
+      target: PartyRole
+      required: true
+      unique: true
+      immutable: true
+      help:
+        summary: The party role that this employee record specialises.
+        usage: Set at hiring so the role is linked to the person's general identity.
+    - name: employeeNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The number the employer gives the employee, printed on badges and payslips.
+        usage: Allocated at hiring; unique.
+    - name: hireDate
+      type: date
+      required: false
+      help:
+        summary: The date the person started as an employee.
+        usage: Entered by HR; the start of service for benefits.
+    - name: terminationDate
+      type: date
+      required: false
+      help:
+        summary: The date the employment ended.
+        usage: Entered when it ends; must not be before the hire date.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - ON_LEAVE
+        - TERMINATED
+        - RETIRED
+      help:
+        summary: Whether the person is currently working, away on leave, or has left the organisation.
+        usage: Set by HR when employment changes; payroll and access rules read it, and the two leaver states close the record.
+        valueSemantics:
+          ACTIVE: Employed and currently working for the organisation.
+          ON_LEAVE: Employed but away on approved leave, so not currently working.
+          TERMINATED: Employment ended by dismissal, resignation or end of contract. A final state.
+          RETIRED: Left the organisation on retirement. A final state.
   relationships:
-  - name: person
-    target: Person
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Employee to Person so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Person records associated with a Employee.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Employee to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Employee.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: leaveRequests
-    target: LeaveRequest
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Leave requests submitted for this Employee.
-      businessMeaning: Preserves absence authorization history independently of actual attendance evidence.
-      usage: Employee self-service, HR, scheduling, payroll and audit.
-      cardinalityMeaning: An Employee may have zero or many leave requests.
-      workflowRole: Requests are evaluated under applicable Employment and leave policy.
-  - name: attendanceRecords
-    target: Attendance
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Attendance evidence recorded for this Employee.
-      businessMeaning: Captures actual work or absence separately from authorization and payroll calculation.
-      usage: Timekeeping, workforce analytics, scheduling, payroll and audit.
-      cardinalityMeaning: An Employee may have zero or many attendance records.
-      workflowRole: Approved attendance can become payroll input while corrections remain explicit evidence.
-
+    - name: person
+      target: Person
+      cardinality: '1'
+      ownership: reference
+      help:
+        usage: Chosen when the employee is hired; personal details are read from that person and are not copied onto the employee.
+        summary: The person who is the employee.
+        cardinalityMeaning: 'Exactly one person: an employee role is held by a specific individual.'
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation that employs the person in this employee role.
+        usage: Set by HR at hiring; payroll, reporting lines and headcount are read through it, and it stays empty for an unattached record.
+        cardinalityMeaning: At most one organisation, because an employee record belongs to a single employer at a time.
+    - name: leaveRequests
+      target: LeaveRequest
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of leave requests over the employment.
+        summary: Leave requests submitted for this Employee.
+        businessMeaning: Preserves absence authorization history independently of actual attendance evidence.
+        usage: Employee self-service, HR, scheduling, payroll and audit.
+        workflowRole: Requests are evaluated under applicable Employment and leave policy.
+    - name: attendanceRecords
+      target: Attendance
+      cardinality: 0..*
+      ownership: reference
+      help:
+        cardinalityMeaning: Any number of attendance records, one for each working day recorded.
+        summary: Attendance evidence recorded for this Employee.
+        businessMeaning: Captures actual work or absence separately from authorization and payroll calculation.
+        usage: Timekeeping, workforce analytics, scheduling, payroll and audit.
+        workflowRole: Approved attendance can become payroll input while corrections remain explicit evidence.
   invariants:
-  - id: EMPLOYEE-001
-    rule: partyRole.roleType must equal EMPLOYEE.
-  - id: EMPLOYEE-002
-    rule: terminationDate must not precede hireDate.
+    - id: EMPLOYEE-001
+      rule: partyRole.roleType must equal EMPLOYEE.
+    - id: EMPLOYEE-002
+      rule: terminationDate must not precede hireDate.
   lifecycle:
     title: Employee Lifecycle
     attribute: status
@@ -154,18 +121,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: ON_LEAVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a party role specialization called Employee within the CEDM business model.
-    businessMeaning: Employee is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Employee records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Person, Organization.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Employee record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: A person engaged by an organisation as an employee.
+    businessMeaning: 'Employment law, payroll and HR all apply to the employee role rather than to the person in general. This record carries that role: the employee number and the hiring and leaving dates.'
+    usage: Created when a person is hired; updated as they take leave or leave the organisation; read by HR, payroll and managers.
+    relationshipContext: An employee is a Person, may belong to an Organization, requests leave and has attendance records.
+    lifecycle: An employee is active, may be on leave, and ends terminated or retired.
+    example: Employee 10482, hired on 1 March, currently active in the finance team.
 specification:
   version: 0.1.0
   status: draft

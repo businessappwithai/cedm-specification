@@ -1,0 +1,19 @@
+@ SupplierDebitNote
+a debitNoteNumber
+s: The business reference of the debit note, used on supplier statements and in correspondence.
+u: Assigned when the debit is drafted; unique; distinct from the claim, purchase order, invoice and return numbers.
+a currencyId
+s: The currency in which all amounts of the debit note are expressed.
+u: Chosen when the debit is created; applying it to an invoice in another currency needs recorded exchange rate evidence.
+a subtotal
+s: The value of the debit before tax, summed from its lines.
+u: Calculated from the debit lines; tax is computed on it and it is checked before the note is posted.
+a taxAmount
+s: The tax component of the debit adjustment, summed from its lines.
+u: Calculated from the lines; defaults to zero and is used in tax reporting and accounting reconciliation.
+a totalAmount
+s: The total of the supplier debit adjustment, including tax.
+u: Calculated as subtotal plus tax; it is the most that can be applied to invoices and is shown to the supplier.
+a amountRemaining
+s: The part of the posted debit not yet applied to supplier invoices.
+u: Maintained as applications and reversals are recorded; it falls to zero when the debit is fully applied.

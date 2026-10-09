@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:31:05.116Z
+//! Generated: 2026-10-09T15:30:36.159Z
 //! Project: sales
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,9 +43,9 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("Customer", "status", "RETIRED"),
-    ("Lead", "status", "LOST"),
-    ("Opportunity", "stage", "LOST"),
-    ("Quotation", "status", "REJECTED"),
+    ("Lead", "status", "DISQUALIFIED"),
+    ("Opportunity", "stage", "WON"),
+    ("Quotation", "status", "ACCEPTED"),
     ("SalesOrder", "status", "FULFILLED"),
     ("PurchaseOrder", "status", "CLOSED"),
     ("Product", "status", "DISCONTINUED"),
@@ -53,7 +53,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("PaymentTerm", "status", "RETIRED"),
     ("ProductCategory", "status", "RETIRED"),
     ("DiscountRule", "status", "RETIRED"),
-    ("CustomerReturn", "status", "DISPOSITIONED"),
+    ("CustomerReturn", "status", "COMPLETED"),
     ("Brand", "status", "RETIRED"),
 ];
 
@@ -84,14 +84,19 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "ACTIVE",
         &["INACTIVE", "BLOCKED", "RETIRED"],
     ),
-    ("Lead", "status", "NEW", &["QUALIFYING"]),
-    ("Opportunity", "stage", "QUALIFICATION", &["DISCOVERY"]),
     (
-        "Quotation",
+        "Lead",
         "status",
-        "DRAFT",
-        &["SUBMITTED", "REJECTED", "CANCELLED"],
+        "NEW",
+        &["QUALIFYING", "DISQUALIFIED", "LOST"],
     ),
+    (
+        "Opportunity",
+        "stage",
+        "QUALIFICATION",
+        &["DISCOVERY", "LOST"],
+    ),
+    ("Quotation", "status", "DRAFT", &["SUBMITTED", "CANCELLED"]),
     ("SalesOrder", "status", "DRAFT", &["CONFIRMED", "CANCELLED"]),
     (
         "PurchaseOrder",

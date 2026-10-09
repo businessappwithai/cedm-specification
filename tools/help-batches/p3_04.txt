@@ -1,0 +1,53 @@
+@ Lead
+a leadNumber
+s: The reference number that identifies this prospective customer or opportunity before it has been qualified.
+u: Allocated by the system when the lead is created; unique, never reused, and quoted by sales staff in follow-up and reports.
+a status
+s: How far the sales team has worked the lead, from first contact to conversion or loss.
+u: Moved by sales as it is qualified; a qualified lead can be converted into an opportunity, while disqualified, converted and lost leads are not worked again.
+a estimatedValue
+s: The potential revenue sales expects if the lead becomes a customer, in the lead's currency.
+u: Estimated by the salesperson and revised as the lead is qualified; sales managers use it to prioritise effort and forecast the pipeline.
+@ Lease
+a leaseType
+s: The kind of lease, which decides its accounting and legal treatment.
+u: Chosen when the lease is created and not expected to change; finance uses it to decide how payments and the asset are recorded.
+v OPERATING: A lease where the lessor keeps the risks and rewards of ownership.
+v FINANCE: A lease that transfers substantially all the risks and rewards of ownership to the lessee.
+v COMMERCIAL: A lease of business premises such as offices, shops or industrial units.
+v RESIDENTIAL: A lease of a home to a tenant for living in.
+v EQUIPMENT: A lease of machinery, vehicles or other movable equipment.
+v OTHER: Any lease that fits none of the other types, described in its terms.
+a status
+s: Where the lease stands, from negotiation through occupation to its end.
+u: Moved by the lessor or property manager; rent is charged only while the lease is ACTIVE, and ended leases stay on record.
+v DRAFT: Being negotiated or prepared and not yet binding.
+v ACTIVE: In force, with the lessee entitled to use the property or asset and rent falling due.
+v SUSPENDED: Paused, for example during a dispute or an agreed rent holiday.
+v EXPIRED: Ran to its agreed end date. A final state.
+v TERMINATED: Ended early by agreement or breach. A final state.
+v CANCELLED: Withdrawn before it ever started. A final state.
+@ LeaveRequest
+a leaveType
+s: The category of absence the employee is asking for, which decides how it is paid and counted.
+u: Chosen by the employee when requesting; leave policy, payroll and entitlement checks use it to decide which balance is reduced.
+v ANNUAL: Paid holiday taken from the employee's annual entitlement.
+v SICK: Absence caused by illness or injury.
+v PARENTAL: Leave to care for a new child.
+v UNPAID: Absence without pay, agreed with the manager.
+v COMPENSATORY: Time off given in return for extra hours already worked.
+v OTHER: Any other approved absence, such as study or bereavement leave.
+a startDate
+s: The first calendar day on which the employee asks to be absent.
+u: Entered by the employee; managers approve against team cover, and attendance and payroll begin counting absence from this date.
+a requestedUnits
+s: How much leave is requested, measured in the organisation's governed unit such as days or hours.
+u: Entered or computed from the dates; entitlement checks compare it with the available balance and payroll uses the approved quantity.
+a status
+s: Where the request is in the approval workflow, from drafting to a final decision.
+u: Moved by the employee and the approving manager; only APPROVED requests reduce entitlement and affect attendance or pay.
+v DRAFT: Being prepared by the employee and not yet visible to the approver.
+v SUBMITTED: Sent to the manager and waiting for a decision.
+v APPROVED: Granted by the manager. A final state.
+v REJECTED: Refused by the manager. A final state.
+v CANCELLED: Withdrawn by the employee. A final state.

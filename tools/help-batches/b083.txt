@@ -1,0 +1,12 @@
+@ Workflow
+a status
+v DRAFT: Being designed; it cannot be started and may be changed freely.
+v ACTIVE: Published; new runs may be started and its version is fixed.
+v SUSPENDED: Paused; no new runs start, and runs already under way continue.
+v RETIRED: Replaced or withdrawn; kept so earlier runs can still be explained. A final state.
+a definitionFormat
+s: The notation the definition is written in, which decides how the system reads and checks it.
+v CEDM: Written in the CEDM notation used across the library.
+v BPMN: Written as a business process diagram that analysts can read.
+v STATE_MACHINE: Written as states and the transitions between them.
+v OTHER: Written in a notation not listed here.

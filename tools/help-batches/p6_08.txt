@@ -1,0 +1,15 @@
+@ Routing
+a status
+v DRAFT: Being defined by engineering; not yet usable for production.
+v ACTIVE: Approved for production and eligible for new orders to be released against.
+v SUSPENDED: Temporarily withdrawn from use, for example pending a process investigation.
+v OBSOLETE: Superseded by a newer version or no longer used. A final state.
+@ ServiceRequest
+a status
+v OPEN: Received and not yet looked at.
+v TRIAGED: Assessed and given a priority.
+v ASSIGNED: Given to a named person or team to handle.
+v IN_PROGRESS: Being actively worked on by the assignee.
+v RESOLVED: The need has been met, awaiting confirmation.
+v CLOSED: Confirmed finished. A final state.
+v CANCELLED: Withdrawn before it was resolved. A final state.

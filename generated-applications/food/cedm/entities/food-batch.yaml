@@ -11,127 +11,102 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: foodBatchId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the food batch record associated with this FoodBatch. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating FoodBatch records, where applicable.
-      relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: batchNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of batch number for the FoodBatch. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating FoodBatch records, where applicable.
-      relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: productionDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the production. It is used in chronology, eligibility, scheduling,
-        reporting, and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating FoodBatch records, where applicable.
-      relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: expiryDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the expiry. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating FoodBatch records, where applicable.
-      relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: QUARANTINED
-    values:
-    - PLANNED
-    - QUARANTINED
-    - RELEASED
-    - REJECTED
-    - EXPIRED
-    - CONSUMED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating FoodBatch records, where applicable.
-      relationshipContext: Its meaning is specific to FoodBatch; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PLANNED: Represents the planned state or classification in the context of FoodBatch.
-        QUARANTINED: Represents the quarantined state or classification in the context of FoodBatch.
-        RELEASED: Represents the released state or classification in the context of FoodBatch.
-        REJECTED: Represents the rejected state or classification in the context of FoodBatch.
-        EXPIRED: Represents the expired state or classification in the context of FoodBatch.
-        CONSUMED: Represents the consumed state or classification in the context of FoodBatch.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: foodBatchId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the batch record.
+        usage: Generated on creation; inspections and stock movements refer to it.
+    - name: batchNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The lot number on the packaging.
+        usage: Allocated at production or receipt; unique, and the key for traceability and recall.
+    - name: productionDate
+      type: date
+      required: false
+      help:
+        summary: The date the batch was produced.
+        usage: Entered at production; the start of shelf life.
+    - name: expiryDate
+      type: date
+      required: false
+      help:
+        summary: The date after which the batch must not be sold or used.
+        usage: Set from the product's shelf life; must not be before the production date.
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values:
+        - PLANNED
+        - QUARANTINED
+        - RELEASED
+        - REJECTED
+        - EXPIRED
+        - CONSUMED
+      help:
+        summary: Whether the batch may be used or sold.
+        usage: Set by quality; only RELEASED batches may be shipped.
+        valueSemantics:
+          PLANNED: Scheduled but not yet produced or received.
+          QUARANTINED: Held until quality checks pass.
+          RELEASED: Passed checks and available.
+          REJECTED: Failed checks; must not be used. A final state.
+          EXPIRED: Past its expiry date. A final state.
+          CONSUMED: Used up. A final state.
   relationships:
-  - name: product
-    target: Product
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects FoodBatch to Product so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Product records associated with a FoodBatch.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: supplier
-    target: Supplier
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects FoodBatch to Supplier so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Supplier records associated with a FoodBatch.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: qualityInspections
-    target: QualityInspection
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects FoodBatch to QualityInspection so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about QualityInspection records associated with a FoodBatch.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: product
+      target: Product
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The product that the batch is of.
+        usage: Set at creation.
+        cardinalityMeaning: 'Exactly one product: a batch is a lot of a particular item.'
+        workflowRole: Gives the batch its specification and shelf life.
+    - name: supplier
+      target: Supplier
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The supplier that provided the batch, when it was bought in.
+        usage: Set at receipt; used for supplier quality tracking.
+        cardinalityMeaning: At most one supplier; own-produced batches have none.
+        workflowRole: Allows a problem to be traced back to its source.
+    - name: qualityInspections
+      target: QualityInspection
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The inspections carried out on the batch.
+        usage: Read when deciding release.
+        cardinalityMeaning: Any number of inspections.
+        workflowRole: Release depends on passing them.
   invariants:
-  - id: FOOD-BATCH-001
-    rule: expiryDate must not precede productionDate.
+    - id: FOOD-BATCH-001
+      rule: expiryDate must not precede productionDate.
   lifecycle:
     title: Food Batch Lifecycle
     attribute: status
     states: [PLANNED, QUARANTINED, RELEASED, REJECTED, EXPIRED, CONSUMED]
     initial: PLANNED
-    terminal: [CONSUMED, REJECTED, EXPIRED]
+    terminal:
+      - CONSUMED
+      - REJECTED
+      - EXPIRED
     transitions:
-      - {from: PLANNED, to: RELEASED, action: release}
-      - {from: RELEASED, to: CONSUMED, action: consume}
-      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: PLANNED, to: QUARANTINED, action: receive}
       - {from: QUARANTINED, to: RELEASED, action: release}
-      - {from: PLANNED, to: REJECTED, action: reject}
-      - {from: RELEASED, to: REJECTED, action: reject}
       - {from: QUARANTINED, to: REJECTED, action: reject}
-      - {from: RELEASED, to: EXPIRED, action: expire}
       - {from: QUARANTINED, to: EXPIRED, action: expire}
+      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: RELEASED, to: CONSUMED, action: consume}
+      - {from: RELEASED, to: EXPIRED, action: expire}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a food batch is stopped"
@@ -170,18 +145,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a food industry entity called FoodBatch within the CEDM business model.
-    businessMeaning: FoodBatch is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate FoodBatch records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Product, Supplier, QualityInspection.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical FoodBatch record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: A traceable batch of food or beverage product that was produced or received under controlled conditions.
+    businessMeaning: Food safety depends on tracing. If a problem is found, the batch record shows what was in it, where it came from, how it was checked and where it went, so a recall can be limited to what is affected.
+    usage: Created at production or receipt; held in quarantine until checks pass; released and consumed; read by quality and recall teams.
+    relationshipContext: A batch is of one Product, may come from a Supplier, and is judged through QualityInspections.
+    lifecycle: A batch is planned, held in quarantine on arrival, released when checks pass, and ends consumed, rejected or expired. A released batch can be quarantined again if a concern arises.
+    example: Batch L240318 of oat drink, produced on 18 March, held for microbiological tests and released two days later.
 specification:
   version: 0.1.0
   status: draft

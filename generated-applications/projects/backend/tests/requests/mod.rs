@@ -5,9 +5,10 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-04T08:30:40.646Z
+//! Generated: 2026-10-09T15:30:02.867Z
 //! Project: projects
 
+mod accounts;
 mod ai;
 mod auth;
 mod concurrency;
@@ -68,6 +69,9 @@ mod crud_person_status;
 mod crud_professional_engagement;
 mod crud_professional_engagement_status;
 mod crud_project;
+mod crud_project_cost;
+mod crud_project_cost_cost_type;
+mod crud_project_cost_status;
 mod crud_project_phase;
 mod crud_project_phase_status;
 mod crud_project_status;
@@ -127,6 +131,9 @@ mod rules_person_status;
 mod rules_professional_engagement;
 mod rules_professional_engagement_status;
 mod rules_project;
+mod rules_project_cost;
+mod rules_project_cost_cost_type;
+mod rules_project_cost_status;
 mod rules_project_phase;
 mod rules_project_phase_status;
 mod rules_project_status;

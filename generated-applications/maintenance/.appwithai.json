@@ -31,6 +31,7 @@
     "Attachment",
     "Task",
     "Asset",
+    "Meter",
     "MaintenancePlan",
     "MaintenanceWorkOrder",
     "RepairEstimate",
@@ -63,6 +64,8 @@
     "TaskStatus",
     "TaskPriority",
     "AssetStatus",
+    "MeterMeterType",
+    "MeterStatus",
     "MaintenancePlanMaintenanceType",
     "MaintenancePlanFrequencyUnit",
     "MaintenancePlanStatus",
@@ -98,6 +101,8 @@
     "MaintenanceWorkOrderPriority (4)",
     "MaintenanceWorkOrderStatus (7)",
     "MaintenanceWorkOrderWorkType (5)",
+    "MeterMeterType (9)",
+    "MeterStatus (4)",
     "OrganizationOrganizationType (8)",
     "OrganizationPartyType (2)",
     "OrganizationStatus (4)",
@@ -132,5 +137,5 @@
     "ProductExceptionRaised on Product (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-04T08:30:22.164Z"
+  "generatedAt": "2026-10-09T15:29:33.000Z"
 }

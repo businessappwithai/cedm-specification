@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:30:40.656Z
+//! Generated: 2026-10-09T15:30:02.879Z
 //! Project: projects
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -99,12 +99,13 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_project_task", "status", "IN_PROGRESS", "CANCELLED"),
     ("bus_project_task", "status", "BLOCKED", "CANCELLED"),
     ("bus_milestone", "status", "PLANNED", "AT_RISK"),
+    ("bus_milestone", "status", "AT_RISK", "PLANNED"),
+    ("bus_milestone", "status", "PLANNED", "ACHIEVED"),
     ("bus_milestone", "status", "AT_RISK", "ACHIEVED"),
-    ("bus_milestone", "status", "ACHIEVED", "MISSED"),
+    ("bus_milestone", "status", "PLANNED", "MISSED"),
+    ("bus_milestone", "status", "AT_RISK", "MISSED"),
     ("bus_milestone", "status", "PLANNED", "CANCELLED"),
     ("bus_milestone", "status", "AT_RISK", "CANCELLED"),
-    ("bus_milestone", "status", "ACHIEVED", "CANCELLED"),
-    ("bus_milestone", "status", "MISSED", "CANCELLED"),
     ("bus_resource_assignment", "status", "DRAFT", "ACTIVE"),
     ("bus_resource_assignment", "status", "ACTIVE", "COMPLETED"),
     ("bus_resource_assignment", "status", "DRAFT", "CANCELLED"),
@@ -113,6 +114,11 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     ("bus_timesheet", "status", "ACTIVE", "COMPLETED"),
     ("bus_timesheet", "status", "DRAFT", "CANCELLED"),
     ("bus_timesheet", "status", "ACTIVE", "CANCELLED"),
+    ("bus_project_cost", "status", "DRAFT", "APPROVED"),
+    ("bus_project_cost", "status", "DRAFT", "CANCELLED"),
+    ("bus_project_cost", "status", "APPROVED", "POSTED"),
+    ("bus_project_cost", "status", "APPROVED", "CANCELLED"),
+    ("bus_project_cost", "status", "POSTED", "REVERSED"),
     (
         "bus_professional_engagement",
         "status",

@@ -1,0 +1,38 @@
+@ RetailSale
+r store
+n: A sale is rung up in a single store, which owns the takings and the stock sold.
+
+@ ReturnDisposition
+a dispositionCode
+v RESTOCK: Return the goods to saleable stock.
+v QUARANTINE: Hold the goods apart until a decision is made.
+v RETURN_TO_SUPPLIER: Send the goods back to the supplier.
+v REWORK: Correct the goods so they meet the requirement.
+v REPAIR: Repair the goods to a usable condition.
+v SCRAP: Destroy or write off the goods.
+v REJECT: Refuse the return; the goods go back to the sender.
+v ACCEPT: Accept the goods as returned.
+a status
+v DRAFT: Being prepared; the outcome is not yet decided.
+v AUTHORIZED: Approved and ready to be carried out.
+v EXECUTED: The disposition has been carried out and stock adjusted. A final state.
+v CANCELLED: Withdrawn before it was carried out. A final state.
+v EXCEPTION: Could not be carried out as authorised and needs a decision.
+
+@ RiskAssessment
+s: An evaluation of a risk's likelihood, impact, exposure, controls and residual risk at a defined point in time.
+b: An assessment is the dated judgement on a risk. Keeping each one, rather than overwriting the risk, shows how exposure changed as controls were added and lets reviewers see what was known when a decision was made.
+u: Performed by the risk owner or a reviewer; read by governance, audit and underwriting.
+c: An assessment is of exactly one risk, and underwriting evaluations may draw on it.
+l: An assessment is recorded once as at its date. A later reassessment is a new record; earlier ones stay as evidence.
+x: In March the supplier concentration risk is assessed as possible and major; in September, after a second source, it is assessed as unlikely.
+a riskAssessmentId
+s: The identity of the assessment, constant for its life.
+u: Generated on creation; reports and decisions refer to it.
+c: Referenced when a decision cites the assessment.
+a occurredAt
+s: The date and time the assessment was made.
+u: Set when recorded; the sequence of assessments is ordered by it.
+c: Read with the risk to trace its exposure over time.
+r risk
+n: Each assessment evaluates one risk; a risk may have many assessments over time.

@@ -11,94 +11,73 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: enrollmentId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the enrollment record associated with this Enrollment. The identifier connects this record to the
-        corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Enrollment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Enrollment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: enrollmentNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of enrollment number for the Enrollment. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Enrollment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Enrollment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: enrolledAt
-    type: datetime
-    required: true
-    help:
-      summary: Records when the enrolled event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Enrollment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Enrollment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - PENDING
-    - ACTIVE
-    - COMPLETED
-    - WITHDRAWN
-    - CANCELLED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Enrollment records, where
-        applicable.
-      relationshipContext: Its meaning is specific to Enrollment; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        PENDING: Represents the pending state or classification in the context of Enrollment.
-        ACTIVE: Represents the active state or classification in the context of Enrollment.
-        COMPLETED: Represents the completed state or classification in the context of Enrollment.
-        WITHDRAWN: Represents the withdrawn state or classification in the context of Enrollment.
-        CANCELLED: Represents the cancelled state or classification in the context of Enrollment.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: enrollmentId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the enrolment.
+        usage: Generated on creation; grades and fees refer to it.
+    - name: enrollmentNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The reference number of the enrolment, quoted by students and staff in correspondence.
+        usage: Allocated by the registrar at registration and unique; fees, grades and certificates refer to it, and it never changes.
+    - name: enrolledAt
+      type: datetime
+      required: true
+      help:
+        summary: The date and time the registration was made.
+        usage: Set when the student registers; used to order registrations and apply deadlines.
+    - name: status
+      type: enum
+      required: true
+      default: PENDING
+      values:
+        - PENDING
+        - ACTIVE
+        - COMPLETED
+        - WITHDRAWN
+        - CANCELLED
+      help:
+        summary: Whether the registration is awaiting confirmation, in progress or ended, and how it ended.
+        usage: Moved by the registrar; fees and attendance run while it is ACTIVE, and the three ended states are final.
+        valueSemantics:
+          PENDING: Requested and awaiting confirmation, for example of prerequisites or payment.
+          ACTIVE: Confirmed; the student is studying.
+          COMPLETED: Finished successfully. A final state.
+          WITHDRAWN: The student left before completing. A final state.
+          CANCELLED: Withdrawn before it began. A final state.
   relationships:
-  - name: student
-    target: EducationStudent
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Enrollment to EducationStudent so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about EducationStudent records associated with a Enrollment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: program
-    target: EducationProgram
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects Enrollment to EducationProgram so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about EducationProgram records associated with a Enrollment.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: student
+      target: EducationStudent
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The student who is enrolled.
+        usage: Set at registration.
+        cardinalityMeaning: Exactly one student, because an enrolment is a particular learner's registration.
+        workflowRole: Attaches the study record to the learner.
+    - name: program
+      target: EducationProgram
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The program in which the student is enrolled.
+        usage: Chosen at registration.
+        cardinalityMeaning: 'Exactly one program: the enrolment is a registration for a particular course of study.'
+        workflowRole: Determines the requirements for completion.
+    - {name: course, target: EducationCourse, cardinality: "0..1", ownership: reference, help: {summary: 'The course, when the enrolment is for a single course.', usage: Set when a student registers for a course directly., cardinalityMeaning: At most one course., workflowRole: Narrows the enrolment from a whole program to one course., businessMeaning: Adds curriculum participation context alongside program enrollment.}}
+    - {name: class, target: Class, cardinality: "0..1", ownership: reference, help: {summary: 'The scheduled class, when the student is placed in a particular offering.', usage: Set when a place is allocated., cardinalityMeaning: At most one class., workflowRole: Places the student in a timetable., businessMeaning: Establishes delivery-instance membership for attendance and assessment.}}
+    - {name: grades, target: Grade, cardinality: "0..*", ownership: reference, help: {summary: The grades earned under the enrolment., usage: Read to produce transcripts., cardinalityMeaning: 'Any number, one per assessed item.', workflowRole: Accumulate towards completion., businessMeaning: Connects academic results to registration context.}}
+    - {name: fees, target: Fee, cardinality: "0..*", ownership: reference, help: {summary: The fees charged for the enrolment., usage: Read by finance., cardinalityMeaning: 'Any number, such as tuition and lab fees.', workflowRole: Billing follows enrolment., businessMeaning: Connects program/course participation to student charges.}}
+
   invariants:
-  - id: ENROLLMENT-001
-    rule: a COMPLETED enrollment must have completion evidence or outcome where required by the program.
+    - id: ENROLLMENT-001
+      rule: a COMPLETED enrollment must have completion evidence or outcome where required by the program.
   lifecycle:
     title: Enrollment Lifecycle
     attribute: status
@@ -150,18 +129,12 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: Represents a education transaction called Enrollment within the CEDM business model.
-    businessMeaning: Enrollment is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Enrollment records.
-    relationshipContext: The entity participates in a wider business graph through relationships with EducationStudent, EducationProgram.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Enrollment record represents one identifiable business occurrence or master-data object that can be
-      referenced by related CEDM processes.
+    summary: A student's formal registration in an educational program or course.
+    businessMeaning: Enrolment is the moment a learner becomes part of a program. Fees, attendance, grades and eligibility to graduate all hang from it.
+    usage: Created at registration; confirmed; completed or withdrawn; read by the registrar, teachers and finance.
+    relationshipContext: An enrolment links an EducationStudent to an EducationProgram, and may be for a particular EducationCourse and Class. Grades and fees attach to it.
+    lifecycle: An enrolment is pending until confirmed, active while the student studies, and ends completed, withdrawn or cancelled. A completed enrolment needs completion evidence where the program requires it.
+    example: Enrolment of student 20260417 in the engineering program, confirmed on 1 September.
 specification:
   version: 0.1.0
   status: draft

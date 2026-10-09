@@ -1,0 +1,48 @@
+@ Trip
+a name
+s: A short descriptive title for the journey, such as the purpose or destination.
+u: Entered by the traveller or arranger when planning; shown in lists and read by approvers deciding whether to authorise the trip.
+a startDate
+s: The calendar date on which the trip begins, usually the first departure.
+u: Entered when the trip is planned and required; it must not be later than the end date and drives approval timing and reminders.
+a endDate
+s: The calendar date on which the trip finishes, usually the day of return.
+u: Optional while planning; once set it must not be before the start date and it fixes the length of the trip for allowances.
+@ Underwriting
+a underwritingNumber
+s: The business reference of the underwriting case, such as UW-2026-118, separate from any policy number.
+u: Unique; assigned when the case opens and quoted by underwriters, brokers and integrations when searching or referring to the review.
+a riskScore
+s: A numeric measure of the assessed risk, produced by a scoring model or set by the underwriter.
+u: Optional; used to segment risks and support the decision, but never the sole reason for it. The scale depends on the model used.
+a decision
+s: The outcome of the risk review: accept, accept with terms, decline or refer onwards.
+u: Recorded once the evaluation concludes; it gates policy issuance and pricing, and must be backed by evidence and approvals.
+v ACCEPT: The risk is accepted on standard terms and the policy may be issued.
+v ACCEPT_WITH_TERMS: The risk is accepted only with special conditions, exclusions, loadings or a changed premium.
+v DECLINE: The risk is refused and no policy may be issued on this evaluation.
+v REFER: The case exceeds the reviewer's authority or needs specialist input and is passed to a more senior underwriter.
+a status
+s: The stage the underwriting review has reached, from preparation to a final decision or withdrawal.
+u: Starts as DRAFT; moved as review begins and ends. DECIDED requires a recorded decision, and issuance waits for it.
+v DRAFT: The case is being prepared and review has not started.
+v IN_REVIEW: An underwriter is actively evaluating the risk.
+v DECIDED: A decision has been recorded and the review is closed. A final state.
+v WITHDRAWN: The applicant or insurer abandoned the case without a decision. A final state.
+@ UnitOfMeasure
+r products
+u: Read to find which products default to this unit before changing it, and set when a product is given its stocking unit.
+r salesOrderLines
+u: Read to find open sales lines in this unit; check them before the unit's conversion or meaning is altered.
+r purchaseOrderLines
+u: Read to find open procurement lines in this unit; check them before the unit's conversion or meaning is altered.
+r goodsReceiptLines
+u: Read to reconcile what was received against what was ordered, since receipt quantities are kept in their original unit.
+r invoiceLines
+u: Read to see billed quantities in this unit; issued invoices keep their recorded unit when conversions change later.
+r inventoryMovements
+u: Read to trace stock receipts, issues and transfers expressed in this unit, and to reconcile balances across units.
+@ UsageRecord
+a usageRecordId
+s: The permanent identifier of the usage record, unchanged for as long as the record exists.
+u: Generated on creation by the metering system; invoice lines and disputes cite it to show which measured usage was billed.

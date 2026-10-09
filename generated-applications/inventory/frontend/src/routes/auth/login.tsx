@@ -3,7 +3,7 @@
  *
  * User authentication with email and password
  *
- * Generated: 2026-10-04T01:12:02.854Z
+ * Generated: 2026-10-09T15:29:13.121Z
  * Project: inventory
  */
 

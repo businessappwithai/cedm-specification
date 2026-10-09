@@ -1,0 +1,199 @@
+@ Equipment
+s: A maintainable piece of equipment, linked to an asset where the financial record and the maintenance record describe the same thing.
+b: The finance team sees a capitalised asset; the maintenance team sees a machine with a service history. Equipment is the maintenance identity of that machine, so work orders and meters attach to it while the asset keeps the financial view.
+u: Created when a machine needs maintenance tracking; read by maintenance planners and technicians.
+c: Equipment may be linked to an Asset; maintenance work orders and meters refer to the equipment.
+l: Finalised financial and lifecycle evidence is corrected by compensating records, not by editing.
+x: A packaging line filler, tracked as equipment E-0071 and linked to its fixed-asset record.
+a equipmentId
+s: The identity of the equipment record, independent of the asset's financial number.
+u: Generated on creation; work orders and meters refer to it.
+a effectiveAt
+s: When the equipment record took effect, usually when it was put into service.
+u: Set at registration; maintenance history is counted from it.
+r asset
+s: The fixed asset that represents the same machine in the financial records.
+u: Set where the machine is capitalised.
+n: At most one asset; consumable or leased equipment may have none.
+w: Keeps maintenance and financial records of the same machine consistent.
+
+@ Escalation
+s: A workflow event that raises overdue, breached, exceptional or unresolved work to a higher level of responsibility or control.
+b: Work that is late or stuck needs someone with more authority to notice. An escalation records that this happened, to whom, and what came of it.
+u: Raised automatically or manually when a deadline passes or an exception occurs; resolved by the person it is escalated to.
+c: An escalation attaches to the task or case that triggered it and to the new owner of the problem.
+l: An escalation is pending when raised, active while being handled, completed when resolved and cancelled if it turns out to be unnecessary. State changes keep an auditable history and do not trigger duplicate effects.
+x: A support case unanswered for 48 hours is escalated to the team lead.
+a escalationId
+s: The identity of the escalation.
+u: Generated when raised; notes and resolution refer to it.
+a status
+s: Where the escalation stands.
+u: Moved by the escalation process.
+v PENDING: Raised and waiting to be picked up.
+v ACTIVE: Being handled by the person it was escalated to.
+v COMPLETED: Resolved.
+v CANCELLED: Withdrawn because it was no longer needed.
+
+@ Event
+s: A significant occurrence that can trigger processing, notification, workflow, integration or audit.
+b: Systems react to things that happen. An event states what happened, when, where it came from and who caused it, so other parts of the system can respond without being tightly coupled.
+u: Published by the system or integrations when something noteworthy happens; consumed by workflows, notifications and audit.
+c: An event may be caused by a Party (the actor); correlation and causation identifiers link related events.
+l: An event is immutable once published.
+x: Event "invoice.posted" from the billing service, caused by user finance.ops, correlated with the month-end run.
+a eventId
+s: The identity of the event.
+u: Generated when published; consumers use it to avoid processing twice.
+a eventType
+s: The name of the kind of event, such as order.created.
+u: Set by the publisher; consumers subscribe to types.
+a occurredAt
+s: When the event happened.
+u: Set by the publisher; events are ordered by it.
+a source
+s: The system or component that published the event.
+u: Set by the publisher; used to trace where an event came from.
+a payload
+s: The data describing the occurrence.
+u: Structured content defined by the event type; read by consumers.
+a correlationId
+s: An identifier shared by all events belonging to the same business flow.
+u: Set by the originator and passed on; used to follow a flow end to end.
+a causationId
+s: The identifier of the event or request that directly caused this one.
+u: Set by the publisher; used to trace cause and effect.
+r actor
+s: The party that performed the action that produced the event.
+u: Set where a person or system user is responsible.
+n: At most one actor; system-generated events may have none.
+w: Gives events accountability for audit.
+
+@ ExchangeRate
+a rateType
+v SPOT: The market rate at a moment in time.
+v CONTRACT: A rate fixed by agreement with a counterparty.
+v DAILY: The rate published for a business day.
+v MONTHLY: An average or closing rate for a month.
+v ACCOUNTING: A rate set by the finance team for ledger translation.
+v CUSTOM: Any other rate defined by policy.
+a status
+v DRAFT: Being prepared; not yet used.
+v ACTIVE: In force and usable for conversion.
+v EXPIRED: Its validity period has ended; kept for past conversions.
+v CANCELLED: Withdrawn; must not be used.
+
+@ Experiment
+s: A controlled scientific investigation performed to test a hypothesis, treatment, compound, process or other research question.
+b: An experiment is where evidence comes from. Recording its objective, timing and materials is what lets results be trusted, repeated and challenged.
+u: Planned by researchers; run; completed or abandoned; read by project teams and reviewers.
+c: An experiment studies Compounds and uses Samples, belongs to a Project, may follow a Protocol within a Study, and produces Assays and Observations.
+l: An experiment is planned, runs, and ends completed, failed or cancelled; completed experiments can be archived. Records are never rewritten.
+x: Dose-response experiment on compound CMP-00417 across six concentrations, run over three days.
+a experimentId
+s: The identity of the experiment.
+u: Generated on creation; results refer to it.
+a experimentCode
+s: The unique reference by which the experiment is cited, such as EXP-2026-0312.
+u: Assigned when planned; written in lab notebooks and reports.
+a title
+s: The short title of the experiment.
+u: Shown in lists and reports.
+a objective
+s: What the experiment sets out to find out.
+u: Written when planned; read when interpreting the results.
+a status
+s: Where the experiment stands.
+u: Updated by the researcher.
+v PLANNED: Designed but not started.
+v RUNNING: Under way.
+v COMPLETED: Finished with results.
+v FAILED: Could not be completed validly.
+v CANCELLED: Stopped before completion.
+v ARCHIVED: Closed and filed.
+a startedAt
+s: When the experiment started.
+u: Set when work begins.
+a completedAt
+s: When the experiment finished.
+u: Set at completion; must not be before the start.
+r compounds
+s: The compounds that are tested in the experiment.
+u: Linked when the experiment is planned; read to find all evidence about a compound.
+n: Any number of compounds; a screening experiment may test many at once.
+w: Connects results to the substances studied, which is how a compound's evidence accumulates.
+r samples
+s: The physical samples used in the experiment.
+u: Linked as material is allocated and consumed.
+n: Any number of samples, or none for a computational experiment.
+w: Records which material the results came from, so they can be traced and repeated.
+r project
+s: The research project to which the experiment contributes.
+u: Set at planning so the experiment's cost and results roll up to the project.
+n: At most one project; some exploratory experiments are not yet part of one.
+w: Places the experiment in the programme of work it serves.
+r protocol
+n: At most one protocol; an exploratory experiment may follow none.
+r study
+s: The study that the experiment forms part of.
+u: Set where the experiment is run as part of a formal study.
+n: At most one study.
+w: Groups experiments that together answer a research question.
+r assays
+n: Any number of assays, since one experiment may run several analytical procedures.
+r observations
+n: Any number of observations recorded during the experiment.
+
+@ Facility
+s: A physical facility, building, site or managed space used for business operations.
+b: Facilities management needs a single record for each place the organisation runs: what it is, where it stands, who is responsible and what is installed in it. Maintenance, space planning and costs all hang from it.
+u: Registered when a site is acquired or planned; kept up to date by facilities managers; read by maintenance, operations and finance.
+c: A facility stands at a Location, belongs to an Organization, contains Assets and receives ServiceRequests.
+l: A facility is planned, becomes active when in use, may be made inactive while closed temporarily, and is closed when the organisation stops operating it.
+x: The Frankfurt head office, an office building with twelve floors, active since 2019.
+a facilityId
+s: The identity of the facility record.
+u: Generated on registration; assets and service requests refer to it.
+a facilityCode
+s: The code by which staff and systems name the facility, such as FRA-HQ.
+u: Unique; assigned at registration and used on work orders and signage.
+a name
+s: The name people use for the facility.
+u: Shown in lists, maps and service request forms.
+a facilityType
+s: What kind of space the facility is.
+u: Chosen at registration; drives the maintenance programme and reporting category.
+v BUILDING: A single building.
+v SITE: A site containing several buildings or outdoor areas.
+v CAMPUS: A large site with many buildings under one management.
+v OFFICE: A space used mainly for office work.
+v PLANT: A production or processing plant.
+v WAREHOUSE: A storage and distribution facility.
+v OTHER: Any other managed space.
+a status
+s: Whether the facility is in use.
+u: Set by facilities management; service requests are accepted only for ACTIVE facilities.
+v PLANNED: Approved but not yet open.
+v ACTIVE: In operation.
+v INACTIVE: Temporarily out of use, for example during renovation.
+v CLOSED: Permanently closed. A final state.
+r location
+s: The place where the facility stands.
+u: Set at registration; supplies address and map position.
+n: Exactly one location: a facility is a physical place.
+w: Anchors the facility to an address for logistics and emergencies.
+r organization
+s: The organisation that operates the facility.
+u: Set at registration.
+n: At most one organisation; a facility that is shared or not yet allocated may have none.
+w: Determines who is responsible for cost and compliance.
+r assets
+s: The assets installed or kept in the facility.
+u: Read to see what equipment a site contains.
+n: Any number of assets.
+w: Lets maintenance plan work by site.
+r serviceRequests
+s: The requests for service raised at the facility.
+u: Read to see open issues and history at the site.
+n: Any number of requests over the facility's life.
+w: Shows the demand for maintenance and support at the site.

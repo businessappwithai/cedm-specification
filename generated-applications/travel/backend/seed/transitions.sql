@@ -310,24 +310,34 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('5f0b3419-b6bf-57aa-9581-694064ed6a42', 'bus_task', 'status', 'BLOCKED', 'FAILED', 'fail', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FlightLifecycle: SCHEDULED → BOARDING (mark_boarding)
+-- FlightLifecycle: SCHEDULED → BOARDING (start_boarding)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b69d54cb-fc1c-5191-9c84-9d93aa50321e', 'bus_flight', 'status', 'SCHEDULED', 'BOARDING', 'mark_boarding', TRUE, NOW())
+VALUES ('b69d54cb-fc1c-5191-9c84-9d93aa50321e', 'bus_flight', 'status', 'SCHEDULED', 'BOARDING', 'start_boarding', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FlightLifecycle: BOARDING → DEPARTED (mark_departed)
+-- FlightLifecycle: BOARDING → DEPARTED (depart)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('88431014-152f-5628-938c-be952aba252f', 'bus_flight', 'status', 'BOARDING', 'DEPARTED', 'mark_departed', TRUE, NOW())
+VALUES ('88431014-152f-5628-938c-be952aba252f', 'bus_flight', 'status', 'BOARDING', 'DEPARTED', 'depart', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FlightLifecycle: DEPARTED → ARRIVED (mark_arrived)
+-- FlightLifecycle: DEPARTED → ARRIVED (arrive)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9a9656f0-a277-52c1-bc4d-ce359a64d9d0', 'bus_flight', 'status', 'DEPARTED', 'ARRIVED', 'mark_arrived', TRUE, NOW())
+VALUES ('9a9656f0-a277-52c1-bc4d-ce359a64d9d0', 'bus_flight', 'status', 'DEPARTED', 'ARRIVED', 'arrive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- FlightLifecycle: ARRIVED → DELAYED (mark_delayed)
+-- FlightLifecycle: SCHEDULED → DELAYED (delay)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('1bb20063-5b80-59b4-aaff-e4ceb91c1272', 'bus_flight', 'status', 'ARRIVED', 'DELAYED', 'mark_delayed', TRUE, NOW())
+VALUES ('a16a45e7-6361-5988-8a78-05e2fad49ae2', 'bus_flight', 'status', 'SCHEDULED', 'DELAYED', 'delay', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FlightLifecycle: DELAYED → BOARDING (start_boarding)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('b7eb1c25-dcca-508c-9c8a-e2e8d900f76b', 'bus_flight', 'status', 'DELAYED', 'BOARDING', 'start_boarding', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- FlightLifecycle: DELAYED → CANCELLED (cancel)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('32ac7f59-b047-5db7-b135-e5eaffe9c4c5', 'bus_flight', 'status', 'DELAYED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- FlightLifecycle: SCHEDULED → CANCELLED (cancel)
@@ -338,21 +348,6 @@ ON CONFLICT DO NOTHING;
 -- FlightLifecycle: BOARDING → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('bf65621f-336a-5f24-8a8d-2ecb95bab651', 'bus_flight', 'status', 'BOARDING', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- FlightLifecycle: DEPARTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('bfbb9c4c-be0a-5df0-9af1-ada24ddb77b2', 'bus_flight', 'status', 'DEPARTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- FlightLifecycle: ARRIVED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ed200f2b-27cf-5455-be89-2a759dfa078c', 'bus_flight', 'status', 'ARRIVED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- FlightLifecycle: DELAYED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('32ac7f59-b047-5db7-b135-e5eaffe9c4c5', 'bus_flight', 'status', 'DELAYED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- AircraftLifecycle: PLANNED → ACTIVE (activate)
@@ -540,7 +535,7 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('0ecd0f02-72cb-53de-9abd-89b76afc3cf2', 'bus_flight', 'status', 'DEPARTED', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('5ea44744-adc6-53e2-ba7b-05e5026e8a19', 'bus_flight', 'status', 'ARRIVED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('5ea44744-adc6-53e2-ba7b-05e5026e8a19', 'bus_flight', 'status', 'ARRIVED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('11411ca6-9941-5882-ad64-eab748297f59', 'bus_flight', 'status', 'DELAYED', FALSE, FALSE, 50, TRUE, NOW())

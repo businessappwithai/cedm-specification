@@ -6,23 +6,32 @@ entity:
   ui: {icon: ship}
   identity: {key: vesselId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: vesselId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of the Vessel., businessMeaning: Identifies one maritime transport resource independently of voyages and port calls., usage: "Port operations, logistics, scheduling, reporting and audit.", relationshipContext: Vessel persists across many Voyages., requiredMeaning: Required.}}
-    - {name: vesselCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: Operational vessel reference., businessMeaning: Human/integration identifier for port and shipping workflows., usage: "Search, scheduling and reporting.", relationshipContext: May complement external IMO or registry identifiers., requiredMeaning: Required.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: Human-readable vessel name., businessMeaning: Operationally recognizes the maritime asset., usage: "Port planning, documents and communication.", relationshipContext: Name may change while vesselId remains stable., requiredMeaning: Required.}}
-    - {name: imoNumber, type: string, required: false, maxLength: 40, help: {summary: International Maritime Organization vessel identifier where applicable., businessMeaning: Supports external maritime identity and integration., usage: "Shipping, compliance and port operations.", relationshipContext: Does not replace internal vesselId., optionalMeaning: Optional for vessel classes without IMO number or where not known.}}
+    - {name: vesselId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the vessel, constant for its life.', businessMeaning: Identifies one maritime transport resource independently of voyages and port calls., usage: "Port operations, logistics, scheduling, reporting and audit.", relationshipContext: Vessel persists across many Voyages.}}
+    - {name: vesselCode, type: string, required: true, unique: true, maxLength: 120, help: {summary: The operational reference by which schedulers and port staff identify the vessel., usage: 'Unique; assigned when the vessel is registered and used in voyage planning, searches, reports and integrations.', businessMeaning: Human/integration identifier for port and shipping workflows., relationshipContext: May complement external IMO or registry identifiers.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The registered name of the ship as shown on its papers and used in port communication., usage: 'Entered when the vessel is registered; shown on voyage schedules, berth plans and cargo documents.', businessMeaning: Operationally recognizes the maritime asset., relationshipContext: Name may change while vesselId remains stable.}}
+    - {name: imoNumber, type: string, required: false, maxLength: 40, help: {summary: The seven-digit International Maritime Organization number that identifies a ship for life., usage: 'Entered where the vessel has one; used for compliance, port clearance and matching to external registries and tracking services.', businessMeaning: Supports external maritime identity and integration., relationshipContext: Does not replace internal vesselId.}}
     - name: status
       type: enum
       required: true
       default: ACTIVE
       values: [ACTIVE, INACTIVE, OUT_OF_SERVICE, RETIRED]
-      help: {summary: Operational lifecycle state of the Vessel., businessMeaning: Controls eligibility for new voyage assignment., usage: "Scheduling, port operations and audit.", relationshipContext: Historical Voyages remain attributable after status changes., valueSemantics: {ACTIVE: Eligible for ordinary assignment., INACTIVE: Temporarily not scheduled., OUT_OF_SERVICE: Unavailable due to operational/maintenance condition., RETIRED: Closed to new use.}, requiredMeaning: Required.}
+      help:
+        summary: Whether the vessel is available for voyages, idle, out of action or permanently withdrawn.
+        usage: Starts as ACTIVE; moved by operations staff, and scheduling only assigns voyages to vessels that are active.
+        valueSemantics:
+          ACTIVE: In service and available for voyages.
+          INACTIVE: Temporarily not used, for example laid up, but expected to return.
+          OUT_OF_SERVICE: Unavailable because of damage, repair or a compliance problem.
+          RETIRED: Permanently withdrawn from the fleet, for example sold or scrapped. A final state.
+        businessMeaning: Controls eligibility for new voyage assignment.
+        relationshipContext: Historical Voyages remain attributable after status changes.
   relationships:
     - {name: owner, target: Organization, cardinality: "0..1", ownership: reference, help: {summary: Organization owning the Vessel where known., businessMeaning: Supplies asset ownership context., usage: "Shipping, finance and reporting.", cardinalityMeaning: Optional for leased/third-party vessels., workflowRole: Ownership changes do not rewrite voyage history.}}
     - {name: operator, target: Organization, cardinality: "0..1", ownership: reference, help: {summary: Organization operating the Vessel., businessMeaning: Supplies operational accountability distinct from ownership., usage: "Port calls, scheduling and compliance.", cardinalityMeaning: Optional when operator is unknown or same as owner., workflowRole: Operator at voyage time remains historical evidence.}}
-    - {name: voyages, target: Voyage, cardinality: "0..*", ownership: reference, help: {summary: Voyages performed by this Vessel., businessMeaning: Preserves journey history independently of vessel master state., usage: "Shipping operations, ETA, container and port reporting.", cardinalityMeaning: Zero or many Voyages., workflowRole: New Voyage requires eligible Vessel status.}}
+    - {name: voyages, target: Voyage, cardinality: "0..*", ownership: reference, help: {cardinalityMeaning: Any number of voyages are made by a vessel over its life., summary: Voyages performed by this Vessel., businessMeaning: Preserves journey history independently of vessel master state., usage: "Shipping operations, ETA, container and port reporting.", workflowRole: New Voyage requires eligible Vessel status.}}
   invariants:
     - {id: VESSEL-001, rule: RETIRED or OUT_OF_SERVICE Vessel cannot receive ordinary new Voyage assignments except governed exceptions.}
-    - {id: VESSEL-002, rule: Historical Voyage and berth evidence must not be rewritten because owner, operator, name or status changes.}
+    - {id: VESSEL-002, rule: "Historical Voyage and berth evidence must not be rewritten because owner, operator, name or status changes."}
   lifecycle:
     title: Vessel Lifecycle
     attribute: status

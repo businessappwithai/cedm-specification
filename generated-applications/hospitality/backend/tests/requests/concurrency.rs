@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:29:57.481Z
+//! Generated: 2026-10-09T15:28:57.748Z
 //! Project: hospitality
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,7 +43,7 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("Hotel", "status", "CLOSED"),
-    ("HotelReservation", "status", "CANCELLED"),
+    ("HotelReservation", "status", "CHECKED_OUT"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -68,7 +68,12 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ),
     ("Task", "status", "CREATED", &["READY", "CANCELLED"]),
     ("Hotel", "status", "PLANNED", &["ACTIVE", "RETIRED"]),
-    ("HotelRoom", "status", "AVAILABLE", &["OCCUPIED"]),
+    (
+        "HotelRoom",
+        "status",
+        "AVAILABLE",
+        &["RESERVED", "OCCUPIED", "OUT_OF_SERVICE"],
+    ),
     (
         "HotelReservation",
         "status",

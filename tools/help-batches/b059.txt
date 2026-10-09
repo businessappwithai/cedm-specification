@@ -1,0 +1,105 @@
+@ Scenario
+a scenarioId
+s: The identity of the scenario, constant for its life.
+a status
+v DRAFT: Being defined; not yet used in planning.
+v ACTIVE: Available for budgets and forecasts.
+v ARCHIVED: No longer used; kept for history. A final state.
+
+@ Scrap
+a scrapId
+s: The identity of the scrap record, constant for its life.
+a scrapNumber
+s: The number of the scrap record, such as SCR-0412.
+r workOrder
+n: Each scrap record belongs to one work order, which carries the cost of the loss.
+r product
+n: A scrap record is for one product; scrap of several products is recorded separately.
+
+@ SecurityIncident
+s: A recorded event or condition that may compromise confidentiality, integrity, availability, safety or security.
+b: An incident record is how the organisation notices, investigates and closes a security event. It keeps who found it, who handled it, how serious it was and when it was contained or resolved, so response can be reviewed and repeated problems seen.
+u: Raised by whoever detects the event; investigated by security staff; read by management and auditors.
+c: An incident belongs to an organisation, may name a reporter and investigator, and may relate to a recorded risk.
+l: An incident is opened and investigated, may be contained and re-investigated, then resolved and closed. Closed is final.
+x: Incident SI-2026-018 records phishing emails reported by finance staff, contained by blocking the sender and resolved after passwords were reset.
+a securityIncidentId
+s: The identity of the incident, constant for its life.
+u: Generated on creation; actions and reports refer to it.
+c: Referenced by investigation work.
+a incidentNumber
+s: The number of the incident, such as SI-2026-018.
+u: Unique; quoted in reports and to regulators.
+c: Read with the type and severity.
+a incidentType
+s: The kind of incident, such as phishing or data loss.
+u: Entered when raised; reports group by it.
+c: Decides which response procedure applies.
+a severity
+s: How serious the incident is.
+u: Set at triage and revised as facts emerge.
+c: Decides priority and who is told.
+v LOW: Minor, with no real harm.
+v MEDIUM: Limited harm that needs follow-up.
+v HIGH: Serious harm or exposure.
+v CRITICAL: Severe harm needing immediate action.
+a status
+s: Where the incident is in its handling.
+u: Starts as OPEN; moved by the investigator.
+c: Decides whether response work is still due.
+v OPEN: Reported and not yet being worked.
+v INVESTIGATING: Being investigated.
+v CONTAINED: The spread has been stopped; cause still to be dealt with.
+v RESOLVED: The cause is dealt with.
+v CLOSED: Reviewed and finished. A final state.
+a detectedAt
+u: Entered from the report; response times are measured from it.
+c: Compared with the resolution time.
+a resolvedAt
+u: Set when resolved; must not be before detection.
+c: Gives the time to resolve.
+r organization
+s: The organisation affected by the incident.
+u: Chosen when raised.
+n: Exactly one organisation.
+t: Decides who handles and is accountable.
+r reporter
+s: The person who reported the incident.
+u: Chosen when raised.
+n: At most one reporter; empty if automatic.
+t: Who to ask for more information.
+r investigator
+s: The person responsible for investigating.
+u: Assigned at triage.
+n: At most one investigator.
+t: Owns the response.
+r relatedRisk
+s: The risk in the register that the incident relates to.
+u: Linked when an incident shows a risk has occurred.
+n: At most one risk.
+t: Allows the register to be updated.
+
+@ SerialNumber
+a status
+v EXPECTED: Announced but not yet received.
+v AVAILABLE: In stock and free to use.
+v RESERVED: Set aside for an order or job.
+v IN_TRANSIT: On its way between places.
+v INSTALLED: Fitted at a customer or on equipment.
+v CONSUMED: Used up. A final state.
+v RETURNED: Sent back and awaiting a decision.
+v QUARANTINED: Held apart pending a decision.
+v SCRAPPED: Destroyed or written off. A final state.
+v RETIRED: Taken out of service for good. A final state.
+r product
+n: Each serial number belongs to one product; the same number on another product is a different unit.
+
+@ ServiceCase
+a serviceCaseId
+s: The identity of the case, constant for its life.
+r requester
+n: A case has one requester, the person to keep informed.
+r tickets
+n: Any number of tickets are worked under the case.
+r serviceOrders
+n: Any number of service orders may carry out the work.

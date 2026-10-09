@@ -1,6 +1,6 @@
 //! The state machines the *model* drew, and whether the API enforces them.
 //!
-//! Generated: 2026-10-04T08:31:23.110Z
+//! Generated: 2026-10-09T15:31:04.272Z
 //! Project: trade
 //!
 //! `requests/rbac.rs` proves the topology guard works by seeding an edge of its
@@ -80,35 +80,32 @@ const MODEL_EDGES: &[(&str, &str, &str, &str)] = &[
     (
         "bus_trade_declaration",
         "status",
+        "SUBMITTED",
+        "UNDER_REVIEW",
+    ),
+    ("bus_trade_declaration", "status", "SUBMITTED", "REJECTED"),
+    (
+        "bus_trade_declaration",
+        "status",
         "ACCEPTED",
         "UNDER_REVIEW",
     ),
+    ("bus_trade_declaration", "status", "ACCEPTED", "RELEASED"),
     (
         "bus_trade_declaration",
         "status",
         "UNDER_REVIEW",
         "RELEASED",
     ),
-    ("bus_trade_declaration", "status", "DRAFT", "REJECTED"),
-    ("bus_trade_declaration", "status", "SUBMITTED", "REJECTED"),
-    ("bus_trade_declaration", "status", "ACCEPTED", "REJECTED"),
     (
         "bus_trade_declaration",
         "status",
         "UNDER_REVIEW",
         "REJECTED",
     ),
-    ("bus_trade_declaration", "status", "RELEASED", "REJECTED"),
     ("bus_trade_declaration", "status", "DRAFT", "CANCELLED"),
     ("bus_trade_declaration", "status", "SUBMITTED", "CANCELLED"),
     ("bus_trade_declaration", "status", "ACCEPTED", "CANCELLED"),
-    (
-        "bus_trade_declaration",
-        "status",
-        "UNDER_REVIEW",
-        "CANCELLED",
-    ),
-    ("bus_trade_declaration", "status", "RELEASED", "CANCELLED"),
     ("bus_customs_declaration", "status", "DRAFT", "SUBMITTED"),
     ("bus_customs_declaration", "status", "SUBMITTED", "ACCEPTED"),
     (

@@ -7,17 +7,24 @@ entity:
     icon: book-open
   identity: {key: ledgerId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Ledger., businessMeaning: Identifies one governed Ledger record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Ledger., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: ledgerId, type: uuid, required: true, immutable: true, help: {summary: 'The stable identity of the accounting ledger, constant for the life of the books.', usage: 'Generated on creation; journal entries, periods and reports refer to the ledger through it.'}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Whether the ledger is currently open to receive journal entries.
+        usage: Moved by finance as books are opened and closed; postings are accepted only while ACTIVE, and finished ledgers are kept for reporting.
+        valueSemantics:
+          DRAFT: Being set up and not yet accepting entries.
+          ACTIVE: Open for posting journal entries.
+          COMPLETED: Closed for good after the final period. A final state.
+          CANCELLED: Set up but never used. A final state.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Organization owning accounting book., businessMeaning: Defines legal/management accounting boundary., usage: Posting and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Journal entries must use compatible organization context.}}
-  - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {summary: Journal entries posted to ledger., businessMeaning: Supplies accounting evidence contained by book., usage: General ledger and reporting., cardinalityMeaning: Zero or many entries., workflowRole: Posted entries remain immutable.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one organisation: a book is kept for a single legal entity.', summary: Organization owning accounting book., businessMeaning: Defines legal/management accounting boundary., usage: Posting and reporting., workflowRole: Journal entries must use compatible organization context.}}
+    - {name: journalEntries, target: JournalEntry, cardinality: 0..*, ownership: reference, help: {cardinalityMeaning: 'Any number of journal entries, which build up as the books are kept.', summary: Journal entries posted to ledger., businessMeaning: Supplies accounting evidence contained by book., usage: General ledger and reporting., workflowRole: Posted entries remain immutable.}}
   invariants:
-  - {id: LEDGER-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: LEDGER-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
   lifecycle:
     title: Ledger Lifecycle
     attribute: status
@@ -49,12 +56,11 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: A governed accounting book defining the scope in which journal entries are recorded and reported.
-    purpose: Provide canonical enterprise semantics for Ledger while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed accounting book defining the scope in which journal entries are recorded and reported.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
+    summary: An accounting book that defines the scope in which journal entries are recorded and reported.
+    businessMeaning: A single organisation may keep several books, for example one for local statutory reporting and one for group reporting. The ledger names a book and holds its entries, so figures in one book are never mixed with another.
+    usage: Created when accounting is set up for an organisation; filled by journal entries; read by accountants and auditors.
+    relationshipContext: A ledger belongs to one Organization and contains JournalEntries. It must not silently duplicate or rewrite authoritative cash, tax or billing records.
+    lifecycle: A ledger is drafted, becomes active when open for postings, is completed when its books are finally closed, and is cancelled if it was never used.
+    example: The statutory ledger of the German subsidiary, active for the current fiscal year.
     howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-LEDGER}

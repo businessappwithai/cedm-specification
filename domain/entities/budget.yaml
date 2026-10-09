@@ -7,23 +7,34 @@ entity:
     icon: piggy-bank
   identity: {key: budgetId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: Stable budget identity., businessMeaning: Identifies one financial plan version., usage: "Planning, approval, control and reporting.", relationshipContext: Owns BudgetLines and references planning context., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Business budget code., businessMeaning: Human/integration reference for plan., usage: Planning and reporting., relationshipContext: Unique within organization/version policy., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: DRAFT
-    values: [DRAFT, SUBMITTED, APPROVED, ACTIVE, SUPERSEDED, CLOSED]
-    help: {summary: Budget governance state., businessMeaning: Controls editability and authoritative planning use., usage: Approval and control., relationshipContext: Actual accounting remains in JournalEntry., valueSemantics: {DRAFT: Editable proposal., SUBMITTED: Awaiting approval., APPROVED: Authorized plan., ACTIVE: Current control baseline., SUPERSEDED: Replaced by later plan., CLOSED: Planning cycle ended.}, requiredMeaning: Required.}
+    - {name: budgetId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the budget, stable across revisions of its figures.', businessMeaning: Identifies one financial plan version., usage: "Planning, approval, control and reporting.", relationshipContext: Owns BudgetLines and references planning context.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {usage: 'Assigned by finance when the budget is created, for example FY26-OPS-V1; used to find the budget and cite it in approvals.', summary: Business budget code., businessMeaning: Human/integration reference for plan., relationshipContext: Unique within organization/version policy.}}
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, SUBMITTED, APPROVED, ACTIVE, SUPERSEDED, CLOSED]
+      help:
+        summary: How far the budget has progressed through preparation, approval, use and replacement.
+        usage: Moved by the budget owner and approvers; only active budgets control spending, and later changes need a new revision.
+        valueSemantics:
+          DRAFT: Being prepared by the budget owner; figures may change freely.
+          SUBMITTED: Sent for approval; changes are held while it is reviewed.
+          APPROVED: Accepted by the authorising body but not yet the live control.
+          ACTIVE: The live budget against which spending is monitored.
+          SUPERSEDED: Replaced by a later version; kept as the record of what was once approved. A final state.
+          CLOSED: The period is over and the budget is closed for comparison with actuals. A final state.
+        businessMeaning: Controls editability and authoritative planning use.
+        relationshipContext: Actual accounting remains in JournalEntry.
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Organization owning budget., businessMeaning: Defines planning boundary., usage: Planning and reporting., cardinalityMeaning: Exactly one Organization., workflowRole: Accounting dimensions must belong to compatible context.}}
-  - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Fiscal period governed by budget., businessMeaning: Aligns plan with accounting time., usage: Budget control and variance., cardinalityMeaning: Optional when budget spans multiple periods represented by lines., workflowRole: Does not open/close accounting period.}}
-  - {name: lines, target: BudgetLine, cardinality: 1..*, ownership: aggregate, help: {summary: Detailed planned amounts., businessMeaning: Allocates budget to accounts/dimensions., usage: Control and variance analysis., cardinalityMeaning: One or more lines., workflowRole: Line totals form governed plan.}}
-  - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Planning scenario represented., businessMeaning: Distinguishes baseline/upside/downside etc., usage: Comparative planning., cardinalityMeaning: Optional for single-scenario plans., workflowRole: Scenario never changes actual ledger.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {usage: Set when the budget is created; determines whose spending the budget limits., cardinalityMeaning: 'Exactly one organisation: a budget always plans the money of a single organisation.', summary: Organization owning budget., businessMeaning: Defines planning boundary., workflowRole: Accounting dimensions must belong to compatible context.}}
+    - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Fiscal period governed by budget., businessMeaning: Aligns plan with accounting time., usage: Budget control and variance., cardinalityMeaning: Optional when budget spans multiple periods represented by lines., workflowRole: Does not open/close accounting period.}}
+    - {name: lines, target: BudgetLine, cardinality: 1..*, ownership: aggregate, help: {cardinalityMeaning: At least one line; a budget with no lines plans no money., summary: Detailed planned amounts., businessMeaning: Allocates budget to accounts/dimensions., usage: Control and variance analysis., workflowRole: Line totals form governed plan.}}
+    - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Planning scenario represented., businessMeaning: Distinguishes baseline/upside/downside etc., usage: Comparative planning., cardinalityMeaning: Optional for single-scenario plans., workflowRole: Scenario never changes actual ledger.}}
   invariants:
-  - {id: BUDGET-001, rule: APPROVED or ACTIVE Budget requires at least one valid BudgetLine and authorized approval.}
-  - {id: BUDGET-002, rule: Budget never creates or rewrites actual JournalEntry amounts.}
-  - {id: BUDGET-003, rule: Changes after approval require controlled revision/versioning and preserve prior approved evidence.}
+    - {id: BUDGET-001, rule: APPROVED or ACTIVE Budget requires at least one valid BudgetLine and authorized approval.}
+    - {id: BUDGET-002, rule: Budget never creates or rewrites actual JournalEntry amounts.}
+    - {id: BUDGET-003, rule: Changes after approval require controlled revision/versioning and preserve prior approved evidence.}
   lifecycle:
     title: Budget Lifecycle
     attribute: status
@@ -58,5 +69,10 @@ entity:
               task_type: "APPROVAL"
               status: "CREATED"
               priority: "NORMAL"
-  help: {summary: Governed financial planning baseline., businessMeaning: Budget records intended/authorized financial amounts while JournalEntry records actual accounting., usage: "Planning, spending control and variance reporting.", relationshipContext: "BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions.", lifecycle: Draft to submitted to approved/active to superseded/closed.}
+  help:
+    summary: Governed financial planning baseline.
+    businessMeaning: Budget records intended/authorized financial amounts while JournalEntry records actual accounting.
+    usage: "Planning, spending control and variance reporting."
+    relationshipContext: "BudgetLine supplies dimensional detail; FiscalPeriod supplies accounting time; Scenario supplies planning assumptions."
+    lifecycle: Draft to submitted to approved/active to superseded/closed.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET}

@@ -94,6 +94,7 @@ const ENTITIES: string[] = [
   'RiskLikelihood',
   'RiskImpact',
   'RiskStatus',
+  'AuditCaseStatus',
   'RiskTreatmentStatus',
 ];
 
@@ -114,15 +115,15 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'City': ['id', 'code', 'name', 'population', 'latitude', 'longitude', 'timezone', 'is_capital', 'country_id', 'state_province_id'],
   'Language': ['id', 'code', 'name'],
   'Currency': ['id', 'code', 'name', 'symbol', 'decimal_places', 'status'],
-  'ExchangeRate': ['id', 'from_currency', 'to_currency', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
+  'ExchangeRate': ['id', 'from_currency_id', 'to_currency_id', 'rate', 'rate_type', 'effective_at', 'expires_at', 'source', 'status'],
   'UnitOfMeasure': ['id', 'code', 'name', 'symbol', 'category', 'conversion_factor', 'base_unit_id', 'status'],
   'Calendar': ['id', 'code', 'name'],
   'Attachment': ['id', 'effective_at'],
   'Task': ['id', 'code', 'name', 'description', 'task_type', 'status', 'priority', 'due_at', 'started_at', 'completed_at', 'assignee_id', 'organization_id'],
-  'Policy': ['id', 'code', 'name', 'description', 'policy_type', 'status', 'effective_from', 'effective_to', 'owner_id'],
+  'Policy': ['id', 'code', 'name', 'description', 'policy_type', 'policy_version', 'status', 'effective_from', 'effective_to', 'owner_id'],
   'Control': ['id', 'code', 'name', 'description', 'control_type', 'frequency', 'status', 'owner_id', 'organization_id'],
   'Risk': ['id', 'code', 'name', 'description', 'category', 'likelihood', 'impact', 'status', 'owner_id', 'organization_id'],
-  'AuditCase': ['id', 'effective_at'],
+  'AuditCase': ['id', 'effective_at', 'case_number', 'title', 'scope', 'opened_on', 'closed_on', 'status', 'lead_auditor_id'],
   'AuditEvent': ['id', 'effective_at'],
   'ComplianceRequirement': ['id', 'effective_at'],
   'Finding': ['id', 'effective_at', 'control_id', 'risk_id'],
@@ -160,6 +161,7 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   'RiskLikelihood': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'RiskImpact': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'RiskStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
+  'AuditCaseStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
   'RiskTreatmentStatus': ['id', 'code', 'name', 'description', 'sequence', 'is_active'],
 };
 

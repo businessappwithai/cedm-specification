@@ -1,0 +1,115 @@
+@ Lease
+r lessee
+n: Exactly one lessee: the lease binds a single party to pay for and use the property or asset.
+
+@ LegalMatter
+s: A unit of legal work that groups parties, counsel, documents, obligations, filings, issues, costs and outcomes.
+b: Legal work rarely consists of a single event. A matter is the file that holds everything about one legal issue, so counsel, cost and outcome can be tracked together.
+u: Opened when a legal issue arises; filled as filings, documents and cases are added; closed when resolved; read by legal counsel and management.
+c: A matter contains LegalCases and refers to the documents, filings and obligations that belong to it.
+l: Finalised evidence and effective history are preserved; settlements and corrections are explicit.
+x: The dispute with a former supplier over a delivery failure, with a mediation, a court case and a settlement.
+a legalMatterId
+s: The identity of the matter.
+u: Generated on opening; cases, costs and documents refer to it.
+a occurredAt
+s: When the matter was opened or the event that gave rise to it.
+u: Set at opening; used to order matters and compute limitation periods.
+
+@ Load
+s: A grouping of shipments, consignments, handling units or containers that are assigned together to one transport execution.
+b: Freight moves in loads, not in single orders. Grouping what travels together lets the carrier, the dock and the customer see one planned movement and track it as such.
+u: Created by transport planning; filled as shipments are assigned; handed to a carrier; read by dispatch and the warehouse.
+c: A load groups Shipments and Consignments under one carrier movement.
+l: Changes and retries preserve history and do not duplicate commercial, physical or financial effects.
+x: A full trailer carrying eight pallets for four customers from the central warehouse to a regional depot.
+a loadId
+s: The identity of the load.
+u: Generated on creation; the shipments and the carrier refer to it.
+a code
+s: The load number printed on the loading list.
+u: Allocated by transport planning; used by drivers and the dock.
+
+@ Location
+s: A physical or logical place where resources, activities, stock, services or organisational operations are situated.
+b: Almost everything in a business happens somewhere. The location is the shared reference for that: sites, warehouses, stores, offices, ports and even virtual places, arranged in a hierarchy so addresses, stock and assets can all point to the same place.
+u: Created when a place becomes relevant; arranged under parent locations; referenced by assets, stock, facilities and addresses; read by logistics, facilities and reporting.
+c: A location may sit within a parent Location with children beneath it, has an Address and may belong to an Organization.
+l: A location is planned, becomes active when in use, may be inactive for a time, and is closed or retired when no longer used. History and references remain valid.
+x: The Rotterdam distribution centre, a warehouse location within the Netherlands site, with its own address.
+a locationId
+s: The identity of the location, which stays the same when its name or code changes.
+u: Generated on creation; assets, stock and documents refer to the location through it.
+a code
+s: The code of the place in the organisation's site list, such as NL-RTM-DC1.
+u: Unique; assigned by the administrator and used in integrations and labels.
+a name
+s: The name people use for the place.
+u: Shown in lists, maps and documents.
+a locationType
+s: What kind of place it is.
+u: Chosen at creation; decides which processes can use the location.
+v SITE: A geographic site that may contain several buildings.
+v WAREHOUSE: A building or area for storing goods.
+v STORE: A retail outlet.
+v OFFICE: A place where office work is done.
+v FACTORY: A place where goods are made.
+v YARD: An open area for storing or staging equipment or containers.
+v PORT: A harbour or terminal.
+v DEPOT: A base for vehicles and equipment.
+v VIRTUAL: A logical place with no physical presence, such as an online store.
+v OTHER: Any other kind of place.
+a status
+s: Whether the place is in use.
+u: Set by the administrator; only ACTIVE locations are offered for new assignments.
+v PLANNED: Expected but not yet in use.
+v ACTIVE: In use.
+v INACTIVE: Temporarily not used.
+v CLOSED: Closed down.
+v RETIRED: Removed from use altogether. A final state.
+a addressId
+s: The postal address of the location.
+u: Chosen from the address list; used for deliveries, mapping and tax.
+a parentLocationId
+s: The place that contains this one, such as the site that holds a warehouse.
+u: Set to build the hierarchy; a top-level place has none.
+a createdAt
+s: When the location was created.
+u: Set by the system.
+a updatedAt
+s: When the location last changed.
+u: Set by the system.
+r parentLocation
+s: The place that contains this one.
+u: Chosen to place the location in the hierarchy.
+n: At most one parent; a top-level site has none.
+w: Lets reports and stock roll up from the smaller place to the larger.
+r childLocations
+s: The places directly within this one.
+u: Read to expand a site into its buildings and areas.
+n: Any number of children, including none.
+w: Reflects the hierarchy from the other side.
+r address
+s: The address of the location.
+u: Chosen when the place has a postal address.
+n: At most one address; virtual places have none.
+w: Provides delivery and map position.
+r organization
+s: The organisation that operates the place.
+u: Set where operation is clear.
+n: At most one operating organisation.
+w: Determines responsibility and reporting.
+
+@ LossEvent
+s: A record of realised financial, operational, physical, legal or other loss that can be attributed to a risk or incident.
+b: Risk management is judged by outcomes. A loss event records what was actually lost, so risk estimates can be tested against reality and insurance and recovery claims can be supported.
+u: Recorded after an incident when the loss is known; read by risk managers, finance and insurers.
+c: A loss event is linked to the risk it materialised and to the incident that caused it.
+l: Finalised evidence and effective history are preserved; reassessments and recoveries are separate, explicit records.
+x: A 120,000 loss from a warehouse fire, linked to the fire incident and the property damage risk.
+a lossEventId
+s: The identity of the loss event.
+u: Generated on recording.
+a occurredAt
+s: When the loss was suffered.
+u: Set from the incident; used to place the loss in a reporting period.

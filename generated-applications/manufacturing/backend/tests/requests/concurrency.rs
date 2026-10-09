@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:23.500Z
+//! Generated: 2026-10-09T15:29:35.094Z
 //! Project: manufacturing
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -48,9 +48,9 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("WorkCenter", "status", "RETIRED"),
     ("ManufacturingWorkOrder", "status", "CLOSED"),
     ("Lot", "status", "CONSUMED"),
-    ("SerialNumber", "status", "RETURNED"),
+    ("SerialNumber", "status", "CONSUMED"),
     ("QualityInspection", "status", "PASSED"),
-    ("ProductionRecord", "status", "REJECTED"),
+    ("ProductionRecord", "status", "VERIFIED"),
 ];
 
 /// `(entity, status column, initial, [targets of edges out of initial])`.
@@ -94,13 +94,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "PLANNED",
         &["RELEASED", "CANCELLED"],
     ),
-    ("Lot", "status", "ACTIVE", &["HOLD", "REJECTED"]),
     (
-        "SerialNumber",
+        "Lot",
         "status",
-        "EXPECTED",
-        &["AVAILABLE", "RETIRED"],
+        "ACTIVE",
+        &["HOLD", "QUARANTINED", "CONSUMED", "EXPIRED", "CLOSED"],
     ),
+    ("SerialNumber", "status", "EXPECTED", &["AVAILABLE"]),
     (
         "QualityInspection",
         "status",
@@ -110,8 +110,8 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     (
         "ProductionRecord",
         "status",
-        "RECORDED",
-        &["PLANNED", "REJECTED"],
+        "PLANNED",
+        &["RECORDED", "REJECTED"],
     ),
 ];
 

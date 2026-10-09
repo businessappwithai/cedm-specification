@@ -7,16 +7,88 @@ entity:
     icon: credit-card
   identity: {key: creditId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: creditId, type: uuid, required: true, immutable: true, help: {summary: Stable identity of Credit., businessMeaning: Identifies one governed Credit record., usage: "Enterprise processing, integration, reporting and audit.", relationshipContext: Referenced by compatible domain workflows., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
-    help: {summary: Governed lifecycle state., businessMeaning: Indicates usability/execution state of Credit., usage: Workflow and controls., relationshipContext: Historical terminal evidence is retained., valueSemantics: {DRAFT: Being prepared., ACTIVE: Effective or executing., COMPLETED: Concluded successfully., CANCELLED: Terminated without normal completion.}, requiredMeaning: Required.}
+    - {name: creditId, type: uuid, required: true, immutable: true, help: {summary: The identity of the credit., usage: Generated on creation; applications to charges refer to it.}}
+    - name: status
+      type: enum
+      required: true
+      values: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
+      help:
+        summary: Whether the credit is being prepared, available to use, used up, or withdrawn.
+        usage: Moved by billing staff; only an ACTIVE credit can be applied to a charge or invoice.
+        valueSemantics:
+          DRAFT: Being prepared by billing; it cannot yet be applied to any charge.
+          ACTIVE: Issued and available to apply against what the customer owes.
+          COMPLETED: Fully applied or expired, so nothing remains to use. A final state.
+          CANCELLED: Withdrawn before it was used up, leaving no usable value. A final state.
+    - name: creditNumber
+      type: string
+      maxLength: 100
+      unique: true
+      required: true
+      help:
+        summary: The reference number of the credit, such as CR-000087.
+        usage: Assigned when the credit is issued; quoted to the customer.
+        relationshipContext: Read with the customer.
+    - name: reason
+      type: enum
+      values:
+        - GOODWILL
+        - BILLING_ERROR
+        - RETURN
+        - PROMOTION
+        - OTHER
+      required: true
+      help:
+        summary: Why the credit was given.
+        usage: Chosen when issued; reports use it to see why money is being given back.
+        relationshipContext: Decides the approval needed.
+        valueSemantics:
+          GOODWILL: Given to keep the customer's goodwill.
+          BILLING_ERROR: Corrects an amount billed wrongly.
+          RETURN: Given for goods or services returned.
+          PROMOTION: Given as part of an offer.
+          OTHER: Given for another reason.
+    - name: amount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The total value of the credit when issued.
+        usage: Entered when issued; must not be negative.
+        relationshipContext: The starting point for the remaining amount.
+    - name: remainingAmount
+      type: decimal
+      precision: 20
+      scale: 4
+      required: true
+      help:
+        summary: The part of the credit not yet applied to charges.
+        usage: Starts equal to the amount and falls as the credit is applied; never more than the amount.
+        relationshipContext: Compared with the amount to show how much is used.
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: true
+      help:
+        summary: The currency of the credit.
+        usage: Set from the customer or contract; credits apply only to charges in the same currency.
+        relationshipContext: Read with the amount.
+    - name: issuedOn
+      type: date
+      required: true
+      help:
+        summary: The date the credit was issued.
+        usage: Set when issued; the credit may be applied from this date.
+        relationshipContext: Compared with charge dates.
   relationships:
-  - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: Customer owning or economically affected by record., businessMeaning: Supplies commercial party context., usage: Billing and entitlement., cardinalityMeaning: Optional for reusable definitions; required by applicable transaction policy., workflowRole: Financial settlement remains separate.}}
+    - {name: customer, target: Customer, cardinality: 0..1, ownership: reference, help: {summary: The customer to whom the credit is owed., usage: Set when the credit is issued; it can be applied only to that customer's charges., cardinalityMeaning: At most one customer; an unassigned credit is a draft not yet attached to anyone., workflowRole: Decides whose charges the credit can reduce.}}
   invariants:
-  - {id: CREDIT-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - {id: CREDIT-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
+    - id: CREDIT-002
+      rule: amount must not be negative.
+    - id: CREDIT-003
+      rule: remainingAmount must not exceed amount.
   lifecycle:
     title: Credit Lifecycle
     attribute: status
@@ -66,12 +138,10 @@ entity:
               status: "CREATED"
               priority: "LOW"
   help:
-    summary: A governed monetary credit reducing an amount owed or available for application to future or existing charges without itself representing cash payment.
-    purpose: Provide canonical enterprise semantics for Credit while keeping planning, operational, financial and evidential responsibilities separated.
-    businessMeaning: A governed monetary credit reducing an amount owed or available for application to future or existing charges without itself representing cash payment.
-    whenUsed: Used by applicable finance, treasury, tax, subscription, billing, reporting and integration workflows.
-    howItRelates: References canonical parties and transactions; downstream accounting and cash effects remain explicit through JournalEntry, Payment and BankTransaction where applicable.
-    lifecycleUsage: Created under governed workflow, progressed through explicit states, and retained historically after completion/cancellation.
-    commonProcesses: Financial control, tax, billing, subscription management, settlement, reconciliation and audit.
-    commonExamples: Enterprise finance and recurring-revenue operations.
+    summary: A monetary credit that reduces an amount owed or can be applied to charges, without being a cash payment.
+    businessMeaning: 'Customers are sometimes owed value that is not money in the bank: a goodwill gesture, a promotion, a correction. A credit holds that value so it can be applied to what the customer owes, with a clear trail.'
+    usage: Issued by billing staff or rules; applied to charges or invoices; read when a customer asks why a bill was reduced.
+    relationshipContext: A credit belongs to a Customer. It does not itself change cash, accounting, tax or billing records; those follow from how it is applied.
+    lifecycle: A credit is drafted, becomes active when issued, completes when it has been used up and is cancelled if withdrawn.
+    example: A 20.00 service credit issued after an outage and applied automatically to the next invoice.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-CREDIT}

@@ -7,23 +7,33 @@ entity:
     icon: database
   identity: {key: dockId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: Stable dock identity., businessMeaning: Identifies one loading/receiving resource., usage: "Appointment, staging, loading and receiving.", relationshipContext: Belongs to one Warehouse., requiredMeaning: Required.}}
-  - {name: dockCode, type: string, required: true, maxLength: 100, help: {summary: Operational dock code., businessMeaning: Human/scanner identifier for the physical position., usage: Yard and warehouse execution., relationshipContext: Unique within Warehouse., requiredMeaning: Required.}}
-  - name: dockType
-    type: enum
-    required: true
-    values: [INBOUND, OUTBOUND, BIDIRECTIONAL, CROSS_DOCK]
-    help: {summary: Allowed dock operating purpose., businessMeaning: Controls eligible receiving/shipping work., usage: Scheduling and execution., relationshipContext: Warehouse policy may add constraints., valueSemantics: {INBOUND: Receiving-focused., OUTBOUND: Shipping-focused., BIDIRECTIONAL: Supports both directions., CROSS_DOCK: Supports direct inbound-to-outbound flow.}, requiredMeaning: Required.}
+    - {name: dockId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the dock, independent of its door number.', usage: Generated on creation; appointments and gate events refer to it., businessMeaning: Identifies one loading/receiving resource., relationshipContext: Belongs to one Warehouse.}}
+    - {name: dockCode, type: string, required: true, maxLength: 100, help: {summary: 'The number or code of the door, as painted at the warehouse.', usage: Unique within the warehouse; used by drivers and loaders., businessMeaning: Human/scanner identifier for the physical position., relationshipContext: Unique within Warehouse.}}
+    - name: dockType
+      type: enum
+      required: true
+      values: [INBOUND, OUTBOUND, BIDIRECTIONAL, CROSS_DOCK]
+      help:
+        summary: What traffic the dock handles.
+        usage: Set by the warehouse manager; scheduling offers only docks suited to the movement.
+        valueSemantics:
+          INBOUND: Receiving goods from suppliers or transfers.
+          OUTBOUND: Shipping goods to customers or other sites.
+          BIDIRECTIONAL: Used for both receiving and shipping, as needed.
+          CROSS_DOCK: Goods move straight from inbound to outbound without being stored.
+        businessMeaning: Controls eligible receiving/shipping work.
+        relationshipContext: Warehouse policy may add constraints.
   relationships:
-  - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: Parent warehouse., businessMeaning: Supplies facility context., usage: Dock scheduling and control., cardinalityMeaning: Exactly one Warehouse., workflowRole: Warehouse status constrains dock use.}}
-  - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: Default inventory staging position associated with dock., businessMeaning: Connects loading resource to stock-control location., usage: Receiving and shipping staging., cardinalityMeaning: Optional., workflowRole: Physical stock changes still require InventoryMovement.}}
+    - {name: warehouse, target: Warehouse, cardinality: '1', ownership: reference, help: {summary: The warehouse the dock belongs to., usage: Set when the dock is created., cardinalityMeaning: 'Exactly one warehouse: a dock is a physical door of a single building.', workflowRole: Places the dock in the site's capacity., businessMeaning: Supplies facility context.}}
+    - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: The area in which goods wait next to the dock., usage: Chosen to link dock activity with inventory location records., cardinalityMeaning: At most one staging location; some docks load directly from trailers., workflowRole: Lets receiving and picking hand goods over at a known spot., businessMeaning: Connects loading resource to stock-control location.}}
   invariants:
-  - {id: DOCK-001, rule: dockCode must be unique within Warehouse.}
-  - {id: DOCK-002, rule: Shipment direction must be compatible with dockType unless explicitly excepted.}
+    - {id: DOCK-001, rule: dockCode must be unique within Warehouse.}
+    - {id: DOCK-002, rule: Shipment direction must be compatible with dockType unless explicitly excepted.}
   help:
-    summary: Warehouse loading/receiving execution resource.
-    businessMeaning: Dock is a physical process resource, not an inventory location unless separately represented by stagingLocation.
-    usage: Inbound, outbound, cross-dock, appointment, staging and loading workflows.
-    relationshipContext: Warehouse owns operational context; InventoryLocation supplies stock-control context; Shipment supplies transport work.
-    lifecycle: Configured → active/restricted → retired with historical execution retained.
+    summary: A warehouse door, bay or loading position used for receiving, shipping, transfer and staging of goods.
+    businessMeaning: Trucks queue at docks, and a warehouse is only as fast as its docks. Each dock is a resource that is scheduled, assigned to a purpose and tied to the area where goods are staged.
+    usage: Defined by warehouse managers; booked by carrier appointments; read by yard and dock schedulers.
+    relationshipContext: A dock belongs to a Warehouse and may name a staging InventoryLocation where goods wait before loading or after unloading.
+    lifecycle: Docks are in service or out of service according to maintenance; the dock code is stable.
+    example: Dock D-07, a bidirectional door used for outbound parcels in the morning and returns in the afternoon.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-DOCK}

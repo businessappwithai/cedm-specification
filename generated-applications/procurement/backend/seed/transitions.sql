@@ -535,49 +535,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('a12e5f77-c3b7-5987-9358-7378163f12ca', 'bus_goods_receipt', 'status', 'DRAFT', 'RECEIVED', 'receive', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- GoodsReceiptLifecycle: RECEIVED → INSPECTION_PENDING (send_to_inspection)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('22de487b-0c6a-5cc5-b744-0f84ec856071', 'bus_goods_receipt', 'status', 'RECEIVED', 'INSPECTION_PENDING', 'send_to_inspection', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- GoodsReceiptLifecycle: RECEIVED → ACCEPTED (accept)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('84068478-9fe2-5eba-8071-8b815bbc9749', 'bus_goods_receipt', 'status', 'RECEIVED', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GoodsReceiptLifecycle: ACCEPTED → PARTIALLY_ACCEPTED (mark_partially_accepted)
+-- GoodsReceiptLifecycle: RECEIVED → PARTIALLY_ACCEPTED (accept_partially)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d5ddd32f-a568-5d70-8328-560d70a6cf53', 'bus_goods_receipt', 'status', 'ACCEPTED', 'PARTIALLY_ACCEPTED', 'mark_partially_accepted', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: RECEIVED → INSPECTION_PENDING (mark_inspection_pending)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('22de487b-0c6a-5cc5-b744-0f84ec856071', 'bus_goods_receipt', 'status', 'RECEIVED', 'INSPECTION_PENDING', 'mark_inspection_pending', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: INSPECTION_PENDING → RECEIVED (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('90841919-bdc6-53f3-a000-caa0699df777', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', 'RECEIVED', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: ACCEPTED → INSPECTION_PENDING (mark_inspection_pending)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b6bf56fb-22af-59fb-bc03-94c9ebca939a', 'bus_goods_receipt', 'status', 'ACCEPTED', 'INSPECTION_PENDING', 'mark_inspection_pending', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: INSPECTION_PENDING → ACCEPTED (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a41df273-d831-5c48-baf7-e8106aa4366b', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', 'ACCEPTED', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: PARTIALLY_ACCEPTED → INSPECTION_PENDING (mark_inspection_pending)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('9c66903c-9c71-510a-ad1e-40d8201367a8', 'bus_goods_receipt', 'status', 'PARTIALLY_ACCEPTED', 'INSPECTION_PENDING', 'mark_inspection_pending', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: INSPECTION_PENDING → PARTIALLY_ACCEPTED (resume)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('df452c68-068f-566d-a7b3-3c75c75cbf3c', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', 'PARTIALLY_ACCEPTED', 'resume', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: DRAFT → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('58574954-9f8c-5620-b9e1-fc687751cb89', 'bus_goods_receipt', 'status', 'DRAFT', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('e2e144fc-3f5c-5f58-9e4c-b30aa0fb1a83', 'bus_goods_receipt', 'status', 'RECEIVED', 'PARTIALLY_ACCEPTED', 'accept_partially', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- GoodsReceiptLifecycle: RECEIVED → REJECTED (reject)
@@ -585,14 +555,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('40c2fd13-6746-5607-b264-9506e5acaf33', 'bus_goods_receipt', 'status', 'RECEIVED', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GoodsReceiptLifecycle: ACCEPTED → REJECTED (reject)
+-- GoodsReceiptLifecycle: INSPECTION_PENDING → ACCEPTED (accept)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ef0eb638-94f2-5bde-9360-f0755bc10700', 'bus_goods_receipt', 'status', 'ACCEPTED', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('a41df273-d831-5c48-baf7-e8106aa4366b', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GoodsReceiptLifecycle: PARTIALLY_ACCEPTED → REJECTED (reject)
+-- GoodsReceiptLifecycle: INSPECTION_PENDING → PARTIALLY_ACCEPTED (accept_partially)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('b84372b2-fd56-58a5-b15a-b8020b57ff29', 'bus_goods_receipt', 'status', 'PARTIALLY_ACCEPTED', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('df452c68-068f-566d-a7b3-3c75c75cbf3c', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', 'PARTIALLY_ACCEPTED', 'accept_partially', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- GoodsReceiptLifecycle: INSPECTION_PENDING → REJECTED (reject)
@@ -610,21 +580,6 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('3a37d8d1-9831-5e85-a64c-834b4810f88d', 'bus_goods_receipt', 'status', 'RECEIVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- GoodsReceiptLifecycle: ACCEPTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('dc3f0886-1be9-55db-920a-5d5a71d912d4', 'bus_goods_receipt', 'status', 'ACCEPTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: PARTIALLY_ACCEPTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('64b1f734-9797-57e9-aeeb-05bc2582a17d', 'bus_goods_receipt', 'status', 'PARTIALLY_ACCEPTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- GoodsReceiptLifecycle: INSPECTION_PENDING → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('935714fa-6fae-5cb6-9270-3e9a29a46be1', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
 -- SupplierClaimLifecycle: DRAFT → OPEN (open)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('efcee286-5ca4-535e-891a-cddc463885cc', 'bus_supplier_claim', 'status', 'DRAFT', 'OPEN', 'open', TRUE, NOW())
@@ -635,39 +590,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('19ffed85-a21e-5eb2-a749-4ca2eb9749d8', 'bus_supplier_claim', 'status', 'OPEN', 'UNDER_REVIEW', 'review', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
+-- SupplierClaimLifecycle: OPEN → REJECTED (reject)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('6360f370-b4a2-58ab-8e4f-9610facca57a', 'bus_supplier_claim', 'status', 'OPEN', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
 -- SupplierClaimLifecycle: UNDER_REVIEW → ACCEPTED (accept)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('d2d1cc9d-69a2-535a-aa6f-62ea438c7708', 'bus_supplier_claim', 'status', 'UNDER_REVIEW', 'ACCEPTED', 'accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierClaimLifecycle: ACCEPTED → PARTIALLY_ACCEPTED (mark_partially_accepted)
+-- SupplierClaimLifecycle: UNDER_REVIEW → PARTIALLY_ACCEPTED (partially-accept)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('3e904816-6761-5c77-ac0c-893d025279c9', 'bus_supplier_claim', 'status', 'ACCEPTED', 'PARTIALLY_ACCEPTED', 'mark_partially_accepted', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: PARTIALLY_ACCEPTED → ESCALATED (mark_escalated)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('fc86245d-957c-500e-8761-d67752c90c1e', 'bus_supplier_claim', 'status', 'PARTIALLY_ACCEPTED', 'ESCALATED', 'mark_escalated', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: ESCALATED → RESOLVED (resolve)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('c0fd9b58-5a7f-52f2-bada-6691f95188f8', 'bus_supplier_claim', 'status', 'ESCALATED', 'RESOLVED', 'resolve', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: RESOLVED → CLOSED (close)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('47896882-54ec-5f23-ae30-6ca9d90b1ba1', 'bus_supplier_claim', 'status', 'RESOLVED', 'CLOSED', 'close', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: DRAFT → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6649c91c-8b81-583e-918b-5d89f8d32a73', 'bus_supplier_claim', 'status', 'DRAFT', 'REJECTED', 'reject', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: OPEN → REJECTED (reject)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('6360f370-b4a2-58ab-8e4f-9610facca57a', 'bus_supplier_claim', 'status', 'OPEN', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('d8a6dfb0-b915-504b-a5e7-f6d3667411f5', 'bus_supplier_claim', 'status', 'UNDER_REVIEW', 'PARTIALLY_ACCEPTED', 'partially-accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierClaimLifecycle: UNDER_REVIEW → REJECTED (reject)
@@ -675,19 +610,39 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('fa06da3b-1474-5e9d-a0b3-80e6423783e0', 'bus_supplier_claim', 'status', 'UNDER_REVIEW', 'REJECTED', 'reject', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierClaimLifecycle: ACCEPTED → REJECTED (reject)
+-- SupplierClaimLifecycle: UNDER_REVIEW → ESCALATED (escalate)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7de2b60e-39f7-59d6-bb26-24764ea0ef56', 'bus_supplier_claim', 'status', 'ACCEPTED', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('607fc35c-3216-59c7-b803-54845bb6ae79', 'bus_supplier_claim', 'status', 'UNDER_REVIEW', 'ESCALATED', 'escalate', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierClaimLifecycle: PARTIALLY_ACCEPTED → REJECTED (reject)
+-- SupplierClaimLifecycle: ESCALATED → ACCEPTED (accept)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('7ad3a42b-8e3e-5d1f-808e-6211512e5acd', 'bus_supplier_claim', 'status', 'PARTIALLY_ACCEPTED', 'REJECTED', 'reject', TRUE, NOW())
+VALUES ('dc5e136d-366d-547c-8f2a-ccd7fa9eb435', 'bus_supplier_claim', 'status', 'ESCALATED', 'ACCEPTED', 'accept', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierClaimLifecycle: ESCALATED → PARTIALLY_ACCEPTED (partially-accept)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('55511855-ff46-5bb4-b113-8802d3543b0e', 'bus_supplier_claim', 'status', 'ESCALATED', 'PARTIALLY_ACCEPTED', 'partially-accept', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierClaimLifecycle: ESCALATED → REJECTED (reject)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('4deb303a-dbf5-56b8-b14a-e4e4c6034ccc', 'bus_supplier_claim', 'status', 'ESCALATED', 'REJECTED', 'reject', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierClaimLifecycle: ACCEPTED → RESOLVED (resolve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('ee08c863-85fe-5dbe-9044-5f780c152f24', 'bus_supplier_claim', 'status', 'ACCEPTED', 'RESOLVED', 'resolve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierClaimLifecycle: PARTIALLY_ACCEPTED → RESOLVED (resolve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('eeba78e1-29f6-5656-b750-1fda4f8759e5', 'bus_supplier_claim', 'status', 'PARTIALLY_ACCEPTED', 'RESOLVED', 'resolve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierClaimLifecycle: RESOLVED → CLOSED (close)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('47896882-54ec-5f23-ae30-6ca9d90b1ba1', 'bus_supplier_claim', 'status', 'RESOLVED', 'CLOSED', 'close', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierClaimLifecycle: DRAFT → CANCELLED (cancel)
@@ -703,16 +658,6 @@ ON CONFLICT DO NOTHING;
 -- SupplierClaimLifecycle: UNDER_REVIEW → CANCELLED (cancel)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
 VALUES ('86422809-a314-5d5d-82fa-a5dd56de24be', 'bus_supplier_claim', 'status', 'UNDER_REVIEW', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: ACCEPTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('ae34eff2-20a4-5d8d-a136-5eee550d48ce', 'bus_supplier_claim', 'status', 'ACCEPTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierClaimLifecycle: PARTIALLY_ACCEPTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('2d113b7f-9c9d-55e2-99aa-20f937f014b4', 'bus_supplier_claim', 'status', 'PARTIALLY_ACCEPTED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierClaimLifecycle: ESCALATED → CANCELLED (cancel)
@@ -785,14 +730,19 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('ef4534cb-37e2-57dd-aec5-dec0d1490012', 'bus_supplier_credit_note', 'status', 'APPROVED', 'POSTED', 'post', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierCreditNoteLifecycle: POSTED → PARTIALLY_APPLIED (mark_partially_applied)
+-- SupplierCreditNoteLifecycle: POSTED → PARTIALLY_APPLIED (apply)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('e1fa9cbf-7ab8-5404-b1b8-ebfd8735d3ee', 'bus_supplier_credit_note', 'status', 'POSTED', 'PARTIALLY_APPLIED', 'mark_partially_applied', TRUE, NOW())
+VALUES ('e1fa9cbf-7ab8-5404-b1b8-ebfd8735d3ee', 'bus_supplier_credit_note', 'status', 'POSTED', 'PARTIALLY_APPLIED', 'apply', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierCreditNoteLifecycle: PARTIALLY_APPLIED → FULLY_APPLIED (mark_fully_applied)
+-- SupplierCreditNoteLifecycle: POSTED → FULLY_APPLIED (apply)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('92455d73-0fef-58bf-9340-98edc1417c10', 'bus_supplier_credit_note', 'status', 'PARTIALLY_APPLIED', 'FULLY_APPLIED', 'mark_fully_applied', TRUE, NOW())
+VALUES ('d1ac24e2-3780-5375-a552-b3ac4d9fc079', 'bus_supplier_credit_note', 'status', 'POSTED', 'FULLY_APPLIED', 'apply', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierCreditNoteLifecycle: PARTIALLY_APPLIED → FULLY_APPLIED (apply)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('92455d73-0fef-58bf-9340-98edc1417c10', 'bus_supplier_credit_note', 'status', 'PARTIALLY_APPLIED', 'FULLY_APPLIED', 'apply', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierCreditNoteLifecycle: DRAFT → CANCELLED (cancel)
@@ -805,14 +755,9 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('2d71ea50-05f2-506c-aff0-60ce8f4dda21', 'bus_supplier_credit_note', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierCreditNoteLifecycle: POSTED → CANCELLED (cancel)
+-- SupplierCreditNoteLifecycle: POSTED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('0807cace-985a-541b-8783-10ea19f800e6', 'bus_supplier_credit_note', 'status', 'POSTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierCreditNoteLifecycle: PARTIALLY_APPLIED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('62db1abd-a2ca-5419-abf6-e98f8a84feee', 'bus_supplier_credit_note', 'status', 'PARTIALLY_APPLIED', 'CANCELLED', 'cancel', TRUE, NOW())
+VALUES ('a715a06b-511a-5890-8bc1-bfe34e390398', 'bus_supplier_credit_note', 'status', 'POSTED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierCreditNoteLifecycle: PARTIALLY_APPLIED → REVERSED (reverse)
@@ -850,19 +795,39 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('189ef3cd-ebe7-590e-8ce0-2f0453076376', 'bus_supplier_debit_note', 'status', 'APPROVED', 'POSTED', 'post', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierDebitNoteLifecycle: POSTED → PARTIALLY_APPLIED (mark_partially_applied)
+-- SupplierDebitNoteLifecycle: POSTED → PARTIALLY_APPLIED (apply)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('d041674e-58ea-5b6a-92ce-b0d3edc6d29d', 'bus_supplier_debit_note', 'status', 'POSTED', 'PARTIALLY_APPLIED', 'mark_partially_applied', TRUE, NOW())
+VALUES ('d041674e-58ea-5b6a-92ce-b0d3edc6d29d', 'bus_supplier_debit_note', 'status', 'POSTED', 'PARTIALLY_APPLIED', 'apply', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierDebitNoteLifecycle: PARTIALLY_APPLIED → DISPUTED (mark_disputed)
+-- SupplierDebitNoteLifecycle: POSTED → FULLY_APPLIED (apply)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('87f290e4-860e-5060-ac66-1bfcdb3aac82', 'bus_supplier_debit_note', 'status', 'PARTIALLY_APPLIED', 'DISPUTED', 'mark_disputed', TRUE, NOW())
+VALUES ('676ac0f5-68e8-50fb-ad56-94cba407f447', 'bus_supplier_debit_note', 'status', 'POSTED', 'FULLY_APPLIED', 'apply', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierDebitNoteLifecycle: DISPUTED → FULLY_APPLIED (mark_fully_applied)
+-- SupplierDebitNoteLifecycle: PARTIALLY_APPLIED → FULLY_APPLIED (apply)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('971a5045-18b2-541b-8372-9f3713422773', 'bus_supplier_debit_note', 'status', 'DISPUTED', 'FULLY_APPLIED', 'mark_fully_applied', TRUE, NOW())
+VALUES ('de6e80d0-bd97-59af-becf-e681a14c5f0f', 'bus_supplier_debit_note', 'status', 'PARTIALLY_APPLIED', 'FULLY_APPLIED', 'apply', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierDebitNoteLifecycle: POSTED → DISPUTED (dispute)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('7c9ad630-5b17-5cf5-aa12-f0a83c2c4b8a', 'bus_supplier_debit_note', 'status', 'POSTED', 'DISPUTED', 'dispute', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierDebitNoteLifecycle: PARTIALLY_APPLIED → DISPUTED (dispute)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('87f290e4-860e-5060-ac66-1bfcdb3aac82', 'bus_supplier_debit_note', 'status', 'PARTIALLY_APPLIED', 'DISPUTED', 'dispute', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierDebitNoteLifecycle: DISPUTED → POSTED (resolve)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('d869b435-b429-5e50-a3f9-5b9dfcad5319', 'bus_supplier_debit_note', 'status', 'DISPUTED', 'POSTED', 'resolve', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- SupplierDebitNoteLifecycle: DISPUTED → REVERSED (reverse)
+INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
+VALUES ('de36e132-afaf-521d-8516-e18ec9544869', 'bus_supplier_debit_note', 'status', 'DISPUTED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierDebitNoteLifecycle: DRAFT → CANCELLED (cancel)
@@ -875,24 +840,14 @@ INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, st
 VALUES ('70a8cd4d-f7f8-51b2-ba74-27dedbbdd489', 'bus_supplier_debit_note', 'status', 'APPROVED', 'CANCELLED', 'cancel', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierDebitNoteLifecycle: POSTED → CANCELLED (cancel)
+-- SupplierDebitNoteLifecycle: POSTED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('eecd828c-0a85-58d3-83cb-d4287da2f953', 'bus_supplier_debit_note', 'status', 'POSTED', 'CANCELLED', 'cancel', TRUE, NOW())
+VALUES ('783e1383-54ae-565a-bc47-06e158996a7a', 'bus_supplier_debit_note', 'status', 'POSTED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
--- SupplierDebitNoteLifecycle: PARTIALLY_APPLIED → CANCELLED (cancel)
+-- SupplierDebitNoteLifecycle: PARTIALLY_APPLIED → REVERSED (reverse)
 INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('84efec02-d408-5ca6-963a-0f01cbf3972a', 'bus_supplier_debit_note', 'status', 'PARTIALLY_APPLIED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierDebitNoteLifecycle: DISPUTED → CANCELLED (cancel)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('a5a5c5a0-3bbf-57ec-9d14-f904257b036e', 'bus_supplier_debit_note', 'status', 'DISPUTED', 'CANCELLED', 'cancel', TRUE, NOW())
-ON CONFLICT DO NOTHING;
-
--- SupplierDebitNoteLifecycle: DISPUTED → REVERSED (reverse)
-INSERT INTO sys_workflow_transitions (sys_workflow_transition_id, table_name, status_field, from_state, to_state, transition_name, is_active, created_at)
-VALUES ('de36e132-afaf-521d-8516-e18ec9544869', 'bus_supplier_debit_note', 'status', 'DISPUTED', 'REVERSED', 'reverse', TRUE, NOW())
+VALUES ('dd133094-d57f-56d2-a338-198f978340d2', 'bus_supplier_debit_note', 'status', 'PARTIALLY_APPLIED', 'REVERSED', 'reverse', TRUE, NOW())
 ON CONFLICT DO NOTHING;
 
 -- SupplierDebitNoteApplicationLifecycle: DRAFT → ACTIVE (activate)
@@ -1402,10 +1357,10 @@ INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field
 VALUES ('ab9a3467-3322-5ead-b14f-ddff9d3d77cb', 'bus_goods_receipt', 'status', 'INSPECTION_PENDING', FALSE, FALSE, 30, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('0b8d9e95-e15a-5fe4-9a6f-9ce3ac558146', 'bus_goods_receipt', 'status', 'ACCEPTED', FALSE, FALSE, 40, TRUE, NOW())
+VALUES ('0b8d9e95-e15a-5fe4-9a6f-9ce3ac558146', 'bus_goods_receipt', 'status', 'ACCEPTED', FALSE, TRUE, 40, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
-VALUES ('91dc2697-8095-5782-a5a5-38769644272e', 'bus_goods_receipt', 'status', 'PARTIALLY_ACCEPTED', FALSE, FALSE, 50, TRUE, NOW())
+VALUES ('91dc2697-8095-5782-a5a5-38769644272e', 'bus_goods_receipt', 'status', 'PARTIALLY_ACCEPTED', FALSE, TRUE, 50, TRUE, NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO sys_workflow_states (sys_workflow_state_id, table_name, status_field, state, is_initial, is_final, seq_no, is_active, created_at)
 VALUES ('43758eed-ef1c-59d1-9fe8-dfdc044189d3', 'bus_goods_receipt', 'status', 'REJECTED', FALSE, TRUE, 60, TRUE, NOW())

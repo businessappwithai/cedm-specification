@@ -7,48 +7,65 @@ entity:
     icon: database
   identity: {key: lotId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: lotId, type: uuid, required: true, immutable: true, help: {summary: Stable system identity of the lot., businessMeaning: Identifies the traceability group independently of printed lot number., usage: "Inventory, quality, recall, manufacturing, receiving, shipping, and audit.", relationshipContext: Groups quantities of one Product across locations and movements., requiredMeaning: Required.}}
-  - {name: lotNumber, type: string, required: true, maxLength: 150, help: {summary: Business-facing lot or batch identifier., businessMeaning: Traceability code used operationally and externally., usage: "Receiving, labels, picking, quality, recall, and certificates.", relationshipContext: Uniqueness is governed with Product and organizational policy., requiredMeaning: Required.}}
-  - {name: manufacturedAt, type: datetime, required: false, help: {summary: Time the lot was manufactured or produced., businessMeaning: Anchors production age and provenance., usage: "Shelf-life, quality, genealogy, and recall.", relationshipContext: Distinct from receipt date., optionalMeaning: Optional when unknown or not applicable.}}
-  - {name: expiresAt, type: datetime, required: false, help: {summary: Expiry or use-by time for the lot., businessMeaning: Controls eligibility where shelf life applies., usage: "FEFO allocation, quarantine, disposal, and compliance.", relationshipContext: Does not itself post inventory movement., optionalMeaning: Optional for non-expiring products.}}
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
-    help: {summary: Governed usability state of the lot., businessMeaning: Controls allocation and operational eligibility while preserving stock history., usage: "Quality release, warehouse allocation, production, recall, and disposition.", relationshipContext: Status restrictions affect availability but do not rewrite movement history., valueSemantics: {ACTIVE: Operationally recognized., HOLD: Temporarily restricted., QUARANTINED: Segregated pending decision., RELEASED: Approved for governed use., EXPIRED: Past governed shelf life., REJECTED: Not approved for intended use., CONSUMED: Quantity fully consumed under tracked processes., CLOSED: Traceability lifecycle closed.}, requiredMeaning: Required.}
+    - {name: lotId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the lot, which stays the same if its number is reissued.', usage: 'Generated on creation; balances, movements and inspections refer to it.', businessMeaning: Identifies the traceability group independently of printed lot number., relationshipContext: Groups quantities of one Product across locations and movements.}}
+    - {name: lotNumber, type: string, required: true, maxLength: 150, help: {summary: 'The batch or lot number by which the quantity is traced, as printed on the label.', usage: Assigned at production or receipt; unique per product; used for recalls and first-expired-first-out picking., businessMeaning: Traceability code used operationally and externally., relationshipContext: Uniqueness is governed with Product and organizational policy.}}
+    - {name: manufacturedAt, type: datetime, required: false, help: {summary: When the lot was produced., usage: Entered at production or from the supplier's documents; the start of shelf life., businessMeaning: Anchors production age and provenance., relationshipContext: Distinct from receipt date.}}
+    - {name: expiresAt, type: datetime, required: false, help: {summary: When the lot must no longer be used or sold., usage: 'Calculated from manufacture date and shelf life, or taken from the supplier; stock past it is blocked.', businessMeaning: Controls eligibility where shelf life applies., relationshipContext: Does not itself post inventory movement.}}
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
+      help:
+        summary: Whether the lot may be used.
+        usage: Set by quality and inventory control; only usable statuses allow picking and shipping.
+        valueSemantics:
+          ACTIVE: In stock and usable under normal rules.
+          HOLD: Temporarily blocked, for example during an enquiry; it can be released again.
+          QUARANTINED: Held apart pending a quality decision.
+          RELEASED: Approved by quality for use.
+          EXPIRED: Past its expiry date. A final state.
+          REJECTED: Failed quality checks and not to be used. A final state.
+          CONSUMED: Fully used up. A final state.
+          CLOSED: Closed administratively with nothing left to track. A final state.
+        businessMeaning: Controls allocation and operational eligibility while preserving stock history.
+        relationshipContext: Status restrictions affect availability but do not rewrite movement history.
   relationships:
-  - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: Product represented by this lot., businessMeaning: Defines item identity for all lot quantities., usage: Inventory and quality validation., cardinalityMeaning: Exactly one Product., workflowRole: Movements and balances must use the same product.}}
-  - {name: inventoryBalances, target: InventoryBalance, cardinality: "0..*", ownership: reference, help: {summary: Current stock projections segmented by this lot., businessMeaning: Shows where lot quantity is currently held., usage: "Availability, allocation, recall, and reconciliation.", cardinalityMeaning: A lot may exist across many locations., workflowRole: Derived from lot-attributed inventory events.}}
-  - {name: inventoryMovements, target: InventoryMovement, cardinality: "0..*", ownership: reference, help: {summary: Inventory events carrying this lot identity., businessMeaning: Historical ledger for lot quantity movement., usage: "Genealogy, recall, reconciliation, and audit.", cardinalityMeaning: Many events may affect a lot., workflowRole: Authoritative physical quantity history.}}
+    - {name: product, target: Product, cardinality: '1', ownership: reference, help: {summary: The product that the lot is a batch of., usage: Set when the lot is created., cardinalityMeaning: 'Exactly one product: a lot groups units of a single item.', workflowRole: Gives the lot its specification and shelf life., businessMeaning: Defines item identity for all lot quantities.}}
+    - {name: inventoryBalances, target: InventoryBalance, cardinality: "0..*", ownership: reference, help: {summary: The stock balances held in this lot., usage: Read to see where the lot's quantity is stored., cardinalityMeaning: 'Any number of balances, one for each location holding some of the lot.', workflowRole: Show how a lot is spread across locations., businessMeaning: Shows where lot quantity is currently held.}}
+    - {name: inventoryMovements, target: InventoryMovement, cardinality: "0..*", ownership: reference, help: {summary: The stock movements that involve the lot., usage: Read to trace the lot forwards to customers and backwards to its source., cardinalityMeaning: Any number of movements over the lot's life., workflowRole: Provide the traceability needed for recalls., businessMeaning: Historical ledger for lot quantity movement.}}
   invariants:
-  - {id: LOT-001, rule: lotNumber must be unique for Product within the applicable traceability namespace.}
-  - {id: LOT-002, rule: expiresAt must not precede manufacturedAt when both are known.}
-  - {id: LOT-003, rule: "HOLD, QUARANTINED, EXPIRED, or REJECTED lots must not enter unrestricted allocation without an authorized release or exception."}
-  - {id: LOT-004, rule: Lot identity and provenance referenced by posted inventory or quality evidence are immutable; correction uses controlled genealogy or compensating records.}
-  - {id: LOT-005, rule: Lot quantity across balances must reconcile to posted lot-attributed InventoryMovement events.}
+    - {id: LOT-001, rule: lotNumber must be unique for Product within the applicable traceability namespace.}
+    - {id: LOT-002, rule: expiresAt must not precede manufacturedAt when both are known.}
+    - {id: LOT-003, rule: "HOLD, QUARANTINED, EXPIRED, or REJECTED lots must not enter unrestricted allocation without an authorized release or exception."}
+    - {id: LOT-004, rule: Lot identity and provenance referenced by posted inventory or quality evidence are immutable; correction uses controlled genealogy or compensating records.}
+    - {id: LOT-005, rule: Lot quantity across balances must reconcile to posted lot-attributed InventoryMovement events.}
   lifecycle:
     title: Lot Lifecycle
     attribute: status
     states: [ACTIVE, HOLD, QUARANTINED, RELEASED, EXPIRED, REJECTED, CONSUMED, CLOSED]
     initial: ACTIVE
-    terminal: [CONSUMED, EXPIRED, REJECTED]
+    terminal:
+      - CONSUMED
+      - EXPIRED
+      - REJECTED
+      - CLOSED
     transitions:
-      - {from: ACTIVE, to: HOLD, action: mark_hold}
-      - {from: HOLD, to: RELEASED, action: release}
-      - {from: RELEASED, to: CLOSED, action: close}
-      - {from: CLOSED, to: CONSUMED, action: consume}
+      - {from: ACTIVE, to: HOLD, action: hold}
+      - {from: ACTIVE, to: QUARANTINED, action: quarantine}
+      - {from: ACTIVE, to: CONSUMED, action: consume}
+      - {from: ACTIVE, to: EXPIRED, action: expire}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: HOLD, to: ACTIVE, action: release_hold}
       - {from: HOLD, to: QUARANTINED, action: quarantine}
-      - {from: QUARANTINED, to: HOLD, action: release}
-      - {from: RELEASED, to: QUARANTINED, action: quarantine}
       - {from: QUARANTINED, to: RELEASED, action: release}
-      - {from: HOLD, to: EXPIRED, action: expire}
-      - {from: RELEASED, to: EXPIRED, action: expire}
-      - {from: QUARANTINED, to: EXPIRED, action: expire}
-      - {from: ACTIVE, to: REJECTED, action: reject}
-      - {from: HOLD, to: REJECTED, action: reject}
-      - {from: RELEASED, to: REJECTED, action: reject}
       - {from: QUARANTINED, to: REJECTED, action: reject}
+      - {from: QUARANTINED, to: HOLD, action: hold}
+      - {from: RELEASED, to: HOLD, action: hold}
+      - {from: RELEASED, to: QUARANTINED, action: quarantine}
+      - {from: RELEASED, to: CONSUMED, action: consume}
+      - {from: RELEASED, to: EXPIRED, action: expire}
+      - {from: RELEASED, to: CLOSED, action: close}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a lot is stopped"

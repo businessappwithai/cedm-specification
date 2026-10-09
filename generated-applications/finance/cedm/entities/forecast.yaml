@@ -7,13 +7,18 @@ entity:
     icon: table
   identity: {key: forecastId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: forecastId, type: uuid, required: true, immutable: true, help: {summary: Stable Forecast identity., businessMeaning: Identifies the governed Forecast concept independently of labels., usage: "Planning, reporting and integration.", relationshipContext: Referenced by compatible financial planning processes., requiredMeaning: Required.}}
-  - {name: code, type: string, required: true, maxLength: 100, help: {summary: Governed business code., businessMeaning: Human/integration identifier., usage: Planning and reporting., relationshipContext: Unique within governing context., requiredMeaning: Required.}}
+    - {name: forecastId, type: uuid, required: true, immutable: true, help: {summary: The identity of the forecast version., usage: Generated on creation; later versions refer to it.}}
+    - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The reference of the forecast, such as FC-2026-Q3-V2.', usage: Assigned by finance; identifies version and cycle.}}
   relationships:
-  - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: Governing organization., businessMeaning: Defines management/reporting boundary., usage: Planning and analysis., cardinalityMeaning: Exactly one Organization., workflowRole: References must use compatible organization context.}}
-  - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: Assumption scenario used by forecast., businessMeaning: Identifies planning case., usage: Forecast comparison., cardinalityMeaning: Optional., workflowRole: Scenario remains hypothetical.}}
-  - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: Forecast accounting time bucket., businessMeaning: Aligns projection to reporting period., usage: Forecast-vs-actual., cardinalityMeaning: Optional for multi-period forecasts., workflowRole: Does not control ledger posting.}}
+    - {name: organization, target: Organization, cardinality: '1', ownership: reference, help: {summary: The organisation the forecast is for., usage: Set when prepared., cardinalityMeaning: 'Exactly one organisation: forecasts are made for a particular entity.', workflowRole: Scopes the projected figures.}}
+    - {name: scenario, target: Scenario, cardinality: 0..1, ownership: reference, help: {summary: The scenario of assumptions on which the forecast is based., usage: Chosen when prepared., cardinalityMeaning: At most one scenario., workflowRole: Allows alternative projections to be compared., businessMeaning: Identifies planning case.}}
+    - {name: fiscalPeriod, target: FiscalPeriod, cardinality: 0..1, ownership: reference, help: {summary: The period the forecast covers., usage: Set when prepared., cardinalityMeaning: At most one period., workflowRole: Places the projection in time., businessMeaning: Aligns projection to reporting period.}}
   invariants:
-  - {id: FORECAST-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
-  help: {summary: "A versioned forward-looking financial projection based on a defined scenario and as-of information, kept separate from approved budgets and actual accounting.", businessMeaning: Provides planning/management semantics separately from actual accounting evidence., usage: "Planning, control, management reporting and analysis.", relationshipContext: "Organization supplies governance; financial transactions remain authoritative for actuals."}
+    - {id: FORECAST-001, rule: The record must not directly create or rewrite actual JournalEntry evidence.}
+  help:
+    summary: A versioned forward-looking financial projection built on a defined scenario and the information available at a given date.
+    businessMeaning: A forecast says where the numbers are expected to go. Keeping it apart from approved budgets and actual postings lets the organisation compare what was planned, what is expected and what happened.
+    usage: Prepared by finance each cycle; versioned as assumptions change; read by management.
+    relationshipContext: A forecast belongs to an Organization, may use a Scenario and covers a FiscalPeriod. It never creates or alters actual journal entries.
+    example: The Q3 rolling forecast of revenue and costs for the European subsidiary, prepared in July under the base scenario.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-FORECAST}

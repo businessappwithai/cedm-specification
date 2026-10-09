@@ -11,132 +11,103 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: accountId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the account record associated with this Account. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
-      relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: code
-    type: string
-    required: true
-    maxLength: 100
-    help:
-      summary: A human-readable business code used to identify or reference the record in operational processes and integrations.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
-      relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
-      relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: accountType
-    type: enum
-    required: true
-    values:
-    - ASSET
-    - LIABILITY
-    - EQUITY
-    - REVENUE
-    - EXPENSE
-    - CONTRA
-    help:
-      summary: Captures the business meaning of account type for the Account. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
-      relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ASSET: Represents the asset state or classification in the context of Account.
-        LIABILITY: Represents the liability state or classification in the context of Account.
-        EQUITY: Represents the equity state or classification in the context of Account.
-        REVENUE: Represents the revenue state or classification in the context of Account.
-        EXPENSE: Represents the expense state or classification in the context of Account.
-        CONTRA: Represents the contra state or classification in the context of Account.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values:
-    - ACTIVE
-    - INACTIVE
-    - RETIRED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
-      relationshipContext: Its meaning is specific to Account; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        ACTIVE: Represents the active state or classification in the context of Account.
-        INACTIVE: Represents the inactive state or classification in the context of Account.
-        RETIRED: Represents the retired state or classification in the context of Account.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: currencyId
-    type: reference
-    target: Currency
-    required: false
-    help:
-      summary: Identifies the currency in which monetary amounts on the record are expressed, allowing amounts to be interpreted
-        and aggregated consistently.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Account records, where applicable.
-      relationshipContext: This field connects Account to Currency. The reference establishes business context between the
-        two entities and lets processes navigate from this record to the related Currency.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: accountId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The permanent system identity of the ledger account.
+        usage: Generated when the account is created and never changed; postings, budgets and reports hold this identity so renumbering the account code does not break them.
+    - name: code
+      type: string
+      required: true
+      maxLength: 100
+      help:
+        summary: The account number or code under which the account appears in the chart of accounts, such as 1100 or 4000.
+        usage: Entered by the finance team when creating the account and used for lookup, sorting and imports. It must be unique within its chart, and finance teams usually structure it so the leading digits indicate the account class.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The descriptive title of the account, such as Accounts Receivable or Product Revenue.
+        usage: Shown on ledgers, trial balances and statements. It can be reworded for clarity without affecting history because postings refer to the account by identity.
+    - name: accountType
+      type: enum
+      required: true
+      values:
+        - ASSET
+        - LIABILITY
+        - EQUITY
+        - REVENUE
+        - EXPENSE
+        - CONTRA
+      help:
+        summary: The accounting class of the account, which decides where it appears in the statements and whether debits or credits increase it.
+        usage: Chosen when the account is created and rarely changed afterwards, because changing it reclassifies every historical posting. Reports group and sign balances by this value.
+        valueSemantics:
+          ASSET: Something the organisation owns or is owed, such as cash or receivables; debits increase it and it appears on the balance sheet.
+          LIABILITY: Something the organisation owes, such as payables or loans; credits increase it and it appears on the balance sheet.
+          EQUITY: The owners' residual interest, such as share capital and retained earnings; credits increase it and it appears on the balance sheet.
+          REVENUE: Income earned from the organisation's activities; credits increase it and it appears on the income statement.
+          EXPENSE: Cost incurred in earning revenue; debits increase it and it appears on the income statement.
+          CONTRA: An account that offsets another, such as accumulated depreciation against an asset or sales returns against revenue; it carries the opposite sign of the account it offsets.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values:
+        - ACTIVE
+        - INACTIVE
+        - RETIRED
+      help:
+        summary: Whether the account is open for new postings.
+        usage: New accounts start ACTIVE. Finance staff move an account to INACTIVE to stop postings temporarily and to RETIRED when it is closed for good; posting screens offer only ACTIVE accounts.
+        valueSemantics:
+          ACTIVE: Open for postings and shown in account pick-lists.
+          INACTIVE: 'Paused: no new postings are accepted, but it can be reactivated and still appears in reports.'
+          RETIRED: 'Closed for good: no postings, kept only so historical periods stay reportable.'
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: false
+      help:
+        summary: The currency in which this account is denominated, when it is held in something other than the organisation's base currency.
+        usage: Set for foreign-currency accounts such as a euro bank account so that postings and balances are held in that currency; left empty for ordinary base-currency accounts.
+        relationshipContext: Points to Currency so foreign-currency balances can be revalued into the reporting currency.
   relationships:
-  - name: parentAccount
-    target: Account
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Account to Account so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Account records associated with a Account.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: childAccounts
-    target: Account
-    cardinality: 0..*
-    ownership: reference
-    help:
-      summary: Connects Account to Account so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Account records associated with a Account.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: organization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Account to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Account.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
+    - name: parentAccount
+      target: Account
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The account directly above this one in the chart of accounts hierarchy.
+        usage: Chosen when the account is created to place it in a reporting group, for example Bank Accounts under Current Assets. Leave empty for a top-level account.
+        cardinalityMeaning: 'At most one parent: the chart is a tree, so an account sits in exactly one place or at the top.'
+        workflowRole: Lets reports roll balances up the tree; a cycle would make roll-up impossible, which is why the hierarchy must stay acyclic.
+    - name: childAccounts
+      target: Account
+      cardinality: 0..*
+      ownership: reference
+      help:
+        summary: The accounts placed directly beneath this one in the hierarchy.
+        usage: Read to expand a group into its detail accounts and to total a group from its members.
+        cardinalityMeaning: Any number of children, including none for a posting account at the bottom of the tree.
+        workflowRole: The inverse of the parent link; balances of the children sum into this account for reporting.
+    - name: organization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation whose chart of accounts this account belongs to.
+        usage: Set when the account is created so each legal entity keeps its own chart; used to scope ledgers and reports to one organisation.
+        cardinalityMeaning: At most one organisation; an account with none is treated as shared across the chart it is loaded into.
+        workflowRole: Keeps one organisation's ledger from mixing with another's in consolidated or multi-entity setups.
   invariants:
-  - id: ACCOUNT-001
-    rule: account code must be unique within its chart-of-accounts context.
-  - id: ACCOUNT-002
-    rule: account hierarchy must not contain cycles.
+    - id: ACCOUNT-001
+      rule: account code must be unique within its chart-of-accounts context.
+    - id: ACCOUNT-002
+      rule: account hierarchy must not contain cycles.
   lifecycle:
     title: Account Lifecycle
     attribute: status
@@ -149,18 +120,12 @@ entity:
       - {from: ACTIVE, to: RETIRED, action: retire}
       - {from: INACTIVE, to: RETIRED, action: retire}
   help:
-    summary: Represents a financial master entity called Account within the CEDM business model.
-    businessMeaning: Account is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Account records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Account, Account, Organization.
-      These relationships provide the context needed to interpret the record rather than treating its fields as isolated database
-      columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Account record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: 'A ledger account in a chart of accounts: the named bucket to which monetary activity is posted and from which balances are reported.'
+    businessMeaning: Account is how an organisation classifies money. Every posting lands on an account, and the account's type decides which statement it appears on (balance sheet or income statement) and which direction increases its balance.
+    usage: Created when the chart of accounts is set up or extended; referenced by journal postings, invoices, payments, budgets and financial reports. Accounts are retired, never deleted, so past postings stay explainable.
+    relationshipContext: Accounts form a tree through parent and child accounts so balances roll up into reporting groups; each chart belongs to an Organization, and an account may be pinned to a Currency for foreign-currency ledgers.
+    lifecycle: Active accounts accept postings. Inactive accounts are paused and can be reactivated. Retired accounts are closed for good but remain in reports covering the periods in which they were used.
+    example: Account 4000 "Product Revenue" (type REVENUE) is a child of 4000-series "Revenue"; every sales invoice line posts to it, and the income statement sums it into total revenue.
 specification:
   version: 0.1.0
   status: draft

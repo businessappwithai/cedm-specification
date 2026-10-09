@@ -1,0 +1,67 @@
+@ User
+a username
+s: The sign-in name the user types to authenticate, distinct from the permanent user identifier.
+u: Unique across the application; chosen at registration or by an administrator and entered at every sign-in, so changing it affects how the person logs in.
+@ Variance
+a varianceId
+s: The permanent identifier of the variance comparison, unchanged when its figures are recalculated.
+u: Generated on creation; reports and commentary refer to it to point at one specific comparison of plan against actual.
+a code
+s: The reference code of the variance, such as VAR-2026-03-MKT, naming the period and area compared.
+u: Assigned by finance or the planning system when the comparison is produced; used in reports, review packs and when quoting a variance to managers.
+@ VehicleModel
+a manufacturer
+s: The company that builds vehicles of this model, such as a van or truck maker.
+u: Entered once when the model is defined; used to filter and group the fleet and to look up manufacturer specifications.
+a modelName
+s: The commercial name the manufacturer gives the model, such as Transit 350.
+u: Entered when the model is defined; shown in lists and pickers when vehicles are registered, so fleet staff can recognise it.
+a modelCode
+s: The unique code identifying the model in internal systems and manufacturer catalogues.
+u: Unique; used in imports, parts lookups and integrations, so it should stay stable even if the model name is later reworded.
+a modelYear
+s: The year the manufacturer assigns to this version of the model, used to separate generations.
+u: Optional; entered where different years of a model differ in specification, parts or tax treatment, and used to filter fleet reports.
+a status
+s: Whether the model is still being introduced, in current use or no longer offered.
+u: Starts as PLANNED; moved by fleet or product managers as the model enters service and later leaves it.
+v PLANNED: Expected to join the fleet or catalogue but not yet available for registering vehicles.
+v ACTIVE: Current and available for registering new vehicles.
+v DISCONTINUED: No longer offered or bought, though existing vehicles keep the model. A final state.
+@ Vehicle
+a registrationNumber
+s: The registration or licence plate number that identifies the vehicle on public roads and in documents.
+u: Unique; entered when the vehicle joins the fleet and used on delivery documents, inspections, fines and fuel records.
+a vehicleType
+s: The class of vehicle or equipment, such as truck, trailer or forklift.
+u: Chosen on creation; dispatch uses it to match loads and tasks to suitable vehicles.
+v TRUCK: A rigid powered road vehicle that carries goods in its own body.
+v TRACTOR: A powered unit that pulls a trailer, carrying no load of its own.
+v TRAILER: An unpowered load carrier towed by a tractor unit.
+v FORKLIFT: A powered lifting vehicle used in yards and warehouses to move pallets.
+v CRANE: Lifting equipment used to raise and move heavy loads such as containers.
+v OTHER: Transport equipment that fits none of the listed classes.
+a status
+s: Whether the vehicle is available for work, being serviced, out of action or permanently withdrawn.
+u: Starts as ACTIVE; moved by fleet managers, and dispatch only assigns work to vehicles that are active.
+v ACTIVE: In service and available to be assigned to movements.
+v MAINTENANCE: Temporarily withdrawn for servicing or repair and expected back.
+v OUT_OF_SERVICE: Unavailable for work because of a fault, inspection failure or similar, with no firm return date.
+v RETIRED: Permanently removed from the fleet. A final state.
+@ Vessel
+a vesselCode
+s: The operational reference by which schedulers and port staff identify the vessel.
+u: Unique; assigned when the vessel is registered and used in voyage planning, searches, reports and integrations.
+a name
+s: The registered name of the ship as shown on its papers and used in port communication.
+u: Entered when the vessel is registered; shown on voyage schedules, berth plans and cargo documents.
+a imoNumber
+s: The seven-digit International Maritime Organization number that identifies a ship for life.
+u: Entered where the vessel has one; used for compliance, port clearance and matching to external registries and tracking services.
+a status
+s: Whether the vessel is available for voyages, idle, out of action or permanently withdrawn.
+u: Starts as ACTIVE; moved by operations staff, and scheduling only assigns voyages to vessels that are active.
+v ACTIVE: In service and available for voyages.
+v INACTIVE: Temporarily not used, for example laid up, but expected to return.
+v OUT_OF_SERVICE: Unavailable because of damage, repair or a compliance problem.
+v RETIRED: Permanently withdrawn from the fleet, for example sold or scrapped. A final state.

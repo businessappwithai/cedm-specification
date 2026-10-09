@@ -7,108 +7,99 @@ entity:
     icon: percent
   identity: {key: discountRuleId, type: uuid, generated: true, immutable: true}
   attributes:
-  - name: discountRuleId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Stable identity of the discount policy.
-      usage: Referenced by pricing, order, invoice, promotion, and contract workflows.
-      relationshipContext: Identifies the rule rather than a discount amount applied to a specific transaction.
-      workflowRole: Provides auditable policy context for a transaction-level discount.
-  - name: code
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Business identifier for the discount rule.
-      usage: Used in configuration, pricing, order entry, promotions, contracts, and integrations.
-      relationshipContext: Identifies the reusable rule, not its eventual transaction result.
-      workflowRole: Allows a qualifying transaction to resolve the intended discount policy.
-  - name: name
-    type: string
-    required: true
-    maxLength: 200
-    help:
-      summary: Human-readable name of the discount rule.
-      usage: Used by business users when configuring or reviewing pricing.
-      relationshipContext: Describes the policy represented by the rule.
-      workflowRole: Makes discount selection understandable during price determination.
-  - name: method
-    type: enum
-    required: true
-    values: [PERCENTAGE, FIXED_AMOUNT]
-    help:
-      summary: Defines how the discount is calculated.
-      usage: Determines whether the rule reduces an amount by a percentage or fixed monetary value.
-      relationshipContext: FIXED_AMOUNT requires a currency context; PERCENTAGE is applied to an eligible monetary base.
-      workflowRole: Supplies the calculation method used before tax determination and final transaction totals.
-      valueSemantics:
-        PERCENTAGE: The method of the discount rule is percentage; set it when that is what the business means for this record.
-        FIXED_AMOUNT: The method of the discount rule is fixed amount; set it when that is what the business means for this record.
-  - name: value
-    type: decimal
-    required: true
-    precision: 24
-    scale: 12
-    help:
-      summary: Numeric discount value interpreted according to method.
-      usage: Used to calculate a transaction discount.
-      relationshipContext: For PERCENTAGE this is a percentage; for FIXED_AMOUNT this is a monetary value whose currency must be explicitly defined.
-      workflowRole: Produces the transaction-level discount amount from the eligible base.
-  - name: currency
-    type: reference
-    target: Currency
-    required: false
-    help:
-      summary: Currency applicable when the discount method is FIXED_AMOUNT.
-      usage: Defines the denomination of a fixed discount.
-      relationshipContext: Not required for percentage discounts.
-      workflowRole: Enables fixed discounts to be compared with the transaction's monetary base under valid currency rules.
-  - name: priority
-    type: integer
-    required: false
-    default: 100
-    help:
-      summary: Ordering value used when multiple discount rules qualify.
-      usage: Supports deterministic discount selection or stacking policy.
-      relationshipContext: Priority does not itself authorize stacking; the applicable pricing policy must define whether rules can combine.
-      workflowRole: Helps resolve competing discount rules consistently.
-  - name: status
-    type: enum
-    required: true
-    default: ACTIVE
-    values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
-    help:
-      summary: Controls whether the rule can be selected for new price calculations.
-      usage: Used by pricing and transaction validation.
-      relationshipContext: Retiring a rule must not change discounts already recorded on historical transactions.
-      workflowRole: Controls future applicability while preserving historical pricing evidence.
-      valueSemantics:
-        DRAFT: The status of the discount rule is draft; set it when that is what the business means for this record.
-        ACTIVE: The status of the discount rule is active; set it when that is what the business means for this record.
-        INACTIVE: The status of the discount rule is inactive; set it when that is what the business means for this record.
-        RETIRED: The status of the discount rule is retired; set it when that is what the business means for this record.
-  relationships:
-  - name: currencyRef
-    target: Currency
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Links a fixed monetary discount to its currency.
-      usage: Provides denomination context for fixed discounts.
-      cardinalityMeaning: Zero or one currency because percentage discounts do not require a currency.
-      workflowRole: Prevents a fixed discount from being applied without monetary denomination.
+    - name: discountRuleId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: Stable identity of the discount policy.
+        usage: Referenced by pricing, order, invoice, promotion, and contract workflows.
+        relationshipContext: Identifies the rule rather than a discount amount applied to a specific transaction.
+        workflowRole: Provides auditable policy context for a transaction-level discount.
+    - name: code
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: Business identifier for the discount rule.
+        usage: Used in configuration, pricing, order entry, promotions, contracts, and integrations.
+        relationshipContext: Identifies the reusable rule, not its eventual transaction result.
+        workflowRole: Allows a qualifying transaction to resolve the intended discount policy.
+    - name: name
+      type: string
+      required: true
+      maxLength: 200
+      help:
+        summary: The descriptive name of the rule, such as Volume discount 10%.
+        usage: Used by business users when configuring or reviewing pricing.
+        relationshipContext: Describes the policy represented by the rule.
+        workflowRole: Makes discount selection understandable during price determination.
+    - name: method
+      type: enum
+      required: true
+      values: [PERCENTAGE, FIXED_AMOUNT]
+      help:
+        valueSemantics:
+          PERCENTAGE: The value is a percentage taken off the price.
+          FIXED_AMOUNT: The value is a fixed amount in the rule's currency taken off the price.
+        summary: Defines how the discount is calculated.
+        usage: Determines whether the rule reduces an amount by a percentage or fixed monetary value.
+        relationshipContext: FIXED_AMOUNT requires a currency context; PERCENTAGE is applied to an eligible monetary base.
+        workflowRole: Supplies the calculation method used before tax determination and final transaction totals.
+    - name: value
+      type: decimal
+      required: true
+      precision: 24
+      scale: 12
+      help:
+        summary: The size of the discount, read as a percentage or a money amount depending on the rule's method.
+        usage: Set by pricing staff; for a percentage method it is the percent taken off, for a fixed-amount method it is money in the rule's currency.
+        relationshipContext: For PERCENTAGE this is a percentage; for FIXED_AMOUNT this is a monetary value whose currency must be explicitly defined.
+        workflowRole: Produces the transaction-level discount amount from the eligible base.
+    - name: currencyId
+      type: reference
+      target: Currency
+      required: false
+      help:
+        summary: Currency applicable when the discount method is FIXED_AMOUNT.
+        usage: Defines the denomination of a fixed discount.
+        relationshipContext: Not required for percentage discounts.
+        workflowRole: Enables fixed discounts to be compared with the transaction's monetary base under valid currency rules.
+    - name: priority
+      type: integer
+      required: false
+      default: 100
+      help:
+        summary: Ordering value used when multiple discount rules qualify.
+        usage: Supports deterministic discount selection or stacking policy.
+        relationshipContext: Priority does not itself authorize stacking; the applicable pricing policy must define whether rules can combine.
+        workflowRole: Helps resolve competing discount rules consistently.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values: [DRAFT, ACTIVE, INACTIVE, RETIRED]
+      help:
+        valueSemantics:
+          DRAFT: Being defined; not yet applied.
+          ACTIVE: Applied to qualifying prices and transactions.
+          INACTIVE: Temporarily not applied; can be reactivated.
+          RETIRED: No longer applied; kept so past prices can be explained.
+        summary: Controls whether the rule can be selected for new price calculations.
+        usage: Used by pricing and transaction validation.
+        relationshipContext: Retiring a rule must not change discounts already recorded on historical transactions.
+        workflowRole: Controls future applicability while preserving historical pricing evidence.
+  relationships: []
   invariants:
-  - id: DISCOUNT-RULE-001
-    rule: value must be greater than or equal to zero.
-  - id: DISCOUNT-RULE-002
-    rule: PERCENTAGE value must not exceed 100 unless an explicit pricing policy permits stacked or rebate semantics.
-  - id: DISCOUNT-RULE-003
-    rule: FIXED_AMOUNT requires currency.
-  - id: DISCOUNT-RULE-004
-    rule: Historical transaction discounts must preserve the applied rule/result even if the master DiscountRule later changes or retires.
+    - id: DISCOUNT-RULE-001
+      rule: value must be greater than or equal to zero.
+    - id: DISCOUNT-RULE-002
+      rule: PERCENTAGE value must not exceed 100 unless an explicit pricing policy permits stacked or rebate semantics.
+    - id: DISCOUNT-RULE-003
+      rule: FIXED_AMOUNT requires currency.
+    - id: DISCOUNT-RULE-004
+      rule: Historical transaction discounts must preserve the applied rule/result even if the master DiscountRule later changes or retires.
   lifecycle:
     title: Discount Rule Lifecycle
     attribute: status

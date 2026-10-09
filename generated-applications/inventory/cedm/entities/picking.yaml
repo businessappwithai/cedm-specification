@@ -7,50 +7,58 @@ entity:
     icon: file-text
   identity: {key: pickingId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: Stable pick-task identity., businessMeaning: Identifies one directed inventory-selection action., usage: WMS execution and audit., relationshipContext: Links reservation/source stock to staging/fulfillment., requiredMeaning: Required.}}
-  - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: Quantity directed to pick., businessMeaning: Defines execution demand., usage: Pick confirmation and variance., relationshipContext: Must reconcile with reservation and inventory events., requiredMeaning: Required.}}
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
-    help: {summary: Picking execution state., businessMeaning: Controls warehouse task progression., usage: Wave/pick orchestration., relationshipContext: "PICKED is warehouse evidence, not shipment delivery.", valueSemantics: {PLANNED: Proposed., RELEASED: Authorized., IN_PROGRESS: Being picked., PICKED: Required quantity confirmed., SHORT: Quantity short., CANCELLED: Terminated., EXCEPTION: Requires resolution.}, requiredMeaning: Required.}
+    - {name: pickingId, type: uuid, required: true, immutable: true, help: {summary: The identity of the pick task., usage: Generated on creation; packing and stock movements refer to it., businessMeaning: Identifies one directed inventory-selection action., relationshipContext: Links reservation/source stock to staging/fulfillment.}}
+    - {name: quantity, type: decimal, required: true, precision: 20, scale: 6, help: {summary: The quantity to be picked., usage: Set from the reservation or order line; the pick is confirmed against it., businessMeaning: Defines execution demand., relationshipContext: Must reconcile with reservation and inventory events.}}
+    - name: status
+      type: enum
+      required: true
+      default: PLANNED
+      values: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
+      help:
+        summary: Shows how far the pick task has advanced, from planned and released through picking to completion or a problem.
+        usage: Updated by warehouse staff and handheld scanners; a pick can be finished only from the in-progress state.
+        valueSemantics:
+          PLANNED: The pick is created but not yet released to the floor, so nobody is working on it.
+          RELEASED: The pick has been released to warehouse staff and is ready to be started.
+          IN_PROGRESS: A picker has started collecting the goods from the source location.
+          PICKED: All the quantity was collected and moved to staging, ready for packing. A final state.
+          SHORT: Less than the required quantity was found, so the pick stops short and the shortfall needs a decision.
+          CANCELLED: The pick was called off before completion and no goods are moved. A final state.
+          EXCEPTION: Something prevented picking, such as damaged stock or a blocked location, and the task needs investigation.
+        businessMeaning: Controls warehouse task progression.
+        relationshipContext: "PICKED is warehouse evidence, not shipment delivery."
   relationships:
-  - {name: reservation, target: InventoryReservation, cardinality: 0..1, ownership: reference, help: {summary: Inventory commitment supplying pick demand., businessMeaning: Prevents picking unallocated demand where reservation is required., usage: Fulfillment., cardinalityMeaning: Optional under non-reservation workflows., workflowRole: Consumption must reconcile.}}
-  - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {summary: Storage position picked from., businessMeaning: Defines source custody., usage: WMS execution., cardinalityMeaning: Exactly one source., workflowRole: Must hold eligible stock.}}
-  - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: Destination staging position after pick., businessMeaning: Separates pick from dispatch., usage: Packing/shipping staging., cardinalityMeaning: Optional for direct issue., workflowRole: Relocation requires attributable inventory execution where location-managed.}}
-  - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {summary: Handling unit used for picked stock., businessMeaning: Supports tote/carton/pallet execution., usage: Scanning and packing., cardinalityMeaning: Optional., workflowRole: Custody must reconcile.}}
-  - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Outbound shipment demand served by pick., businessMeaning: Connects warehouse selection to logistics execution., usage: Fulfillment., cardinalityMeaning: Optional outside shipment picking., workflowRole: Pick does not itself mark shipment delivered.}}
+    - {name: reservation, target: InventoryReservation, cardinality: 0..1, ownership: reference, help: {summary: Inventory commitment supplying pick demand., businessMeaning: Prevents picking unallocated demand where reservation is required., usage: Fulfillment., cardinalityMeaning: Optional under non-reservation workflows., workflowRole: Consumption must reconcile.}}
+    - {name: sourceLocation, target: InventoryLocation, cardinality: '1', ownership: reference, help: {cardinalityMeaning: 'Exactly one source location: each pick collects from a single storage position.', summary: Storage position picked from., businessMeaning: Defines source custody., usage: WMS execution., workflowRole: Must hold eligible stock.}}
+    - {name: stagingLocation, target: InventoryLocation, cardinality: 0..1, ownership: reference, help: {summary: Destination staging position after pick., businessMeaning: Separates pick from dispatch., usage: Packing/shipping staging., cardinalityMeaning: Optional for direct issue., workflowRole: Relocation requires attributable inventory execution where location-managed.}}
+    - {name: handlingUnit, target: HandlingUnit, cardinality: 0..1, ownership: reference, help: {cardinalityMeaning: 'At most one handling unit, the pallet or tote the goods are picked into.', summary: Handling unit used for picked stock., businessMeaning: Supports tote/carton/pallet execution., usage: Scanning and packing., workflowRole: Custody must reconcile.}}
+    - {name: shipmentLine, target: ShipmentLine, cardinality: 0..1, ownership: reference, help: {summary: Outbound shipment demand served by pick., businessMeaning: Connects warehouse selection to logistics execution., usage: Fulfillment., cardinalityMeaning: Optional outside shipment picking., workflowRole: Pick does not itself mark shipment delivered.}}
   invariants:
-  - {id: PICKING-001, rule: quantity must be greater than zero.}
-  - {id: PICKING-002, rule: "Picked Product, lot and serial eligibility must satisfy reservation/demand and source availability."}
-  - {id: PICKING-003, rule: Pick confirmation must not duplicate reservation consumption or inventory relocation/issue on retry.}
-  - {id: PICKING-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
+    - {id: PICKING-001, rule: quantity must be greater than zero.}
+    - {id: PICKING-002, rule: "Picked Product, lot and serial eligibility must satisfy reservation/demand and source availability."}
+    - {id: PICKING-003, rule: Pick confirmation must not duplicate reservation consumption or inventory relocation/issue on retry.}
+    - {id: PICKING-EXE-001, rule: "Quantity cannot be negative.", violatedWhen: "quantity != null and quantity < 0", message: "Quantity cannot be negative."}
   lifecycle:
     title: Picking Lifecycle
     attribute: status
     states: [PLANNED, RELEASED, IN_PROGRESS, PICKED, SHORT, CANCELLED, EXCEPTION]
     initial: PLANNED
-    terminal: [CANCELLED]
+    terminal:
+      - PICKED
+      - CANCELLED
     transitions:
       - {from: PLANNED, to: RELEASED, action: release}
       - {from: RELEASED, to: IN_PROGRESS, action: start}
-      - {from: IN_PROGRESS, to: PICKED, action: mark_picked}
-      - {from: PICKED, to: SHORT, action: mark_short}
-      - {from: RELEASED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: RELEASED, action: resolve_exception}
-      - {from: IN_PROGRESS, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: IN_PROGRESS, action: resolve_exception}
-      - {from: PICKED, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: PICKED, action: resolve_exception}
-      - {from: SHORT, to: EXCEPTION, action: mark_exception}
-      - {from: EXCEPTION, to: SHORT, action: resolve_exception}
+      - {from: IN_PROGRESS, to: PICKED, action: complete}
+      - {from: IN_PROGRESS, to: SHORT, action: short_pick}
+      - {from: SHORT, to: RELEASED, action: retry}
+      - {from: RELEASED, to: EXCEPTION, action: raise_exception}
+      - {from: IN_PROGRESS, to: EXCEPTION, action: raise_exception}
+      - {from: EXCEPTION, to: RELEASED, action: resolve}
       - {from: PLANNED, to: CANCELLED, action: cancel}
       - {from: RELEASED, to: CANCELLED, action: cancel}
-      - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
-      - {from: PICKED, to: CANCELLED, action: cancel}
-      - {from: SHORT, to: CANCELLED, action: cancel}
       - {from: EXCEPTION, to: CANCELLED, action: cancel}
+      - {from: SHORT, to: CANCELLED, action: cancel}
   workflows:
     - name: ExceptionRaised
       title: "Raise a task when a picking is stopped"

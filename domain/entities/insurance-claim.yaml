@@ -11,163 +11,122 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: insuranceClaimId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the insurance claim record associated with this InsuranceClaim. The identifier connects this record
-        to the corresponding CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: claimNumber
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of claim number for the InsuranceClaim. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: lossDate
-    type: date
-    required: false
-    help:
-      summary: Records the business date associated with the loss. It is used in chronology, eligibility, scheduling, reporting,
-        and related business rules.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: reportedAt
-    type: datetime
-    required: true
-    help:
-      summary: Records when the reported event occurred. It establishes chronology, supports auditability, and helps coordinate
-        related lifecycle and process activities.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: claimedAmount
-    type: money
-    required: false
-    help:
-      summary: Captures the business meaning of claimed amount for the InsuranceClaim. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: approvedAmount
-    type: money
-    required: false
-    help:
-      summary: Captures the business meaning of approved amount for the InsuranceClaim. It is interpreted together with the
-        entity's other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: REPORTED
-    values:
-    - REPORTED
-    - UNDER_REVIEW
-    - APPROVED
-    - PARTIALLY_APPROVED
-    - DENIED
-    - SETTLED
-    - CLOSED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating InsuranceClaim records, where
-        applicable.
-      relationshipContext: Its meaning is specific to InsuranceClaim; it must be interpreted with the entity's relationships,
-        lifecycle, and business rules rather than as an isolated technical value.
-      valueSemantics:
-        REPORTED: Represents the reported state or classification in the context of InsuranceClaim.
-        UNDER_REVIEW: Represents the under review state or classification in the context of InsuranceClaim.
-        APPROVED: Represents the approved state or classification in the context of InsuranceClaim.
-        PARTIALLY_APPROVED: Represents the partially approved state or classification in the context of InsuranceClaim.
-        DENIED: Represents the denied state or classification in the context of InsuranceClaim.
-        SETTLED: Represents the settled state or classification in the context of InsuranceClaim.
-        CLOSED: Represents the closed state or classification in the context of InsuranceClaim.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
+    - name: insuranceClaimId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the claim.
+        usage: Generated on registration; lines, settlements and correspondence refer to it.
+    - name: claimNumber
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The reference number that identifies the claim for both the claimant and the insurer in all correspondence.
+        usage: Allocated by the system when the claim is registered; unique, never reused, and quoted on every call, letter and payment.
+    - name: lossDate
+      type: date
+      required: false
+      help:
+        summary: The date the loss or event happened.
+        usage: Entered from the claimant's report; checked against the policy period.
+    - name: reportedAt
+      type: datetime
+      required: true
+      help:
+        summary: When the claim was reported.
+        usage: Set on registration; some policies require reporting within a time limit.
+    - name: claimedAmount
+      type: money
+      required: false
+      help:
+        summary: The monetary amount the claimant asks the insurer to pay for the loss, as stated on the claim.
+        usage: Entered by the claims handler from the claim form; must not be negative, and the assessed or approved amount is compared against it.
+    - name: approvedAmount
+      type: money
+      required: false
+      help:
+        summary: The amount the insurer has decided to pay.
+        usage: Set at decision; not negative and not above the claimed amount.
+    - name: status
+      type: enum
+      required: true
+      default: REPORTED
+      values:
+        - REPORTED
+        - UNDER_REVIEW
+        - APPROVED
+        - PARTIALLY_APPROVED
+        - DENIED
+        - SETTLED
+        - CLOSED
+      help:
+        summary: Where the claim stands in the insurer's handling, from first report through assessment to payment or refusal.
+        usage: Moved by claims handlers as the claim is assessed and paid; later states depend on the outcome of review, and denied or closed claims are not reopened.
+        valueSemantics:
+          REPORTED: The claim has been received and registered but assessment has not yet started.
+          UNDER_REVIEW: A handler is assessing cover, evidence and the amount that is owed.
+          APPROVED: Accepted for the full claimed amount and awaiting payment.
+          PARTIALLY_APPROVED: Accepted for less than the claimed amount, with the difference not payable.
+          DENIED: Refused, for example because the loss is not covered. A final state.
+          SETTLED: Payment has been made to the claimant.
+          CLOSED: Finished with nothing further to do. A final state.
   relationships:
-  - name: policy
-    target: InsurancePolicy
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects InsuranceClaim to InsurancePolicy so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about InsurancePolicy records associated with a InsuranceClaim.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: claimant
-    target: Party
-    cardinality: '1'
-    ownership: reference
-    help:
-      summary: Connects InsuranceClaim to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a InsuranceClaim.
-      cardinalityMeaning: The declared cardinality 1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: incident
-    target: BusinessTransaction
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects InsuranceClaim to BusinessTransaction so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about BusinessTransaction records associated with a InsuranceClaim.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - {name: insuredParty, target: InsuredParty, cardinality: "0..1", ownership: reference, help: {summary: Insured-party relationship whose coverage is invoked by this Claim., businessMeaning: Preserves policy-specific eligibility context beyond generic claimant identity., usage: "Coverage validation, claims history and audit.", cardinalityMeaning: Optional where claimant or policy-wide coverage is sufficient., workflowRole: InsuredParty must belong to the Claim policy and be eligible at loss time.}}
-  - {name: claimLines, target: ClaimLine, cardinality: "0..*", ownership: aggregate, help: {summary: Line-level benefits, losses or expenses adjudicated within this Claim., businessMeaning: Allows distinct Coverage, amounts and decisions under one claim aggregate., usage: "Claims adjudication, reserves and reporting.", cardinalityMeaning: Zero or many ClaimLines., workflowRole: Header claim outcome must reconcile with line-level decisions.}}
-  - {name: settlements, target: Settlement, cardinality: "0..*", ownership: reference, help: {summary: Settlement transactions discharging approved liability on this Claim., businessMeaning: Separates claim adjudication from payment or other liability discharge., usage: "Claims finance, payment and audit.", cardinalityMeaning: Zero or many Settlements., workflowRole: Executed settlement totals must reconcile to approved liability and line allocations.}}
+    - name: policy
+      target: InsurancePolicy
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The policy under which the claim is made.
+        usage: Chosen at registration; its cover, limits and deductibles decide what can be paid.
+        cardinalityMeaning: 'Exactly one policy: a claim is made against a particular contract of insurance.'
+        workflowRole: Decides cover, limits and deductibles for the assessment.
+    - name: claimant
+      target: Party
+      cardinality: '1'
+      ownership: reference
+      help:
+        summary: The party making the claim.
+        usage: Set at registration; payment and correspondence go to this party unless a beneficiary is named.
+        cardinalityMeaning: 'Exactly one claimant: every claim has a named person or organisation behind it.'
+        workflowRole: Identifies who is paid and who is contacted.
+    - name: incident
+      target: BusinessTransaction
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The business event that gave rise to the claim.
+        usage: Linked where the loss is recorded in another process, such as a transport incident.
+        cardinalityMeaning: At most one incident; many claims arise from events recorded only in the claim itself.
+        workflowRole: Provides supporting evidence for the assessment.
+    - {name: insuredParty, target: InsuredParty, cardinality: "0..1", ownership: reference, help: {summary: The covered person or entity the claim concerns., usage: Chosen at registration from the policy's insured parties., cardinalityMeaning: At most one insured party; a claim under a property policy may name none., workflowRole: Checks that the claimant's loss falls within the persons covered., businessMeaning: Preserves policy-specific eligibility context beyond generic claimant identity.}}
+    - {name: claimLines, target: ClaimLine, cardinality: "0..*", ownership: aggregate, help: {summary: 'The items claimed, one line for each benefit, loss component or expense.', usage: Added at registration and assessed one by one., cardinalityMeaning: 'Any number of lines, usually several.', workflowRole: Approval is decided line by line and summed to the claim., businessMeaning: "Allows distinct Coverage, amounts and decisions under one claim aggregate."}}
+    - {name: settlements, target: Settlement, cardinality: "0..*", ownership: reference, help: {summary: The payments made to settle the claim., usage: Read to see what has been paid and what remains., cardinalityMeaning: 'Any number of settlements, since a claim may be paid in instalments.', workflowRole: Settlement moves the claim towards closure., businessMeaning: Separates claim adjudication from payment or other liability discharge.}}
 
   invariants:
-  - id: INSURANCE-CLAIM-001
-    rule: approvedAmount cannot exceed claimedAmount when both are supplied.
-  - {id: INSURANCE-CLAIM-EXE-001, rule: "Claimed Amount cannot be negative.", violatedWhen: "claimed_amount != null and claimed_amount < 0", message: "Claimed Amount cannot be negative."}
-  - {id: INSURANCE-CLAIM-EXE-002, rule: "Approved Amount cannot be negative.", violatedWhen: "approved_amount != null and approved_amount < 0", message: "Approved Amount cannot be negative."}
+    - id: INSURANCE-CLAIM-001
+      rule: approvedAmount cannot exceed claimedAmount when both are supplied.
+    - {id: INSURANCE-CLAIM-EXE-001, rule: "Claimed Amount cannot be negative.", violatedWhen: "claimed_amount != null and claimed_amount < 0", message: "Claimed Amount cannot be negative."}
+    - {id: INSURANCE-CLAIM-EXE-002, rule: "Approved Amount cannot be negative.", violatedWhen: "approved_amount != null and approved_amount < 0", message: "Approved Amount cannot be negative."}
   lifecycle:
     title: Insurance Claim Lifecycle
     attribute: status
     states: [REPORTED, UNDER_REVIEW, APPROVED, PARTIALLY_APPROVED, DENIED, SETTLED, CLOSED]
     initial: REPORTED
-    terminal: [CLOSED, DENIED]
+    terminal:
+      - DENIED
+      - CLOSED
     transitions:
-      - {from: REPORTED, to: UNDER_REVIEW, action: review}
+      - {from: REPORTED, to: UNDER_REVIEW, action: start_review}
+      - {from: REPORTED, to: DENIED, action: deny}
       - {from: UNDER_REVIEW, to: APPROVED, action: approve}
-      - {from: APPROVED, to: PARTIALLY_APPROVED, action: mark_partially_approved}
+      - {from: UNDER_REVIEW, to: PARTIALLY_APPROVED, action: approve_partially}
+      - {from: UNDER_REVIEW, to: DENIED, action: deny}
+      - {from: APPROVED, to: SETTLED, action: settle}
       - {from: PARTIALLY_APPROVED, to: SETTLED, action: settle}
       - {from: SETTLED, to: CLOSED, action: close}
-      - {from: REPORTED, to: DENIED, action: deny}
-      - {from: UNDER_REVIEW, to: DENIED, action: deny}
-      - {from: APPROVED, to: DENIED, action: deny}
-      - {from: PARTIALLY_APPROVED, to: DENIED, action: deny}
   workflows:
     - name: ApprovalRequested
       title: "Ask for a decision when a insurance claim is put forward"
@@ -206,18 +165,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a insurance transaction called InsuranceClaim within the CEDM business model.
-    businessMeaning: InsuranceClaim is a business concept with its own identity and lifecycle. It captures information that
-      must remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate InsuranceClaim records.
-    relationshipContext: The entity participates in a wider business graph through relationships with InsurancePolicy, Party,
-      BusinessTransaction. These relationships provide the context needed to interpret the record rather than treating its
-      fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical InsuranceClaim record represents one identifiable business occurrence or master-data object that can
-      be referenced by related CEDM processes.
+    summary: A request for payment or service under an insurance policy after a covered event.
+    businessMeaning: The claim is the moment the insurer's promise is tested. It records what happened, how much is claimed and what is decided, so the insurer pays what is owed, the customer can see why, and fraud and disputes can be reviewed.
+    usage: Raised by the claimant or on their behalf; assessed; approved, partly approved or denied; settled; read by claims handlers and finance.
+    relationshipContext: A claim is made under an InsurancePolicy by a claimant Party, may concern an incident, is broken into ClaimLines assessed against Coverages and is paid through Settlements.
+    lifecycle: A claim is reported, goes under review and is approved, partially approved or denied. Approved claims are settled and closed; denied claims end there.
+    example: A water-damage claim for 8,400 on a home policy, approved in part at 6,100 after assessment and settled by bank transfer.
 specification:
   version: 0.1.0
   status: draft

@@ -11,6 +11,7 @@ application:
   enumerationTables: true
 imports:
   - module: common
+  - entity: InventoryItem
   - entity: InventoryBalance
   - entity: InventoryMovement
   - entity: InventoryReservation
@@ -34,6 +35,6 @@ ui:
   categories:
     - name: Inventory Management
       icon: boxes
-      entities: [InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product]
+      entities: [InventoryItem, InventoryMovement, InventoryReservation, InventoryTransfer, InventoryCount, InventoryAdjustment, Lot, SerialNumber, Product]
     - name: Warehouse Management
       entities: [Warehouse, HandlingUnit, Putaway, Picking, Packing, Wave]

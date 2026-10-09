@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-04T08:30:00.931Z
+//! Generated: 2026-10-09T15:29:02.002Z
 //! Project: human-resources
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -43,8 +43,11 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("UnitOfMeasure", "status", "RETIRED"),
     ("Task", "status", "COMPLETED"),
     ("Employee", "status", "TERMINATED"),
-    ("Position", "status", "FILLED"),
+    ("Position", "status", "RETIRED"),
     ("Employment", "status", "TERMINATED"),
+    ("Compensation", "status", "SUPERSEDED"),
+    ("Attendance", "status", "APPROVED"),
+    ("LeaveRequest", "status", "APPROVED"),
     ("Payroll", "status", "PAID"),
     ("Job", "status", "RETIRED"),
 ];
@@ -80,9 +83,17 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
         "Position",
         "status",
         "OPEN",
-        &["CLOSED", "FROZEN", "RETIRED"],
+        &["FILLED", "FROZEN", "CLOSED", "RETIRED"],
     ),
     ("Employment", "status", "PENDING", &["ACTIVE"]),
+    ("Compensation", "status", "DRAFT", &["ACTIVE", "CANCELLED"]),
+    ("Attendance", "status", "DRAFT", &["RECORDED", "CANCELLED"]),
+    (
+        "LeaveRequest",
+        "status",
+        "DRAFT",
+        &["SUBMITTED", "CANCELLED"],
+    ),
     ("Payroll", "status", "DRAFT", &["CALCULATED"]),
     ("Job", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
 ];

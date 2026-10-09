@@ -1,6 +1,6 @@
 //! Roles, users and what the signed-in caller may see.
 //!
-//! Generated: 2026-10-04T01:13:04.149Z
+//! Generated: 2026-10-09T15:30:55.370Z
 //! Project: technology
 
 use serde_json::Value;
@@ -43,6 +43,9 @@ const GUARDED_ROUTES: &[(&str, &str)] = &[
     ("GET", "/api/reports/nothing"),
     ("GET", "/api/reports/nothing/run"),
     ("GET", "/api/me/permissions"),
+    // Accounts carry every email address in the application and the means to
+    // grant a role, so the list is guarded before it is checked for a master.
+    ("GET", "/api/accounts"),
     // A lookup lists rows of the table it points at, so it is read-guarded.
     ("GET", "/api/bus/bus_user/lookup/id"),
     // The dashboard names every entity this caller may read, so it is a

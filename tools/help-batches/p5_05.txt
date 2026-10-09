@@ -1,0 +1,75 @@
+@ QualityCharacteristic
+a dataType
+s: The kind of value that observations of this characteristic take, which fixes how measurements are entered and checked.
+u: Chosen when the characteristic is defined; quality measurements, forms and analytics follow it, and it should not change once measurements exist.
+v DECIMAL: A numeric observation that may contain fractional values.
+v INTEGER: A whole-number observation such as a count of defects in a sample.
+v STRING: A textual or categorical observation represented as text.
+v BOOLEAN: A true or false observation such as seal intact.
+v ENUM: An observation selected from a governed set of allowed values.
+a status
+s: Whether this reusable characteristic definition is still being prepared, approved for use or retired.
+u: Moved by quality governance; only ACTIVE characteristics can be assigned to new quality plans, and RETIRED is final but stays readable.
+@ QualityInspection
+a qualityInspectionId
+s: The permanent, system-generated identity of this inspection or test record.
+u: Generated on creation and never changed; measurements, samples, nonconformances and audit trails refer to the inspection through it.
+a inspectionNumber
+s: The business-facing reference quoted for this inspection in quality records and with suppliers.
+u: Assigned when the inspection is raised and unique; used in supplier disputes, release decisions and quality reporting.
+a status
+s: Where the inspection stands from being raised through sampling to a final verdict.
+u: Moved by inspectors; it controls release and disposition workflows, and passed, failed and cancelled are final.
+v OPEN: Raised and not yet started; waiting for an inspector.
+v IN_PROGRESS: Samples are being taken and measured.
+v PASSED: The goods met every requirement. A final state.
+v FAILED: The goods did not meet the requirements. A final state.
+v CONDITIONAL: Passed only with conditions, awaiting a decision on release.
+v CANCELLED: The inspection was not carried out. A final state.
+a disposition
+s: The decision on what to do with the inspected goods.
+u: Set after a result is recorded; it drives inventory availability, supplier returns, repair, scrap and release.
+v RELEASE: Release the goods for use or sale.
+v ACCEPT: Accept the goods into stock.
+v REJECT: Refuse the goods because they failed to meet requirements.
+v QUARANTINE: Hold the goods apart until a decision is made.
+v RETURN_TO_SUPPLIER: Send the goods back to the supplier.
+v REWORK: Correct the goods so they meet the requirement.
+v REPAIR: Repair the goods to a usable condition.
+v SCRAP: Destroy or write off the goods.
+v CONDITIONAL_RELEASE: Release the goods for use only under stated conditions that must be met.
+a notes
+s: The inspector's observations and supporting context that the recorded results do not capture.
+u: Free text entered during or after inspection; read in quality reviews, supplier disputes and audits.
+@ QualityMeasurement
+a qualityMeasurementId
+s: The permanent, system-generated identity of this single quality observation.
+u: Generated on creation and never changed; traceability, audits, analytics and integrations refer to the measurement through it.
+a measurementNumber
+s: The human-facing reference that identifies this one measurement within inspection records.
+u: Assigned when the measurement is captured and unique; used by reviewers, auditors and integrations to cite it.
+a measuredValue
+s: The numeric value actually observed during the inspection, such as a weight or temperature.
+u: Entered for numeric characteristics together with the unit; compared with the limits to give the result, and exclusive with measured text.
+a measuredText
+s: The categorical or textual observation made, such as a colour grade or appearance remark.
+u: Entered for characteristics that are not numeric; used in evaluation where a number does not apply, and exclusive with measured value.
+a unitOfMeasure
+s: The unit, such as kilograms or degrees Celsius, in which the numeric measured value is expressed.
+u: Chosen with a numeric value; used to compare against limits, convert between units and report consistently.
+a result
+s: The verdict on this measurement when compared with its governing acceptance criterion.
+u: Set when the value is evaluated; inspections use it to complete, raise nonconformances and feed quality analytics.
+v PASS: The measured value is within its limits.
+v FAIL: The measured value is outside its limits.
+v CONDITIONAL: Within tolerance only under a stated condition.
+v NOT_EVALUATED: No verdict has been given yet because it was not compared with a criterion.
+a measuredAt
+s: The date and time at which the observation was actually taken.
+u: Captured with the measurement; supports sampling traceability, compliance checks and audit of when results were obtained.
+a method
+s: The method or procedure used to obtain the observation, such as a named test standard or instrument routine.
+u: Entered by the inspector; lets others reproduce the test and lets laboratory audits confirm the right method was used.
+a notes
+s: Supporting context for this observation, such as sample condition or instrument remarks.
+u: Free text entered by the inspector; read during review and audit to explain unusual values.

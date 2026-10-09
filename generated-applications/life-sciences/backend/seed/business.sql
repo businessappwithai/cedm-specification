@@ -234,19 +234,19 @@ VALUES ('6fbc9d9d-e6c0-529a-9521-2445ad9e5fe5', 'Location 5', 'Location 5', 'FAC
 ON CONFLICT DO NOTHING;
 
 -- Exchange Rate (bus_exchange_rate)
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('7a1f0bae-0d0c-58ed-833b-ca31e018dfef', '6b7c6f3b-9a24-56f7-9ead-e6d02b99ec04', '6b7c6f3b-9a24-56f7-9ead-e6d02b99ec04', 10.50, 'SPOT', '2026-01-15T09:00:00Z', NULL, 'Source 1', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('46174167-f76e-5a53-bb04-38114cc5011c', '67b5e63a-3a54-5c97-b97a-d3bf242124b6', '67b5e63a-3a54-5c97-b97a-d3bf242124b6', 21.00, 'CONTRACT', '2026-02-15T09:00:00Z', NULL, 'Source 2', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('dcd7cadb-bd45-526a-b5a7-45b31a01b98e', '4e3cb600-43ed-5ed4-ac9d-7458d3e12067', '4e3cb600-43ed-5ed4-ac9d-7458d3e12067', 31.50, 'DAILY', '2026-03-15T09:00:00Z', NULL, 'Source 3', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('129c5617-0719-55d8-916c-265fe224a655', '8a6fbf80-3a0f-5963-960b-ca7368333c16', '8a6fbf80-3a0f-5963-960b-ca7368333c16', 42.00, 'MONTHLY', '2026-04-15T09:00:00Z', NULL, 'Source 4', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
-INSERT INTO bus_exchange_rate (id, from_currency, to_currency, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
+INSERT INTO bus_exchange_rate (id, from_currency_id, to_currency_id, rate, rate_type, effective_at, expires_at, source, status, doc_status, created_at, updated_at)
 VALUES ('5f272901-1387-5b6a-a517-0f9ffe78c3eb', '550eee3f-b68f-51d8-8ff3-17f721dcac43', '550eee3f-b68f-51d8-8ff3-17f721dcac43', 52.50, 'ACCOUNTING', '2026-05-15T09:00:00Z', NULL, 'Source 5', 'DRAFT', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
@@ -303,19 +303,19 @@ ON CONFLICT DO NOTHING;
 
 -- Compound (bus_compound)
 INSERT INTO bus_compound (id, compound_code, name, molecular_formula, molecular_weight, status, doc_status, created_at, updated_at)
-VALUES ('06b041b5-f64a-56ac-abd4-803b94c4b7e8', 'Compound Code 1', 'Compound 1', 'Molecular Formula 1', 10.50, 'CANDIDATE', 'final', NOW(), NOW())
+VALUES ('06b041b5-f64a-56ac-abd4-803b94c4b7e8', 'Compound Code 1', 'Compound 1', 'Molecular Formula 1', 10.50, 'RESEARCH', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_compound (id, compound_code, name, molecular_formula, molecular_weight, status, doc_status, created_at, updated_at)
-VALUES ('d6f4349d-ac22-5b6c-b935-439091f48407', 'Compound Code 2', 'Compound 2', 'Molecular Formula 2', 21.00, 'CANDIDATE', 'final', NOW(), NOW())
+VALUES ('d6f4349d-ac22-5b6c-b935-439091f48407', 'Compound Code 2', 'Compound 2', 'Molecular Formula 2', 21.00, 'RESEARCH', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_compound (id, compound_code, name, molecular_formula, molecular_weight, status, doc_status, created_at, updated_at)
-VALUES ('6f5b2581-af41-5ef9-a167-7e04d5722dfb', 'Compound Code 3', 'Compound 3', 'Molecular Formula 3', 31.50, 'CANDIDATE', 'final', NOW(), NOW())
+VALUES ('6f5b2581-af41-5ef9-a167-7e04d5722dfb', 'Compound Code 3', 'Compound 3', 'Molecular Formula 3', 31.50, 'RESEARCH', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_compound (id, compound_code, name, molecular_formula, molecular_weight, status, doc_status, created_at, updated_at)
-VALUES ('c994fc96-1638-52de-ae50-c19ebb4000bb', 'Compound Code 4', 'Compound 4', 'Molecular Formula 4', 42.00, 'CANDIDATE', 'final', NOW(), NOW())
+VALUES ('c994fc96-1638-52de-ae50-c19ebb4000bb', 'Compound Code 4', 'Compound 4', 'Molecular Formula 4', 42.00, 'RESEARCH', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 INSERT INTO bus_compound (id, compound_code, name, molecular_formula, molecular_weight, status, doc_status, created_at, updated_at)
-VALUES ('b8d23991-a91c-5ddb-b875-afb874018d86', 'Compound Code 5', 'Compound 5', 'Molecular Formula 5', 52.50, 'CANDIDATE', 'final', NOW(), NOW())
+VALUES ('b8d23991-a91c-5ddb-b875-afb874018d86', 'Compound Code 5', 'Compound 5', 'Molecular Formula 5', 52.50, 'RESEARCH', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
 -- Experiment (bus_experiment)

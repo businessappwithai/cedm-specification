@@ -432,8 +432,8 @@ CREATE INDEX IF NOT EXISTS idx_bus_currency_name ON bus_currency (name);
 -- Exchange Rate (bus_exchange_rate)
 CREATE TABLE IF NOT EXISTS bus_exchange_rate (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
-  , from_currency UUID NOT NULL
-  , to_currency UUID NOT NULL
+  , from_currency_id UUID NOT NULL
+  , to_currency_id UUID NOT NULL
   , rate DECIMAL(18,6) NOT NULL
   , rate_type VARCHAR(255) NOT NULL
   , effective_at TIMESTAMPTZ NOT NULL
@@ -556,6 +556,33 @@ CREATE TABLE IF NOT EXISTS bus_task (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_task_name ON bus_task (name);
+-- Inventory Item (bus_inventory_item)
+CREATE TABLE IF NOT EXISTS bus_inventory_item (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , item_code VARCHAR(120) NOT NULL UNIQUE
+  , status VARCHAR(255) NOT NULL
+  , safety_stock_quantity DECIMAL(18,6)
+  , reorder_point_quantity DECIMAL(18,6)
+  , allow_negative_inventory BOOLEAN NOT NULL
+  , product_id UUID NOT NULL
+  , stocking_uom_id UUID NOT NULL
+  , organization_id UUID
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
 -- Inventory Balance (bus_inventory_balance)
 CREATE TABLE IF NOT EXISTS bus_inventory_balance (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -563,6 +590,7 @@ CREATE TABLE IF NOT EXISTS bus_inventory_balance (
   , quantity_reserved DECIMAL(18,6) NOT NULL
   , quantity_available DECIMAL(18,6) NOT NULL
   , last_updated_at TIMESTAMPTZ NOT NULL
+  , inventory_item_id UUID
   , product_id UUID NOT NULL
   , inventory_location_id UUID NOT NULL
   , lot_id UUID
@@ -591,6 +619,7 @@ CREATE TABLE IF NOT EXISTS bus_inventory_movement (
   , movement_date TIMESTAMPTZ NOT NULL
   , reason VARCHAR(500)
   , unit_of_measure_id UUID
+  , inventory_item_id UUID
   , inventory_balance_id UUID
   , product_id UUID NOT NULL
   , source_location_id UUID
@@ -1589,6 +1618,31 @@ CREATE TABLE IF NOT EXISTS bus_task_priority (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_task_priority_name ON bus_task_priority (name);
+-- Inventory Item Status (bus_inventory_item_status)
+CREATE TABLE IF NOT EXISTS bus_inventory_item_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_inventory_item_status_name ON bus_inventory_item_status (name);
 -- Inventory Movement Movement Type (bus_inventory_movement_movement_type)
 CREATE TABLE IF NOT EXISTS bus_inventory_movement_movement_type (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -2478,40 +2532,6 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
-  ALTER TABLE bus_exchange_rate
-    ADD CONSTRAINT fk_bus_exchange_rate_currency_id
-    FOREIGN KEY (currency_id)
-    REFERENCES bus_currency(id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
-EXCEPTION
-  WHEN duplicate_object THEN NULL;
-  WHEN undefined_column THEN NULL;
-  WHEN undefined_table THEN NULL;
-  WHEN datatype_mismatch THEN NULL;
-END $$;
-
--- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
--- how that same tolerance is expressed in plain SQL. Re-running a migration or
--- a model whose FK column was typed as something other than UUID must not
--- abort the whole migration.
-DO $$ BEGIN
   ALTER TABLE bus_unit_of_measure
     ADD CONSTRAINT fk_bus_unit_of_measure_unit_of_measure_id
     FOREIGN KEY (unit_of_measure_id)
@@ -2601,6 +2621,91 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_task_organization_id
     FOREIGN KEY (organization_id)
     REFERENCES bus_organization(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_inventory_item
+    ADD CONSTRAINT fk_bus_inventory_item_product_id
+    FOREIGN KEY (product_id)
+    REFERENCES bus_product(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_inventory_item
+    ADD CONSTRAINT fk_bus_inventory_item_unit_of_measure_id
+    FOREIGN KEY (unit_of_measure_id)
+    REFERENCES bus_unit_of_measure(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_inventory_item
+    ADD CONSTRAINT fk_bus_inventory_item_organization_id
+    FOREIGN KEY (organization_id)
+    REFERENCES bus_organization(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_inventory_balance
+    ADD CONSTRAINT fk_bus_inventory_balance_inventory_item_id
+    FOREIGN KEY (inventory_item_id)
+    REFERENCES bus_inventory_item(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_inventory_movement
+    ADD CONSTRAINT fk_bus_inventory_movement_inventory_item_id
+    FOREIGN KEY (inventory_item_id)
+    REFERENCES bus_inventory_item(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -3619,6 +3724,7 @@ DROP TABLE IF EXISTS bus_unit_of_measure CASCADE;
 DROP TABLE IF EXISTS bus_calendar CASCADE;
 DROP TABLE IF EXISTS bus_attachment CASCADE;
 DROP TABLE IF EXISTS bus_task CASCADE;
+DROP TABLE IF EXISTS bus_inventory_item CASCADE;
 DROP TABLE IF EXISTS bus_inventory_balance CASCADE;
 DROP TABLE IF EXISTS bus_inventory_movement CASCADE;
 DROP TABLE IF EXISTS bus_inventory_reservation CASCADE;
@@ -3660,6 +3766,7 @@ DROP TABLE IF EXISTS bus_unit_of_measure_status CASCADE;
 DROP TABLE IF EXISTS bus_task_task_type CASCADE;
 DROP TABLE IF EXISTS bus_task_status CASCADE;
 DROP TABLE IF EXISTS bus_task_priority CASCADE;
+DROP TABLE IF EXISTS bus_inventory_item_status CASCADE;
 DROP TABLE IF EXISTS bus_inventory_movement_movement_type CASCADE;
 DROP TABLE IF EXISTS bus_inventory_reservation_status CASCADE;
 DROP TABLE IF EXISTS bus_inventory_transfer_status CASCADE;

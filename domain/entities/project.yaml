@@ -11,179 +11,147 @@ entity:
     generated: true
     immutable: true
   attributes:
-  - name: projectId
-    type: uuid
-    required: true
-    immutable: true
-    help:
-      summary: Identifies the project record associated with this Project. The identifier connects this record to the corresponding
-        CEDM entity so related processes can resolve the correct business object.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: projectCode
-    type: string
-    required: true
-    unique: true
-    maxLength: 100
-    help:
-      summary: Captures the business meaning of project code for the Project. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: name
-    type: string
-    required: true
-    maxLength: 300
-    help:
-      summary: The human-readable name used by people, reports, searches, and related business processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: description
-    type: string
-    required: false
-    maxLength: 4000
-    help:
-      summary: A business description that explains the purpose, scope, or meaning of the record to users and downstream processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: status
-    type: enum
-    required: true
-    default: PLANNED
-    values:
-    - DRAFT
-    - PLANNED
-    - ACTIVE
-    - ON_HOLD
-    - COMPLETED
-    - CANCELLED
-    - CLOSED
-    help:
-      summary: The lifecycle state of the record. It controls which business actions are normally permitted and how the record
-        is treated by related processes.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      valueSemantics:
-        DRAFT: Represents the draft state or classification in the context of Project.
-        PLANNED: Represents the planned state or classification in the context of Project.
-        ACTIVE: Represents the active state or classification in the context of Project.
-        ON_HOLD: Represents the on hold state or classification in the context of Project.
-        COMPLETED: Represents the completed state or classification in the context of Project.
-        CANCELLED: Represents the cancelled state or classification in the context of Project.
-        CLOSED: Represents the closed state or classification in the context of Project.
-      requiredMeaning: Required because the business model cannot reliably interpret the record for its declared purpose without
-        this value.
-  - name: startDate
-    type: date
-    required: false
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle begins. Related end dates
-        must follow the business chronology.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: endDate
-    type: date
-    required: false
-    help:
-      summary: The date on which the applicable business period, agreement, service, or lifecycle ends. It is interpreted
-        together with the corresponding start date.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
-  - name: budgetAmount
-    type: decimal
-    required: false
-    precision: 20
-    scale: 4
-    help:
-      summary: Captures the business meaning of budget amount for the Project. It is interpreted together with the entity's
-        other attributes and relationships to support the processes that manage this record.
-      usage: Used when creating, reviewing, searching, validating, reporting on, or integrating Project records, where applicable.
-      relationshipContext: Its meaning is specific to Project; it must be interpreted with the entity's relationships, lifecycle,
-        and business rules rather than as an isolated technical value.
-      optionalMeaning: Optional because the business concept can remain valid when this value is not yet known or is not applicable.
+    - name: projectId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the project, constant for its life.
+        usage: Generated on creation; tasks, costs and engagements refer to it.
+        relationshipContext: Referenced by every task, milestone, assignment and cost of the project.
+    - name: projectCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 100
+      help:
+        summary: The code people use for the project, such as PRJ-0042.
+        usage: Unique; quoted in time booking, cost reports and invoices.
+        relationshipContext: Appears wherever work or cost is charged to the project.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: A short name that says what the project is for.
+        usage: Shown in lists and pickers.
+        relationshipContext: Read with the project code to recognise the project.
+    - name: description
+      type: string
+      required: false
+      maxLength: 4000
+      help:
+        summary: A longer description of the objectives and scope.
+        usage: Written when the project is drafted and kept up to date as scope changes.
+        relationshipContext: Read by anyone joining the project to understand its purpose.
+    - name: status
+      type: enum
+      required: true
+      default: DRAFT
+      values:
+        - DRAFT
+        - PLANNED
+        - ACTIVE
+        - ON_HOLD
+        - COMPLETED
+        - CANCELLED
+        - CLOSED
+      help:
+        summary: Where the project stands in its life.
+        usage: Starts as DRAFT; moved by the project manager through planning, delivery and close.
+        relationshipContext: Decides whether time and cost may be booked and whether the project is still open.
+        valueSemantics:
+          DRAFT: Being defined; not yet approved for planning.
+          PLANNED: Scope, schedule and budget are agreed; work has not started.
+          ACTIVE: Work is under way and time and cost may be booked.
+          ON_HOLD: Paused; can be resumed to planned or active.
+          COMPLETED: The work is delivered; final costs are still being settled.
+          CANCELLED: Stopped before completion. A final state.
+          CLOSED: Settled and archived. A final state.
+    - name: startDate
+      type: date
+      required: false
+      help:
+        summary: The date work on the project starts or started.
+        usage: Set when planned; schedules and resource plans are measured from it.
+        relationshipContext: Compared with task and phase dates.
+    - name: endDate
+      type: date
+      required: false
+      help:
+        summary: The date the project is due to end or ended.
+        usage: Must not be before the start date; revised when the plan changes.
+        relationshipContext: Compared with milestone dates to judge whether delivery is on time.
+    - name: budgetAmount
+      type: decimal
+      required: false
+      precision: 20
+      scale: 4
+      help:
+        summary: The total amount approved to spend on the project.
+        usage: Set at planning; must not be negative; actual costs are compared with it.
+        relationshipContext: Summed against the project's costs to show budget remaining.
   relationships:
-  - name: ownerOrganization
-    target: Organization
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Project to Organization so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Organization records associated with a Project.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: manager
-    target: Party
-    cardinality: 0..1
-    ownership: reference
-    help:
-      summary: Connects Project to Party so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Party records associated with a Project.
-      cardinalityMeaning: The declared cardinality 0..1 expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: tasks
-    target: ProjectTask
-    cardinality: 0..*
-    ownership: aggregate
-    help:
-      summary: Connects Project to ProjectTask so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ProjectTask records associated with a Project.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: milestones
-    target: Milestone
-    cardinality: 0..*
-    ownership: aggregate
-    help:
-      summary: Connects Project to Milestone so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about Milestone records associated with a Project.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - name: resources
-    target: ResourceAssignment
-    cardinality: 0..*
-    ownership: aggregate
-    help:
-      summary: Connects Project to ResourceAssignment so related business context can be navigated and enforced.
-      usage: Used when processes need to find or reason about ResourceAssignment records associated with a Project.
-      cardinalityMeaning: The declared cardinality 0..* expresses how many related records may participate in the relationship.
-      context: The relationship is part of the CEDM semantic graph and is interpreted together with source and target entities,
-        ownership, conditions, and invariants.
-  - {name: phases, target: ProjectPhase, cardinality: "0..*", ownership: aggregate, help: {summary: Governed lifecycle stages of Project., businessMeaning: Groups tasks/milestones into project phases., usage: "Planning, execution and reporting.", cardinalityMeaning: Zero or many phases., workflowRole: Phase lifecycle must reconcile with project lifecycle.}}
-  - name: projectCosts
-    target: ProjectCost
-    cardinality: 0..*
-    ownership: aggregate
-    help:
-      summary: Auditable cost attributions belonging to this Project.
-      businessMeaning: Separates operational project costing from budget values and general-ledger postings.
-      usage: Project control, profitability, billing, budgeting and financial reconciliation.
-      cardinalityMeaning: A Project may accumulate zero or many ProjectCost records.
-      workflowRole: Project state constrains new cost attribution while posted or reversed historical costs remain immutable evidence.
-
+    - name: ownerOrganization
+      target: Organization
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The organisation that owns and sponsors the project.
+        usage: Chosen when the project is created.
+        cardinalityMeaning: At most one organisation; empty for a project not yet assigned.
+        context: Decides whose budget and reporting the project belongs to.
+    - name: manager
+      target: Party
+      cardinality: 0..1
+      ownership: reference
+      help:
+        summary: The person responsible for delivering the project.
+        usage: Chosen when the project is planned.
+        cardinalityMeaning: At most one manager; a project may be unassigned in draft.
+        context: Names who answers for progress, cost and approvals.
+    - name: tasks
+      target: ProjectTask
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The tasks that make up the project's work.
+        usage: Read to see the plan and progress.
+        cardinalityMeaning: Any number of tasks, none in a new project.
+        context: Tasks belong to the project and are removed with it.
+    - name: milestones
+      target: Milestone
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The key dates the project must reach.
+        usage: Read to review delivery against the plan.
+        cardinalityMeaning: Any number of milestones.
+        context: Milestones belong to the project and mark its progress.
+    - name: resources
+      target: ResourceAssignment
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The people and assets assigned to the project.
+        usage: Read to see who is committed and for how long.
+        cardinalityMeaning: Any number of assignments.
+        context: Assignments belong to the project and drive capacity and cost.
+    - {name: phases, target: ProjectPhase, cardinality: "0..*", ownership: aggregate, help: {summary: The stages the project is divided into., usage: Read to see the project's structure in order., cardinalityMeaning: 'Any number of phases, none for a simple project.', workflowRole: Groups tasks and milestones into stages that can be reviewed., businessMeaning: Groups tasks/milestones into project phases.}}
+    - name: projectCosts
+      target: ProjectCost
+      cardinality: 0..*
+      ownership: aggregate
+      help:
+        summary: The costs charged to the project.
+        usage: Read to total spend against budget.
+        cardinalityMeaning: Any number of cost records.
+        workflowRole: Gives the actual cost side of the budget comparison.
+        businessMeaning: Separates operational project costing from budget values and general-ledger postings.
   invariants:
-  - id: PROJECT-001
-    rule: endDate must not precede startDate.
-  - {id: PROJECT-EXE-001, rule: "Budget Amount cannot be negative.", violatedWhen: "budget_amount != null and budget_amount < 0", message: "Budget Amount cannot be negative."}
+    - id: PROJECT-001
+      rule: endDate must not precede startDate.
+    - {id: PROJECT-EXE-001, rule: "Budget Amount cannot be negative.", violatedWhen: "budget_amount != null and budget_amount < 0", message: "Budget Amount cannot be negative."}
   lifecycle:
     title: Project Lifecycle
     attribute: status
@@ -241,18 +209,12 @@ entity:
               status: "CREATED"
               priority: "NORMAL"
   help:
-    summary: Represents a project management entity called Project within the CEDM business model.
-    businessMeaning: Project is a business concept with its own identity and lifecycle. It captures information that must
-      remain understandable independently of a database, API, or user interface.
-    usage: Used by business processes, transactions, forms, reports, integrations, and domain capabilities that create, find,
-      change, or relate Project records.
-    relationshipContext: The entity participates in a wider business graph through relationships with Organization, Party,
-      ProjectTask, Milestone, ResourceAssignment. These relationships provide the context needed to interpret the record rather
-      than treating its fields as isolated database columns.
-    lifecycle: The entity lifecycle is governed by its status, invariants, and related business processes. State changes must
-      preserve the declared business meaning and relationships.
-    example: A typical Project record represents one identifiable business occurrence or master-data object that can be referenced
-      by related CEDM processes.
+    summary: A coordinated piece of work with defined objectives, scope, resources and outcomes, planned and tracked from draft to close.
+    businessMeaning: A project is how the organisation organises work that has a start, an end and a budget. It collects tasks, phases, milestones, resource assignments and costs, so progress, spend and delivery can be reviewed in one place and the project closed once everything is settled.
+    usage: Created and owned by a project manager; read by delivery teams, finance and management.
+    relationshipContext: A project belongs to an owning organisation, has a manager, and contains phases, tasks, milestones, resource assignments and costs.
+    lifecycle: A project is drafted, planned, activated, completed and then closed. It may be put on hold and resumed while planned or active, and may be cancelled before completion. Closed and cancelled are final.
+    example: Project PRJ-0042, "Warehouse automation", is planned in January, active from March, completed in September and closed after the final cost review.
 specification:
   version: 0.1.0
   status: draft

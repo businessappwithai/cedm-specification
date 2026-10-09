@@ -1,0 +1,25 @@
+@ MediaContent
+a contentType
+v VIDEO: A film, series or clip.
+v AUDIO: Music or spoken-word audio.
+v IMAGE: A photograph or illustration.
+v ARTICLE: A written article, such as a news story or feature.
+v BOOK: A book or e-book.
+v PODCAST: A podcast episode or series.
+v GAME: An interactive game or game title.
+v OTHER: Any other kind of work.
+a status
+v DRAFT: Being created and not yet finished.
+v PRODUCED: Finished but not yet released.
+v PUBLISHED: Released to its audience.
+v ARCHIVED: Kept but no longer promoted.
+v RETIRED: Withdrawn from distribution. A final state.
+@ MediaRight
+a validFrom
+s: The first date on which the right or licence applies to the media content.
+u: Entered from the licence agreement by licensing staff; use before this date is not permitted, and it should not be after the end date.
+a status
+v PENDING: Agreed but not yet in effect.
+v ACTIVE: In effect, so use within its terms is permitted.
+v EXPIRED: Its period has ended. A final state.
+v REVOKED: Withdrawn before its period ended. A final state.

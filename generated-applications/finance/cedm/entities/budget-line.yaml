@@ -7,16 +7,20 @@ entity:
     icon: piggy-bank
   identity: {key: budgetLineId, type: uuid, generated: true, immutable: true}
   attributes:
-  - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: Stable line identity., businessMeaning: Identifies one dimensional allocation., usage: Budget control and variance., relationshipContext: Belongs to Budget., requiredMeaning: Required.}}
-  - {name: amount, type: Money, required: true, help: {summary: Planned monetary amount., businessMeaning: Financial target/limit for dimensions., usage: Planning and variance., relationshipContext: Not an actual ledger balance., requiredMeaning: Required.}}
+    - {name: budgetLineId, type: uuid, required: true, immutable: true, help: {summary: The permanent system identity of one allocation within a budget., usage: Generated on creation; variance reports and revisions refer to the line through it., businessMeaning: Identifies one dimensional allocation., relationshipContext: Belongs to Budget.}}
+    - {name: amount, type: Money, required: true, help: {summary: 'The money planned for this combination of account, cost centre and profit centre in the budget period.', usage: 'Entered by the budget owner; never negative, and compared with actual postings to show overspend or underspend.', businessMeaning: Financial target/limit for dimensions., relationshipContext: Not an actual ledger balance.}}
   relationships:
-  - {name: budget, target: Budget, cardinality: '1', ownership: reference, inverse: lines, help: {summary: Parent financial plan., businessMeaning: Supplies governance/version context., usage: Planning., cardinalityMeaning: Exactly one Budget., workflowRole: Line lifecycle follows budget governance.}}
-  - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Financial account dimension., businessMeaning: Classifies planned amount., usage: Budget-vs-actual., cardinalityMeaning: Optional under non-account planning., workflowRole: Actuals derive from accounting not line mutation.}}
-  - {name: costCenter, target: CostCenter, cardinality: 0..1, ownership: reference, help: {summary: Cost responsibility dimension., businessMeaning: Allocates plan to cost center., usage: Expense control., cardinalityMeaning: Optional., workflowRole: Must be eligible for budget period.}}
-  - {name: profitCenter, target: ProfitCenter, cardinality: 0..1, ownership: reference, help: {summary: Profit responsibility dimension., businessMeaning: Allocates plan to profit center., usage: Management reporting., cardinalityMeaning: Optional., workflowRole: Must be eligible for budget period.}}
+    - {name: budget, target: Budget, cardinality: '1', ownership: reference, inverse: lines, help: {cardinalityMeaning: Exactly one budget; a line cannot exist outside the plan that contains it., summary: Parent financial plan., businessMeaning: Supplies governance/version context., usage: Planning., workflowRole: Line lifecycle follows budget governance.}}
+    - {name: account, target: Account, cardinality: 0..1, ownership: reference, help: {summary: Financial account dimension., businessMeaning: Classifies planned amount., usage: Budget-vs-actual., cardinalityMeaning: Optional under non-account planning., workflowRole: Actuals derive from accounting not line mutation.}}
+    - {name: costCenter, target: CostCenter, cardinality: 0..1, ownership: reference, help: {cardinalityMeaning: At most one cost centre; a line may be planned by account alone., summary: Cost responsibility dimension., businessMeaning: Allocates plan to cost center., usage: Expense control., workflowRole: Must be eligible for budget period.}}
+    - {name: profitCenter, target: ProfitCenter, cardinality: 0..1, ownership: reference, help: {cardinalityMeaning: At most one profit centre; used when the plan is organised by profit responsibility., summary: Profit responsibility dimension., businessMeaning: Allocates plan to profit center., usage: Management reporting., workflowRole: Must be eligible for budget period.}}
   invariants:
-  - {id: BUDGET-LINE-001, rule: Line dimensions must form a valid unique planning intersection under Budget policy.}
-  - {id: BUDGET-LINE-002, rule: Approved line correction uses governed budget revision and does not alter actual accounting.}
-  - {id: BUDGET-LINE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
-  help: {summary: Detailed dimensional budget allocation., businessMeaning: Defines planned money at an account/responsibility intersection., usage: Budgeting and variance analysis., relationshipContext: Budget governs; Account/CostCenter/ProfitCenter classify.}
+    - {id: BUDGET-LINE-001, rule: Line dimensions must form a valid unique planning intersection under Budget policy.}
+    - {id: BUDGET-LINE-002, rule: Approved line correction uses governed budget revision and does not alter actual accounting.}
+    - {id: BUDGET-LINE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
+  help:
+    summary: Detailed dimensional budget allocation.
+    businessMeaning: Defines planned money at an account/responsibility intersection.
+    usage: Budgeting and variance analysis.
+    relationshipContext: Budget governs; Account/CostCenter/ProfitCenter classify.
 specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-BUDGET-LINE}

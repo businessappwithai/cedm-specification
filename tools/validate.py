@@ -135,6 +135,16 @@ def dictionary_checks(entities: dict[str, tuple[pathlib.Path, dict]]) -> None:
     if registry.returncode:
         errors.append(f"ENUM-002 {registry.stdout.strip() or registry.stderr.strip()}")
 
+    shapes = subprocess.run([sys.executable, str(ROOT / "tools" / "help_shapes.py"), "--check"], capture_output=True, text=True)
+    if shapes.returncode:
+        findings = [line for line in shapes.stdout.splitlines() if line.startswith("HELP-001 ")]
+        for line in findings[:50]:
+            errors.append(line)
+        if len(findings) > 50:
+            errors.append(f"HELP-001: {len(findings) - 50} more template-text findings")
+        if not findings:
+            errors.append(f"HELP-001 {shapes.stdout.strip() or shapes.stderr.strip()}")
+
 
 TOKEN = re.compile(r"""\s*(?:(?P<num>\d+(?:\.\d+)?)|(?P<str>"(?:[^"\\]|\\.)*")|(?P<op>==|!=|<=|>=|<|>|\(|\))|(?P<word>[A-Za-z_][A-Za-z0-9_]*))""")
 KEYWORDS = {"and", "or", "not", "null", "true", "false"}
