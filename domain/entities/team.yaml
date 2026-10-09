@@ -7,9 +7,9 @@ entity:
     icon: table
   identity: {key: teamId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: teamId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the team, constant when it is renamed.', businessMeaning: Lets assignments and ownership point at the team rather than its name., usage: Generated on creation., relationshipContext: Referenced by tasks and records owned by the team.}}
+    - {name: teamId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent system identity of the team, unchanged when its name or code is edited.', usage: 'Generated on creation and never changed; assignments, memberships and ownership records refer to the team through it.', businessMeaning: Lets assignments and ownership point at the team rather than its name., relationshipContext: Referenced by tasks and records owned by the team.}}
     - {name: code, type: string, required: true, maxLength: 100, help: {summary: 'The short code of the team, such as WH-LDS.', businessMeaning: Gives a stable way to refer to the team in imports and rules., usage: Unique; used in imports and rules., relationshipContext: Read with the name.}}
-    - {name: name, type: string, required: true, maxLength: 300, help: {summary: The name of the team as people know it., businessMeaning: What people look for when assigning work., usage: Shown on assignments., relationshipContext: Read with the organisation.}}
+    - {name: name, type: string, required: true, maxLength: 300, help: {summary: 'The descriptive name of the team, such as Customer Support Tier 2.', usage: "Entered by the organization administrator; shown in assignment pickers and reports, and may change without affecting the team's identity.", businessMeaning: What people look for when assigning work., relationshipContext: Read with the organisation.}}
   relationships:
     - {name: organization, target: Organization, cardinality: "1", ownership: reference, help: {summary: The organisation the team belongs to., usage: Chosen when the team is created., cardinalityMeaning: Exactly one organisation., workflowRole: Decides whose structure the team is part of.}}
   invariants:

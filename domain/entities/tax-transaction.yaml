@@ -7,7 +7,7 @@ entity:
     icon: percent
   identity: {key: taxTransactionId, type: uuid, generated: true, immutable: true}
   attributes:
-    - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: 'The identity of the tax transaction, constant for its life.', businessMeaning: Lets returns and the source document point at the same tax record., usage: Generated on creation., relationshipContext: Referenced by returns.}}
+    - {name: taxTransactionId, type: uuid, required: true, immutable: true, help: {summary: 'The permanent system identity of one tax transaction, separate from the sales or purchase document it arose from.', usage: 'Generated on creation and never changed; tax returns, reconciliations and audit entries refer to the tax consequence through it.', businessMeaning: Lets returns and the source document point at the same tax record., relationshipContext: Referenced by returns.}}
     - name: status
       type: enum
       required: true

@@ -33,8 +33,8 @@ entity:
       required: true
       maxLength: 300
       help:
-        summary: The name of the workflow.
-        usage: Shown in lists and on tasks.
+        summary: The descriptive name of the workflow, such as Purchase approval.
+        usage: Entered by the process owner; shown in lists, on tasks and to users who are asked to act on a run.
         relationshipContext: Read by process owners.
     - name: workflowVersion
       type: string
@@ -53,13 +53,13 @@ entity:
         - AUTOMATED
         - HYBRID
       help:
-        summary: Who carries out the steps.
-        usage: Chosen when designed.
-        relationshipContext: Decides whether tasks go to people or run by themselves.
+        summary: Whether the steps are carried out by people, by the system or by a combination.
+        usage: Chosen when designed; it decides whether tasks are assigned to users or run automatically by an engine.
         valueSemantics:
-          HUMAN: Steps are done by people.
-          AUTOMATED: Steps run without a person.
-          HYBRID: A mix of both.
+          HUMAN: Every step is performed by a person who is assigned a task.
+          AUTOMATED: The system runs the steps itself with no one assigned.
+          HYBRID: Mixes automated steps with steps that wait for a person.
+        relationshipContext: Decides whether tasks go to people or run by themselves.
     - name: status
       type: enum
       required: true
@@ -70,13 +70,13 @@ entity:
         - SUSPENDED
         - RETIRED
       help:
+        summary: Whether the workflow definition is in design, available to start, paused or withdrawn.
+        usage: Starts as DRAFT; set by process owners, and only an active workflow can be started.
         valueSemantics:
-          DRAFT: Being designed; it cannot be started and may be changed freely.
-          ACTIVE: Published; new runs may be started and its version is fixed.
-          SUSPENDED: Paused; no new runs start, and runs already under way continue.
-          RETIRED: Replaced or withdrawn; kept so earlier runs can still be explained. A final state.
-        summary: Whether the workflow can be started.
-        usage: Starts as DRAFT; set by process owners.
+          DRAFT: Under design and not yet startable.
+          ACTIVE: Published and available to be started by events or people.
+          SUSPENDED: Temporarily paused so no new runs begin, but it can be reactivated.
+          RETIRED: Withdrawn from use permanently. A final state.
         relationshipContext: Only active workflows start new runs.
     - name: definitionFormat
       type: enum

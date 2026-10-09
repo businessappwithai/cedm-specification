@@ -24,16 +24,16 @@ entity:
       required: true
       maxLength: 200
       help:
-        summary: The maker of the vehicle.
-        usage: Entered once for the model.
+        summary: The company that builds vehicles of this model, such as a van or truck maker.
+        usage: Entered once when the model is defined; used to filter and group the fleet and to look up manufacturer specifications.
         relationshipContext: Read with the model name.
     - name: modelName
       type: string
       required: true
       maxLength: 200
       help:
-        summary: The name the maker gives the model.
-        usage: Shown in lists.
+        summary: The commercial name the manufacturer gives the model, such as Transit 350.
+        usage: Entered when the model is defined; shown in lists and pickers when vehicles are registered, so fleet staff can recognise it.
         relationshipContext: Read with the manufacturer.
     - name: modelCode
       type: string
@@ -41,15 +41,15 @@ entity:
       unique: true
       maxLength: 100
       help:
-        summary: The code of the model.
-        usage: Unique; used in imports.
+        summary: The unique code identifying the model in internal systems and manufacturer catalogues.
+        usage: Unique; used in imports, parts lookups and integrations, so it should stay stable even if the model name is later reworded.
         relationshipContext: Read with the year.
     - name: modelYear
       type: integer
       required: false
       help:
-        summary: The model year.
-        usage: Entered when different years are distinguished.
+        summary: The year the manufacturer assigns to this version of the model, used to separate generations.
+        usage: Optional; entered where different years of a model differ in specification, parts or tax treatment, and used to filter fleet reports.
         relationshipContext: Read with the code.
     - name: status
       type: enum
@@ -60,12 +60,12 @@ entity:
         - ACTIVE
         - DISCONTINUED
       help:
-        summary: Whether the model is current.
-        usage: Starts as PLANNED.
+        summary: Whether the model is still being introduced, in current use or no longer offered.
+        usage: Starts as PLANNED; moved by fleet or product managers as the model enters service and later leaves it.
         valueSemantics:
-          PLANNED: Announced and not yet available.
-          ACTIVE: Current.
-          DISCONTINUED: No longer made or supported. A final state.
+          PLANNED: Expected to join the fleet or catalogue but not yet available for registering vehicles.
+          ACTIVE: Current and available for registering new vehicles.
+          DISCONTINUED: No longer offered or bought, though existing vehicles keep the model. A final state.
   relationships:
     - name: product
       target: Product
