@@ -15791,6 +15791,56 @@ rules:
         when: principal_amount != null and principal_amount < 0
         props:
           message: Principal Amount cannot be negative.
+  - name: creditInvariantsBeforeCreate
+    title: Credit invariants (beforeCreate)
+    entity: Credit
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Credit beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CREDIT-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+      - name: CREDIT-EXE-002
+        type: validation-error
+        when: remaining_amount != null and remaining_amount < 0
+        props:
+          message: Remaining Amount cannot be negative.
+  - name: creditInvariantsBeforeUpdate
+    title: Credit invariants (beforeUpdate)
+    entity: Credit
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Credit beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CREDIT-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+      - name: CREDIT-EXE-002
+        type: validation-error
+        when: remaining_amount != null and remaining_amount < 0
+        props:
+          message: Remaining Amount cannot be negative.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party

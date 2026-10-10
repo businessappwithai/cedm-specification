@@ -216,6 +216,75 @@ enums:
       SUSPENDED: Paused for a reason such as funding or resources; it can be resumed.
       CANCELLED: Stopped before completion and will not resume. A final state.
       ARCHIVED: Closed out and kept as a record. A final state.
+  - name: ProtocolStatus
+    values: [DRAFT, APPROVED, SUSPENDED, RETIRED]
+    table: true
+    descriptions:
+      DRAFT: Being written; not yet approved for use.
+      APPROVED: Cleared for use by studies and experiments.
+      SUSPENDED: Withdrawn from use for a time, for example pending a review.
+      RETIRED: Superseded or no longer used. A final state.
+  - name: StudyStatus
+    values: [PLANNED, ACTIVE, SUSPENDED, COMPLETED, CANCELLED, ARCHIVED]
+    table: true
+    descriptions:
+      PLANNED: The study is approved for planning but execution has not started.
+      ACTIVE: The study is being executed and experiments and observations are being collected.
+      SUSPENDED: Work is paused, for example for a protocol amendment, and may resume later.
+      COMPLETED: Execution has finished and results are final, awaiting archiving.
+      CANCELLED: The study was stopped before completion and will not resume. A final state.
+      ARCHIVED: The completed study is retained as a read-only record. A final state.
+  - name: AssayStatus
+    values: [PLANNED, RUNNING, COMPLETED, FAILED, CANCELLED]
+    table: true
+    descriptions:
+      PLANNED: Assay is prepared and scheduled but not yet started.
+      RUNNING: Execution is underway and observations are being captured.
+      COMPLETED: Execution concluded successfully and its results can be relied on. A final state.
+      FAILED: Execution failed and its evidence is retained for investigation. A final state.
+      CANCELLED: Execution was called off, either before starting or part way through. A final state.
+  - name: ObservationStatus
+    values: [RECORDED, VERIFIED, INVALIDATED]
+    table: true
+    descriptions:
+      RECORDED: Captured but not yet checked.
+      VERIFIED: Checked and accepted as primary evidence. A final state.
+      INVALIDATED: Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state.
+  - name: ResultStatus
+    values: [DRAFT, FINAL, INVALIDATED]
+    table: true
+    descriptions:
+      DRAFT: The result is provisional and may still be changed or discarded.
+      FINAL: The result has been reviewed and approved, and its value is locked as evidence.
+      INVALIDATED: The result is kept for the record but is no longer considered valid.
+  - name: SampleSampleType
+    values: [SPECIMEN, ALIQUOT, COMPOUND, MATERIAL, BIOLOGICAL, CHEMICAL, ENVIRONMENTAL, CONTROL, REFERENCE, OTHER]
+    table: true
+    descriptions:
+      SPECIMEN: A portion taken from a larger whole in order to study it.
+      ALIQUOT: A measured part divided from a prepared parent sample.
+      COMPOUND: A sample of a chemical compound under study.
+      MATERIAL: A sample of a material or substance, such as a polymer or alloy.
+      BIOLOGICAL: Biological matter such as tissue, cells, blood or other fluid.
+      CHEMICAL: A chemical substance or mixture, such as a reagent or solvent.
+      ENVIRONMENTAL: Taken from the environment, such as water, soil or air.
+      CONTROL: A sample with a known result, used to check that a test is working.
+      REFERENCE: A certified standard that other samples are compared against.
+      OTHER: A sample that fits none of the other types.
+  - name: SampleStatus
+    values: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
+    table: true
+    descriptions:
+      PLANNED: Sample is expected but has not yet been collected or received.
+      COLLECTED: Sample has been collected and awaits normal receipt or availability controls.
+      RECEIVED: Sample has entered the governed laboratory or research custody process.
+      AVAILABLE: Sample is eligible for governed research use.
+      IN_USE: Sample is currently participating in an active research activity.
+      CONSUMED: Usable sample quantity has been exhausted by governed activity.
+      DISPOSED: Sample was intentionally disposed of under an authorized process.
+      LOST: Sample can no longer be physically accounted for.
+      QUARANTINED: Sample is held from normal use pending review or resolution.
+      ARCHIVED: Sample is retained for historical or long-term controlled storage.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -224,10 +293,10 @@ categories:
     entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, StateProvince, City, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment, Task]
   - name: Research and Scientific Operations
     icon: microscope
-    entities: [ResearchProject]
+    entities: [ResearchProject, Assay, Result]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ResearchProjectStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ResearchProjectStatus, ProtocolStatus, StudyStatus, AssayStatus, ObservationStatus, ResultStatus, SampleSampleType, SampleStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14434,6 +14503,213 @@ entities:
         fk: true
         optional: true
         help: The organisation that runs or funds the project. Chosen when the project is set up. At most one organisation. Decides whose records and budget the work belongs to.
+  - name: Protocol
+    help: A governed scientific procedure that sets out objectives, methods, eligibility, measurements, controls and execution rules for studies and experiments. A protocol fixes how work is to be done so that results are comparable and defensible. Studies and experiments follow an approved protocol, and a change goes through a new approval rather than being made on the day. Written by the scientist or study lead; approved by quality or the principal investigator; read by everyone who runs the work. A protocol may belong to a research project and is followed by studies and experiments; documents support it. A protocol is drafted, approved, may be suspended and reinstated, and is retired when superseded. Retired is final. Protocol PR-117 sets out how a cell viability assay is run and read, and is approved before any study uses it.
+    icon: scroll-text
+    parent: ResearchProject
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The permanent, system-generated identity of this research protocol, constant across its amendments. Generated on creation and never changed; studies, experiments, assays and audit records refer to the protocol through it for reproducibility. Identifies one governed procedure definition independently of executions. Studies and Experiments execute against a Protocol version.
+      - name: protocol_code
+        type: string(120)
+        unique: true
+        help: The code of the protocol, such as PR-117. Unique; quoted in studies, experiments and reports. Operational identifier for scientific and regulatory traceability. Distinct from Study and Experiment identifiers.
+      - name: title
+        type: string(500)
+        help: The descriptive title of the protocol, naming the scientific procedure it defines. Entered by the protocol author; shown in protocol lists, study plans and reports so scientists can pick the right method. States the research procedure or objective to users. Detailed methods remain in protocol content or Documents.
+      - name: status
+        type: string
+        enum: ProtocolStatus
+        help: Whether the protocol is cleared for new research execution, still being written, withdrawn or retired. Moved by research governance; only APPROVED protocols can be applied to new studies, and RETIRED is final. Being written; not yet approved for use. Cleared for use by studies and experiments. Withdrawn from use for a time, for example pending a review. Superseded or no longer used. A final state. Separates preparation, approved use, temporary suspension and retirement. Historical executions retain the protocol version applied.
+        default: DRAFT
+      - name: project_id
+        type: string
+        fk: true
+        references: ResearchProject
+        optional: true
+        help: Research project governing this Protocol. Supplies program context and accountability. Portfolio, governance and reporting. Optional for reusable protocols. Project state constrains new protocol use.
+  - name: Study
+    help: Coordinates one governed research investigation under a Protocol. Study is the organized investigation; Experiment and Assay execute work; Observation records evidence; Result records derived interpretation. Research, life sciences, laboratories, analytics, reproducibility and audit. Project and Protocol are mandatory; experiments, assays, observations and results form the evidence graph. Study is planned, executed, may suspend, completes and archives or is cancelled.
+    icon: flask-conical
+    parent: ResearchProject
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the study, constant for its life. Identifies one organized research investigation independently of its component experiments and measurements. Research operations, reporting and audit. Protocol supplies governed method while ResearchProject supplies portfolio context.
+      - name: study_code
+        type: string(120)
+        unique: true
+        help: The short code of the study, such as ST-2026-04, used to find it quickly. Assigned when the study is planned; unique; used in documents, reports and integrations, and distinct from protocol and experiment codes. Operational identifier for study execution and integration. Distinct from Protocol and Experiment codes.
+      - name: title
+        type: string(500)
+        help: The descriptive title stating what the study investigates. Written by the study lead when the study is planned; shown in lists and reports and may be refined, unlike the code. States the investigation focus. Protocol and project provide additional governance context.
+      - name: status
+        type: string
+        enum: StudyStatus
+        help: The stage of the study from planning through execution, completion and archiving, or cancellation. Starts as PLANNED; the study lead moves it as work begins, pauses or ends, and it controls whether evidence can be collected. The study is approved for planning but execution has not started. The study is being executed and experiments and observations are being collected. Work is paused, for example for a protocol amendment, and may resume later. Execution has finished and results are final, awaiting archiving. The study was stopped before completion and will not resume. A final state. The completed study is retained as a read-only record. A final state. Controls execution and evidence collection progression. Completed evidence remains immutable.
+        default: PLANNED
+      - name: project_id
+        type: string
+        fk: true
+        references: ResearchProject
+        help: The research project the study is part of. A study belongs to exactly one research project. Supplies sponsorship, portfolio and accountability context. Research governance and reporting. Project state constrains study execution.
+      - name: protocol_id
+        type: string
+        fk: true
+        help: A study follows exactly one approved protocol. Approved Protocol governing this Study. Defines methods and execution rules. Study execution, reproducibility and audit. Applied version must be retained.
+  - name: Assay
+    help: Represents one analytical laboratory execution with sample and evidence provenance. Protocol defines method; Assay executes it; Observation records primary evidence; Result captures derived interpretation. Laboratories, research, life sciences, quality testing, analytics and audit. Samples are required inputs; Study/Protocol provide context; Observations and Results provide outputs. Assay is planned, runs, and ends completed, failed or cancelled with evidence retained.
+    icon: test-tube
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The permanent system identity of one assay execution, unchanged however the run is later described or corrected. Generated on creation; observations, results and instrument records point back to the run through it. Identifies one analytical execution independently of samples and resulting measurements. Samples are inputs while Observations and Results are outputs.
+      - name: assay_code
+        type: string(120)
+        unique: true
+        help: The laboratory's unique reference number for this assay run, such as ASY-2026-0418. Used to find the run, to match instrument output to it, and to cite it in reports and audits. Operational identifier for laboratory execution and integration. Distinct from reusable Protocol code.
+      - name: assay_type
+        type: string(160)
+        help: The scientific kind of procedure performed, such as an ELISA, a potency test or a HPLC purity run. Chosen by the analyst when planning; routes the run to the right instrument and bench and groups results for analytics. Identifies analytical method family for planning and interpretation. Detailed method is supplied by Protocol when applicable.
+      - name: status
+        type: string
+        enum: AssayStatus
+        help: Where the run is, from planned through execution to a completed, failed or cancelled outcome. Moved by the analyst or instrument integration as work starts and ends; results are only trusted from completed runs. Assay is prepared and scheduled but not yet started. Execution is underway and observations are being captured. Execution concluded successfully and its results can be relied on. A final state. Execution failed and its evidence is retained for investigation. A final state. Execution was called off, either before starting or part way through. A final state. Tracks analytical execution and final outcome. Completed observations/results retain assay identity.
+        default: PLANNED
+      - name: study_id
+        type: string
+        fk: true
+        optional: true
+        help: Study to which the Assay contributes. Supplies investigation context. Research traceability and reporting. Optional for standalone laboratory work. Study and protocol context must be compatible.
+      - name: protocol_id
+        type: string
+        fk: true
+        optional: true
+        help: Protocol governing the Assay method. Supplies reproducible procedure definition. Laboratory governance and audit. Optional when method is governed elsewhere. Applied version remains historical.
+  - name: Observation
+    help: Captures primary scientific evidence with provenance and QC state. Observation is raw or primary evidence; Result is a derived interpretation or summarized output. Research, laboratories, life sciences, quality testing, analytics and audit. Sample/Assay/Experiment provide provenance, UnitOfMeasure provides quantitative semantics, Results preserve downstream derivation. Observation is recorded, then verified or invalidated without destructive deletion.
+    icon: eye
+    parent: Assay
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the observation. Generated on recording; results and verifications refer to it. Identifies one primary evidence item independently of later interpretation. Result may derive from one or more Observations.
+      - name: observed_at
+        type: datetime
+        help: The date and time at which the measurement was actually made or the phenomenon seen. Entered with the value and may differ from when it was recorded; used in time series, reproducibility checks and audit. Establishes scientific chronology. May differ from record-entry time.
+      - name: observation_type
+        type: string(160)
+        help: Names the characteristic observed, such as pH, absorbance or colony count, and fixes how the value is read. Chosen by the scientist when recording; analysis and validation use it to select the unit and expected range of values. Defines what property or phenomenon the value represents. Unit and value semantics depend on observation type.
+      - name: value
+        type: string(2000)
+        help: The measured or qualitative result exactly as captured, held as text so numbers and descriptions both fit. Entered or imported with the observation; numeric values are read with the unit of measure, and it is never overwritten. Primary scientific evidence as captured under applicable method. Numeric interpretation may require UnitOfMeasure and method context.
+      - name: status
+        type: string
+        enum: ObservationStatus
+        help: Whether the observation has been checked. Set by the scientist or reviewer; only verified observations feed final results. Captured but not yet checked. Checked and accepted as primary evidence. A final state. Found to be invalid, for example from a faulty instrument; kept for audit but not used. A final state. Distinguishes captured evidence, verified evidence and explicitly invalidated evidence. Invalidation preserves original evidence rather than deleting it.
+        default: RECORDED
+      - name: study_id
+        type: string
+        fk: true
+        optional: true
+        help: The Study this Observation belongs to.
+      - name: assay_id
+        type: string
+        fk: true
+        optional: true
+        help: Assay execution producing the Observation. Preserves method/execution provenance. Laboratory analysis and audit. Optional when captured outside an Assay. Completed Assay evidence retains observation identity.
+      - name: sample_id
+        type: string
+        fk: true
+        optional: true
+        help: Sample from which the Observation originates. Preserves specimen provenance. Traceability and interpretation. Optional for non-sample observations. Sample lineage remains intact.
+      - name: unit_of_measure_id
+        type: string
+        fk: true
+        optional: true
+        help: Unit for quantitative observations. Makes numerical evidence interpretable. Validation, analysis and integration. Optional for qualitative/categorical values. Unit changes do not reinterpret historical values.
+  - name: Result
+    help: Captures derived scientific output separately from primary observations. Observation is source evidence; Result is an interpretation, calculation or summary whose lineage must remain reproducible. Research, laboratories, life sciences, reporting, analytics, decisions and audit. Observations are mandatory sources; Study and Assay provide execution context; UnitOfMeasure supports quantitative semantics. Result is drafted and then finalized or invalidated, with final evidence immutable.
+    icon: bar-chart-2
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the result, constant for its life. Identifies one derived scientific output independently of source evidence and presentation. Analysis, reporting, decisions and audit. Provenance relationships identify source Observations or execution context.
+      - name: result_code
+        type: string(120)
+        help: The code that identifies one derived result, such as R-2210. Assigned when the result is created and unique; used to search, report and exchange the result with other systems. Supports operational identification and integration. May be unique within a Study or Assay under domain policy.
+      - name: result_type
+        type: string(160)
+        help: The kind of derived output this result is, such as an IC50, a purity percentage or a pass/fail call. Chosen by the analyst; it decides how the value is read and which reports and analyses include the result. Describes analytical or interpretive semantics. Source observations and method define how the result can be interpreted.
+      - name: value
+        type: string(4000)
+        help: The derived or interpreted outcome computed from the underlying observations, held as text. Entered or calculated by the analyst; read in reporting and decisions, and locked once the result is final. Captures the governed scientific output. Quantitative results may additionally use UnitOfMeasure.
+      - name: status
+        type: string
+        enum: ResultStatus
+        help: Whether the result is still provisional, approved as final, or withdrawn as invalid. Starts as DRAFT; set by the reviewing scientist, and a final result can no longer be edited, only invalidated. The result is provisional and may still be changed or discarded. The result has been reviewed and approved, and its value is locked as evidence. The result is kept for the record but is no longer considered valid. Separates provisional analysis from finalized or invalidated output. FINAL results preserve source provenance.
+        default: DRAFT
+      - name: study_id
+        type: string
+        fk: true
+        optional: true
+        help: Study to which the Result belongs. Supplies investigation context. Reporting and research traceability. Optional for standalone analysis. Study closure does not erase finalized Results.
+      - name: assay_id
+        type: string
+        fk: true
+        optional: true
+        help: Assay contributing directly to the Result. Preserves analytical execution provenance. Laboratory interpretation and audit. Optional when derived at Study or Experiment level. Result must reconcile to source Assay evidence.
+      - name: unit_of_measure_id
+        type: string
+        fk: true
+        optional: true
+        help: Unit for quantitative Result values. Makes numerical output interpretable. Analysis and integration. Optional for qualitative or structured values. Unit remains historical with finalized Result.
+  - name: Sample
+    help: First-class research specimen and sample entity for life-sciences and scientific workflows. Sample closes the research traceability graph between Compound and Experiment while keeping scientific specimens separate from quality-control InspectionSample. Sample represents research material; InspectionSample represents a selection event within a QualityInspection. Life sciences, drug discovery, laboratory research, scientific experiments, compound studies, specimen management, chain of custody, reporting, and audit. Compound supplies investigated substance context; Experiment supplies research execution context; parentSample and derivedSamples preserve lineage; UnitOfMeasure supplies quantity semantics. It is intentionally distinct from InspectionSample. Planned/collected/received → available → in use → consumed/disposed/archived, with quarantine or loss as controlled exceptional states. Changes to sample status, quantity, unit, lineage, Compound association, or Experiment participation must revalidate open research workflows while preserving completed historical evidence. A compound stock specimen is received as Sample S-100, split into aliquot Sample S-101, and S-101 is used by Experiment E-42. Both the Compound association and parent-sample lineage remain traceable after the experiment completes.
+    icon: flask-conical
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the research sample. Identifies one specimen or material sample independently of experiments, compounds, storage locations, and observations. Chain of custody, experiment execution, laboratory tracking, reporting, audit, and integration. Connects Sample to Experiment, Compound, parent/derived samples, and related scientific evidence.
+      - name: sample_code
+        type: string(120)
+        unique: true
+        help: Human-readable business identifier for the sample. Provides the operational label used to identify the specimen during collection, handling, testing, storage, and reporting. Labels, searches, laboratory workflows, reports, integrations, and audit. Identifies the Sample rather than the Experiment or Compound associated with it.
+      - name: sample_type
+        type: string
+        enum: SampleSampleType
+        help: The category of the sample, saying what kind of material it is or what role it plays in the work. Chosen when the sample is registered; it decides handling and storage rules, which protocols apply, and how results are reported. A portion taken from a larger whole in order to study it. A measured part divided from a prepared parent sample. A sample of a chemical compound under study. A sample of a material or substance, such as a polymer or alloy. Biological matter such as tissue, cells, blood or other fluid. A chemical substance or mixture, such as a reagent or solvent. Taken from the environment, such as water, soil or air. A sample with a known result, used to check that a test is working. A certified standard that other samples are compared against. A sample that fits none of the other types. Describes the nature or role of the sample so handling, storage, testing, and interpretation can apply appropriate rules. Sample type is independent of the Compound or Experiment relationship and can constrain applicable processes.
+      - name: status
+        type: string
+        enum: SampleStatus
+        help: Where the sample is in its life, from planned through use to disposal. Indicates whether the specimen is planned, available for research, in use, exhausted, unavailable, or retained historically. Experiment gating, chain of custody, inventory-like laboratory control, audit, and disposal. Status constrains new Experiment use but does not rewrite historical Experiment or Compound associations. Sample is expected but has not yet been collected or received. Sample has been collected and awaits normal receipt or availability controls. Sample has entered the governed laboratory or research custody process. Sample is eligible for governed research use. Sample is currently participating in an active research activity. Usable sample quantity has been exhausted by governed activity. Sample was intentionally disposed of under an authorized process. Sample can no longer be physically accounted for. Sample is held from normal use pending review or resolution. Sample is retained for historical or long-term controlled storage.
+        default: PLANNED
+      - name: collected_at
+        type: datetime
+        optional: true
+        help: Time at which the sample was collected or created. Establishes the origin chronology of the specimen. Chain of custody, protocol compliance, stability analysis, reporting, and audit. May precede receipt and experiment use; derived samples may use creation time as collection time.
+      - name: quantity
+        type: decimal
+        optional: true
+        help: Governed quantity currently represented by the sample record when quantity tracking applies. Describes how much specimen or material is associated with the sample for planning and traceability. Laboratory planning, aliquoting, consumption tracking, reporting, and reconciliation. Quantity requires a compatible UnitOfMeasure and must not be confused with enterprise InventoryBalance unless an explicit integration exists.
+      - name: unit_of_measure
+        type: string
+        fk: true
+        references: UnitOfMeasure
+        optional: true
+        help: The unit, such as mL, mg or units, in which the amount of this sample is stated. Chosen when the sample is registered; quantities are compared and converted using it, so it must suit the sample type. Gives dimensional meaning to the sample quantity. Required when quantity is dimensional; changes to unit definitions must not silently reinterpret historical sample evidence.
+      - name: parent_sample_id
+        type: string
+        fk: true
+        optional: true
+        help: Source sample from which this sample was derived. Preserves provenance for aliquots, splits, preparations, or other derived specimens. Lineage, chain of custody, quantity reconciliation, and audit. A sample may have at most one immediate parent in this model. Parent-child lineage must remain acyclic.
   - name: PartyPartyType
     help: "The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15009,6 +15285,181 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: ProtocolStatus
+    help: "The values of protocol status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: StudyStatus
+    help: "The values of study status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: AssayStatus
+    help: "The values of assay status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ObservationStatus
+    help: "The values of observation status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ResultStatus
+    help: "The values of result status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: SampleSampleType
+    help: "The values of sample sample type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: SampleStatus
+    help: "The values of sample status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
 relationships:
   - from: Party
     fromCardinality: exactly-one
@@ -15158,6 +15609,83 @@ relationships:
     to: Party
     toCardinality: zero-or-more
     label: team
+  - from: ResearchProject
+    fromCardinality: exactly-one
+    to: Protocol
+    toCardinality: zero-or-more
+    label: protocols
+  - from: ResearchProject
+    fromCardinality: exactly-one
+    to: Study
+    toCardinality: zero-or-more
+    label: studies
+  - from: Protocol
+    fromCardinality: exactly-one
+    to: Study
+    toCardinality: zero-or-more
+    label: studies
+  - from: Study
+    fromCardinality: exactly-one
+    to: Assay
+    toCardinality: zero-or-more
+    label: assays
+  - from: Study
+    fromCardinality: exactly-one
+    to: Observation
+    toCardinality: zero-or-more
+    label: observations
+  - from: Study
+    fromCardinality: exactly-one
+    to: Result
+    toCardinality: zero-or-more
+    label: results
+  - from: Protocol
+    fromCardinality: exactly-one
+    to: Assay
+    toCardinality: zero-or-more
+  - from: Assay
+    fromCardinality: zero-or-more
+    to: Sample
+    toCardinality: zero-or-more
+    label: samples
+  - from: Assay
+    fromCardinality: exactly-one
+    to: Observation
+    toCardinality: zero-or-more
+    label: observations
+  - from: Assay
+    fromCardinality: exactly-one
+    to: Result
+    toCardinality: zero-or-more
+    label: results
+  - from: Sample
+    fromCardinality: exactly-one
+    to: Observation
+    toCardinality: zero-or-more
+    label: observations
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: Observation
+    toCardinality: zero-or-more
+  - from: Observation
+    fromCardinality: zero-or-more
+    to: Result
+    toCardinality: zero-or-more
+    label: results
+  - from: UnitOfMeasure
+    fromCardinality: exactly-one
+    to: Result
+    toCardinality: zero-or-more
+  - from: Sample
+    fromCardinality: exactly-one
+    to: Sample
+    toCardinality: zero-or-more
+    label: parent_sample
+  - from: Sample
+    fromCardinality: exactly-one
+    to: Sample
+    toCardinality: zero-or-more
+    label: derived_samples
 rules:
   - name: partyRoleInvariantsBeforeCreate
     title: PartyRole invariants (beforeCreate)
@@ -15319,6 +15847,46 @@ rules:
         when: status == "COMPLETED" and completed_at == null
         props:
           message: Record completed at when the task is completed.
+  - name: sampleInvariantsBeforeCreate
+    title: Sample invariants (beforeCreate)
+    entity: Sample
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Sample beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SAMPLE-EXE-001
+        type: validation-error
+        when: quantity != null and quantity < 0
+        props:
+          message: Quantity cannot be negative.
+  - name: sampleInvariantsBeforeUpdate
+    title: Sample invariants (beforeUpdate)
+    entity: Sample
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Sample beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SAMPLE-EXE-001
+        type: validation-error
+        when: quantity != null and quantity < 0
+        props:
+          message: Quantity cannot be negative.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -15379,6 +15947,71 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ResearchProjectFollowUpRequired
+  - name: studyWorkflowsAfterUpdate
+    title: Study workflows (afterUpdate)
+    entity: Study
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Study afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: StudyFollowUpRequired
+  - name: assayWorkflowsAfterUpdate
+    title: Assay workflows (afterUpdate)
+    entity: Assay
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Assay afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ExceptionRaised
+        type: trigger-workflow
+        when: status == "FAILED" and status != _previous_status
+        props:
+          workflow: AssayExceptionRaised
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: AssayFollowUpRequired
+  - name: sampleWorkflowsAfterUpdate
+    title: Sample workflows (afterUpdate)
+    entity: Sample
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Sample afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ExceptionRaised
+        type: trigger-workflow
+        when: status == "QUARANTINED" and status != _previous_status
+        props:
+          workflow: SampleExceptionRaised
 stateMachines:
   - name: PartyLifecycle
     title: Party Lifecycle
@@ -15651,6 +16284,171 @@ stateMachines:
       - from: SUSPENDED
         to: CANCELLED
         trigger: cancel
+  - name: ProtocolLifecycle
+    title: Protocol Lifecycle
+    entity: Protocol
+    states: [DRAFT, APPROVED, SUSPENDED, RETIRED]
+    initial: DRAFT
+    final: [RETIRED]
+    transitions:
+      - from: DRAFT
+        to: APPROVED
+        trigger: approve
+      - from: APPROVED
+        to: SUSPENDED
+        trigger: suspend
+      - from: SUSPENDED
+        to: APPROVED
+        trigger: resume
+      - from: DRAFT
+        to: RETIRED
+        trigger: retire
+      - from: APPROVED
+        to: RETIRED
+        trigger: retire
+      - from: SUSPENDED
+        to: RETIRED
+        trigger: retire
+  - name: StudyLifecycle
+    title: Study Lifecycle
+    entity: Study
+    states: [PLANNED, ACTIVE, SUSPENDED, COMPLETED, CANCELLED, ARCHIVED]
+    initial: PLANNED
+    final: [CANCELLED, ARCHIVED]
+    transitions:
+      - from: PLANNED
+        to: ACTIVE
+        trigger: activate
+      - from: PLANNED
+        to: CANCELLED
+        trigger: cancel
+      - from: ACTIVE
+        to: SUSPENDED
+        trigger: suspend
+      - from: SUSPENDED
+        to: ACTIVE
+        trigger: resume
+      - from: ACTIVE
+        to: COMPLETED
+        trigger: complete
+      - from: SUSPENDED
+        to: CANCELLED
+        trigger: cancel
+      - from: ACTIVE
+        to: CANCELLED
+        trigger: cancel
+      - from: COMPLETED
+        to: ARCHIVED
+        trigger: archive
+  - name: AssayLifecycle
+    title: Assay Lifecycle
+    entity: Assay
+    states: [PLANNED, RUNNING, COMPLETED, FAILED, CANCELLED]
+    initial: PLANNED
+    final: [COMPLETED, FAILED, CANCELLED]
+    transitions:
+      - from: PLANNED
+        to: RUNNING
+        trigger: start
+      - from: PLANNED
+        to: CANCELLED
+        trigger: cancel
+      - from: RUNNING
+        to: COMPLETED
+        trigger: complete
+      - from: RUNNING
+        to: FAILED
+        trigger: fail
+      - from: RUNNING
+        to: CANCELLED
+        trigger: cancel
+  - name: ObservationLifecycle
+    title: Observation Lifecycle
+    entity: Observation
+    states: [RECORDED, VERIFIED, INVALIDATED]
+    initial: RECORDED
+    final: [VERIFIED, INVALIDATED]
+    transitions:
+      - from: RECORDED
+        to: VERIFIED
+        trigger: verify
+      - from: RECORDED
+        to: INVALIDATED
+        trigger: invalidate
+  - name: ResultLifecycle
+    title: Result Lifecycle
+    entity: Result
+    states: [DRAFT, FINAL, INVALIDATED]
+    initial: DRAFT
+    final: [FINAL, INVALIDATED]
+    transitions:
+      - from: DRAFT
+        to: FINAL
+        trigger: finalize
+      - from: DRAFT
+        to: INVALIDATED
+        trigger: invalidate
+  - name: SampleLifecycle
+    title: Sample Lifecycle
+    entity: Sample
+    states: [PLANNED, COLLECTED, RECEIVED, AVAILABLE, IN_USE, CONSUMED, DISPOSED, LOST, QUARANTINED, ARCHIVED]
+    initial: PLANNED
+    final: [CONSUMED, DISPOSED, LOST]
+    transitions:
+      - from: PLANNED
+        to: COLLECTED
+        trigger: collect
+      - from: COLLECTED
+        to: RECEIVED
+        trigger: receive
+      - from: RECEIVED
+        to: AVAILABLE
+        trigger: release
+      - from: AVAILABLE
+        to: IN_USE
+        trigger: issue
+      - from: IN_USE
+        to: AVAILABLE
+        trigger: return
+      - from: IN_USE
+        to: CONSUMED
+        trigger: consume
+      - from: AVAILABLE
+        to: CONSUMED
+        trigger: consume
+      - from: AVAILABLE
+        to: DISPOSED
+        trigger: dispose
+      - from: QUARANTINED
+        to: DISPOSED
+        trigger: dispose
+      - from: AVAILABLE
+        to: LOST
+        trigger: lose
+      - from: IN_USE
+        to: LOST
+        trigger: lose
+      - from: COLLECTED
+        to: QUARANTINED
+        trigger: quarantine
+      - from: RECEIVED
+        to: QUARANTINED
+        trigger: quarantine
+      - from: AVAILABLE
+        to: QUARANTINED
+        trigger: quarantine
+      - from: QUARANTINED
+        to: AVAILABLE
+        trigger: release
+      - from: AVAILABLE
+        to: ARCHIVED
+        trigger: archive
+      - from: ARCHIVED
+        to: AVAILABLE
+        trigger: restore
+      - from: ARCHIVED
+        to: DISPOSED
+        trigger: dispose
 sagas:
   - name: PartyExceptionRaised
     title: Raise a task when a party is stopped
@@ -15694,3 +16492,59 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"RESEARCH-PROJECT-FOLLOW-UP-{{id}}","name":"Follow up on research project {{title}}","description":"Research project {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: StudyFollowUpRequired
+    title: Follow up when a study is ended
+    entity: Study
+    operation: UPDATE
+    trigger: rule
+    description: When a study is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"STUDY-FOLLOW-UP-{{id}}","name":"Follow up on study {{title}}","description":"Study {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: AssayExceptionRaised
+    title: Raise a task when a assay is stopped
+    entity: Assay
+    operation: UPDATE
+    trigger: rule
+    description: When a assay is failed, a high-priority task asks someone to resolve it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: resolve"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"ASSAY-EXCEPTION-{{id}}","name":"Resolve assay {{id}}","description":"Assay {{id}} is now {{status}}. Find out why it stopped and move it on or close it.","task_type":"USER","status":"CREATED","priority":"HIGH"}'
+  - name: AssayFollowUpRequired
+    title: Follow up when a assay is ended
+    entity: Assay
+    operation: UPDATE
+    trigger: rule
+    description: When a assay is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"ASSAY-FOLLOW-UP-{{id}}","name":"Follow up on assay {{id}}","description":"Assay {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: SampleExceptionRaised
+    title: Raise a task when a sample is stopped
+    entity: Sample
+    operation: UPDATE
+    trigger: rule
+    description: When a sample is quarantined, a high-priority task asks someone to resolve it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: resolve"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"SAMPLE-EXCEPTION-{{id}}","name":"Resolve sample {{id}}","description":"Sample {{id}} is now {{status}}. Find out why it stopped and move it on or close it.","task_type":"USER","status":"CREATED","priority":"HIGH"}'

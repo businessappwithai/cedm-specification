@@ -53,7 +53,7 @@ bun run test:setup && playwright test       # setup test data then run all
 
 ### Framework and Runtime
 
-TanStack Start v1 (`@tanstack/react-start` ^1.167.65) with file-based routing. Requires Bun ≥ 1.3.0 (CI pins 1.3.11). React 19, Vite 7, Tailwind 3, shadcn/ui over Radix. Linting and formatting use Biome (not ESLint/Prettier).
+TanStack Start v1 (`@tanstack/react-start` ^1.167.65) with file-based routing. Requires Bun ≥ 1.4.0 (CI pins 1.4.2). React 19, Vite 7, Tailwind 3, shadcn/ui over Radix. Linting and formatting use Biome (not ESLint/Prettier).
 
 **The dev server and the production server are on different ports.** `vite dev`
 listens on **4050**; `bun run start` serves the build on **3000**, and `PORT`
@@ -711,7 +711,7 @@ Playwright suite**: that needs a dev server on 4050, a PostgreSQL config
 database and a cached signed-in session, and `playwright.config.ts` has its
 `webServer` commented out, so it starts nothing itself.
 
-Bun is pinned to `1.3.11` there; `package.json` asks only for `>=1.3.0`.
+Bun is pinned to `1.4.2` there; `package.json` asks only for `>=1.4.0`.
 
 ## The Loco.rs backend port: `rust/`
 

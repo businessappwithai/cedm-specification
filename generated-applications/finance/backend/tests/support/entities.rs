@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-09T15:28:42.353Z
+//! Generated: 2026-10-10T04:17:22.552Z
 //! Project: finance
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -220,7 +220,64 @@ pub fn is_managed(column: &str) -> bool {
     )
 }
 
+/// `(table, column, initial state)` for every column a state machine the model
+/// drew governs — the same resolution `requests/model_transitions.rs` asserts
+/// against. Such a column is not free text: the API refuses a move the diagram
+/// does not draw, so a suite that writes an arbitrary string into it tests the
+/// transition guard instead of what it set out to test.
+pub const STATE_COLUMNS: &[(&str, &str, &str)] = &[
+    ("bus_party", "status", "ACTIVE"),
+    ("bus_organization", "status", "DRAFT"),
+    ("bus_party_role", "status", "ACTIVE"),
+    ("bus_address", "status", "ACTIVE"),
+    ("bus_location", "status", "PLANNED"),
+    ("bus_currency", "status", "ACTIVE"),
+    ("bus_exchange_rate", "status", "DRAFT"),
+    ("bus_unit_of_measure", "status", "ACTIVE"),
+    ("bus_task", "status", "CREATED"),
+    ("bus_account", "status", "ACTIVE"),
+    ("bus_journal_entry", "status", "DRAFT"),
+    ("bus_invoice", "status", "DRAFT"),
+    ("bus_payment", "status", "DRAFT"),
+    ("bus_supplier", "status", "ACTIVE"),
+    ("bus_purchase_order", "status", "DRAFT"),
+    ("bus_customer", "status", "ACTIVE"),
+    ("bus_sales_order", "status", "DRAFT"),
+    ("bus_budget", "status", "DRAFT"),
+    ("bus_scenario", "status", "DRAFT"),
+    ("bus_ledger", "status", "DRAFT"),
+    ("bus_fiscal_period", "status", "FUTURE"),
+    ("bus_payment_allocation", "status", "DRAFT"),
+    ("bus_payment_instruction", "status", "DRAFT"),
+    ("bus_credit_note", "status", "DRAFT"),
+    ("bus_credit_note_application", "status", "DRAFT"),
+    ("bus_tax_code", "status", "DRAFT"),
+    ("bus_tax_jurisdiction", "status", "DRAFT"),
+    ("bus_tax_rate", "status", "DRAFT"),
+    ("bus_tax_registration", "status", "DRAFT"),
+    ("bus_tax_rule", "status", "DRAFT"),
+    ("bus_tax_transaction", "status", "DRAFT"),
+    ("bus_billing_cycle", "status", "DRAFT"),
+    ("bus_charge", "status", "DRAFT"),
+    ("bus_subscription", "status", "DRAFT"),
+    ("bus_subscription_plan", "status", "DRAFT"),
+    ("bus_usage_record", "status", "DRAFT"),
+    ("bus_bank_account", "status", "PENDING"),
+    ("bus_asset", "status", "PLANNED"),
+    ("bus_product", "status", "DRAFT"),
+];
+
 impl EntityMeta {
+    /// The state a new record starts in, when a state machine governs `column`.
+    pub fn initial_state(&self, column: &str) -> Option<&'static str> {
+        STATE_COLUMNS
+            .iter()
+            .find(|(table, governed, initial)| {
+                *table == self.table_name && *governed == column && !initial.is_empty()
+            })
+            .map(|(_, _, initial)| *initial)
+    }
+
     /// The fields a caller may actually write.
     ///
     /// Everything else on this type filters through here, so a server-managed
@@ -236,8 +293,10 @@ impl EntityMeta {
 
     /// The first free-text field, for "does it persist what I sent?" assertions.
     pub fn first_text_field(&self) -> Option<&FieldMeta> {
-        self.writable_fields()
-            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+        self.writable_fields().find(|f| {
+            matches!(f.field_type, FieldType::String | FieldType::Text)
+                && self.initial_state(f.name).is_none()
+        })
     }
 
     /// The first numeric field, for the rules suites' range checks.

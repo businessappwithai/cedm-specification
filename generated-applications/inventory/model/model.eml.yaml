@@ -16998,6 +16998,56 @@ rules:
         when: status == "COMPLETED" and completed_at == null
         props:
           message: Record completed at when the task is completed.
+  - name: inventoryItemInvariantsBeforeCreate
+    title: InventoryItem invariants (beforeCreate)
+    entity: InventoryItem
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: InventoryItem beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: INVENTORY-ITEM-EXE-001
+        type: validation-error
+        when: safety_stock_quantity != null and safety_stock_quantity < 0
+        props:
+          message: Safety Stock Quantity cannot be negative.
+      - name: INVENTORY-ITEM-EXE-002
+        type: validation-error
+        when: reorder_point_quantity != null and reorder_point_quantity < 0
+        props:
+          message: Reorder Point Quantity cannot be negative.
+  - name: inventoryItemInvariantsBeforeUpdate
+    title: InventoryItem invariants (beforeUpdate)
+    entity: InventoryItem
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: InventoryItem beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: INVENTORY-ITEM-EXE-001
+        type: validation-error
+        when: safety_stock_quantity != null and safety_stock_quantity < 0
+        props:
+          message: Safety Stock Quantity cannot be negative.
+      - name: INVENTORY-ITEM-EXE-002
+        type: validation-error
+        when: reorder_point_quantity != null and reorder_point_quantity < 0
+        props:
+          message: Reorder Point Quantity cannot be negative.
   - name: inventoryTransferInvariantsBeforeCreate
     title: InventoryTransfer invariants (beforeCreate)
     entity: InventoryTransfer
@@ -17358,6 +17408,26 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ExchangeRateFollowUpRequired
+  - name: inventoryItemWorkflowsAfterUpdate
+    title: InventoryItem workflows (afterUpdate)
+    entity: InventoryItem
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: InventoryItem afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ExceptionRaised
+        type: trigger-workflow
+        when: status == "BLOCKED" and status != _previous_status
+        props:
+          workflow: InventoryItemExceptionRaised
   - name: inventoryReservationWorkflowsAfterUpdate
     title: InventoryReservation workflows (afterUpdate)
     entity: InventoryReservation
@@ -18279,6 +18349,20 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"EXCHANGE-RATE-FOLLOW-UP-{{id}}","name":"Follow up on exchange rate {{id}}","description":"Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: InventoryItemExceptionRaised
+    title: Raise a task when a inventory item is stopped
+    entity: InventoryItem
+    operation: UPDATE
+    trigger: rule
+    description: When a inventory item is blocked, a high-priority task asks someone to resolve it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: resolve"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"INVENTORY-ITEM-EXCEPTION-{{id}}","name":"Resolve inventory item {{id}}","description":"Inventory item {{id}} is now {{status}}. Find out why it stopped and move it on or close it.","task_type":"USER","status":"CREATED","priority":"HIGH"}'
   - name: InventoryReservationFollowUpRequired
     title: Follow up when a inventory reservation is ended
     entity: InventoryReservation

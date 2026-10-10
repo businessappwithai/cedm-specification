@@ -558,7 +558,7 @@ function getConfiguration() {
 
   const config: any = {
     runtime: {
-      bun: ">=1.3.0",
+      bun: ">=1.4.0",
     },
     framework: {
       "tanstack-start": "1.167+",

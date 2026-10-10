@@ -38,7 +38,7 @@ A production-ready enterprise reporting system built with **TanStack Start**, th
 
 | Layer | Technology |
 |-------|-----------|
-| **Runtime** | Bun >= 1.3.0 |
+| **Runtime** | Bun >= 1.4.0 |
 | **Framework** | TanStack Start 1.167+ (full-stack React 19) |
 | **Language** | TypeScript (strict mode) |
 | **UI Library** | shadcn/ui (Radix UI + Tailwind CSS 3) |
@@ -60,7 +60,7 @@ A production-ready enterprise reporting system built with **TanStack Start**, th
 ## 🛠️ Installation
 
 ### Prerequisites
-- **Bun** >= 1.3.0
+- **Bun** >= 1.4.0
 - **PostgreSQL** (config database; the knowledge graph needs the Apache AGE extension)
 - **SMTP server** — optional, for email delivery
 - **Trigger.dev server** — optional; without `TRIGGER_API_URL` the app runs its built-in cron runner

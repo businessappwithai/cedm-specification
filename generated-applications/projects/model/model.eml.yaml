@@ -15980,6 +15980,11 @@ rules:
         when: budget_amount != null and budget_amount < 0
         props:
           message: Budget Amount cannot be negative.
+      - name: PROJECT-EXE-002
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
   - name: projectInvariantsBeforeUpdate
     title: Project invariants (beforeUpdate)
     entity: Project
@@ -16000,6 +16005,91 @@ rules:
         when: budget_amount != null and budget_amount < 0
         props:
           message: Budget Amount cannot be negative.
+      - name: PROJECT-EXE-002
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: projectCostInvariantsBeforeCreate
+    title: ProjectCost invariants (beforeCreate)
+    entity: ProjectCost
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: ProjectCost beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PROJECT-COST-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: projectCostInvariantsBeforeUpdate
+    title: ProjectCost invariants (beforeUpdate)
+    entity: ProjectCost
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: ProjectCost beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PROJECT-COST-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: professionalEngagementInvariantsBeforeCreate
+    title: ProfessionalEngagement invariants (beforeCreate)
+    entity: ProfessionalEngagement
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: ProfessionalEngagement beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PROFESSIONAL-ENGAGEMENT-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: professionalEngagementInvariantsBeforeUpdate
+    title: ProfessionalEngagement invariants (beforeUpdate)
+    entity: ProfessionalEngagement
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: ProfessionalEngagement beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PROFESSIONAL-ENGAGEMENT-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -16180,6 +16270,31 @@ rules:
         when: status == "COMPLETED" and status != _previous_status
         props:
           workflow: TimesheetCompletionConfirmed
+  - name: projectCostWorkflowsAfterUpdate
+    title: ProjectCost workflows (afterUpdate)
+    entity: ProjectCost
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: ProjectCost afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: (status == "CANCELLED" or status == "REVERSED") and status != _previous_status
+        props:
+          workflow: ProjectCostFollowUpRequired
+      - name: CompletionConfirmed
+        type: trigger-workflow
+        when: status == "POSTED" and status != _previous_status
+        props:
+          workflow: ProjectCostCompletionConfirmed
   - name: professionalEngagementWorkflowsAfterUpdate
     title: ProfessionalEngagement workflows (afterUpdate)
     entity: ProfessionalEngagement
@@ -16829,6 +16944,34 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"TIMESHEET-COMPLETED-{{id}}","name":"Confirm timesheet {{id}}","description":"Timesheet {{id}} is now {{status}}. Check the outcome is what was agreed and close any open items.","task_type":"USER","status":"CREATED","priority":"LOW"}'
+  - name: ProjectCostFollowUpRequired
+    title: Follow up when a project cost is ended
+    entity: ProjectCost
+    operation: UPDATE
+    trigger: rule
+    description: When a project cost is cancelled or reversed, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"PROJECT-COST-FOLLOW-UP-{{id}}","name":"Follow up on project cost {{cost_number}}","description":"Project cost {{cost_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: ProjectCostCompletionConfirmed
+    title: Confirm when a project cost is done
+    entity: ProjectCost
+    operation: UPDATE
+    trigger: rule
+    description: When a project cost is posted, a task asks someone to confirm the outcome.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: confirm"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"PROJECT-COST-COMPLETED-{{id}}","name":"Confirm project cost {{cost_number}}","description":"Project cost {{cost_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.","task_type":"USER","status":"CREATED","priority":"LOW"}'
   - name: ProfessionalEngagementApprovalRequested
     title: Ask for a decision when a professional engagement is put forward
     entity: ProfessionalEngagement

@@ -285,6 +285,31 @@ Fields:
   - **Name** (required) — The name of the department as the organisation calls it, such as Finance or Field Operations. Entered by an administrator; shown in organisation charts, on documents and in reports that group people and costs by department.
   - **Organization** (required, a Organization) — Chosen when the department is created; reporting lines, headcount and budgets roll up through the organisation it belongs to. The organisation the department belongs to. Exactly one organisation: a department is part of a single organisati…
 
+### Driver
+
+Represents an authorized vehicle-operating role without duplicating Person identity. Driver supplies fleet-operating eligibility and attribution; Person remains the shared identity. Fleet management, dispatch, transportation, fuel management, compliance and audit. Person is mandatory; Vehicles define assignments and FuelTransactions preserve operating-cost evidence. Driver becomes active, may suspend or become inactive, and retires while historical operations remain attributable.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Driver Code** (required) — The short code that identifies this driver in dispatch and fleet systems. Assigned when the driver is set up; used in scheduling, fuel records and reports, and unrelated to licence or person identifiers. Operational identifier for dispatch…
+  - **License Number** — The number of the driving licence that authorises the person to drive. Entered from the licence document; checked against expiry and class. Supports operating eligibility and compliance. Jurisdiction/class/expiry may require additional gov…
+  - **Status** (required, one of the Driver Status values) — Whether the driver is being onboarded, cleared to drive, barred for now, dormant, or gone. Moved by fleet and compliance staff; only an ACTIVE driver is offered for assignment, and past trips keep their driver. Being onboarded; not yet cle…
+  - **Person** (required, a Person) — The person who holds the driver role. Exactly one person: the role is held by a specific individual. Reuses common identity without duplicating Person data. Dispatch, contact and audit. Identity changes do not rewrite historical Driver evi…
+
+### Driver Status
+
+The values of driver status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Exchange Rate
 
 Represents an auditable conversion rate between two currencies for a defined time and business purpose. ExchangeRate is the conversion context between Currency denominations; it is not itself money, a payment, or an accounting entry. Used by multi-currency orders, invoices, payments, payment allocations, bank reconciliation, accounting, consolidation, and financial reporting. Currency defines denominations. Money carries amount plus currency. ExchangeRate provides the conversion between two Money values. PaymentAllocation and accounting consume the rate when cross-currency conversion is permi…
@@ -336,6 +361,38 @@ Readable by every signed-in person.
 Fields:
   - **Code** — The reference of the charge, often the carrier's charge code. Used to match against the carrier's invoice.
   - **Shipment** (a Shipment) — The shipment on which the charge is incurred. Set when the charge is attributed. At most one shipment; some charges are not tied to a single shipment. Drives landed-cost calculation. Attributes logistics cost.
+
+### Fuel Transaction
+
+Preserves vehicle fuel/energy consumption and cost evidence. FuelTransaction records the fleet event; Payment records settlement; Vehicle/Driver/Location provide operational attribution. Fleet management, fuel cards, efficiency analytics, accounting, fraud control and audit. Vehicle and UOM are mandatory; Driver, Location, Currency and Payment add accountability and reconciliation. Fuel transaction is recorded, then verified or reversed with history retained.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Transaction Number** (required) — The reference of the fill-up as printed on the receipt or fuel-card statement. Entered or imported with the transaction; unique, which prevents the same fill-up being recorded twice. Operational identifier for reconciliation and integratio…
+  - **Quantity** (required) — The amount of fuel or energy supplied to the vehicle in this fill, stated in the transaction's unit of measure. Taken from the pump receipt or fuel-card feed; must be positive, and consumption and efficiency reports divide distance by it.…
+  - **Total Amount** — The total price paid for the fuel or energy supplied, in the transaction's currency. Taken from the receipt or card statement and must not be negative; fleet cost allocation and payment reconciliation read it. Operating cost attributable t…
+  - **Occurred At** (required) — The date and time at which the vehicle was actually fuelled. Captured from the pump or card feed rather than the entry time; efficiency, route and fraud checks compare it with vehicle movements. Establishes consumption chronology. Must rem…
+  - **Odometer Or Meter Reading** — The vehicle's odometer or usage-meter reading taken at the time of fuelling. Entered by the driver or read from telematics; consumption per distance and maintenance schedules depend on consecutive readings. Enables fuel efficiency and anom…
+  - **Status** (required, one of the Fuel Transaction Status values) — Whether the fuel transaction has been checked against its evidence. Set by fleet administration after comparing it with the receipt and vehicle data. Captured, not yet checked. Checked against the receipt and vehicle; costs may be allocate…
+  - **Vehicle** (required, a Vehicle) — Exactly one vehicle: fuel is always put into a particular vehicle, which is what makes consumption trackable. Vehicle receiving the fuel or energy. Establishes asset-level consumption and cost attribution. Fleet efficiency, maintenance and…
+  - **Driver** (a Driver) — Driver performing or responsible for the fueling event. Supports accountability and fraud control. Fleet operations and audit. Optional for unattended or centrally managed fueling. Driver eligibility is evaluated at transaction time.
+  - **Location** (a Location) — Location where fueling occurred. Supplies station/depot context. Cost comparison, route analysis and audit. Optional when unavailable. Historical location remains tied to event.
+  - **Unit Of Measure** (required, a Unit Of Measure) — Exactly one unit, such as litres or kilowatt-hours, so the quantity has a meaning. Unit of fuel or energy quantity. Makes consumption value unambiguous. Efficiency, reporting and integration. Unit does not change after verification.
+  - **Currency** (a Currency) — Currency of totalAmount. Makes financial cost unambiguous. Accounting and reporting. Optional when no amount is recorded. Required when monetary amount is present under policy.
+
+### Fuel Transaction Status
+
+The values of fuel transaction status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Fulfillment
 
@@ -730,6 +787,8 @@ Readable by every signed-in person.
 Fields:
   - **Code** — The short code of the route, such as R-NORTH. Used by dispatch and drivers.
 
+Line items — **Stop**: kept inside each Route and reached by opening it, never on their own. Represents one ordered operational point on a transportation Route. Route defines the journey; Stop defines sequence and activity at a reusable Location. Transportation, fleet, logistics, dispatch, ETA planning and audit. Route and Location are mandatory; planned times support scheduling while trac…
+
 ### Sales Order
 
 A customer's firm commitment to buy specified products or services on stated commercial terms and delivery needs. The sales order is the contract in operational form. It fixes what was ordered, by whom, at what price and for when, and drives allocation of stock, shipment and invoicing, so everything downstream can be traced back to what the customer agreed. Entered by sales or placed online; confirmed by the business; read by warehouse, shipping and finance. An order is for one customer, has lines, may name an organisation and delivery location, and is followed by shipments and invoices. An o…
@@ -832,6 +891,19 @@ Fields:
   - **Name** (required) — The English name of the division, such as California or Bavaria. Shown in lists and on addresses; it is a label only, so integrations should use the ISO code as the stable key. Does not replace the code as the stable key.
   - **Subdivision Type** — What the registry calls the division in its country: State, Province, Region, Territory and so on. Labelling the field for users of that country. Describes this division only.
   - **Country** (required, a Country) — The country the division belongs to. Chosen first; the divisions offered are those of that country. Every state or province belongs to exactly one country. A city and an address are narrowed by the country before the state.
+
+### Stop Stop Type
+
+The values of stop stop type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
 
 ### Task
 
@@ -1095,6 +1167,14 @@ Fields:
 - **BLOCKED** — Held back from new business, for example for non-payment or compliance reasons.
 - **RETIRED** — Closed for good; history is kept.
 
+### Driver Status
+
+- **DRAFT** — Being onboarded; not yet cleared to drive.
+- **ACTIVE** — Authorised and available for assignment.
+- **SUSPENDED** — Temporarily barred, for example after an incident or lapsed qualification.
+- **INACTIVE** — Not currently driving but may return.
+- **RETIRED** — No longer a driver; kept for history.
+
 ### Exchange Rate Rate Type
 
 - **SPOT** — The market rate at a moment in time.
@@ -1110,6 +1190,12 @@ Fields:
 - **ACTIVE** — In force and usable for conversion.
 - **EXPIRED** — Its validity period has ended; kept for past conversions.
 - **CANCELLED** — Withdrawn; must not be used.
+
+### Fuel Transaction Status
+
+- **RECORDED** — Captured, not yet checked.
+- **VERIFIED** — Checked against the receipt and vehicle; costs may be allocated. A final state.
+- **REVERSED** — Cancelled because it was wrong or duplicated; the original stays on record. A final state.
 
 ### Inventory Movement Movement Type
 
@@ -1268,6 +1354,18 @@ Fields:
 - **DELIVERED** — The goods arrived at the destination and delivery was confirmed. A final state.
 - **CANCELLED** — The shipment was called off before completion and will not move. A final state.
 - **EXCEPTION** — Something has gone wrong, such as a delay, damage or a refused delivery, and the shipment needs attention before it continues.
+
+### Stop Stop Type
+
+- **ORIGIN** — The point where the route begins and the vehicle starts its journey.
+- **PICKUP** — A point where goods or passengers are collected onto the vehicle.
+- **DELIVERY** — A point where goods are handed over to the receiver.
+- **SERVICE** — A point where a service is performed, such as an installation or inspection.
+- **WAYPOINT** — A point passed through to shape the route, with no loading or service.
+- **FUEL** — A point where the vehicle stops to refuel or recharge.
+- **BREAK** — A point where the driver stops for a mandatory or planned rest.
+- **DESTINATION** — The point where the route ends and the journey is complete.
+- **OTHER** — Any purpose not covered by the other types, described in dispatch notes.
 
 ### Task Priority
 
@@ -1556,6 +1654,31 @@ Moves:
 - BOOKED → CANCELLED (Cancel)
 - IN PROGRESS → CANCELLED (Cancel)
 
+### Driver — Driver Lifecycle
+
+Starts at **DRAFT**.
+Final: **RETIRED**.
+
+Moves:
+- DRAFT → ACTIVE (Activate)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- DRAFT → RETIRED (Retire)
+- ACTIVE → RETIRED (Retire)
+- SUSPENDED → RETIRED (Retire)
+- INACTIVE → RETIRED (Retire)
+
+### Fuel Transaction — Fuel Transaction Lifecycle
+
+Starts at **RECORDED**.
+Final: **VERIFIED**, **REVERSED**.
+
+Moves:
+- RECORDED → VERIFIED (Verify)
+- RECORDED → REVERSED (Reverse)
+
 ### Customer — Customer Lifecycle
 
 Starts at **ACTIVE**.
@@ -1588,7 +1711,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 80 of 80 record types
+- **User** — reads 86 of 86 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

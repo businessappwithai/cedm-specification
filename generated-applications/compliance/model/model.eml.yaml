@@ -15940,6 +15940,46 @@ rules:
         when: effective_from != null and effective_to != null and effective_to < effective_from
         props:
           message: Effective To cannot be earlier than effective from.
+  - name: auditCaseInvariantsBeforeCreate
+    title: AuditCase invariants (beforeCreate)
+    entity: AuditCase
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: AuditCase beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: AUDIT-CASE-EXE-001
+        type: validation-error
+        when: status == "CLOSED" and closed_on == null
+        props:
+          message: Record closed on when the audit case is closed.
+  - name: auditCaseInvariantsBeforeUpdate
+    title: AuditCase invariants (beforeUpdate)
+    entity: AuditCase
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: AuditCase beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: AUDIT-CASE-EXE-001
+        type: validation-error
+        when: status == "CLOSED" and closed_on == null
+        props:
+          message: Record closed on when the audit case is closed.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -15980,6 +16020,26 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ExchangeRateFollowUpRequired
+  - name: auditCaseWorkflowsAfterUpdate
+    title: AuditCase workflows (afterUpdate)
+    entity: AuditCase
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: AuditCase afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: AuditCaseFollowUpRequired
   - name: riskTreatmentWorkflowsAfterUpdate
     title: RiskTreatment workflows (afterUpdate)
     entity: RiskTreatment
@@ -16410,6 +16470,20 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"EXCHANGE-RATE-FOLLOW-UP-{{id}}","name":"Follow up on exchange rate {{id}}","description":"Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: AuditCaseFollowUpRequired
+    title: Follow up when a audit case is ended
+    entity: AuditCase
+    operation: UPDATE
+    trigger: rule
+    description: When a audit case is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"AUDIT-CASE-FOLLOW-UP-{{id}}","name":"Follow up on audit case {{title}}","description":"Audit case {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: RiskTreatmentFollowUpRequired
     title: Follow up when a risk treatment is ended
     entity: RiskTreatment

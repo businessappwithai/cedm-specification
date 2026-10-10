@@ -18,8 +18,15 @@ imports:
   - entity: YardBay
   - entity: YardTier
   - entity: YardSlot
+  - entity: Port
+  - entity: Berth
+  - entity: Gate
+  - entity: GateEvent
+  - entity: ContainerVisit
+  - entity: Vessel
+  - entity: Voyage
 ui:
   categories:
     - name: Container and Intermodal Logistics
       icon: container
-      entities: [Container, ContainerMovement, Yard]
+      entities: [Container, ContainerMovement, Yard, Port, Berth, Gate, GateEvent, ContainerVisit, Vessel, Voyage]

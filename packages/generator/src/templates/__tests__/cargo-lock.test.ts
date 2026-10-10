@@ -97,3 +97,24 @@ describe("the generated Cargo.lock", () => {
     expect(unchecksummed).toHaveLength(0);
   });
 });
+
+describe("the lock a project ships is in cargo's order", () => {
+  /** Package names in the order a lock lists them. */
+  const names = (text: string) =>
+    [...text.matchAll(/\n\[\[package\]\]\nname = "([^"]*)"/g)].map((m) => m[1] as string);
+
+  it("whatever the project is called, so its first build does not rewrite it", async () => {
+    const { sortCargoLock } = await import(
+      "../../generators/tanstack-astryx-loco/loco-backend.generator"
+    );
+    for (const project of ["aardvark", "container_logistics", "zebra_works"]) {
+      const rendered = sortCargoLock(
+        lock.replaceAll("{{projectSnake}}", project).replaceAll("{{project.version}}", "1.0.0")
+      );
+      const listed = names(rendered);
+      expect(listed).toEqual([...listed].sort());
+      expect(listed).toContain(project);
+      expect(sortCargoLock(rendered)).toBe(rendered);
+    }
+  });
+});

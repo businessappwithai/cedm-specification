@@ -180,3 +180,235 @@ ON CONFLICT (name) DO UPDATE SET
   description      = EXCLUDED.description,
   is_model_managed = TRUE,
   updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('StudyFollowUpRequired', 'bus_study', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_StudyFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_StudyFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_StudyFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_StudyFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;STUDY-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on study {{title}}&quot;,&quot;description&quot;:&quot;Study {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_StudyFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_StudyFollowUpRequired_flow_0" sourceRef="Process_StudyFollowUpRequired_start" targetRef="Process_StudyFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_StudyFollowUpRequired_flow_1" sourceRef="Process_StudyFollowUpRequired_S1" targetRef="Process_StudyFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_StudyFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_StudyFollowUpRequired" bpmnElement="Process_StudyFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_StudyFollowUpRequired_start_di" bpmnElement="Process_StudyFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_StudyFollowUpRequired_S1_di" bpmnElement="Process_StudyFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_StudyFollowUpRequired_end_di" bpmnElement="Process_StudyFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_StudyFollowUpRequired_flow_0_di" bpmnElement="Process_StudyFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_StudyFollowUpRequired_flow_1_di" bpmnElement="Process_StudyFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a study is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssayExceptionRaised', 'bus_assay', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssayExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssayExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_AssayExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_AssayExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSAY-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve assay {{id}}&quot;,&quot;description&quot;:&quot;Assay {{id}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssayExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_AssayExceptionRaised_flow_0" sourceRef="Process_AssayExceptionRaised_start" targetRef="Process_AssayExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_AssayExceptionRaised_flow_1" sourceRef="Process_AssayExceptionRaised_S1" targetRef="Process_AssayExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssayExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssayExceptionRaised" bpmnElement="Process_AssayExceptionRaised">
+      <bpmndi:BPMNShape id="Process_AssayExceptionRaised_start_di" bpmnElement="Process_AssayExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssayExceptionRaised_S1_di" bpmnElement="Process_AssayExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssayExceptionRaised_end_di" bpmnElement="Process_AssayExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssayExceptionRaised_flow_0_di" bpmnElement="Process_AssayExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssayExceptionRaised_flow_1_di" bpmnElement="Process_AssayExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a assay is failed, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('AssayFollowUpRequired', 'bus_assay', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_AssayFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_AssayFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_AssayFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_AssayFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;ASSAY-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on assay {{id}}&quot;,&quot;description&quot;:&quot;Assay {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_AssayFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_AssayFollowUpRequired_flow_0" sourceRef="Process_AssayFollowUpRequired_start" targetRef="Process_AssayFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_AssayFollowUpRequired_flow_1" sourceRef="Process_AssayFollowUpRequired_S1" targetRef="Process_AssayFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_AssayFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_AssayFollowUpRequired" bpmnElement="Process_AssayFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_AssayFollowUpRequired_start_di" bpmnElement="Process_AssayFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssayFollowUpRequired_S1_di" bpmnElement="Process_AssayFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_AssayFollowUpRequired_end_di" bpmnElement="Process_AssayFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_AssayFollowUpRequired_flow_0_di" bpmnElement="Process_AssayFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_AssayFollowUpRequired_flow_1_di" bpmnElement="Process_AssayFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a assay is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('SampleExceptionRaised', 'bus_sample', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_SampleExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_SampleExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_SampleExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_SampleExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;SAMPLE-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve sample {{id}}&quot;,&quot;description&quot;:&quot;Sample {{id}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_SampleExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_SampleExceptionRaised_flow_0" sourceRef="Process_SampleExceptionRaised_start" targetRef="Process_SampleExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_SampleExceptionRaised_flow_1" sourceRef="Process_SampleExceptionRaised_S1" targetRef="Process_SampleExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_SampleExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_SampleExceptionRaised" bpmnElement="Process_SampleExceptionRaised">
+      <bpmndi:BPMNShape id="Process_SampleExceptionRaised_start_di" bpmnElement="Process_SampleExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_SampleExceptionRaised_S1_di" bpmnElement="Process_SampleExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_SampleExceptionRaised_end_di" bpmnElement="Process_SampleExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_SampleExceptionRaised_flow_0_di" bpmnElement="Process_SampleExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_SampleExceptionRaised_flow_1_di" bpmnElement="Process_SampleExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a sample is quarantined, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();

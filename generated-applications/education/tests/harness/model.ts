@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-09T15:28:29.635Z
+ * Generated: 2026-10-10T02:39:47.331Z
  * Project: education
  */
 
@@ -60,128 +60,163 @@ export const modelEnums: ModelEnum[] = [
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
-    name: "CurrencyStatus",
+    name: "AssessmentAssessmentType",
     referenceId: 1002,
+    values: ["QUIZ", "EXAM", "ASSIGNMENT", "PROJECT", "PRACTICAL", "ORAL", "OTHER"],
+  },
+  {
+    name: "AssessmentStatus",
+    referenceId: 1003,
+    values: ["DRAFT", "PUBLISHED", "CLOSED", "CANCELLED"],
+  },
+  {
+    name: "ClassStatus",
+    referenceId: 1004,
+    values: ["DRAFT", "OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"],
+  },
+  {
+    name: "CurrencyStatus",
+    referenceId: 1005,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "EducationCourseStatus",
-    referenceId: 1003,
+    referenceId: 1006,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "EducationProgramProgramType",
-    referenceId: 1004,
+    referenceId: 1007,
     values: ["DEGREE", "DIPLOMA", "CERTIFICATE", "COURSE", "TRAINING", "OTHER"],
   },
   {
     name: "EducationProgramStatus",
-    referenceId: 1005,
+    referenceId: 1008,
     values: ["DRAFT", "ACTIVE", "SUSPENDED", "RETIRED"],
   },
   {
     name: "EducationStudentStatus",
-    referenceId: 1006,
+    referenceId: 1009,
     values: ["APPLICANT", "ACTIVE", "SUSPENDED", "GRADUATED", "WITHDRAWN", "ALUMNI"],
   },
   {
     name: "EnrollmentStatus",
-    referenceId: 1007,
+    referenceId: 1010,
     values: ["PENDING", "ACTIVE", "COMPLETED", "WITHDRAWN", "CANCELLED"],
   },
   {
     name: "ExchangeRateRateType",
-    referenceId: 1008,
+    referenceId: 1011,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1009,
+    referenceId: 1012,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
+    name: "FeeStatus",
+    referenceId: 1013,
+    values: ["DRAFT", "ASSESSED", "INVOICED", "PAID", "WAIVED", "CANCELLED"],
+  },
+  {
+    name: "GradeStatus",
+    referenceId: 1014,
+    values: ["DRAFT", "FINAL", "VOID"],
+  },
+  {
+    name: "GuardianRelationshipType",
+    referenceId: 1015,
+    values: ["PARENT", "LEGAL_GUARDIAN", "CAREGIVER", "SPONSOR", "OTHER"],
+  },
+  {
+    name: "GuardianStatus",
+    referenceId: 1016,
+    values: ["ACTIVE", "INACTIVE"],
+  },
+  {
     name: "LocationLocationType",
-    referenceId: 1010,
+    referenceId: 1017,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1011,
+    referenceId: 1018,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1012,
+    referenceId: 1019,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1013,
-    values: ["PERSON", "ORGANIZATION"],
-  },
-  {
-    name: "OrganizationStatus",
-    referenceId: 1014,
-    values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
-  },
-  {
-    name: "PartyPartyType",
-    referenceId: 1015,
-    values: ["PERSON", "ORGANIZATION"],
-  },
-  {
-    name: "PartyRoleRoleType",
-    referenceId: 1016,
-    values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
-  },
-  {
-    name: "PartyRoleStatus",
-    referenceId: 1017,
-    values: ["ACTIVE", "INACTIVE", "EXPIRED"],
-  },
-  {
-    name: "PartyStatus",
-    referenceId: 1018,
-    values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
-  },
-  {
-    name: "PersonGender",
-    referenceId: 1019,
-    values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
-  },
-  {
-    name: "PersonPartyType",
     referenceId: 1020,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
-    name: "PersonStatus",
+    name: "OrganizationStatus",
     referenceId: 1021,
+    values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
+  },
+  {
+    name: "PartyPartyType",
+    referenceId: 1022,
+    values: ["PERSON", "ORGANIZATION"],
+  },
+  {
+    name: "PartyRoleRoleType",
+    referenceId: 1023,
+    values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
+  },
+  {
+    name: "PartyRoleStatus",
+    referenceId: 1024,
+    values: ["ACTIVE", "INACTIVE", "EXPIRED"],
+  },
+  {
+    name: "PartyStatus",
+    referenceId: 1025,
+    values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
+  },
+  {
+    name: "PersonGender",
+    referenceId: 1026,
+    values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
+  },
+  {
+    name: "PersonPartyType",
+    referenceId: 1027,
+    values: ["PERSON", "ORGANIZATION"],
+  },
+  {
+    name: "PersonStatus",
+    referenceId: 1028,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "TaskPriority",
-    referenceId: 1022,
+    referenceId: 1029,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1023,
+    referenceId: 1030,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1024,
+    referenceId: 1031,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
     name: "UnitOfMeasureCategory",
-    referenceId: 1025,
+    referenceId: 1032,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1026,
+    referenceId: 1033,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -358,6 +393,21 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "Class",
+    tableName: "bus_class",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["COMPLETED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "OPEN", trigger: "open" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "OPEN", to: "IN_PROGRESS", trigger: "start" },
+      { from: "OPEN", to: "CANCELLED", trigger: "cancel" },
+      { from: "IN_PROGRESS", to: "COMPLETED", trigger: "complete" },
+      { from: "IN_PROGRESS", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
     entity: "EducationStudent",
     tableName: "bus_education_student",
     statusField: "status",
@@ -375,6 +425,17 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "Guardian",
+    tableName: "bus_guardian",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: [],
+    edges: [
+      { from: "ACTIVE", to: "INACTIVE", trigger: "deactivate" },
+      { from: "INACTIVE", to: "ACTIVE", trigger: "reactivate" },
+    ],
+  },
+  {
     entity: "Enrollment",
     tableName: "bus_enrollment",
     statusField: "status",
@@ -387,6 +448,46 @@ export const stateMachines: StateMachine[] = [
       { from: "ACTIVE", to: "WITHDRAWN", trigger: "withdraw" },
       { from: "PENDING", to: "CANCELLED", trigger: "cancel" },
       { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "Assessment",
+    tableName: "bus_assessment",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["CLOSED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "PUBLISHED", trigger: "publish" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "PUBLISHED", to: "CLOSED", trigger: "close" },
+      { from: "PUBLISHED", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "Grade",
+    tableName: "bus_grade",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["FINAL", "VOID"],
+    edges: [
+      { from: "DRAFT", to: "FINAL", trigger: "finalize" },
+      { from: "DRAFT", to: "VOID", trigger: "void" },
+    ],
+  },
+  {
+    entity: "Fee",
+    tableName: "bus_fee",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["PAID", "WAIVED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "ASSESSED", trigger: "assess" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "ASSESSED", to: "INVOICED", trigger: "invoice" },
+      { from: "ASSESSED", to: "WAIVED", trigger: "waive" },
+      { from: "ASSESSED", to: "CANCELLED", trigger: "cancel" },
+      { from: "INVOICED", to: "PAID", trigger: "mark_paid" },
+      { from: "INVOICED", to: "WAIVED", trigger: "waive" },
     ],
   },
 ];

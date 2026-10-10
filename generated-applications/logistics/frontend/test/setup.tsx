@@ -1103,6 +1103,37 @@ export const mockApiResponses = {
       code: 'Test Code',
     },
   },
+  stop: {
+    list: [
+      {
+        id: 'test-id-1',
+        sequence_number: 1,
+        stop_type: 'Test Stop Type 1',
+        planned_arrival_at: '2024-01-15T10:00:00Z',
+        planned_departure_at: '2024-01-15T10:00:00Z',
+        route_id: 'Test Route 1',
+        location_id: 'Test Location 1',
+      },
+      {
+        id: 'test-id-2',
+        sequence_number: 2,
+        stop_type: 'Test Stop Type 2',
+        planned_arrival_at: '2024-01-16T10:00:00Z',
+        planned_departure_at: '2024-01-16T10:00:00Z',
+        route_id: 'Test Route 2',
+        location_id: 'Test Location 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      sequence_number: 1,
+      stop_type: 'Test Stop Type',
+      planned_arrival_at: '2024-01-15T10:00:00Z',
+      planned_departure_at: '2024-01-15T10:00:00Z',
+      route_id: 'Test Route',
+      location_id: 'Test Location',
+    },
+  },
   trackingEvent: {
     list: [
       {
@@ -1185,6 +1216,77 @@ export const mockApiResponses = {
       trip_id: 'Test Trip',
       origin_id: 'Test Origin',
       vehicle_id: 'Test Vehicle',
+    },
+  },
+  driver: {
+    list: [
+      {
+        id: 'test-id-1',
+        driver_code: 'Test Driver Code 1',
+        license_number: 'Test License Number 1',
+        status: 'Test Status 1',
+        person_id: 'Test Person 1',
+      },
+      {
+        id: 'test-id-2',
+        driver_code: 'Test Driver Code 2',
+        license_number: 'Test License Number 2',
+        status: 'Test Status 2',
+        person_id: 'Test Person 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      driver_code: 'Test Driver Code',
+      license_number: 'Test License Number',
+      status: 'Test Status',
+      person_id: 'Test Person',
+    },
+  },
+  fuelTransaction: {
+    list: [
+      {
+        id: 'test-id-1',
+        transaction_number: 'Test Transaction Number 1',
+        quantity: 10.99,
+        total_amount: 10.99,
+        occurred_at: '2024-01-15T10:00:00Z',
+        odometer_or_meter_reading: 10.99,
+        status: 'Test Status 1',
+        vehicle_id: 'Test Vehicle 1',
+        driver_id: 'Test Driver 1',
+        location_id: 'Test Location 1',
+        unit_of_measure_id: 'Test Unit Of Measure 1',
+        currency_id: 'Test Currency 1',
+      },
+      {
+        id: 'test-id-2',
+        transaction_number: 'Test Transaction Number 2',
+        quantity: 20.99,
+        total_amount: 20.99,
+        occurred_at: '2024-01-16T10:00:00Z',
+        odometer_or_meter_reading: 20.99,
+        status: 'Test Status 2',
+        vehicle_id: 'Test Vehicle 2',
+        driver_id: 'Test Driver 2',
+        location_id: 'Test Location 2',
+        unit_of_measure_id: 'Test Unit Of Measure 2',
+        currency_id: 'Test Currency 2',
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      transaction_number: 'Test Transaction Number',
+      quantity: 10.99,
+      total_amount: 10.99,
+      occurred_at: '2024-01-15T10:00:00Z',
+      odometer_or_meter_reading: 10.99,
+      status: 'Test Status',
+      vehicle_id: 'Test Vehicle',
+      driver_id: 'Test Driver',
+      location_id: 'Test Location',
+      unit_of_measure_id: 'Test Unit Of Measure',
+      currency_id: 'Test Currency',
     },
   },
   customer: {
@@ -2150,6 +2252,34 @@ export const mockApiResponses = {
       is_active: true,
     },
   },
+  stopStopType: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
   tripStatus: {
     list: [
       {
@@ -2207,6 +2337,62 @@ export const mockApiResponses = {
     },
   },
   tripSegmentStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  driverStatus: {
+    list: [
+      {
+        id: 'test-id-1',
+        code: 'Test Code 1',
+        name: 'Test Name 1',
+        description: 'Test text content',
+        sequence: 1,
+        is_active: true,
+      },
+      {
+        id: 'test-id-2',
+        code: 'Test Code 2',
+        name: 'Test Name 2',
+        description: 'Test text content 2',
+        sequence: 2,
+        is_active: false,
+      },
+    ],
+    single: {
+      id: 'test-id-1',
+      code: 'Test Code',
+      name: 'Test Name',
+      description: 'Test text content',
+      sequence: 1,
+      is_active: true,
+    },
+  },
+  fuelTransactionStatus: {
     list: [
       {
         id: 'test-id-1',

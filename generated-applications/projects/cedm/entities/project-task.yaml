@@ -149,6 +149,8 @@ entity:
       rule: percentComplete must be between 0 and 100.
     - id: PROJECT-TASK-002
       rule: dueDate must not precede startDate.
+    - id: PROJECT-TASK-003
+      rule: A ProjectTask must not be its own parent or one of its own ancestors; the task hierarchy through parentTask is acyclic and stays within one Project.
   lifecycle:
     title: Project Task Lifecycle
     attribute: status

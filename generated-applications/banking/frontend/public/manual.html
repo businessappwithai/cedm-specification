@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:27:57.918Z">2026-10-09T15:27:57.918Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:39:12.288Z">2026-10-10T02:39:12.288Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -2637,6 +2637,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>creditInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>creditInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>creditWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -6998,6 +7000,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>bankLoanInvariantsBeforeCreate</code></td><td><a href="#entity-bank-loan">Bank Loan</a></td><td>beforeCreate</td></tr>
         <tr><td><code>bankLoanInvariantsBeforeUpdate</code></td><td><a href="#entity-bank-loan">Bank Loan</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>creditInvariantsBeforeCreate</code></td><td><a href="#entity-credit">Credit</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>creditInvariantsBeforeUpdate</code></td><td><a href="#entity-credit">Credit</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
         <tr><td><code>bankAccountWorkflowsAfterUpdate</code></td><td><a href="#entity-bank-account">Bank Account</a></td><td>afterUpdate</td></tr>
@@ -7080,7 +7084,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    banking 1.0.0 &middot; 57 record types &middot; 16 rules &middot; 21 processes
+    banking 1.0.0 &middot; 57 record types &middot; 18 rules &middot; 21 processes
   </footer>
 </div>
 </body>

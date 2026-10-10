@@ -126,6 +126,7 @@ entity:
   invariants:
     - id: ENCOUNTER-001
       rule: endAt must not precede startAt.
+    - {id: HEALTHCARE-ENCOUNTER-EXE-001, rule: "End At must not be earlier than start at.", violatedWhen: "start_at != null and end_at != null and end_at < start_at", message: "End At cannot be earlier than start at."}
   lifecycle:
     title: Healthcare Encounter Lifecycle
     attribute: status

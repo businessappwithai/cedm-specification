@@ -13,7 +13,7 @@ specification:
 
 where:
   entities: Country, StateProvince, City, Currency, Language — ordinary entities of the library, so a record points at one by relationship, never by typed code.
-  rows: domain/reference-data/<entity>.yaml, one file per entity, named by the entity's `referenceData` key. Rebuilt by tools/build_reference_data.py from public registries.
+  rows: domain/reference-data/<entity>.yaml, one file per entity, named by the entity's `referenceData` key. Rebuilt by tools/build-reference-data.ts from public registries.
   common: The common application module imports every one of them, so every domain application contains them.
 
 rows:
@@ -25,7 +25,7 @@ rows:
     Country: ISO 3166-1 — all 249 entries, with the alpha-3 and numeric codes, the dialling prefix and the main currency.
     Currency: ISO 4217 — every currency, with its decimal places.
     Language: ISO 639-1 — every two-letter language.
-    StateProvince: "ISO 3166-2, first level — for the 47 countries listed in tools/build_reference_data.py. An application that needs another country's divisions adds rows of its own."
+    StateProvince: "ISO 3166-2, first level — for the 47 countries listed in tools/build-reference-data.ts. An application that needs another country's divisions adds rows of its own."
     City: "GeoNames — every national capital and every city of 750 thousand or more. A city names its state or province where the registry says which (the United States and Canada); elsewhere it belongs to its country alone."
 
 geography:

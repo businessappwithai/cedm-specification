@@ -1,6 +1,6 @@
 //! The rules the *model* declared, and whether they reached the application.
 //!
-//! Generated: 2026-10-09T15:29:06.512Z
+//! Generated: 2026-10-10T02:40:26.582Z
 //! Project: insurance
 //!
 //! Every other rules suite creates a rule through the API and then checks that
@@ -57,6 +57,10 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_insurance_policy",
         "UPDATE",
     ),
+    ("coverageInvariantsBeforeCreate", "bus_coverage", "CREATE"),
+    ("coverageInvariantsBeforeUpdate", "bus_coverage", "UPDATE"),
+    ("premiumInvariantsBeforeCreate", "bus_premium", "CREATE"),
+    ("premiumInvariantsBeforeUpdate", "bus_premium", "UPDATE"),
     (
         "insuranceClaimInvariantsBeforeCreate",
         "bus_insurance_claim",
@@ -65,6 +69,26 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
     (
         "insuranceClaimInvariantsBeforeUpdate",
         "bus_insurance_claim",
+        "UPDATE",
+    ),
+    (
+        "claimLineInvariantsBeforeCreate",
+        "bus_claim_line",
+        "CREATE",
+    ),
+    (
+        "claimLineInvariantsBeforeUpdate",
+        "bus_claim_line",
+        "UPDATE",
+    ),
+    (
+        "settlementInvariantsBeforeCreate",
+        "bus_settlement",
+        "CREATE",
+    ),
+    (
+        "settlementInvariantsBeforeUpdate",
+        "bus_settlement",
         "UPDATE",
     ),
     ("partyWorkflowsAfterUpdate", "bus_party", "UPDATE"),
@@ -78,11 +102,15 @@ const MODEL_RULES: &[(&str, &str, &str)] = &[
         "bus_insurance_policy",
         "UPDATE",
     ),
+    ("coverageWorkflowsAfterUpdate", "bus_coverage", "UPDATE"),
+    ("premiumWorkflowsAfterUpdate", "bus_premium", "UPDATE"),
     (
         "insuranceClaimWorkflowsAfterUpdate",
         "bus_insurance_claim",
         "UPDATE",
     ),
+    ("claimLineWorkflowsAfterUpdate", "bus_claim_line", "UPDATE"),
+    ("settlementWorkflowsAfterUpdate", "bus_settlement", "UPDATE"),
 ];
 
 /// Every rule reached `sys_rule_definitions`, bound to the physical

@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:28:30.197Z">2026-10-09T15:28:30.197Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:39:47.862Z">2026-10-10T02:39:47.862Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -104,10 +104,15 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-address">Address</a></li>
               <li><a href="#entity-address-address-type">Address Address Type</a></li>
               <li><a href="#entity-address-status">Address Status</a></li>
+              <li><a href="#entity-assessment">Assessment</a></li>
+              <li><a href="#entity-assessment-assessment-type">Assessment Assessment Type</a></li>
+              <li><a href="#entity-assessment-status">Assessment Status</a></li>
               <li><a href="#entity-attachment">Attachment</a></li>
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
               <li><a href="#entity-city">City</a></li>
+              <li><a href="#entity-class">Class</a></li>
+              <li><a href="#entity-class-status">Class Status</a></li>
               <li><a href="#entity-contact-point">Contact Point</a></li>
               <li><a href="#entity-country">Country</a></li>
               <li><a href="#entity-currency">Currency</a></li>
@@ -125,6 +130,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-exchange-rate">Exchange Rate</a></li>
               <li><a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a></li>
               <li><a href="#entity-exchange-rate-status">Exchange Rate Status</a></li>
+              <li><a href="#entity-fee">Fee</a></li>
+              <li><a href="#entity-fee-status">Fee Status</a></li>
+              <li><a href="#entity-grade">Grade</a></li>
+              <li><a href="#entity-grade-status">Grade Status</a></li>
+              <li><a href="#entity-guardian">Guardian</a></li>
+              <li><a href="#entity-guardian-relationship-type">Guardian Relationship Type</a></li>
+              <li><a href="#entity-guardian-status">Guardian Status</a></li>
               <li><a href="#entity-language">Language</a></li>
               <li><a href="#entity-legal-entity">Legal Entity</a></li>
               <li><a href="#entity-location">Location</a></li>
@@ -164,14 +176,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Education, built on the CEDM common foundation.</p></div>
-    <p>education keeps 52 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>education keeps 64 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
-        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-enrollment">Enrollment</a></td></tr>
-        <tr><td>Education</td><td><a href="#entity-education-program">Education Program</a>, <a href="#entity-education-course">Education Course</a>, <a href="#entity-education-student">Education Student</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-education-program-program-type">Education Program Program Type</a>, <a href="#entity-education-program-status">Education Program Status</a>, <a href="#entity-education-course-status">Education Course Status</a>, <a href="#entity-education-student-status">Education Student Status</a>, <a href="#entity-enrollment-status">Enrollment Status</a></td></tr>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-class">Class</a>, <a href="#entity-enrollment">Enrollment</a>, <a href="#entity-assessment">Assessment</a>, <a href="#entity-grade">Grade</a></td></tr>
+        <tr><td>Education</td><td><a href="#entity-education-program">Education Program</a>, <a href="#entity-education-course">Education Course</a>, <a href="#entity-education-student">Education Student</a>, <a href="#entity-guardian">Guardian</a>, <a href="#entity-fee">Fee</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-education-program-program-type">Education Program Program Type</a>, <a href="#entity-education-program-status">Education Program Status</a>, <a href="#entity-education-course-status">Education Course Status</a>, <a href="#entity-class-status">Class Status</a>, <a href="#entity-education-student-status">Education Student Status</a>, <a href="#entity-guardian-relationship-type">Guardian Relationship Type</a>, <a href="#entity-guardian-status">Guardian Status</a>, <a href="#entity-enrollment-status">Enrollment Status</a>, <a href="#entity-assessment-assessment-type">Assessment Assessment Type</a>, <a href="#entity-assessment-status">Assessment Status</a>, <a href="#entity-grade-status">Grade Status</a>, <a href="#entity-fee-status">Fee Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -183,8 +195,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 52</td></tr>
-        <tr><td>User</td><td><code>user@education.example.com</code></td><td>52 of 52</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 64</td></tr>
+        <tr><td>User</td><td><code>user@education.example.com</code></td><td>64 of 64</td></tr>
       </tbody>
     </table>
 
@@ -693,6 +705,388 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-assessment" class="entity">
+      <h3>Assessment <span class="group">Foundation</span></h3>
+      <p class="lede">Defines an education evaluation activity separately from student-specific results. Assessment says what is evaluated; Grade records how one EducationStudent performed. Schools, universities, training programs, gradebooks, learner portals and analytics. EducationCourse is mandatory, Class optionally scopes delivery, and Grades preserve individual outcomes. Assessments are drafted, published and then closed or cancelled while outcomes remain auditable. A final exam Assessment for a Class has a max score of 100 and produces one Grade per participating student.</p>
+      <p class="meta">Stored as <code>bus_assessment</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the assessment definition or event. Identifies one evaluated learning activity independently of individual learner grades. Assessment planning, gradebook, reporting and audit. Grade records student-specific outcomes against this Assessment.</td>
+        </tr>
+        <tr>
+          <td><code>assessment_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The educators&#39; reference for this assessment, such as MATH101-MID-2026, used in the gradebook and in integrations. Operational identifier used by educators and integrations. Search, gradebook and reporting. Distinct from Class and Course identifiers.</td>
+        </tr>
+        <tr>
+          <td><code>title</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The name learners and educators see for the assessment, such as Midterm Exam or Lab Report 2. Describes the evaluated activity to learners and educators. Portals, schedules and reports. Assessment type and Class supply further context.</td>
+        </tr>
+        <tr>
+          <td><code>assessment_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The form the evaluation takes, such as a quiz, formal exam, coursework assignment, project, practical or oral. Chosen by the educator; the gradebook uses it to weight and group results and learners see it when planning their work. Short-form evaluation, usually low weighted and taken in class. Formal examination taken under controlled, timed conditions. Coursework submitted by the learner for marking. Project-based evaluation completed over an extended period. Practical or laboratory evaluation of applied skills. Oral evaluation, such as a viva or spoken presentation. Another governed assessment type not covered by the listed forms. Supports policy, weighting and reporting without embedding every pedagogy rule. Max score and grading policy may vary by type.<div class="detail">One of: <code>QUIZ</code>, <code>EXAM</code>, <code>ASSIGNMENT</code>, <code>PROJECT</code>, <code>PRACTICAL</code>, <code>ORAL</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>max_score</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The highest raw score a learner can earn on this assessment, for example 100 for a percentage-marked exam. Set by the educator when numeric scoring applies and must be positive; grades are expressed against it to compute percentages. Defines the scoring scale for learner Grade values. Optional for rubric or categorical assessments.</td>
+        </tr>
+        <tr>
+          <td><code>due_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>The deadline by which learners must submit or sit the assessment. Set when the assessment is drafted or published; learner reminders use it and late-submission policy is judged against it. Establishes timing expectation. Must be compatible with Class delivery period under policy.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Being prepared by the educator; not visible to learners and not gradeable. Active for eligible learners, who can see it and be graded on it. Assessment is complete for ordinary new grading. A final state. Assessment was withdrawn and will not be graded. A final state. Whether learners can see the assessment and whether grades may still be entered against it. Controls learner visibility and grading eligibility. Assessment workflow and reporting. Grades against CLOSED assessments remain historical.<div class="detail">One of: <code>DRAFT</code>, <code>PUBLISHED</code>, <code>CLOSED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>course_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one course; an assessment always measures the learning expectations of a single course. Course whose learning expectations are evaluated. Supplies curriculum context. Assessment planning and reporting. Course lifecycle constrains new assessments.<div class="detail">Points at <b>Course</b></div></td>
+        </tr>
+        <tr>
+          <td><code>class_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Specific Class for which this assessment is administered. Scopes assessment to one delivery instance where applicable. Gradebook and learner eligibility. Optional for course-wide or reusable assessments. Class must deliver the same course.<div class="detail">Points at <b>Class</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Class</b> window, on the <b>Assessment</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assessment_code</code></td>
+            <td>Assessment Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>title</code></td>
+            <td>Title</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assessment_type</code></td>
+            <td>Assessment Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>max_score</code></td>
+            <td>Max Score</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>due_at</code></td>
+            <td>Due At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>course_id</code></td>
+            <td>Course</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>class_id</code></td>
+            <td>Class</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Assessment</b> belongs to one <a href="#entity-education-course">Education Course</a>.</li>
+          <li>Each <b>Assessment</b> belongs to one <a href="#entity-class">Class</a>.</li>
+          <li>Each <b>Assessment</b> has many <a href="#entity-grade">Grade</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; AssessmentLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>CLOSED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>PUBLISHED</code></td><td><code>publish</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>PUBLISHED</code></td><td><code>CLOSED</code></td><td><code>close</code></td></tr>
+          <tr><td><code>PUBLISHED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>assessmentWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-assessment-follow-up-required">AssessmentFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-assessment-assessment-type" class="entity">
+      <h3>Assessment Assessment Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of assessment assessment type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_assessment_assessment_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Assessment Assessment Type</b> window, on the <b>Assessment Assessment Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-assessment-status" class="entity">
+      <h3>Assessment Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of assessment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_assessment_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Assessment Status</b> window, on the <b>Assessment Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-attachment" class="entity">
       <h3>Attachment <span class="group">Foundation</span></h3>
       <p class="lede">A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evidence and is not silently replaced; a corrected file is attached as a new record. A signed delivery note PDF is attached to a shipment record by the driver&#39;s handheld at delivery.</p>
@@ -1053,6 +1447,275 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-class" class="entity">
+      <h3>Class <span class="group">Foundation</span></h3>
+      <p class="lede">Represents one scheduled delivery instance of an EducationCourse. EducationCourse defines what is taught; Class defines when and to whom one offering is delivered. School and education scheduling, enrollment, attendance, assessment, portals and reporting. Course is mandatory; instructors and enrollments define participants; Attendance and Assessment preserve delivery evidence. Class moves from draft to open to in-progress and then completion or cancellation. Algebra I is the EducationCourse; Algebra I Section B for the 2026 term is a Class with its own students, attendance and assessments.</p>
+      <p class="meta">Stored as <code>bus_class</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The permanent system identity of one scheduled class offering. Generated on creation; enrolments, attendance and assessments refer to the class through it. Identifies one scheduled course section independently of the reusable EducationCourse definition. EducationCourse defines curriculum while Class defines one delivery instance.</td>
+        </tr>
+        <tr>
+          <td><code>class_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The code by which the offering is known in timetables and registration, such as BIO101-A-2026F. Operational code for one course offering. Schedules, registers, search and integration. Distinct from EducationCourse code.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 300</span></td>
+          <td>The name of the offering as students and instructors see it, such as Biology 101, Autumn Section B. Entered when the class is planned; shown in timetables, learner portals and reports. Identifies the teaching group to learners and staff. May derive from course name plus section or term.</td>
+        </tr>
+        <tr>
+          <td><code>start_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The first day on which teaching for the class takes place. Set when scheduling; enrolment eligibility is judged against it and it must not come after the end date. Establishes delivery period. Must not follow endDate.</td>
+        </tr>
+        <tr>
+          <td><code>end_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The last day of the offering. Entered at scheduling; must not be earlier than the start date. Closes the delivery period.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the offering is, from planning through enrolment and teaching to completion or cancellation. Moved by the school administrator as the term proceeds; enrolment is only accepted while open, and attendance only once teaching begins. Being planned; not yet visible to students. Open for enrolment, with teaching not yet begun. Teaching has started and attendance and assessments are being recorded. Finished; results are final and kept as delivery evidence. A final state. Called off before completion. A final state. Controls enrollment and delivery progression. Completed class history remains immutable evidence.<div class="detail">One of: <code>DRAFT</code>, <code>OPEN</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>course_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one course; a class is always an offering of a single course. Reusable course definition delivered by this Class. Separates curriculum from one scheduled offering. Catalog, scheduling and reporting. Course eligibility constrains new Class offerings.<div class="detail">Points at <b>Course</b></div></td>
+        </tr>
+        <tr>
+          <td><code>education_student_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The EducationStudent this Class belongs to.<div class="detail">Points at <b>Education Student</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Education Course</b> window, on the <b>Class</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>class_code</code></td>
+            <td>Class Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>start_date</code></td>
+            <td>Start Date</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>end_date</code></td>
+            <td>End Date</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>course_id</code></td>
+            <td>Course</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>education_student_id</code></td>
+            <td>Education Student</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Class</b> belongs to one <a href="#entity-education-course">Education Course</a>.</li>
+          <li>Each <b>Class</b> has many <a href="#entity-party">Party</a> records.</li>
+          <li>Each <b>Class</b> has many <a href="#entity-enrollment">Enrollment</a> records.</li>
+          <li>Each <b>Class</b> has many <a href="#entity-assessment">Assessment</a> records.</li>
+          <li>Each <b>Class</b> belongs to one <a href="#entity-education-student">Education Student</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; ClassLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>OPEN</code></td><td><code>open</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>OPEN</code></td><td><code>IN_PROGRESS</code></td><td><code>start</code></td></tr>
+          <tr><td><code>OPEN</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>IN_PROGRESS</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>classInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>classInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>classWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-class-follow-up-required">ClassFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-class-status" class="entity">
+      <h3>Class Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of class status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_class_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Class Status</b> window, on the <b>Class Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-contact-point" class="entity">
       <h3>Contact Point <span class="group">Foundation</span></h3>
       <p class="lede">A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team&#39;s email address invoices@acme.example, recorded for a customer.</p>
@@ -1367,6 +2030,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Currency</b> has many <a href="#entity-country">Country</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-fee">Fee</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -1675,6 +2339,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Education Course</b> belongs to one <a href="#entity-education-program">Education Program</a>.</li>
           <li>Each <b>Education Course</b> has many <a href="#entity-party">Party</a> records.</li>
           <li>Each <b>Education Course</b> has many <a href="#entity-enrollment">Enrollment</a> records.</li>
+          <li>Each <b>Education Course</b> has many <a href="#entity-class">Class</a> records.</li>
+          <li>Each <b>Education Course</b> has many <a href="#entity-assessment">Assessment</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; EducationCourseLifecycle</h4>
       <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -2224,6 +2890,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Education Student</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Education Student</b> has many <a href="#entity-enrollment">Enrollment</a> records.</li>
           <li>Each <b>Education Student</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
+          <li>Each <b>Education Student</b> is linked to many <a href="#entity-guardian">Guardian</a> records.</li>
+          <li>Each <b>Education Student</b> has many <a href="#entity-class">Class</a> records.</li>
+          <li>Each <b>Education Student</b> has many <a href="#entity-grade">Grade</a> records.</li>
+          <li>Each <b>Education Student</b> has many <a href="#entity-fee">Fee</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; EducationStudentLifecycle</h4>
       <p>A record starts at <code>APPLICANT</code> and finishes at <code>WITHDRAWN</code> or <code>ALUMNI</code>. These are the moves it may make, and no others:</p>
@@ -2394,6 +3064,12 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>The course, when the enrolment is for a single course. Set when a student registers for a course directly. At most one course. Narrows the enrolment from a whole program to one course. Adds curriculum participation context alongside program enrollment.<div class="detail">Points at <b>Course</b></div></td>
         </tr>
         <tr>
+          <td><code>class_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The scheduled class, when the student is placed in a particular offering. Set when a place is allocated. At most one class. Places the student in a timetable. Establishes delivery-instance membership for attendance and assessment.<div class="detail">Points at <b>Class</b></div></td>
+        </tr>
+        <tr>
           <td><code>student_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
@@ -2402,7 +3078,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Education Student</b> window, on the <b>Enrollment</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Education Student</b> window, on the <b>Enrollment</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -2455,11 +3131,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
+            <td><code>class_id</code></td>
+            <td>Class</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
             <td><code>student_id</code></td>
             <td>Student</td>
             <td>Yes</td>
             <td>Yes</td>
-            <td>70</td>
+            <td>80</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -2468,7 +3152,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Enrollment</b> belongs to one <a href="#entity-education-program">Education Program</a>.</li>
           <li>Each <b>Enrollment</b> belongs to one <a href="#entity-education-course">Education Course</a>.</li>
+          <li>Each <b>Enrollment</b> belongs to one <a href="#entity-class">Class</a>.</li>
           <li>Each <b>Enrollment</b> belongs to one <a href="#entity-education-student">Education Student</a>.</li>
+          <li>Each <b>Enrollment</b> has many <a href="#entity-grade">Grade</a> records.</li>
+          <li>Each <b>Enrollment</b> has many <a href="#entity-fee">Fee</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; EnrollmentLifecycle</h4>
       <p>A record starts at <code>PENDING</code> and finishes at <code>COMPLETED</code> or <code>WITHDRAWN</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
@@ -2926,6 +3613,836 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Where it appears</h4>
       <p>The application opens this record in the <b>Exchange Rate Status</b> window, on the <b>Exchange Rate Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-fee" class="entity">
+      <h3>Fee <span class="group">Education</span></h3>
+      <p class="lede">Represents an education-specific charge while keeping receivable and settlement evidence in finance entities. Fee explains why a student is charged; Invoice records the financial claim; Payment records settlement. Tuition, school fees, student accounts, billing, collections, reporting and audit. EducationStudent is mandatory, Enrollment may supply academic cause, Currency defines value and Invoice provides financial claim evidence. Fees progress from draft to assessed and possibly invoiced, then paid, waived or cancelled with history retained. A laboratory Fee is assessed to an enrolled student, included in an Invoice and later marked paid after financial settlement.</p>
+      <p class="meta">Stored as <code>bus_fee</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the fee. Generated on creation; invoices and payments refer to it. Identifies one education charge independently of invoice and payment records. Invoice may later formalize the receivable claim.</td>
+        </tr>
+        <tr>
+          <td><code>fee_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 120</span></td>
+          <td>The code of the fee type, such as TUITION-2026 or LAB. Chosen when the fee is assessed. Identifies tuition, laboratory, transport or other governed education charge category. Code may repeat across students while feeId remains unique.</td>
+        </tr>
+        <tr>
+          <td><code>amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The monetary value of the fee, charged to the student in the fee&#39;s currency. Calculated from the fee schedule when assessed; it must not be negative, and credits are modelled explicitly. Education charge value before or alongside invoice creation. Currency relationship makes value unambiguous.</td>
+        </tr>
+        <tr>
+          <td><code>due_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date by which the student or payer is expected to settle the fee. Set when the fee is assessed from the term calendar; collections and aging reports read it to find overdue charges. Supports collection and aging without replacing invoice payment terms. Invoice terms may provide authoritative receivable due date after invoicing.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the education fee stands, from preparation and assessment through invoicing to settlement, waiver or cancellation. Moved by student accounts and billing staff; reports read it to separate open charges from settled ones. Being prepared; not yet charged to the student. Charged to the student but not yet invoiced. Included on an invoice that now carries the receivable claim. Settled, with payment evidence reconciled against the invoice. A final state. Excused by the institution, so the student owes nothing. A final state. Withdrawn because it was raised in error or no longer applies. A final state. Distinguishes preparation, assessment, billing, settlement and waived/cancelled outcomes. PAID normally reconciles through Invoice and Payment evidence rather than direct mutation.<div class="detail">One of: <code>DRAFT</code>, <code>ASSESSED</code>, <code>INVOICED</code>, <code>PAID</code>, <code>WAIVED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>student_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one student: a fee is always charged to a specific learner. Student to whom the fee is assessed. Establishes education account responsibility. Student accounts, billing and reporting. Student status and fee policy constrain new assessments.<div class="detail">Points at <b>Student</b></div></td>
+        </tr>
+        <tr>
+          <td><code>enrollment_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Enrollment giving rise to the fee. Connects charge to program/course participation. Tuition, course fees and reconciliation. Optional for student-level fees not tied to one enrollment. Enrollment context must belong to the same student.<div class="detail">Points at <b>Enrollment</b></div></td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one currency, so the amount is unambiguous. Currency of the assessed amount. Makes monetary value unambiguous. Billing, accounting and reporting. Currency remains historical after assessment.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Fee</b> window, on the <b>Fee</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>fee_code</code></td>
+            <td>Fee Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>amount</code></td>
+            <td>Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>due_date</code></td>
+            <td>Due Date</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>student_id</code></td>
+            <td>Student</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>enrollment_id</code></td>
+            <td>Enrollment</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Fee</b> belongs to one <a href="#entity-education-student">Education Student</a>.</li>
+          <li>Each <b>Fee</b> belongs to one <a href="#entity-enrollment">Enrollment</a>.</li>
+          <li>Each <b>Fee</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; FeeLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>PAID</code> or <code>WAIVED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ASSESSED</code></td><td><code>assess</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ASSESSED</code></td><td><code>INVOICED</code></td><td><code>invoice</code></td></tr>
+          <tr><td><code>ASSESSED</code></td><td><code>WAIVED</code></td><td><code>waive</code></td></tr>
+          <tr><td><code>ASSESSED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>INVOICED</code></td><td><code>PAID</code></td><td><code>mark_paid</code></td></tr>
+          <tr><td><code>INVOICED</code></td><td><code>WAIVED</code></td><td><code>waive</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>feeInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>feeInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>feeWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-fee-follow-up-required">FeeFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-fee-status" class="entity">
+      <h3>Fee Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of fee status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_fee_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Fee Status</b> window, on the <b>Fee Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-grade" class="entity">
+      <h3>Grade <span class="group">Foundation</span></h3>
+      <p class="lede">Records one learner&#39;s result for one Assessment. Assessment defines the evaluated activity; Grade is the student-specific outcome retained for academic evidence. Gradebooks, transcripts, learner progress, reporting, certification and audit. EducationStudent and Assessment are mandatory; Enrollment may supply eligibility context. Grade begins provisional and becomes final or void; final outcomes are corrected through explicit follow-up evidence. A student receives score 86 and grade value A on a published Assessment, then the Grade is finalized for transcript use.</p>
+      <p class="meta">Stored as <code>bus_grade</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The permanent identity of one learner&#39;s result, kept even when the score or grade value is corrected. Generated when the result is first recorded; transcripts, gradebooks and certificates refer to it by this value. Identifies one Grade independently of later correction or transcript presentation. Assessment and EducationStudent define what and who were evaluated.</td>
+        </tr>
+        <tr>
+          <td><code>score</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>Numeric score achieved by the learner when numeric scoring applies. Raw or governed numeric outcome before or alongside grade-value interpretation. Grade calculation and analytics. Must respect Assessment maxScore when applicable.</td>
+        </tr>
+        <tr>
+          <td><code>grade_value</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 80</span></td>
+          <td>The grade as the learner sees it, such as A, 72 percent or Pass, as defined by the grading scheme. Entered or derived from the score by the teacher; shown in gradebooks and transcripts and fixed once the grade is final. Records values such as A, Pass, Distinction or rubric result under policy. Interpretation belongs to the applicable grading policy.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the grade is provisional, official or withdrawn. Set by the teacher or registrar; only FINAL grades count towards transcripts and progression. Entered but not yet official; can still change. Confirmed and official; part of the student&#39;s record. A final state. Withdrawn because it was entered in error or annulled; kept for audit. A final state. Distinguishes provisional result, finalized academic evidence and voided erroneous record. FINAL grades are immutable historical evidence under ordinary operation.<div class="detail">One of: <code>DRAFT</code>, <code>FINAL</code>, <code>VOID</code></div></td>
+        </tr>
+        <tr>
+          <td><code>student_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Set when the grade is entered; transcripts are produced from a student&#39;s final grades. Exactly one student: a grade is one learner&#39;s result. Student receiving this Grade. Establishes learner identity for the result. Student must be eligible for the Assessment context.<div class="detail">Points at <b>Student</b></div></td>
+        </tr>
+        <tr>
+          <td><code>enrollment_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Enrollment establishing learner eligibility for the course or class. Provides registration context for the Grade. Gradebook, transcript and eligibility checks. Optional when eligibility is established elsewhere. Enrollment student/course context must agree with Grade and Assessment.<div class="detail">Points at <b>Enrollment</b></div></td>
+        </tr>
+        <tr>
+          <td><code>assessment_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one assessment: a grade is a result for a specific evaluated activity. Assessment producing this learner outcome. Supplies scoring scale, type and curriculum context. Grade validation and reporting. Score and finalization must comply with Assessment policy.<div class="detail">Points at <b>Assessment</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Assessment</b> window, on the <b>Grade</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>score</code></td>
+            <td>Score</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>grade_value</code></td>
+            <td>Grade Value</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>student_id</code></td>
+            <td>Student</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>enrollment_id</code></td>
+            <td>Enrollment</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>assessment_id</code></td>
+            <td>Assessment</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Grade</b> belongs to one <a href="#entity-education-student">Education Student</a>.</li>
+          <li>Each <b>Grade</b> belongs to one <a href="#entity-enrollment">Enrollment</a>.</li>
+          <li>Each <b>Grade</b> belongs to one <a href="#entity-assessment">Assessment</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; GradeLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>FINAL</code> or <code>VOID</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>FINAL</code></td><td><code>finalize</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>VOID</code></td><td><code>void</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>gradeWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-grade-follow-up-required">GradeFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-grade-status" class="entity">
+      <h3>Grade Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of grade status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_grade_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Grade Status</b> window, on the <b>Grade Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-guardian" class="entity">
+      <h3>Guardian <span class="group">Education</span></h3>
+      <p class="lede">A person who is authorised or expected to act for, support, receive communications about, or be responsible for one or more students. Schools deal with parents and carers as well as pupils. The guardian record states who may be contacted, who may authorise things such as trips or collections, and how they relate to the student. Recorded at admission and kept up to date; read by teachers and administrators when they communicate or need consent. A guardian is a Party linked to one or more EducationStudents. A guardian is active while the relationship applies and inactive afterwards; history is kept. Maria Lopez, mother and legal guardian of two students at the school.</p>
+      <p class="meta">Stored as <code>bus_guardian</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the guardian role, independent of the person&#39;s other roles. Generated on creation; consents and contacts refer to it. Identifies one governed education guardian relationship independently of the underlying Party. Party supplies common identity; Guardian supplies education-specific responsibility.</td>
+        </tr>
+        <tr>
+          <td><code>guardian_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The unique reference of the guardian in the school&#39;s system. Assigned at admission; used in the parent portal. Operational identifier used in education administration. Distinct from Party identifiers.</td>
+        </tr>
+        <tr>
+          <td><code>relationship_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>A biological or adoptive parent. A person appointed with legal responsibility for the student. A person who cares for the student day to day without legal guardianship. A person or body that supports the student financially. Any relationship to the student not covered by the other types. How the guardian is related to or responsible for the student. Chosen when recorded; may determine consent and contact rights. Guides communication, authorization and responsibility policy. Does not replace legal evidence required by local policy.<div class="detail">One of: <code>PARENT</code>, <code>LEGAL_GUARDIAN</code>, <code>CAREGIVER</code>, <code>SPONSOR</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the guardian relationship to the student currently applies. Set by administration when the relationship starts or ends; only active guardians are contacted or asked for consent. Current; the guardian may be contacted and may act. No longer applies; kept for history. Controls current use without deleting historical communications or authorizations. Student-specific relationship validity may be narrower than overall guardian status.<div class="detail">One of: <code>ACTIVE</code>, <code>INACTIVE</code></div></td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The person or organisation who holds the guardian role. Exactly one party: the guardian role is held by a specific person or organisation. Reuses common identity and contact data without duplication. Communication, authorization and audit. Party identity changes do not rewrite historical guardian evidence.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Guardian</b> window, on the <b>Guardian</b> tab. These are its 5 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>guardian_code</code></td>
+            <td>Guardian Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>relationship_type</code></td>
+            <td>Relationship Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Guardian</b> is linked to many <a href="#entity-education-student">Education Student</a> records.</li>
+          <li>Each <b>Guardian</b> belongs to one <a href="#entity-party">Party</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; GuardianLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-guardian-relationship-type" class="entity">
+      <h3>Guardian Relationship Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of guardian relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_guardian_relationship_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Guardian Relationship Type</b> window, on the <b>Guardian Relationship Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-guardian-status" class="entity">
+      <h3>Guardian Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of guardian status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_guardian_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Guardian Status</b> window, on the <b>Guardian Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -4061,10 +5578,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>&mdash;</td>
           <td>The EducationCourse this Party belongs to.<div class="detail">Points at <b>Education Course</b></div></td>
         </tr>
+        <tr>
+          <td><code>class_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The Class this Party belongs to.<div class="detail">Points at <b>Class</b></div></td>
+        </tr>
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Party</b> window, on the <b>Party</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -4116,6 +5639,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>60</td>
             <td>No</td>
           </tr>
+          <tr>
+            <td><code>class_id</code></td>
+            <td>Class</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
         </tbody>
       </table>
       <h4>Related records</h4>
@@ -4128,7 +5659,9 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party</b> has many <a href="#entity-contact-point">Contact Point</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-task">Task</a> records.</li>
           <li>Each <b>Party</b> belongs to one <a href="#entity-education-course">Education Course</a>.</li>
+          <li>Each <b>Party</b> belongs to one <a href="#entity-class">Class</a>.</li>
           <li>Each <b>Party</b> has many <a href="#entity-education-student">Education Student</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-guardian">Guardian</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; PartyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -6381,9 +7914,17 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>taskInvariantsBeforeCreate</code></td><td><a href="#entity-task">Task</a></td><td>beforeCreate</td></tr>
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>classInvariantsBeforeCreate</code></td><td><a href="#entity-class">Class</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>classInvariantsBeforeUpdate</code></td><td><a href="#entity-class">Class</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>feeInvariantsBeforeCreate</code></td><td><a href="#entity-fee">Fee</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>feeInvariantsBeforeUpdate</code></td><td><a href="#entity-fee">Fee</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>classWorkflowsAfterUpdate</code></td><td><a href="#entity-class">Class</a></td><td>afterUpdate</td></tr>
         <tr><td><code>enrollmentWorkflowsAfterUpdate</code></td><td><a href="#entity-enrollment">Enrollment</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>assessmentWorkflowsAfterUpdate</code></td><td><a href="#entity-assessment">Assessment</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>gradeWorkflowsAfterUpdate</code></td><td><a href="#entity-grade">Grade</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>feeWorkflowsAfterUpdate</code></td><td><a href="#entity-fee">Fee</a></td><td>afterUpdate</td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -6406,6 +7947,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-class-follow-up-required" class="process">
+      <h3>ClassFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-class">Class</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <div id="process-enrollment-follow-up-required" class="process">
       <h3>EnrollmentFollowUpRequired</h3>
       <p class="meta">On <a href="#entity-enrollment">Enrollment</a>, rule on UPDATE.</p>
@@ -6420,6 +7968,27 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: confirm <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-assessment-follow-up-required" class="process">
+      <h3>AssessmentFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-assessment">Assessment</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-grade-follow-up-required" class="process">
+      <h3>GradeFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-grade">Grade</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-fee-follow-up-required" class="process">
+      <h3>FeeFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-fee">Fee</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <p class="back"><a href="#top">Back to contents</a></p>
   </section>
 
@@ -6432,7 +8001,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    education 1.0.0 &middot; 52 record types &middot; 11 rules &middot; 17 processes
+    education 1.0.0 &middot; 64 record types &middot; 19 rules &middot; 26 processes
   </footer>
 </div>
 </body>

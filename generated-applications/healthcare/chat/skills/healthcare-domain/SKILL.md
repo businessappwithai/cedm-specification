@@ -75,6 +75,37 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Appointment
+
+Represents scheduled healthcare intent independently of actual care delivery. Appointment answers when care is planned; HealthcareEncounter records what actually occurred. Keeping them separate supports cancellations, no-shows, rescheduling and audit. Patient scheduling, provider capacity, reminders, check-in, operational planning, reporting and integration. HealthcarePatient is mandatory; Practitioner, HealthcareProvider and Location define planned resources; HealthcareEncounter supplies actual-care reconciliation. Appointments are scheduled, may be confirmed and checked in, and finish as co…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Appointment Number** (required) — The scheduling reference given to the appointment, used in reminders and check-in. Operational identifier for scheduling and communication. Search, reminders, check-in and integration. Distinct from patient and encounter identifiers.
+  - **Appointment Type** (required) — The kind of healthcare service the visit is booked for, such as a follow-up consultation, vaccination or imaging slot. Chosen by the scheduler when booking; drives how long a slot is held, which resources it needs and how capacity is repor…
+  - **Scheduled Start At** (required) — The date and time at which the patient is expected to be seen, in the clinic's planning calendar. Entered when the appointment is booked and changed on rescheduling; reminders fire from it and lateness is measured against it. Establishes w…
+  - **Scheduled End At** — The planned end of the slot, giving the time the practitioner and room are held. Optional; when given it must fall after the start. Capacity planning uses it to detect overlapping bookings for the same resource. Supports resource-capacity…
+  - **Status** (required, one of the Appointment Status values) — Where the booking stands, from being scheduled through attendance to closure as completed, cancelled or missed. Moved by front-desk staff and clinicians as the patient confirms, arrives and is seen; reminders and capacity reports filter on…
+  - **Patient** (required, a Healthcare Patient) — Exactly one patient; an appointment cannot exist without the person it is for. Patient for whom the appointment is scheduled. Establishes the recipient of intended care. Scheduling, reminders and patient history. Patient status and schedul…
+  - **Provider** (a Healthcare Provider) — Healthcare provider organization or service context for the appointment. Supplies organizational delivery context. Scheduling, reporting and operational routing. Optional where practitioner or location fully determines context. Provider el…
+  - **Practitioner** (a Practitioner) — Practitioner scheduled to deliver or supervise care. Supplies professional resource commitment. Scheduling, capacity and reporting. Optional before assignment or for resource-pool appointments. Practitioner must be eligible when assigned.
+  - **Location** (a Location) — Planned physical or virtual service location. Defines where scheduled care is expected to occur. Scheduling, navigation and resource planning. Optional for unsited or virtual appointments represented elsewhere. Location availability must b…
+  - **Encounter** (a Healthcare Encounter) — Actual healthcare encounter arising from this appointment. Separates scheduled intent from delivered care evidence. Scheduling reconciliation, clinical operations and audit. Optional before care or for cancelled/no-show appointments. COMPL…
+
+### Appointment Status
+
+The values of appointment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Attachment
 
 A file or other content attached to an enterprise record, with its content identity and provenance kept for audit. Supporting documents, photos and scans back up decisions. Keeping them as governed records, rather than loose files, proves what was attached to what and when, and lets the same content be recognised if it is attached twice. Added when a user or system attaches evidence to a record; read when someone needs to see or verify the supporting document. An attachment is linked to the record it supports; the same file may be attached to more than one. Once attached, the content is evide…
@@ -687,6 +718,32 @@ Fields:
   - **Sequence** (required) — The position of the value in a dropdown, lowest first.
   - **Is Active** (required) — Whether the value is offered on new records.
 
+### Practitioner
+
+Represents the professional healthcare role of a Person. Practitioner identifies who is professionally authorized to deliver care; HealthcareProvider supplies organizational context; Appointment schedules intended care and HealthcareEncounter records actual care. Healthcare scheduling, provider directories, encounters, credentialing, reporting and audit. Person is mandatory, provider affiliations define care settings, appointments represent scheduled commitments and encounters preserve actual participation. Practitioner roles become active after setup, may suspend or become inactive, and even…
+
+Readable by every signed-in person.
+
+Fields:
+  - **Practitioner Code** (required) — The code by which the practitioner is known in the healthcare organisation. Assigned at credentialing; unique; used on orders, schedules and prescriptions. Operational identifier used by healthcare workflows and integrations. Distinct from…
+  - **License Number** — The professional licence number issued by the licensing body. Entered at credentialing from the licence; checked against its expiry before the practitioner is scheduled. Supports evidence that the practitioner is authorized under an extern…
+  - **Specialty** — The practitioner's clinical specialty, such as cardiology or paediatrics. Entered at credentialing; used to route referrals and choose the right clinician for an appointment. Describes the practitioner's service domain for scheduling and r…
+  - **Status** (required, one of the Practitioner Status values) — Whether the practitioner is cleared to work in this organisation. Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders. Being credentialed; licence and affiliation checks are not complete, so no clinical w…
+  - **Person** (required, a Person) — The individual who holds the practitioner role. Set at credentialing and not changed. Exactly one person: the professional role is held by a specific individual. Keeps the person's identity in one place across all their roles. Separates co…
+
+### Practitioner Status
+
+The values of practitioner status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.
+
+Readable by every signed-in person.
+
+Fields:
+  - **Code** (required) — The value stored on every record that uses this list. Fixed once created.
+  - **Name** (required) — What a person reads in the dropdown and on a record.
+  - **Description** — What the value means to the business.
+  - **Sequence** (required) — The position of the value in a dropdown, lowest first.
+  - **Is Active** (required) — Whether the value is offered on new records.
+
 ### Prescription
 
 An authorised instruction for a patient to receive or use a medication or therapy. The prescription turns a clinical decision into an instruction that pharmacists and nurses can follow safely: who gets what, how much, how often and for how long. Written by a prescriber after assessment; dispensed and administered; read by pharmacy, nursing and the patient. A prescription is for a HealthcarePatient, names a Medication and is issued by a HealthcareProvider. A prescription is drafted, becomes active when signed, and ends completed when the course is finished, discontinued by the prescriber, or c…
@@ -866,6 +923,15 @@ Fields:
 - **ACTIVE** — Confirmed and in force; safety checks must take it into account.
 - **COMPLETED** — No longer applies, for example outgrown or disproved; kept for history.
 - **CANCELLED** — Entered in error and withdrawn; kept for audit.
+
+### Appointment Status
+
+- **SCHEDULED** — Appointment is booked but not yet confirmed by the patient or provider.
+- **CONFIRMED** — Patient or provider confirmation has been recorded.
+- **CHECKED IN** — Patient arrival or equivalent readiness has been recorded.
+- **COMPLETED** — Scheduled service concluded and any required encounter evidence is reconciled. A final state.
+- **CANCELLED** — The appointment was cancelled by the patient or provider before it took place. A final state.
+- **NO SHOW** — Patient did not attend according to policy. A final state.
 
 ### Care Plan Status
 
@@ -1051,6 +1117,14 @@ Fields:
 - **INACTIVE** — The party is retained but is not normally eligible for new activity.
 - **BLOCKED** — Business activity is restricted pending resolution of a business, risk, compliance, or operational condition.
 - **RETIRED** — The party relationship is permanently ended for normal operational use while historical references remain valid.
+
+### Practitioner Status
+
+- **DRAFT** — Being credentialed; licence and affiliation checks are not complete, so no clinical work yet.
+- **ACTIVE** — Cleared to practise here; can be scheduled, appointed and place orders.
+- **SUSPENDED** — Barred while a licence or conduct matter is reviewed.
+- **INACTIVE** — Not currently practising here but may return.
+- **RETIRED** — No longer a practitioner here. A final state.
 
 ### Prescription Status
 
@@ -1266,6 +1340,37 @@ Moves:
 - INACTIVE → RETIRED (Retire)
 - SUSPENDED → RETIRED (Retire)
 
+### Practitioner — Practitioner Lifecycle
+
+Starts at **DRAFT**.
+Final: **RETIRED**.
+
+Moves:
+- DRAFT → ACTIVE (Activate)
+- ACTIVE → SUSPENDED (Suspend)
+- SUSPENDED → ACTIVE (Resume)
+- ACTIVE → INACTIVE (Deactivate)
+- INACTIVE → ACTIVE (Reactivate)
+- DRAFT → RETIRED (Retire)
+- ACTIVE → RETIRED (Retire)
+- SUSPENDED → RETIRED (Retire)
+- INACTIVE → RETIRED (Retire)
+
+### Appointment — Appointment Lifecycle
+
+Starts at **SCHEDULED**.
+Final: **COMPLETED**, **CANCELLED**, **NO SHOW**.
+
+Moves:
+- SCHEDULED → CONFIRMED (Confirm)
+- SCHEDULED → CHECKED IN (Check In)
+- CONFIRMED → CHECKED IN (Check In)
+- CHECKED IN → COMPLETED (Complete)
+- SCHEDULED → CANCELLED (Cancel)
+- CONFIRMED → CANCELLED (Cancel)
+- SCHEDULED → NO SHOW (Mark No Show)
+- CONFIRMED → NO SHOW (Mark No Show)
+
 ### Healthcare Encounter — Healthcare Encounter Lifecycle
 
 Starts at **PLANNED**.
@@ -1347,7 +1452,7 @@ Moves:
 
 ## Roles
 
-- **User** — reads 65 of 65 record types
+- **User** — reads 69 of 69 record types
 - **Administrator** — reads and changes everything the lifecycles allow
 
 A refusal means the person's role does not allow it. Say which role does, from this list, and suggest their administrator.

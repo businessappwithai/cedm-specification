@@ -288,6 +288,74 @@ enums:
       RESERVED: Held for an expected move or planned placement but not yet physically occupied.
       BLOCKED: Temporarily unavailable because of an operational restriction such as traffic, safety, inspection, congestion, or local control.
       OUT_OF_SERVICE: Physically or administratively unavailable for an extended reason such as damage, maintenance, construction, or reconfiguration.
+  - name: PortStatus
+    values: [ACTIVE, RESTRICTED, CLOSED]
+    table: true
+    descriptions:
+      ACTIVE: Open for ordinary calls and terminal operations.
+      RESTRICTED: Open with limits such as draught, hazardous cargo or weather restrictions; new calls need planner approval.
+      CLOSED: Not accepting new calls; historical records remain valid.
+  - name: BerthStatus
+    values: [ACTIVE, RESTRICTED, OUT_OF_SERVICE, RETIRED]
+    table: true
+    descriptions:
+      ACTIVE: Open for ordinary vessel assignments.
+      RESTRICTED: Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval.
+      OUT_OF_SERVICE: Temporarily unusable, for example for dredging or repair; no new assignments.
+      RETIRED: Permanently removed from use; kept for history of past assignments. A final state.
+  - name: GateGateType
+    values: [TRUCK, RAIL, PEDESTRIAN, VESSEL_SIDE]
+    table: true
+    descriptions:
+      TRUCK: Road haulage entry and exit with container and driver checks.
+      RAIL: Rail entry and exit for wagons and rail-borne containers.
+      PEDESTRIAN: Personnel access only, with no cargo custody transfer.
+      VESSEL_SIDE: Access from the quay side for ship-borne movements.
+  - name: GateStatus
+    values: [OPEN, CLOSED, RETIRED]
+    table: true
+    descriptions:
+      OPEN: Accepting traffic during its operating hours.
+      CLOSED: Temporarily not accepting traffic; it can reopen.
+      RETIRED: Permanently decommissioned; kept for history only.
+  - name: GateEventDirection
+    values: [IN, OUT, INTERNAL, OTHER]
+    table: true
+    descriptions:
+      IN: Entry into the controlled terminal area, which starts the subject's time inside.
+      OUT: Exit from the controlled terminal area, which ends the subject's time inside.
+      INTERNAL: A gate-controlled move between zones inside the terminal, with no entry or exit.
+      OTHER: Another governed gate occurrence that is neither entry, exit nor internal move.
+  - name: GateEventStatus
+    values: [RECORDED, VERIFIED, REVERSED]
+    table: true
+    descriptions:
+      RECORDED: Captured at the gate, not yet checked.
+      VERIFIED: Checked and accepted as evidence. A final state.
+      REVERSED: Withdrawn because it was recorded in error; a follow-up event carries the correction. A final state.
+  - name: ContainerVisitStatus
+    values: [ACTIVE, COMPLETED, CANCELLED]
+    table: true
+    descriptions:
+      ACTIVE: The container is in the terminal and the visit is open.
+      COMPLETED: The container has left and the visit is closed for billing.
+      CANCELLED: The visit was opened in error or the container never arrived; no storage charges apply.
+  - name: VesselStatus
+    values: [ACTIVE, INACTIVE, OUT_OF_SERVICE, RETIRED]
+    table: true
+    descriptions:
+      ACTIVE: In service and available for voyages.
+      INACTIVE: Temporarily not used, for example laid up, but expected to return.
+      OUT_OF_SERVICE: Unavailable because of damage, repair or a compliance problem.
+      RETIRED: Permanently withdrawn from the fleet, for example sold or scrapped. A final state.
+  - name: VoyageStatus
+    values: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
+    table: true
+    descriptions:
+      PLANNED: Scheduled but the vessel has not yet departed.
+      ACTIVE: The vessel has departed and the voyage is under way.
+      COMPLETED: The vessel has arrived and the voyage is finished. A final state.
+      CANCELLED: The sailing was called off before completion. A final state.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -296,10 +364,10 @@ categories:
     entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, StateProvince, City, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment, Task]
   - name: Container and Intermodal Logistics
     icon: container
-    entities: [Container, ContainerMovement, Yard]
+    entities: [Container, ContainerMovement, Yard, Port, Berth, Gate, GateEvent, ContainerVisit, Vessel, Voyage]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ContainerStatus, ContainerMovementMovementType, ContainerMovementStatus, ContainerMovementPriority, YardStatus, YardBlockStatus, YardBayStatus, YardTierStatus, YardSlotStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, ContainerStatus, ContainerMovementMovementType, ContainerMovementStatus, ContainerMovementPriority, YardStatus, YardBlockStatus, YardBayStatus, YardTierStatus, YardSlotStatus, PortStatus, BerthStatus, GateGateType, GateStatus, GateEventDirection, GateEventStatus, ContainerVisitStatus, VesselStatus, VoyageStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -14594,6 +14662,11 @@ entities:
         references: Party
         optional: true
         help: Identifies the party responsible for executing the movement when responsibility is modeled at party level. Supports dispatch accountability, contractor management, workload, safety, and performance reporting. Optional because execution may instead be assigned through a specialized worker, vehicle, crane, or external execution model. Party provides identity; specialized assignment entities can provide the operational execution details.
+      - name: container_visit_id
+        type: string
+        fk: true
+        optional: true
+        help: The ContainerVisit this ContainerMovement belongs to.
   - name: Yard
     help: Represents the facility-level operational boundary for container storage and handling. Yard is the physical and operational context in which containers enter, occupy storage positions, move between positions, undergo inspection or repair, and eventually leave the facility. It is more specific than Location but broader than a YardBlock or YardSlot. Used by container depots, terminals, inland yards, maintenance facilities, logistics operators, gate systems, yard management systems, capacity planning, and transport integrations. Location provides geographic identity. Yard provides facility semantics. YardBlock → YardBay → YardTier → YardSlot provides progressively finer storage position. Container identifies the equipment. ContainerMovement records movement history. Yard status controls facility-level availability while slot status controls individual placement availability. A yard is planned and configured, activated for operations, potentially suspended during incidents or restrictions, and eventually closed. Suspension or closure changes what new work may be accepted but does not erase historical container, movement, inspection, repair, or gate records. A typical flow is gate-in → equipment identification/inspection → yard allocation → placement in a compatible YardSlot → internal movement as required → inspection/repair or release → pre-dispatch staging → gate-out. Each stage should remain traceable to the yard and its physical position. A container depot operates YARD01. A truck gates in a container, the system identifies its size/type and condition, selects a compatible slot such as Block B / Bay 12 / Tier 3, records the placement, and later moves the container to a repair area. The yard remains the facility context while the slot and movement records provide precise operational history.
     icon: table
@@ -14726,6 +14799,228 @@ entities:
         fk: true
         references: YardTier
         help: A slot lies on exactly one tier, which is its height in the stack. Places the slot within its parent YardTier and therefore determines its complete physical yard hierarchy. Used to derive bay, block, and yard context and validate addressing and stacking rules. Tier provides vertical context; position supplies local horizontal context; together with the parent hierarchy they identify the atomic storage address.
+  - name: Port
+    help: Represents a port facility that vessels call at and that contains berths and gates. Port is the facility master record; Voyage is a journey between ports, Berth is a quay position at one port and Gate is a landside checkpoint at one port. Voyage planning, berth and gate management, schedule exchange, throughput reporting and audit. Berths and gates belong to a port; voyages name ports as origin and destination; Location supplies the physical site. A port is active, may be restricted or closed, and can reopen; its history is never removed.
+    icon: anchor
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the port, stable when its code or name is revised. Identifies one port facility independently of its code, name or the locations it occupies. Referenced by berths, gates, voyages and port-call records; generated once and never changed. Berth.port and Voyage.originPort / destinationPort resolve to this identity.
+      - name: port_code
+        type: string(20)
+        unique: true
+        help: The recognised port code, such as a UN/LOCODE, used by carriers, customs and terminal systems. The code partners use to name this port in bookings, manifests and schedules, so it must be stable and unique. Used for lookup, voyage planning, document exchange and integration with external schedules. Voyages name their origin and destination ports by this code on external documents.
+      - name: name
+        type: string(300)
+        help: The name people use for the port. Supports recognition on planning screens and reports; it may be reworded without changing the port's identity. Shown in lists, voyage schedules, berth planning and reports. The code stays the operational key when the displayed name is revised.
+      - name: time_zone
+        type: string(64)
+        optional: true
+        help: The IANA time zone in which the port schedules arrivals, departures and gate hours. Port calls and gate hours are quoted in local time, so the zone is needed to compare them across ports. Applied when displaying and comparing voyage times and berth windows. Voyage departure and arrival times are interpreted in the zone of the port they refer to.
+      - name: status
+        type: string
+        enum: PortStatus
+        help: Whether the port is open for ordinary new vessel calls and terminal activity. Lets planners stop scheduling new calls at a port without losing its voyage and berth history. Checked when planning voyages and assigning berths; filtered in port pick-lists. Existing voyages, berths and gates keep their history when the status changes. Open for ordinary calls and terminal operations. Open with limits such as draught, hazardous cargo or weather restrictions; new calls need planner approval. Not accepting new calls; historical records remain valid.
+        default: ACTIVE
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: The physical site record on which the port stands. Provides address and geospatial context without duplicating location master data on the port. Navigation, mapping and distance or transit-time calculation. A port stands on at most one location record; a location is not necessarily a port. Supplies the site context for port planning and reporting.
+  - name: Berth
+    help: Represents berth infrastructure and availability within a Port. Berth is a persistent terminal resource; Voyage is a journey that may be assigned to it. Port operations, berth planning, vessel scheduling, capacity, reporting and audit. Port is mandatory; Location is optional physical context; Voyages preserve utilization history. Berth is active, may be restricted/out of service and eventually retired.
+    icon: anchor
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the berth, independent of how the terminal currently numbers or names it. Identifies one terminal berth independently of Port or Location labels. Berth planning, vessel operations, reporting and audit. Port owns the terminal context while Location may provide physical geography.
+      - name: berth_code
+        type: string(120)
+        unique: true
+        help: The terminal's reference for the berth, such as B12, used by planners and in vessel schedules. Operational code used by terminal and vessel planners. Scheduling, communication and integration. Stable within port governance.
+      - name: name
+        type: string(300)
+        optional: true
+        help: The descriptive name of the berth, for example North Quay Berth 3. Supports operational recognition. Planning screens and reports. Code remains the primary operational reference.
+      - name: status
+        type: string
+        enum: BerthStatus
+        help: Whether the berth can currently take vessels, and with what limits, through to being permanently withdrawn. Set by port planners as conditions change; vessel scheduling consults it before assigning a voyage, and safety restrictions are applied through it. Open for ordinary vessel assignments. Usable only with limits, such as reduced draught or vessel length; new assignments need planner approval. Temporarily unusable, for example for dredging or repair; no new assignments. Permanently removed from use; kept for history of past assignments. A final state. Controls ordinary new vessel assignments. Historical vessel use remains valid after status changes.
+        default: ACTIVE
+      - name: port_id
+        type: string
+        fk: true
+        help: The port in which the berth is located. Exactly one port; a berth cannot be shared between ports. Establishes terminal ownership and operational context. Port planning and reporting. Berth assignments occur within this Port.
+      - name: location_id
+        type: string
+        fk: true
+        optional: true
+        help: Physical location record associated with the Berth. Provides geospatial/site context without duplicating Location master data. Navigation, GIS and reporting. Optional where Port/Berth code is sufficient. Location changes do not rewrite historical assignments.
+  - name: Gate
+    help: Represents a landside checkpoint at a port through which containers and vehicles pass. Gate is checkpoint master data; GateEvent records what happened at it; Port provides the wider terminal context. Gate appointments, event capture, security, custody, throughput reporting and audit. Port is mandatory; events accumulate against the gate and are never reassigned. A gate is open, may be closed and reopened, and is eventually retired.
+    icon: log-in
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the checkpoint, stable when its code or lane layout changes. Identifies one checkpoint independently of its code or the lane layout currently in use. Referenced by every gate event recorded at the checkpoint. GateEvent.gate resolves to this identity.
+      - name: gate_code
+        type: string(60)
+        unique: true
+        help: The operational code of the gate, such as the number painted on the lane or used in the terminal operating system. The reference gate clerks, truck drivers and integrations use to name a checkpoint. Used in gate appointments, event capture and integration messages. Gate events carry this code when imported from external gate systems.
+      - name: name
+        type: string(300)
+        optional: true
+        help: The descriptive name of the gate, such as North Truck Gate, as staff and drivers know it. Entered at set-up and shown on operations screens and reports; it can change while the gate code stays the key. Helps staff recognise the checkpoint, for example Main Truck Gate or Rail Gate. The gate code remains the operational key when the name is changed.
+      - name: gate_type
+        type: string
+        enum: GateGateType
+        help: The kind of traffic the gate is built and staffed to process. Different traffic needs different checks, so the type decides which procedures apply at the checkpoint. Used to route appointments and to filter gate events by mode. The type constrains which subjects (container, vehicle, driver) a gate event at this gate normally carries. Road haulage entry and exit with container and driver checks. Rail entry and exit for wagons and rail-borne containers. Personnel access only, with no cargo custody transfer. Access from the quay side for ship-borne movements.
+        default: TRUCK
+      - name: status
+        type: string
+        enum: GateStatus
+        help: Whether the gate is accepting traffic. Allows a checkpoint to be closed for shifts, maintenance or incidents without losing its event history. Checked when gate appointments are issued and when events are captured. Recorded gate events remain valid after the gate changes status. Accepting traffic during its operating hours. Temporarily not accepting traffic; it can reopen. Permanently decommissioned; kept for history only.
+        default: OPEN
+      - name: port_id
+        type: string
+        fk: true
+        help: The port to which this gate belongs. Places the checkpoint in a terminal operation so throughput can be reported per port. Port-level gate planning and reporting. A gate belongs to exactly one port; a port has many gates. Closing a port stops gate activity at all of its gates.
+  - name: GateEvent
+    help: Preserves immutable terminal gate entry/exit evidence. Gate is checkpoint master data; GateEvent records what happened; ContainerVisit and Movement summarize broader operational state/history. Container terminals, ports, yards, security, custody, billing, tracking and audit. Gate is mandatory; Container, Vehicle, Driver and ContainerVisit identify event subjects and context. Event is recorded, then verified or reversed with original evidence retained.
+    icon: log-in
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of this gate occurrence. Generated on capture; verification, reversal and visit records refer to it. Identifies one terminal entry/exit occurrence independently of current container or vehicle state. Gate supplies checkpoint context while Container/Vehicle/Visit identify subjects.
+      - name: occurred_at
+        type: datetime
+        help: The moment the container, vehicle or visit passed through the gate or was processed there. Taken from the gate system's own timestamp; dwell time, security review and billing disputes are resolved against it. Establishes custody and terminal chronology. Must preserve source event time independently of ingestion time.
+      - name: direction
+        type: string
+        enum: GateEventDirection
+        help: Whether the movement entered the controlled area, left it, or passed between internal zones. Set by the gate system at capture; yard inventory and custody transfer change according to it. Entry into the controlled terminal area, which starts the subject's time inside. Exit from the controlled terminal area, which ends the subject's time inside. A gate-controlled move between zones inside the terminal, with no entry or exit. Another governed gate occurrence that is neither entry, exit nor internal move. Determines whether the event represents entry, exit or another gate-controlled movement. ContainerVisit/Movement must reconcile to direction.
+      - name: status
+        type: string
+        enum: GateEventStatus
+        help: Whether the recorded gate event has been checked. Set by gate supervision or reconciliation. Captured at the gate, not yet checked. Checked and accepted as evidence. A final state. Withdrawn because it was recorded in error; a follow-up event carries the correction. A final state. Distinguishes captured, verified and explicitly reversed events. Reversal preserves original evidence.
+        default: RECORDED
+      - name: gate_id
+        type: string
+        fk: true
+        help: "Exactly one gate: every occurrence is recorded at a specific checkpoint. Terminal Gate where the event occurred. Supplies checkpoint context. Operations, security and reporting. Gate must be operational at event time except governed exceptions."
+      - name: container_id
+        type: string
+        fk: true
+        optional: true
+        help: Container processed by the GateEvent. Preserves container custody and terminal presence evidence. Container tracking and yard operations. Optional for vehicle-only or non-container events. ContainerVisit/Movement direction must reconcile.
+      - name: container_visit_id
+        type: string
+        fk: true
+        optional: true
+        help: Container terminal visit to which this GateEvent belongs. Connects immutable gate evidence to the container's broader terminal stay. Dwell, custody and terminal reporting. Optional before visit matching or for non-container events. Gate-in/out chronology must reconcile to Visit lifecycle.
+  - name: ContainerVisit
+    help: Represents one continuous stay of a container in a terminal, with the events and moves that make it up. Container is the physical box; ContainerVisit is one stay of it in a terminal; GateEvent and ContainerMovement are the events inside the stay. Terminal operations, yard inventory, dwell and demurrage billing, customs and audit. A visit belongs to one container and collects its gate events and movements. A visit is opened on arrival, then completed when the container leaves or cancelled if opened in error.
+    icon: container
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the stay, separate from the container, which visits many times over its life. Identifies one stay of a container in the terminal, separate from the container itself, which visits many times over its life. Referenced by gate events, container movements and voyage manifests that belong to the stay. GateEvent.containerVisit and Voyage.containerVisits resolve to this identity.
+      - name: visit_reference
+        type: string(120)
+        unique: true
+        optional: true
+        help: The terminal's own reference for the visit, such as the visit number printed on the gate receipt. Lets drivers, shipping lines and the terminal refer to the same stay without exchanging internal identifiers. Quoted on gate receipts, appointments and integration messages. External gate and yard systems send this reference to attach their messages to the right stay.
+      - name: arrived_at
+        type: datetime
+        help: When the container entered the terminal and custody began. Starts the dwell clock that storage charges and free-time rules run against. Used to calculate dwell time, storage billing and demurrage exposure. Normally equals the time of the inbound GateEvent or the vessel discharge that opened the visit.
+      - name: departed_at
+        type: datetime
+        optional: true
+        help: When the container left the terminal and custody ended. Closes the dwell clock; an empty value means the container is still in the terminal. Used to close the visit, finalise storage billing and report dwell. Normally equals the time of the outbound GateEvent or the vessel load that closed the visit.
+      - name: status
+        type: string
+        enum: ContainerVisitStatus
+        help: "Where the visit stands: in progress, finished or withdrawn. Distinguishes containers currently in custody from completed stays and visits opened in error. Filters yard inventory, dwell reports and billing runs. Gate events and movements stay attached to the visit whatever its status. The container is in the terminal and the visit is open. The container has left and the visit is closed for billing. The visit was opened in error or the container never arrived; no storage charges apply."
+        default: ACTIVE
+      - name: container_id
+        type: string
+        fk: true
+        help: The container whose stay this visit records. Ties custody, dwell and billing to the physical container. Inventory and history lookup per container. A visit concerns exactly one container; one container has many visits over time. A container can have only one ACTIVE visit at a time.
+      - name: voyage_id
+        type: string
+        fk: true
+        optional: true
+        help: The Voyage this ContainerVisit belongs to.
+  - name: Vessel
+    help: Represents the persistent maritime transport resource across voyages and port operations. Vessel is the long-lived ship identity; Voyage is one journey; Berth and Port provide terminal context. Shipping, port operations, container logistics, scheduling, reporting and audit. Owner/operator provide Party context and Voyages preserve operational history. Vessel remains active or temporarily unavailable until retirement, with voyage history retained.
+    icon: ship
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the vessel, constant for its life. Identifies one maritime transport resource independently of voyages and port calls. Port operations, logistics, scheduling, reporting and audit. Vessel persists across many Voyages.
+      - name: vessel_code
+        type: string(120)
+        unique: true
+        help: The operational reference by which schedulers and port staff identify the vessel. Unique; assigned when the vessel is registered and used in voyage planning, searches, reports and integrations. Human/integration identifier for port and shipping workflows. May complement external IMO or registry identifiers.
+      - name: name
+        type: string(300)
+        help: The registered name of the ship as shown on its papers and used in port communication. Entered when the vessel is registered; shown on voyage schedules, berth plans and cargo documents. Operationally recognizes the maritime asset. Name may change while vesselId remains stable.
+      - name: imo_number
+        type: string(40)
+        optional: true
+        help: The seven-digit International Maritime Organization number that identifies a ship for life. Entered where the vessel has one; used for compliance, port clearance and matching to external registries and tracking services. Supports external maritime identity and integration. Does not replace internal vesselId.
+      - name: status
+        type: string
+        enum: VesselStatus
+        help: Whether the vessel is available for voyages, idle, out of action or permanently withdrawn. Starts as ACTIVE; moved by operations staff, and scheduling only assigns voyages to vessels that are active. In service and available for voyages. Temporarily not used, for example laid up, but expected to return. Unavailable because of damage, repair or a compliance problem. Permanently withdrawn from the fleet, for example sold or scrapped. A final state. Controls eligibility for new voyage assignment. Historical Voyages remain attributable after status changes.
+        default: ACTIVE
+      - name: owner_id
+        type: string
+        fk: true
+        references: Organization
+        optional: true
+        help: Organization owning the Vessel where known. Supplies asset ownership context. Shipping, finance and reporting. Optional for leased/third-party vessels. Ownership changes do not rewrite voyage history.
+  - name: Voyage
+    help: Represents one maritime journey used by shipping and terminal operations. Vessel is the resource; Voyage is the journey; Port/Berth provide terminal context; ContainerVisit ties cargo presence to the journey. Maritime logistics, port scheduling, container terminals, tracking, reporting and audit. Vessel is mandatory; Ports, Berths and ContainerVisits provide operational context. Voyage is planned, becomes active and completes or is cancelled with history retained.
+    icon: route
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the voyage, constant for its life. Identifies one maritime journey independently of the Vessel master. Shipping, port planning, container tracking and audit. Vessel performs many Voyages.
+      - name: voyage_number
+        type: string(120)
+        unique: true
+        help: The operational reference for one sailing, quoted in bookings and schedules. Unique; assigned when the voyage is planned and used by shippers, terminals and tracking to refer to that sailing. Human/integration identifier used by carriers, ports and customers. Stable for the modeled journey occurrence.
+      - name: planned_departure_at
+        type: datetime
+        optional: true
+        help: The scheduled time the vessel is due to leave its origin port. Set when the voyage is planned and revised if the schedule changes; port planners use it to prepare berths and ETA forecasts. Supports berth, yard and cargo scheduling. Actual tracking remains separate evidence.
+      - name: planned_arrival_at
+        type: datetime
+        optional: true
+        help: The scheduled time the vessel is due to reach its destination or principal port. Must not precede the planned departure; berth, yard and crane planning are built around it and updated as the ETA moves. Supports downstream terminal planning. Must follow plannedDepartureAt when both are supplied.
+      - name: status
+        type: string
+        enum: VoyageStatus
+        help: How far the sailing has progressed, from planning through the voyage to its end. Starts as PLANNED; moved by shipping operations as the vessel sails, arrives or the sailing is called off. Scheduled but the vessel has not yet departed. The vessel has departed and the voyage is under way. The vessel has arrived and the voyage is finished. A final state. The sailing was called off before completion. A final state. Controls planning and execution progression. Completed voyage history is immutable.
+        default: PLANNED
+      - name: vessel_id
+        type: string
+        fk: true
+        help: A voyage is made by exactly one vessel. Vessel performing the Voyage. Establishes maritime transport resource. Shipping operations and reporting. Vessel must be eligible when Voyage begins.
+      - name: origin_port_id
+        type: string
+        fk: true
+        references: Port
+        optional: true
+        help: Principal origin Port. Establishes planned maritime journey start. Scheduling and reporting. Optional for complex multi-port voyage representation. Port schedule must reconcile to voyage plan.
   - name: PartyPartyType
     help: "The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15501,6 +15796,231 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: PortStatus
+    help: "The values of port status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: BerthStatus
+    help: "The values of berth status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: GateGateType
+    help: "The values of gate gate type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: GateStatus
+    help: "The values of gate status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: GateEventDirection
+    help: "The values of gate event direction, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: GateEventStatus
+    help: "The values of gate event status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: ContainerVisitStatus
+    help: "The values of container visit status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: VesselStatus
+    help: "The values of vessel status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: VoyageStatus
+    help: "The values of voyage status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
 relationships:
   - from: Party
     fromCardinality: exactly-one
@@ -15705,6 +16225,82 @@ relationships:
     to: YardSlot
     toCardinality: one-or-more
     label: slots
+  - from: Location
+    fromCardinality: exactly-one
+    to: Port
+    toCardinality: zero-or-more
+  - from: Port
+    fromCardinality: exactly-one
+    to: Berth
+    toCardinality: zero-or-more
+    label: berths
+  - from: Port
+    fromCardinality: exactly-one
+    to: Gate
+    toCardinality: zero-or-more
+    label: gates
+  - from: Location
+    fromCardinality: exactly-one
+    to: Berth
+    toCardinality: zero-or-more
+  - from: Berth
+    fromCardinality: zero-or-more
+    to: Voyage
+    toCardinality: zero-or-more
+    label: voyages
+  - from: Gate
+    fromCardinality: exactly-one
+    to: GateEvent
+    toCardinality: zero-or-more
+    label: events
+  - from: Container
+    fromCardinality: exactly-one
+    to: GateEvent
+    toCardinality: zero-or-more
+  - from: ContainerVisit
+    fromCardinality: exactly-one
+    to: GateEvent
+    toCardinality: zero-or-more
+    label: gate_events
+  - from: Container
+    fromCardinality: exactly-one
+    to: ContainerVisit
+    toCardinality: zero-or-more
+  - from: ContainerVisit
+    fromCardinality: exactly-one
+    to: ContainerMovement
+    toCardinality: zero-or-more
+    label: movements
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Vessel
+    toCardinality: zero-or-more
+    label: owner
+  - from: Organization
+    fromCardinality: exactly-one
+    to: Vessel
+    toCardinality: zero-or-more
+    label: operator
+  - from: Vessel
+    fromCardinality: exactly-one
+    to: Voyage
+    toCardinality: zero-or-more
+    label: voyages
+  - from: Port
+    fromCardinality: exactly-one
+    to: Voyage
+    toCardinality: zero-or-more
+    label: origin_port
+  - from: Port
+    fromCardinality: exactly-one
+    to: Voyage
+    toCardinality: zero-or-more
+    label: destination_port
+  - from: Voyage
+    fromCardinality: exactly-one
+    to: ContainerVisit
+    toCardinality: zero-or-more
+    label: container_visits
 rules:
   - name: partyRoleInvariantsBeforeCreate
     title: PartyRole invariants (beforeCreate)
@@ -16106,6 +16702,66 @@ rules:
         when: status == "BLOCKED" and status != _previous_status
         props:
           workflow: YardSlotExceptionRaised
+  - name: gateEventWorkflowsAfterUpdate
+    title: GateEvent workflows (afterUpdate)
+    entity: GateEvent
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: GateEvent afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "REVERSED" and status != _previous_status
+        props:
+          workflow: GateEventFollowUpRequired
+  - name: containerVisitWorkflowsAfterUpdate
+    title: ContainerVisit workflows (afterUpdate)
+    entity: ContainerVisit
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: ContainerVisit afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: ContainerVisitFollowUpRequired
+  - name: voyageWorkflowsAfterUpdate
+    title: Voyage workflows (afterUpdate)
+    entity: Voyage
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Voyage afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: VoyageFollowUpRequired
 stateMachines:
   - name: PartyLifecycle
     title: Party Lifecycle
@@ -16524,6 +17180,150 @@ stateMachines:
       - from: OUT_OF_SERVICE
         to: RESERVED
         trigger: return_to_service
+  - name: PortLifecycle
+    title: Port Lifecycle
+    entity: Port
+    states: [ACTIVE, RESTRICTED, CLOSED]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: RESTRICTED
+        trigger: restrict
+      - from: RESTRICTED
+        to: ACTIVE
+        trigger: restore
+      - from: ACTIVE
+        to: CLOSED
+        trigger: close
+      - from: RESTRICTED
+        to: CLOSED
+        trigger: close
+      - from: CLOSED
+        to: ACTIVE
+        trigger: reopen
+  - name: BerthLifecycle
+    title: Berth Lifecycle
+    entity: Berth
+    states: [ACTIVE, RESTRICTED, OUT_OF_SERVICE, RETIRED]
+    initial: ACTIVE
+    final: [RETIRED]
+    transitions:
+      - from: ACTIVE
+        to: RESTRICTED
+        trigger: restrict
+      - from: RESTRICTED
+        to: ACTIVE
+        trigger: restore
+      - from: ACTIVE
+        to: OUT_OF_SERVICE
+        trigger: take_out_of_service
+      - from: RESTRICTED
+        to: OUT_OF_SERVICE
+        trigger: take_out_of_service
+      - from: OUT_OF_SERVICE
+        to: ACTIVE
+        trigger: return_to_service
+      - from: ACTIVE
+        to: RETIRED
+        trigger: retire
+      - from: RESTRICTED
+        to: RETIRED
+        trigger: retire
+      - from: OUT_OF_SERVICE
+        to: RETIRED
+        trigger: retire
+  - name: GateLifecycle
+    title: Gate Lifecycle
+    entity: Gate
+    states: [OPEN, CLOSED, RETIRED]
+    initial: OPEN
+    final: [RETIRED]
+    transitions:
+      - from: OPEN
+        to: CLOSED
+        trigger: close
+      - from: CLOSED
+        to: OPEN
+        trigger: reopen
+      - from: OPEN
+        to: RETIRED
+        trigger: retire
+      - from: CLOSED
+        to: RETIRED
+        trigger: retire
+  - name: GateEventLifecycle
+    title: Gate Event Lifecycle
+    entity: GateEvent
+    states: [RECORDED, VERIFIED, REVERSED]
+    initial: RECORDED
+    final: [VERIFIED, REVERSED]
+    transitions:
+      - from: RECORDED
+        to: VERIFIED
+        trigger: verify
+      - from: RECORDED
+        to: REVERSED
+        trigger: reverse
+  - name: ContainerVisitLifecycle
+    title: Container Visit Lifecycle
+    entity: ContainerVisit
+    states: [ACTIVE, COMPLETED, CANCELLED]
+    initial: ACTIVE
+    final: [COMPLETED, CANCELLED]
+    transitions:
+      - from: ACTIVE
+        to: COMPLETED
+        trigger: complete
+      - from: ACTIVE
+        to: CANCELLED
+        trigger: cancel
+  - name: VesselLifecycle
+    title: Vessel Lifecycle
+    entity: Vessel
+    states: [ACTIVE, INACTIVE, OUT_OF_SERVICE, RETIRED]
+    initial: ACTIVE
+    final: [RETIRED]
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
+      - from: ACTIVE
+        to: OUT_OF_SERVICE
+        trigger: take_out_of_service
+      - from: OUT_OF_SERVICE
+        to: ACTIVE
+        trigger: return_to_service
+      - from: ACTIVE
+        to: RETIRED
+        trigger: retire
+      - from: INACTIVE
+        to: RETIRED
+        trigger: retire
+      - from: OUT_OF_SERVICE
+        to: RETIRED
+        trigger: retire
+  - name: VoyageLifecycle
+    title: Voyage Lifecycle
+    entity: Voyage
+    states: [PLANNED, ACTIVE, COMPLETED, CANCELLED]
+    initial: PLANNED
+    final: [COMPLETED, CANCELLED]
+    transitions:
+      - from: PLANNED
+        to: ACTIVE
+        trigger: start
+      - from: PLANNED
+        to: CANCELLED
+        trigger: cancel
+      - from: ACTIVE
+        to: COMPLETED
+        trigger: complete
+      - from: ACTIVE
+        to: CANCELLED
+        trigger: cancel
 sagas:
   - name: PartyExceptionRaised
     title: Raise a task when a party is stopped
@@ -16651,3 +17451,45 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"YARD-SLOT-EXCEPTION-{{id}}","name":"Resolve yard slot {{id}}","description":"Yard slot {{id}} is now {{status}}. Find out why it stopped and move it on or close it.","task_type":"USER","status":"CREATED","priority":"HIGH"}'
+  - name: GateEventFollowUpRequired
+    title: Follow up when a gate event is ended
+    entity: GateEvent
+    operation: UPDATE
+    trigger: rule
+    description: When a gate event is reversed, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"GATE-EVENT-FOLLOW-UP-{{id}}","name":"Follow up on gate event {{id}}","description":"Gate event {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: ContainerVisitFollowUpRequired
+    title: Follow up when a container visit is ended
+    entity: ContainerVisit
+    operation: UPDATE
+    trigger: rule
+    description: When a container visit is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"CONTAINER-VISIT-FOLLOW-UP-{{id}}","name":"Follow up on container visit {{id}}","description":"Container visit {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: VoyageFollowUpRequired
+    title: Follow up when a voyage is ended
+    entity: Voyage
+    operation: UPDATE
+    trigger: rule
+    description: When a voyage is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"VOYAGE-FOLLOW-UP-{{id}}","name":"Follow up on voyage {{voyage_number}}","description":"Voyage {{voyage_number}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'

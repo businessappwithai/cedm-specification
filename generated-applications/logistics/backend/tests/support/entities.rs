@@ -5,7 +5,7 @@
 //! payload, so adding an entity to the model adds it to the tests without
 //! anyone writing a test.
 //!
-//! Generated: 2026-10-09T15:29:24.928Z
+//! Generated: 2026-10-10T04:18:15.807Z
 //! Project: logistics
 
 /// What a column holds, which is what decides the shape of a generated value.
@@ -220,7 +220,43 @@ pub fn is_managed(column: &str) -> bool {
     )
 }
 
+/// `(table, column, initial state)` for every column a state machine the model
+/// drew governs — the same resolution `requests/model_transitions.rs` asserts
+/// against. Such a column is not free text: the API refuses a move the diagram
+/// does not draw, so a suite that writes an arbitrary string into it tests the
+/// transition guard instead of what it set out to test.
+pub const STATE_COLUMNS: &[(&str, &str, &str)] = &[
+    ("bus_party", "status", "ACTIVE"),
+    ("bus_organization", "status", "DRAFT"),
+    ("bus_party_role", "status", "ACTIVE"),
+    ("bus_address", "status", "ACTIVE"),
+    ("bus_location", "status", "PLANNED"),
+    ("bus_currency", "status", "ACTIVE"),
+    ("bus_exchange_rate", "status", "DRAFT"),
+    ("bus_unit_of_measure", "status", "ACTIVE"),
+    ("bus_task", "status", "CREATED"),
+    ("bus_shipment", "status", "PLANNED"),
+    ("bus_vehicle", "status", "ACTIVE"),
+    ("bus_sales_order", "status", "DRAFT"),
+    ("bus_trip", "status", "PLANNED"),
+    ("bus_trip_segment", "status", "PLANNED"),
+    ("bus_driver", "status", "DRAFT"),
+    ("bus_fuel_transaction", "status", "RECORDED"),
+    ("bus_customer", "status", "ACTIVE"),
+    ("bus_product", "status", "DRAFT"),
+];
+
 impl EntityMeta {
+    /// The state a new record starts in, when a state machine governs `column`.
+    pub fn initial_state(&self, column: &str) -> Option<&'static str> {
+        STATE_COLUMNS
+            .iter()
+            .find(|(table, governed, initial)| {
+                *table == self.table_name && *governed == column && !initial.is_empty()
+            })
+            .map(|(_, _, initial)| *initial)
+    }
+
     /// The fields a caller may actually write.
     ///
     /// Everything else on this type filters through here, so a server-managed
@@ -236,8 +272,10 @@ impl EntityMeta {
 
     /// The first free-text field, for "does it persist what I sent?" assertions.
     pub fn first_text_field(&self) -> Option<&FieldMeta> {
-        self.writable_fields()
-            .find(|f| matches!(f.field_type, FieldType::String | FieldType::Text))
+        self.writable_fields().find(|f| {
+            matches!(f.field_type, FieldType::String | FieldType::Text)
+                && self.initial_state(f.name).is_none()
+        })
     }
 
     /// The first numeric field, for the rules suites' range checks.
@@ -2104,6 +2142,62 @@ pub static ENTITIES: &[EntityMeta] = &[
         ],
     },
     EntityMeta {
+        name: "Stop",
+        table_name: "bus_stop",
+        route: "bus_stop",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence_number",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence_number", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "stop_type",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("stop_type", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "planned_arrival_at",
+                field_type: FieldType::from_model("datetime", false),
+                required: false,
+                ref_table: ref_table_for("planned_arrival_at", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "planned_departure_at",
+                field_type: FieldType::from_model("datetime", false),
+                required: false,
+                ref_table: ref_table_for("planned_departure_at", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "route_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("route_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "location_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("location_id", true),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
         name: "TrackingEvent",
         table_name: "bus_tracking_event",
         route: "bus_tracking_event",
@@ -2246,6 +2340,139 @@ pub static ENTITIES: &[EntityMeta] = &[
                 field_type: FieldType::from_model("string", true),
                 required: false,
                 ref_table: ref_table_for("vehicle_id", true),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "Driver",
+        table_name: "bus_driver",
+        route: "bus_driver",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "driver_code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("driver_code", false),
+                max_length: Some(120),
+            },
+            FieldMeta {
+                name: "license_number",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("license_number", false),
+                max_length: Some(160),
+            },
+            FieldMeta {
+                name: "status",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("status", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "person_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("person_id", true),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "FuelTransaction",
+        table_name: "bus_fuel_transaction",
+        route: "bus_fuel_transaction",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "transaction_number",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("transaction_number", false),
+                max_length: Some(120),
+            },
+            FieldMeta {
+                name: "quantity",
+                field_type: FieldType::from_model("decimal", false),
+                required: true,
+                ref_table: ref_table_for("quantity", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "total_amount",
+                field_type: FieldType::from_model("decimal", false),
+                required: false,
+                ref_table: ref_table_for("total_amount", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "occurred_at",
+                field_type: FieldType::from_model("datetime", false),
+                required: true,
+                ref_table: ref_table_for("occurred_at", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "odometer_or_meter_reading",
+                field_type: FieldType::from_model("decimal", false),
+                required: false,
+                ref_table: ref_table_for("odometer_or_meter_reading", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "status",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("status", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "vehicle_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("vehicle_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "driver_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("driver_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "location_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("location_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "unit_of_measure_id",
+                field_type: FieldType::from_model("string", true),
+                required: true,
+                ref_table: ref_table_for("unit_of_measure_id", true),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "currency_id",
+                field_type: FieldType::from_model("string", true),
+                required: false,
+                ref_table: ref_table_for("currency_id", true),
                 max_length: None,
             },
         ],
@@ -3959,6 +4186,55 @@ pub static ENTITIES: &[EntityMeta] = &[
         ],
     },
     EntityMeta {
+        name: "StopStopType",
+        table_name: "bus_stop_stop_type",
+        route: "bus_stop_stop_type",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
         name: "TripStatus",
         table_name: "bus_trip_status",
         route: "bus_trip_status",
@@ -4060,6 +4336,104 @@ pub static ENTITIES: &[EntityMeta] = &[
         name: "TripSegmentStatus",
         table_name: "bus_trip_segment_status",
         route: "bus_trip_segment_status",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "DriverStatus",
+        table_name: "bus_driver_status",
+        route: "bus_driver_status",
+        fields: &[
+            FieldMeta {
+                name: "id",
+                field_type: FieldType::from_model("string", false),
+                required: false,
+                ref_table: ref_table_for("id", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "code",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("code", false),
+                max_length: Some(100),
+            },
+            FieldMeta {
+                name: "name",
+                field_type: FieldType::from_model("string", false),
+                required: true,
+                ref_table: ref_table_for("name", false),
+                max_length: Some(200),
+            },
+            FieldMeta {
+                name: "description",
+                field_type: FieldType::from_model("text", false),
+                required: false,
+                ref_table: ref_table_for("description", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "sequence",
+                field_type: FieldType::from_model("integer", false),
+                required: true,
+                ref_table: ref_table_for("sequence", false),
+                max_length: None,
+            },
+            FieldMeta {
+                name: "is_active",
+                field_type: FieldType::from_model("boolean", false),
+                required: true,
+                ref_table: ref_table_for("is_active", false),
+                max_length: None,
+            },
+        ],
+    },
+    EntityMeta {
+        name: "FuelTransactionStatus",
+        table_name: "bus_fuel_transaction_status",
+        route: "bus_fuel_transaction_status",
         fields: &[
             FieldMeta {
                 name: "id",

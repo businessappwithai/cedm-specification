@@ -125,6 +125,64 @@ ON CONFLICT (name) DO UPDATE SET
 
 INSERT INTO sys_workflow_definitions
   (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('InventoryItemExceptionRaised', 'bus_inventory_item', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_InventoryItemExceptionRaised"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_InventoryItemExceptionRaised" isExecutable="true">
+    <bpmn:startEvent id="Process_InventoryItemExceptionRaised_start"/>
+    <bpmn:serviceTask id="Process_InventoryItemExceptionRaised_S1" name="Raise a task: resolve">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;INVENTORY-ITEM-EXCEPTION-{{id}}&quot;,&quot;name&quot;:&quot;Resolve inventory item {{id}}&quot;,&quot;description&quot;:&quot;Inventory item {{id}} is now {{status}}. Find out why it stopped and move it on or close it.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;HIGH&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_InventoryItemExceptionRaised_end"/>
+    <bpmn:sequenceFlow id="Process_InventoryItemExceptionRaised_flow_0" sourceRef="Process_InventoryItemExceptionRaised_start" targetRef="Process_InventoryItemExceptionRaised_S1"/>
+    <bpmn:sequenceFlow id="Process_InventoryItemExceptionRaised_flow_1" sourceRef="Process_InventoryItemExceptionRaised_S1" targetRef="Process_InventoryItemExceptionRaised_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_InventoryItemExceptionRaised">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_InventoryItemExceptionRaised" bpmnElement="Process_InventoryItemExceptionRaised">
+      <bpmndi:BPMNShape id="Process_InventoryItemExceptionRaised_start_di" bpmnElement="Process_InventoryItemExceptionRaised_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryItemExceptionRaised_S1_di" bpmnElement="Process_InventoryItemExceptionRaised_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_InventoryItemExceptionRaised_end_di" bpmnElement="Process_InventoryItemExceptionRaised_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_InventoryItemExceptionRaised_flow_0_di" bpmnElement="Process_InventoryItemExceptionRaised_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_InventoryItemExceptionRaised_flow_1_di" bpmnElement="Process_InventoryItemExceptionRaised_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a inventory item is blocked, a high-priority task asks someone to resolve it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
 VALUES ('InventoryReservationFollowUpRequired', 'bus_inventory_reservation', 'UPDATE',
         'rule', '<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

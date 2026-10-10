@@ -75,7 +75,7 @@ All data is stored on the **Hostinger VPS filesystem** at:
 - Docker & Docker Compose installed (for local testing)
 - SSH client
 - SFTP/SCP tool (for file upload)
-- Bun >= 1.3.0 (for local development)
+- Bun >= 1.4.0 (for local development)
 
 ---
 

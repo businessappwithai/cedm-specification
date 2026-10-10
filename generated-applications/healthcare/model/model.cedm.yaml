@@ -13,6 +13,8 @@ imports:
   - module: common
   - entity: HealthcarePatient
   - entity: HealthcareProvider
+  - entity: Practitioner
+  - entity: Appointment
   - entity: HealthcareEncounter
   - entity: HealthcareOrder
   - entity: Diagnosis
@@ -25,4 +27,4 @@ ui:
   categories:
     - name: Healthcare
       icon: stethoscope
-      entities: [HealthcarePatient, HealthcareProvider, HealthcareEncounter, Medication, Prescription, CarePlan]
+      entities: [HealthcarePatient, HealthcareProvider, Practitioner, Appointment, HealthcareEncounter, Medication, Prescription, CarePlan]

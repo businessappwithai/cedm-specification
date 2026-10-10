@@ -116,8 +116,9 @@
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
+    "AuditCaseFollowUpRequired on AuditCase (1 steps, rule)",
     "RiskTreatmentFollowUpRequired on RiskTreatment (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:28:02.508Z"
+  "generatedAt": "2026-10-10T02:39:17.714Z"
 }

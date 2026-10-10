@@ -217,6 +217,22 @@ ALTER TABLE bus_healthcare_provider
 
 CREATE INDEX IF NOT EXISTS idx_bus_healthcare_provider_doc_status ON bus_healthcare_provider (doc_status);
 
+ALTER TABLE bus_practitioner
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_practitioner_doc_status ON bus_practitioner (doc_status);
+
+ALTER TABLE bus_appointment
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_appointment_doc_status ON bus_appointment (doc_status);
+
 ALTER TABLE bus_healthcare_encounter
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -481,6 +497,22 @@ ALTER TABLE bus_healthcare_provider_status
 
 CREATE INDEX IF NOT EXISTS idx_bus_healthcare_provider_status_doc_status ON bus_healthcare_provider_status (doc_status);
 
+ALTER TABLE bus_practitioner_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_practitioner_status_doc_status ON bus_practitioner_status (doc_status);
+
+ALTER TABLE bus_appointment_status
+  ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
+  ADD COLUMN IF NOT EXISTS doc_status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  ADD COLUMN IF NOT EXISTS doc_status_message TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_bus_appointment_status_doc_status ON bus_appointment_status (doc_status);
+
 ALTER TABLE bus_healthcare_encounter_encounter_type
   ADD COLUMN IF NOT EXISTS workflow_status VARCHAR(20) DEFAULT 'none',
   ADD COLUMN IF NOT EXISTS workflow_run_id UUID,
@@ -735,6 +767,22 @@ ALTER TABLE bus_healthcare_patient
 DROP INDEX IF EXISTS idx_bus_healthcare_provider_doc_status;
 
 ALTER TABLE bus_healthcare_provider
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_practitioner_doc_status;
+
+ALTER TABLE bus_practitioner
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_appointment_doc_status;
+
+ALTER TABLE bus_appointment
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,
@@ -999,6 +1047,22 @@ ALTER TABLE bus_healthcare_provider_provider_type
 DROP INDEX IF EXISTS idx_bus_healthcare_provider_status_doc_status;
 
 ALTER TABLE bus_healthcare_provider_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_practitioner_status_doc_status;
+
+ALTER TABLE bus_practitioner_status
+  DROP COLUMN IF EXISTS workflow_status,
+  DROP COLUMN IF EXISTS workflow_run_id,
+  DROP COLUMN IF EXISTS doc_status,
+  DROP COLUMN IF EXISTS doc_status_message;
+
+DROP INDEX IF EXISTS idx_bus_appointment_status_doc_status;
+
+ALTER TABLE bus_appointment_status
   DROP COLUMN IF EXISTS workflow_status,
   DROP COLUMN IF EXISTS workflow_run_id,
   DROP COLUMN IF EXISTS doc_status,

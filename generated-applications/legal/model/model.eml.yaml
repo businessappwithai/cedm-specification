@@ -15750,6 +15750,46 @@ rules:
         when: effective_from != null and effective_to != null and effective_to < effective_from
         props:
           message: Effective To cannot be earlier than effective from.
+  - name: agreementInvariantsBeforeCreate
+    title: Agreement invariants (beforeCreate)
+    entity: Agreement
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Agreement beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: AGREEMENT-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
+  - name: agreementInvariantsBeforeUpdate
+    title: Agreement invariants (beforeUpdate)
+    entity: Agreement
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Agreement beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: AGREEMENT-EXE-001
+        type: validation-error
+        when: effective_from != null and effective_to != null and effective_to < effective_from
+        props:
+          message: Effective To cannot be earlier than effective from.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party

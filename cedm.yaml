@@ -386,7 +386,7 @@ entities:
     name: Container Movement
     description: Movement of a container between physical positions or operational states.
     attributes:
-      - id
+      - id: id
         type: uuid
         key: true
         required: true

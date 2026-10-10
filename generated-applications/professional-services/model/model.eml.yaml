@@ -15313,6 +15313,46 @@ rules:
         when: status == "COMPLETED" and completed_at == null
         props:
           message: Record completed at when the task is completed.
+  - name: professionalEngagementInvariantsBeforeCreate
+    title: ProfessionalEngagement invariants (beforeCreate)
+    entity: ProfessionalEngagement
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: ProfessionalEngagement beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PROFESSIONAL-ENGAGEMENT-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: professionalEngagementInvariantsBeforeUpdate
+    title: ProfessionalEngagement invariants (beforeUpdate)
+    entity: ProfessionalEngagement
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: ProfessionalEngagement beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: PROFESSIONAL-ENGAGEMENT-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party

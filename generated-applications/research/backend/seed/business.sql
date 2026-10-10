@@ -301,6 +301,108 @@ INSERT INTO bus_task (id, code, name, description, task_type, status, priority, 
 VALUES ('643558da-4128-55d5-9423-adb0e8547172', 'Code 5', 'Task 5', 'Description 5', 'NOTIFICATION', 'CREATED', 'LOW', NULL, NULL, NULL, 'd919a1d4-f164-5ef2-a038-1cbd5badb154', '311994b0-75bb-5532-ae37-726a4ac48d33', 'final', NOW(), NOW())
 ON CONFLICT DO NOTHING;
 
+-- Protocol (bus_protocol)
+INSERT INTO bus_protocol (id, protocol_code, title, status, project_id, doc_status, created_at, updated_at)
+VALUES ('86183560-6771-54fc-8a7f-6ee2c6fa640f', 'Protocol Code 1', 'Protocol 1', 'DRAFT', '2cdcb408-2215-54cc-b8f6-b3fc79dee639', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_protocol (id, protocol_code, title, status, project_id, doc_status, created_at, updated_at)
+VALUES ('3abcb60f-63f2-567e-b328-feb3997d083b', 'Protocol Code 2', 'Protocol 2', 'DRAFT', '8663703c-7aab-5e12-be62-fa251808e182', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_protocol (id, protocol_code, title, status, project_id, doc_status, created_at, updated_at)
+VALUES ('19bdbd65-a74d-5e41-a67a-b7a63e4b02f2', 'Protocol Code 3', 'Protocol 3', 'DRAFT', '00fffef8-19ca-55c6-a17f-e967c5dc6e8c', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_protocol (id, protocol_code, title, status, project_id, doc_status, created_at, updated_at)
+VALUES ('d6a103a5-5196-5330-8968-3fef63b601c0', 'Protocol Code 4', 'Protocol 4', 'DRAFT', '62ec9f3e-d3b0-5c58-9140-55ed3ae48e37', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_protocol (id, protocol_code, title, status, project_id, doc_status, created_at, updated_at)
+VALUES ('13e27455-522b-5015-a13a-854b91ff97c6', 'Protocol Code 5', 'Protocol 5', 'DRAFT', '9534f3f5-7ce5-592d-9c6b-7df06708b51e', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Study (bus_study)
+INSERT INTO bus_study (id, study_code, title, status, project_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('7da122b2-79f4-5760-ad2d-053c720d6340', 'Study Code 1', 'Study 1', 'PLANNED', '2cdcb408-2215-54cc-b8f6-b3fc79dee639', '86183560-6771-54fc-8a7f-6ee2c6fa640f', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_study (id, study_code, title, status, project_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('0156b44f-de78-540b-8168-64b3612558fd', 'Study Code 2', 'Study 2', 'PLANNED', '8663703c-7aab-5e12-be62-fa251808e182', '3abcb60f-63f2-567e-b328-feb3997d083b', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_study (id, study_code, title, status, project_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('822f862f-f62b-5275-8992-b4bff0ca34c5', 'Study Code 3', 'Study 3', 'PLANNED', '00fffef8-19ca-55c6-a17f-e967c5dc6e8c', '19bdbd65-a74d-5e41-a67a-b7a63e4b02f2', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_study (id, study_code, title, status, project_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('7edbd1c7-01c5-53d0-8f4d-549e48e816ae', 'Study Code 4', 'Study 4', 'PLANNED', '62ec9f3e-d3b0-5c58-9140-55ed3ae48e37', 'd6a103a5-5196-5330-8968-3fef63b601c0', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_study (id, study_code, title, status, project_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('39f2236e-75d3-515c-bb86-255c6db46954', 'Study Code 5', 'Study 5', 'PLANNED', '9534f3f5-7ce5-592d-9c6b-7df06708b51e', '13e27455-522b-5015-a13a-854b91ff97c6', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Assay (bus_assay)
+INSERT INTO bus_assay (id, assay_code, assay_type, status, study_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('363f3c55-7823-5ce2-914d-e76bd7e45c4e', 'Assay 1', 'Assay Type 1', 'PLANNED', '7da122b2-79f4-5760-ad2d-053c720d6340', '86183560-6771-54fc-8a7f-6ee2c6fa640f', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_assay (id, assay_code, assay_type, status, study_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('fa49787a-fbec-5750-935e-701fe3eb197b', 'Assay 2', 'Assay Type 2', 'PLANNED', '0156b44f-de78-540b-8168-64b3612558fd', '3abcb60f-63f2-567e-b328-feb3997d083b', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_assay (id, assay_code, assay_type, status, study_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('65696fd9-52df-548a-a8e7-b1b5b20ba8fc', 'Assay 3', 'Assay Type 3', 'PLANNED', '822f862f-f62b-5275-8992-b4bff0ca34c5', '19bdbd65-a74d-5e41-a67a-b7a63e4b02f2', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_assay (id, assay_code, assay_type, status, study_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('0291fbcd-ea80-56b9-83be-892b6779e264', 'Assay 4', 'Assay Type 4', 'PLANNED', '7edbd1c7-01c5-53d0-8f4d-549e48e816ae', 'd6a103a5-5196-5330-8968-3fef63b601c0', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_assay (id, assay_code, assay_type, status, study_id, protocol_id, doc_status, created_at, updated_at)
+VALUES ('c52b95ae-b48d-5512-81d6-81c3fc76fffc', 'Assay 5', 'Assay Type 5', 'PLANNED', '39f2236e-75d3-515c-bb86-255c6db46954', '13e27455-522b-5015-a13a-854b91ff97c6', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Sample (bus_sample)
+INSERT INTO bus_sample (id, sample_code, sample_type, status, collected_at, quantity, unit_of_measure, parent_sample_id, doc_status, created_at, updated_at)
+VALUES ('9f6ca002-40c8-5413-b543-098f47fa5eb5', 'Sample 1', 'SPECIMEN', 'PLANNED', NULL, 10.50, '338bc488-27f2-5655-8d6d-9d82e437c11e', '9f6ca002-40c8-5413-b543-098f47fa5eb5', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_sample (id, sample_code, sample_type, status, collected_at, quantity, unit_of_measure, parent_sample_id, doc_status, created_at, updated_at)
+VALUES ('4b48e336-b28b-58e7-b5df-ae5cbb7e93ce', 'Sample 2', 'ALIQUOT', 'PLANNED', NULL, 21.00, 'a49b1150-8df4-54ac-9f31-180328239792', '4b48e336-b28b-58e7-b5df-ae5cbb7e93ce', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_sample (id, sample_code, sample_type, status, collected_at, quantity, unit_of_measure, parent_sample_id, doc_status, created_at, updated_at)
+VALUES ('e350dd69-da36-54e9-bc69-e4d9c143a3f0', 'Sample 3', 'COMPOUND', 'PLANNED', NULL, 31.50, '4cb441c3-79ef-5513-acc4-7fc47dfa7e53', 'e350dd69-da36-54e9-bc69-e4d9c143a3f0', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_sample (id, sample_code, sample_type, status, collected_at, quantity, unit_of_measure, parent_sample_id, doc_status, created_at, updated_at)
+VALUES ('282d4be5-b374-51f4-80b3-c037b1c43cc5', 'Sample 4', 'MATERIAL', 'PLANNED', NULL, 42.00, '8ee026d3-f374-51ff-835f-845413d80ee4', '282d4be5-b374-51f4-80b3-c037b1c43cc5', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_sample (id, sample_code, sample_type, status, collected_at, quantity, unit_of_measure, parent_sample_id, doc_status, created_at, updated_at)
+VALUES ('34d69bc9-7a41-5d28-91a2-cc2cef92f462', 'Sample 5', 'BIOLOGICAL', 'PLANNED', NULL, 52.50, '3b9ef3b0-e100-5328-b30b-4755624cec16', '34d69bc9-7a41-5d28-91a2-cc2cef92f462', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Observation (bus_observation)
+INSERT INTO bus_observation (id, observed_at, observation_type, value, status, study_id, assay_id, sample_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('257101fc-3238-5773-8d8a-154b454894b7', '2026-01-15T09:00:00Z', 'Observation Type 1', 'Value 1', 'RECORDED', '7da122b2-79f4-5760-ad2d-053c720d6340', '363f3c55-7823-5ce2-914d-e76bd7e45c4e', '9f6ca002-40c8-5413-b543-098f47fa5eb5', '338bc488-27f2-5655-8d6d-9d82e437c11e', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_observation (id, observed_at, observation_type, value, status, study_id, assay_id, sample_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('2677a084-e2c5-5793-9afd-dd34eed20339', '2026-02-15T09:00:00Z', 'Observation Type 2', 'Value 2', 'RECORDED', '0156b44f-de78-540b-8168-64b3612558fd', 'fa49787a-fbec-5750-935e-701fe3eb197b', '4b48e336-b28b-58e7-b5df-ae5cbb7e93ce', 'a49b1150-8df4-54ac-9f31-180328239792', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_observation (id, observed_at, observation_type, value, status, study_id, assay_id, sample_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('6ea36884-0f69-5010-b69c-a4b312342ce0', '2026-03-15T09:00:00Z', 'Observation Type 3', 'Value 3', 'RECORDED', '822f862f-f62b-5275-8992-b4bff0ca34c5', '65696fd9-52df-548a-a8e7-b1b5b20ba8fc', 'e350dd69-da36-54e9-bc69-e4d9c143a3f0', '4cb441c3-79ef-5513-acc4-7fc47dfa7e53', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_observation (id, observed_at, observation_type, value, status, study_id, assay_id, sample_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('9e1ec858-8d79-52a6-94b7-8673aa9dfb6a', '2026-04-15T09:00:00Z', 'Observation Type 4', 'Value 4', 'RECORDED', '7edbd1c7-01c5-53d0-8f4d-549e48e816ae', '0291fbcd-ea80-56b9-83be-892b6779e264', '282d4be5-b374-51f4-80b3-c037b1c43cc5', '8ee026d3-f374-51ff-835f-845413d80ee4', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_observation (id, observed_at, observation_type, value, status, study_id, assay_id, sample_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('ae3cce72-54f6-534c-9ba6-cc46f6a3d0a8', '2026-05-15T09:00:00Z', 'Observation Type 5', 'Value 5', 'RECORDED', '39f2236e-75d3-515c-bb86-255c6db46954', 'c52b95ae-b48d-5512-81d6-81c3fc76fffc', '34d69bc9-7a41-5d28-91a2-cc2cef92f462', '3b9ef3b0-e100-5328-b30b-4755624cec16', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
+-- Result (bus_result)
+INSERT INTO bus_result (id, result_code, result_type, value, status, study_id, assay_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('e5664a58-ea69-5ddc-b85f-e3054fc59dd8', 'Result 1', 'Result Type 1', 'Value 1', 'DRAFT', '7da122b2-79f4-5760-ad2d-053c720d6340', '363f3c55-7823-5ce2-914d-e76bd7e45c4e', '338bc488-27f2-5655-8d6d-9d82e437c11e', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_result (id, result_code, result_type, value, status, study_id, assay_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('13fc2fb9-ee34-5ff2-9e85-79c87abe93ea', 'Result 2', 'Result Type 2', 'Value 2', 'DRAFT', '0156b44f-de78-540b-8168-64b3612558fd', 'fa49787a-fbec-5750-935e-701fe3eb197b', 'a49b1150-8df4-54ac-9f31-180328239792', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_result (id, result_code, result_type, value, status, study_id, assay_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('eea0a23f-8c46-55cb-9ed8-d2236b818c70', 'Result 3', 'Result Type 3', 'Value 3', 'DRAFT', '822f862f-f62b-5275-8992-b4bff0ca34c5', '65696fd9-52df-548a-a8e7-b1b5b20ba8fc', '4cb441c3-79ef-5513-acc4-7fc47dfa7e53', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_result (id, result_code, result_type, value, status, study_id, assay_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('73b193b7-08ba-51d4-b0cd-7df9d12fc23b', 'Result 4', 'Result Type 4', 'Value 4', 'DRAFT', '7edbd1c7-01c5-53d0-8f4d-549e48e816ae', '0291fbcd-ea80-56b9-83be-892b6779e264', '8ee026d3-f374-51ff-835f-845413d80ee4', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+INSERT INTO bus_result (id, result_code, result_type, value, status, study_id, assay_id, unit_of_measure_id, doc_status, created_at, updated_at)
+VALUES ('2acd2cad-ed96-5bb7-9c01-cc9b3082f72b', 'Result 5', 'Result Type 5', 'Value 5', 'DRAFT', '39f2236e-75d3-515c-bb86-255c6db46954', 'c52b95ae-b48d-5512-81d6-81c3fc76fffc', '3b9ef3b0-e100-5328-b30b-4755624cec16', 'final', NOW(), NOW())
+ON CONFLICT DO NOTHING;
+
 -- --------------------------------------------------------------------------
 -- References that could not be written with the row
 -- --------------------------------------------------------------------------

@@ -164,7 +164,7 @@ entity:
         workflowRole: Movement history is immutable in measurement meaning; future movements must use a valid conversion.
   invariants:
     - {id: UOM-001, rule: conversionFactor must be positive when supplied.}
-    - {id: UOM-002, rule: A unit must not reference itself as its base unit.}
+    - {id: UOM-002, rule: "A unit must not reference itself as its base unit, directly or through a chain of base units (no cycle)."}
     - {id: UOM-003, rule: baseUnit and derived unit must have the same category unless an explicit dimensional conversion model permits otherwise.}
     - {id: UOM-004, rule: A conversion must not be applied between incompatible categories.}
     - {id: UOM-005, rule: Retiring a unit must preserve historical transaction quantities and must not rewrite their recorded unit.}

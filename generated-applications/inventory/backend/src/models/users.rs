@@ -110,8 +110,8 @@ impl Model {
             return Err(ModelError::EntityAlreadyExists);
         }
 
-        let password =
-            loco_rs::hash::hash_password(&params.password).map_err(|err| ModelError::Any(err.into()))?;
+        let password = loco_rs::hash::hash_password(&params.password)
+            .map_err(|err| ModelError::Any(err.into()))?;
 
         let user = ActiveModel {
             pid: ActiveValue::set(Uuid::new_v4()),

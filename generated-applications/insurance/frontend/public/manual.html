@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:29:08.650Z">2026-10-09T15:29:08.650Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:40:28.960Z">2026-10-10T02:40:28.960Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -108,8 +108,12 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
               <li><a href="#entity-city">City</a></li>
+              <li><a href="#entity-claim-line">Claim Line</a></li>
+              <li><a href="#entity-claim-line-status">Claim Line Status</a></li>
               <li><a href="#entity-contact-point">Contact Point</a></li>
               <li><a href="#entity-country">Country</a></li>
+              <li><a href="#entity-coverage">Coverage</a></li>
+              <li><a href="#entity-coverage-status">Coverage Status</a></li>
               <li><a href="#entity-currency">Currency</a></li>
               <li><a href="#entity-currency-status">Currency Status</a></li>
               <li><a href="#entity-department">Department</a></li>
@@ -120,6 +124,9 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-insurance-claim-status">Insurance Claim Status</a></li>
               <li><a href="#entity-insurance-policy">Insurance Policy</a></li>
               <li><a href="#entity-insurance-policy-status">Insurance Policy Status</a></li>
+              <li><a href="#entity-insured-party">Insured Party</a></li>
+              <li><a href="#entity-insured-party-role-type">Insured Party Role Type</a></li>
+              <li><a href="#entity-insured-party-status">Insured Party Status</a></li>
               <li><a href="#entity-language">Language</a></li>
               <li><a href="#entity-legal-entity">Legal Entity</a></li>
               <li><a href="#entity-location">Location</a></li>
@@ -140,11 +147,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-person-gender">Person Gender</a></li>
               <li><a href="#entity-person-party-type">Person Party Type</a></li>
               <li><a href="#entity-person-status">Person Status</a></li>
+              <li><a href="#entity-premium">Premium</a></li>
+              <li><a href="#entity-premium-status">Premium Status</a></li>
+              <li><a href="#entity-settlement">Settlement</a></li>
+              <li><a href="#entity-settlement-method">Settlement Method</a></li>
+              <li><a href="#entity-settlement-status">Settlement Status</a></li>
               <li><a href="#entity-state-province">State Province</a></li>
               <li><a href="#entity-task">Task</a></li>
               <li><a href="#entity-task-priority">Task Priority</a></li>
               <li><a href="#entity-task-status">Task Status</a></li>
               <li><a href="#entity-task-task-type">Task Task Type</a></li>
+              <li><a href="#entity-underwriting">Underwriting</a></li>
+              <li><a href="#entity-underwriting-decision">Underwriting Decision</a></li>
+              <li><a href="#entity-underwriting-status">Underwriting Status</a></li>
               <li><a href="#entity-unit-of-measure">Unit Of Measure</a></li>
               <li><a href="#entity-unit-of-measure-category">Unit Of Measure Category</a></li>
               <li><a href="#entity-unit-of-measure-status">Unit Of Measure Status</a></li>
@@ -159,14 +174,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Insurance, built on the CEDM common foundation.</p></div>
-    <p>insurance keeps 47 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>insurance keeps 62 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
-        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a></td></tr>
-        <tr><td>Insurance</td><td><a href="#entity-insurance-policy">Insurance Policy</a>, <a href="#entity-insurance-claim">Insurance Claim</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-insurance-policy-status">Insurance Policy Status</a>, <a href="#entity-insurance-claim-status">Insurance Claim Status</a></td></tr>
+        <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-coverage">Coverage</a>, <a href="#entity-insured-party">Insured Party</a>, <a href="#entity-premium">Premium</a>, <a href="#entity-claim-line">Claim Line</a></td></tr>
+        <tr><td>Insurance</td><td><a href="#entity-insurance-policy">Insurance Policy</a>, <a href="#entity-underwriting">Underwriting</a>, <a href="#entity-insurance-claim">Insurance Claim</a>, <a href="#entity-settlement">Settlement</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-insurance-policy-status">Insurance Policy Status</a>, <a href="#entity-coverage-status">Coverage Status</a>, <a href="#entity-insured-party-role-type">Insured Party Role Type</a>, <a href="#entity-insured-party-status">Insured Party Status</a>, <a href="#entity-underwriting-decision">Underwriting Decision</a>, <a href="#entity-underwriting-status">Underwriting Status</a>, <a href="#entity-premium-status">Premium Status</a>, <a href="#entity-insurance-claim-status">Insurance Claim Status</a>, <a href="#entity-claim-line-status">Claim Line Status</a>, <a href="#entity-settlement-method">Settlement Method</a>, <a href="#entity-settlement-status">Settlement Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -178,8 +193,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 47</td></tr>
-        <tr><td>User</td><td><code>user@insurance.example.com</code></td><td>47 of 47</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 62</td></tr>
+        <tr><td>User</td><td><code>user@insurance.example.com</code></td><td>62 of 62</td></tr>
       </tbody>
     </table>
 
@@ -1048,6 +1063,273 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-claim-line" class="entity">
+      <h3>Claim Line <span class="group">Foundation</span></h3>
+      <p class="lede">Provides line-level insurance claim adjudication and settlement traceability. InsuranceClaim is the claim aggregate; ClaimLine evaluates a particular benefit/loss against Coverage; Settlement records actual discharge of approved liability. Claims intake, adjudication, reserves, settlement, analytics and audit. Claim and Coverage are mandatory; Settlements provide downstream payment/service evidence. Lines are submitted, assessed and then approved, denied, settled or cancelled with decisions retained. A vehicle repair claim has separate parts and towing ClaimLines evaluated against different Coverage components.</p>
+      <p class="meta">Stored as <code>bus_claim_line</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The permanent system identity of one line of an insurance claim. Generated on creation; settlements and adjudication decisions refer to the line through it. Identifies one line-level claimed item independently of claim header and settlement. InsuranceClaim supplies header context and Coverage supplies benefit/risk rules.</td>
+        </tr>
+        <tr>
+          <td><code>line_number</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the line within its claim, used to refer to it in conversation and documents. Assigned in sequence when lines are added; unique within the parent claim, and quoted to claimants and in integrations. Supports ordered claim review and communication. Unique within the parent InsuranceClaim under policy.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 1000</span></td>
+          <td>A plain statement of the benefit, loss item or expense the claimant is asking to be paid for. Written at submission; the adjudicator reads it to judge the line against the coverage and to explain a decision. Explains the line-level subject of adjudication. Coverage provides structured policy context.</td>
+        </tr>
+        <tr>
+          <td><code>claimed_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The amount the claimant requests for this line, before any assessment. Entered at submission and never negative; compared with the approved amount to show how much was reduced or declined. Line-level claimant request before adjudication. Currency is inherited or governed by Claim policy context.</td>
+        </tr>
+        <tr>
+          <td><code>approved_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The amount the insurer agrees to pay for this line after adjudication. Set by the adjudicator when the line is approved and never negative; it drives reserves and the settlement that follows. Insurer-recognized line benefit before settlement. Must comply with Coverage limits, deductibles and policy terms.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the line stands in adjudication, from receipt through a decision to settlement or cancellation. Moved by claims staff as the line is assessed and decided; settlement only follows an approval, and decisions are retained. Line was received and awaits assessment by claims staff. Review is underway or completed without final decision. Benefit was approved and is awaiting payment. Benefit was denied and no payment will be made. A final state. Approved benefit has been paid and reconciled to a settlement. A final state. Line was withdrawn or cancelled before a decision was paid. A final state. Tracks review, decision and settlement progression. Header claim status may summarize but does not replace line decisions.<div class="detail">One of: <code>SUBMITTED</code>, <code>ASSESSED</code>, <code>APPROVED</code>, <code>DENIED</code>, <code>SETTLED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>coverage_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one coverage; each line is assessed against the coverage under which it is claimed. Coverage against which this line is adjudicated. Supplies limits, deductibles and eligibility rules. Claims decisioning and exposure. Coverage must belong to the Claim policy and apply to the loss context.<div class="detail">Points at <b>Coverage</b></div></td>
+        </tr>
+        <tr>
+          <td><code>claim_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one claim; a line is one component of a single claim. Parent InsuranceClaim containing this line. Supplies policy, claimant and loss context. Claims processing and reporting. Line lifecycle must remain compatible with claim lifecycle.<div class="detail">Points at <b>Claim</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Insurance Claim</b> window, on the <b>Claim Line</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>line_number</code></td>
+            <td>Line Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>claimed_amount</code></td>
+            <td>Claimed Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>approved_amount</code></td>
+            <td>Approved Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>coverage_id</code></td>
+            <td>Coverage</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>claim_id</code></td>
+            <td>Claim</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Claim Line</b> belongs to one <a href="#entity-coverage">Coverage</a>.</li>
+          <li>Each <b>Claim Line</b> belongs to one <a href="#entity-insurance-claim">Insurance Claim</a>.</li>
+          <li>Each <b>Claim Line</b> is linked to many <a href="#entity-settlement">Settlement</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; ClaimLineLifecycle</h4>
+      <p>A record starts at <code>SUBMITTED</code> and finishes at <code>DENIED</code> or <code>SETTLED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>SUBMITTED</code></td><td><code>ASSESSED</code></td><td><code>assess</code></td></tr>
+          <tr><td><code>SUBMITTED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ASSESSED</code></td><td><code>APPROVED</code></td><td><code>approve</code></td></tr>
+          <tr><td><code>ASSESSED</code></td><td><code>DENIED</code></td><td><code>deny</code></td></tr>
+          <tr><td><code>ASSESSED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>SETTLED</code></td><td><code>settle</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>claimLineInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>claimLineInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>claimLineWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-claim-line-approval-requested">ClaimLineApprovalRequested</a>, <a href="#process-claim-line-follow-up-required">ClaimLineFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-claim-line-status" class="entity">
+      <h3>Claim Line Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of claim line status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_claim_line_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Claim Line Status</b> window, on the <b>Claim Line Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-contact-point" class="entity">
       <h3>Contact Point <span class="group">Foundation</span></h3>
       <p class="lede">A communication endpoint for a party, such as an email address, telephone number, web address or other channel. Reaching someone requires a specific address. A contact point holds each one with its own status, so messages go to working endpoints and old ones are not lost. Added when a party gives an email, phone or other channel; read by communications, notifications and service processes. Each contact point belongs to one Party, which may have several. Code and identity stay stable, and an endpoint that is retired remains in history. The billing team&#39;s email address invoices@acme.example, recorded for a customer.</p>
@@ -1255,6 +1537,276 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-coverage" class="entity">
+      <h3>Coverage <span class="group">Foundation</span></h3>
+      <p class="lede">Represents one governed insured benefit or risk component of a policy. InsurancePolicy is the contract-level aggregate; Coverage states the specific protection and limits applied to claims. Insurance policy administration, underwriting, claims, exposure management and audit. Policy is mandatory, insured parties define beneficiaries or risk subjects, and ClaimLines preserve utilization and adjudication. Coverage is drafted, activated, may suspend, and ends through expiry or cancellation while historical claims retain applied terms. A motor policy has collision Coverage with a monetary limit and deductible; claim lines are assessed against that specific component.</p>
+      <p class="meta">Stored as <code>bus_coverage</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The stable identity of one coverage component within a policy, unchanged for its whole life. Generated when the coverage is created; claim lines and assessments point to it so the terms applied to a claim stay traceable. Identifies one coverage independently of policy header and claims. InsurancePolicy supplies the governing contract context.</td>
+        </tr>
+        <tr>
+          <td><code>coverage_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 120</span></td>
+          <td>The business code naming the type of cover, such as collision, theft or liability. Chosen from the insurer&#39;s product setup when a policy is written; claims are matched to the right cover by this code. Classifies the insured benefit or risk for policy and claim processing. May repeat across policies while coverageId remains unique.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 1000</span></td>
+          <td>A plain-language statement of what risk or benefit this coverage protects against. Written by the underwriter when the policy is set up; read by servicing staff and shown to customers explaining their protection. Explains what benefit or risk the Coverage represents. Detailed legal terms remain in policy/contract documents and clauses.</td>
+        </tr>
+        <tr>
+          <td><code>limit_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The most the insurer will pay under this coverage for a covered loss. Set when the policy is written; claim assessment caps the approved amount at it. Not negative. Expressed in the coverage&#39;s currency; a deductible, if any, is applied before the limit. Provides claim authorization limit without replacing detailed policy terms.</td>
+        </tr>
+        <tr>
+          <td><code>deductible_amount</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>The portion of a covered loss the insured bears before the insurer pays. Set when the policy is written; claim assessment subtracts it from the covered amount. Not negative. Expressed in the coverage&#39;s currency and applied before the limit. Supports claim responsibility calculation.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the coverage stands: being written, in force, paused, ended by expiry or withdrawn. Moved by policy administration; only an active coverage lets claims be assessed, while ended ones stay readable for past claims. Being written into the policy; not yet in force. In force; claims may be assessed against it. Temporarily not in force, for example for non-payment of premium; new claims are not assessed against it. Its period has ended; historical claims remain valid. Withdrawn before or during its term; kept for history. Controls eligibility for new loss events while preserving historical policy and claim evidence. Policy lifecycle remains separately authoritative.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>EXPIRED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>policy_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The insurance policy of which this coverage is a part. Exactly one policy: a coverage is a section of a single policy and cannot exist alone. Supplies contract parties and overall policy lifecycle. Policy administration and claims. Coverage cannot be effective outside applicable policy terms.<div class="detail">Points at <b>Policy</b></div></td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Currency for monetary limits and deductibles. Makes monetary coverage values unambiguous. Claims, exposure and reporting. Optional when no monetary values are defined. Currency changes require new governed terms rather than reinterpretation of historical claims.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Insurance Policy</b> window, on the <b>Coverage</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>coverage_code</code></td>
+            <td>Coverage Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>limit_amount</code></td>
+            <td>Limit Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>deductible_amount</code></td>
+            <td>Deductible Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>policy_id</code></td>
+            <td>Policy</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Coverage</b> belongs to one <a href="#entity-insurance-policy">Insurance Policy</a>.</li>
+          <li>Each <b>Coverage</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+          <li>Each <b>Coverage</b> is linked to many <a href="#entity-insured-party">Insured Party</a> records.</li>
+          <li>Each <b>Coverage</b> has many <a href="#entity-claim-line">Claim Line</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; CoverageLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>SUSPENDED</code></td><td><code>suspend</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>ACTIVE</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>EXPIRED</code></td><td><code>expire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>coverageInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>coverageInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>coverageWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-coverage-follow-up-required">CoverageFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-coverage-status" class="entity">
+      <h3>Coverage Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of coverage status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_coverage_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Coverage Status</b> window, on the <b>Coverage Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-currency" class="entity">
       <h3>Currency <span class="group">Foundation</span></h3>
       <p class="lede">Defines the monetary denomination that gives financial amounts their business meaning. Currency is not an amount. It defines the denomination in which an amount is stated and provides the reference needed for pricing, billing, settlement, banking, and accounting. Central to Product pricing, SalesOrder, Invoice, Payment, PaymentAllocation, BankTransaction, JournalEntry, ExchangeRate, and financial reporting. Product may carry reference pricing. SalesOrder establishes commercial amounts. Invoice establishes claims. Payment establishes settlement. PaymentAllocation applies settlement to claims. BankTransaction supplies external evidence. JournalEntry records accounting recognition. ExchangeRate provides auditable conversion between Currency denominations. Price → SalesOrder → Invoice → Payment → PaymentAllocation → BankTransaction reconciliation → JournalEntry. When currencies differ, an approved ExchangeRate and explicit rounding/conversion policy must be used; Currency master data never substitutes for an exchange-rate record. Currency is activated for use, may become inactive, and may eventually be retired. Lifecycle changes affect future transactions only and preserve historical financial evidence. A SalesOrder is denominated in USD and an Invoice is issued in USD. A customer pays in EUR. Payment records EUR, PaymentAllocation records the approved ExchangeRate and conversion context needed to settle the USD invoice, BankTransaction provides bank evidence in EUR, and accounting retains the rate used rather than later recalculating the historical settlement.</p>
@@ -1362,6 +1914,9 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Currency</b> has many <a href="#entity-country">Country</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
           <li>Each <b>Currency</b> has many <a href="#entity-exchange-rate">Exchange Rate</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-coverage">Coverage</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-premium">Premium</a> records.</li>
+          <li>Each <b>Currency</b> has many <a href="#entity-settlement">Settlement</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; CurrencyLifecycle</h4>
       <p>A record starts at <code>ACTIVE</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -2004,6 +2559,12 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <td>The policy under which the claim is made. Chosen at registration; its cover, limits and deductibles decide what can be paid. Exactly one policy: a claim is made against a particular contract of insurance. Decides cover, limits and deductibles for the assessment.<div class="detail">Points at <b>Policy</b></div></td>
         </tr>
         <tr>
+          <td><code>insured_party_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The covered person or entity the claim concerns. Chosen at registration from the policy&#39;s insured parties. At most one insured party; a claim under a property policy may name none. Checks that the claimant&#39;s loss falls within the persons covered. Preserves policy-specific eligibility context beyond generic claimant identity.<div class="detail">Points at <b>Insured Party</b></div></td>
+        </tr>
+        <tr>
           <td><code>claimant_id</code></td>
           <td>Lookup</td>
           <td><span class="tag">required</span></td>
@@ -2012,7 +2573,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         </tbody>
       </table>
       <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>Insurance Claim</b> window, on the <b>Insurance Claim</b> tab. These are its 9 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>Insurance Claim</b> window, on the <b>Insurance Claim</b> tab. These are its 10 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -2081,11 +2642,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
             <td>No</td>
           </tr>
           <tr>
+            <td><code>insured_party_id</code></td>
+            <td>Insured Party</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
             <td><code>claimant_id</code></td>
             <td>Claimant</td>
             <td>Yes</td>
             <td>No</td>
-            <td>90</td>
+            <td>100</td>
             <td>No</td>
           </tr>
         </tbody>
@@ -2093,7 +2662,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <h4>Related records</h4>
       <ul class="plain">
           <li>Each <b>Insurance Claim</b> belongs to one <a href="#entity-insurance-policy">Insurance Policy</a>.</li>
+          <li>Each <b>Insurance Claim</b> belongs to one <a href="#entity-insured-party">Insured Party</a>.</li>
           <li>Each <b>Insurance Claim</b> belongs to one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Insurance Claim</b> has many <a href="#entity-claim-line">Claim Line</a> records.</li>
+          <li>Each <b>Insurance Claim</b> has many <a href="#entity-settlement">Settlement</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; InsuranceClaimLifecycle</h4>
       <p>A record starts at <code>REPORTED</code> and finishes at <code>DENIED</code> or <code>CLOSED</code>. These are the moves it may make, and no others:</p>
@@ -2363,6 +2935,10 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Insurance Policy</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Insurance Policy</b> has many <a href="#entity-party">Party</a> records.</li>
           <li>Each <b>Insurance Policy</b> has many <a href="#entity-insurance-claim">Insurance Claim</a> records.</li>
+          <li>Each <b>Insurance Policy</b> has many <a href="#entity-coverage">Coverage</a> records.</li>
+          <li>Each <b>Insurance Policy</b> has many <a href="#entity-insured-party">Insured Party</a> records.</li>
+          <li>Each <b>Insurance Policy</b> has many <a href="#entity-premium">Premium</a> records.</li>
+          <li>Each <b>Insurance Policy</b> has many <a href="#entity-underwriting">Underwriting</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; InsurancePolicyLifecycle</h4>
       <p>A record starts at <code>QUOTED</code> and finishes at <code>EXPIRED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
@@ -2441,6 +3017,340 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Where it appears</h4>
       <p>The application opens this record in the <b>Insurance Policy Status</b> window, on the <b>Insurance Policy Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-insured-party" class="entity">
+      <h3>Insured Party <span class="group">Foundation</span></h3>
+      <p class="lede">Represents a Party&#39;s insured or beneficiary role under an InsurancePolicy. InsuredParty separates common Party identity from policy-specific coverage eligibility. Insurance enrollment, policy servicing, coverage validation, claims and reporting. Party and Policy are mandatory; Coverage refines benefits and Claims preserve utilization/history. Relationship is active, may suspend, and eventually ends without losing historical eligibility evidence. A dependent Person is represented as an InsuredParty under a family policy and linked to the health Coverage applicable to that member.</p>
+      <p class="meta">Stored as <code>bus_insured_party</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the insured role. Generated when the party is added to a policy. Identifies one Party-policy insurance role independently of Party identity. Party supplies common identity; InsurancePolicy supplies contract context.</td>
+        </tr>
+        <tr>
+          <td><code>insured_party_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The unique reference of this insured party within the insurer&#39;s systems. Allocated when added; quoted in claims. Supports policy administration and integration without reusing Party identifiers. Distinct from Party and policy numbers.</td>
+        </tr>
+        <tr>
+          <td><code>role_type</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>How the party is connected to the policy. Chosen when added; decides entitlement to cover and to payment. The person or thing whose risk is insured. The party entitled to be paid on a claim. A person covered through the main insured. A member covered under a group policy. Any other covered role. Determines coverage and claim eligibility semantics under policy terms. Policyholder status may be modeled separately through InsurancePolicy policyholders.<div class="detail">One of: <code>INSURED</code>, <code>BENEFICIARY</code>, <code>DEPENDENT</code>, <code>COVERED_MEMBER</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether this party&#39;s insured or beneficiary relationship to the policy is currently in force. Set by policy administration; coverage checks and claims only treat ACTIVE relationships as eligible, while ended ones stay as historical evidence. Covered under the policy. Cover paused for this party. No longer covered. A final state. Controls new eligibility while preserving historical claim evidence. Coverage may apply only during a subset of policy period.<div class="detail">One of: <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>ENDED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>policy_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The policy that this party is covered under. Set when added. Exactly one policy: an insured role exists only within a policy. Ties the party&#39;s cover to a policy&#39;s terms. Supplies governing insurance contract context.<div class="detail">Points at <b>Policy</b></div></td>
+        </tr>
+        <tr>
+          <td><code>party_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The person or organisation holding the insured role. Chosen when added to the policy. Exactly one party: each role is held by a specific person or organisation. Identifies who is covered, or who is paid, under the policy. Reuses common identity and contact data.<div class="detail">Points at <b>Party</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Insurance Policy</b> window, on the <b>Insured Party</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>insured_party_code</code></td>
+            <td>Insured Party Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>role_type</code></td>
+            <td>Role Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>policy_id</code></td>
+            <td>Policy</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>party_id</code></td>
+            <td>Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Insured Party</b> belongs to one <a href="#entity-insurance-policy">Insurance Policy</a>.</li>
+          <li>Each <b>Insured Party</b> is linked to many <a href="#entity-coverage">Coverage</a> records.</li>
+          <li>Each <b>Insured Party</b> belongs to one <a href="#entity-party">Party</a>.</li>
+          <li>Each <b>Insured Party</b> has many <a href="#entity-insurance-claim">Insurance Claim</a> records.</li>
+          <li>Each <b>Insured Party</b> has many <a href="#entity-premium">Premium</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; InsuredPartyLifecycle</h4>
+      <p>A record starts at <code>ACTIVE</code> and finishes at <code>ENDED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>ACTIVE</code></td><td><code>SUSPENDED</code></td><td><code>suspend</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>ACTIVE</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>ENDED</code></td><td><code>end</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>ENDED</code></td><td><code>end</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-insured-party-role-type" class="entity">
+      <h3>Insured Party Role Type <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of insured party role type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_insured_party_role_type</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Insured Party Role Type</b> window, on the <b>Insured Party Role Type</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-insured-party-status" class="entity">
+      <h3>Insured Party Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of insured party status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_insured_party_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Insured Party Status</b> window, on the <b>Insured Party Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -3642,6 +4552,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Party</b> has many <a href="#entity-contact-point">Contact Point</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-task">Task</a> records.</li>
           <li>Each <b>Party</b> belongs to one <a href="#entity-insurance-policy">Insurance Policy</a>.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-insured-party">Insured Party</a> records.</li>
+          <li>Each <b>Party</b> has many <a href="#entity-underwriting">Underwriting</a> records.</li>
           <li>Each <b>Party</b> has many <a href="#entity-insurance-claim">Insurance Claim</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; PartyLifecycle</h4>
@@ -4881,6 +5793,630 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-premium" class="entity">
+      <h3>Premium <span class="group">Foundation</span></h3>
+      <p class="lede">Represents a policy premium obligation while keeping receivable and payment evidence in finance entities. Premium explains the insurance charge; Invoice formalizes a financial claim; Payment settles it. Insurance billing, collections, policy servicing, accounting and audit. Policy is mandatory, optional InsuredParty supports member-level pricing, Currency defines value and Invoice provides receivable evidence. Premium is prepared, becomes due, may be invoiced, then ends paid, waived or cancelled. A quarterly policy premium becomes due, is invoiced, and is later marked paid after the invoice settlement is reconciled.</p>
+      <p class="meta">Stored as <code>bus_premium</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the premium record. Generated when the premium is assessed; invoices and payments refer to it. Identifies one policy premium assessment or installment independently of billing and payment records. InsurancePolicy defines why the premium is owed.</td>
+        </tr>
+        <tr>
+          <td><code>premium_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The number of the premium notice, quoted to the policyholder. Allocated from a number series; unique. Operational identifier for policy billing and reconciliation. Distinct from policy and invoice numbers.</td>
+        </tr>
+        <tr>
+          <td><code>amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The premium amount due for the period. Calculated from the policy&#39;s rating; not negative. Expressed in the premium&#39;s currency; the invoice, if one is raised, repeats it. Premium value due under policy terms.</td>
+        </tr>
+        <tr>
+          <td><code>due_date</code></td>
+          <td>Date</td>
+          <td>&mdash;</td>
+          <td>The date by which the premium must be paid. Set from the billing schedule; reminders and lapse rules run from it. Supports policy billing and delinquency decisions. Invoice payment terms may become authoritative after formal billing.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where this premium stands between being calculated, billed to the policyholder and settled, waived or withdrawn. Moved by policy billing and finance; PAID must be backed by settled payment evidence and the three closing states are final. Calculated but not yet due and not yet billed to anyone. Payable now; the due date has been assessed and collection can begin. Included on an invoice to the policyholder and awaiting payment. Received and reconciled against payment. A final state. Excused by the insurer so no payment is expected. A final state. Withdrawn, for example because the policy was cancelled. A final state. Distinguishes preparation, due, billed, settled, waived and cancelled states. PAID must reconcile to financial settlement evidence.<div class="detail">One of: <code>DRAFT</code>, <code>DUE</code>, <code>INVOICED</code>, <code>PAID</code>, <code>WAIVED</code>, <code>CANCELLED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>policy_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one policy: a premium is the price of the cover under a specific policy. InsurancePolicy giving rise to this Premium. Supplies contractual basis and coverage period. Policy billing and reconciliation. Premium must be compatible with policy terms.<div class="detail">Points at <b>Policy</b></div></td>
+        </tr>
+        <tr>
+          <td><code>insured_party_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>The insured party the premium is charged for, where cover is priced per person. Set for group and family policies. At most one insured party. Lets a premium be traced to the person it covers. Supports member-specific pricing without making all premiums party-specific.<div class="detail">Points at <b>Insured Party</b></div></td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one currency, so the amount is unambiguous. Currency of the premium amount. Makes monetary obligation unambiguous. Billing, accounting and reporting. Historical premium currency does not change after assessment.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Insurance Policy</b> window, on the <b>Premium</b> tab. These are its 8 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>premium_number</code></td>
+            <td>Premium Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>amount</code></td>
+            <td>Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>due_date</code></td>
+            <td>Due Date</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>policy_id</code></td>
+            <td>Policy</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>insured_party_id</code></td>
+            <td>Insured Party</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Premium</b> belongs to one <a href="#entity-insurance-policy">Insurance Policy</a>.</li>
+          <li>Each <b>Premium</b> belongs to one <a href="#entity-insured-party">Insured Party</a>.</li>
+          <li>Each <b>Premium</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; PremiumLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>PAID</code> or <code>WAIVED</code> or <code>CANCELLED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>DUE</code></td><td><code>assess</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>DUE</code></td><td><code>INVOICED</code></td><td><code>invoice</code></td></tr>
+          <tr><td><code>DUE</code></td><td><code>WAIVED</code></td><td><code>waive</code></td></tr>
+          <tr><td><code>DUE</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>INVOICED</code></td><td><code>PAID</code></td><td><code>mark_paid</code></td></tr>
+          <tr><td><code>INVOICED</code></td><td><code>WAIVED</code></td><td><code>waive</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>premiumInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>premiumInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>premiumWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-premium-follow-up-required">PremiumFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-premium-status" class="entity">
+      <h3>Premium Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of premium status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_premium_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Premium Status</b> window, on the <b>Premium Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-settlement" class="entity">
+      <h3>Settlement <span class="group">Insurance</span></h3>
+      <p class="lede">Records the governed discharge of approved insurance claim liability. ClaimLine determines approved liability; Settlement allocates/discharges it; Payment records cash movement when applicable. Insurance claims, payments, recoveries, reconciliation, accounting and audit. Claim and ClaimLines are mandatory, Currency defines value, and Payment supplies execution evidence for monetary settlement. Settlement is drafted, approved and executed or voided, with executed transactions immutable. Two approved ClaimLines totaling 4,000 are paid through one Settlement linked to the resulting Payment transaction.</p>
+      <p class="meta">Stored as <code>bus_settlement</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The stable identity of one claim settlement transaction, assigned once and never changed. Generated on creation; payments, reconciliation reports and audit entries refer to it even if the settlement number is corrected. Identifies one discharge of insurance liability independently of claim approval and payment execution. InsuranceClaim supplies liability context while Payment may provide financial execution evidence.</td>
+        </tr>
+        <tr>
+          <td><code>settlement_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The business reference of the settlement, such as STL-3041, used by claims finance to find it. Assigned when the settlement is drafted; unique; quoted in correspondence with the claimant and in integrations with accounting. Operational identifier for claims finance and reconciliation. Distinct from claim and payment numbers.</td>
+        </tr>
+        <tr>
+          <td><code>amount</code></td>
+          <td>Amount</td>
+          <td><span class="tag">required</span></td>
+          <td>The monetary liability this settlement discharges, stated in the settlement currency. Entered by the claims handler from the approved claim lines; it must not exceed approved liability and is reported against reserves. Compared with the approved claim amount and the payment made. Represents settlement value attributable to the claim.</td>
+        </tr>
+        <tr>
+          <td><code>method</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>How the approved claim liability is discharged: by payment, service, offset, recovery or another agreed route. Chosen when the settlement is drafted; decides whether a Payment is expected and how accounting records the discharge. Liability is discharged by a cash payment to the claimant, which should be linked to a Payment. Liability is discharged by providing a service, such as a repair or replacement, instead of money. Liability is discharged by netting it against an amount the claimant owes, with no cash movement. Liability is discharged through recovery from a third party, such as a subrogation or salvage recovery. Liability is discharged by a method not listed here, with the arrangement described in the claim notes. Distinguishes cash payment from non-cash or recovery settlement semantics. Payment relationship is expected when method is PAYMENT under policy.<div class="detail">One of: <code>PAYMENT</code>, <code>SERVICE</code>, <code>OFFSET</code>, <code>RECOVERY</code>, <code>OTHER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the settlement stands between preparation, approval, execution and voiding. Starts as DRAFT; claims finance approves and then executes it, and an executed settlement must reconcile to its payment or service evidence. Being prepared; nothing is committed. Approved and ready to be carried out. Paid or otherwise discharged. A final state. Cancelled and of no effect. A final state. Separates preparation, approval, execution and voiding. EXECUTED must reconcile to payment/service evidence where applicable.<div class="detail">One of: <code>DRAFT</code>, <code>APPROVED</code>, <code>EXECUTED</code>, <code>VOID</code></div></td>
+        </tr>
+        <tr>
+          <td><code>claim_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>A settlement discharges one insurance claim; separate claims are settled separately. InsuranceClaim whose liability is settled. Supplies approved claim context. Claims payment and reconciliation. Settlement must not exceed approved liability except governed adjustments.<div class="detail">Points at <b>Claim</b></div></td>
+        </tr>
+        <tr>
+          <td><code>currency_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The amount is in exactly one currency. Currency of the settlement amount. Makes financial value unambiguous. Claims finance and reporting. Conversion and accounting policy remain separately governed.<div class="detail">Points at <b>Currency</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Settlement</b> window, on the <b>Settlement</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>settlement_number</code></td>
+            <td>Settlement Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>amount</code></td>
+            <td>Amount</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>method</code></td>
+            <td>Method</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>claim_id</code></td>
+            <td>Claim</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>currency_id</code></td>
+            <td>Currency</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Settlement</b> belongs to one <a href="#entity-insurance-claim">Insurance Claim</a>.</li>
+          <li>Each <b>Settlement</b> is linked to many <a href="#entity-claim-line">Claim Line</a> records.</li>
+          <li>Each <b>Settlement</b> belongs to one <a href="#entity-currency">Currency</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; SettlementLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>EXECUTED</code> or <code>VOID</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>APPROVED</code></td><td><code>approve</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>VOID</code></td><td><code>void</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>EXECUTED</code></td><td><code>execute</code></td></tr>
+          <tr><td><code>APPROVED</code></td><td><code>VOID</code></td><td><code>void</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>settlementInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>settlementInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>settlementWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-settlement-follow-up-required">SettlementFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-settlement-method" class="entity">
+      <h3>Settlement Method <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of settlement method, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_settlement_method</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Settlement Method</b> window, on the <b>Settlement Method</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-settlement-status" class="entity">
+      <h3>Settlement Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of settlement status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_settlement_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Settlement Status</b> window, on the <b>Settlement Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-state-province" class="entity">
       <h3>State Province <span class="group">Foundation</span></h3>
       <p class="lede">A first-level division of a country, such as a state, province or region, from the ISO 3166-2 registry. States and provinces give addresses a standard, checkable subdivision. Choosing from this list avoids misspelt regions and lets reports group by region. Maintained as reference data; chosen in addresses; read by tax, shipping and reports. A state or province belongs to one country and contains cities. Entries are loaded from the standard and rarely change; when a division is abolished it is withdrawn without deleting history. &quot;California&quot; belongs to the United States and contains cities such as Los Angeles. Chosen from the list wherever a record needs a place, code or currency; maintained by an administrator when a registry changes.</p>
@@ -5521,6 +7057,351 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-underwriting" class="entity">
+      <h3>Underwriting <span class="group">Insurance</span></h3>
+      <p class="lede">Records the governed risk evaluation and decision behind insurance issuance or renewal. Underwriting explains why a risk was accepted, modified, referred or declined; InsurancePolicy records the resulting contract when issued. Insurance new business, renewal, pricing, risk governance, compliance and audit. Applicant is mandatory, RiskAssessment may supply structured evidence, and InsurancePolicy preserves the resulting contract linkage. Underwriting moves from draft to active review and ends with a decision or withdrawal. A commercial applicant undergoes risk review, receives ACCEPT_WITH_TERMS, and the issued InsurancePolicy links back to that Underwriting record.</p>
+      <p class="meta">Stored as <code>bus_underwriting</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>Stable identity of the underwriting evaluation. Identifies one governed risk decision independently of later policy issuance. Insurance sales, risk, policy issuance, renewal and audit. May precede an InsurancePolicy or evaluate an existing policy renewal.</td>
+        </tr>
+        <tr>
+          <td><code>underwriting_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The business reference of the underwriting case, such as UW-2026-118, separate from any policy number. Unique; assigned when the case opens and quoted by underwriters, brokers and integrations when searching or referring to the review. Operational identifier for risk review and integration. Distinct from policy number.</td>
+        </tr>
+        <tr>
+          <td><code>risk_score</code></td>
+          <td>Amount</td>
+          <td>&mdash;</td>
+          <td>A numeric measure of the assessed risk, produced by a scoring model or set by the underwriter. Optional; used to segment risks and support the decision, but never the sole reason for it. The scale depends on the model used. Supports but does not replace explainable underwriting decision evidence. Scoring model and scale require separate policy/model governance.</td>
+        </tr>
+        <tr>
+          <td><code>decision</code></td>
+          <td>Choice</td>
+          <td>&mdash;</td>
+          <td>The outcome of the risk review: accept, accept with terms, decline or refer onwards. Recorded once the evaluation concludes; it gates policy issuance and pricing, and must be backed by evidence and approvals. The risk is accepted on standard terms and the policy may be issued. The risk is accepted only with special conditions, exclusions, loadings or a changed premium. The risk is refused and no policy may be issued on this evaluation. The case exceeds the reviewer&#39;s authority or needs specialist input and is passed to a more senior underwriter. Determines whether issuance/renewal may proceed and whether special terms are required. Must be supported by attributable risk evidence and approvals.<div class="detail">One of: <code>ACCEPT</code>, <code>ACCEPT_WITH_TERMS</code>, <code>DECLINE</code>, <code>REFER</code></div></td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>The stage the underwriting review has reached, from preparation to a final decision or withdrawal. Starts as DRAFT; moved as review begins and ends. DECIDED requires a recorded decision, and issuance waits for it. The case is being prepared and review has not started. An underwriter is actively evaluating the risk. A decision has been recorded and the review is closed. A final state. The applicant or insurer abandoned the case without a decision. A final state. Separates preparation, active risk review, decision and withdrawal. DECIDED requires a recorded decision.<div class="detail">One of: <code>DRAFT</code>, <code>IN_REVIEW</code>, <code>DECIDED</code>, <code>WITHDRAWN</code></div></td>
+        </tr>
+        <tr>
+          <td><code>policy_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Policy resulting from or being renewed by this underwriting evaluation. Preserves decision-to-policy provenance. Issuance, renewal and audit. Optional before issuance or when risk is declined. Issued terms must reconcile to approved underwriting decision.<div class="detail">Points at <b>Policy</b></div></td>
+        </tr>
+        <tr>
+          <td><code>applicant_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Party whose proposed insurance risk is evaluated. Establishes applicant or insured context. Underwriting, communication and audit. Exactly one Party in this baseline evaluation. Applicant identity must remain traceable into issued policy relationships.<div class="detail">Points at <b>Applicant</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Underwriting</b> window, on the <b>Underwriting</b> tab. These are its 7 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>underwriting_number</code></td>
+            <td>Underwriting Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>risk_score</code></td>
+            <td>Risk Score</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>decision</code></td>
+            <td>Decision</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>policy_id</code></td>
+            <td>Policy</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>applicant_id</code></td>
+            <td>Applicant</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Underwriting</b> belongs to one <a href="#entity-insurance-policy">Insurance Policy</a>.</li>
+          <li>Each <b>Underwriting</b> belongs to one <a href="#entity-party">Party</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; UnderwritingLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>DECIDED</code> or <code>WITHDRAWN</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>IN_REVIEW</code></td><td><code>submit</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>WITHDRAWN</code></td><td><code>withdraw</code></td></tr>
+          <tr><td><code>IN_REVIEW</code></td><td><code>DECIDED</code></td><td><code>decide</code></td></tr>
+          <tr><td><code>IN_REVIEW</code></td><td><code>WITHDRAWN</code></td><td><code>withdraw</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-underwriting-decision" class="entity">
+      <h3>Underwriting Decision <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of underwriting decision, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_underwriting_decision</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Underwriting Decision</b> window, on the <b>Underwriting Decision</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-underwriting-status" class="entity">
+      <h3>Underwriting Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of underwriting status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_underwriting_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Underwriting Status</b> window, on the <b>Underwriting Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-unit-of-measure" class="entity">
       <h3>Unit Of Measure <span class="group">Foundation</span></h3>
       <p class="lede">Defines the measurement semantics that make numeric quantities comparable across CEDM workflows. A quantity without a valid unit is incomplete business information. UnitOfMeasure provides the dimension and conversion context needed to interpret quantities correctly. Central to Product, sales, procurement, receiving, inventory, fulfillment, invoicing, manufacturing, logistics, service, and reporting. Product supplies a default measurement context. Transaction lines may use compatible units. GoodsReceiptLine supplies received/accepted quantities. InventoryBalance and InventoryMovement require consistent measurement. InvoiceLine must be comparable for matching. UOM create/update/retire → identify Products and open transaction dependencies → validate conversions → update future eligibility/configuration → revalidate affected SalesOrderLine/PurchaseOrderLine/GoodsReceiptLine/InventoryMovement/InvoiceLine workflows → preserve historical quantity meaning. A conversion change is never a silent retroactive data transformation. Units are created and activated for use, may become inactive, and may eventually be retired. Retirement prevents new normal use but never changes the meaning of historical quantities. A change to code/name/symbol affects presentation and integrations; a change to category/baseUnit/conversionFactor affects quantity semantics and requires dependency validation; a status change affects future transaction eligibility; historical transaction evidence remains immutable. A product is stocked in EACH but purchased in BOX. If one BOX equals 10 EACH, the PO records 5 BOX and inventory posts 50 EACH after conversion. If the BOX conversion changes to 12 EACH, existing PO and receipt quantities are not silently reinterpreted. Open affected transactions must be revalidated or explicitly converted, while historical receipts and invoices retain the original conversion evidence.</p>
@@ -5897,12 +7778,24 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>insurancePolicyInvariantsBeforeCreate</code></td><td><a href="#entity-insurance-policy">Insurance Policy</a></td><td>beforeCreate</td></tr>
         <tr><td><code>insurancePolicyInvariantsBeforeUpdate</code></td><td><a href="#entity-insurance-policy">Insurance Policy</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>coverageInvariantsBeforeCreate</code></td><td><a href="#entity-coverage">Coverage</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>coverageInvariantsBeforeUpdate</code></td><td><a href="#entity-coverage">Coverage</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>premiumInvariantsBeforeCreate</code></td><td><a href="#entity-premium">Premium</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>premiumInvariantsBeforeUpdate</code></td><td><a href="#entity-premium">Premium</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>insuranceClaimInvariantsBeforeCreate</code></td><td><a href="#entity-insurance-claim">Insurance Claim</a></td><td>beforeCreate</td></tr>
         <tr><td><code>insuranceClaimInvariantsBeforeUpdate</code></td><td><a href="#entity-insurance-claim">Insurance Claim</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>claimLineInvariantsBeforeCreate</code></td><td><a href="#entity-claim-line">Claim Line</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>claimLineInvariantsBeforeUpdate</code></td><td><a href="#entity-claim-line">Claim Line</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>settlementInvariantsBeforeCreate</code></td><td><a href="#entity-settlement">Settlement</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>settlementInvariantsBeforeUpdate</code></td><td><a href="#entity-settlement">Settlement</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
         <tr><td><code>insurancePolicyWorkflowsAfterUpdate</code></td><td><a href="#entity-insurance-policy">Insurance Policy</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>coverageWorkflowsAfterUpdate</code></td><td><a href="#entity-coverage">Coverage</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>premiumWorkflowsAfterUpdate</code></td><td><a href="#entity-premium">Premium</a></td><td>afterUpdate</td></tr>
         <tr><td><code>insuranceClaimWorkflowsAfterUpdate</code></td><td><a href="#entity-insurance-claim">Insurance Claim</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>claimLineWorkflowsAfterUpdate</code></td><td><a href="#entity-claim-line">Claim Line</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>settlementWorkflowsAfterUpdate</code></td><td><a href="#entity-settlement">Settlement</a></td><td>afterUpdate</td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -5932,6 +7825,20 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-coverage-follow-up-required" class="process">
+      <h3>CoverageFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-coverage">Coverage</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-premium-follow-up-required" class="process">
+      <h3>PremiumFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-premium">Premium</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <div id="process-insurance-claim-approval-requested" class="process">
       <h3>InsuranceClaimApprovalRequested</h3>
       <p class="meta">On <a href="#entity-insurance-claim">Insurance Claim</a>, rule on UPDATE.</p>
@@ -5942,6 +7849,27 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <div id="process-insurance-claim-follow-up-required" class="process">
       <h3>InsuranceClaimFollowUpRequired</h3>
       <p class="meta">On <a href="#entity-insurance-claim">Insurance Claim</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-claim-line-approval-requested" class="process">
+      <h3>ClaimLineApprovalRequested</h3>
+      <p class="meta">On <a href="#entity-claim-line">Claim Line</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: decide on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-claim-line-follow-up-required" class="process">
+      <h3>ClaimLineFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-claim-line">Claim Line</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-settlement-follow-up-required" class="process">
+      <h3>SettlementFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-settlement">Settlement</a>, rule on UPDATE.</p>
       <ol>
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
@@ -5958,7 +7886,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    insurance 1.0.0 &middot; 47 record types &middot; 16 rules &middot; 16 processes
+    insurance 1.0.0 &middot; 62 record types &middot; 28 rules &middot; 27 processes
   </footer>
 </div>
 </body>

@@ -15720,6 +15720,46 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ExchangeRateFollowUpRequired
+  - name: meterReadingWorkflowsAfterCreate
+    title: MeterReading workflows (afterCreate)
+    entity: MeterReading
+    event: afterCreate
+    nodes:
+      - id: S
+        label: "Start: MeterReading afterCreate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: SuspectReadingRecorded
+        type: trigger-workflow
+        when: quality == "SUSPECT" or quality == "INVALID"
+        props:
+          workflow: MeterReadingSuspectReadingRecorded
+  - name: meterReadingWorkflowsAfterUpdate
+    title: MeterReading workflows (afterUpdate)
+    entity: MeterReading
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: MeterReading afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: ReadingMarkedSuspect
+        type: trigger-workflow
+        when: (quality == "SUSPECT" or quality == "INVALID") and quality != _previous_quality
+        props:
+          workflow: MeterReadingReadingMarkedSuspect
 stateMachines:
   - name: PartyLifecycle
     title: Party Lifecycle
@@ -16056,3 +16096,31 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"EXCHANGE-RATE-FOLLOW-UP-{{id}}","name":"Follow up on exchange rate {{id}}","description":"Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: MeterReadingSuspectReadingRecorded
+    title: Review a meter reading that arrives suspect or invalid
+    entity: MeterReading
+    operation: UPDATE
+    trigger: rule
+    description: When a reading is recorded already marked suspect or invalid by validation, a task asks someone to check it before it reaches billing.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: review the reading"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: "{\"code\":\"METER-READING-REVIEW-{{id}}\",\"name\":\"Review meter reading {{id}}\",\"description\":\"Meter reading {{id}} was recorded as {{quality}}. Compare it with the meter's earlier readings, then correct it or confirm it before it is billed.\",\"task_type\":\"USER\",\"status\":\"CREATED\",\"priority\":\"HIGH\"}"
+  - name: MeterReadingReadingMarkedSuspect
+    title: Review a meter reading later marked suspect or invalid
+    entity: MeterReading
+    operation: UPDATE
+    trigger: rule
+    description: When validation or a reviewer marks an existing reading suspect or invalid, a task asks someone to check it before it reaches billing.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: recheck the reading"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: "{\"code\":\"METER-READING-RECHECK-{{id}}\",\"name\":\"Recheck meter reading {{id}}\",\"description\":\"Meter reading {{id}} is now {{quality}}. Compare it with the meter's earlier readings, then correct it or confirm it before it is billed.\",\"task_type\":\"USER\",\"status\":\"CREATED\",\"priority\":\"HIGH\"}"

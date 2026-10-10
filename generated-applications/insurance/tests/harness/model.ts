@@ -13,7 +13,7 @@
  * word, so a dropdown that lost an option or a state machine that lost an edge
  * fails a test instead of quietly shipping.
  *
- * Generated: 2026-10-09T15:29:08.111Z
+ * Generated: 2026-10-10T02:40:28.483Z
  * Project: insurance
  */
 
@@ -60,113 +60,158 @@ export const modelEnums: ModelEnum[] = [
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
-    name: "CurrencyStatus",
+    name: "ClaimLineStatus",
     referenceId: 1002,
+    values: ["SUBMITTED", "ASSESSED", "APPROVED", "DENIED", "SETTLED", "CANCELLED"],
+  },
+  {
+    name: "CoverageStatus",
+    referenceId: 1003,
+    values: ["DRAFT", "ACTIVE", "SUSPENDED", "EXPIRED", "CANCELLED"],
+  },
+  {
+    name: "CurrencyStatus",
+    referenceId: 1004,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "ExchangeRateRateType",
-    referenceId: 1003,
+    referenceId: 1005,
     values: ["SPOT", "CONTRACT", "DAILY", "MONTHLY", "ACCOUNTING", "CUSTOM"],
   },
   {
     name: "ExchangeRateStatus",
-    referenceId: 1004,
+    referenceId: 1006,
     values: ["DRAFT", "ACTIVE", "EXPIRED", "CANCELLED"],
   },
   {
     name: "InsuranceClaimStatus",
-    referenceId: 1005,
+    referenceId: 1007,
     values: ["REPORTED", "UNDER_REVIEW", "APPROVED", "PARTIALLY_APPROVED", "DENIED", "SETTLED", "CLOSED"],
   },
   {
     name: "InsurancePolicyStatus",
-    referenceId: 1006,
+    referenceId: 1008,
     values: ["QUOTED", "ACTIVE", "SUSPENDED", "EXPIRED", "CANCELLED"],
   },
   {
+    name: "InsuredPartyRoleType",
+    referenceId: 1009,
+    values: ["INSURED", "BENEFICIARY", "DEPENDENT", "COVERED_MEMBER", "OTHER"],
+  },
+  {
+    name: "InsuredPartyStatus",
+    referenceId: 1010,
+    values: ["ACTIVE", "SUSPENDED", "ENDED"],
+  },
+  {
     name: "LocationLocationType",
-    referenceId: 1007,
+    referenceId: 1011,
     values: ["SITE", "WAREHOUSE", "STORE", "OFFICE", "FACTORY", "YARD", "PORT", "DEPOT", "VIRTUAL", "OTHER"],
   },
   {
     name: "LocationStatus",
-    referenceId: 1008,
+    referenceId: 1012,
     values: ["PLANNED", "ACTIVE", "INACTIVE", "CLOSED", "RETIRED"],
   },
   {
     name: "OrganizationOrganizationType",
-    referenceId: 1009,
+    referenceId: 1013,
     values: ["ENTERPRISE", "COMPANY", "BUSINESS_UNIT", "DIVISION", "DEPARTMENT", "BRANCH", "SUBSIDIARY", "OTHER"],
   },
   {
     name: "OrganizationPartyType",
-    referenceId: 1010,
+    referenceId: 1014,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "OrganizationStatus",
-    referenceId: 1011,
+    referenceId: 1015,
     values: ["DRAFT", "ACTIVE", "INACTIVE", "RETIRED"],
   },
   {
     name: "PartyPartyType",
-    referenceId: 1012,
+    referenceId: 1016,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PartyRoleRoleType",
-    referenceId: 1013,
+    referenceId: 1017,
     values: ["CUSTOMER", "SUPPLIER", "EMPLOYEE", "PARTNER", "CARRIER", "AGENT", "CONTRACTOR", "OWNER", "INVESTOR", "OTHER"],
   },
   {
     name: "PartyRoleStatus",
-    referenceId: 1014,
+    referenceId: 1018,
     values: ["ACTIVE", "INACTIVE", "EXPIRED"],
   },
   {
     name: "PartyStatus",
-    referenceId: 1015,
+    referenceId: 1019,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
     name: "PersonGender",
-    referenceId: 1016,
+    referenceId: 1020,
     values: ["FEMALE", "MALE", "NON_BINARY", "OTHER", "UNSPECIFIED"],
   },
   {
     name: "PersonPartyType",
-    referenceId: 1017,
+    referenceId: 1021,
     values: ["PERSON", "ORGANIZATION"],
   },
   {
     name: "PersonStatus",
-    referenceId: 1018,
+    referenceId: 1022,
     values: ["ACTIVE", "INACTIVE", "BLOCKED", "RETIRED"],
   },
   {
+    name: "PremiumStatus",
+    referenceId: 1023,
+    values: ["DRAFT", "DUE", "INVOICED", "PAID", "WAIVED", "CANCELLED"],
+  },
+  {
+    name: "SettlementMethod",
+    referenceId: 1024,
+    values: ["PAYMENT", "SERVICE", "OFFSET", "RECOVERY", "OTHER"],
+  },
+  {
+    name: "SettlementStatus",
+    referenceId: 1025,
+    values: ["DRAFT", "APPROVED", "EXECUTED", "VOID"],
+  },
+  {
     name: "TaskPriority",
-    referenceId: 1019,
+    referenceId: 1026,
     values: ["LOW", "NORMAL", "HIGH", "CRITICAL"],
   },
   {
     name: "TaskStatus",
-    referenceId: 1020,
+    referenceId: 1027,
     values: ["CREATED", "READY", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED", "FAILED"],
   },
   {
     name: "TaskTaskType",
-    referenceId: 1021,
+    referenceId: 1028,
     values: ["USER", "SYSTEM", "APPROVAL", "DECISION", "NOTIFICATION", "SCRIPT", "OTHER"],
   },
   {
+    name: "UnderwritingDecision",
+    referenceId: 1029,
+    values: ["ACCEPT", "ACCEPT_WITH_TERMS", "DECLINE", "REFER"],
+  },
+  {
+    name: "UnderwritingStatus",
+    referenceId: 1030,
+    values: ["DRAFT", "IN_REVIEW", "DECIDED", "WITHDRAWN"],
+  },
+  {
     name: "UnitOfMeasureCategory",
-    referenceId: 1022,
+    referenceId: 1031,
     values: ["QUANTITY", "LENGTH", "AREA", "VOLUME", "MASS", "TIME", "COUNT", "CURRENCY", "OTHER"],
   },
   {
     name: "UnitOfMeasureStatus",
-    referenceId: 1023,
+    referenceId: 1032,
     values: ["ACTIVE", "INACTIVE", "RETIRED"],
   },
 ];
@@ -330,6 +375,65 @@ export const stateMachines: StateMachine[] = [
     ],
   },
   {
+    entity: "Coverage",
+    tableName: "bus_coverage",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["EXPIRED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "ACTIVE", trigger: "activate" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
+      { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
+      { from: "ACTIVE", to: "EXPIRED", trigger: "expire" },
+      { from: "SUSPENDED", to: "EXPIRED", trigger: "expire" },
+      { from: "ACTIVE", to: "CANCELLED", trigger: "cancel" },
+      { from: "SUSPENDED", to: "CANCELLED", trigger: "cancel" },
+    ],
+  },
+  {
+    entity: "InsuredParty",
+    tableName: "bus_insured_party",
+    statusField: "status",
+    initial: "ACTIVE",
+    terminal: ["ENDED"],
+    edges: [
+      { from: "ACTIVE", to: "SUSPENDED", trigger: "suspend" },
+      { from: "SUSPENDED", to: "ACTIVE", trigger: "resume" },
+      { from: "ACTIVE", to: "ENDED", trigger: "end" },
+      { from: "SUSPENDED", to: "ENDED", trigger: "end" },
+    ],
+  },
+  {
+    entity: "Underwriting",
+    tableName: "bus_underwriting",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["DECIDED", "WITHDRAWN"],
+    edges: [
+      { from: "DRAFT", to: "IN_REVIEW", trigger: "submit" },
+      { from: "DRAFT", to: "WITHDRAWN", trigger: "withdraw" },
+      { from: "IN_REVIEW", to: "DECIDED", trigger: "decide" },
+      { from: "IN_REVIEW", to: "WITHDRAWN", trigger: "withdraw" },
+    ],
+  },
+  {
+    entity: "Premium",
+    tableName: "bus_premium",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["PAID", "WAIVED", "CANCELLED"],
+    edges: [
+      { from: "DRAFT", to: "DUE", trigger: "assess" },
+      { from: "DRAFT", to: "CANCELLED", trigger: "cancel" },
+      { from: "DUE", to: "INVOICED", trigger: "invoice" },
+      { from: "DUE", to: "WAIVED", trigger: "waive" },
+      { from: "DUE", to: "CANCELLED", trigger: "cancel" },
+      { from: "INVOICED", to: "PAID", trigger: "mark_paid" },
+      { from: "INVOICED", to: "WAIVED", trigger: "waive" },
+    ],
+  },
+  {
     entity: "InsuranceClaim",
     tableName: "bus_insurance_claim",
     statusField: "status",
@@ -344,6 +448,34 @@ export const stateMachines: StateMachine[] = [
       { from: "APPROVED", to: "SETTLED", trigger: "settle" },
       { from: "PARTIALLY_APPROVED", to: "SETTLED", trigger: "settle" },
       { from: "SETTLED", to: "CLOSED", trigger: "close" },
+    ],
+  },
+  {
+    entity: "ClaimLine",
+    tableName: "bus_claim_line",
+    statusField: "status",
+    initial: "SUBMITTED",
+    terminal: ["DENIED", "SETTLED", "CANCELLED"],
+    edges: [
+      { from: "SUBMITTED", to: "ASSESSED", trigger: "assess" },
+      { from: "SUBMITTED", to: "CANCELLED", trigger: "cancel" },
+      { from: "ASSESSED", to: "APPROVED", trigger: "approve" },
+      { from: "ASSESSED", to: "DENIED", trigger: "deny" },
+      { from: "ASSESSED", to: "CANCELLED", trigger: "cancel" },
+      { from: "APPROVED", to: "SETTLED", trigger: "settle" },
+    ],
+  },
+  {
+    entity: "Settlement",
+    tableName: "bus_settlement",
+    statusField: "status",
+    initial: "DRAFT",
+    terminal: ["EXECUTED", "VOID"],
+    edges: [
+      { from: "DRAFT", to: "APPROVED", trigger: "approve" },
+      { from: "DRAFT", to: "VOID", trigger: "void" },
+      { from: "APPROVED", to: "EXECUTED", trigger: "execute" },
+      { from: "APPROVED", to: "VOID", trigger: "void" },
     ],
   },
 ];

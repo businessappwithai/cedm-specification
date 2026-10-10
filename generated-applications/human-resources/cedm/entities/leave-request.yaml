@@ -53,6 +53,7 @@ entity:
     - {id: LEAVE-REQUEST-002, rule: requestedUnits must be positive when supplied.}
     - {id: LEAVE-REQUEST-003, rule: APPROVED requires applicable approval evidence whenever policy requires approval before absence or payroll effects.}
     - {id: LEAVE-REQUEST-004, rule: "Approved or rejected history is not destructively rewritten; later changes use cancellation, amendment or follow-up evidence."}
+    - {id: LEAVE-REQUEST-EXE-001, rule: "End Date must not be earlier than start date.", violatedWhen: "start_date != null and end_date != null and end_date < start_date", message: "End Date cannot be earlier than start date."}
   lifecycle:
     title: Leave Request Lifecycle
     attribute: status
@@ -65,6 +66,43 @@ entity:
       - {from: SUBMITTED, to: APPROVED, action: approve}
       - {from: SUBMITTED, to: REJECTED, action: reject}
       - {from: SUBMITTED, to: CANCELLED, action: cancel}
+  workflows:
+    - name: ApprovalRequested
+      title: "Ask for a decision when a leave request is put forward"
+      description: "When a leave request is submitted, a task asks someone to decide on it."
+      when: "status == \"SUBMITTED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: decide on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LEAVE-REQUEST-APPROVAL-{{id}}"
+              name: "Decide on leave request {{request_number}}"
+              description: "Leave request {{request_number}} is now {{status}}. Approve it, return it for change or reject it; the move you make is recorded on the record."
+              task_type: "APPROVAL"
+              status: "CREATED"
+              priority: "NORMAL"
+    - name: FollowUpRequired
+      title: "Follow up when a leave request is ended"
+      description: "When a leave request is rejected or cancelled, a task asks someone to settle what depended on it."
+      when: "(status == \"REJECTED\" or status == \"CANCELLED\") and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "LEAVE-REQUEST-FOLLOW-UP-{{id}}"
+              name: "Follow up on leave request {{request_number}}"
+              description: "Leave request {{request_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Captures an auditable employee absence request and its approval outcome.
     businessMeaning: LeaveRequest is the authorization transaction; Attendance records actual work or absence evidence and Payroll applies financial consequences.

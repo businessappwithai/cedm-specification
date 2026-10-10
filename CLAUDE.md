@@ -85,7 +85,7 @@ Key routing rules:
 
 **Project**: AppWithAI - AI-Powered Entity Relationship Design & Code Generation Platform
 **Version**: 5.1.0 (`@appwithai/web` is 5.1.1; the generator CLI reports 5.2.0)
-**Runtime**: Bun.js >= 1.3.14 for this repo (`bun.lock` is authoritative;
+**Runtime**: Bun.js >= 1.4.0 for this repo (`bun.lock` is authoritative;
 `pnpm-workspace.yaml` / `pnpm-lock.yaml` are vestigial — ignore them). A Rust
 toolchain is now required as well: the generated backend is a cargo crate, the
 generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
@@ -102,6 +102,10 @@ generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
 | `bun run build` | Build all packages (lint → core → generator → ai → web) |
 | `bun run type-check` | TypeScript validation (root tsconfig, `--noEmit`) |
 | `bun run type-check:language` | Type-check `language/**` (its own tsconfig; the root one excludes it) |
+| `bun run spec:check` | Every gate the CEDM specification is held to (`tools/check.ts`) |
+| `bun run spec:validate` | The specification validator alone (`tools/validate.ts`) |
+| `bun run test:tools` | The specification tools' tests |
+| `bun run type-check:tools` | Type-check `tools/**` |
 | `bun run parity` | Generate with both generators and diff the backends |
 | `bun run lint` | Biome lint |
 | `bun run lint:fix` | Biome check + autofix (`biome check --write .`) |
@@ -138,7 +142,8 @@ bunx playwright test tests/e2e/specific.e2e.spec.ts
   from one that adds fifty. Until that backlog is cleared, check your own work
   with `biome lint <the files you touched>` and compare against the same files
   on `main`. The gates that do work are `bun run type-check`,
-  `bun run type-check:language`, `bun run test`, `bun run test:generator`,
+  `bun run type-check:language`, `bun run spec:check`, `bun run test:tools`,
+  `bun run test`, `bun run test:generator`,
   `cargo clippy -p appwithai-gen --all-targets -- -D warnings` and
   `bun run parity`.
 - **Clippy is only a gate if you run CI's toolchain.** `.github/workflows/parity.yml`
@@ -176,7 +181,7 @@ AppWithAI turns natural-language descriptions into production-ready full-stack a
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun.js >= 1.3.14 |
+| Runtime | Bun.js >= 1.4.0 |
 | AI Orchestration | Mastra.ai v1.54+, CopilotKit v1.64+ |
 | AI Model | **Local OpenAI-compatible endpoint** (default `qwen3.6:27b-mlx`) — see AI Model Configuration |
 | Frontend | TanStack Start v1.168, TanStack Router v1.170, Vite 8, React 19, Tailwind CSS v4, Zustand 5 |
@@ -1271,33 +1276,33 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   `/sys/ref-list?sys_reference_id=` from the table; the business seed skips these
   entities. Only lists some attribute names get a table. Contract:
   `specification/enumeration-semantics.yaml`; registry `domain/enumerations/index.yaml`
-  (`tools/build_enumerations.py`).
+  (`tools/build-enumerations.ts`).
 - **The specification supplies the Application Dictionary.**
   `specification/dictionary-mapping.yaml` says which CEDM construct fills each
   window/tab/table/column/field slot, `vocabulary.yaml` `kindClasses` resolves a
-  free-form `kind` to a class, and `tools/validate.py` enforces DICT-001…010 /
+  free-form `kind` to a class, and `tools/validate.ts` enforces DICT-001…010 /
   ENUM-001…003 (`ui.icon` a lucide 0.312 id, help on every entity, attribute and
-  relationship, `valueSemantics` per enum value). `tools/dictionary_report.py`
-  prints coverage; `tools/enrich_dictionary.py` fills gaps by editing text (a YAML
+  relationship, `valueSemantics` per enum value). `tools/dictionary-report.ts`
+  prints coverage; `tools/enrich-dictionary.ts` fills gaps by editing text (a YAML
   round trip rewraps every folded line in the library).
-- **Help text is authored, and a filler detector holds it.** `tools/help_shapes.py
-  --check` (HELP-001, run by `tools/validate.py`) replaces an entity's, attribute's
+- **Help text is authored, and a filler detector holds it.** `tools/help-shapes.ts
+  --check` (HELP-001, run by `tools/validate.ts`) replaces an entity's, attribute's
   or relationship's names with placeholders and compares the sentence with the frozen
   shapes in `tools/help-legacy-shapes.txt`; a match is template text and an error. To
-  author help: `tools/help_skeleton.py --next N` prints what is missing (`*`),
+  author help: `tools/help-skeleton.ts --next N` prints what is missing (`*`),
   `tools/help-batches/bNNN.txt` holds the text (`@ Entity`, `s:`/`b:`/`u:`/`c:`/`l:`/`x:`
   for the entity, `a name` then `s:`/`u:`/`c:` and `v VALUE:` for an attribute,
   `r name` then `s:`/`u:`/`n:`/`w:`/`t:` for a relationship), and
-  `tools/help_apply.py` validates and writes it. A `v` list must cover **every** value
+  `tools/help-apply.ts` validates and writes it. A `v` list must cover **every** value
   of the enum, so reword one flagged value and you re-send all of them. Reword a
   flagged line rather than appending to it: the detector is shape-based, so
-  "Exactly one X." fails wherever X is. `tools/lifecycle_lint.py` checks a lifecycle
-  (L4 default≠initial is advisory); `tools/lifecycle_set.py` and `tools/attr_set.py`
+  "Exactly one X." fails wherever X is. `tools/lifecycle-lint.ts` checks a lifecycle
+  (L4 default≠initial is advisory); `tools/lifecycle-set.ts` and `tools/attr-set.ts`
   repair one. A lowering drops managed columns, so never name a business attribute
   `version`.
 - **Reference data comes from the common specification.** Country, StateProvince,
   City, Currency and Language are library entities whose rows live in
-  `domain/reference-data/*.yaml` (`tools/build_reference_data.py`, from ISO 3166/4217/639
+  `domain/reference-data/*.yaml` (`tools/build-reference-data.ts`, from ISO 3166/4217/639
   and GeoNames) and are named by the entity's `referenceData` key. The library
   inlines them as `data`; lowering turns attribute names into columns (`CEDM180/181`);
   the dictionary seed writes them as application data with UUIDv5 ids over the
@@ -1321,9 +1326,13 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   later edit; `bus.rs` `restore_columns` puts the replaced values back. Rules also
   see `_previous_<column>` on an update, so `status != _previous_status` fires on
   *entering* a state, which is what the entity workflows use.
-- **One application per domain.** `domains/application-catalog.yaml` →
-  `scripts/build-domain-applications.ts` → `applications/*.cedm.yaml` (`--check`
-  holds them in sync) → `scripts/generate-domain-applications.sh` →
+- **One application per domain, and every library entity reaches one.**
+  `domains/application-catalog.yaml` → `scripts/build-domain-applications.ts` →
+  `applications/*.cedm.yaml` (`--check` holds them in sync, and fails naming any
+  library entity no application imports once the closure over required
+  references is resolved — value objects aside; 28 entities, Guardian and the
+  port, insurance-coverage and research ones among them, sat unreachable until it
+  did) → `scripts/generate-domain-applications.sh` →
   `generated-applications/<domain>/`. Every generated application bundles the
   common CEDM specification under `cedm/` (`pipeline/cedm-bundle.ts`).
   **Commit source and generated source only** — never a `target/`, a
@@ -1333,9 +1342,39 @@ with `cedm:`, and every command (`validate`, `info`, `generate`, `convert`, the
   `generated-projects/`): each holds a `model/model.eml.yaml`.
 - **The library had defects the schema found.** 721 invariants and help entries
   were unquoted flow mappings that YAML split at their commas
-  (`tools/repair_flow_text.py`; `tools/validate.py` now refuses it), and
-  `domains/capability-catalog.yaml` did not parse. `validate.py` parses every
-  specification file now.
+  (`tools/repair-flow-text.ts`; `tools/validate.ts` now refuses it), and
+  `domains/capability-catalog.yaml` did not parse. `tools/validate.ts` parses every
+  specification file now, the root `*.yaml` included (`cedm.yaml` once shipped a
+  line that did not parse).
+- **The specification's tools are TypeScript on Bun** (`tools/*.ts`, shared code in
+  `tools/lib/`), ported from Python and held to the Python's output on the whole
+  library and on copies with defects planted in them before it was removed. Three
+  things they do that the Python did not:
+  - **They read YAML 1.2, as the generators do.** PyYAML read YAML 1.1, where an
+    unquoted `ON`, `NO` or `YES` is a boolean and a duplicate key silently keeps
+    the last — so the validator and the application could disagree about the
+    same file. A duplicate key is now an error naming the file and line.
+  - **An edit changes only its own lines.** Editing tools parse a file as a
+    Document and write it back with `ROUND_TRIP` (`tools/lib/yaml.ts`); every
+    entity file in the library survives that byte for byte, and a test holds it.
+  - **The derivation tools' `--check` is a gate.** `bun run spec:check`
+    (`tools/check.ts`) runs all twelve gates — validate, lifecycle lint, help
+    audit, dictionary coverage, the enumeration registry, both derivations,
+    enrichment, flow text, restated required flags, the applications and the
+    YAML-only scan. Forty-two entity files had drifted out of the derived state
+    because nothing ran those checks.
+  `CEDM_ROOT` points any tool at another checkout; the tests
+  (`bun run test:tools`) plant a defect in a scratch copy and assert the rule ID
+  that fires. `bun run type-check:tools` and `bunx biome check tools` are clean.
+  The reference data is rebuilt from pycountry's and geonamescache's published
+  wheels, pinned by version and SHA-256 and read directly
+  (`tools/lib/wheel.ts`), so no Python is needed for that either.
+- **An entity's `workflows` are checked against what they name** (BL-012…014 in
+  `specification/business-logic.yaml`): `when` reads only the entity's columns
+  (and `_previous_<column>`), `event` is a write event, steps are language step
+  types, an entity step sets only the target's columns and gives an enumerated
+  one a value it has, and `{{column}}` reads only the starting record. Every
+  catalog application that records transactions runs at least one workflow.
 - **The web tool still saves the model document** (`model/model.eml.yaml`), and
   generation from a project goes through it; CEDM is an input to the CLIs and
   the generators. Its snapshot allow-list already admits `.yaml`/`.md`, so

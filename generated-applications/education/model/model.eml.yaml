@@ -232,6 +232,15 @@ enums:
       ACTIVE: Offered and open to scheduling.
       INACTIVE: Not currently offered but may return.
       RETIRED: Withdrawn permanently; kept for transcripts.
+  - name: ClassStatus
+    values: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
+    table: true
+    descriptions:
+      DRAFT: Being planned; not yet visible to students.
+      OPEN: Open for enrolment, with teaching not yet begun.
+      IN_PROGRESS: Teaching has started and attendance and assessments are being recorded.
+      COMPLETED: Finished; results are final and kept as delivery evidence. A final state.
+      CANCELLED: Called off before completion. A final state.
   - name: EducationStudentStatus
     values: [APPLICANT, ACTIVE, SUSPENDED, GRADUATED, WITHDRAWN, ALUMNI]
     table: true
@@ -242,6 +251,21 @@ enums:
       GRADUATED: Has completed the requirements of a program.
       WITHDRAWN: Left the institution before graduating. A final state.
       ALUMNI: A former student who graduated and keeps a relationship as alumnus. A final state.
+  - name: GuardianRelationshipType
+    values: [PARENT, LEGAL_GUARDIAN, CAREGIVER, SPONSOR, OTHER]
+    table: true
+    descriptions:
+      PARENT: A biological or adoptive parent.
+      LEGAL_GUARDIAN: A person appointed with legal responsibility for the student.
+      CAREGIVER: A person who cares for the student day to day without legal guardianship.
+      SPONSOR: A person or body that supports the student financially.
+      OTHER: Any relationship to the student not covered by the other types.
+  - name: GuardianStatus
+    values: [ACTIVE, INACTIVE]
+    table: true
+    descriptions:
+      ACTIVE: Current; the guardian may be contacted and may act.
+      INACTIVE: No longer applies; kept for history.
   - name: EnrollmentStatus
     values: [PENDING, ACTIVE, COMPLETED, WITHDRAWN, CANCELLED]
     table: true
@@ -251,6 +275,42 @@ enums:
       COMPLETED: Finished successfully. A final state.
       WITHDRAWN: The student left before completing. A final state.
       CANCELLED: Withdrawn before it began. A final state.
+  - name: AssessmentAssessmentType
+    values: [QUIZ, EXAM, ASSIGNMENT, PROJECT, PRACTICAL, ORAL, OTHER]
+    table: true
+    descriptions:
+      QUIZ: Short-form evaluation, usually low weighted and taken in class.
+      EXAM: Formal examination taken under controlled, timed conditions.
+      ASSIGNMENT: Coursework submitted by the learner for marking.
+      PROJECT: Project-based evaluation completed over an extended period.
+      PRACTICAL: Practical or laboratory evaluation of applied skills.
+      ORAL: Oral evaluation, such as a viva or spoken presentation.
+      OTHER: Another governed assessment type not covered by the listed forms.
+  - name: AssessmentStatus
+    values: [DRAFT, PUBLISHED, CLOSED, CANCELLED]
+    table: true
+    descriptions:
+      DRAFT: Being prepared by the educator; not visible to learners and not gradeable.
+      PUBLISHED: Active for eligible learners, who can see it and be graded on it.
+      CLOSED: Assessment is complete for ordinary new grading. A final state.
+      CANCELLED: Assessment was withdrawn and will not be graded. A final state.
+  - name: GradeStatus
+    values: [DRAFT, FINAL, VOID]
+    table: true
+    descriptions:
+      DRAFT: Entered but not yet official; can still change.
+      FINAL: Confirmed and official; part of the student's record. A final state.
+      VOID: Withdrawn because it was entered in error or annulled; kept for audit. A final state.
+  - name: FeeStatus
+    values: [DRAFT, ASSESSED, INVOICED, PAID, WAIVED, CANCELLED]
+    table: true
+    descriptions:
+      DRAFT: Being prepared; not yet charged to the student.
+      ASSESSED: Charged to the student but not yet invoiced.
+      INVOICED: Included on an invoice that now carries the receivable claim.
+      PAID: Settled, with payment evidence reconciled against the invoice. A final state.
+      WAIVED: Excused by the institution, so the student owes nothing. A final state.
+      CANCELLED: Withdrawn because it was raised in error or no longer applies. A final state.
 categories:
   - name: Foundation
     description: Parties, places, units and reference data every domain shares
@@ -259,10 +319,10 @@ categories:
     entities: [Party, Person, Organization, PartyRole, PartyRelationship, LegalEntity, BusinessUnit, Department, Address, ContactPoint, Location, Country, StateProvince, City, Language, Currency, ExchangeRate, UnitOfMeasure, Calendar, Attachment, Task]
   - name: Education
     icon: graduation-cap
-    entities: [EducationProgram, EducationCourse, EducationStudent]
+    entities: [EducationProgram, EducationCourse, EducationStudent, Guardian, Fee]
   - name: Reference Data
     icon: list
-    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, EducationProgramProgramType, EducationProgramStatus, EducationCourseStatus, EducationStudentStatus, EnrollmentStatus]
+    entities: [PartyPartyType, PartyStatus, PersonGender, PersonPartyType, PersonStatus, OrganizationOrganizationType, OrganizationStatus, OrganizationPartyType, PartyRoleRoleType, PartyRoleStatus, AddressAddressType, AddressStatus, LocationLocationType, LocationStatus, CurrencyStatus, ExchangeRateRateType, ExchangeRateStatus, UnitOfMeasureCategory, UnitOfMeasureStatus, TaskTaskType, TaskStatus, TaskPriority, EducationProgramProgramType, EducationProgramStatus, EducationCourseStatus, ClassStatus, EducationStudentStatus, GuardianRelationshipType, GuardianStatus, EnrollmentStatus, AssessmentAssessmentType, AssessmentStatus, GradeStatus, FeeStatus]
 entities:
   - name: Party
     help: The foundational CEDM business concept for an identifiable person or organization participating in business. Party separates who an actor is from the roles that actor performs. The same party can be a customer, supplier, employee, owner, provider, or contract party without creating duplicate identities. Used as the identity foundation for onboarding, customer management, procurement, sales, finance, logistics, HR, healthcare, contracts, compliance, and audit. Party connects to Person or Organization for intrinsic identity details and to PartyRole for business roles. Transactions and domain entities should reference the appropriate role when role-specific behavior matters. Party identity is long-lived. Operational eligibility is controlled by status, while historical relationships and transactions remain referentially valid. One organization may be represented by a single Party and simultaneously participate as Customer and Supplier in different business relationships.
@@ -293,6 +353,11 @@ entities:
         fk: true
         optional: true
         help: The EducationCourse this Party belongs to.
+      - name: class_id
+        type: string
+        fk: true
+        optional: true
+        help: The Class this Party belongs to.
   - name: Person
     help: Person is the individual specialization of Party, not a business role. Party identifies the individual; Person supplies intrinsic individual details; PartyRole determines how the person participates. Used for customers, employees, agents, owners, contractors, and other roles without duplicating individual identity. Party → Person establishes intrinsic identity; Party → PartyRole establishes business participation; Organization links provide employment or other organizational context. Create/maintain Party → create Person specialization → establish PartyRole → apply role-specific qualification/authorization → execute transactions. Ending one role does not end the person or other roles. Person specialization follows Party identity while role eligibility remains independently controlled by PartyRole. One individual may be both an Employee and Customer. The same Party and Person specialization is reused while separate PartyRoles govern employment and customer processes.
     icon: user
@@ -14499,6 +14564,45 @@ entities:
         references: EducationProgram
         optional: true
         help: The program that includes the course. Chosen when the course is placed in a curriculum. At most one program; a course may stand alone, for example an elective. Places the course in a path to a qualification.
+  - name: Class
+    help: Represents one scheduled delivery instance of an EducationCourse. EducationCourse defines what is taught; Class defines when and to whom one offering is delivered. School and education scheduling, enrollment, attendance, assessment, portals and reporting. Course is mandatory; instructors and enrollments define participants; Attendance and Assessment preserve delivery evidence. Class moves from draft to open to in-progress and then completion or cancellation. Algebra I is the EducationCourse; Algebra I Section B for the 2026 term is a Class with its own students, attendance and assessments.
+    icon: school
+    parent: EducationCourse
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The permanent system identity of one scheduled class offering. Generated on creation; enrolments, attendance and assessments refer to the class through it. Identifies one scheduled course section independently of the reusable EducationCourse definition. EducationCourse defines curriculum while Class defines one delivery instance.
+      - name: class_code
+        type: string(120)
+        unique: true
+        help: The code by which the offering is known in timetables and registration, such as BIO101-A-2026F. Operational code for one course offering. Schedules, registers, search and integration. Distinct from EducationCourse code.
+      - name: name
+        type: string(300)
+        help: The name of the offering as students and instructors see it, such as Biology 101, Autumn Section B. Entered when the class is planned; shown in timetables, learner portals and reports. Identifies the teaching group to learners and staff. May derive from course name plus section or term.
+      - name: start_date
+        type: date
+        optional: true
+        help: The first day on which teaching for the class takes place. Set when scheduling; enrolment eligibility is judged against it and it must not come after the end date. Establishes delivery period. Must not follow endDate.
+      - name: end_date
+        type: date
+        optional: true
+        help: The last day of the offering. Entered at scheduling; must not be earlier than the start date. Closes the delivery period.
+      - name: status
+        type: string
+        enum: ClassStatus
+        help: Where the offering is, from planning through enrolment and teaching to completion or cancellation. Moved by the school administrator as the term proceeds; enrolment is only accepted while open, and attendance only once teaching begins. Being planned; not yet visible to students. Open for enrolment, with teaching not yet begun. Teaching has started and attendance and assessments are being recorded. Finished; results are final and kept as delivery evidence. A final state. Called off before completion. A final state. Controls enrollment and delivery progression. Completed class history remains immutable evidence.
+        default: DRAFT
+      - name: course_id
+        type: string
+        fk: true
+        references: EducationCourse
+        help: Exactly one course; a class is always an offering of a single course. Reusable course definition delivered by this Class. Separates curriculum from one scheduled offering. Catalog, scheduling and reporting. Course eligibility constrains new Class offerings.
+      - name: education_student_id
+        type: string
+        fk: true
+        optional: true
+        help: The EducationStudent this Class belongs to.
   - name: EducationStudent
     help: "A learner who is enrolled, or eligible to enrol, at an educational institution or in one of its programs. The student record is the institution's view of a learner as a learner: their student number, standing and history of study. It is separate from the person, who may also be an employee, a parent or a customer. Created at application; updated as the student is admitted, studies, graduates or leaves; read by admissions, teachers, finance and the registrar. A student is a Party, belongs to an institution (Organization), enrols through Enrollments, takes Classes, earns Grades, has Attendance records and Fees, and may have Guardians. A student begins as an applicant and becomes active when admitted. Active students may be suspended and reinstated, graduate and later become alumni, or withdraw at any point before graduating. Student 20260417, admitted to the engineering program in September, suspended for a term for medical reasons and reinstated."
     icon: graduation-cap
@@ -14527,6 +14631,31 @@ entities:
         references: Organization
         optional: true
         help: The institution at which the student is registered. Set at admission. At most one institution. Scopes fees, rules and reporting.
+  - name: Guardian
+    help: A person who is authorised or expected to act for, support, receive communications about, or be responsible for one or more students. Schools deal with parents and carers as well as pupils. The guardian record states who may be contacted, who may authorise things such as trips or collections, and how they relate to the student. Recorded at admission and kept up to date; read by teachers and administrators when they communicate or need consent. A guardian is a Party linked to one or more EducationStudents. A guardian is active while the relationship applies and inactive afterwards; history is kept. Maria Lopez, mother and legal guardian of two students at the school.
+    icon: users-round
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the guardian role, independent of the person's other roles. Generated on creation; consents and contacts refer to it. Identifies one governed education guardian relationship independently of the underlying Party. Party supplies common identity; Guardian supplies education-specific responsibility.
+      - name: guardian_code
+        type: string(120)
+        unique: true
+        help: The unique reference of the guardian in the school's system. Assigned at admission; used in the parent portal. Operational identifier used in education administration. Distinct from Party identifiers.
+      - name: relationship_type
+        type: string
+        enum: GuardianRelationshipType
+        help: A biological or adoptive parent. A person appointed with legal responsibility for the student. A person who cares for the student day to day without legal guardianship. A person or body that supports the student financially. Any relationship to the student not covered by the other types. How the guardian is related to or responsible for the student. Chosen when recorded; may determine consent and contact rights. Guides communication, authorization and responsibility policy. Does not replace legal evidence required by local policy.
+      - name: status
+        type: string
+        enum: GuardianStatus
+        help: Whether the guardian relationship to the student currently applies. Set by administration when the relationship starts or ends; only active guardians are contacted or asked for consent. Current; the guardian may be contacted and may act. No longer applies; kept for history. Controls current use without deleting historical communications or authorizations. Student-specific relationship validity may be narrower than overall guardian status.
+        default: ACTIVE
+      - name: party_id
+        type: string
+        fk: true
+        help: "The person or organisation who holds the guardian role. Exactly one party: the guardian role is held by a specific person or organisation. Reuses common identity and contact data without duplication. Communication, authorization and audit. Party identity changes do not rewrite historical guardian evidence."
   - name: Enrollment
     help: A student's formal registration in an educational program or course. Enrolment is the moment a learner becomes part of a program. Fees, attendance, grades and eligibility to graduate all hang from it. Created at registration; confirmed; completed or withdrawn; read by the registrar, teachers and finance. An enrolment links an EducationStudent to an EducationProgram, and may be for a particular EducationCourse and Class. Grades and fees attach to it. An enrolment is pending until confirmed, active while the student studies, and ends completed, withdrawn or cancelled. A completed enrolment needs completion evidence where the program requires it. Enrolment of student 20260417 in the engineering program, confirmed on 1 September.
     icon: file-text
@@ -14559,11 +14688,132 @@ entities:
         references: EducationCourse
         optional: true
         help: The course, when the enrolment is for a single course. Set when a student registers for a course directly. At most one course. Narrows the enrolment from a whole program to one course. Adds curriculum participation context alongside program enrollment.
+      - name: class_id
+        type: string
+        fk: true
+        optional: true
+        help: The scheduled class, when the student is placed in a particular offering. Set when a place is allocated. At most one class. Places the student in a timetable. Establishes delivery-instance membership for attendance and assessment.
       - name: student_id
         type: string
         fk: true
         references: EducationStudent
         help: The student who is enrolled. Set at registration. Exactly one student, because an enrolment is a particular learner's registration. Attaches the study record to the learner.
+  - name: Assessment
+    help: Defines an education evaluation activity separately from student-specific results. Assessment says what is evaluated; Grade records how one EducationStudent performed. Schools, universities, training programs, gradebooks, learner portals and analytics. EducationCourse is mandatory, Class optionally scopes delivery, and Grades preserve individual outcomes. Assessments are drafted, published and then closed or cancelled while outcomes remain auditable. A final exam Assessment for a Class has a max score of 100 and produces one Grade per participating student.
+    icon: clipboard-list
+    parent: Class
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: Stable identity of the assessment definition or event. Identifies one evaluated learning activity independently of individual learner grades. Assessment planning, gradebook, reporting and audit. Grade records student-specific outcomes against this Assessment.
+      - name: assessment_code
+        type: string(120)
+        unique: true
+        help: The educators' reference for this assessment, such as MATH101-MID-2026, used in the gradebook and in integrations. Operational identifier used by educators and integrations. Search, gradebook and reporting. Distinct from Class and Course identifiers.
+      - name: title
+        type: string(300)
+        help: The name learners and educators see for the assessment, such as Midterm Exam or Lab Report 2. Describes the evaluated activity to learners and educators. Portals, schedules and reports. Assessment type and Class supply further context.
+      - name: assessment_type
+        type: string
+        enum: AssessmentAssessmentType
+        help: The form the evaluation takes, such as a quiz, formal exam, coursework assignment, project, practical or oral. Chosen by the educator; the gradebook uses it to weight and group results and learners see it when planning their work. Short-form evaluation, usually low weighted and taken in class. Formal examination taken under controlled, timed conditions. Coursework submitted by the learner for marking. Project-based evaluation completed over an extended period. Practical or laboratory evaluation of applied skills. Oral evaluation, such as a viva or spoken presentation. Another governed assessment type not covered by the listed forms. Supports policy, weighting and reporting without embedding every pedagogy rule. Max score and grading policy may vary by type.
+      - name: max_score
+        type: decimal
+        optional: true
+        help: The highest raw score a learner can earn on this assessment, for example 100 for a percentage-marked exam. Set by the educator when numeric scoring applies and must be positive; grades are expressed against it to compute percentages. Defines the scoring scale for learner Grade values. Optional for rubric or categorical assessments.
+      - name: due_at
+        type: datetime
+        optional: true
+        help: The deadline by which learners must submit or sit the assessment. Set when the assessment is drafted or published; learner reminders use it and late-submission policy is judged against it. Establishes timing expectation. Must be compatible with Class delivery period under policy.
+      - name: status
+        type: string
+        enum: AssessmentStatus
+        help: Being prepared by the educator; not visible to learners and not gradeable. Active for eligible learners, who can see it and be graded on it. Assessment is complete for ordinary new grading. A final state. Assessment was withdrawn and will not be graded. A final state. Whether learners can see the assessment and whether grades may still be entered against it. Controls learner visibility and grading eligibility. Assessment workflow and reporting. Grades against CLOSED assessments remain historical.
+        default: DRAFT
+      - name: course_id
+        type: string
+        fk: true
+        references: EducationCourse
+        help: Exactly one course; an assessment always measures the learning expectations of a single course. Course whose learning expectations are evaluated. Supplies curriculum context. Assessment planning and reporting. Course lifecycle constrains new assessments.
+      - name: class_id
+        type: string
+        fk: true
+        optional: true
+        help: Specific Class for which this assessment is administered. Scopes assessment to one delivery instance where applicable. Gradebook and learner eligibility. Optional for course-wide or reusable assessments. Class must deliver the same course.
+  - name: Grade
+    help: Records one learner's result for one Assessment. Assessment defines the evaluated activity; Grade is the student-specific outcome retained for academic evidence. Gradebooks, transcripts, learner progress, reporting, certification and audit. EducationStudent and Assessment are mandatory; Enrollment may supply eligibility context. Grade begins provisional and becomes final or void; final outcomes are corrected through explicit follow-up evidence. A student receives score 86 and grade value A on a published Assessment, then the Grade is finalized for transcript use.
+    icon: badge
+    parent: Assessment
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The permanent identity of one learner's result, kept even when the score or grade value is corrected. Generated when the result is first recorded; transcripts, gradebooks and certificates refer to it by this value. Identifies one Grade independently of later correction or transcript presentation. Assessment and EducationStudent define what and who were evaluated.
+      - name: score
+        type: decimal
+        optional: true
+        help: Numeric score achieved by the learner when numeric scoring applies. Raw or governed numeric outcome before or alongside grade-value interpretation. Grade calculation and analytics. Must respect Assessment maxScore when applicable.
+      - name: grade_value
+        type: string(80)
+        optional: true
+        help: The grade as the learner sees it, such as A, 72 percent or Pass, as defined by the grading scheme. Entered or derived from the score by the teacher; shown in gradebooks and transcripts and fixed once the grade is final. Records values such as A, Pass, Distinction or rubric result under policy. Interpretation belongs to the applicable grading policy.
+      - name: status
+        type: string
+        enum: GradeStatus
+        help: Whether the grade is provisional, official or withdrawn. Set by the teacher or registrar; only FINAL grades count towards transcripts and progression. Entered but not yet official; can still change. Confirmed and official; part of the student's record. A final state. Withdrawn because it was entered in error or annulled; kept for audit. A final state. Distinguishes provisional result, finalized academic evidence and voided erroneous record. FINAL grades are immutable historical evidence under ordinary operation.
+        default: DRAFT
+      - name: student_id
+        type: string
+        fk: true
+        references: EducationStudent
+        help: "Set when the grade is entered; transcripts are produced from a student's final grades. Exactly one student: a grade is one learner's result. Student receiving this Grade. Establishes learner identity for the result. Student must be eligible for the Assessment context."
+      - name: enrollment_id
+        type: string
+        fk: true
+        optional: true
+        help: Enrollment establishing learner eligibility for the course or class. Provides registration context for the Grade. Gradebook, transcript and eligibility checks. Optional when eligibility is established elsewhere. Enrollment student/course context must agree with Grade and Assessment.
+      - name: assessment_id
+        type: string
+        fk: true
+        help: "Exactly one assessment: a grade is a result for a specific evaluated activity. Assessment producing this learner outcome. Supplies scoring scale, type and curriculum context. Grade validation and reporting. Score and finalization must comply with Assessment policy."
+  - name: Fee
+    help: Represents an education-specific charge while keeping receivable and settlement evidence in finance entities. Fee explains why a student is charged; Invoice records the financial claim; Payment records settlement. Tuition, school fees, student accounts, billing, collections, reporting and audit. EducationStudent is mandatory, Enrollment may supply academic cause, Currency defines value and Invoice provides financial claim evidence. Fees progress from draft to assessed and possibly invoiced, then paid, waived or cancelled with history retained. A laboratory Fee is assessed to an enrolled student, included in an Invoice and later marked paid after financial settlement.
+    icon: receipt
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+        help: The identity of the fee. Generated on creation; invoices and payments refer to it. Identifies one education charge independently of invoice and payment records. Invoice may later formalize the receivable claim.
+      - name: fee_code
+        type: string(120)
+        help: The code of the fee type, such as TUITION-2026 or LAB. Chosen when the fee is assessed. Identifies tuition, laboratory, transport or other governed education charge category. Code may repeat across students while feeId remains unique.
+      - name: amount
+        type: decimal
+        help: The monetary value of the fee, charged to the student in the fee's currency. Calculated from the fee schedule when assessed; it must not be negative, and credits are modelled explicitly. Education charge value before or alongside invoice creation. Currency relationship makes value unambiguous.
+      - name: due_date
+        type: date
+        optional: true
+        help: The date by which the student or payer is expected to settle the fee. Set when the fee is assessed from the term calendar; collections and aging reports read it to find overdue charges. Supports collection and aging without replacing invoice payment terms. Invoice terms may provide authoritative receivable due date after invoicing.
+      - name: status
+        type: string
+        enum: FeeStatus
+        help: Where the education fee stands, from preparation and assessment through invoicing to settlement, waiver or cancellation. Moved by student accounts and billing staff; reports read it to separate open charges from settled ones. Being prepared; not yet charged to the student. Charged to the student but not yet invoiced. Included on an invoice that now carries the receivable claim. Settled, with payment evidence reconciled against the invoice. A final state. Excused by the institution, so the student owes nothing. A final state. Withdrawn because it was raised in error or no longer applies. A final state. Distinguishes preparation, assessment, billing, settlement and waived/cancelled outcomes. PAID normally reconciles through Invoice and Payment evidence rather than direct mutation.
+        default: DRAFT
+      - name: student_id
+        type: string
+        fk: true
+        references: EducationStudent
+        help: "Exactly one student: a fee is always charged to a specific learner. Student to whom the fee is assessed. Establishes education account responsibility. Student accounts, billing and reporting. Student status and fee policy constrain new assessments."
+      - name: enrollment_id
+        type: string
+        fk: true
+        optional: true
+        help: Enrollment giving rise to the fee. Connects charge to program/course participation. Tuition, course fees and reconciliation. Optional for student-level fees not tied to one enrollment. Enrollment context must belong to the same student.
+      - name: currency_id
+        type: string
+        fk: true
+        help: Exactly one currency, so the amount is unambiguous. Currency of the assessed amount. Makes monetary value unambiguous. Billing, accounting and reporting. Currency remains historical after assessment.
   - name: PartyPartyType
     help: "The values of party party type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15189,6 +15439,31 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: ClassStatus
+    help: "The values of class status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: EducationStudentStatus
     help: "The values of education student status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
@@ -15214,8 +15489,158 @@ entities:
         type: boolean
         help: Whether the value is offered on new records.
         default: "true"
+  - name: GuardianRelationshipType
+    help: "The values of guardian relationship type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: GuardianStatus
+    help: "The values of guardian status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
   - name: EnrollmentStatus
     help: "The values of enrollment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: AssessmentAssessmentType
+    help: "The values of assessment assessment type, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: AssessmentStatus
+    help: "The values of assessment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: GradeStatus
+    help: "The values of grade status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
+    icon: list
+    attributes:
+      - name: id
+        type: uuid
+        pk: true
+      - name: code
+        type: string(100)
+        unique: true
+        help: The value stored on every record that uses this list. Fixed once created.
+      - name: name
+        type: string(200)
+        help: What a person reads in the dropdown and on a record.
+      - name: description
+        type: text
+        optional: true
+        help: What the value means to the business.
+      - name: sequence
+        type: integer
+        help: The position of the value in a dropdown, lowest first.
+      - name: is_active
+        type: boolean
+        help: Whether the value is offered on new records.
+        default: "true"
+  - name: FeeStatus
+    help: "The values of fee status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows."
     icon: list
     attributes:
       - name: id
@@ -15404,6 +15829,31 @@ relationships:
     to: Enrollment
     toCardinality: zero-or-more
     label: enrollments
+  - from: EducationCourse
+    fromCardinality: exactly-one
+    to: Class
+    toCardinality: zero-or-more
+    label: classes
+  - from: EducationCourse
+    fromCardinality: exactly-one
+    to: Assessment
+    toCardinality: zero-or-more
+    label: assessments
+  - from: Class
+    fromCardinality: exactly-one
+    to: Party
+    toCardinality: zero-or-more
+    label: instructors
+  - from: Class
+    fromCardinality: exactly-one
+    to: Enrollment
+    toCardinality: zero-or-more
+    label: enrollments
+  - from: Class
+    fromCardinality: exactly-one
+    to: Assessment
+    toCardinality: zero-or-more
+    label: assessments
   - from: Party
     fromCardinality: exactly-one
     to: EducationStudent
@@ -15418,6 +15868,49 @@ relationships:
     to: EducationStudent
     toCardinality: zero-or-more
     label: institution
+  - from: EducationStudent
+    fromCardinality: zero-or-more
+    to: Guardian
+    toCardinality: zero-or-more
+    label: guardians
+  - from: EducationStudent
+    fromCardinality: exactly-one
+    to: Class
+    toCardinality: zero-or-more
+    label: classes
+  - from: EducationStudent
+    fromCardinality: exactly-one
+    to: Grade
+    toCardinality: zero-or-more
+    label: grades
+  - from: EducationStudent
+    fromCardinality: exactly-one
+    to: Fee
+    toCardinality: zero-or-more
+    label: fees
+  - from: Party
+    fromCardinality: exactly-one
+    to: Guardian
+    toCardinality: zero-or-more
+  - from: Enrollment
+    fromCardinality: exactly-one
+    to: Grade
+    toCardinality: zero-or-more
+    label: grades
+  - from: Enrollment
+    fromCardinality: exactly-one
+    to: Fee
+    toCardinality: zero-or-more
+    label: fees
+  - from: Assessment
+    fromCardinality: exactly-one
+    to: Grade
+    toCardinality: zero-or-more
+    label: grades
+  - from: Currency
+    fromCardinality: exactly-one
+    to: Fee
+    toCardinality: zero-or-more
 rules:
   - name: partyRoleInvariantsBeforeCreate
     title: PartyRole invariants (beforeCreate)
@@ -15579,6 +16072,86 @@ rules:
         when: status == "COMPLETED" and completed_at == null
         props:
           message: Record completed at when the task is completed.
+  - name: classInvariantsBeforeCreate
+    title: Class invariants (beforeCreate)
+    entity: Class
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Class beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CLASS-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: classInvariantsBeforeUpdate
+    title: Class invariants (beforeUpdate)
+    entity: Class
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Class beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: CLASS-EXE-001
+        type: validation-error
+        when: start_date != null and end_date != null and end_date < start_date
+        props:
+          message: End Date cannot be earlier than start date.
+  - name: feeInvariantsBeforeCreate
+    title: Fee invariants (beforeCreate)
+    entity: Fee
+    event: beforeCreate
+    nodes:
+      - id: S
+        label: "Start: Fee beforeCreate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FEE-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
+  - name: feeInvariantsBeforeUpdate
+    title: Fee invariants (beforeUpdate)
+    entity: Fee
+    event: beforeUpdate
+    nodes:
+      - id: S
+        label: "Start: Fee beforeUpdate"
+        type: start
+      - id: E
+        label: "End: invariants hold"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FEE-EXE-001
+        type: validation-error
+        when: amount != null and amount < 0
+        props:
+          message: Amount cannot be negative.
   - name: partyWorkflowsAfterUpdate
     title: Party workflows (afterUpdate)
     entity: Party
@@ -15619,6 +16192,26 @@ rules:
         when: status == "CANCELLED" and status != _previous_status
         props:
           workflow: ExchangeRateFollowUpRequired
+  - name: classWorkflowsAfterUpdate
+    title: Class workflows (afterUpdate)
+    entity: Class
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Class afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: ClassFollowUpRequired
   - name: enrollmentWorkflowsAfterUpdate
     title: Enrollment workflows (afterUpdate)
     entity: Enrollment
@@ -15644,6 +16237,66 @@ rules:
         when: status == "COMPLETED" and status != _previous_status
         props:
           workflow: EnrollmentCompletionConfirmed
+  - name: assessmentWorkflowsAfterUpdate
+    title: Assessment workflows (afterUpdate)
+    entity: Assessment
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Assessment afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: AssessmentFollowUpRequired
+  - name: gradeWorkflowsAfterUpdate
+    title: Grade workflows (afterUpdate)
+    entity: Grade
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Grade afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "VOID" and status != _previous_status
+        props:
+          workflow: GradeFollowUpRequired
+  - name: feeWorkflowsAfterUpdate
+    title: Fee workflows (afterUpdate)
+    entity: Fee
+    event: afterUpdate
+    nodes:
+      - id: S
+        label: "Start: Fee afterUpdate"
+        type: start
+      - id: E
+        label: "End: workflows started"
+        type: end
+    edges:
+      - from: S
+        to: E
+    actions:
+      - name: FollowUpRequired
+        type: trigger-workflow
+        when: status == "CANCELLED" and status != _previous_status
+        props:
+          workflow: FeeFollowUpRequired
 stateMachines:
   - name: PartyLifecycle
     title: Party Lifecycle
@@ -15935,6 +16588,31 @@ stateMachines:
       - from: INACTIVE
         to: RETIRED
         trigger: retire
+  - name: ClassLifecycle
+    title: Class Lifecycle
+    entity: Class
+    states: [DRAFT, OPEN, IN_PROGRESS, COMPLETED, CANCELLED]
+    initial: DRAFT
+    final: [COMPLETED, CANCELLED]
+    transitions:
+      - from: DRAFT
+        to: OPEN
+        trigger: open
+      - from: DRAFT
+        to: CANCELLED
+        trigger: cancel
+      - from: OPEN
+        to: IN_PROGRESS
+        trigger: start
+      - from: OPEN
+        to: CANCELLED
+        trigger: cancel
+      - from: IN_PROGRESS
+        to: COMPLETED
+        trigger: complete
+      - from: IN_PROGRESS
+        to: CANCELLED
+        trigger: cancel
   - name: EducationStudentLifecycle
     title: Education Student Lifecycle
     entity: EducationStudent
@@ -15966,6 +16644,18 @@ stateMachines:
       - from: SUSPENDED
         to: WITHDRAWN
         trigger: withdraw
+  - name: GuardianLifecycle
+    title: Guardian Lifecycle
+    entity: Guardian
+    states: [ACTIVE, INACTIVE]
+    initial: ACTIVE
+    transitions:
+      - from: ACTIVE
+        to: INACTIVE
+        trigger: deactivate
+      - from: INACTIVE
+        to: ACTIVE
+        trigger: reactivate
   - name: EnrollmentLifecycle
     title: Enrollment Lifecycle
     entity: Enrollment
@@ -15991,6 +16681,66 @@ stateMachines:
       - from: ACTIVE
         to: CANCELLED
         trigger: cancel
+  - name: AssessmentLifecycle
+    title: Assessment Lifecycle
+    entity: Assessment
+    states: [DRAFT, PUBLISHED, CLOSED, CANCELLED]
+    initial: DRAFT
+    final: [CLOSED, CANCELLED]
+    transitions:
+      - from: DRAFT
+        to: PUBLISHED
+        trigger: publish
+      - from: DRAFT
+        to: CANCELLED
+        trigger: cancel
+      - from: PUBLISHED
+        to: CLOSED
+        trigger: close
+      - from: PUBLISHED
+        to: CANCELLED
+        trigger: cancel
+  - name: GradeLifecycle
+    title: Grade Lifecycle
+    entity: Grade
+    states: [DRAFT, FINAL, VOID]
+    initial: DRAFT
+    final: [FINAL, VOID]
+    transitions:
+      - from: DRAFT
+        to: FINAL
+        trigger: finalize
+      - from: DRAFT
+        to: VOID
+        trigger: void
+  - name: FeeLifecycle
+    title: Education Fee Lifecycle
+    entity: Fee
+    states: [DRAFT, ASSESSED, INVOICED, PAID, WAIVED, CANCELLED]
+    initial: DRAFT
+    final: [PAID, WAIVED, CANCELLED]
+    transitions:
+      - from: DRAFT
+        to: ASSESSED
+        trigger: assess
+      - from: DRAFT
+        to: CANCELLED
+        trigger: cancel
+      - from: ASSESSED
+        to: INVOICED
+        trigger: invoice
+      - from: ASSESSED
+        to: WAIVED
+        trigger: waive
+      - from: ASSESSED
+        to: CANCELLED
+        trigger: cancel
+      - from: INVOICED
+        to: PAID
+        trigger: mark_paid
+      - from: INVOICED
+        to: WAIVED
+        trigger: waive
 sagas:
   - name: PartyExceptionRaised
     title: Raise a task when a party is stopped
@@ -16020,6 +16770,20 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"EXCHANGE-RATE-FOLLOW-UP-{{id}}","name":"Follow up on exchange rate {{id}}","description":"Exchange rate {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: ClassFollowUpRequired
+    title: Follow up when a class is ended
+    entity: Class
+    operation: UPDATE
+    trigger: rule
+    description: When a class is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"CLASS-FOLLOW-UP-{{id}}","name":"Follow up on class {{name}}","description":"Class {{name}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
   - name: EnrollmentFollowUpRequired
     title: Follow up when a enrollment is ended
     entity: Enrollment
@@ -16048,3 +16812,45 @@ sagas:
           entity: bus_task
           as: taskId
           fields: '{"code":"ENROLLMENT-COMPLETED-{{id}}","name":"Confirm enrollment {{enrollment_number}}","description":"Enrollment {{enrollment_number}} is now {{status}}. Check the outcome is what was agreed and close any open items.","task_type":"USER","status":"CREATED","priority":"LOW"}'
+  - name: AssessmentFollowUpRequired
+    title: Follow up when a assessment is ended
+    entity: Assessment
+    operation: UPDATE
+    trigger: rule
+    description: When a assessment is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"ASSESSMENT-FOLLOW-UP-{{id}}","name":"Follow up on assessment {{title}}","description":"Assessment {{title}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: GradeFollowUpRequired
+    title: Follow up when a grade is ended
+    entity: Grade
+    operation: UPDATE
+    trigger: rule
+    description: When a grade is void, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"GRADE-FOLLOW-UP-{{id}}","name":"Follow up on grade {{id}}","description":"Grade {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'
+  - name: FeeFollowUpRequired
+    title: Follow up when a fee is ended
+    entity: Fee
+    operation: UPDATE
+    trigger: rule
+    description: When a fee is cancelled, a task asks someone to settle what depended on it.
+    steps:
+      - id: S1
+        type: CreateEntity
+        label: "Raise a task: follow up on"
+        properties:
+          entity: bus_task
+          as: taskId
+          fields: '{"code":"FEE-FOLLOW-UP-{{id}}","name":"Follow up on fee {{id}}","description":"Fee {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.","task_type":"USER","status":"CREATED","priority":"NORMAL"}'

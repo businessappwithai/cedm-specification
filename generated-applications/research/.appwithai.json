@@ -31,6 +31,12 @@
     "Attachment",
     "Task",
     "ResearchProject",
+    "Protocol",
+    "Study",
+    "Assay",
+    "Observation",
+    "Result",
+    "Sample",
     "PartyPartyType",
     "PartyStatus",
     "PersonGender",
@@ -53,7 +59,14 @@
     "TaskTaskType",
     "TaskStatus",
     "TaskPriority",
-    "ResearchProjectStatus"
+    "ResearchProjectStatus",
+    "ProtocolStatus",
+    "StudyStatus",
+    "AssayStatus",
+    "ObservationStatus",
+    "ResultStatus",
+    "SampleSampleType",
+    "SampleStatus"
   ],
   "categories": [
     "Foundation",
@@ -63,11 +76,13 @@
   "enums": [
     "AddressAddressType (7)",
     "AddressStatus (3)",
+    "AssayStatus (5)",
     "CurrencyStatus (3)",
     "ExchangeRateRateType (6)",
     "ExchangeRateStatus (4)",
     "LocationLocationType (10)",
     "LocationStatus (5)",
+    "ObservationStatus (3)",
     "OrganizationOrganizationType (8)",
     "OrganizationPartyType (2)",
     "OrganizationStatus (4)",
@@ -78,7 +93,12 @@
     "PersonGender (5)",
     "PersonPartyType (2)",
     "PersonStatus (4)",
+    "ProtocolStatus (4)",
     "ResearchProjectStatus (6)",
+    "ResultStatus (3)",
+    "SampleSampleType (10)",
+    "SampleStatus (10)",
+    "StudyStatus (6)",
     "TaskPriority (4)",
     "TaskStatus (8)",
     "TaskTaskType (7)",
@@ -88,8 +108,12 @@
   "sagas": [
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
-    "ResearchProjectFollowUpRequired on ResearchProject (1 steps, rule)"
+    "ResearchProjectFollowUpRequired on ResearchProject (1 steps, rule)",
+    "StudyFollowUpRequired on Study (1 steps, rule)",
+    "AssayExceptionRaised on Assay (1 steps, rule)",
+    "AssayFollowUpRequired on Assay (1 steps, rule)",
+    "SampleExceptionRaised on Sample (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:30:29.314Z"
+  "generatedAt": "2026-10-10T02:41:57.121Z"
 }

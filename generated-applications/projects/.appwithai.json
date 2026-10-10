@@ -123,10 +123,12 @@
     "ResourceAssignmentCompletionConfirmed on ResourceAssignment (1 steps, rule)",
     "TimesheetFollowUpRequired on Timesheet (1 steps, rule)",
     "TimesheetCompletionConfirmed on Timesheet (1 steps, rule)",
+    "ProjectCostFollowUpRequired on ProjectCost (1 steps, rule)",
+    "ProjectCostCompletionConfirmed on ProjectCost (1 steps, rule)",
     "ProfessionalEngagementApprovalRequested on ProfessionalEngagement (1 steps, rule)",
     "ProfessionalEngagementExceptionRaised on ProfessionalEngagement (1 steps, rule)",
     "ProfessionalEngagementFollowUpRequired on ProfessionalEngagement (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:30:05.140Z"
+  "generatedAt": "2026-10-10T02:41:31.962Z"
 }

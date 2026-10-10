@@ -40,6 +40,7 @@ entity:
     - {id: ENTITLEMENT-002, rule: usageLimit must be positive when supplied.}
     - {id: ENTITLEMENT-003, rule: "Entitlement Customer, scope and effective period must be compatible with the governing ServiceContract."}
     - {id: ENTITLEMENT-004, rule: Consumption retries must be idempotent and historical ServiceOrder usage must not be lost when entitlement status changes.}
+    - {id: ENTITLEMENT-EXE-001, rule: "Effective To must not be earlier than effective from.", violatedWhen: "effective_from != null and effective_to != null and effective_to < effective_from", message: "Effective To cannot be earlier than effective from."}
   lifecycle:
     title: Entitlement Lifecycle
     attribute: status

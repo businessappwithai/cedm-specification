@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:28:34.498Z">2026-10-09T15:28:34.498Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:39:52.717Z">2026-10-10T02:39:52.717Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -3394,6 +3394,15 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Meter Reading</b> belongs to one <a href="#entity-energy-meter">Energy Meter</a>.</li>
           <li>Each <b>Meter Reading</b> belongs to one <a href="#entity-unit-of-measure">Unit Of Measure</a>.</li>
       </ul>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>meterReadingWorkflowsAfterCreate</code></td><td>afterCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>meterReadingWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-meter-reading-suspect-reading-recorded">MeterReadingSuspectReadingRecorded</a>, <a href="#process-meter-reading-reading-marked-suspect">MeterReadingReadingMarkedSuspect</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -6523,6 +6532,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>energyTariffInvariantsBeforeUpdate</code></td><td><a href="#entity-energy-tariff">Energy Tariff</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>meterReadingWorkflowsAfterCreate</code></td><td><a href="#entity-meter-reading">Meter Reading</a></td><td>afterCreate</td></tr>
+        <tr><td><code>meterReadingWorkflowsAfterUpdate</code></td><td><a href="#entity-meter-reading">Meter Reading</a></td><td>afterUpdate</td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -6545,6 +6556,20 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
     </div>
+    <div id="process-meter-reading-suspect-reading-recorded" class="process">
+      <h3>MeterReadingSuspectReadingRecorded</h3>
+      <p class="meta">On <a href="#entity-meter-reading">Meter Reading</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: review the reading <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-meter-reading-reading-marked-suspect" class="process">
+      <h3>MeterReadingReadingMarkedSuspect</h3>
+      <p class="meta">On <a href="#entity-meter-reading">Meter Reading</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: recheck the reading <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
     <p class="back"><a href="#top">Back to contents</a></p>
   </section>
 
@@ -6557,7 +6582,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    energy 1.0.0 &middot; 53 record types &middot; 14 rules &middot; 14 processes
+    energy 1.0.0 &middot; 53 record types &middot; 16 rules &middot; 16 processes
   </footer>
 </div>
 </body>

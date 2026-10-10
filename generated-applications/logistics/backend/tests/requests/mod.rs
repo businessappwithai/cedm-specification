@@ -5,7 +5,7 @@
 //! every business suite depends on — then the per-entity CRUD and rules
 //! modules, which are generated one per entity in the model.
 //!
-//! Generated: 2026-10-09T15:29:24.936Z
+//! Generated: 2026-10-10T02:40:47.647Z
 //! Project: logistics
 
 mod accounts;
@@ -50,10 +50,14 @@ mod crud_customer_status;
 mod crud_delivery;
 mod crud_delivery_attempt;
 mod crud_department;
+mod crud_driver;
+mod crud_driver_status;
 mod crud_exchange_rate;
 mod crud_exchange_rate_rate_type;
 mod crud_exchange_rate_status;
 mod crud_freight_charge;
+mod crud_fuel_transaction;
+mod crud_fuel_transaction_status;
 mod crud_fulfillment;
 mod crud_integration_endpoint;
 mod crud_inventory_movement;
@@ -93,6 +97,8 @@ mod crud_shipment_line;
 mod crud_shipment_shipment_type;
 mod crud_shipment_status;
 mod crud_state_province;
+mod crud_stop;
+mod crud_stop_stop_type;
 mod crud_task;
 mod crud_task_priority;
 mod crud_task_status;
@@ -131,10 +137,14 @@ mod rules_customer_status;
 mod rules_delivery;
 mod rules_delivery_attempt;
 mod rules_department;
+mod rules_driver;
+mod rules_driver_status;
 mod rules_exchange_rate;
 mod rules_exchange_rate_rate_type;
 mod rules_exchange_rate_status;
 mod rules_freight_charge;
+mod rules_fuel_transaction;
+mod rules_fuel_transaction_status;
 mod rules_fulfillment;
 mod rules_integration_endpoint;
 mod rules_inventory_movement;
@@ -174,6 +184,8 @@ mod rules_shipment_line;
 mod rules_shipment_shipment_type;
 mod rules_shipment_status;
 mod rules_state_province;
+mod rules_stop;
+mod rules_stop_stop_type;
 mod rules_task;
 mod rules_task_priority;
 mod rules_task_status;

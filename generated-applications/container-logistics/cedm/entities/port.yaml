@@ -1,0 +1,112 @@
+entity:
+  name: Port
+  namespace: cedm.domain
+  kind: port_master_entity
+  description: A governed maritime or inland port facility that vessels call at and that contains berths, gates and terminal yards.
+  ui: {icon: anchor}
+  identity: {key: portId, type: uuid, generated: true, immutable: true}
+  attributes:
+    - name: portId
+      type: uuid
+      required: true
+      immutable: true
+      help:
+        summary: The identity of the port, stable when its code or name is revised.
+        businessMeaning: Identifies one port facility independently of its code, name or the locations it occupies.
+        usage: "Referenced by berths, gates, voyages and port-call records; generated once and never changed."
+        relationshipContext: Berth.port and Voyage.originPort / destinationPort resolve to this identity.
+    - name: portCode
+      type: string
+      required: true
+      unique: true
+      maxLength: 20
+      help:
+        summary: The recognised port code, such as a UN/LOCODE, used by carriers, customs and terminal systems.
+        businessMeaning: The code partners use to name this port in bookings, manifests and schedules, so it must be stable and unique.
+        usage: "Used for lookup, voyage planning, document exchange and integration with external schedules."
+        relationshipContext: Voyages name their origin and destination ports by this code on external documents.
+    - name: name
+      type: string
+      required: true
+      maxLength: 300
+      help:
+        summary: The name people use for the port.
+        businessMeaning: Supports recognition on planning screens and reports; it may be reworded without changing the port's identity.
+        usage: "Shown in lists, voyage schedules, berth planning and reports."
+        relationshipContext: The code stays the operational key when the displayed name is revised.
+    - name: timeZone
+      type: string
+      required: false
+      maxLength: 64
+      help:
+        summary: The IANA time zone in which the port schedules arrivals, departures and gate hours.
+        businessMeaning: Port calls and gate hours are quoted in local time, so the zone is needed to compare them across ports.
+        usage: "Applied when displaying and comparing voyage times and berth windows."
+        relationshipContext: Voyage departure and arrival times are interpreted in the zone of the port they refer to.
+    - name: status
+      type: enum
+      required: true
+      default: ACTIVE
+      values: [ACTIVE, RESTRICTED, CLOSED]
+      help:
+        summary: Whether the port is open for ordinary new vessel calls and terminal activity.
+        businessMeaning: Lets planners stop scheduling new calls at a port without losing its voyage and berth history.
+        usage: "Checked when planning voyages and assigning berths; filtered in port pick-lists."
+        relationshipContext: Existing voyages, berths and gates keep their history when the status changes.
+        valueSemantics:
+          ACTIVE: Open for ordinary calls and terminal operations.
+          RESTRICTED: Open with limits such as draught, hazardous cargo or weather restrictions; new calls need planner approval.
+          CLOSED: Not accepting new calls; historical records remain valid.
+  relationships:
+    - name: location
+      target: Location
+      cardinality: "0..1"
+      ownership: reference
+      help:
+        summary: The physical site record on which the port stands.
+        businessMeaning: Provides address and geospatial context without duplicating location master data on the port.
+        usage: "Navigation, mapping and distance or transit-time calculation."
+        cardinalityMeaning: A port stands on at most one location record; a location is not necessarily a port.
+        workflowRole: Supplies the site context for port planning and reporting.
+    - name: berths
+      target: Berth
+      cardinality: "0..*"
+      ownership: reference
+      help:
+        summary: The berths available at this port.
+        businessMeaning: Defines the quay capacity vessels can be assigned to.
+        usage: "Berth planning and capacity reporting."
+        cardinalityMeaning: A port has many berths; each berth belongs to exactly one port.
+        workflowRole: Closing a port stops new berth assignments across all of its berths.
+    - name: gates
+      target: Gate
+      cardinality: "0..*"
+      ownership: reference
+      help:
+        summary: The landside gates through which containers and vehicles enter or leave the port.
+        businessMeaning: Defines the checkpoints at which custody changes are recorded.
+        usage: "Gate scheduling, security and truck-appointment control."
+        cardinalityMeaning: A port has many gates; each gate belongs to exactly one port.
+        workflowRole: Gate events are recorded per gate and roll up to the port for throughput reporting.
+  invariants:
+    - {id: PORT-001, rule: "portCode must be unique across all Ports."}
+    - {id: PORT-002, rule: "A CLOSED Port cannot receive new voyage calls or berth assignments, but its history remains intact."}
+  lifecycle:
+    title: Port Lifecycle
+    attribute: status
+    states: [ACTIVE, RESTRICTED, CLOSED]
+    initial: ACTIVE
+    terminal: []
+    transitions:
+      - {from: ACTIVE, to: RESTRICTED, action: restrict}
+      - {from: RESTRICTED, to: ACTIVE, action: restore}
+      - {from: ACTIVE, to: CLOSED, action: close}
+      - {from: RESTRICTED, to: CLOSED, action: close}
+      - {from: CLOSED, to: ACTIVE, action: reopen}
+  help:
+    summary: Represents a port facility that vessels call at and that contains berths and gates.
+    businessMeaning: Port is the facility master record; Voyage is a journey between ports, Berth is a quay position at one port and Gate is a landside checkpoint at one port.
+    usage: Voyage planning, berth and gate management, schedule exchange, throughput reporting and audit.
+    relationshipContext: Berths and gates belong to a port; voyages name ports as origin and destination; Location supplies the physical site.
+    lifecycle: A port is active, may be restricted or closed, and can reopen; its history is never removed.
+specification: {version: 0.1.0, status: draft, identifier: CEDM-ENTITY-PORT}

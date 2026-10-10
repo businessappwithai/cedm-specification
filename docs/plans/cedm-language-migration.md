@@ -12,7 +12,7 @@ application — byte-identical to today's unless a phase says otherwise and says
 ### 1.1 The CEDM specification (`domain/`, `domains/`, `specification/`, `schema/`)
 
 - **310 entity files** (`domain/entities/*.yaml`, ~28k lines), registered in
-  `domain/entities/index.yaml`, validated by `tools/validate.py` (0 errors, 15 warnings).
+  `domain/entities/index.yaml`, validated by `tools/validate.ts` (0 errors, 15 warnings).
 - Entity shape (`schema/cedm-entity.schema.yaml`): `name`, `namespace`, `kind`,
   `description`, `identity {key, type, generated, immutable}`, `attributes[]`
   (camelCase names; types `uuid string enum datetime decimal date reference
@@ -242,7 +242,7 @@ Each phase ends with all gates in §5 green and is one or more pushed commits.
 - `language/appwithai-language.json`: CEDM vocabulary types, `0..1/1/0..*/1..*`
   cardinalities, ownership, entity kinds, lifecycle — alongside today's tokens.
 - `language/cedm/README.md` reference, `language/spec/` updates.
-- Gate: schema validates every `domain/entities/*.yaml` file; `tools/validate.py` still passes.
+- Gate: schema validates every `domain/entities/*.yaml` file; `tools/validate.ts` still passes.
 
 **Phase 2 — TypeScript reader and converter** (additive)
 - `packages/generator/src/model-cedm/`: read → resolve imports/extends → lower → records.
@@ -296,7 +296,7 @@ Each phase ends with all gates in §5 green and is one or more pushed commits.
 | TS ↔ Rust backend | `bun run parity` |
 | Rust lint | `cargo +<CI version> clippy -p appwithai-gen --all-targets -- -D warnings` |
 | Lint (own files only) | `biome lint <touched files>` vs `main` |
-| CEDM library | `python3 tools/validate.py` |
+| CEDM library | `bun tools/validate.ts` |
 | Generated app runs | drug-discovery + crm: `cargo test --test app`, clippy `-D warnings` (needs Postgres) |
 | End-to-end | `bun run test:e2e:generated` (needs Postgres) at Phases 3, 6, 7 |
 

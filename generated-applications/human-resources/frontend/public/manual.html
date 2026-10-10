@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:29:04.435Z">2026-10-09T15:29:04.435Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:40:24.038Z">2026-10-10T02:40:24.038Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -931,6 +931,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>RECORDED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>attendanceWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-attendance-follow-up-required">AttendanceFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -1631,6 +1639,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>ACTIVE</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>compensationInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>compensationInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>compensationWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-compensation-follow-up-required">CompensationFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -2963,6 +2981,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>SUSPENDED</code></td><td><code>TERMINATED</code></td><td><code>terminate</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>employmentInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>employmentInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -3998,6 +4024,16 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <tr><td><code>SUBMITTED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
         </tbody>
       </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>leaveRequestInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>leaveRequestInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>leaveRequestWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-leave-request-approval-requested">LeaveRequestApprovalRequested</a>, <a href="#process-leave-request-follow-up-required">LeaveRequestFollowUpRequired</a></p>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
@@ -8104,10 +8140,19 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>positionInvariantsBeforeCreate</code></td><td><a href="#entity-position">Position</a></td><td>beforeCreate</td></tr>
         <tr><td><code>positionInvariantsBeforeUpdate</code></td><td><a href="#entity-position">Position</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>employmentInvariantsBeforeCreate</code></td><td><a href="#entity-employment">Employment</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>employmentInvariantsBeforeUpdate</code></td><td><a href="#entity-employment">Employment</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>compensationInvariantsBeforeCreate</code></td><td><a href="#entity-compensation">Compensation</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>compensationInvariantsBeforeUpdate</code></td><td><a href="#entity-compensation">Compensation</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>leaveRequestInvariantsBeforeCreate</code></td><td><a href="#entity-leave-request">Leave Request</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>leaveRequestInvariantsBeforeUpdate</code></td><td><a href="#entity-leave-request">Leave Request</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>payrollInvariantsBeforeCreate</code></td><td><a href="#entity-payroll">Payroll</a></td><td>beforeCreate</td></tr>
         <tr><td><code>payrollInvariantsBeforeUpdate</code></td><td><a href="#entity-payroll">Payroll</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>compensationWorkflowsAfterUpdate</code></td><td><a href="#entity-compensation">Compensation</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>attendanceWorkflowsAfterUpdate</code></td><td><a href="#entity-attendance">Attendance</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>leaveRequestWorkflowsAfterUpdate</code></td><td><a href="#entity-leave-request">Leave Request</a></td><td>afterUpdate</td></tr>
         <tr><td><code>payrollWorkflowsAfterUpdate</code></td><td><a href="#entity-payroll">Payroll</a></td><td>afterUpdate</td></tr>
       </tbody>
     </table>
@@ -8127,6 +8172,34 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <div id="process-exchange-rate-follow-up-required" class="process">
       <h3>ExchangeRateFollowUpRequired</h3>
       <p class="meta">On <a href="#entity-exchange-rate">Exchange Rate</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-compensation-follow-up-required" class="process">
+      <h3>CompensationFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-compensation">Compensation</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-attendance-follow-up-required" class="process">
+      <h3>AttendanceFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-attendance">Attendance</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-leave-request-approval-requested" class="process">
+      <h3>LeaveRequestApprovalRequested</h3>
+      <p class="meta">On <a href="#entity-leave-request">Leave Request</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: decide on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-leave-request-follow-up-required" class="process">
+      <h3>LeaveRequestFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-leave-request">Leave Request</a>, rule on UPDATE.</p>
       <ol>
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
@@ -8157,7 +8230,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    human-resources 1.0.0 &middot; 64 record types &middot; 15 rules &middot; 21 processes
+    human-resources 1.0.0 &middot; 64 record types &middot; 24 rules &middot; 25 processes
   </footer>
 </div>
 </body>

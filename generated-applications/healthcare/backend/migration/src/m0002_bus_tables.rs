@@ -601,6 +601,59 @@ CREATE TABLE IF NOT EXISTS bus_healthcare_provider (
 --
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
+-- Practitioner (bus_practitioner)
+CREATE TABLE IF NOT EXISTS bus_practitioner (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , practitioner_code VARCHAR(120) NOT NULL UNIQUE
+  , license_number VARCHAR(200)
+  , specialty VARCHAR(200)
+  , status VARCHAR(255) NOT NULL
+  , person_id UUID NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+-- Appointment (bus_appointment)
+CREATE TABLE IF NOT EXISTS bus_appointment (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , appointment_number VARCHAR(120) NOT NULL UNIQUE
+  , appointment_type VARCHAR(120) NOT NULL
+  , scheduled_start_at TIMESTAMPTZ NOT NULL
+  , scheduled_end_at TIMESTAMPTZ
+  , status VARCHAR(255) NOT NULL
+  , patient_id UUID NOT NULL
+  , provider_id UUID
+  , practitioner_id UUID
+  , location_id UUID
+  , encounter_id UUID
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
 -- Healthcare Encounter (bus_healthcare_encounter)
 CREATE TABLE IF NOT EXISTS bus_healthcare_encounter (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -1426,6 +1479,56 @@ CREATE TABLE IF NOT EXISTS bus_healthcare_provider_status (
 -- Composite declarations are the ones that were silently lost before the parser
 -- read the model's indexes at all: no convention can produce them.
 CREATE INDEX IF NOT EXISTS idx_bus_healthcare_provider_status_name ON bus_healthcare_provider_status (name);
+-- Practitioner Status (bus_practitioner_status)
+CREATE TABLE IF NOT EXISTS bus_practitioner_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_practitioner_status_name ON bus_practitioner_status (name);
+-- Appointment Status (bus_appointment_status)
+CREATE TABLE IF NOT EXISTS bus_appointment_status (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+  , code VARCHAR(100) NOT NULL UNIQUE
+  , name VARCHAR(200) NOT NULL
+  , description TEXT
+  , sequence INTEGER NOT NULL
+  , is_active BOOLEAN NOT NULL
+  , created_at TIMESTAMPTZ DEFAULT NOW()
+  , updated_at TIMESTAMPTZ DEFAULT NOW()
+  , deleted_at TIMESTAMPTZ
+  , version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Indexes.
+--
+-- `entity.indexes` is the merge of what the model declared in `indexes` and
+-- the conventional single-column ones (a column called `name`, and anything
+-- unique). It is merged rather than emitted from both sources because both name
+-- an index after its columns: two `CREATE INDEX IF NOT EXISTS` statements with
+-- the same name meant the second — the one carrying UNIQUE — was the no-op.
+--
+-- Composite declarations are the ones that were silently lost before the parser
+-- read the model's indexes at all: no convention can produce them.
+CREATE INDEX IF NOT EXISTS idx_bus_appointment_status_name ON bus_appointment_status (name);
 -- Healthcare Encounter Encounter Type (bus_healthcare_encounter_encounter_type)
 CREATE TABLE IF NOT EXISTS bus_healthcare_encounter_encounter_type (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -2184,6 +2287,23 @@ END $$;
 -- a model whose FK column was typed as something other than UUID must not
 -- abort the whole migration.
 DO $$ BEGIN
+  ALTER TABLE bus_appointment
+    ADD CONSTRAINT fk_bus_appointment_healthcare_patient_id
+    FOREIGN KEY (healthcare_patient_id)
+    REFERENCES bus_healthcare_patient(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
   ALTER TABLE bus_healthcare_provider
     ADD CONSTRAINT fk_bus_healthcare_provider_party_id
     FOREIGN KEY (party_id)
@@ -2222,6 +2342,74 @@ DO $$ BEGIN
     ADD CONSTRAINT fk_bus_healthcare_encounter_healthcare_provider_id
     FOREIGN KEY (healthcare_provider_id)
     REFERENCES bus_healthcare_provider(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_appointment
+    ADD CONSTRAINT fk_bus_appointment_healthcare_provider_id
+    FOREIGN KEY (healthcare_provider_id)
+    REFERENCES bus_healthcare_provider(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_practitioner
+    ADD CONSTRAINT fk_bus_practitioner_person_id
+    FOREIGN KEY (person_id)
+    REFERENCES bus_person(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_appointment
+    ADD CONSTRAINT fk_bus_appointment_practitioner_id
+    FOREIGN KEY (practitioner_id)
+    REFERENCES bus_practitioner(id)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+  WHEN datatype_mismatch THEN NULL;
+END $$;
+
+-- The TypeScript migration wraps this in `.catch(() => {})`; the DO block is
+-- how that same tolerance is expressed in plain SQL. Re-running a migration or
+-- a model whose FK column was typed as something other than UUID must not
+-- abort the whole migration.
+DO $$ BEGIN
+  ALTER TABLE bus_appointment
+    ADD CONSTRAINT fk_bus_appointment_location_id
+    FOREIGN KEY (location_id)
+    REFERENCES bus_location(id)
     ON DELETE SET NULL ON UPDATE CASCADE;
 EXCEPTION
   WHEN duplicate_object THEN NULL;
@@ -2409,6 +2597,8 @@ DROP TABLE IF EXISTS bus_attachment CASCADE;
 DROP TABLE IF EXISTS bus_task CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_patient CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_provider CASCADE;
+DROP TABLE IF EXISTS bus_practitioner CASCADE;
+DROP TABLE IF EXISTS bus_appointment CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_encounter CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_order CASCADE;
 DROP TABLE IF EXISTS bus_diagnosis CASCADE;
@@ -2442,6 +2632,8 @@ DROP TABLE IF EXISTS bus_task_priority CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_patient_status CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_provider_provider_type CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_provider_status CASCADE;
+DROP TABLE IF EXISTS bus_practitioner_status CASCADE;
+DROP TABLE IF EXISTS bus_appointment_status CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_encounter_encounter_type CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_encounter_status CASCADE;
 DROP TABLE IF EXISTS bus_healthcare_order_status CASCADE;

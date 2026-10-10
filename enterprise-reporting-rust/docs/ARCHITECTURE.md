@@ -6,7 +6,7 @@ Enterprise Reporting System - Technical architecture and key design decisions.
 
 | Layer | Technology |
 |-------|-----------|
-| Runtime | Bun >= 1.3.0 |
+| Runtime | Bun >= 1.4.0 |
 | Framework | TanStack Start 1.167+ (Full-stack React, Vite-based) |
 | Language | TypeScript (strict mode, ES2022) |
 | UI Components | shadcn/ui (Radix UI + Tailwind CSS 3) |

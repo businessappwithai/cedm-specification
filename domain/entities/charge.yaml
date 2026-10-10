@@ -88,6 +88,7 @@ entity:
     - {id: CHARGE-001, rule: "This record must not silently duplicate or rewrite authoritative cash, accounting, tax, usage, entitlement, or billing evidence in another CEDM entity."}
     - id: CHARGE-002
       rule: amount must not be negative.
+    - {id: CHARGE-EXE-001, rule: "Amount cannot be negative.", violatedWhen: "amount != null and amount < 0", message: "Amount cannot be negative."}
   lifecycle:
     title: Charge Lifecycle
     attribute: status

@@ -37,6 +37,8 @@ entity:
     - {id: INVENTORY-ITEM-002, rule: An ACTIVE InventoryItem must reference an eligible Product and valid stocking UnitOfMeasure.}
     - {id: INVENTORY-ITEM-003, rule: "BLOCKED or DISCONTINUED prevents new ordinary stock transactions except governed correction, return, disposal or reconciliation flows."}
     - {id: INVENTORY-ITEM-004, rule: Historical InventoryMovement and InventoryBalance evidence must not be rewritten because InventoryItem policy changes.}
+    - {id: INVENTORY-ITEM-EXE-001, rule: "Safety Stock Quantity cannot be negative.", violatedWhen: "safety_stock_quantity != null and safety_stock_quantity < 0", message: "Safety Stock Quantity cannot be negative."}
+    - {id: INVENTORY-ITEM-EXE-002, rule: "Reorder Point Quantity cannot be negative.", violatedWhen: "reorder_point_quantity != null and reorder_point_quantity < 0", message: "Reorder Point Quantity cannot be negative."}
   lifecycle:
     title: Inventory Item Lifecycle
     attribute: status
@@ -50,6 +52,25 @@ entity:
       - {from: DRAFT, to: DISCONTINUED, action: discontinue}
       - {from: ACTIVE, to: DISCONTINUED, action: discontinue}
       - {from: BLOCKED, to: DISCONTINUED, action: discontinue}
+  workflows:
+    - name: ExceptionRaised
+      title: "Raise a task when a inventory item is stopped"
+      description: "When a inventory item is blocked, a high-priority task asks someone to resolve it."
+      when: "status == \"BLOCKED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: resolve"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "INVENTORY-ITEM-EXCEPTION-{{id}}"
+              name: "Resolve inventory item {{id}}"
+              description: "Inventory item {{id}} is now {{status}}. Find out why it stopped and move it on or close it."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: Governs how a Product participates in inventory without duplicating Product identity or current stock quantities.
     businessMeaning: InventoryItem is the inventory-control master. Product says what the item is; InventoryBalance says how much is currently present; InventoryMovement explains how quantity changed.

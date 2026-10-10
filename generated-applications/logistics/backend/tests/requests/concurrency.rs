@@ -1,6 +1,6 @@
 //! Two people, one record: optimistic locking and closed transactions.
 //!
-//! Generated: 2026-10-09T15:29:24.956Z
+//! Generated: 2026-10-10T02:40:47.670Z
 //! Project: logistics
 //!
 //! Every entity is optimistic unless the model says `concurrency:
@@ -47,6 +47,8 @@ const FINAL_STATES: &[(&str, &str, &str)] = &[
     ("SalesOrder", "status", "FULFILLED"),
     ("Trip", "status", "COMPLETED"),
     ("TripSegment", "status", "COMPLETED"),
+    ("Driver", "status", "RETIRED"),
+    ("FuelTransaction", "status", "VERIFIED"),
     ("Customer", "status", "RETIRED"),
     ("Product", "status", "DISCONTINUED"),
 ];
@@ -82,6 +84,13 @@ const FIRST_MOVES: &[(&str, &str, &str, &[&str])] = &[
     ("SalesOrder", "status", "DRAFT", &["CONFIRMED", "CANCELLED"]),
     ("Trip", "status", "PLANNED", &["BOOKED", "CANCELLED"]),
     ("TripSegment", "status", "PLANNED", &["BOOKED", "CANCELLED"]),
+    ("Driver", "status", "DRAFT", &["ACTIVE", "RETIRED"]),
+    (
+        "FuelTransaction",
+        "status",
+        "RECORDED",
+        &["VERIFIED", "REVERSED"],
+    ),
     (
         "Customer",
         "status",

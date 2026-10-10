@@ -528,3 +528,177 @@ ON CONFLICT (name) DO UPDATE SET
   description      = EXCLUDED.description,
   is_model_managed = TRUE,
   updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('GateEventFollowUpRequired', 'bus_gate_event', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_GateEventFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_GateEventFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_GateEventFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_GateEventFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;GATE-EVENT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on gate event {{id}}&quot;,&quot;description&quot;:&quot;Gate event {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_GateEventFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_GateEventFollowUpRequired_flow_0" sourceRef="Process_GateEventFollowUpRequired_start" targetRef="Process_GateEventFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_GateEventFollowUpRequired_flow_1" sourceRef="Process_GateEventFollowUpRequired_S1" targetRef="Process_GateEventFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_GateEventFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_GateEventFollowUpRequired" bpmnElement="Process_GateEventFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_GateEventFollowUpRequired_start_di" bpmnElement="Process_GateEventFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_GateEventFollowUpRequired_S1_di" bpmnElement="Process_GateEventFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_GateEventFollowUpRequired_end_di" bpmnElement="Process_GateEventFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_GateEventFollowUpRequired_flow_0_di" bpmnElement="Process_GateEventFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_GateEventFollowUpRequired_flow_1_di" bpmnElement="Process_GateEventFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a gate event is reversed, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('ContainerVisitFollowUpRequired', 'bus_container_visit', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_ContainerVisitFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_ContainerVisitFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_ContainerVisitFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_ContainerVisitFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;CONTAINER-VISIT-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on container visit {{id}}&quot;,&quot;description&quot;:&quot;Container visit {{id}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_ContainerVisitFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_ContainerVisitFollowUpRequired_flow_0" sourceRef="Process_ContainerVisitFollowUpRequired_start" targetRef="Process_ContainerVisitFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_ContainerVisitFollowUpRequired_flow_1" sourceRef="Process_ContainerVisitFollowUpRequired_S1" targetRef="Process_ContainerVisitFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_ContainerVisitFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_ContainerVisitFollowUpRequired" bpmnElement="Process_ContainerVisitFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_ContainerVisitFollowUpRequired_start_di" bpmnElement="Process_ContainerVisitFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ContainerVisitFollowUpRequired_S1_di" bpmnElement="Process_ContainerVisitFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_ContainerVisitFollowUpRequired_end_di" bpmnElement="Process_ContainerVisitFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_ContainerVisitFollowUpRequired_flow_0_di" bpmnElement="Process_ContainerVisitFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_ContainerVisitFollowUpRequired_flow_1_di" bpmnElement="Process_ContainerVisitFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a container visit is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();
+
+INSERT INTO sys_workflow_definitions
+  (name, entity_name, operation, trigger_type, bpmn_xml, description, is_active, is_model_managed, created_at, updated_at)
+VALUES ('VoyageFollowUpRequired', 'bus_voyage', 'UPDATE',
+        'rule', '<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:appwithai="http://appwithai.io/schema/1.0"
+  id="Definitions_VoyageFollowUpRequired"
+  targetNamespace="http://appwithai.io/bpmn">
+  <bpmn:process id="Process_VoyageFollowUpRequired" isExecutable="true">
+    <bpmn:startEvent id="Process_VoyageFollowUpRequired_start"/>
+    <bpmn:serviceTask id="Process_VoyageFollowUpRequired_S1" name="Raise a task: follow up on">
+      <bpmn:extensionElements>
+        <appwithai:properties>
+        <appwithai:property name="nodeType" value="CreateEntity"/>
+        <appwithai:property name="entity" value="bus_task"/>
+        <appwithai:property name="as" value="taskId"/>
+        <appwithai:property name="fields" value="{&quot;code&quot;:&quot;VOYAGE-FOLLOW-UP-{{id}}&quot;,&quot;name&quot;:&quot;Follow up on voyage {{voyage_number}}&quot;,&quot;description&quot;:&quot;Voyage {{voyage_number}} is now {{status}}. Check the records that depended on it and tell the people affected.&quot;,&quot;task_type&quot;:&quot;USER&quot;,&quot;status&quot;:&quot;CREATED&quot;,&quot;priority&quot;:&quot;NORMAL&quot;}"/>
+        </appwithai:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Process_VoyageFollowUpRequired_end"/>
+    <bpmn:sequenceFlow id="Process_VoyageFollowUpRequired_flow_0" sourceRef="Process_VoyageFollowUpRequired_start" targetRef="Process_VoyageFollowUpRequired_S1"/>
+    <bpmn:sequenceFlow id="Process_VoyageFollowUpRequired_flow_1" sourceRef="Process_VoyageFollowUpRequired_S1" targetRef="Process_VoyageFollowUpRequired_end"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Process_VoyageFollowUpRequired">
+    <bpmndi:BPMNPlane id="BPMNPlane_Process_VoyageFollowUpRequired" bpmnElement="Process_VoyageFollowUpRequired">
+      <bpmndi:BPMNShape id="Process_VoyageFollowUpRequired_start_di" bpmnElement="Process_VoyageFollowUpRequired_start">
+        <dc:Bounds x="160" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_VoyageFollowUpRequired_S1_di" bpmnElement="Process_VoyageFollowUpRequired_S1">
+        <dc:Bounds x="256" y="100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Process_VoyageFollowUpRequired_end_di" bpmnElement="Process_VoyageFollowUpRequired_end">
+        <dc:Bounds x="456" y="122" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Process_VoyageFollowUpRequired_flow_0_di" bpmnElement="Process_VoyageFollowUpRequired_flow_0">
+        <di:waypoint x="196" y="140"/>
+        <di:waypoint x="256" y="140"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Process_VoyageFollowUpRequired_flow_1_di" bpmnElement="Process_VoyageFollowUpRequired_flow_1">
+        <di:waypoint x="396" y="140"/>
+        <di:waypoint x="456" y="140"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>', 'When a voyage is cancelled, a task asks someone to settle what depended on it.', TRUE, TRUE, NOW(), NOW())
+ON CONFLICT (name) DO UPDATE SET
+  entity_name      = EXCLUDED.entity_name,
+  operation        = EXCLUDED.operation,
+  trigger_type     = EXCLUDED.trigger_type,
+  bpmn_xml         = EXCLUDED.bpmn_xml,
+  description      = EXCLUDED.description,
+  is_model_managed = TRUE,
+  updated_at       = NOW();

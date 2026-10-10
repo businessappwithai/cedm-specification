@@ -13,7 +13,7 @@
 #     it has no lockfile yet; and
 #   * it exposed a hardcoded 3000, which is the *backend* port.
 
-FROM oven/bun:1.3-alpine AS builder
+FROM oven/bun:1.4-alpine AS builder
 
 WORKDIR /app
 
@@ -47,7 +47,7 @@ RUN bun run build
 # Nitro layout of the Vinxi-era framework, which this Vite build never writes,
 # so the image built and then exited on a module that did not exist. Preview
 # needs Vite itself, so the builder's `node_modules` come across whole.
-FROM oven/bun:1.3-alpine
+FROM oven/bun:1.4-alpine
 
 WORKDIR /app
 ENV NODE_ENV=production

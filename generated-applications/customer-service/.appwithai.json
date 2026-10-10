@@ -130,10 +130,13 @@
     "PartyExceptionRaised on Party (1 steps, rule)",
     "ExchangeRateFollowUpRequired on ExchangeRate (1 steps, rule)",
     "CustomerExceptionRaised on Customer (1 steps, rule)",
+    "ServiceCaseFollowUpRequired on ServiceCase (1 steps, rule)",
     "ServiceRequestFollowUpRequired on ServiceRequest (1 steps, rule)",
+    "TicketFollowUpRequired on Ticket (1 steps, rule)",
+    "ServiceOrderFollowUpRequired on ServiceOrder (1 steps, rule)",
     "EscalationFollowUpRequired on Escalation (1 steps, rule)",
     "ContractFollowUpRequired on Contract (1 steps, rule)"
   ],
   "packageManager": "bun",
-  "generatedAt": "2026-10-09T15:28:16.681Z"
+  "generatedAt": "2026-10-10T02:39:33.624Z"
 }

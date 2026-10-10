@@ -91,7 +91,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
          the WASM overlay's footprint, blanking ISO timestamps first. A
          "2026-08-22" would survive that blanking and make the two copies differ
          whenever the pair of runs straddles midnight. -->
-    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-09T15:28:55.833Z">2026-10-09T15:28:55.833Z</time></div>
+    <div class="stamp">Manual for version 1.0.0 &middot; generated <time datetime="2026-10-10T02:40:14.229Z">2026-10-10T02:40:14.229Z</time></div>
   </header>
 
       <nav class="toc" aria-label="Contents">
@@ -106,6 +106,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-address-status">Address Status</a></li>
               <li><a href="#entity-allergy">Allergy</a></li>
               <li><a href="#entity-allergy-status">Allergy Status</a></li>
+              <li><a href="#entity-appointment">Appointment</a></li>
+              <li><a href="#entity-appointment-status">Appointment Status</a></li>
               <li><a href="#entity-attachment">Attachment</a></li>
               <li><a href="#entity-business-unit">Business Unit</a></li>
               <li><a href="#entity-calendar">Calendar</a></li>
@@ -154,6 +156,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
               <li><a href="#entity-person-gender">Person Gender</a></li>
               <li><a href="#entity-person-party-type">Person Party Type</a></li>
               <li><a href="#entity-person-status">Person Status</a></li>
+              <li><a href="#entity-practitioner">Practitioner</a></li>
+              <li><a href="#entity-practitioner-status">Practitioner Status</a></li>
               <li><a href="#entity-prescription">Prescription</a></li>
               <li><a href="#entity-prescription-status">Prescription Status</a></li>
               <li><a href="#entity-procedure">Procedure</a></li>
@@ -177,14 +181,14 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   <section id="overview">
     <h2>What this application is</h2>
     <div class="app-overview"><p>Healthcare, built on the CEDM common foundation.</p></div>
-    <p>healthcare keeps 65 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>healthcare keeps 69 kinds of records, grouped into 3 areas of the business. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
     <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
       <tbody>
         <tr><td>Foundation<div class="detail">Parties, places, units and reference data every domain shares</div></td><td><a href="#entity-party">Party</a>, <a href="#entity-person">Person</a>, <a href="#entity-organization">Organization</a>, <a href="#entity-party-role">Party Role</a>, <a href="#entity-party-relationship">Party Relationship</a>, <a href="#entity-legal-entity">Legal Entity</a>, <a href="#entity-business-unit">Business Unit</a>, <a href="#entity-department">Department</a>, <a href="#entity-address">Address</a>, <a href="#entity-contact-point">Contact Point</a>, <a href="#entity-location">Location</a>, <a href="#entity-country">Country</a>, <a href="#entity-state-province">State Province</a>, <a href="#entity-city">City</a>, <a href="#entity-language">Language</a>, <a href="#entity-currency">Currency</a>, <a href="#entity-exchange-rate">Exchange Rate</a>, <a href="#entity-unit-of-measure">Unit Of Measure</a>, <a href="#entity-calendar">Calendar</a>, <a href="#entity-attachment">Attachment</a>, <a href="#entity-task">Task</a>, <a href="#entity-healthcare-order">Healthcare Order</a>, <a href="#entity-diagnosis">Diagnosis</a>, <a href="#entity-procedure">Procedure</a>, <a href="#entity-allergy">Allergy</a></td></tr>
-        <tr><td>Healthcare</td><td><a href="#entity-healthcare-patient">Healthcare Patient</a>, <a href="#entity-healthcare-provider">Healthcare Provider</a>, <a href="#entity-healthcare-encounter">Healthcare Encounter</a>, <a href="#entity-medication">Medication</a>, <a href="#entity-prescription">Prescription</a>, <a href="#entity-care-plan">Care Plan</a></td></tr>
-        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-healthcare-patient-status">Healthcare Patient Status</a>, <a href="#entity-healthcare-provider-provider-type">Healthcare Provider Provider Type</a>, <a href="#entity-healthcare-provider-status">Healthcare Provider Status</a>, <a href="#entity-healthcare-encounter-encounter-type">Healthcare Encounter Encounter Type</a>, <a href="#entity-healthcare-encounter-status">Healthcare Encounter Status</a>, <a href="#entity-healthcare-order-status">Healthcare Order Status</a>, <a href="#entity-diagnosis-diagnosis-type">Diagnosis Diagnosis Type</a>, <a href="#entity-procedure-status">Procedure Status</a>, <a href="#entity-medication-status">Medication Status</a>, <a href="#entity-prescription-status">Prescription Status</a>, <a href="#entity-allergy-status">Allergy Status</a>, <a href="#entity-care-plan-status">Care Plan Status</a></td></tr>
+        <tr><td>Healthcare</td><td><a href="#entity-healthcare-patient">Healthcare Patient</a>, <a href="#entity-healthcare-provider">Healthcare Provider</a>, <a href="#entity-practitioner">Practitioner</a>, <a href="#entity-appointment">Appointment</a>, <a href="#entity-healthcare-encounter">Healthcare Encounter</a>, <a href="#entity-medication">Medication</a>, <a href="#entity-prescription">Prescription</a>, <a href="#entity-care-plan">Care Plan</a></td></tr>
+        <tr><td>Reference Data</td><td><a href="#entity-party-party-type">Party Party Type</a>, <a href="#entity-party-status">Party Status</a>, <a href="#entity-person-gender">Person Gender</a>, <a href="#entity-person-party-type">Person Party Type</a>, <a href="#entity-person-status">Person Status</a>, <a href="#entity-organization-organization-type">Organization Organization Type</a>, <a href="#entity-organization-status">Organization Status</a>, <a href="#entity-organization-party-type">Organization Party Type</a>, <a href="#entity-party-role-role-type">Party Role Role Type</a>, <a href="#entity-party-role-status">Party Role Status</a>, <a href="#entity-address-address-type">Address Address Type</a>, <a href="#entity-address-status">Address Status</a>, <a href="#entity-location-location-type">Location Location Type</a>, <a href="#entity-location-status">Location Status</a>, <a href="#entity-currency-status">Currency Status</a>, <a href="#entity-exchange-rate-rate-type">Exchange Rate Rate Type</a>, <a href="#entity-exchange-rate-status">Exchange Rate Status</a>, <a href="#entity-unit-of-measure-category">Unit Of Measure Category</a>, <a href="#entity-unit-of-measure-status">Unit Of Measure Status</a>, <a href="#entity-task-task-type">Task Task Type</a>, <a href="#entity-task-status">Task Status</a>, <a href="#entity-task-priority">Task Priority</a>, <a href="#entity-healthcare-patient-status">Healthcare Patient Status</a>, <a href="#entity-healthcare-provider-provider-type">Healthcare Provider Provider Type</a>, <a href="#entity-healthcare-provider-status">Healthcare Provider Status</a>, <a href="#entity-practitioner-status">Practitioner Status</a>, <a href="#entity-appointment-status">Appointment Status</a>, <a href="#entity-healthcare-encounter-encounter-type">Healthcare Encounter Encounter Type</a>, <a href="#entity-healthcare-encounter-status">Healthcare Encounter Status</a>, <a href="#entity-healthcare-order-status">Healthcare Order Status</a>, <a href="#entity-diagnosis-diagnosis-type">Diagnosis Diagnosis Type</a>, <a href="#entity-procedure-status">Procedure Status</a>, <a href="#entity-medication-status">Medication Status</a>, <a href="#entity-prescription-status">Prescription Status</a>, <a href="#entity-allergy-status">Allergy Status</a>, <a href="#entity-care-plan-status">Care Plan Status</a></td></tr>
       </tbody>
     </table>
     <p class="back"><a href="#top">Back to contents</a></p>
@@ -196,8 +200,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <table>
       <thead><tr><th>Role</th><th>Account</th><th>Records it can see</th></tr></thead>
       <tbody>
-        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 65</td></tr>
-        <tr><td>User</td><td><code>user@healthcare.example.com</code></td><td>65 of 65</td></tr>
+        <tr><td>Administrator</td><td><code>admin@admin.com</code></td><td>all 69</td></tr>
+        <tr><td>User</td><td><code>user@healthcare.example.com</code></td><td>69 of 69</td></tr>
       </tbody>
     </table>
 
@@ -855,6 +859,319 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       </table>
       <h4>Where it appears</h4>
       <p>The application opens this record in the <b>Allergy Status</b> window, on the <b>Allergy Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-appointment" class="entity">
+      <h3>Appointment <span class="group">Healthcare</span></h3>
+      <p class="lede">Represents scheduled healthcare intent independently of actual care delivery. Appointment answers when care is planned; HealthcareEncounter records what actually occurred. Keeping them separate supports cancellations, no-shows, rescheduling and audit. Patient scheduling, provider capacity, reminders, check-in, operational planning, reporting and integration. HealthcarePatient is mandatory; Practitioner, HealthcareProvider and Location define planned resources; HealthcareEncounter supplies actual-care reconciliation. Appointments are scheduled, may be confirmed and checked in, and finish as completed, cancelled or no-show. A patient schedules a cardiology visit with a Practitioner; after check-in, an Encounter is created and linked when the visit occurs.</p>
+      <p class="meta">Stored as <code>bus_appointment</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the booking itself, separate from the encounter that records the care when the patient is seen. Identifies one scheduled healthcare commitment independently of encounter execution. Scheduling, reminders, patient service, reporting and audit. HealthcareEncounter may later record actual care but does not replace Appointment identity.</td>
+        </tr>
+        <tr>
+          <td><code>appointment_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The scheduling reference given to the appointment, used in reminders and check-in. Operational identifier for scheduling and communication. Search, reminders, check-in and integration. Distinct from patient and encounter identifiers.</td>
+        </tr>
+        <tr>
+          <td><code>appointment_type</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 120</span></td>
+          <td>The kind of healthcare service the visit is booked for, such as a follow-up consultation, vaccination or imaging slot. Chosen by the scheduler when booking; drives how long a slot is held, which resources it needs and how capacity is reported. Supports routing, duration, resource and preparation policies. Does not itself prove what service was actually delivered.</td>
+        </tr>
+        <tr>
+          <td><code>scheduled_start_at</code></td>
+          <td>Date and time</td>
+          <td><span class="tag">required</span></td>
+          <td>The date and time at which the patient is expected to be seen, in the clinic&#39;s planning calendar. Entered when the appointment is booked and changed on rescheduling; reminders fire from it and lateness is measured against it. Establishes when the scheduled service is intended to begin. Must precede scheduledEndAt when an end is supplied.</td>
+        </tr>
+        <tr>
+          <td><code>scheduled_end_at</code></td>
+          <td>Date and time</td>
+          <td>&mdash;</td>
+          <td>The planned end of the slot, giving the time the practitioner and room are held. Optional; when given it must fall after the start. Capacity planning uses it to detect overlapping bookings for the same resource. Supports resource-capacity and duration planning. Must follow scheduledStartAt.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Where the booking stands, from being scheduled through attendance to closure as completed, cancelled or missed. Moved by front-desk staff and clinicians as the patient confirms, arrives and is seen; reminders and capacity reports filter on it. Appointment is booked but not yet confirmed by the patient or provider. Patient or provider confirmation has been recorded. Patient arrival or equivalent readiness has been recorded. Scheduled service concluded and any required encounter evidence is reconciled. A final state. The appointment was cancelled by the patient or provider before it took place. A final state. Patient did not attend according to policy. A final state. Distinguishes planned, confirmed, arrived and final scheduling outcomes. COMPLETED normally reconciles to encounter evidence when care occurred.<div class="detail">One of: <code>SCHEDULED</code>, <code>CONFIRMED</code>, <code>CHECKED_IN</code>, <code>COMPLETED</code>, <code>CANCELLED</code>, <code>NO_SHOW</code></div></td>
+        </tr>
+        <tr>
+          <td><code>patient_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>Exactly one patient; an appointment cannot exist without the person it is for. Patient for whom the appointment is scheduled. Establishes the recipient of intended care. Scheduling, reminders and patient history. Patient status and scheduling policy constrain new appointments.<div class="detail">Points at <b>Patient</b></div></td>
+        </tr>
+        <tr>
+          <td><code>provider_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Healthcare provider organization or service context for the appointment. Supplies organizational delivery context. Scheduling, reporting and operational routing. Optional where practitioner or location fully determines context. Provider eligibility must agree with assigned practitioner where applicable.<div class="detail">Points at <b>Provider</b></div></td>
+        </tr>
+        <tr>
+          <td><code>practitioner_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Practitioner scheduled to deliver or supervise care. Supplies professional resource commitment. Scheduling, capacity and reporting. Optional before assignment or for resource-pool appointments. Practitioner must be eligible when assigned.<div class="detail">Points at <b>Practitioner</b></div></td>
+        </tr>
+        <tr>
+          <td><code>location_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Planned physical or virtual service location. Defines where scheduled care is expected to occur. Scheduling, navigation and resource planning. Optional for unsited or virtual appointments represented elsewhere. Location availability must be validated under scheduling policy.<div class="detail">Points at <b>Location</b></div></td>
+        </tr>
+        <tr>
+          <td><code>encounter_id</code></td>
+          <td>Lookup</td>
+          <td>&mdash;</td>
+          <td>Actual healthcare encounter arising from this appointment. Separates scheduled intent from delivered care evidence. Scheduling reconciliation, clinical operations and audit. Optional before care or for cancelled/no-show appointments. COMPLETED should reconcile to applicable encounter evidence when care was delivered.<div class="detail">Points at <b>Encounter</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Appointment</b> window, on the <b>Appointment</b> tab. These are its 11 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>appointment_number</code></td>
+            <td>Appointment Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>appointment_type</code></td>
+            <td>Appointment Type</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>scheduled_start_at</code></td>
+            <td>Scheduled Start At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>scheduled_end_at</code></td>
+            <td>Scheduled End At</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>patient_id</code></td>
+            <td>Patient</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>70</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>provider_id</code></td>
+            <td>Provider</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>80</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>practitioner_id</code></td>
+            <td>Practitioner</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>90</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>location_id</code></td>
+            <td>Location</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>100</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>encounter_id</code></td>
+            <td>Encounter</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>110</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Appointment</b> belongs to one <a href="#entity-healthcare-patient">Healthcare Patient</a>.</li>
+          <li>Each <b>Appointment</b> belongs to one <a href="#entity-healthcare-provider">Healthcare Provider</a>.</li>
+          <li>Each <b>Appointment</b> belongs to one <a href="#entity-practitioner">Practitioner</a>.</li>
+          <li>Each <b>Appointment</b> belongs to one <a href="#entity-location">Location</a>.</li>
+          <li>Each <b>Appointment</b> has one <a href="#entity-healthcare-encounter">Healthcare Encounter</a>.</li>
+      </ul>
+      <h4>Lifecycle &mdash; AppointmentLifecycle</h4>
+      <p>A record starts at <code>SCHEDULED</code> and finishes at <code>COMPLETED</code> or <code>CANCELLED</code> or <code>NO_SHOW</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>SCHEDULED</code></td><td><code>CONFIRMED</code></td><td><code>confirm</code></td></tr>
+          <tr><td><code>SCHEDULED</code></td><td><code>CHECKED_IN</code></td><td><code>check_in</code></td></tr>
+          <tr><td><code>CONFIRMED</code></td><td><code>CHECKED_IN</code></td><td><code>check_in</code></td></tr>
+          <tr><td><code>CHECKED_IN</code></td><td><code>COMPLETED</code></td><td><code>complete</code></td></tr>
+          <tr><td><code>SCHEDULED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>CONFIRMED</code></td><td><code>CANCELLED</code></td><td><code>cancel</code></td></tr>
+          <tr><td><code>SCHEDULED</code></td><td><code>NO_SHOW</code></td><td><code>mark_no_show</code></td></tr>
+          <tr><td><code>CONFIRMED</code></td><td><code>NO_SHOW</code></td><td><code>mark_no_show</code></td></tr>
+        </tbody>
+      </table>
+      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
+        <tbody>
+          <tr><td><code>appointmentInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>appointmentInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
+          <tr><td><code>appointmentWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
+        </tbody>
+      </table>
+      <p><b>Processes:</b> <a href="#process-appointment-follow-up-required">AppointmentFollowUpRequired</a></p>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-appointment-status" class="entity">
+      <h3>Appointment Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of appointment status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_appointment_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Appointment Status</b> window, on the <b>Appointment Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
       <table>
         <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
@@ -2751,6 +3068,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <ul class="plain">
           <li>Each <b>Healthcare Encounter</b> belongs to one <a href="#entity-healthcare-patient">Healthcare Patient</a>.</li>
           <li>Each <b>Healthcare Encounter</b> belongs to one <a href="#entity-healthcare-provider">Healthcare Provider</a>.</li>
+          <li>Each <b>Healthcare Encounter</b> is linked to many <a href="#entity-practitioner">Practitioner</a> records.</li>
+          <li>Each <b>Healthcare Encounter</b> has one <a href="#entity-appointment">Appointment</a>.</li>
           <li>Each <b>Healthcare Encounter</b> has many <a href="#entity-diagnosis">Diagnosis</a> records.</li>
           <li>Each <b>Healthcare Encounter</b> has many <a href="#entity-procedure">Procedure</a> records.</li>
           <li>Each <b>Healthcare Encounter</b> has many <a href="#entity-healthcare-order">Healthcare Order</a> records.</li>
@@ -2770,6 +3089,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>healthcareEncounterInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>healthcareEncounterInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>healthcareEncounterWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -3286,6 +3607,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Healthcare Patient</b> has many <a href="#entity-healthcare-encounter">Healthcare Encounter</a> records.</li>
           <li>Each <b>Healthcare Patient</b> has many <a href="#entity-care-plan">Care Plan</a> records.</li>
           <li>Each <b>Healthcare Patient</b> has many <a href="#entity-allergy">Allergy</a> records.</li>
+          <li>Each <b>Healthcare Patient</b> has many <a href="#entity-appointment">Appointment</a> records.</li>
           <li>Each <b>Healthcare Patient</b> has many <a href="#entity-diagnosis">Diagnosis</a> records.</li>
           <li>Each <b>Healthcare Patient</b> has many <a href="#entity-procedure">Procedure</a> records.</li>
           <li>Each <b>Healthcare Patient</b> has many <a href="#entity-prescription">Prescription</a> records.</li>
@@ -3518,6 +3840,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Healthcare Provider</b> belongs to one <a href="#entity-party">Party</a>.</li>
           <li>Each <b>Healthcare Provider</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Healthcare Provider</b> has many <a href="#entity-healthcare-encounter">Healthcare Encounter</a> records.</li>
+          <li>Each <b>Healthcare Provider</b> is linked to many <a href="#entity-practitioner">Practitioner</a> records.</li>
+          <li>Each <b>Healthcare Provider</b> has many <a href="#entity-appointment">Appointment</a> records.</li>
           <li>Each <b>Healthcare Provider</b> has many <a href="#entity-procedure">Procedure</a> records.</li>
           <li>Each <b>Healthcare Provider</b> has many <a href="#entity-prescription">Prescription</a> records.</li>
       </ul>
@@ -3995,6 +4319,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Location</b> belongs to one <a href="#entity-organization">Organization</a>.</li>
           <li>Each <b>Location</b> has one <a href="#entity-address">Address</a>.</li>
           <li>Each <b>Location</b> has many <a href="#entity-location">Location</a> records.</li>
+          <li>Each <b>Location</b> has many <a href="#entity-appointment">Appointment</a> records.</li>
       </ul>
       <h4>Lifecycle &mdash; LocationLifecycle</h4>
       <p>A record starts at <code>PLANNED</code> and finishes at <code>CLOSED</code> or <code>RETIRED</code>. These are the moves it may make, and no others:</p>
@@ -6038,6 +6363,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
           <li>Each <b>Person</b> has many <a href="#entity-organization">Organization</a> records.</li>
           <li>Each <b>Person</b> has many <a href="#entity-address">Address</a> records.</li>
           <li>Each <b>Person</b> has many <a href="#entity-party-role">Party Role</a> records.</li>
+          <li>Each <b>Person</b> has many <a href="#entity-practitioner">Practitioner</a> records.</li>
       </ul>
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
@@ -6357,6 +6683,239 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <p class="back"><a href="#top">Back to contents</a></p>
     </section>
 
+    <section id="entity-practitioner" class="entity">
+      <h3>Practitioner <span class="group">Healthcare</span></h3>
+      <p class="lede">Represents the professional healthcare role of a Person. Practitioner identifies who is professionally authorized to deliver care; HealthcareProvider supplies organizational context; Appointment schedules intended care and HealthcareEncounter records actual care. Healthcare scheduling, provider directories, encounters, credentialing, reporting and audit. Person is mandatory, provider affiliations define care settings, appointments represent scheduled commitments and encounters preserve actual participation. Practitioner roles become active after setup, may suspend or become inactive, and eventually retire while historical care evidence remains attributable. A physician Person holds one Practitioner record, is affiliated with two HealthcareProviders, has scheduled Appointments and is later referenced by completed HealthcareEncounters.</p>
+      <p class="meta">Stored as <code>bus_practitioner</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td>The identity of the practitioner role, independent of the person&#39;s other roles. Generated on registration; orders, appointments and encounters refer to it. Identifies one governed professional healthcare role independently of the underlying Person identity. Person supplies human identity while Practitioner supplies professional service role.</td>
+        </tr>
+        <tr>
+          <td><code>practitioner_code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 120</span></td>
+          <td>The code by which the practitioner is known in the healthcare organisation. Assigned at credentialing; unique; used on orders, schedules and prescriptions. Operational identifier used by healthcare workflows and integrations. Distinct from professional license numbers and Person identity.</td>
+        </tr>
+        <tr>
+          <td><code>license_number</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td>The professional licence number issued by the licensing body. Entered at credentialing from the licence; checked against its expiry before the practitioner is scheduled. Supports evidence that the practitioner is authorized under an external credentialing regime. Jurisdiction and credential type may require additional governed context outside this baseline entity.</td>
+        </tr>
+        <tr>
+          <td><code>specialty</code></td>
+          <td>Text</td>
+          <td><span class="tag">max 200</span></td>
+          <td>The practitioner&#39;s clinical specialty, such as cardiology or paediatrics. Entered at credentialing; used to route referrals and choose the right clinician for an appointment. Describes the practitioner&#39;s service domain for scheduling and routing. Does not replace formal credential or privilege evidence.</td>
+        </tr>
+        <tr>
+          <td><code>status</code></td>
+          <td>Choice</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the practitioner is cleared to work in this organisation. Set by credentialing staff; only ACTIVE practitioners can be scheduled or place orders. Being credentialed; licence and affiliation checks are not complete, so no clinical work yet. Cleared to practise here; can be scheduled, appointed and place orders. Barred while a licence or conduct matter is reviewed. Not currently practising here but may return. No longer a practitioner here. A final state. Distinguishes preparation, active practice, temporary restriction, inactivity and retirement. Historical encounters remain attributable after status changes.<div class="detail">One of: <code>DRAFT</code>, <code>ACTIVE</code>, <code>SUSPENDED</code>, <code>INACTIVE</code>, <code>RETIRED</code></div></td>
+        </tr>
+        <tr>
+          <td><code>person_id</code></td>
+          <td>Lookup</td>
+          <td><span class="tag">required</span></td>
+          <td>The individual who holds the practitioner role. Set at credentialing and not changed. Exactly one person: the professional role is held by a specific individual. Keeps the person&#39;s identity in one place across all their roles. Separates common human identity from healthcare professional role.<div class="detail">Points at <b>Person</b></div></td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Practitioner</b> window, on the <b>Practitioner</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>practitioner_code</code></td>
+            <td>Practitioner Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>license_number</code></td>
+            <td>License Number</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>specialty</code></td>
+            <td>Specialty</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>status</code></td>
+            <td>Status</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>person_id</code></td>
+            <td>Person</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <h4>Related records</h4>
+      <ul class="plain">
+          <li>Each <b>Practitioner</b> is linked to many <a href="#entity-healthcare-provider">Healthcare Provider</a> records.</li>
+          <li>Each <b>Practitioner</b> belongs to one <a href="#entity-person">Person</a>.</li>
+          <li>Each <b>Practitioner</b> has many <a href="#entity-appointment">Appointment</a> records.</li>
+          <li>Each <b>Practitioner</b> is linked to many <a href="#entity-healthcare-encounter">Healthcare Encounter</a> records.</li>
+      </ul>
+      <h4>Lifecycle &mdash; PractitionerLifecycle</h4>
+      <p>A record starts at <code>DRAFT</code> and finishes at <code>RETIRED</code>. These are the moves it may make, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td><code>ACTIVE</code></td><td><code>activate</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>SUSPENDED</code></td><td><code>suspend</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>ACTIVE</code></td><td><code>resume</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>INACTIVE</code></td><td><code>deactivate</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>ACTIVE</code></td><td><code>reactivate</code></td></tr>
+          <tr><td><code>DRAFT</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>ACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>SUSPENDED</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+          <tr><td><code>INACTIVE</code></td><td><code>RETIRED</code></td><td><code>retire</code></td></tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
+    <section id="entity-practitioner-status" class="entity">
+      <h3>Practitioner Status <span class="group">Reference Data</span></h3>
+      <p class="lede">The values of practitioner status, maintained by the business: reword, reorder or retire a value here and every form that offers the list follows.</p>
+      <p class="meta">Stored as <code>bus_practitioner_status</code>, keyed by <code>id</code>.</p>
+
+      <h4>Its fields</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>Identifier</td>
+          <td><span class="tag">key</span> <span class="tag">unique</span></td>
+          <td><span class="unset">&mdash;</span></td>
+        </tr>
+        <tr>
+          <td><code>code</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">unique</span> <span class="tag">max 100</span></td>
+          <td>The value stored on every record that uses this list. Fixed once created.</td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td>Text</td>
+          <td><span class="tag">required</span> <span class="tag">max 200</span></td>
+          <td>What a person reads in the dropdown and on a record.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Long text</td>
+          <td>&mdash;</td>
+          <td>What the value means to the business.</td>
+        </tr>
+        <tr>
+          <td><code>sequence</code></td>
+          <td>Whole number</td>
+          <td><span class="tag">required</span></td>
+          <td>The position of the value in a dropdown, lowest first.</td>
+        </tr>
+        <tr>
+          <td><code>is_active</code></td>
+          <td>Yes / No</td>
+          <td><span class="tag">required</span></td>
+          <td>Whether the value is offered on new records.</td>
+        </tr>
+        </tbody>
+      </table>
+      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>Practitioner Status</b> window, on the <b>Practitioner Status</b> tab. These are its 6 fields &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>Id</td>
+            <td>No</td>
+            <td>No</td>
+            <td>10</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>code</code></td>
+            <td>Code</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>20</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>Name</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>30</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Description</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>40</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>sequence</code></td>
+            <td>Sequence</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>50</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>is_active</code></td>
+            <td>Is Active</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>60</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>
+
     <section id="entity-prescription" class="entity">
       <h3>Prescription <span class="group">Healthcare</span></h3>
       <p class="lede">An authorised instruction for a patient to receive or use a medication or therapy. The prescription turns a clinical decision into an instruction that pharmacists and nurses can follow safely: who gets what, how much, how often and for how long. Written by a prescriber after assessment; dispensed and administered; read by pharmacy, nursing and the patient. A prescription is for a HealthcarePatient, names a Medication and is issued by a HealthcareProvider. A prescription is drafted, becomes active when signed, and ends completed when the course is finished, discontinued by the prescriber, or cancelled if never used. Amoxicillin 500 mg, three times daily by mouth for seven days, prescribed after a chest infection diagnosis.</p>
@@ -6552,6 +7111,8 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
       <table>
         <thead><tr><th>Rule</th><th>Runs on</th><th>Order</th></tr></thead>
         <tbody>
+          <tr><td><code>prescriptionInvariantsBeforeCreate</code></td><td>beforeCreate (CREATE)</td><td>100</td></tr>
+          <tr><td><code>prescriptionInvariantsBeforeUpdate</code></td><td>beforeUpdate (UPDATE)</td><td>100</td></tr>
           <tr><td><code>prescriptionWorkflowsAfterUpdate</code></td><td>afterUpdate (UPDATE)</td><td>100</td></tr>
         </tbody>
       </table>
@@ -7955,8 +8516,15 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
         <tr><td><code>exchangeRateInvariantsBeforeUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>taskInvariantsBeforeCreate</code></td><td><a href="#entity-task">Task</a></td><td>beforeCreate</td></tr>
         <tr><td><code>taskInvariantsBeforeUpdate</code></td><td><a href="#entity-task">Task</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>appointmentInvariantsBeforeCreate</code></td><td><a href="#entity-appointment">Appointment</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>appointmentInvariantsBeforeUpdate</code></td><td><a href="#entity-appointment">Appointment</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>healthcareEncounterInvariantsBeforeCreate</code></td><td><a href="#entity-healthcare-encounter">Healthcare Encounter</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>healthcareEncounterInvariantsBeforeUpdate</code></td><td><a href="#entity-healthcare-encounter">Healthcare Encounter</a></td><td>beforeUpdate</td></tr>
+        <tr><td><code>prescriptionInvariantsBeforeCreate</code></td><td><a href="#entity-prescription">Prescription</a></td><td>beforeCreate</td></tr>
+        <tr><td><code>prescriptionInvariantsBeforeUpdate</code></td><td><a href="#entity-prescription">Prescription</a></td><td>beforeUpdate</td></tr>
         <tr><td><code>partyWorkflowsAfterUpdate</code></td><td><a href="#entity-party">Party</a></td><td>afterUpdate</td></tr>
         <tr><td><code>exchangeRateWorkflowsAfterUpdate</code></td><td><a href="#entity-exchange-rate">Exchange Rate</a></td><td>afterUpdate</td></tr>
+        <tr><td><code>appointmentWorkflowsAfterUpdate</code></td><td><a href="#entity-appointment">Appointment</a></td><td>afterUpdate</td></tr>
         <tr><td><code>healthcareEncounterWorkflowsAfterUpdate</code></td><td><a href="#entity-healthcare-encounter">Healthcare Encounter</a></td><td>afterUpdate</td></tr>
         <tr><td><code>healthcareOrderWorkflowsAfterUpdate</code></td><td><a href="#entity-healthcare-order">Healthcare Order</a></td><td>afterUpdate</td></tr>
         <tr><td><code>procedureWorkflowsAfterUpdate</code></td><td><a href="#entity-procedure">Procedure</a></td><td>afterUpdate</td></tr>
@@ -7981,6 +8549,13 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
     <div id="process-exchange-rate-follow-up-required" class="process">
       <h3>ExchangeRateFollowUpRequired</h3>
       <p class="meta">On <a href="#entity-exchange-rate">Exchange Rate</a>, rule on UPDATE.</p>
+      <ol>
+        <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
+      </ol>
+    </div>
+    <div id="process-appointment-follow-up-required" class="process">
+      <h3>AppointmentFollowUpRequired</h3>
+      <p class="meta">On <a href="#entity-appointment">Appointment</a>, rule on UPDATE.</p>
       <ol>
         <li>Raise a task: follow up on <span class="tag">CreateEntity</span></li>
       </ol>
@@ -8060,7 +8635,7 @@ footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border
   </section>
 
   <footer>
-    healthcare 1.0.0 &middot; 65 record types &middot; 16 rules &middot; 29 processes
+    healthcare 1.0.0 &middot; 69 record types &middot; 23 rules &middot; 32 processes
   </footer>
 </div>
 </body>

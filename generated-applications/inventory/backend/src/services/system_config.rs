@@ -25,7 +25,7 @@
 //! from configuration only. A setting that has to be read to open the
 //! connection cannot live behind the connection.
 //!
-//! Generated: 2026-10-09T15:29:11.086Z
+//! Generated: 2026-10-10T06:26:57.155Z
 //! Project: inventory
 
 use std::sync::Arc;
@@ -127,19 +127,18 @@ impl SystemConfig {
             return Some(hit);
         }
 
-        let rows: Vec<(String, Option<String>, bool)> = sqlx::query_as(
-            "SELECT config_key, config_value, is_active FROM sys_system",
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(|err| {
-            // Not an error the caller can act on: the resolver falls through to
-            // the settings block. Recorded because a table that has stopped
-            // answering explains an operator's change not taking effect, and
-            // nothing else in the request would mention it.
-            crate::log_event!(dictionary_config_unreadable, error = %err);
-        })
-        .ok()?;
+        let rows: Vec<(String, Option<String>, bool)> =
+            sqlx::query_as("SELECT config_key, config_value, is_active FROM sys_system")
+                .fetch_all(&self.pool)
+                .await
+                .map_err(|err| {
+                    // Not an error the caller can act on: the resolver falls through to
+                    // the settings block. Recorded because a table that has stopped
+                    // answering explains an operator's change not taking effect, and
+                    // nothing else in the request would mention it.
+                    crate::log_event!(dictionary_config_unreadable, error = %err);
+                })
+                .ok()?;
 
         let map = rows
             .into_iter()

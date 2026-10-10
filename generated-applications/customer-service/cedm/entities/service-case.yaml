@@ -55,6 +55,25 @@ entity:
       - {from: RESOLVED, to: CLOSED, action: close}
       - {from: IN_PROGRESS, to: CANCELLED, action: cancel}
       - {from: PENDING, to: CANCELLED, action: cancel}
+  workflows:
+    - name: FollowUpRequired
+      title: "Follow up when a service case is ended"
+      description: "When a service case is cancelled, a task asks someone to settle what depended on it."
+      when: "status == \"CANCELLED\" and status != _previous_status"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: follow up on"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "SERVICE-CASE-FOLLOW-UP-{{id}}"
+              name: "Follow up on service case {{case_number}}"
+              description: "Service case {{case_number}} is now {{status}}. Check the records that depended on it and tell the people affected."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "NORMAL"
   help:
     summary: Coordinates a service issue from intake through operational work and final resolution.
     businessMeaning: ServiceCase is the durable issue aggregate; ServiceRequest captures requested service, Ticket represents operational work, and ServiceOrder authorizes execution.

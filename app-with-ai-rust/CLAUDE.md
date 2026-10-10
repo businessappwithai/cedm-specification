@@ -85,7 +85,7 @@ Key routing rules:
 
 **Project**: AppWithAI - AI-Powered Entity Relationship Design & Code Generation Platform
 **Version**: 5.1.0 (`@appwithai/web` is 5.1.1; the generator CLI reports 5.2.0)
-**Runtime**: Bun.js >= 1.3.14 for this repo (`bun.lock` is authoritative;
+**Runtime**: Bun.js >= 1.4.0 for this repo (`bun.lock` is authoritative;
 `pnpm-workspace.yaml` / `pnpm-lock.yaml` are vestigial — ignore them). A Rust
 toolchain is now required as well: the generated backend is a cargo crate, the
 generator shells out to `loco new`, and `crates/appwithai-gen` is Rust.
@@ -176,7 +176,7 @@ AppWithAI turns natural-language descriptions into production-ready full-stack a
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun.js >= 1.3.14 |
+| Runtime | Bun.js >= 1.4.0 |
 | AI Orchestration | Mastra.ai v1.54+, CopilotKit v1.64+ |
 | AI Model | **Local OpenAI-compatible endpoint** (default `qwen3.6:27b-mlx`) — see AI Model Configuration |
 | Frontend | TanStack Start v1.168, TanStack Router v1.170, Vite 8, React 19, Tailwind CSS v4, Zustand 5 |

@@ -229,7 +229,9 @@ impl DynamicRepo {
         select.limit(opts.limit).offset(opts.offset());
 
         let (sql, values) = select.build_sqlx(PostgresQueryBuilder);
-        let rows = sqlx::query_with(AssertSqlSafe(sql), values).fetch_all(&self.pool).await?;
+        let rows = sqlx::query_with(AssertSqlSafe(sql), values)
+            .fetch_all(&self.pool)
+            .await?;
 
         let (count_sql, count_values) = count.build_sqlx(PostgresQueryBuilder);
         let total: i64 = sqlx::query_scalar_with(AssertSqlSafe(count_sql), count_values)
@@ -287,7 +289,9 @@ impl DynamicRepo {
             .returning_all()
             .build_sqlx(PostgresQueryBuilder);
 
-        let row = sqlx::query_with(AssertSqlSafe(sql), bound).fetch_one(&self.pool).await?;
+        let row = sqlx::query_with(AssertSqlSafe(sql), bound)
+            .fetch_one(&self.pool)
+            .await?;
         Ok(row_to_json(&row))
     }
 
@@ -422,7 +426,9 @@ impl DynamicRepo {
             .and_where(Expr::col(Alias::new("deleted_at")).is_null())
             .build_sqlx(PostgresQueryBuilder);
 
-        let result = sqlx::query_with(AssertSqlSafe(sql), bound).execute(&self.pool).await?;
+        let result = sqlx::query_with(AssertSqlSafe(sql), bound)
+            .execute(&self.pool)
+            .await?;
         Ok(result.rows_affected() > 0)
     }
 
@@ -484,7 +490,9 @@ impl DynamicRepo {
         }
 
         let (sql, bound) = update.build_sqlx(PostgresQueryBuilder);
-        sqlx::query_with(AssertSqlSafe(sql), bound).execute(&self.pool).await?;
+        sqlx::query_with(AssertSqlSafe(sql), bound)
+            .execute(&self.pool)
+            .await?;
         Ok(())
     }
 
@@ -514,7 +522,9 @@ impl DynamicRepo {
             .map_err(|err| AppError::Internal(err.into()))?
             .build_sqlx(PostgresQueryBuilder);
 
-        sqlx::query_with(AssertSqlSafe(sql), bound).execute(&self.pool).await?;
+        sqlx::query_with(AssertSqlSafe(sql), bound)
+            .execute(&self.pool)
+            .await?;
         Ok(())
     }
 
@@ -572,7 +582,9 @@ impl DynamicRepo {
             .and_where(Expr::col(Alias::new("id")).eq(id))
             .build_sqlx(PostgresQueryBuilder);
 
-        let result = sqlx::query_with(AssertSqlSafe(sql), bound).execute(&self.pool).await?;
+        let result = sqlx::query_with(AssertSqlSafe(sql), bound)
+            .execute(&self.pool)
+            .await?;
         Ok(result.rows_affected() > 0)
     }
 
@@ -619,9 +631,9 @@ fn require_mandatory_columns(meta: &TableMeta, payload: &Map<String, Value>) -> 
         .filter(|column| column.is_mandatory)
         // A column with a default is satisfied by that default.
         .filter(|column| column.default_value.is_none())
-        .filter(|column| {
-            !matches!(payload.get(&column.column_name), Some(value) if !is_blank(value))
-        })
+        .filter(
+            |column| !matches!(payload.get(&column.column_name), Some(value) if !is_blank(value)),
+        )
         .map(|column| format!("'{}' is required", column.column_name))
         .collect();
 
@@ -667,8 +679,7 @@ pub fn raw_json_to_expr(value: &Value, data_type: &str) -> Expr {
     // not "timestamptz" — so match on that, and fall back to text for anything
     // Postgres can coerce on its own (varchar, text, numeric from a string).
     match data_type {
-        "uuid" => uuid::Uuid::parse_str(text)
-            .map_or_else(|_| Expr::val(text.clone()), Expr::val),
+        "uuid" => uuid::Uuid::parse_str(text).map_or_else(|_| Expr::val(text.clone()), Expr::val),
         "date" => parse_date(text).map_or_else(|| Expr::val(text.clone()), Expr::val),
         "timestamp with time zone" | "timestamp without time zone" => {
             parse_datetime(text).map_or_else(|| Expr::val(text.clone()), Expr::val)
@@ -681,8 +692,9 @@ pub fn raw_json_to_expr(value: &Value, data_type: &str) -> Expr {
         "integer" | "bigint" | "smallint" => text
             .parse::<i64>()
             .map_or_else(|_| Expr::val(text.clone()), Expr::val),
-        "json" | "jsonb" => serde_json::from_str::<Value>(text)
-            .map_or_else(|_| Expr::val(text.clone()), Expr::val),
+        "json" | "jsonb" => {
+            serde_json::from_str::<Value>(text).map_or_else(|_| Expr::val(text.clone()), Expr::val)
+        }
         _ => Expr::val(text.clone()),
     }
 }
@@ -778,7 +790,11 @@ fn parse_datetime(raw: &str) -> Option<chrono::DateTime<Utc>> {
     if let Ok(parsed) = chrono::DateTime::parse_from_rfc3339(raw) {
         return Some(parsed.with_timezone(&Utc));
     }
-    for format in ["%Y-%m-%dT%H:%M:%S%.f", "%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S%.f"] {
+    for format in [
+        "%Y-%m-%dT%H:%M:%S%.f",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%d %H:%M:%S%.f",
+    ] {
         if let Ok(naive) = chrono::NaiveDateTime::parse_from_str(raw, format) {
             return Some(chrono::DateTime::from_naive_utc_and_offset(naive, Utc));
         }
@@ -847,11 +863,9 @@ fn json_to_expr(column: &ColumnMeta, value: &Value) -> AppResult<Expr> {
     }
 
     let reference_id = column.sys_reference_id.unwrap_or(10);
-    let invalid = |expected: &str| {
-        AppError::Validation {
-            message: "Validation failed".to_string(),
-            errors: vec![format!("{} must be {expected}", column.name)],
-        }
+    let invalid = |expected: &str| AppError::Validation {
+        message: "Validation failed".to_string(),
+        errors: vec![format!("{} must be {expected}", column.name)],
     };
 
     Ok(match reference_id {
@@ -881,11 +895,10 @@ fn json_to_expr(column: &ColumnMeta, value: &Value) -> AppResult<Expr> {
         }
         // DATETIME — a `timestamptz` column, same reasoning.
         16 => {
-            let raw = value.as_str().ok_or_else(|| invalid("a timestamp string"))?;
-            Expr::val(
-                parse_datetime(raw)
-                    .ok_or_else(|| invalid("a valid RFC 3339 timestamp"))?,
-            )
+            let raw = value
+                .as_str()
+                .ok_or_else(|| invalid("a timestamp string"))?;
+            Expr::val(parse_datetime(raw).ok_or_else(|| invalid("a valid RFC 3339 timestamp"))?)
         }
         // YES_NO
         20 => {

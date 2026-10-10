@@ -162,3 +162,25 @@ ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
       updated_by  = EXCLUDED.updated_by,
       updated_at  = NOW()
   WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- meterReadingWorkflowsAfterCreate — MeterReading.afterCreate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('c66b73d6-a4f4-51fe-83e7-0b4b8f67363d', 'bus_meter_reading', 'meterReadingWorkflowsAfterCreate', 'CREATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"meterReadingWorkflowsAfterCreate-table","name":"meterReadingWorkflowsAfterCreate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"meterReadingWorkflowsAfterCreate-SuspectReadingRecorded","i1":"quality == \"SUSPECT\" or quality == \"INVALID\"","o1":"''trigger-workflow''","o2":"''meterReadingWorkflowsAfterCreate: SuspectReadingRecorded''","o3":"''meterReadingWorkflowsAfterCreate''","o4":"''MeterReadingSuspectReadingRecorded''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"meterReadingWorkflowsAfterCreate-table"},{"id":"edge-2","sourceId":"meterReadingWorkflowsAfterCreate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';
+
+-- meterReadingWorkflowsAfterUpdate — MeterReading.afterUpdate (priority 100)
+INSERT INTO sys_rule_definitions (id, entity_name, rule_name, operation, jdm_content, version, is_active, created_by, updated_by, created_at, updated_at)
+VALUES ('806dc847-0413-5d07-a564-978047fb92aa', 'bus_meter_reading', 'meterReadingWorkflowsAfterUpdate', 'UPDATE', '{"nodes":[{"id":"input","name":"Input","type":"inputNode"},{"id":"meterReadingWorkflowsAfterUpdate-table","name":"meterReadingWorkflowsAfterUpdate","type":"decisionTableNode","content":{"hitPolicy":"collect","inputs":[{"id":"i1","name":"Record","field":""}],"outputs":[{"id":"o1","name":"Action","field":"action"},{"id":"o2","name":"Message","field":"message"},{"id":"o3","name":"Rule ID","field":"ruleId"},{"id":"o4","name":"Workflow Name","field":"workflowName"},{"id":"o5","name":"Target Entity","field":"targetEntity"},{"id":"o6","name":"Link Field","field":"linkField"},{"id":"o7","name":"Update Data","field":"updateData"},{"id":"o8","name":"Create Data","field":"createData"},{"id":"o9","name":"Transform Data","field":"transformData"}],"rules":[{"_id":"meterReadingWorkflowsAfterUpdate-ReadingMarkedSuspect","i1":"(quality == \"SUSPECT\" or quality == \"INVALID\") and quality != _previous_quality","o1":"''trigger-workflow''","o2":"''meterReadingWorkflowsAfterUpdate: ReadingMarkedSuspect''","o3":"''meterReadingWorkflowsAfterUpdate''","o4":"''MeterReadingReadingMarkedSuspect''","o5":"''''","o6":"''''","o7":"''''","o8":"''''","o9":"''''"}]}},{"id":"output","name":"Output","type":"outputNode"}],"edges":[{"id":"edge-1","sourceId":"input","targetId":"meterReadingWorkflowsAfterUpdate-table"},{"id":"edge-2","sourceId":"meterReadingWorkflowsAfterUpdate-table","targetId":"output"}]}', 1, TRUE, 'system', 'system', NOW(), NOW())
+ON CONFLICT (entity_name, operation, rule_name) DO UPDATE
+  SET jdm_content = EXCLUDED.jdm_content,
+      version     = sys_rule_definitions.version + 1,
+      is_active   = TRUE,
+      updated_by  = EXCLUDED.updated_by,
+      updated_at  = NOW()
+  WHERE current_setting('appwithai.rules_overwrite', true) = 'on';

@@ -82,6 +82,44 @@ entity:
   invariants:
     - id: METER-READING-001
       rule: readingValue must not be negative unless the meter configuration permits signed values.
+  workflows:
+    - name: SuspectReadingRecorded
+      title: "Review a meter reading that arrives suspect or invalid"
+      description: "When a reading is recorded already marked suspect or invalid by validation, a task asks someone to check it before it reaches billing."
+      event: afterCreate
+      when: "quality == \"SUSPECT\" or quality == \"INVALID\""
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: review the reading"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "METER-READING-REVIEW-{{id}}"
+              name: "Review meter reading {{id}}"
+              description: "Meter reading {{id}} was recorded as {{quality}}. Compare it with the meter's earlier readings, then correct it or confirm it before it is billed."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
+    - name: ReadingMarkedSuspect
+      title: "Review a meter reading later marked suspect or invalid"
+      description: "When validation or a reviewer marks an existing reading suspect or invalid, a task asks someone to check it before it reaches billing."
+      when: "(quality == \"SUSPECT\" or quality == \"INVALID\") and quality != _previous_quality"
+      steps:
+        - id: S1
+          type: CreateEntity
+          label: "Raise a task: recheck the reading"
+          properties:
+            entity: Task
+            as: taskId
+            fields:
+              code: "METER-READING-RECHECK-{{id}}"
+              name: "Recheck meter reading {{id}}"
+              description: "Meter reading {{id}} is now {{quality}}. Compare it with the meter's earlier readings, then correct it or confirm it before it is billed."
+              task_type: "USER"
+              status: "CREATED"
+              priority: "HIGH"
   help:
     summary: A measured value recorded from a utility meter at a point in time.
     businessMeaning: Bills and consumption figures are computed from readings. Each reading records the value, when it was taken, how it was obtained and whether it can be trusted.

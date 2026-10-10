@@ -12,8 +12,13 @@ application:
 imports:
   - module: common
   - entity: ResearchProject
+  - entity: Protocol
+  - entity: Study
+  - entity: Assay
+  - entity: Observation
+  - entity: Result
 ui:
   categories:
     - name: Research and Scientific Operations
       icon: microscope
-      entities: [ResearchProject]
+      entities: [ResearchProject, Assay, Result]
