@@ -1,6 +1,6 @@
 //! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
-//! Generated: 2026-10-09T15:29:48.119Z
+//! Generated: 2026-10-10T12:32:05.489Z
 //! Project: nonprofit
 //!
 //! **The gap this closes.** `/api/bus/*` required a JWT and nothing else, so
@@ -446,12 +446,20 @@ pub async fn require_write(
 /// from-state a condition of its own UPDATE: of two concurrent moves out of
 /// one state, only one lands, and the other is refused as a concurrency
 /// conflict rather than recorded as a move nobody drew.
+///
+/// `expected_version` is the version the caller says it read. When the row has
+/// moved on since, the move is not judged against a state the caller never
+/// saw: it is passed through with the state as it stands, and the write's own
+/// version condition refuses it as the conflict it is. Judging it here instead
+/// answered a stale writer with "that move does not exist" — true of where the
+/// record is now, and no use to someone who must first be told it changed.
 pub async fn require_transition(
     pool: &PgPool,
     principal: &Principal,
     table_name: &str,
     id: Uuid,
     body: &Map<String, Value>,
+    expected_version: Option<i32>,
 ) -> AppResult<Vec<(String, String)>> {
     let mut moves = Vec::new();
     // The status columns this table's machines drive. Empty for a table with no
@@ -492,13 +500,16 @@ pub async fn require_transition(
         // `AssertSqlSafe` because the two interpolated names are a dictionary
         // table and one of its columns, both checked above against the bare
         // identifier shape — never anything the request supplied.
-        let from_state: Option<String> = sqlx::query_scalar(AssertSqlSafe(format!(
-            r#"SELECT "{field}"::text FROM "{table_name}" WHERE id = $1"#
+        let stored: Option<(Option<String>, i32)> = sqlx::query_as(AssertSqlSafe(format!(
+            r#"SELECT "{field}"::text, version FROM "{table_name}" WHERE id = $1"#
         )))
         .bind(id)
         .fetch_optional(pool)
-        .await?
-        .flatten();
+        .await?;
+        let Some((from_state, version)) = stored else {
+            // No such row: the write that follows answers that, as a 404.
+            continue;
+        };
 
         let Some(from_state) = from_state else {
             // A record with no state yet is entering the machine, not moving
@@ -507,6 +518,10 @@ pub async fn require_transition(
             continue;
         };
         if from_state == to_state {
+            continue;
+        }
+        if expected_version.is_some_and(|expected| expected != version) {
+            moves.push((field, from_state));
             continue;
         }
 
