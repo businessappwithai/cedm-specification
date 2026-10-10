@@ -5,7 +5,7 @@
 # Harness host, because DeepSeek Harness requires Node 22.19 or later. Bun is
 # copied in from its own image at the version the lockfile was written with,
 # rather than installed by a script fetched at build time.
-FROM oven/bun:1.3.14-debian AS bun
+FROM oven/bun:1.4.2-debian AS bun
 
 FROM node:22-bookworm-slim
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun

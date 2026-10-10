@@ -49,7 +49,7 @@ rules, workflows, reports, tests and manual.
 ```bash
 # Bun.js (required runtime)
 curl -fsSL https://bun.sh/install | bash
-bun --version  # >= 1.3.14
+bun --version  # >= 1.4.0
 
 # Rust toolchain (the generated backend is a cargo crate)
 rustup default stable
@@ -191,7 +191,7 @@ Generated Application (Loco.rs backend + TanStack Start/Astryx frontend)
 
 | Layer | Technologies |
 |-------|-------------|
-| **Runtime** | Bun.js 1.3.14+, Rust stable |
+| **Runtime** | Bun.js 1.4.0+, Rust stable |
 | **AI Framework** | Mastra.ai, CopilotKit |
 | **AI Model** | Any local OpenAI-compatible endpoint (`packages/ai/src/config.ts`) |
 | **Modelling tool** | TanStack Start, Vite 8, React 19, Tailwind CSS v4 |
@@ -322,5 +322,5 @@ MIT License - See LICENSE file for details
 **Version**: 5.1.0
 **Status**: Production Ready ✅
 **Last Updated**: February 2026
-**Runtime**: Bun.js 1.3+
+**Runtime**: Bun.js 1.4+
 **Node**: v20+ compatible

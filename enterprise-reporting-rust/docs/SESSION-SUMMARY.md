@@ -223,7 +223,7 @@ loader.config({ paths: { vs: "/vs" } })
 **Access**: All features, all modes (read/write/delete)
 
 ### Environment
-**Runtime**: Bun >= 1.3.0  
+**Runtime**: Bun >= 1.4.0  
 **Dev Server**: Vite on localhost:4050  
 **Database**: SQLite (./data/sakila.db)  
 **Session**: JWT in HTTP-only cookies

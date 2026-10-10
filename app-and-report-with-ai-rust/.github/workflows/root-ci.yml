@@ -101,7 +101,7 @@ permissions:
 # One bun pin. BUN_VERSION is what `check:language-tools` compares bundles
 # under — `Bun.build` output depends on it — and the version the
 # `--frozen-lockfile` install of app-with-ai-rust was verified against
-# (that repository's own CI runs 1.3.14; its lockfile installs frozen on both).
+# (that repository's own CI runs 1.4.2; its lockfile installs frozen on both).
 #
 # Moving it forward is a deliberate step, taken by running the checks.
 env:

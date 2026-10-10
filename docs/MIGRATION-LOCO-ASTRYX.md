@@ -1032,7 +1032,7 @@ Upside if done: one distributable binary, no Node needed to generate a project, 
 
 | Template | Change |
 |---|---|
-| `backend/Dockerfile.hbs` | `oven/bun:1.3-alpine` multi-stage → `rust:1-slim` builder (with `cargo-chef` dependency caching) + `debian:bookworm-slim` runtime; final image carries a single static-ish binary + `config/` + `assets/` |
+| `backend/Dockerfile.hbs` | `oven/bun:1.4-alpine` multi-stage → `rust:1-slim` builder (with `cargo-chef` dependency caching) + `debian:bookworm-slim` runtime; final image carries a single static-ish binary + `config/` + `assets/` |
 | `backend/.github/workflows/ci.yml.hbs` | `bun test` → `cargo fmt --check`, `cargo clippy`, `cargo test`, with `Swatinem/rust-cache` |
 | `backend/run-app.sh` | `cargo loco start` |
 | `frontend/Dockerfile.hbs` | unchanged apart from the Vinxi → Vite build command |

@@ -39,7 +39,7 @@ This comprehensive end-to-end test validates the complete Compiere Dictionary en
 
 ### System Requirements
 
-- **Bun.js 1.3+** (runtime)
+- **Bun.js 1.4+** (runtime)
 - **Node.js 20+** (compatible)
 - **Playwright** (E2E testing framework)
 - **SQLite** (default database)

@@ -301,7 +301,7 @@ docker-compose -f docker-compose.dev.yml build --no-cache llama-server
 Create `Dockerfile.prod` for optimized production builds:
 
 ```dockerfile
-FROM oven/bun:1.3-alpine
+FROM oven/bun:1.4-alpine
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile && bun pm cache rm

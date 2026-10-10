@@ -374,7 +374,7 @@ enterprise_reporting_tanstack/
 
 | Component | Choice | Why |
 |-----------|--------|-----|
-| **Base Image** | Bun 1.3 Alpine | Fast, lightweight, Node-compatible |
+| **Base Image** | Bun 1.4 Alpine | Fast, lightweight, Node-compatible |
 | **Database** | MariaDB 11 | Reliable, MySQL-compatible, easy backups |
 | **Cache** | Redis 7 | Fast, supports job queues |
 | **STT** | whisper.cpp | Open-source, accurate transcription |
