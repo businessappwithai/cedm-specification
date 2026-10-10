@@ -95,6 +95,12 @@ function sqlTypeFor(referenceId: number, fieldLength?: number): string {
   return mapping[referenceId] || "varchar(255)";
 }
 
+
+/** Rust's strict and reserved keywords (2021 edition) that a raw identifier can stand for. */
+const RUST_KEYWORDS: ReadonlySet<string> = new Set([
+  "as", "async", "await", "break", "const", "continue", "dyn", "else", "enum", "extern", "false", "fn", "for", "if", "impl", "in", "let", "loop", "match", "mod", "move", "mut", "pub", "ref", "return", "static", "struct", "trait", "true", "try", "type", "unsafe", "use", "where", "while", "abstract", "become", "box", "do", "final", "macro", "override", "priv", "typeof", "unsized", "virtual", "yield", "gen",
+]);
+
 export class TemplateLoader {
   private cache: Map<string, HandlebarsTemplateDelegate> = new Map();
 
@@ -486,6 +492,17 @@ export class TemplateLoader {
      * Nullability follows the same rule as the DDL: `NOT NULL` only when the
      * attribute is required, so everything else is an `Option`.
      */
+    /**
+     * A column name as a Rust field: a reserved word (`type`, `match`, `move`…)
+     * becomes a raw identifier, `r#type`. SeaORM and serde both strip the `r#`,
+     * so the column and the JSON key stay `type`; without it the entity does not
+     * compile — `HandlingUnit.type` broke the inventory application this way.
+     * `rust_ident` in crates/appwithai-gen/src/templates.rs is the same list.
+     */
+    Handlebars.registerHelper("rustIdent", (name: unknown) =>
+      RUST_KEYWORDS.has(String(name)) ? `r#${String(name)}` : String(name)
+    );
+
     Handlebars.registerHelper(
       "seaOrmType",
       (referenceId: number, required?: unknown, isForeignKey?: unknown) => {

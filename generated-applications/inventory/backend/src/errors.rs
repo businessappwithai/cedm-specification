@@ -150,9 +150,7 @@ impl From<sqlx::Error> for AppError {
                 Some("23503") => {
                     return Self::Validation {
                         message: "Validation failed".to_string(),
-                        errors: vec![
-                            "A referenced record does not exist".to_string(),
-                        ],
+                        errors: vec!["A referenced record does not exist".to_string()],
                     };
                 }
                 Some("23514") => {

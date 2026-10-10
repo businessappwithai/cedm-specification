@@ -66,6 +66,10 @@ PARITY_MODELS=(
   "language/cedm/examples/crm.cedm.yaml"
   # A domain application: enumeration tables, imports of the common module.
   "$SPEC_ROOT/applications/sales.cedm.yaml"
+  # A column named with a Rust keyword (HandlingUnit.type): the `rustIdent`
+  # helper has to agree in both registries or one generator emits a crate that
+  # does not compile.
+  "$SPEC_ROOT/applications/inventory.cedm.yaml"
 )
 
 # CEDM models whose lowering is compared across TypeScript, Rust and

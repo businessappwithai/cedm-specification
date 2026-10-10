@@ -101,17 +101,17 @@ pub async fn list(
     let total: i64 = sqlx::query_scalar(AssertSqlSafe(format!(
         "SELECT COUNT(*) FROM audit_log{PREDICATES}"
     )))
-        .bind(entity_type)
-        .bind(entity_id)
-        .bind(action)
-        .bind(user_email)
-        .bind(source)
-        .bind(success)
-        .bind(from)
-        .bind(to)
-        .bind(search.as_deref())
-        .fetch_one(pool)
-        .await?;
+    .bind(entity_type)
+    .bind(entity_id)
+    .bind(action)
+    .bind(user_email)
+    .bind(source)
+    .bind(success)
+    .bind(from)
+    .bind(to)
+    .bind(search.as_deref())
+    .fetch_one(pool)
+    .await?;
 
     let rows = sqlx::query(AssertSqlSafe(format!(
         "SELECT * FROM audit_log{PREDICATES} ORDER BY timestamp DESC LIMIT $10 OFFSET $11"

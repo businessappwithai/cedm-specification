@@ -1,6 +1,6 @@
 //! `/api/accounts` — who can sign in, and what they hold.
 //!
-//! Generated: 2026-10-09T15:29:10.987Z
+//! Generated: 2026-10-10T06:26:57.068Z
 //! Project: inventory
 //!
 //! **Why this is not `/api/sys/users`.** An account is two rows: `users`, the
@@ -169,7 +169,10 @@ fn clean_email(raw: &str) -> Result<String, String> {
     let email = raw.trim().to_lowercase();
     let well_formed = email.len() <= 255
         && email.split_once('@').is_some_and(|(local, domain)| {
-            !local.is_empty() && domain.contains('.') && !domain.starts_with('.') && !domain.ends_with('.')
+            !local.is_empty()
+                && domain.contains('.')
+                && !domain.starts_with('.')
+                && !domain.ends_with('.')
         })
         && !email.chars().any(char::is_whitespace);
     if well_formed {
@@ -251,7 +254,11 @@ async fn active_masters(conn: &mut PgConnection) -> AppResult<i64> {
 /// Roles must exist and be active; anything else is the caller's mistake.
 async fn check_roles(conn: &mut PgConnection, wanted: &[Uuid]) -> AppResult<Vec<Uuid>> {
     let mut seen = HashSet::new();
-    let unique: Vec<Uuid> = wanted.iter().copied().filter(|id| seen.insert(*id)).collect();
+    let unique: Vec<Uuid> = wanted
+        .iter()
+        .copied()
+        .filter(|id| seen.insert(*id))
+        .collect();
     if unique.is_empty() {
         return Ok(unique);
     }
@@ -283,11 +290,13 @@ async fn sync_roles(
     roles: &[Uuid],
     actor: &str,
 ) -> AppResult<()> {
-    sqlx::query(r"DELETE FROM sys_user_roles WHERE sys_user_id = $1 AND NOT (sys_role_id = ANY($2))")
-        .bind(sys_user_id)
-        .bind(roles)
-        .execute(&mut *conn)
-        .await?;
+    sqlx::query(
+        r"DELETE FROM sys_user_roles WHERE sys_user_id = $1 AND NOT (sys_role_id = ANY($2))",
+    )
+    .bind(sys_user_id)
+    .bind(roles)
+    .execute(&mut *conn)
+    .await?;
     for role in roles {
         sqlx::query(
             r"INSERT INTO sys_user_roles (
@@ -402,7 +411,9 @@ pub async fn list(
         .map(|s| {
             format!(
                 "%{}%",
-                s.replace('\\', "\\\\").replace('%', "\\%").replace('_', "\\_")
+                s.replace('\\', "\\\\")
+                    .replace('%', "\\%")
+                    .replace('_', "\\_")
             )
         });
 
@@ -424,9 +435,15 @@ pub async fn list(
         .bind(offset)
         .fetch_all(pool)
         .await?;
-    let data = rows.iter().map(account_json).collect::<AppResult<Vec<_>>>()?;
+    let data = rows
+        .iter()
+        .map(account_json)
+        .collect::<AppResult<Vec<_>>>()?;
 
-    Ok(Json(json!({ "data": data, "total": total, "limit": limit, "offset": offset })).into_response())
+    Ok(
+        Json(json!({ "data": data, "total": total, "limit": limit, "offset": offset }))
+            .into_response(),
+    )
 }
 
 /// `GET /api/accounts/{id}` — one account.
@@ -545,7 +562,15 @@ pub async fn create(
         .ok_or_else(not_found)?;
     tx.commit().await?;
 
-    record(&ctx, &auth.user, AuditOperation::Create, sys_user_id, None, Some(account.clone())).await;
+    record(
+        &ctx,
+        &auth.user,
+        AuditOperation::Create,
+        sys_user_id,
+        None,
+        Some(account.clone()),
+    )
+    .await;
     Ok((StatusCode::CREATED, Json(account)).into_response())
 }
 
@@ -671,7 +696,15 @@ pub async fn update(
     let account = load_account(&mut tx, id).await?.ok_or_else(not_found)?;
     tx.commit().await?;
 
-    record(&ctx, &auth.user, AuditOperation::Update, id, Some(before_account), Some(account.clone())).await;
+    record(
+        &ctx,
+        &auth.user,
+        AuditOperation::Update,
+        id,
+        Some(before_account),
+        Some(account.clone()),
+    )
+    .await;
     Ok(Json(account).into_response())
 }
 
@@ -715,10 +748,12 @@ pub async fn reset_password(
     // A reset is also how an administrator helps someone back in after repeated
     // failures, so it clears the count. It does not unlock: that is a decision
     // of its own, made on the account.
-    sqlx::query("UPDATE sys_user SET login_failure_count = 0, updated_at = NOW() WHERE sys_user_id = $1")
-        .bind(id)
-        .execute(pool)
-        .await?;
+    sqlx::query(
+        "UPDATE sys_user SET login_failure_count = 0, updated_at = NOW() WHERE sys_user_id = $1",
+    )
+    .bind(id)
+    .execute(pool)
+    .await?;
 
     // The entry names the account, never the password.
     record(
@@ -753,7 +788,9 @@ pub async fn remove(
     let pool = ctx.db.get_postgres_connection_pool();
     admin_caller(pool, &auth).await?;
     if auth.user.sys_user_id == Some(id) {
-        return Err(AppError::Conflict("You cannot delete your own account".to_string()));
+        return Err(AppError::Conflict(
+            "You cannot delete your own account".to_string(),
+        ));
     }
 
     let mut tx = pool.begin().await?;
@@ -780,7 +817,15 @@ pub async fn remove(
     ensure_administrator_remains(&mut tx, masters_before).await?;
     tx.commit().await?;
 
-    record(&ctx, &auth.user, AuditOperation::Delete, id, Some(before_account), None).await;
+    record(
+        &ctx,
+        &auth.user,
+        AuditOperation::Delete,
+        id,
+        Some(before_account),
+        None,
+    )
+    .await;
     Ok(Json(json!({ "success": true })).into_response())
 }
 
@@ -831,7 +876,9 @@ pub async fn list_roles(
     let pool = ctx.db.get_postgres_connection_pool();
     admin_caller(pool, &auth).await?;
     let sql = format!("{ROLE_SELECT} ORDER BY lower(r.name)");
-    let rows = sqlx::query(sqlx::AssertSqlSafe(sql)).fetch_all(pool).await?;
+    let rows = sqlx::query(sqlx::AssertSqlSafe(sql))
+        .fetch_all(pool)
+        .await?;
     let data = rows.iter().map(role_json).collect::<AppResult<Vec<_>>>()?;
     Ok(Json(json!({ "data": data })).into_response())
 }
@@ -884,7 +931,15 @@ pub async fn create_role(
     .map_err(role_name_taken)?;
     let role = load_role(&mut tx, id).await?.ok_or_else(not_found)?;
     tx.commit().await?;
-    record_role(&ctx, &auth.user, AuditOperation::Create, id, None, Some(role.clone())).await;
+    record_role(
+        &ctx,
+        &auth.user,
+        AuditOperation::Create,
+        id,
+        None,
+        Some(role.clone()),
+    )
+    .await;
     Ok((StatusCode::CREATED, Json(role)).into_response())
 }
 
@@ -947,7 +1002,15 @@ pub async fn update_role(
     ensure_administrator_remains(&mut tx, masters_before).await?;
     let role = load_role(&mut tx, id).await?.ok_or_else(not_found)?;
     tx.commit().await?;
-    record_role(&ctx, &auth.user, AuditOperation::Update, id, Some(before), Some(role.clone())).await;
+    record_role(
+        &ctx,
+        &auth.user,
+        AuditOperation::Update,
+        id,
+        Some(before),
+        Some(role.clone()),
+    )
+    .await;
     Ok(Json(role).into_response())
 }
 
@@ -965,7 +1028,9 @@ fn clean_role_name(raw: &str) -> Result<String, String> {
 /// `sys_role.name` is unique; say so in words.
 fn role_name_taken(err: sqlx::Error) -> AppError {
     match AppError::from(err) {
-        AppError::Conflict(_) => AppError::Conflict("A role with that name already exists".to_string()),
+        AppError::Conflict(_) => {
+            AppError::Conflict("A role with that name already exists".to_string())
+        }
         other => other,
     }
 }

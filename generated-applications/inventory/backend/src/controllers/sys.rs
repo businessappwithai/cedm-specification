@@ -43,8 +43,8 @@ use crate::errors::{AppError, AppResult};
 use crate::models::_entities::users;
 use crate::services::authz;
 use crate::services::dictionary::DictionaryCache;
-use crate::services::system_config::SystemConfig;
 use crate::services::field_meta::{self, FieldLayout};
+use crate::services::system_config::SystemConfig;
 
 /// How a dictionary table is addressed over HTTP and in SQL.
 #[derive(Clone, Copy, Debug)]
@@ -66,40 +66,148 @@ pub struct SysTable {
 /// The dictionary surface. Segments mirror the NestJS `@Controller('sys/…')`
 /// prefixes exactly — these are part of the frozen API contract (§9).
 pub const SYS_TABLES: &[SysTable] = &[
-    SysTable { segment: "tables",      table: "sys_table",      pk: "sys_table_id",      integer_pk: false, order_by: "table_name" },
-    SysTable { segment: "columns",     table: "sys_column",     pk: "sys_column_id",     integer_pk: false, order_by: "seq_no" },
-    SysTable { segment: "fields",      table: "sys_field",      pk: "sys_field_id",      integer_pk: false, order_by: "seq_no" },
-    SysTable { segment: "tabs",        table: "sys_tab",        pk: "sys_tab_id",        integer_pk: false, order_by: "seq_no" },
-    SysTable { segment: "windows",     table: "sys_window",     pk: "sys_window_id",     integer_pk: false, order_by: "name" },
-    SysTable { segment: "references",  table: "sys_reference",  pk: "sys_reference_id",  integer_pk: true,  order_by: "sys_reference_id" },
+    SysTable {
+        segment: "tables",
+        table: "sys_table",
+        pk: "sys_table_id",
+        integer_pk: false,
+        order_by: "table_name",
+    },
+    SysTable {
+        segment: "columns",
+        table: "sys_column",
+        pk: "sys_column_id",
+        integer_pk: false,
+        order_by: "seq_no",
+    },
+    SysTable {
+        segment: "fields",
+        table: "sys_field",
+        pk: "sys_field_id",
+        integer_pk: false,
+        order_by: "seq_no",
+    },
+    SysTable {
+        segment: "tabs",
+        table: "sys_tab",
+        pk: "sys_tab_id",
+        integer_pk: false,
+        order_by: "seq_no",
+    },
+    SysTable {
+        segment: "windows",
+        table: "sys_window",
+        pk: "sys_window_id",
+        integer_pk: false,
+        order_by: "name",
+    },
+    SysTable {
+        segment: "references",
+        table: "sys_reference",
+        pk: "sys_reference_id",
+        integer_pk: true,
+        order_by: "sys_reference_id",
+    },
     // Ordered by `value`, not `seq_no`: `sys_ref_list` has no sequence column —
     // a reference list is a value vocabulary, and its natural order is the
     // value itself.
-    SysTable { segment: "ref-lists",   table: "sys_ref_list",   pk: "sys_ref_list_id",   integer_pk: false, order_by: "value" },
-    SysTable { segment: "roles",       table: "sys_role",       pk: "sys_role_id",       integer_pk: false, order_by: "name" },
-    SysTable { segment: "users",       table: "sys_user",       pk: "sys_user_id",       integer_pk: false, order_by: "email" },
-    SysTable { segment: "user-roles",  table: "sys_user_roles", pk: "sys_user_roles_id", integer_pk: false, order_by: "sys_user_id" },
-    SysTable { segment: "access",      table: "sys_access",     pk: "sys_access_id",     integer_pk: false, order_by: "sys_role_id" },
-    SysTable { segment: "val-rules",   table: "sys_val_rule",   pk: "sys_val_rule_id",   integer_pk: false, order_by: "name" },
-    SysTable { segment: "categories",  table: "sys_category",   pk: "sys_category_id",   integer_pk: false, order_by: "seq_no" },
+    SysTable {
+        segment: "ref-lists",
+        table: "sys_ref_list",
+        pk: "sys_ref_list_id",
+        integer_pk: false,
+        order_by: "value",
+    },
+    SysTable {
+        segment: "roles",
+        table: "sys_role",
+        pk: "sys_role_id",
+        integer_pk: false,
+        order_by: "name",
+    },
+    SysTable {
+        segment: "users",
+        table: "sys_user",
+        pk: "sys_user_id",
+        integer_pk: false,
+        order_by: "email",
+    },
+    SysTable {
+        segment: "user-roles",
+        table: "sys_user_roles",
+        pk: "sys_user_roles_id",
+        integer_pk: false,
+        order_by: "sys_user_id",
+    },
+    SysTable {
+        segment: "access",
+        table: "sys_access",
+        pk: "sys_access_id",
+        integer_pk: false,
+        order_by: "sys_role_id",
+    },
+    SysTable {
+        segment: "val-rules",
+        table: "sys_val_rule",
+        pk: "sys_val_rule_id",
+        integer_pk: false,
+        order_by: "name",
+    },
+    SysTable {
+        segment: "categories",
+        table: "sys_category",
+        pk: "sys_category_id",
+        integer_pk: false,
+        order_by: "seq_no",
+    },
     // Below the NestJS thirteen. These tables were always in the schema and the
     // frontend always read them; the TypeScript stack reached them through
     // hand-written controllers that this generic one subsumes.
-    SysTable { segment: "elements",     table: "sys_element",     pk: "sys_element_id",     integer_pk: false, order_by: "column_name" },
-    SysTable { segment: "field-groups", table: "sys_field_group", pk: "sys_field_group_id", integer_pk: false, order_by: "seq_no" },
-    SysTable { segment: "ref-tables",   table: "sys_ref_table",   pk: "sys_ref_table_id",   integer_pk: false, order_by: "sys_reference_id" },
+    SysTable {
+        segment: "elements",
+        table: "sys_element",
+        pk: "sys_element_id",
+        integer_pk: false,
+        order_by: "column_name",
+    },
+    SysTable {
+        segment: "field-groups",
+        table: "sys_field_group",
+        pk: "sys_field_group_id",
+        integer_pk: false,
+        order_by: "seq_no",
+    },
+    SysTable {
+        segment: "ref-tables",
+        table: "sys_ref_table",
+        pk: "sys_ref_table_id",
+        integer_pk: false,
+        order_by: "sys_reference_id",
+    },
     // The report designer's saved layouts. Served by the same generic five
     // verbs as every other dictionary resource: `layout` is opaque JSONB the
     // designer owns, so there is nothing here for a bespoke controller to do
     // that this one does not — and a layout format the API validates is a
     // layout format the API has to be redeployed to change.
-    SysTable { segment: "report-designs", table: "sys_report_designs", pk: "sys_report_design_id", integer_pk: false, order_by: "table_name" },
+    SysTable {
+        segment: "report-designs",
+        table: "sys_report_designs",
+        pk: "sys_report_design_id",
+        integer_pk: false,
+        order_by: "table_name",
+    },
     // Configuration an operator may change at run time. Served here rather than
     // by a controller of its own: it is a `sys_*` table with a name, an id and
     // rows to edit, which is exactly what this route already does — and a
     // bespoke endpoint would need its own paging, filtering and openapi entry
     // to end up in the same place.
-    SysTable { segment: "system",      table: "sys_system",     pk: "sys_system_id",     integer_pk: false, order_by: "category" },
+    SysTable {
+        segment: "system",
+        table: "sys_system",
+        pk: "sys_system_id",
+        integer_pk: false,
+        order_by: "category",
+    },
 ];
 
 /// URL segments that mean the same table as another segment.
@@ -325,7 +433,10 @@ async fn table_reference_values(pool: &PgPool, reference_id: i32) -> AppResult<O
     let display: String = definition.try_get("display_column")?;
     let order: Option<String> = definition.try_get("order_by_clause")?;
     let filter: Option<String> = definition.try_get("where_clause")?;
-    if ![&table, &key, &display].iter().all(|name| is_safe_identifier(name)) {
+    if ![&table, &key, &display]
+        .iter()
+        .all(|name| is_safe_identifier(name))
+    {
         return Err(AppError::BadRequest(format!(
             "Reference {reference_id} names a table or column that is not a plain identifier"
         )));
@@ -338,7 +449,11 @@ async fn table_reference_values(pool: &PgPool, reference_id: i32) -> AppResult<O
     .bind(&table)
     .fetch_one(pool)
     .await?;
-    let description = if has_description { "description::text" } else { "NULL::text" };
+    let description = if has_description {
+        "description::text"
+    } else {
+        "NULL::text"
+    };
 
     let mut sql = format!(
         "SELECT {key}::text AS value, {display}::text AS name, {description} AS description FROM {table}"
@@ -355,7 +470,10 @@ async fn table_reference_values(pool: &PgPool, reference_id: i32) -> AppResult<O
     }
     sql.push_str(&format!(
         " ORDER BY {}, {key} LIMIT 1000",
-        order.as_deref().and_then(safe_order_by).unwrap_or_else(|| display.clone())
+        order
+            .as_deref()
+            .and_then(safe_order_by)
+            .unwrap_or_else(|| display.clone())
     ));
 
     let rows = sqlx::query(AssertSqlSafe(sql)).fetch_all(pool).await?;
@@ -425,9 +543,10 @@ async fn fields_layout(
     params: &HashMap<String, String>,
     ctx: &AppContext,
 ) -> AppResult<Response> {
-    let entity = params.get("entity").map(String::as_str).ok_or_else(|| {
-        AppError::BadRequest("entity query parameter is required".to_string())
-    })?;
+    let entity = params
+        .get("entity")
+        .map(String::as_str)
+        .ok_or_else(|| AppError::BadRequest("entity query parameter is required".to_string()))?;
     let include_hidden = truthy(params.get("includeHidden"));
 
     // The entity segment is resolved through the dictionary, so an unknown one
@@ -743,10 +862,11 @@ pub async fn categories_unassign(
     }
 
     let pool = ctx.db.get_postgres_connection_pool();
-    let result = sqlx::query("UPDATE sys_table SET sys_category_id = NULL WHERE sys_table_id = ANY($1)")
-        .bind(&ids)
-        .execute(pool)
-        .await?;
+    let result =
+        sqlx::query("UPDATE sys_table SET sys_category_id = NULL WHERE sys_table_id = ANY($1)")
+            .bind(&ids)
+            .execute(pool)
+            .await?;
 
     if let Some(cache) = ctx.shared_store.get::<DictionaryCache>() {
         cache.invalidate_all();
@@ -867,7 +987,11 @@ pub async fn create(
 /// Failures propagate. A half-provisioned dictionary — a table whose window
 /// exists but whose tab does not — renders an empty screen, which is harder to
 /// diagnose than a failed request.
-async fn provision_ui_for(pool: &PgPool, spec: &SysTable, row: &sqlx::postgres::PgRow) -> AppResult<()> {
+async fn provision_ui_for(
+    pool: &PgPool,
+    spec: &SysTable,
+    row: &sqlx::postgres::PgRow,
+) -> AppResult<()> {
     match spec.segment {
         "tables" => provision_window_and_tab(pool, row).await,
         "columns" => provision_field(pool, row).await,
@@ -1120,9 +1244,14 @@ pub async fn remove(
         .and_where(pk_predicate(spec, &id)?)
         .build_sqlx(PostgresQueryBuilder);
 
-    let result = sqlx::query_with(AssertSqlSafe(sql), bound).execute(pool).await?;
+    let result = sqlx::query_with(AssertSqlSafe(sql), bound)
+        .execute(pool)
+        .await?;
     if result.rows_affected() == 0 {
-        return Err(AppError::NotFound(format!("{} {id} not found", spec.segment)));
+        return Err(AppError::NotFound(format!(
+            "{} {id} not found",
+            spec.segment
+        )));
     }
 
     invalidate_for(&ctx, spec).await;
@@ -1462,7 +1591,6 @@ async fn verified_assignments(
     Ok(assignments)
 }
 
-
 /// Drop cached dictionary metadata after a write.
 ///
 /// `sys_table` / `sys_column` are what `DictionaryCache` reads, and `sys_field`
@@ -1479,7 +1607,11 @@ async fn invalidate_for(ctx: &AppContext, spec: &SysTable) {
     if spec.table == "sys_system" {
         if let Some(config) = ctx.shared_store.get::<SystemConfig>() {
             config.invalidate().await;
-            crate::log_event!(dictionary_cache_invalidated, table = spec.table, cache = "configuration");
+            crate::log_event!(
+                dictionary_cache_invalidated,
+                table = spec.table,
+                cache = "configuration"
+            );
         }
         return;
     }
@@ -1491,7 +1623,11 @@ async fn invalidate_for(ctx: &AppContext, spec: &SysTable) {
     }
     if let Some(cache) = ctx.shared_store.get::<DictionaryCache>() {
         cache.invalidate_all();
-        crate::log_event!(dictionary_cache_invalidated, table = spec.table, cache = "dictionary");
+        crate::log_event!(
+            dictionary_cache_invalidated,
+            table = spec.table,
+            cache = "dictionary"
+        );
     }
 }
 
@@ -1504,12 +1640,25 @@ mod tests {
         // These are the thirteen @Controller('sys/…') prefixes from the
         // TypeScript stack. Drift here is a contract break.
         let expected = [
-            "tables", "columns", "fields", "tabs", "windows", "references",
-            "ref-lists", "roles", "users", "user-roles", "access", "val-rules",
+            "tables",
+            "columns",
+            "fields",
+            "tabs",
+            "windows",
+            "references",
+            "ref-lists",
+            "roles",
+            "users",
+            "user-roles",
+            "access",
+            "val-rules",
             "categories",
         ];
         for segment in expected {
-            assert!(lookup(segment).is_ok(), "missing dictionary route: {segment}");
+            assert!(
+                lookup(segment).is_ok(),
+                "missing dictionary route: {segment}"
+            );
         }
     }
 
@@ -1540,14 +1689,26 @@ mod tests {
         };
 
         assert_eq!(pagination_from(&params(&[])), (DEFAULT_LIMIT, 1, 0));
-        assert_eq!(pagination_from(&params(&[("limit", "10"), ("page", "3")])), (10, 3, 20));
+        assert_eq!(
+            pagination_from(&params(&[("limit", "10"), ("page", "3")])),
+            (10, 3, 20)
+        );
         // Zero and junk fall back rather than producing an empty page.
-        assert_eq!(pagination_from(&params(&[("limit", "0")])), (DEFAULT_LIMIT, 1, 0));
-        assert_eq!(pagination_from(&params(&[("limit", "nope")])), (DEFAULT_LIMIT, 1, 0));
+        assert_eq!(
+            pagination_from(&params(&[("limit", "0")])),
+            (DEFAULT_LIMIT, 1, 0)
+        );
+        assert_eq!(
+            pagination_from(&params(&[("limit", "nope")])),
+            (DEFAULT_LIMIT, 1, 0)
+        );
         // A caller cannot ask for the whole table.
         assert_eq!(pagination_from(&params(&[("limit", "99999")])).0, MAX_LIMIT);
         // An explicit offset overrides the page-derived one.
-        assert_eq!(pagination_from(&params(&[("limit", "10"), ("page", "3"), ("offset", "5")])).2, 5);
+        assert_eq!(
+            pagination_from(&params(&[("limit", "10"), ("page", "3"), ("offset", "5")])).2,
+            5
+        );
     }
 
     /// `?table_id=<uuid>` has to bind a UUID: Postgres has no `uuid = text`.

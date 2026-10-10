@@ -1,6 +1,6 @@
 //! Authorisation: the dictionary's table grants, plus the model's access rules.
 //!
-//! Generated: 2026-10-09T15:29:11.090Z
+//! Generated: 2026-10-10T06:26:57.158Z
 //! Project: inventory
 //!
 //! **The gap this closes.** `/api/bus/*` required a JWT and nothing else, so
@@ -157,10 +157,7 @@ pub async fn principal(pool: &PgPool, user: &users::Model) -> AppResult<Principa
     Ok(Principal {
         sys_user_id: Some(sys_user_id),
         is_master: rows.iter().any(|(_, master)| *master),
-        roles: rows
-            .iter()
-            .map(|(name, _)| normalize_role(name))
-            .collect(),
+        roles: rows.iter().map(|(name, _)| normalize_role(name)).collect(),
     })
 }
 
@@ -306,11 +303,7 @@ pub async fn require_operation(
 }
 
 /// Refuse the request unless the principal may read the table.
-pub async fn require_read(
-    pool: &PgPool,
-    principal: &Principal,
-    table_name: &str,
-) -> AppResult<()> {
+pub async fn require_read(pool: &PgPool, principal: &Principal, table_name: &str) -> AppResult<()> {
     require_operation(pool, principal, table_name, Operation::Read).await
 }
 
