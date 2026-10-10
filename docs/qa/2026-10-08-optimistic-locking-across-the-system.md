@@ -35,15 +35,18 @@ The following did not:
 | Model graph (Apache AGE) and the modelling tool's diagram | Silent | `concurrency` on every Entity node; the diagram tags a `last-write-wins` entity |
 | Chat — the per-application skill and `updating-records-and-conflicts` | Covered saves only | Covers deletes, names the `last-write-wins` record types, and states that a final record is not deleted |
 | Language, spec, README, the four protocol documents, `CLAUDE.md` | Described saves only | Describe update **and** delete |
+| Generated backend — a status move from a stale read | `require_transition` judged the move against the record as it stood when the server read it, not as the caller read it. Two people who both opened a lead in `new` and moved it at once could both land: the second request's own read saw the first's `working`, and `working → disqualified` is drawn. Or it got **400** "that move does not exist" for a move that was legal from the state the caller saw. The test drove both writers with `If-Match: *`, so it passed or failed by scheduling | `require_transition` takes the caller's version. When the row has moved on since, it does not judge the move; the write's own version condition refuses it as **409**, with the record as it stands. The test sends the version both writers read and requires exactly `[200, 409]` |
 | `.gitignore` | `*.test.ts` kept the chat's own unit, security and end-to-end suites out of every commit — in the root and the copy — while they ran and passed locally | Excepted |
 
 ## Evidence
 
-**Generated CRM backend** (`language/yaml/examples/crm.eml.yaml`, Loco 1.2):
+**Generated CRM backend** (`language/yaml/examples/crm.eml.yaml`, Loco 1.2),
+after merging `main` at `9260fd51` (the accounts API and the domain-library fix):
 
 - `cargo clippy --all-targets -- -D warnings`: clean.
-- `LOCO_ENV=test cargo test --test app`: **339 / 339**. This includes four new
-  delete cases:
+- `LOCO_ENV=test cargo test --test app`: **349 / 349**. The concurrency
+  suite alone was then run **8 times in a row** green: before the race fix it
+  failed on 3 of 4 runs. It includes four new delete cases:
   - a stale delete is refused with the record as it stands, and the reported
     version deletes it;
   - no version is 428;
@@ -77,13 +80,13 @@ reporting copy's runtime passes the same probe under plain `node`.
 | Check | Result |
 |---|---|
 | `type-check`, `type-check:language` | pass |
-| `test:generator` | 908 / 908 (was 900) |
+| `test:generator` | 914 / 914 |
 | `test` | 1,307 passed, 8 skipped (Postgres-only) |
-| `cargo test -p appwithai-gen` | 154 / 154 (root and copy) |
+| `cargo test -p appwithai-gen` | 156 / 156 (root and copy) |
 | `cargo clippy -p appwithai-gen --all-targets -D warnings` | clean (root and copy) |
 | WebAssembly clippy | clean |
 | `cargo fmt --check` | clean |
-| `bun run parity` | 9 models byte-identical across TypeScript, Rust and WebAssembly; 7 CEDM lowerings agree |
+| `bun run parity` | 10 models byte-identical across TypeScript, Rust and WebAssembly; 7 CEDM lowerings agree |
 | `check-yaml-only.sh` | no traces |
 | `build:language-tools --check`, `check:language-bundle` | up to date; the browser reads every model as the CLI does |
 | Site bundles `--check` | up to date |
